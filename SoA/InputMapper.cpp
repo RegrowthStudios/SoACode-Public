@@ -72,12 +72,13 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         throw 33;
     }
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         perror(location.c_str());
-        reader.dispose();
+        context.reader.dispose();
         throw 34;
     }
 
@@ -85,7 +86,7 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         InputKegArray kegArray;
         
-        keg::parse((ui8*)&kegArray, value, reader, keg::getGlobalEnvironment(), &KEG_GET_TYPE(InputKegArray));
+        keg::parse((ui8*)&kegArray, value, context, &KEG_GET_TYPE(InputKegArray));
         
         // TODO(Ben): Somehow do multikey support
         // Right now its only using the first key
@@ -102,9 +103,9 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         m_inputLookup[name] = id;
 
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
 }
 
 void InputMapper::startInput() {

@@ -22,6 +22,9 @@
 #define TMP_RANGE 29200.0
 #define ICOSPHERE_SUBDIVISIONS 5
 
+#define GLOW_FUNCTION_FILE "StarSystems/GlowFunc.lua"
+#define GLOW_FUNCTION_NAME "GlowFunction"
+
 namespace {
     cString OCCLUSION_VERT_SRC = R"(
 uniform mat4 unVP;
@@ -47,6 +50,9 @@ void main() {
 StarComponentRenderer::StarComponentRenderer(const ModPathResolver* textureResolver) :
     m_textureResolver(textureResolver) {
     m_tempColorMap.width = -1;
+
+    m_scripts.load(GLOW_FUNCTION_FILE);
+    m_glowFunc = m_scripts[GLOW_FUNCTION_NAME].as<f64>();
 }
 
 StarComponentRenderer::~StarComponentRenderer() {
@@ -466,14 +472,7 @@ void StarComponentRenderer::loadGlowTexture() {
 }
 
 f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {
-#define DSUN 1392684.0
-#define TSUN 5778.0
-
-    // Georg's magic formula
-    f64 d = glm::length(relCamPos); // Distance
-    f64 D = sCmp.radius * 2.0 * DSUN;
-    f64 L = (D * D) * pow(sCmp.temperature / TSUN, 4.0); // Luminosity
-    return 0.016 * pow(L, 0.25) / pow(d, 0.5); // Size
+    return m_glowFunc(sCmp.temperature, sCmp.radius, relCamPos.x, relCamPos.y, relCamPos.z);
 }
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {

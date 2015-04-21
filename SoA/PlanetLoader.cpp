@@ -26,12 +26,13 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to load " + filePath;
-        reader.dispose();
+        context.reader.dispose();
         return false;
     }
 
@@ -44,9 +45,9 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
         if (type == "biomes") {
             loadBiomes(keg::convert<nString>(value), genData);
         } else if (type == "terrainColor") {
-            parseTerrainColor(reader, value, genData);
+            parseTerrainColor(context, value, genData);
         } else if (type == "liquidColor") {
-            parseLiquidColor(reader, value, genData);
+            parseLiquidColor(context, value, genData);
         } else if (type == "tempLatitudeFalloff") {
             genData->tempLatitudeFalloff = keg::convert<f32>(value);
         } else if (type == "humLatitudeFalloff") {
@@ -56,21 +57,21 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
         } else if (type == "humHeightFalloff") {
             genData->humHeightFalloff = keg::convert<f32>(value);
         } else if (type == "baseHeight") {
-            parseTerrainFuncs(&genData->baseTerrainFuncs, reader, value);
+            parseTerrainFuncs(&genData->baseTerrainFuncs, context, value);
         } else if (type == "temperature") {
-            parseTerrainFuncs(&genData->tempTerrainFuncs, reader, value);
+            parseTerrainFuncs(&genData->tempTerrainFuncs, context, value);
         } else if (type == "humidity") {
-            parseTerrainFuncs(&genData->humTerrainFuncs, reader, value);
+            parseTerrainFuncs(&genData->humTerrainFuncs, context, value);
         } else if (type == "blockLayers") {
-            parseBlockLayers(reader, value, genData);
+            parseBlockLayers(context, value, genData);
         } else if (type == "liquidBlock") {
             genData->blockInfo.liquidBlockName = keg::convert<nString>(value);
         } else if (type == "surfaceBlock") {
             genData->blockInfo.surfaceBlockName = keg::convert<nString>(value);
         }
     });
-    reader.forAllInMap(node, f);
-    reader.dispose();
+    context.reader.forAllInMap(node, f);
+    context.reader.dispose();
     
     // Generate the program
     vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
@@ -121,12 +122,13 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to load " + filePath;
-        reader.dispose();
+        context.reader.dispose();
         return;
     }
 
@@ -158,16 +160,16 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
             // It is a biome
             genData->biomes.emplace_back();
             
-            error = keg::parse((ui8*)&genData->biomes.back(), value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Biome));
+            error = keg::parse((ui8*)&genData->biomes.back(), value, context, &KEG_GLOBAL_TYPE(Biome));
             if (error != keg::Error::NONE) {
                 fprintf(stderr, "Keg error %d in loadBiomes()\n", (int)error);
                 return;
             }
         }
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
 
     // Code for uploading biome texture
 #define BIOME_TEX_CODE \
@@ -220,20 +222,20 @@ void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
     }
 }
 
-void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::YAMLReader& reader, keg::Node node) {
+void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
     }
 
-    keg::Error error = keg::parse((ui8*)terrainFuncs, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(NoiseBase));
+    keg::Error error = keg::parse((ui8*)terrainFuncs, node, context, &KEG_GLOBAL_TYPE(NoiseBase));
     if (error != keg::Error::NONE) {
         fprintf(stderr, "Keg error %d in parseTerrainFuncs()\n", (int)error);
         return;
     }
 }
 
-void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData) {
+void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -242,7 +244,7 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
     LiquidColorKegProperties kegProps;
 
     keg::Error error;
-    error = keg::parse((ui8*)&kegProps, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(LiquidColorKegProperties));
+    error = keg::parse((ui8*)&kegProps, node, context, &KEG_GLOBAL_TYPE(LiquidColorKegProperties));
     if (error != keg::Error::NONE) {
         fprintf(stderr, "Keg error %d in parseLiquidColor()\n", (int)error);
         return;
@@ -301,7 +303,7 @@ void PlanetLoader::parseLiquidColor(keg::YAMLReader& reader, keg::Node node, Pla
     genData->liquidTint = kegProps.tint;
 }
 
-void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData) {
+void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -310,7 +312,7 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
     TerrainColorKegProperties kegProps;
 
     keg::Error error;
-    error = keg::parse((ui8*)&kegProps, node, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(TerrainColorKegProperties));
+    error = keg::parse((ui8*)&kegProps, node, context, &KEG_GLOBAL_TYPE(TerrainColorKegProperties));
     if (error != keg::Error::NONE) {
         fprintf(stderr, "Keg error %d in parseTerrainColor()\n", (int)error);
         return;
@@ -368,7 +370,7 @@ void PlanetLoader::parseTerrainColor(keg::YAMLReader& reader, keg::Node node, Pl
     genData->terrainTint = kegProps.tint;
 }
 
-void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, PlanetGenData* genData) {
+void PlanetLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node in parseBlockLayers. Should be MAP";
         return;
@@ -381,9 +383,9 @@ void PlanetLoader::parseBlockLayers(keg::YAMLReader& reader, keg::Node node, Pla
 
         BlockLayer& l = genData->blockLayers.back();
         // Load data
-        keg::parse((ui8*)&l, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockLayer));
+        keg::parse((ui8*)&l, value, context, &KEG_GLOBAL_TYPE(BlockLayer));
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
 
     // Set starts for binary search application
