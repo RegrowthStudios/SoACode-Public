@@ -54,7 +54,7 @@ void App::addScreens() {
     scrTests.push_back(new TestGasGiantScreen);
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_G, scrTests.back(), "TestGasGiantScreen");
-    scrTests.push_back(new TestStarScreen(this, scrLoad->getSoAState()));
+    scrTests.push_back(new TestStarScreen(this));
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
 

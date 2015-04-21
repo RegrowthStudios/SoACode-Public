@@ -162,27 +162,27 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
   
     // Compute desired size based on distance and ratio of mass to Sol mass
     f64 s = calculateGlowSize(sCmp, relCamPos) * sCmp.visibility;
+    // Don't render if its too small
     if (s <= 0.0) return;
 
     f32v2 dims(s, s * aspectRatio);
-    // Don't render if its too small
    
     m_glowProgram->use();
 
-    // Calculate color
-    f32v3 tColor = calculateStarColor(sCmp);
+    f32 scale = (f32)((sCmp.temperature - MIN_TMP) / TMP_RANGE);
 
     // Upload uniforms
     f32v3 center(-relCamPos);
     glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
-    glUniform3fv(m_glowProgram->getUniform("unColor"), 1, &tColor[0]);
+    glUniform1f(m_glowProgram->getUniform("unColorMapU"), scale);
     glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_glowTexture);
-    glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
     // For sparkles
     f32v3 vs = viewDirW - viewRightW;
-    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z) * 0.1f);
+    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z));
 
     // Time
     static f32 dt = 1.0f;
@@ -263,6 +263,10 @@ void StarComponentRenderer::dispose() {
         m_tempColorMap.data = nullptr;
     }
     if (m_glowTexture) vg::GpuMemory::freeTexture(m_glowTexture);
+    if (m_glowTexture) {
+        glDeleteTextures(1, &m_glowTexture);
+        m_glowTexture = 0;
+    }
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -326,6 +330,10 @@ void StarComponentRenderer::buildShaders() {
 
     m_glowProgram = ShaderLoader::createProgramFromFile("Shaders/Star/glow.vert",
                                                           "Shaders/Star/glow.frag");
+    m_glowProgram->use();
+    glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
+    glUniform1i(m_glowProgram->getUniform("unColorMap"), 1);
+    m_glowProgram->unuse();
 }
 
 void StarComponentRenderer::buildMesh() {
@@ -395,12 +403,60 @@ void StarComponentRenderer::buildMesh() {
 }
 
 void StarComponentRenderer::loadTempColorMap() {
+    // Load all the bitmap data
     vio::Path path;
-    m_textureResolver->resolvePath("Sky/Star/star_spectrum.png", path);
+    m_textureResolver->resolvePath("Sky/Star/star_spectrum_1.png", path);
     m_tempColorMap = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum.png\n");
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_1.png\n");
     }
+    m_textureResolver->resolvePath("Sky/Star/star_spectrum_2.png", path);
+    vg::BitmapResource res2 = vg::ImageIO().load(path);
+    if (!res2.data) {
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_2.png\n");
+    }
+    m_textureResolver->resolvePath("Sky/Star/star_spectrum_3.png", path);
+    vg::BitmapResource res3 = vg::ImageIO().load(path);
+    if (!res3.data) {
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_3.png\n");
+    }
+
+    // Error check dimensions
+    if ((m_tempColorMap.width != res2.width) || (res2.width != res3.width) ||
+        (m_tempColorMap.height != res2.height) || (res2.height != res3.height)) {
+        pError("star_spectrum images should all be the same dimensions!");
+    }
+
+    // Create the texture array
+    if (m_glowColorMap == 0) glGenTextures(1, &m_glowColorMap);
+    glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
+
+    // Set up storage
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_tempColorMap.width, 4, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+     
+    // Upload the data to VRAM
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_tempColorMap.width, m_tempColorMap.height, GL_RGBA, GL_UNSIGNED_BYTE, m_tempColorMap.data);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 1, res2.width, res2.height, GL_RGBA, GL_UNSIGNED_BYTE, res2.data);
+    // Copy res3 twice so we get PO2 texture
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 2, res3.width, res3.height, GL_RGBA, GL_UNSIGNED_BYTE, res3.data);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 3, res3.width, res3.height, GL_RGBA, GL_UNSIGNED_BYTE, res3.data);
+  
+    // Set up tex parameters
+    vg::SamplerState::LINEAR_CLAMP.set(GL_TEXTURE_2D);
+    // No mipmapping
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+
+    // Unbind
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Free data. Only free the second two resources, since we want to hold onto the color map
+    vg::ImageIO().free(res2);
+    vg::ImageIO().free(res3);
+
+    // Check if we had any errors
+    checkGlError("StarComponentRenderer::loadTempColorMap()");
 }
 
 void StarComponentRenderer::loadGlowTexture() {
@@ -408,7 +464,7 @@ void StarComponentRenderer::loadGlowTexture() {
     m_textureResolver->resolvePath("Sky/Star/star_glow.png", path);
     vg::BitmapResource rs = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load StarSystems/star_glow.png\n");
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow.png\n");
     } else {
         m_glowTexture = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
         vg::ImageIO().free(rs);
@@ -416,18 +472,8 @@ void StarComponentRenderer::loadGlowTexture() {
 }
 
 f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {
-    f64 apparentBrightness = sCmp.temperature;
-    // Ratio of distance to star radius
-    f64 d = (glm::length(relCamPos)) * 0.0000000001;
-
-    // Compute desired size based on distance and ratio of mass to Sol mass
-    f64 s = (0.16 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03);
-
-    s =  m_glowFunc(sCmp.temperature, sCmp.mass, relCamPos);
-
-    return s;
+    return m_glowFunc(sCmp.temperature, sCmp.mass, relCamPos);
 }
-
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     // Calculate temperature color

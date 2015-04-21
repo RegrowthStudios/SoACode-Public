@@ -21,6 +21,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+TestStarScreen::TestStarScreen(const App* app) :
+IAppScreen<App>(app) {
+    m_modPathResolver.init("Textures/TexturePacks/" + graphicsOptions.defaultTexturePack + "/",
+                           "Textures/TexturePacks/" + graphicsOptions.currTexturePack + "/");
+}
+
+
 i32 TestStarScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -37,7 +44,7 @@ void TestStarScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
-    m_starRenderer = new StarComponentRenderer(&m_soaState->texturePathResolver);
+    m_starRenderer = new StarComponentRenderer(&m_modPathResolver);
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
             m_starRenderer->disposeShaders();
@@ -76,7 +83,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-        m_eyeDist += -e.dy * 0.025 * glm::length(m_eyeDist);
+        m_eyeDist += -e.dy * 0.05 * glm::length(m_eyeDist);
     });
     glEnable(GL_DEPTH_TEST);
 
@@ -87,8 +94,8 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Set up components
     m_sCmp.radius = STAR_RADIUS;
-    m_sCmp.temperature = 5813.0;
-    m_sCmp.mass = 2.1872e30;
+    m_sCmp.temperature = 3525.0;
+    m_sCmp.mass = 6.56172e29;
 
     m_spriteBatch.init();
     m_spriteFont.init("Fonts/orbitron_black-webfont.ttf", 32);
@@ -141,6 +148,9 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     // Render the star
     f32v3 fEyePos(m_eyePos);
+
+    // TODO(Ben): render star first and figure out why depth testing is failing
+    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
     m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
 
     if (m_isHDR) {
@@ -156,8 +166,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
             exit(0);
         }
     });
-
-    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
+    
     glBlendFunc(GL_ONE, GL_ONE);
     if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
                                           m_camera.getAspectRatio(), m_camera.getDirection(),
@@ -198,10 +207,5 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
-}
-
-TestStarScreen::TestStarScreen(const App* app, const SoaState* state) :
-    IAppScreen<App>(app) {
-    m_soaState = state;
 }
 
