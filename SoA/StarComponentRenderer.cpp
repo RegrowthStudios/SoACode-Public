@@ -472,7 +472,7 @@ void StarComponentRenderer::loadGlowTexture() {
 }
 
 f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {
-    return m_glowFunc(sCmp.temperature, sCmp.mass, relCamPos);
+    return m_glowFunc(sCmp.temperature, sCmp.radius, relCamPos.x, relCamPos.y, relCamPos.z);
 }
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
