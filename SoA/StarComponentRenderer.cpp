@@ -164,7 +164,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     m_glowProgram->use();
 
     f32 scale = (f32)((sCmp.temperature - MIN_TMP) / TMP_RANGE);
-    std::cout << scale << std::endl;
+
     // Upload uniforms
     f32v3 center(-relCamPos);
     glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
@@ -466,14 +466,14 @@ void StarComponentRenderer::loadGlowTexture() {
 }
 
 f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {
-    f64 apparentBrightness = sCmp.temperature;
-    // Ratio of distance to star radius
-    f64 d = (glm::length(relCamPos)) * 0.0000000001;
+#define DSUN 1392684.0
+#define TSUN 5778.0
 
-    // Compute desired size based on distance and ratio of mass to Sol mass
-    f64 s = (0.16 * pow(d, -0.5) * sCmp.mass / M_SOL - 0.03);
-
-    return s;
+    // Georg's magic formula
+    f64 d = glm::length(relCamPos); // Distance
+    f64 D = sCmp.radius * 2.0 * DSUN;
+    f64 L = (D * D) * pow(sCmp.temperature / TSUN, 4.0); // Luminosity
+    return 0.016 * pow(L, 0.25) / pow(d, 0.5); // Size
 }
 
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
