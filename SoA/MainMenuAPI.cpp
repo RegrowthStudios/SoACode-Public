@@ -144,6 +144,24 @@ void MainMenuAPI::initVideoOptionsMenu() {
         args.Push(JSValue(true)); // updateInRealTime
         obj.Invoke(WSLit("generateToggle"), args);
     }
+
+    { // Add test slider
+        JSArray args;
+        JSArray vals;
+        args.Push(WSLit("Test")); // name
+        vals.Push(WSLit("A"));
+        vals.Push(WSLit("B"));
+        vals.Push(WSLit("C"));
+        vals.Push(WSLit("Z"));
+        args.Push(vals); // vals
+        args.Push(JSValue(1)); // initialVal
+        args.Push(WSLit("")); // category
+        args.Push(WSLit("roflcopter")); // description
+        args.Push(JSValue(69)); // ID
+        args.Push(WSLit("App.optionUpdate")); // updateCallback
+        args.Push(JSValue(true)); // updateInRealTime
+        obj.Invoke(WSLit("generateDiscreteSlider"), args);
+    }
 }
 
 void MainMenuAPI::initControlsMenu() {

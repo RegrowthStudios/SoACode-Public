@@ -176,7 +176,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
     // For sparkles
     f32v3 vs = viewDirW - viewRightW;
-    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z) * 0.1f);
+    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z));
 
     // Time
     static f32 dt = 1.0f;
