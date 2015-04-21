@@ -154,13 +154,31 @@ void MainMenuAPI::initVideoOptionsMenu() {
         vals.Push(WSLit("C"));
         vals.Push(WSLit("Z"));
         args.Push(vals); // vals
-        args.Push(JSValue(1)); // initialVal
+        args.Push(WSLit("A")); // initialVal
         args.Push(WSLit("")); // category
         args.Push(WSLit("roflcopter")); // description
         args.Push(JSValue(69)); // ID
         args.Push(WSLit("App.optionUpdate")); // updateCallback
         args.Push(JSValue(true)); // updateInRealTime
         obj.Invoke(WSLit("generateDiscreteSlider"), args);
+    }
+
+    { // Add test combo box
+        JSArray args;
+        JSArray vals;
+        args.Push(WSLit("Test Combo")); // name
+        vals.Push(WSLit("A"));
+        vals.Push(WSLit("B"));
+        vals.Push(WSLit("C"));
+        vals.Push(WSLit("Z"));
+        args.Push(vals); // vals
+        args.Push(WSLit("A")); // initialVal
+        args.Push(WSLit("")); // category
+        args.Push(WSLit("roflcopter")); // description
+        args.Push(JSValue(70)); // ID
+        args.Push(WSLit("App.optionUpdate")); // updateCallback
+        args.Push(JSValue(true)); // updateInRealTime
+        obj.Invoke(WSLit("generateComboBox"), args);
     }
 }
 
