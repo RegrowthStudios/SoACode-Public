@@ -174,12 +174,13 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
         pError("Couldn't find " + pr.dirPath +  "/SystemProperties.yml");
     }
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         fprintf(stderr, "Failed to load %s\n", (pr.dirPath + "/SystemProperties.yml").c_str());
-        reader.dispose();
+        context.reader.dispose();
         return false;
     }
 
@@ -190,7 +191,7 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
             pr.spaceSystem->systemDescription = name;
         } else {
             SystemBodyKegProperties properties;
-            keg::Error err = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
+            keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
                 goodParse = false;
@@ -212,9 +213,9 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
             pr.systemBodies[name] = body;
         }
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
     return goodParse;
 }
 
@@ -232,12 +233,13 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
     nString data;
     pr.ioManager->readFileToString(filePath.c_str(), data);
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to load " + filePath;
-        reader.dispose();
+        context.reader.dispose();
         return false;
     }
 
@@ -249,7 +251,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         // Parse based on type
         if (type == "planet") {
             PlanetKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
 
             // Use planet loader to load terrain and biomes
@@ -268,13 +270,13 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             body->type = BodyType::PLANET;
         } else if (type == "star") {
             StarKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(StarKegProperties));
             KEG_CHECK;
             SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
             body->type = BodyType::STAR;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             KEG_CHECK;
             createGasGiant(pr, sysProps, &properties, body);
             body->type = BodyType::GAS_GIANT;
@@ -285,9 +287,9 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         //Only parse the first
         foundOne = true;
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
 
     return goodParse;
 }

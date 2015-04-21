@@ -243,15 +243,16 @@ void GameplayRenderPipeline::loadNightVision() {
     const cString nvData = iom.readFileToString("Data/NightVision.yml");
     if (nvData) {
         Array<NightVisionRenderParams> arr;
-        keg::YAMLReader reader;
-        reader.init(nvData);
-        keg::Node node = reader.getFirst();
+        keg::ReadContext context;
+        context.env = keg::getGlobalEnvironment();
+        context.reader.init(nvData);
+        keg::Node node = context.reader.getFirst();
         keg::Value v = keg::Value::array(0, keg::Value::custom(0, "NightVisionRenderParams", false));
-        keg::evalData((ui8*)&arr, &v, node, reader, keg::getGlobalEnvironment());
+        keg::evalData((ui8*)&arr, &v, node, context);
         for (i32 i = 0; i < arr.size(); i++) {
             m_nvParams.push_back(arr[i]);
         }
-        reader.dispose();
+        context.reader.dispose();
         delete[] nvData;
     }
     if (m_nvParams.size() < 1) {
