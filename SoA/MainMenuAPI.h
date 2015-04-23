@@ -38,6 +38,32 @@ private:
     Awesomium::JSValue initMainMenu();
     Awesomium::JSValue initVideoOptionsMenu();
     Awesomium::JSValue initControlsMenu();
+
+    Awesomium::JSArray generateClickable(const cString name, const JSArray& linkData,
+                                         const cString category, const cString description,
+                                         int id, const cString updateCallback);
+    Awesomium::JSArray generateText(const cString name, const cString text,
+                                    const cString category, const cString description);
+    Awesomium::JSArray generateToggle(const cString name, bool isToggled,
+                                      const cString category, const cString description,
+                                      int id, const cString updateCallback,
+                                      bool updateInRealTime);
+    Awesomium::JSArray generateSlider(const cString name, Awesomium::JSValue min,
+                                      Awesomium::JSValue max, Awesomium::JSValue initialVal,
+                                      Awesomium::JSValue intervalRes,
+                                      const cString category, const cString description,
+                                      int id, const cString updateCallback,
+                                      bool updateInRealTime);
+    Awesomium::JSArray generateDiscrete(const cString name, Awesomium::JSArray vals,
+                                        Awesomium::JSValue initialVal,
+                                        const cString category, const cString description,
+                                        int id, const cString updateCallback,
+                                        bool updateInRealTime);
+    Awesomium::JSArray generateCombo(const cString name, Awesomium::JSArray vals,
+                                     Awesomium::JSValue initialVal,
+                                     const cString category, const cString description,
+                                     int id, const cString updateCallback,
+                                     bool updateInRealTime);
     /// Gets the camera position
     /// @param args: Empty arguments.
     /// @return float[3] position

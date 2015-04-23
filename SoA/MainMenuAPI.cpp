@@ -209,6 +209,98 @@ Awesomium::JSValue MainMenuAPI::initControlsMenu() {
     return JSValue();
 }
 
+Awesomium::JSArray generateClickable(const cString name, const JSArray& linkData,
+                                     const cString category, const cString description,
+                                     int id, const cString updateCallback) {
+    JSArray a;
+    a.Push(WSLit(name));
+    a.Push(linkData);
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    a.Push(JSValue(id));
+    a.Push(WSLit(updateCallback));
+    return a;
+}
+
+Awesomium::JSArray generateText(const cString name, const cString text,
+                                const cString category, const cString description) {
+    JSArray a;
+    a.Push(WSLit(name));
+    a.Push(WSLit(text));
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    return a;
+}
+
+Awesomium::JSArray generateToggle(const cString name, bool isToggled,
+                                  const cString category, const cString description,
+                                  int id, const cString updateCallback,
+                                  bool updateInRealTime) {
+    JSArray a;
+    a.Push(WSLit(name));
+    isToggled ? a.Push(WSLit("checked")) : a.Push(WSLit(""));
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    a.Push(JSValue(id));
+    a.Push(WSLit(updateCallback));
+    a.Push(JSValue(updateInRealTime));
+    return a;
+}
+
+Awesomium::JSArray generateSlider(const cString name, Awesomium::JSValue min,
+                                  Awesomium::JSValue max, Awesomium::JSValue initialVal,
+                                  Awesomium::JSValue intervalRes,
+                                  const cString category, const cString description,
+                                  int id, const cString updateCallback,
+                                  bool updateInRealTime) {
+    JSArray a;
+    a.Push(WSLit(name));
+    a.Push(min);
+    a.Push(max);
+    a.Push(initialVal);
+    a.Push(intervalRes);
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    a.Push(JSValue(id));
+    a.Push(WSLit(updateCallback));
+    a.Push(JSValue(updateInRealTime));
+    return a;
+}
+
+Awesomium::JSArray generateDiscrete(const cString name, Awesomium::JSArray vals,
+                                    Awesomium::JSValue initialVal,
+                                    const cString category, const cString description,
+                                    int id, const cString updateCallback,
+                                    bool updateInRealTime) {
+    JSArray a;
+    a.Push(WSLit(name));
+    a.Push(vals);
+    a.Push(initialVal);
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    a.Push(JSValue(id));
+    a.Push(WSLit(updateCallback));
+    a.Push(JSValue(updateInRealTime));
+    return a;
+}
+
+Awesomium::JSArray generateCombo(const cString name, Awesomium::JSArray vals,
+                                 Awesomium::JSValue initialVal,
+                                 const cString category, const cString description,
+                                 int id, const cString updateCallback,
+                                 bool updateInRealTime) {
+    JSArray a;
+    a.Push(WSLit(name));
+    a.Push(vals);
+    a.Push(initialVal);
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    a.Push(JSValue(id));
+    a.Push(WSLit(updateCallback));
+    a.Push(JSValue(updateInRealTime));
+    return a;
+}
+
 JSValue MainMenuAPI::getCameraPosition(const JSArray& args) {
     JSArray rv;
     const f64v3& pos = _ownerScreen->getCamera().getPosition();
