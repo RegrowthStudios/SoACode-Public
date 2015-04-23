@@ -33,6 +33,7 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
     // Add functions here
     ADDFUNC(getCameraPosition);
     ADDFUNC(getSaveFiles);
+    ADDFUNC(getControls);
     
     ADDFUNC(setCameraFocalLength);
     ADDFUNC(setCameraPosition);
@@ -45,17 +46,15 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
 
     // Add controls
     addExistingObject("ListItemGenerator", ITEM_GEN_ID);
-    initVideoOptionsMenu();
-    initMainMenu();  
-    initControlsMenu();
 }
 
 void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
 }
 
-void MainMenuAPI::initMainMenu() {
+Awesomium::JSValue MainMenuAPI::initMainMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
+    JSArray controls;
 
     { // Add options sublist
         JSArray subItems;
@@ -84,26 +83,30 @@ void MainMenuAPI::initMainMenu() {
         subItems.Push(controlsArray);
         
         JSArray args;
+        args.Push(WSLit("subList"));
         args.Push(WSLit("Options"));
         args.Push(subItems);
         args.Push(WSLit(""));
         args.Push(WSLit("Customize the game."));
-        obj.Invoke(WSLit("generateSubList"), args);
+        controls.Push(args);
     }
 
     { // Add exit button
         JSArray args;
+        args.Push(WSLit("click"));
         args.Push(WSLit("Exit"));
         args.Push(WSLit("#"));
         args.Push(WSLit(""));
         args.Push(WSLit("Just ten more minutes..."));
         args.Push(JSValue(4));
         args.Push(WSLit("App.quit"));
-        obj.Invoke(WSLit("generateClickable"), args);
+        controls.Push(args);
     }
+
+    return JSValue(controls);
 }
 
-void MainMenuAPI::initVideoOptionsMenu() {
+Awesomium::JSValue MainMenuAPI::initVideoOptionsMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
 
     { // Add quality slider
@@ -180,9 +183,10 @@ void MainMenuAPI::initVideoOptionsMenu() {
         args.Push(JSValue(true)); // updateInRealTime
         obj.Invoke(WSLit("generateComboBox"), args);
     }
+    return JSValue();
 }
 
-void MainMenuAPI::initControlsMenu() {
+Awesomium::JSValue MainMenuAPI::initControlsMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
 
     InputMapper* inputMapper = _ownerScreen->m_inputMapper;
@@ -201,6 +205,8 @@ void MainMenuAPI::initControlsMenu() {
         args.Push(WSLit(""));
         obj.Invoke(WSLit("generateClickable"), args);
     }
+
+    return JSValue();
 }
 
 JSValue MainMenuAPI::getCameraPosition(const JSArray& args) {
@@ -244,6 +250,15 @@ JSValue MainMenuAPI::getSaveFiles(const JSArray& args) {
         }
     }
     return JSValue(entries);
+}
+
+Awesomium::JSValue MainMenuAPI::getControls(const Awesomium::JSArray& args) {
+    switch (m_currentPage) {
+        case 0:
+            return initMainMenu();
+            break;
+    }
+    return JSValue();
 }
 
 void MainMenuAPI::setCameraFocalLength(const JSArray& args) {

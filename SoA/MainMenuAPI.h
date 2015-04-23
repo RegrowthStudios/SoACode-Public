@@ -35,9 +35,9 @@ public:
     void setOwnerScreen(vui::IGameScreen* ownerScreen) override;
 
 private:
-    void initMainMenu();
-    void initVideoOptionsMenu();
-    void initControlsMenu();
+    Awesomium::JSValue initMainMenu();
+    Awesomium::JSValue initVideoOptionsMenu();
+    Awesomium::JSValue initControlsMenu();
     /// Gets the camera position
     /// @param args: Empty arguments.
     /// @return float[3] position
@@ -48,6 +48,8 @@ private:
     /// @return array of pairs specified as:
     /// pair<string filename, string timestamp>
     Awesomium::JSValue getSaveFiles(const Awesomium::JSArray& args);
+
+    Awesomium::JSValue getControls(const Awesomium::JSArray& args);
 
     /// Sets the camera focal length
     /// @param args: Argument should be float.
@@ -81,6 +83,8 @@ private:
 
     /// Exits the game
     void quit(const Awesomium::JSArray& args);
+
+    int m_currentPage = 0;
 
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };
