@@ -84,6 +84,10 @@ private:
 
     Awesomium::JSValue getControls(const Awesomium::JSArray& args);
 
+    Awesomium::JSValue getPageProperties(const Awesomium::JSArray& args);
+
+    void setPage(const Awesomium::JSArray& args);
+
     /// Sets the camera focal length
     /// @param args: Argument should be float.
     void setCameraFocalLength(const Awesomium::JSArray& args);
@@ -117,7 +121,14 @@ private:
     /// Exits the game
     void quit(const Awesomium::JSArray& args);
 
-    int m_currentPage = 0;
+
+    enum class MENU_PAGE {
+        NONE,
+        MAIN_MENU,
+        VIDEO_OPTIONS_MENU,
+        CONTROLS_MENU
+    };
+    MENU_PAGE m_currentPage = MENU_PAGE::MAIN_MENU;
 
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };

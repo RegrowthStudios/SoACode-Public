@@ -37,6 +37,8 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
     ADDFUNC(getCameraPosition);
     ADDFUNC(getSaveFiles);
     ADDFUNC(getControls);
+    ADDFUNC(setPage);
+    ADDFUNC(getPageProperties);
     
     ADDFUNC(setCameraFocalLength);
     ADDFUNC(setCameraPosition);
@@ -305,11 +307,36 @@ JSValue MainMenuAPI::getSaveFiles(const JSArray& args) {
 
 Awesomium::JSValue MainMenuAPI::getControls(const Awesomium::JSArray& args) {
     switch (m_currentPage) {
-        case 0:
+        case MENU_PAGE::MAIN_MENU:
             return initMainMenu();
+            break;
+        case MENU_PAGE::VIDEO_OPTIONS_MENU:
+            return initVideoOptionsMenu();
+            break;
+        case MENU_PAGE::CONTROLS_MENU:
+            return initMainMenu();
+            break;
+        default:
             break;
     }
     return JSValue();
+}
+
+JSValue getPageProperties(const JSArray& args) {
+    return JSValue();
+}
+
+void MainMenuAPI::setPage(const JSArray& args) {
+    nString page = ToString(args[0].ToString());
+    if (page == "MainMenu") {
+        m_currentPage = MENU_PAGE::MAIN_MENU;
+    } else if (page == "VideoOptionsMenu") {
+        m_currentPage = MENU_PAGE::VIDEO_OPTIONS_MENU;
+    } else if (page == "ControlsMenu") {
+        m_currentPage = MENU_PAGE::CONTROLS_MENU;
+    } else {
+        m_currentPage = MENU_PAGE::NONE;
+    }
 }
 
 void MainMenuAPI::setCameraFocalLength(const JSArray& args) {
