@@ -13,9 +13,12 @@ using namespace Awesomium;
 
 const ui32 ITEM_GEN_ID = 0;
 
+const int EXIT_ID = 0;
 const int BORDERLESS_ID = 1;
 const int FULLSCREEN_ID = 2;
 const int PLANET_QUALITY_ID = 3;
+const int GRAPHICS_OPTIONS_ID = 4;
+const int CONTROLS_ID = 5;
 
 void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>* methodHandler,
                        vui::IGameScreen* ownerScreen) {
@@ -52,61 +55,37 @@ void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
 }
 
-Awesomium::JSValue MainMenuAPI::initMainMenu() {
+JSValue MainMenuAPI::initMainMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
     JSArray controls;
 
     { // Add options sublist
         JSArray subItems;
-        JSArray graphicsOptionsArray, controlsArray;
 
         // Graphics options
-        graphicsOptionsArray.Push(WSLit("click"));
-        graphicsOptionsArray.Push(WSLit("Video Options"));
-        JSArray linkData;
-        linkData.Push(WSLit("video_options.html"));
-        linkData.Push(WSLit(""));
-        graphicsOptionsArray.Push(WSLit("video_options.html"));
-        graphicsOptionsArray.Push(WSLit(""));
-        graphicsOptionsArray.Push(WSLit("Make the game pretty or ugly."));
-        graphicsOptionsArray.Push(JSValue(0));
-        graphicsOptionsArray.Push(WSLit(""));
-        subItems.Push(graphicsOptionsArray);
-        // Controls
-        controlsArray.Push(WSLit("click"));
-        controlsArray.Push(WSLit("Controls"));
-        controlsArray.Push(WSLit("#"));
-        controlsArray.Push(WSLit(""));
-        controlsArray.Push(WSLit("See which buttons do what."));
-        controlsArray.Push(JSValue(0));
-        controlsArray.Push(WSLit(""));
-        subItems.Push(controlsArray);
+        JSArray linkDataG;
+        linkDataG.Push(WSLit("video_options.html"));
+        linkDataG.Push(WSLit(""));
+        subItems.Push(generateClickable("Video Options", linkDataG, "", "Make the game pretty or ugly.",
+            GRAPHICS_OPTIONS_ID, ""));
         
-        JSArray args;
-        args.Push(WSLit("subList"));
-        args.Push(WSLit("Options"));
-        args.Push(subItems);
-        args.Push(WSLit(""));
-        args.Push(WSLit("Customize the game."));
-        controls.Push(args);
+        // Controls
+        JSArray linkDataC;
+        linkDataC.Push(WSLit("video_options.html"));
+        linkDataC.Push(WSLit(""));
+        subItems.Push(generateClickable("Controls", linkDataC, "", "See which buttons do what.",
+            CONTROLS_ID, ""));
+        
+        controls.Push(generateSubList("Options", subItems, "", "Customize the game."));
     }
 
-    { // Add exit button
-        JSArray args;
-        args.Push(WSLit("click"));
-        args.Push(WSLit("Exit"));
-        args.Push(WSLit("#"));
-        args.Push(WSLit(""));
-        args.Push(WSLit("Just ten more minutes..."));
-        args.Push(JSValue(4));
-        args.Push(WSLit("App.quit"));
-        controls.Push(args);
-    }
+    // Add exit button
+    controls.Push(generateClickable("Exit", JSArray(), "", "Just ten more minutes...", EXIT_ID, "App.quit"));
 
     return JSValue(controls);
 }
 
-Awesomium::JSValue MainMenuAPI::initVideoOptionsMenu() {
+JSValue MainMenuAPI::initVideoOptionsMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
 
     { // Add quality slider
@@ -186,7 +165,7 @@ Awesomium::JSValue MainMenuAPI::initVideoOptionsMenu() {
     return JSValue();
 }
 
-Awesomium::JSValue MainMenuAPI::initControlsMenu() {
+JSValue MainMenuAPI::initControlsMenu() {
     JSObject obj = getObject(ITEM_GEN_ID);
 
     InputMapper* inputMapper = _ownerScreen->m_inputMapper;
@@ -209,10 +188,11 @@ Awesomium::JSValue MainMenuAPI::initControlsMenu() {
     return JSValue();
 }
 
-Awesomium::JSArray generateClickable(const cString name, const JSArray& linkData,
+JSArray MainMenuAPI::generateClickable(const cString name, const JSArray& linkData,
                                      const cString category, const cString description,
                                      int id, const cString updateCallback) {
     JSArray a;
+    a.Push(WSLit("click"));
     a.Push(WSLit(name));
     a.Push(linkData);
     a.Push(WSLit(category));
@@ -222,9 +202,10 @@ Awesomium::JSArray generateClickable(const cString name, const JSArray& linkData
     return a;
 }
 
-Awesomium::JSArray generateText(const cString name, const cString text,
+JSArray MainMenuAPI::generateText(const cString name, const cString text,
                                 const cString category, const cString description) {
     JSArray a;
+    a.Push(WSLit("text"));
     a.Push(WSLit(name));
     a.Push(WSLit(text));
     a.Push(WSLit(category));
@@ -232,11 +213,12 @@ Awesomium::JSArray generateText(const cString name, const cString text,
     return a;
 }
 
-Awesomium::JSArray generateToggle(const cString name, bool isToggled,
+JSArray MainMenuAPI::generateToggle(const cString name, bool isToggled,
                                   const cString category, const cString description,
                                   int id, const cString updateCallback,
                                   bool updateInRealTime) {
     JSArray a;
+    a.Push(WSLit("toggle"));
     a.Push(WSLit(name));
     isToggled ? a.Push(WSLit("checked")) : a.Push(WSLit(""));
     a.Push(WSLit(category));
@@ -247,13 +229,14 @@ Awesomium::JSArray generateToggle(const cString name, bool isToggled,
     return a;
 }
 
-Awesomium::JSArray generateSlider(const cString name, Awesomium::JSValue min,
-                                  Awesomium::JSValue max, Awesomium::JSValue initialVal,
-                                  Awesomium::JSValue intervalRes,
+JSArray MainMenuAPI::generateSlider(const cString name, JSValue min,
+                                  JSValue max, JSValue initialVal,
+                                  JSValue intervalRes,
                                   const cString category, const cString description,
                                   int id, const cString updateCallback,
                                   bool updateInRealTime) {
     JSArray a;
+    a.Push(WSLit("slider"));
     a.Push(WSLit(name));
     a.Push(min);
     a.Push(max);
@@ -267,12 +250,13 @@ Awesomium::JSArray generateSlider(const cString name, Awesomium::JSValue min,
     return a;
 }
 
-Awesomium::JSArray generateDiscrete(const cString name, Awesomium::JSArray vals,
-                                    Awesomium::JSValue initialVal,
+JSArray MainMenuAPI::generateDiscrete(const cString name, JSArray vals,
+                                    JSValue initialVal,
                                     const cString category, const cString description,
                                     int id, const cString updateCallback,
                                     bool updateInRealTime) {
     JSArray a;
+    a.Push(WSLit("discrete"));
     a.Push(WSLit(name));
     a.Push(vals);
     a.Push(initialVal);
@@ -284,12 +268,40 @@ Awesomium::JSArray generateDiscrete(const cString name, Awesomium::JSArray vals,
     return a;
 }
 
-Awesomium::JSArray generateCombo(const cString name, Awesomium::JSArray vals,
-                                 Awesomium::JSValue initialVal,
+JSArray MainMenuAPI::generateTextArea(const cString name,
+                                    const cString defaultVal,
+                                    int maxLength,
+                                    const cString category, const cString description,
+                                    int id) {
+    JSArray a;
+    a.Push(WSLit("textArea"));
+    a.Push(WSLit(name));
+    a.Push(WSLit(defaultVal));
+    a.Push(JSValue(maxLength));
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    a.Push(JSValue(id));
+    return a;
+}
+
+JSArray MainMenuAPI::generateSubList(const cString name, JSArray subItems,
+                                   const cString category, const cString description) {
+    JSArray a;
+    a.Push(WSLit("subList"));
+    a.Push(WSLit(name));
+    a.Push(subItems);
+    a.Push(WSLit(category));
+    a.Push(WSLit(description));
+    return a;
+}
+
+JSArray MainMenuAPI::generateCombo(const cString name, JSArray vals,
+                                 JSValue initialVal,
                                  const cString category, const cString description,
                                  int id, const cString updateCallback,
                                  bool updateInRealTime) {
     JSArray a;
+    a.Push(WSLit("combo"));
     a.Push(WSLit(name));
     a.Push(vals);
     a.Push(initialVal);

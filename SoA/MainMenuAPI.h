@@ -39,7 +39,7 @@ private:
     Awesomium::JSValue initVideoOptionsMenu();
     Awesomium::JSValue initControlsMenu();
 
-    Awesomium::JSArray generateClickable(const cString name, const JSArray& linkData,
+    Awesomium::JSArray generateClickable(const cString name, const Awesomium::JSArray& linkData,
                                          const cString category, const cString description,
                                          int id, const cString updateCallback);
     Awesomium::JSArray generateText(const cString name, const cString text,
@@ -59,6 +59,13 @@ private:
                                         const cString category, const cString description,
                                         int id, const cString updateCallback,
                                         bool updateInRealTime);
+    Awesomium::JSArray generateTextArea(const cString name,
+                                        const cString defaultVal,
+                                        int maxLength,
+                                        const cString category, const cString description,
+                                        int id);
+    Awesomium::JSArray generateSubList(const cString name, Awesomium::JSArray subItems,
+                                        const cString category, const cString description);
     Awesomium::JSArray generateCombo(const cString name, Awesomium::JSArray vals,
                                      Awesomium::JSValue initialVal,
                                      const cString category, const cString description,
