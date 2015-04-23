@@ -322,7 +322,7 @@ Awesomium::JSValue MainMenuAPI::getControls(const Awesomium::JSArray& args) {
     return JSValue();
 }
 
-JSValue getPageProperties(const JSArray& args) {
+JSValue MainMenuAPI::getPageProperties(const JSArray& args) {
     return JSValue();
 }
 

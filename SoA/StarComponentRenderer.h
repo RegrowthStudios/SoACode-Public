@@ -91,8 +91,6 @@ private:
     VGTexture m_glowTexture = 0;
 
     const ModPathResolver* m_textureResolver = nullptr;
-    vscript::Environment m_scripts;
-    vscript::RFunction<f64> m_glowFunc;
 };
 
 #endif // StarComponentRenderer_h__

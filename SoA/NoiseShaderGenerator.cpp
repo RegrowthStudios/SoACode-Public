@@ -37,17 +37,8 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
 
     // Generate the shader
     ProgramGenDelegate gen;
-    vg::ShaderSource vertSource, fragSource;
-    vertSource.sources.push_back(NOISE_SRC_VERT.c_str());
-    vertSource.stage = vg::ShaderType::VERTEX_SHADER;
-    fragSource.sources.push_back(fSource.c_str());
-    fragSource.stage = vg::ShaderType::FRAGMENT_SHADER;
-    std::vector<nString> attr;
-    attr.push_back(N_HEIGHT.c_str());
-    attr.push_back(N_TEMP.c_str());
-    attr.push_back(N_HUM.c_str());
 
-    gen.init("TerrainGen", vertSource, fragSource, &attr);
+    gen.init("TerrainGen", NOISE_SRC_VERT.c_str(), fSource.c_str());
 
     if (glrpc) {
         glrpc->invoke(&gen.rpc, true);
@@ -76,17 +67,7 @@ vg::GLProgram* NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc 
 
     // Generate the shader
     ProgramGenDelegate gen;
-    vg::ShaderSource vertSource, fragSource;
-    vertSource.sources.push_back(NOISE_SRC_VERT.c_str());
-    vertSource.stage = vg::ShaderType::VERTEX_SHADER;
-    fragSource.sources.push_back(fSource.c_str());
-    fragSource.stage = vg::ShaderType::FRAGMENT_SHADER;
-    std::vector<nString> attr;
-    attr.push_back(N_HEIGHT.c_str());
-    attr.push_back(N_TEMP.c_str());
-    attr.push_back(N_HUM.c_str());
-
-    gen.init("TerrainGen", vertSource, fragSource, &attr);
+    gen.init("TerrainGen", NOISE_SRC_VERT.c_str(), fSource.c_str());
 
     // Check if we should use an RPC
     if (glrpc) {

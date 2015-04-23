@@ -79,8 +79,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     // Load normal map gen shader
     ProgramGenDelegate gen;
     vio::IOManager iom;
-    gen.init("NormalMapGen", createShaderSource(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
-                  createShaderSource(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag"));
+    gen.initFromFile("NormalMapGen", "Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag", &iom);
 
     if (glrpc) {
         glrpc->invoke(&gen.rpc, true);
