@@ -56,7 +56,6 @@ void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
 }
 
 JSValue MainMenuAPI::initMainMenu() {
-    JSObject obj = getObject(ITEM_GEN_ID);
     JSArray controls;
 
     { // Add options sublist
@@ -86,106 +85,54 @@ JSValue MainMenuAPI::initMainMenu() {
 }
 
 JSValue MainMenuAPI::initVideoOptionsMenu() {
-    JSObject obj = getObject(ITEM_GEN_ID);
+    JSArray controls;
 
-    { // Add quality slider
-        JSArray args;
-        args.Push(WSLit("Planet Quality")); // name
-        args.Push(JSValue(1)); // min
-        args.Push(JSValue(5)); // max
-        args.Push(JSValue(1)); // initialVal
-        args.Push(JSValue(1)); // intervalRes
-        args.Push(WSLit("")); // category
-        args.Push(WSLit("Adjust planet terrain quality")); // description
-        args.Push(JSValue(PLANET_QUALITY_ID)); // ID
-        args.Push(WSLit("App.optionUpdate")); // updateCallback
-        args.Push(JSValue(true)); // updateInRealTime
-        obj.Invoke(WSLit("generateSlider"), args);
-    }
+    // Add quality slider
+    controls.Push(generateSlider("Planet Quality", JSValue(1), JSValue(5), JSValue(1), JSValue(1),
+        "", "Adjust planet terrain quality", PLANET_QUALITY_ID, "App.optionUpdate", true));
+    
+    // Add borderless toggle
+    controls.Push(generateToggle("Borderless Window", _ownerScreen->_app->getWindow().isBorderless(),
+        "", "Toggle the window border", BORDERLESS_ID, "App.optionUpdate", true));
+    
+    // Add fullscreen toggle
+    controls.Push(generateToggle("Fullscreen", _ownerScreen->_app->getWindow().isFullscreen(),
+        "", "Toggle fullscreen mode", FULLSCREEN_ID, "App.optionUpdate", true));
 
-    { // Add borderless toggle
-        JSArray args;
-        args.Push(WSLit("Borderless Window")); // name
-        args.Push(JSValue(_ownerScreen->_app->getWindow().isBorderless())); // initialVal
-        args.Push(WSLit("")); // category
-        args.Push(WSLit("Toggle the window border")); // description
-        args.Push(JSValue(BORDERLESS_ID)); // ID
-        args.Push(WSLit("App.optionUpdate")); // updateCallback
-        args.Push(JSValue(true)); // updateInRealTime
-        obj.Invoke(WSLit("generateToggle"), args);
-    }
-
-    { // Add fullscreen toggle
-        JSArray args;
-        args.Push(WSLit("Fullscreen")); // name
-        args.Push(JSValue(_ownerScreen->_app->getWindow().isFullscreen())); // initialVal
-        args.Push(WSLit("")); // category
-        args.Push(WSLit("Toggle fullscreen mode")); // description
-        args.Push(JSValue(FULLSCREEN_ID)); // ID
-        args.Push(WSLit("App.optionUpdate")); // updateCallback
-        args.Push(JSValue(true)); // updateInRealTime
-        obj.Invoke(WSLit("generateToggle"), args);
-    }
-
-    { // Add test slider
-        JSArray args;
+    { // Add test discrete slider
         JSArray vals;
-        args.Push(WSLit("Test")); // name
         vals.Push(WSLit("A"));
         vals.Push(WSLit("B"));
         vals.Push(WSLit("C"));
         vals.Push(WSLit("Z"));
-        args.Push(vals); // vals
-        args.Push(WSLit("A")); // initialVal
-        args.Push(WSLit("")); // category
-        args.Push(WSLit("roflcopter")); // description
-        args.Push(JSValue(69)); // ID
-        args.Push(WSLit("App.optionUpdate")); // updateCallback
-        args.Push(JSValue(true)); // updateInRealTime
-        obj.Invoke(WSLit("generateDiscreteSlider"), args);
+        controls.Push(generateDiscrete("Test Discrete", vals, WSLit("A"), "", "roflcopter", 69, "App.optionUpdate", true));
     }
 
     { // Add test combo box
-        JSArray args;
         JSArray vals;
-        args.Push(WSLit("Test Combo")); // name
         vals.Push(WSLit("A"));
         vals.Push(WSLit("B"));
         vals.Push(WSLit("C"));
         vals.Push(WSLit("Z"));
-        args.Push(vals); // vals
-        args.Push(WSLit("A")); // initialVal
-        args.Push(WSLit("")); // category
-        args.Push(WSLit("roflcopter")); // description
-        args.Push(JSValue(70)); // ID
-        args.Push(WSLit("App.optionUpdate")); // updateCallback
-        args.Push(JSValue(true)); // updateInRealTime
-        obj.Invoke(WSLit("generateComboBox"), args);
+        controls.Push(generateCombo("Test Combo", vals, WSLit("A"), "", "roflcopter", 70, "App.optionUpdate", true));
     }
-    return JSValue();
+    return JSValue(controls);
 }
 
 JSValue MainMenuAPI::initControlsMenu() {
-    JSObject obj = getObject(ITEM_GEN_ID);
-
     InputMapper* inputMapper = _ownerScreen->m_inputMapper;
     const InputMapper::InputMap &inputMap = inputMapper->getInputLookup();
     char buf[256];
+    JSArray controls;
     // Add buttons for each input
     for (auto& it : inputMap) {
         JSArray args;
         InputMapper::Input& in = inputMapper->get(it.second);
         sprintf(buf, "%20s | %10s", it.first.c_str(), VirtualKeyStrings[in.key]);
-        args.Push(WSLit(buf));
-        args.Push(WSLit("#"));
-        args.Push(WSLit(""));
-        args.Push(WSLit(""));
-        args.Push(JSValue(4));
-        args.Push(WSLit(""));
-        obj.Invoke(WSLit("generateClickable"), args);
+        controls.Push(generateClickable(buf, JSArray(), "", "", -1, ""));
     }
 
-    return JSValue();
+    return JSValue(controls);
 }
 
 JSArray MainMenuAPI::generateClickable(const cString name, const JSArray& linkData,
