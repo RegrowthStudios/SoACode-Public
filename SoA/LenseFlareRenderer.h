@@ -20,6 +20,7 @@
 
 DECL_VG(class GLProgram);
 class ModPathResolver;
+struct FlareKegProperties;
 
 class LenseFlareRenderer {
 public:
@@ -34,6 +35,7 @@ public:
     void dispose();
 private:
     void lazyInit();
+    void loadSprites(FlareKegProperties& kegProps);
     void initMesh();
 
     const ModPathResolver* m_textureResolver = nullptr;
@@ -42,6 +44,9 @@ private:
     VGBuffer m_vbo = 0;
     VGBuffer m_ibo = 0;
     VGVertexArray m_vao = 0;
+
+    int m_numSprites = 0;
+    f32 m_intensity = 0.0f;
 
     VGUniform m_unColor = 0; // TODO(Ben): UBO?
 };

@@ -10,6 +10,8 @@
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/SamplerState.h>
 #include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/io/Keg.h>
 
 struct FlareVertex {
     f32v2 position;
@@ -18,17 +20,28 @@ struct FlareVertex {
     f32 offset;
 };
 
+struct FlareSprite {
+    f32 offset;
+    f32 size;
+    i32 textureIndex;
+};
+KEG_TYPE_DEF_SAME_NAME(FlareSprite, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, offset, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, size, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, textureIndex, I32);
+}
+
+struct FlareKegProperties {
+    f32 intensity;
+    Array<FlareSprite> sprites;
+};
+KEG_TYPE_DEF_SAME_NAME(FlareKegProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareKegProperties, intensity, F32);
+    kt.addValue("sprites", keg::Value::array(offsetof(FlareKegProperties, sprites), keg::Value::custom(0, "FlareSprite", false)));
+}
+
 const int VERTS_PER_QUAD = 4;
 const int INDICES_PER_QUAD = 6;
-const int NUM_RINGS = 2;
-const int NUM_GLOWS = 4;
-const int NUM_QUADS = NUM_GLOWS + NUM_RINGS;
-const f32 const RING_SIZES[NUM_RINGS] = { 1.3f, 1.0f };
-const f32 const GLOW_SIZES[NUM_GLOWS] = { 1.75f, 0.65f, 0.9f, 0.45f };
-// Offsets for the positions of each successive quad
-const f32 const offsets[NUM_QUADS] = {
-    1.0f, 1.25f, 1.1f, 1.5f, 1.6f, 1.7f
-};
 
 LenseFlareRenderer::LenseFlareRenderer(const ModPathResolver* textureResolver) :
 m_textureResolver(textureResolver) {
@@ -58,7 +71,7 @@ void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
     glBindTexture(GL_TEXTURE_2D, m_texture);
     // Upload uniforms
     f32v3 center(-relCamPos);
-    glUniform1f(m_program->getUniform("unIntensity"), intensity);
+    glUniform1f(m_program->getUniform("unIntensity"), intensity * m_intensity);
     glUniform3fv(m_program->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_program->getUniform("unColor"), 1, &color[0]);
     glUniform2fv(m_program->getUniform("unDims"), 1, &dims[0]);
@@ -67,7 +80,7 @@ void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
     glBindVertexArray(m_vao);
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
-    glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD * NUM_QUADS, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD * m_numSprites, GL_UNSIGNED_SHORT, 0);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glBindVertexArray(0);
@@ -124,7 +137,32 @@ void LenseFlareRenderer::lazyInit() {
     initMesh();
 }
 
+void LenseFlareRenderer::loadSprites(FlareKegProperties& kegProps) {
+    nString data;
+    vio::IOManager iom;
+    if (!iom.readFileToString("Shaders/LensFlare/sprites.yml", data)) {
+        pError("Couldn't find Shaders/LensFlare/sprites.yml");
+    }
+
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+
+    keg::Error err = keg::parse((ui8*)&kegProps, node, context, &KEG_GLOBAL_TYPE(FlareKegProperties));
+    if (err != keg::Error::NONE) {
+        fprintf(stderr, "Failed to parse Shaders/LensFlare/sprites.yml");
+    }
+}
+
 void LenseFlareRenderer::initMesh() {
+
+    FlareKegProperties properties;
+    loadSprites(properties);
+    Array<FlareSprite>& sprites = properties.sprites;
+    m_numSprites = sprites.size();
+    m_intensity = properties.intensity;
+
     const f32v2 positions[4] = {
         f32v2(-1.0f, 1.0f),
         f32v2(-1.0f, -1.0f),
@@ -133,56 +171,43 @@ void LenseFlareRenderer::initMesh() {
     };
     const ui8v2 uvs[2][4] = {
         {
-            ui8v2(127, 255),
-            ui8v2(127, 0),
-            ui8v2(255, 0),
-            ui8v2(255, 255)
-        },
-        {
             ui8v2(0, 255),
             ui8v2(0, 0),
             ui8v2(127, 0),
             ui8v2(127, 255)
+        },
+        {
+            ui8v2(127, 255),
+            ui8v2(127, 0),
+            ui8v2(255, 0),
+            ui8v2(255, 255)
         }
+        
     };
     const ui16 quadIndices[INDICES_PER_QUAD] = { 0, 1, 2, 2, 3, 0 };
 
-    FlareVertex vertices[NUM_QUADS * VERTS_PER_QUAD];
-    ui16 indices[NUM_QUADS * INDICES_PER_QUAD];
+    std::vector<FlareVertex> vertices(m_numSprites * VERTS_PER_QUAD);
+    std::vector<ui16> indices(m_numSprites * INDICES_PER_QUAD);
     int index = 0;
     // Rings
-    for (int i = 0; i < NUM_RINGS; i++) {
-        vertices[index].position = positions[0] * RING_SIZES[i];
-        vertices[index + 1].position = positions[1] * RING_SIZES[i];
-        vertices[index + 2].position = positions[2] * RING_SIZES[i];
-        vertices[index + 3].position = positions[3] * RING_SIZES[i];
-        vertices[index].uv = uvs[0][0];
-        vertices[index + 1].uv = uvs[0][1];
-        vertices[index + 2].uv = uvs[0][2];
-        vertices[index + 3].uv = uvs[0][3];
+    for (int i = 0; i < m_numSprites; i++) {
+        FlareSprite& s = sprites[i];
+        vertices[index].position = positions[0] * s.size;
+        vertices[index + 1].position = positions[1] * s.size;
+        vertices[index + 2].position = positions[2] * s.size;
+        vertices[index + 3].position = positions[3] * s.size;
+        vertices[index].uv = uvs[s.textureIndex][0];
+        vertices[index + 1].uv = uvs[s.textureIndex][1];
+        vertices[index + 2].uv = uvs[s.textureIndex][2];
+        vertices[index + 3].uv = uvs[s.textureIndex][3];
+        vertices[index].offset = s.offset;
+        vertices[index + 1].offset = s.offset;
+        vertices[index + 2].offset = s.offset;
+        vertices[index + 3].offset = s.offset;
         index += 4;
-    }
-    // Glows
-    for (int i = 0; i < NUM_GLOWS; i++) {
-        vertices[index].position = positions[0] * GLOW_SIZES[i];
-        vertices[index + 1].position = positions[1] * GLOW_SIZES[i];
-        vertices[index + 2].position = positions[2] * GLOW_SIZES[i];
-        vertices[index + 3].position = positions[3] * GLOW_SIZES[i];
-        vertices[index].uv = uvs[1][0];
-        vertices[index + 1].uv = uvs[1][1];
-        vertices[index + 2].uv = uvs[1][2];
-        vertices[index + 3].uv = uvs[1][3];
-        index += 4;
-    }
-    // set offsets
-    for (int i = 0; i < NUM_QUADS; i++) {
-        vertices[i * 4].offset = offsets[i];
-        vertices[i * 4 + 1].offset = offsets[i];
-        vertices[i * 4 + 2].offset = offsets[i];
-        vertices[i * 4 + 3].offset = offsets[i];
     }
     // Set indices
-    for (int i = 0; i < NUM_QUADS; i++) {
+    for (int i = 0; i < m_numSprites; i++) {
         for (int j = 0; j < INDICES_PER_QUAD; j++) {
             indices[i * INDICES_PER_QUAD + j] = quadIndices[j] + i * VERTS_PER_QUAD;
         }
@@ -197,8 +222,8 @@ void LenseFlareRenderer::initMesh() {
     vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
 
-    vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(vertices), vertices);
-    vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(indices), indices);
+    vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(FlareVertex) * vertices.size(), vertices.data());
+    vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(ui16) * indices.size(), indices.data());
 
     m_program->enableVertexAttribArrays();
     glVertexAttribPointer(m_program->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, position));
