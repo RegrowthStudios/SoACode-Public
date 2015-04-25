@@ -46,6 +46,7 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(const SoaState* soaState,
     m_spaceCamera(spaceCamera),
     m_farTerrainCamera(farTerrainCamera),
     m_selectorTexture(selectorTexture),
+    m_lensFlareRenderer(&soaState->texturePathResolver),
     m_starRenderer(&soaState->texturePathResolver){
     // Empty
 }
@@ -70,6 +71,12 @@ void SpaceSystemRenderStage::renderStarGlows() {
         m_starRenderer.drawGlow(it.first, m_spaceCamera->getViewProjectionMatrix(), it.second,
                                 m_spaceCamera->getAspectRatio(), m_spaceCamera->getDirection(),
                                 m_spaceCamera->getRight());
+        // TODO(Ben): Don't do this twice?
+        f32v3 starColor = m_starRenderer.calculateStarColor(it.first) * 0.05f;
+        f32 intensity = glm::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
+        m_lensFlareRenderer.render(m_spaceCamera->getViewProjectionMatrix(), it.second,
+                                   starColor,
+                                   m_spaceCamera->getAspectRatio(), 0.1f, intensity);
     }
 }
 
@@ -80,6 +87,7 @@ void SpaceSystemRenderStage::reloadShader() {
     m_atmosphereComponentRenderer.disposeShader();
     m_gasGiantComponentRenderer.disposeShader();
     m_starRenderer.disposeShaders();
+    m_lensFlareRenderer.dispose();
 }
 
 f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {

@@ -54,14 +54,16 @@ public:
     void dispose();
     void disposeShaders();
     void disposeBuffers();
+
+    f32v3 calculateStarColor(const StarComponent& sCmp);
+    f64 calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos);
+
 private:
     void checkLazyLoad();
     void buildShaders();
     void buildMesh();
     void loadTempColorMap();
     void loadGlowTexture();
-    f64 calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos);
-    f32v3 calculateStarColor(const StarComponent& sCmp);
     f32v3 getColor(int index);
     f32v3 getTempColorShift(const StarComponent& sCmp);
 

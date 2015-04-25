@@ -3,6 +3,7 @@
 
 #include "ModPathResolver.h"
 #include "ShaderLoader.h"
+#include "Errors.h"
 
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -22,11 +23,11 @@ const int INDICES_PER_QUAD = 6;
 const int NUM_RINGS = 2;
 const int NUM_GLOWS = 4;
 const int NUM_QUADS = NUM_GLOWS + NUM_RINGS;
-const f32 const RING_SIZES[NUM_RINGS] = { 3.0f, 1.0f };
-const f32 const GLOW_SIZES[NUM_GLOWS] = { 0.5f, 1.0f, 0.75f, 0.4f };
+const f32 const RING_SIZES[NUM_RINGS] = { 1.3f, 1.0f };
+const f32 const GLOW_SIZES[NUM_GLOWS] = { 1.75f, 0.65f, 0.9f, 0.45f };
 // Offsets for the positions of each successive quad
 const f32 const offsets[NUM_QUADS] = {
-    0.1f, 0.2f, 0.4f, 0.5f, 0.7f, 1.0f
+    1.0f, 1.25f, 1.1f, 1.5f, 1.6f, 1.7f
 };
 
 LenseFlareRenderer::LenseFlareRenderer(const ModPathResolver* textureResolver) :
@@ -39,30 +40,40 @@ LenseFlareRenderer::~LenseFlareRenderer() {
 }
 
 void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
-                                const ui32v2& screenDims, const f32v3& color,
-                                f32 size) {
-    if (size <= 0.0f) return;
+                                const f32v3& color,
+                                float aspectRatio,
+                                f32 size,
+                                f32 intensity) {
+    if (size <= 0.0f || intensity <= 0.0f) return;
     if (!m_program) {
         lazyInit();
     }
 
     m_program->use();
 
+    f32v2 dims(size, size * aspectRatio);
+
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_texture);
     // Upload uniforms
     f32v3 center(-relCamPos);
+    glUniform1f(m_program->getUniform("unIntensity"), intensity);
     glUniform3fv(m_program->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_program->getUniform("unColor"), 1, &color[0]);
-    glUniform1f(m_program->getUniform("unSize"), size);
+    glUniform2fv(m_program->getUniform("unDims"), 1, &dims[0]);
     glUniformMatrix4fv(m_program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
 
     glBindVertexArray(m_vao);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
     glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD * NUM_QUADS, GL_UNSIGNED_SHORT, 0);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
     glBindVertexArray(0);
 
     m_program->unuse();
+
 }
 
 void LenseFlareRenderer::dispose() {
@@ -100,13 +111,14 @@ void LenseFlareRenderer::lazyInit() {
     
     { // Load the texture
         vio::Path path;
-        m_textureResolver->resolvePath("Effects/lens_flare.png", path);
-        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        m_textureResolver->resolvePath("Effects/lens_flares.png", path);
+        vg::BitmapResource res = vg::ImageIO().load(path);
         if (!res.data) {
-            fprintf(stderr, "ERROR: Failed to load Effects/lens_flare.png\n");
+            fprintf(stderr, "ERROR: Failed to load Effects/lens_flares.png\n");
         }
 
         m_texture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        vg::ImageIO::free(res);
     }
 
     initMesh();
@@ -121,16 +133,16 @@ void LenseFlareRenderer::initMesh() {
     };
     const ui8v2 uvs[2][4] = {
         {
-            ui8v2(0, 127),
-            ui8v2(0, 0),
+            ui8v2(127, 255),
             ui8v2(127, 0),
-            ui8v2(127, 127)
+            ui8v2(255, 0),
+            ui8v2(255, 255)
         },
         {
-            ui8v2(127, 255),
-            ui8v2(127, 127),
-            ui8v2(255, 127),
-            ui8v2(255, 255)
+            ui8v2(0, 255),
+            ui8v2(0, 0),
+            ui8v2(127, 0),
+            ui8v2(127, 255)
         }
     };
     const ui16 quadIndices[INDICES_PER_QUAD] = { 0, 1, 2, 2, 3, 0 };
@@ -151,7 +163,7 @@ void LenseFlareRenderer::initMesh() {
         index += 4;
     }
     // Glows
-    for (int i = 0; i < NUM_RINGS; i++) {
+    for (int i = 0; i < NUM_GLOWS; i++) {
         vertices[index].position = positions[0] * GLOW_SIZES[i];
         vertices[index + 1].position = positions[1] * GLOW_SIZES[i];
         vertices[index + 2].position = positions[2] * GLOW_SIZES[i];
@@ -170,15 +182,15 @@ void LenseFlareRenderer::initMesh() {
         vertices[i * 4 + 3].offset = offsets[i];
     }
     // Set indices
-    for (int i = 0; i < NUM_QUADS * INDICES_PER_QUAD; i += INDICES_PER_QUAD) {
+    for (int i = 0; i < NUM_QUADS; i++) {
         for (int j = 0; j < INDICES_PER_QUAD; j++) {
-            indices[i + j] = quadIndices[j] + i;
+            indices[i * INDICES_PER_QUAD + j] = quadIndices[j] + i * VERTS_PER_QUAD;
         }
     }
 
     if (m_vbo == 0) glGenBuffers(1, &m_vbo);
-    if (m_ibo == 0) glGenBuffers(1, &m_vbo);
-    if (m_vao == 0) glGenBuffers(1, &m_vao);
+    if (m_ibo == 0) glGenBuffers(1, &m_ibo);
+    if (m_vao == 0) glGenVertexArrays(1, &m_vao);
 
     // Upload data and make VAO
     glBindVertexArray(m_vao);

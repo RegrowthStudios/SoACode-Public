@@ -26,8 +26,10 @@ public:
     LenseFlareRenderer(const ModPathResolver* textureResolver);
     ~LenseFlareRenderer();
     void render(const f32m4& VP, const f64v3& relCamPos,
-                const ui32v2& screenDims, const f32v3& color,
-                f32 size);
+                const f32v3& color,
+                float aspectRatio,
+                f32 size,
+                f32 intensity);
 
     void dispose();
 private:

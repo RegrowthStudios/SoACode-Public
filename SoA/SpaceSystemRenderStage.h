@@ -23,6 +23,7 @@
 #include "Camera.h"
 #include "FarTerrainComponentRenderer.h"
 #include "GasGiantComponentRenderer.h"
+#include "LenseFlareRenderer.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentRenderer.h"
 #include "StarComponentRenderer.h"
@@ -96,12 +97,13 @@ private:
     VGTexture m_selectorTexture = 0;
     const MTRenderState* m_renderState = nullptr;
 
-    SystemARRenderer m_systemARRenderer;
-    SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
+    AtmosphereComponentRenderer m_atmosphereComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
     GasGiantComponentRenderer m_gasGiantComponentRenderer;
+    LenseFlareRenderer m_lensFlareRenderer;
+    SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     StarComponentRenderer m_starRenderer;
-    AtmosphereComponentRenderer m_atmosphereComponentRenderer;
+    SystemARRenderer m_systemARRenderer;
     f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
 
     std::vector<std::pair<StarComponent, f64v3> > m_starGlowsToRender;
