@@ -156,6 +156,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
   
     // Compute desired size based on distance and ratio of mass to Sol mass
     f64 s = calculateGlowSize(sCmp, relCamPos) * sCmp.visibility;
+    f32v3 colorShift = getTempColorShift(sCmp);
     // Don't render if its too small
     if (s <= 0.0) return;
 
@@ -170,6 +171,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform1f(m_glowProgram->getUniform("unColorMapU"), scale);
     glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
+    glUniform3fv(m_glowProgram->getUniform("unColorShift"), 1, &colorShift[0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_glowTexture);
     glActiveTexture(GL_TEXTURE1);
