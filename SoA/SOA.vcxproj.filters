@@ -758,6 +758,9 @@
     <ClInclude Include="ModPathResolver.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="LenseFlareRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1236,6 +1239,7 @@
     </ClCompile>
     <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
+    <ClCompile Include="LenseFlareRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

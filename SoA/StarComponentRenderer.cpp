@@ -180,11 +180,6 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     f32v3 vs = viewDirW - viewRightW;
     glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z));
 
-    // Time
-    static f32 dt = 1.0f;
-    dt += 0.0001f;
-   // glUniform1f(m_coronaProgram->getUniform("unDT"), dt);
-
     glUniformMatrix4fv(m_glowProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     // Bind VAO
     glBindVertexArray(m_gVao);
