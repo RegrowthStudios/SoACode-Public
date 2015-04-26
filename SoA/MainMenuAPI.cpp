@@ -148,6 +148,7 @@ JSValue MainMenuAPI::generateClickable(const cString name, const JSArray& linkDa
     a.Push(WSLit(description));
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -159,6 +160,7 @@ JSValue MainMenuAPI::generateText(const cString name, const cString text,
     a.Push(WSLit(text));
     a.Push(WSLit(category));
     a.Push(WSLit(description));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -175,6 +177,7 @@ JSValue MainMenuAPI::generateToggle(const cString name, bool isToggled,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -196,6 +199,7 @@ JSValue MainMenuAPI::generateSlider(const cString name, JSValue min,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -214,6 +218,7 @@ JSValue MainMenuAPI::generateDiscrete(const cString name, JSArray vals,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -230,6 +235,7 @@ JSValue MainMenuAPI::generateTextArea(const cString name,
     a.Push(WSLit(category));
     a.Push(WSLit(description));
     a.Push(JSValue(id));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -241,6 +247,7 @@ JSValue MainMenuAPI::generateSubList(const cString name, JSArray subItems,
     a.Push(subItems);
     a.Push(WSLit(category));
     a.Push(WSLit(description));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
@@ -259,6 +266,7 @@ JSValue MainMenuAPI::generateCombo(const cString name, JSArray vals,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
+    a.Push(WSLit("END"));
     return JSValue(a);
 }
 
