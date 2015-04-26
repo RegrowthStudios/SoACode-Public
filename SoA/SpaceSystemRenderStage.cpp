@@ -75,7 +75,7 @@ void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
         f32v3 starColor = m_starRenderer.calculateStarColor(it.first);
         f32 intensity = glm::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
         m_lensFlareRenderer.render(m_spaceCamera->getViewProjectionMatrix(), it.second,
-                                   starColor,
+                                   starColor * colorMult,
                                    m_spaceCamera->getAspectRatio(), 0.1f, intensity);
     }
 }

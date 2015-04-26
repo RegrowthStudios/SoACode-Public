@@ -89,6 +89,7 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     glUniform1f(unDT, (f32)dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_starProgram->getUniform("unColor"), 1, &tColor[0]);
+    glUniform1f(m_starProgram->getUniform("unRadius"), sCmp.radius);
 
     // Bind VAO
     glBindVertexArray(m_sVao);
@@ -122,7 +123,7 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
     // Size
-    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0f);
+    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 3.0f);
     glUniform1f(m_coronaProgram->getUniform("unStarRadius"), (f32)sCmp.radius);
     // Time
     static f64 dt = 0.0;
@@ -175,8 +176,10 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
     glUniform3fv(m_glowProgram->getUniform("unColorShift"), 1, &colorShift[0]);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_glowTexture);
+    glBindTexture(GL_TEXTURE_2D, m_glowTexture1);
     glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_glowTexture2);
+    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
     // For sparkles
     f32v3 vs = viewDirW - viewRightW;
@@ -207,13 +210,13 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
         glGenQueries(2, sCmp.occlusionQuery);
     } else {
         int totalSamples = 0;
-        int samplesPassed = 0;
+        int passedSamples = 0;
         glGetQueryObjectiv(sCmp.occlusionQuery[0], GL_QUERY_RESULT, &totalSamples);
-        glGetQueryObjectiv(sCmp.occlusionQuery[1], GL_QUERY_RESULT, &samplesPassed);
-        if (samplesPassed == 0) {
+        glGetQueryObjectiv(sCmp.occlusionQuery[1], GL_QUERY_RESULT, &passedSamples);
+        if (passedSamples == 0) {
             sCmp.visibility = 0.0f;
         } else {
-            sCmp.visibility = glm::min(1.0f, (f32)samplesPassed / (f32)totalSamples);
+            sCmp.visibility = glm::min(1.0f, (f32)passedSamples / (f32)totalSamples);
         }
     }
     f32v3 center(-relCamPos);
@@ -255,11 +258,8 @@ void StarComponentRenderer::dispose() {
         vg::ImageIO().free(m_tempColorMap);
         m_tempColorMap.data = nullptr;
     }
-    if (m_glowTexture) vg::GpuMemory::freeTexture(m_glowTexture);
-    if (m_glowTexture) {
-        glDeleteTextures(1, &m_glowTexture);
-        m_glowTexture = 0;
-    }
+    if (m_glowTexture1) vg::GpuMemory::freeTexture(m_glowTexture1);
+    if (m_glowTexture2) vg::GpuMemory::freeTexture(m_glowTexture2);
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -307,7 +307,7 @@ void StarComponentRenderer::checkLazyLoad() {
     if (!m_starProgram) buildShaders();
     if (!m_sVbo) buildMesh();
     if (m_tempColorMap.width == -1) loadTempColorMap();
-    if (m_glowTexture == 0) loadGlowTexture();
+    if (m_glowTexture1 == 0) loadGlowTextures();
 }
 
 void StarComponentRenderer::buildShaders() {
@@ -325,7 +325,8 @@ void StarComponentRenderer::buildShaders() {
                                                           "Shaders/Star/glow.frag");
     m_glowProgram->use();
     glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
-    glUniform1i(m_glowProgram->getUniform("unColorMap"), 1);
+    glUniform1i(m_glowProgram->getUniform("unTextureOverlay"), 1);
+    glUniform1i(m_glowProgram->getUniform("unColorMap"), 2);
     m_glowProgram->unuse();
 }
 
@@ -452,21 +453,30 @@ void StarComponentRenderer::loadTempColorMap() {
     checkGlError("StarComponentRenderer::loadTempColorMap()");
 }
 
-void StarComponentRenderer::loadGlowTexture() {
+void StarComponentRenderer::loadGlowTextures() {
     vio::Path path;
     m_textureResolver->resolvePath("Sky/Star/star_glow.png", path);
     vg::BitmapResource rs = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow.png\n");
     } else {
-        m_glowTexture = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        m_glowTexture1 = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        vg::ImageIO().free(rs);
+    }
+
+    m_textureResolver->resolvePath("Sky/Star/star_glow_overlay.png", path);
+    rs = vg::ImageIO().load(path);
+    if (!m_tempColorMap.data) {
+        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow_overlay.png\n");
+    } else {
+        m_glowTexture2 = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
         vg::ImageIO().free(rs);
     }
 }
 
 f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {
-#define DSUN 1392684.0
-#define TSUN 5778.0
+    static const f64 DSUN = 1392684.0;
+    static const f64 TSUN = 5778.0;
 
     // Georg's magic formula
     f64 d = glm::length(relCamPos); // Distance

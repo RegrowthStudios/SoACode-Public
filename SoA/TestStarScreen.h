@@ -48,7 +48,7 @@ public:
     virtual void draw(const vui::GameTime& gameTime) override;
 
 private:
-    const f64 STAR_RADIUS = 1693000.0 / 2.0;
+    const f64 STAR_RADIUS = 696000;
 
     StarComponentRenderer* m_starRenderer = nullptr;
     f64v3 m_eyePos;
@@ -64,8 +64,8 @@ private:
     Camera m_camera;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
     ModPathResolver m_modPathResolver;
-    bool m_isHDR = true;
-    bool m_isGlow = true;
+    bool m_isHDR = false;
+    bool m_isGlow = false;
     bool m_is1Pressed = false;
     bool m_is2Pressed = false;
     bool m_is3Pressed = false;

@@ -64,7 +64,7 @@ private:
     void buildShaders();
     void buildMesh();
     void loadTempColorMap();
-    void loadGlowTexture();
+    void loadGlowTextures();
     f32v3 getColor(int index);
     f32v3 getTempColorShift(const StarComponent& sCmp);
 
@@ -91,7 +91,8 @@ private:
     VGUniform unWVP;
     VGUniform unDT;
 
-    VGTexture m_glowTexture = 0;
+    VGTexture m_glowTexture1 = 0;
+    VGTexture m_glowTexture2 = 0;
 
     const ModPathResolver* m_textureResolver = nullptr;
 };
