@@ -64,8 +64,8 @@ private:
     Camera m_camera;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
     ModPathResolver m_modPathResolver;
-    bool m_isHDR = false;
-    bool m_isGlow = false;
+    bool m_isHDR = true;
+    bool m_isGlow = true;
     bool m_is1Pressed = false;
     bool m_is2Pressed = false;
     bool m_is3Pressed = false;

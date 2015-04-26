@@ -80,16 +80,16 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     setMatrixTranslation(WVP, -relCamPos);
     WVP = VP * WVP * glm::scale(f32v3(sCmp.radius)) * rotationMatrix;
 
-    f32v3 rotRelCamPos = relCamPos * orientationF32;
-
     // Upload uniforms
     // Upload uniforms
     static f64 dt = 0.0;
-    dt += 0.00001;
+    dt += 0.0001;
     glUniform1f(unDT, (f32)dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_starProgram->getUniform("unColor"), 1, &tColor[0]);
     glUniform1f(m_starProgram->getUniform("unRadius"), sCmp.radius);
+    f32v3 unCenterDir = glm::normalize(relCamPos);
+    glUniform3fv(m_starProgram->getUniform("unCenterDir"), 1, &unCenterDir[0]);
 
     // Bind VAO
     glBindVertexArray(m_sVao);
@@ -123,11 +123,11 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
     // Size
-    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 3.0f);
+    glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0f);
     glUniform1f(m_coronaProgram->getUniform("unStarRadius"), (f32)sCmp.radius);
     // Time
     static f64 dt = 0.0;
-    dt += 0.00001;
+    dt += 0.0001;
     glUniform1f(m_coronaProgram->getUniform("unDT"), (f32)dt);
     glUniformMatrix4fv(m_coronaProgram->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
 
