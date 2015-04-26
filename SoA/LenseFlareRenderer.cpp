@@ -125,13 +125,12 @@ void LenseFlareRenderer::lazyInit() {
     { // Load the texture
         vio::Path path;
         m_textureResolver->resolvePath("Effects/lens_flares.png", path);
-        vg::BitmapResource res = vg::ImageIO().load(path);
+        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load Effects/lens_flares.png\n");
         }
 
         m_texture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
-        vg::ImageIO::free(res);
     }
 
     initMesh();

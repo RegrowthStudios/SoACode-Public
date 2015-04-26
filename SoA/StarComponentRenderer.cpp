@@ -405,12 +405,12 @@ void StarComponentRenderer::loadTempColorMap() {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_1.png\n");
     }
     m_textureResolver->resolvePath("Sky/Star/star_spectrum_2.png", path);
-    vg::BitmapResource res2 = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource res2 = vg::ImageIO().load(path);
     if (!res2.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_2.png\n");
     }
     m_textureResolver->resolvePath("Sky/Star/star_spectrum_3.png", path);
-    vg::BitmapResource res3 = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource res3 = vg::ImageIO().load(path);
     if (!res3.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_3.png\n");
     }
@@ -445,10 +445,6 @@ void StarComponentRenderer::loadTempColorMap() {
     // Unbind
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Free data. Only free the second two resources, since we want to hold onto the color map
-    vg::ImageIO().free(res2);
-    vg::ImageIO().free(res3);
-
     // Check if we had any errors
     checkGlError("StarComponentRenderer::loadTempColorMap()");
 }
@@ -456,21 +452,19 @@ void StarComponentRenderer::loadTempColorMap() {
 void StarComponentRenderer::loadGlowTextures() {
     vio::Path path;
     m_textureResolver->resolvePath("Sky/Star/star_glow.png", path);
-    vg::BitmapResource rs = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource rs1 = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow.png\n");
     } else {
-        m_glowTexture1 = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
-        vg::ImageIO().free(rs);
+        m_glowTexture1 = vg::GpuMemory::uploadTexture(rs1.bytesUI8, rs1.width, rs1.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 
     m_textureResolver->resolvePath("Sky/Star/star_glow_overlay.png", path);
-    rs = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource rs2 = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow_overlay.png\n");
     } else {
-        m_glowTexture2 = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
-        vg::ImageIO().free(rs);
+        m_glowTexture2 = vg::GpuMemory::uploadTexture(rs2.bytesUI8, rs2.width, rs2.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 }
 

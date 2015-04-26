@@ -62,8 +62,8 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 void SpaceSystemRenderStage::render() {
     drawBodies();
     if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
-                            m_mainMenuSystemViewer, m_selectorTexture,
-                            m_viewport);
+                                          m_mainMenuSystemViewer, m_selectorTexture,
+                                          m_viewport);
 }
 
 void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {

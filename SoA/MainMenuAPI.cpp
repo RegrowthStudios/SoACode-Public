@@ -50,7 +50,17 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
     ADDFUNC(quit);
 
     JSArray controls = initMainMenu();
-    m_window.ToObject().Invoke(WSLit("initializePage"), controls);
+    JSObject obj = m_window.ToObject();
+    JSArray names = obj.GetMethodNames();
+    for (int i = 0; i < names.size(); i++) {
+        if (ToString(names[i].ToString()) == "initializePage") {
+            std::cout << "LOL";
+        }
+    }
+    if (obj.HasMethod(WSLit("initializePage"))) {
+        std::cout << "HAS METHOD\n";
+    }
+    obj.Invoke(WSLit("initializePage"), controls);
 }
 
 void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
