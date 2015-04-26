@@ -39,34 +39,34 @@ private:
     Awesomium::JSArray initVideoOptionsMenu();
     Awesomium::JSArray initControlsMenu();
 
-    Awesomium::JSArray generateClickable(const cString name, const Awesomium::JSArray& linkData,
+    Awesomium::JSValue generateClickable(const cString name, const Awesomium::JSArray& linkData,
                                          const cString category, const cString description,
                                          int id, const cString updateCallback);
-    Awesomium::JSArray generateText(const cString name, const cString text,
+    Awesomium::JSValue generateText(const cString name, const cString text,
                                     const cString category, const cString description);
-    Awesomium::JSArray generateToggle(const cString name, bool isToggled,
+    Awesomium::JSValue generateToggle(const cString name, bool isToggled,
                                       const cString category, const cString description,
                                       int id, const cString updateCallback,
                                       bool updateInRealTime);
-    Awesomium::JSArray generateSlider(const cString name, Awesomium::JSValue min,
+    Awesomium::JSValue generateSlider(const cString name, Awesomium::JSValue min,
                                       Awesomium::JSValue max, Awesomium::JSValue initialVal,
                                       Awesomium::JSValue intervalRes,
                                       const cString category, const cString description,
                                       int id, const cString updateCallback,
                                       bool updateInRealTime);
-    Awesomium::JSArray generateDiscrete(const cString name, Awesomium::JSArray vals,
+    Awesomium::JSValue generateDiscrete(const cString name, Awesomium::JSArray vals,
                                         Awesomium::JSValue initialVal,
                                         const cString category, const cString description,
                                         int id, const cString updateCallback,
                                         bool updateInRealTime);
-    Awesomium::JSArray generateTextArea(const cString name,
+    Awesomium::JSValue generateTextArea(const cString name,
                                         const cString defaultVal,
                                         int maxLength,
                                         const cString category, const cString description,
                                         int id);
-    Awesomium::JSArray generateSubList(const cString name, Awesomium::JSArray subItems,
+    Awesomium::JSValue generateSubList(const cString name, Awesomium::JSArray subItems,
                                         const cString category, const cString description);
-    Awesomium::JSArray generateCombo(const cString name, Awesomium::JSArray vals,
+    Awesomium::JSValue generateCombo(const cString name, Awesomium::JSArray vals,
                                      Awesomium::JSValue initialVal,
                                      const cString category, const cString description,
                                      int id, const cString updateCallback,

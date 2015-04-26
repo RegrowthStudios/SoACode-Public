@@ -95,7 +95,7 @@ void MainMenuRenderPipeline::render() {
                 m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
             case 3:
                 colorFilter = f32v3(0.0f);
-                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.99f)); break;
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
         }
         m_colorFilterRenderStage->render();
     }
@@ -110,8 +110,6 @@ void MainMenuRenderPipeline::render() {
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
-
-
 
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();

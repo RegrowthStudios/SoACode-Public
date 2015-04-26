@@ -137,7 +137,7 @@ JSArray MainMenuAPI::initControlsMenu() {
     return controls;
 }
 
-JSArray MainMenuAPI::generateClickable(const cString name, const JSArray& linkData,
+JSValue MainMenuAPI::generateClickable(const cString name, const JSArray& linkData,
                                      const cString category, const cString description,
                                      int id, const cString updateCallback) {
     JSArray a;
@@ -148,10 +148,10 @@ JSArray MainMenuAPI::generateClickable(const cString name, const JSArray& linkDa
     a.Push(WSLit(description));
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateText(const cString name, const cString text,
+JSValue MainMenuAPI::generateText(const cString name, const cString text,
                                 const cString category, const cString description) {
     JSArray a;
     a.Push(WSLit("text"));
@@ -159,10 +159,10 @@ JSArray MainMenuAPI::generateText(const cString name, const cString text,
     a.Push(WSLit(text));
     a.Push(WSLit(category));
     a.Push(WSLit(description));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateToggle(const cString name, bool isToggled,
+JSValue MainMenuAPI::generateToggle(const cString name, bool isToggled,
                                   const cString category, const cString description,
                                   int id, const cString updateCallback,
                                   bool updateInRealTime) {
@@ -175,10 +175,10 @@ JSArray MainMenuAPI::generateToggle(const cString name, bool isToggled,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateSlider(const cString name, JSValue min,
+JSValue MainMenuAPI::generateSlider(const cString name, JSValue min,
                                   JSValue max, JSValue initialVal,
                                   JSValue intervalRes,
                                   const cString category, const cString description,
@@ -196,10 +196,10 @@ JSArray MainMenuAPI::generateSlider(const cString name, JSValue min,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateDiscrete(const cString name, JSArray vals,
+JSValue MainMenuAPI::generateDiscrete(const cString name, JSArray vals,
                                     JSValue initialVal,
                                     const cString category, const cString description,
                                     int id, const cString updateCallback,
@@ -214,10 +214,10 @@ JSArray MainMenuAPI::generateDiscrete(const cString name, JSArray vals,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateTextArea(const cString name,
+JSValue MainMenuAPI::generateTextArea(const cString name,
                                     const cString defaultVal,
                                     int maxLength,
                                     const cString category, const cString description,
@@ -230,10 +230,10 @@ JSArray MainMenuAPI::generateTextArea(const cString name,
     a.Push(WSLit(category));
     a.Push(WSLit(description));
     a.Push(JSValue(id));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateSubList(const cString name, JSArray subItems,
+JSValue MainMenuAPI::generateSubList(const cString name, JSArray subItems,
                                    const cString category, const cString description) {
     JSArray a;
     a.Push(WSLit("subList"));
@@ -241,10 +241,10 @@ JSArray MainMenuAPI::generateSubList(const cString name, JSArray subItems,
     a.Push(subItems);
     a.Push(WSLit(category));
     a.Push(WSLit(description));
-    return a;
+    return JSValue(a);
 }
 
-JSArray MainMenuAPI::generateCombo(const cString name, JSArray vals,
+JSValue MainMenuAPI::generateCombo(const cString name, JSArray vals,
                                  JSValue initialVal,
                                  const cString category, const cString description,
                                  int id, const cString updateCallback,
@@ -259,7 +259,7 @@ JSArray MainMenuAPI::generateCombo(const cString name, JSArray vals,
     a.Push(JSValue(id));
     a.Push(WSLit(updateCallback));
     a.Push(JSValue(updateInRealTime));
-    return a;
+    return JSValue(a);
 }
 
 JSValue MainMenuAPI::getCameraPosition(const JSArray& args) {

@@ -166,13 +166,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
             exit(0);
         }
     });
-    
-    glBlendFunc(GL_ONE, GL_ONE);
-    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
-                                          m_camera.getAspectRatio(), m_camera.getDirection(),
-                                          m_camera.getRight());
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+   
     checkGlError("TestStarScreen::draw");
 
     // Draw the temperature and HDR
@@ -200,6 +194,12 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     }
     
     m_spriteBatch.end();
+
+    glBlendFunc(GL_ONE, GL_ONE);
+    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
+                                           m_camera.getAspectRatio(), m_camera.getDirection(),
+                                           m_camera.getRight());
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     f32 width = _game->getWindow().getWidth();
     f32 height = _game->getWindow().getHeight();
