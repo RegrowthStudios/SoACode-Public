@@ -28,7 +28,7 @@ public:
     /// @oaram interfaceObject: The object that the API will talk to
     /// @param ownerScreen: The GamePlayScreen that owns this interface
     void init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<PdaAwesomiumAPI>* methodHandler,
-              vui::IGameScreen* ownerScreen) override;
+              vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) override;
 
     // Sets the owner screen. Should be a GamePlayScreen type
     /// @param ownerScreen: The screen

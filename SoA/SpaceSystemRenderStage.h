@@ -58,7 +58,7 @@ public:
     virtual void render() override;
 
     /// Renders star glows requested in the render call. Call after HDR
-    void renderStarGlows();
+    void renderStarGlows(const f32v3& colorMult);
 
     virtual void reloadShader() override;
 

@@ -8,6 +8,7 @@ InputMapper::InputID INPUT_BACKWARD = -1;
 InputMapper::InputID INPUT_BLOCK_DRAG = -1;
 InputMapper::InputID INPUT_BLOCK_SCANNER = -1;
 InputMapper::InputID INPUT_CROUCH = -1;
+InputMapper::InputID INPUT_CYCLE_COLOR_FILTER = -1;
 InputMapper::InputID INPUT_DEBUG = -1;
 InputMapper::InputID INPUT_DRAW_MODE = -1;
 InputMapper::InputID INPUT_EXIT = -1;
@@ -88,6 +89,7 @@ void initInputs(InputMapper* inputManager) {
     CREATE_INPUT(Draw Mode, VKEY_M, INPUT_DRAW_MODE);
     CREATE_INPUT(Planet Draw Mode, VKEY_J, INPUT_PLANET_DRAW_MODE);
     CREATE_INPUT(Update Frustum, VKEY_U, INPUT_UPDATE_FRUSTUM);
+    CREATE_INPUT(Cycle Color Filter, VKEY_C, INPUT_CYCLE_COLOR_FILTER);
 
     // Movement
     CREATE_INPUT(Fly, VKEY_F, INPUT_FLY);

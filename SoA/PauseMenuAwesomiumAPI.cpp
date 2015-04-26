@@ -7,8 +7,8 @@
 #include "GameplayScreen.h"
 
 void PauseMenuAwesomiumAPI::init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<PauseMenuAwesomiumAPI>* methodHandler,
-                                 vui::IGameScreen* ownerScreen) {
-
+                                 vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) {
+    m_window = window;
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PauseMenuAwesomiumAPI::##a)
 

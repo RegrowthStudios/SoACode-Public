@@ -99,7 +99,7 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
         m_methodHandler.gameInterface = &m_gameInterface.ToObject();
 
         //Initialize the callback API
-        m_awesomiumAPI.init(m_webView, &m_methodHandler, ownerScreen);
+        m_awesomiumAPI.init(m_webView, &m_methodHandler, ownerScreen, m_window);
     } else {
         puts("Awesomium Error: Failed to create app object.");
     }

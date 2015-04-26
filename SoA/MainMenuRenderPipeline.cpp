@@ -6,6 +6,7 @@
 #include <Vorb/io/FileOps.h>
 
 #include "AwesomiumRenderStage.h"
+#include "ColorFilterRenderStage.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "HdrRenderStage.h"
@@ -58,6 +59,7 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init render stages
+    m_colorFilterRenderStage = ADD_STAGE(ColorFilterRenderStage, &m_quad);
     m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera, &soaState->texturePathResolver);
     m_awesomiumRenderStage = ADD_STAGE(AwesomiumRenderStage, awesomiumInterface);
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
@@ -81,6 +83,23 @@ void MainMenuRenderPipeline::render() {
     m_spaceSystemRenderStage->setShowAR(m_showAR);
     m_spaceSystemRenderStage->render();
 
+    f32v3 colorFilter(1.0);
+    // Color filter rendering
+    if (m_colorFilter != 0) {
+        switch (m_colorFilter) {
+            case 1:
+                colorFilter = f32v3(0.66f);
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
+            case 2:
+                colorFilter = f32v3(0.3f);
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
+            case 3:
+                colorFilter = f32v3(0.0f);
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.99f)); break;
+        }
+        m_colorFilterRenderStage->render();
+    }
+
     // Post processing
     m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
 
@@ -91,12 +110,15 @@ void MainMenuRenderPipeline::render() {
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
+
+
+
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
 
     // Render stuff that doesn't want HDR
     glBlendFunc(GL_ONE, GL_ONE);
-    m_spaceSystemRenderStage->renderStarGlows();
+    m_spaceSystemRenderStage->renderStarGlows(colorFilter);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if (m_showUI) m_awesomiumRenderStage->render();

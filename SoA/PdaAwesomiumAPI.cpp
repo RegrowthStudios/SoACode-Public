@@ -4,8 +4,8 @@
 #include "GameplayScreen.h"
 
 void PdaAwesomiumAPI::init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<PdaAwesomiumAPI>* methodHandler,
-                           vui::IGameScreen* ownerScreen) {
-
+                           vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) {
+    m_window = window;
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PdaAwesomiumAPI::##a)
 

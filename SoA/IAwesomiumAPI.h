@@ -37,7 +37,7 @@ public:
 
     /// Initializes the API and hooks up all functions
     virtual void init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<C>* methodHandler,
-                      vui::IGameScreen* ownerScreen) = 0;
+                      vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) = 0;
 
     /// Sets the screen that owns this API
     /// @param ownerScreen: The screen
@@ -79,6 +79,7 @@ protected:
     std::map<nString, setptr> m_voidFunctions; ///< map of void functions
     std::map<nString, getptr> m_returnFunctions; ///< map of get functions
 
+    Awesomium::JSValue m_window;
     Awesomium::WebView* m_webView = nullptr;
     vui::CustomJSMethodHandler<C>* m_methodHandler = nullptr; ///< Has interface objects
 };

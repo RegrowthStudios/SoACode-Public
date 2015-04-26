@@ -28,16 +28,16 @@ public:
     /// @oaram interfaceObject: The object that the API will talk to
     /// @param ownerScreen: The MainMenuScreen that owns this interface
     void init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>* methodHandler,
-              vui::IGameScreen* ownerScreen) override;
+              vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) override;
 
     // Sets the owner screen. Should be a MainMenuScreen type
     /// @param ownerScreen: The screen
     void setOwnerScreen(vui::IGameScreen* ownerScreen) override;
 
 private:
-    Awesomium::JSValue initMainMenu();
-    Awesomium::JSValue initVideoOptionsMenu();
-    Awesomium::JSValue initControlsMenu();
+    Awesomium::JSArray initMainMenu();
+    Awesomium::JSArray initVideoOptionsMenu();
+    Awesomium::JSArray initControlsMenu();
 
     Awesomium::JSArray generateClickable(const cString name, const Awesomium::JSArray& linkData,
                                          const cString category, const cString description,

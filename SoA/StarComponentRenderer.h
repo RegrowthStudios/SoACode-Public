@@ -46,7 +46,8 @@ public:
                   const f64v3& relCamPos,
                   float aspectRatio,
                   const f32v3& viewDirW,
-                  const f32v3& viewRightW);
+                  const f32v3& viewRightW,
+                  const f32v3& colorMult = f32v3(1.0f));
     void updateOcclusionQuery(StarComponent& sCmp,
                               const f32m4& VP,
                               const f64v3& relCamPos);

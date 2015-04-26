@@ -29,6 +29,7 @@ class SkyboxRenderStage;
 class SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
+class ColorFilterRenderStage;
 
 class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
@@ -53,9 +54,11 @@ public:
 
     void toggleUI() { m_showUI = !m_showUI; }
     void toggleAR() { m_showAR = !m_showAR; }
+    void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
 private:
     void dumpScreenshot();
 
+    ColorFilterRenderStage* m_colorFilterRenderStage = nullptr; ///< Renders a color filter
     SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
     AwesomiumRenderStage* m_awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
@@ -70,6 +73,7 @@ private:
     bool m_showUI = true;
     bool m_showAR = true;
     bool m_shouldScreenshot = false;
+    int m_colorFilter = 0;
 };
 
 #endif // MainMenuRenderPipeline_h__

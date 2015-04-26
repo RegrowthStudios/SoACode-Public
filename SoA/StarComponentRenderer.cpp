@@ -150,7 +150,8 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
                                      const f64v3& relCamPos,
                                      float aspectRatio,
                                      const f32v3& viewDirW,
-                                     const f32v3& viewRightW) {
+                                     const f32v3& viewRightW,
+                                     const f32v3& colorMult /* = f32v3(1.0f) */ ) {
 
     if (sCmp.visibility == 0.0f) return;
   
@@ -169,6 +170,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     // Upload uniforms
     f32v3 center(-relCamPos);
     glUniform3fv(m_glowProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform3fv(m_glowProgram->getUniform("unColorMult"), 1, &colorMult[0]);
     glUniform1f(m_glowProgram->getUniform("unColorMapU"), scale);
     glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
     glUniform3fv(m_glowProgram->getUniform("unColorShift"), 1, &colorShift[0]);

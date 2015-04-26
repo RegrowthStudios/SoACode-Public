@@ -162,6 +162,8 @@ void MainMenuScreen::initInput() {
         m_renderPipeline.toggleUI(); });
     m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.toggleAR(); });
+    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.cycleColorFilter(); });
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.takeScreenshot(); });
 

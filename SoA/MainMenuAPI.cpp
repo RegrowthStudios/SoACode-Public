@@ -21,8 +21,8 @@ const int GRAPHICS_OPTIONS_ID = 4;
 const int CONTROLS_ID = 5;
 
 void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>* methodHandler,
-                       vui::IGameScreen* ownerScreen) {
-
+                       vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) {
+    m_window = window;
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &MainMenuAPI::##a)
 
@@ -49,15 +49,15 @@ void MainMenuAPI::init(WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>
     ADDFUNC(optionUpdate);
     ADDFUNC(quit);
 
-    // Add controls
-    addExistingObject("ListItemGenerator", ITEM_GEN_ID);
+    JSArray controls = initMainMenu();
+    m_window.ToObject().Invoke(WSLit("initializePage"), controls);
 }
 
 void MainMenuAPI::setOwnerScreen(vui::IGameScreen* ownerScreen) {
     _ownerScreen = static_cast<MainMenuScreen*>(ownerScreen);
 }
 
-JSValue MainMenuAPI::initMainMenu() {
+JSArray MainMenuAPI::initMainMenu() {
     JSArray controls;
 
     { // Add options sublist
@@ -83,10 +83,10 @@ JSValue MainMenuAPI::initMainMenu() {
     // Add exit button
     controls.Push(generateClickable("Exit", JSArray(), "", "Just ten more minutes...", EXIT_ID, "App.quit"));
 
-    return JSValue(controls);
+    return controls;
 }
 
-JSValue MainMenuAPI::initVideoOptionsMenu() {
+JSArray MainMenuAPI::initVideoOptionsMenu() {
     JSArray controls;
 
     // Add quality slider
@@ -118,10 +118,10 @@ JSValue MainMenuAPI::initVideoOptionsMenu() {
         vals.Push(WSLit("Z"));
         controls.Push(generateCombo("Test Combo", vals, WSLit("A"), "", "roflcopter", 70, "App.optionUpdate", true));
     }
-    return JSValue(controls);
+    return controls;
 }
 
-JSValue MainMenuAPI::initControlsMenu() {
+JSArray MainMenuAPI::initControlsMenu() {
     InputMapper* inputMapper = _ownerScreen->m_inputMapper;
     const InputMapper::InputMap &inputMap = inputMapper->getInputLookup();
     char buf[256];
@@ -134,7 +134,7 @@ JSValue MainMenuAPI::initControlsMenu() {
         controls.Push(generateClickable(buf, JSArray(), "", "", -1, ""));
     }
 
-    return JSValue(controls);
+    return controls;
 }
 
 JSArray MainMenuAPI::generateClickable(const cString name, const JSArray& linkData,

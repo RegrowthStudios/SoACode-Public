@@ -23,6 +23,7 @@ extern InputMapper::InputID INPUT_BACKWARD;
 extern InputMapper::InputID INPUT_BLOCK_DRAG;
 extern InputMapper::InputID INPUT_BLOCK_SCANNER;
 extern InputMapper::InputID INPUT_CROUCH;
+extern InputMapper::InputID INPUT_CYCLE_COLOR_FILTER;
 extern InputMapper::InputID INPUT_DEBUG;
 extern InputMapper::InputID INPUT_DRAW_MODE;
 extern InputMapper::InputID INPUT_EXIT;
