@@ -166,7 +166,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
    
     m_glowProgram->use();
 
-    f32 scale = (f32)((sCmp.temperature - MIN_TMP) / TMP_RANGE);
+    f32 scale = glm::clamp((f32)((sCmp.temperature - MIN_TMP) / TMP_RANGE), 0.0f, 1.0f);
 
     // Upload uniforms
     f32v3 center(-relCamPos);
@@ -183,7 +183,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
     // For sparkles
     f32v3 vs = viewDirW - viewRightW;
-    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z));
+    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z) * 0.5f);
 
     glUniformMatrix4fv(m_glowProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     // Bind VAO
