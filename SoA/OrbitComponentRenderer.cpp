@@ -12,7 +12,7 @@
 void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent /*= nullptr*/) {
     
     // Lazily generate mesh
-    if (cmp.vbo == 0) generateOrbitEllipse(cmp);
+    if (cmp.vbo == 0) generateOrbitEllipse(cmp, colorProgram);
     if (cmp.numVerts == 0) return;
     
     f32v4 color(f32v4(cmp.pathColor) / 255.0f);
@@ -27,18 +27,22 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     // Draw the ellipse
-    vg::GpuMemory::bindBuffer(cmp.vbo, vg::BufferTarget::ARRAY_BUFFER);
-    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
+    glBindVertexArray(cmp.vao);
     glDrawArrays(GL_LINE_STRIP, 0, cmp.numVerts);
+    glBindVertexArray(0);
 }
 
-void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp) {
+void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLProgram* colorProgram) {
 
     if (cmp.verts.empty()) return;
 
     // Need to offset the ellipse mesh based on eccentricity
     f64 xOffset = cmp.a - cmp.r1;
+
+    glGenVertexArrays(1, &cmp.vao);
+    glBindVertexArray(cmp.vao);
+
+    colorProgram->enableVertexAttribArrays();
 
     // Upload the buffer data
     vg::GpuMemory::createBuffer(cmp.vbo);
@@ -48,6 +52,9 @@ void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp) {
                                     cmp.verts.size() * sizeof(f32v3),
                                     cmp.verts.data(),
                                     vg::BufferUsageHint::STATIC_DRAW);
+    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
+    glBindVertexArray(0);
     cmp.numVerts = cmp.verts.size();
     std::vector<f32v3>().swap(cmp.verts);
 }

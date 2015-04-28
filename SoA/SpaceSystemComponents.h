@@ -102,7 +102,8 @@ struct OrbitComponent {
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
     vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
     vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
-    VGBuffer vbo = 0; ///< vbo for the ellipse
+    VGBuffer vbo = 0; ///< vbo for the ellipse mesh
+    VGBuffer vao = 0; ///< vao for the ellipse mesh
     ui32 numVerts = 0;
     std::vector<f32v3> verts; ///< Vertices for the ellipse
 };

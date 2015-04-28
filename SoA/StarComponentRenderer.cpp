@@ -205,6 +205,13 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     checkLazyLoad();
     if (m_occlusionProgram == nullptr) {
         m_occlusionProgram = vg::ShaderManager::createProgram(OCCLUSION_VERT_SRC, OCCLUSION_FRAG_SRC);
+        glGenVertexArrays(1, &m_oVao);
+        glBindVertexArray(m_oVao);
+        vg::GpuMemory::bindBuffer(m_cVbo, vg::BufferTarget::ARRAY_BUFFER);
+        vg::GpuMemory::bindBuffer(m_cIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+        m_occlusionProgram->enableVertexAttribArrays();
+        glVertexAttribPointer(m_occlusionProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glBindVertexArray(0);
     }
     if (sCmp.occlusionQuery[0] == 0) {
         glGenQueries(2, sCmp.occlusionQuery);
@@ -225,15 +232,13 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     s = glm::max(0.005, s); // make sure it never gets too small
 
     m_occlusionProgram->use();
-    m_occlusionProgram->enableVertexAttribArrays();
 
+    // Upload uniforms
     glUniform3fv(m_occlusionProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform1f(m_occlusionProgram->getUniform("unSize"), (f32)s);
     glUniformMatrix4fv(m_occlusionProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
 
-    vg::GpuMemory::bindBuffer(m_cVbo, vg::BufferTarget::ARRAY_BUFFER);
-    vg::GpuMemory::bindBuffer(m_cIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glVertexAttribPointer(m_occlusionProgram->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindVertexArray(m_oVao);
 
     glDepthMask(GL_FALSE);
     glBeginQuery(GL_SAMPLES_PASSED, sCmp.occlusionQuery[0]);
@@ -246,8 +251,9 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     glEndQuery(GL_SAMPLES_PASSED);
     glDepthMask(GL_TRUE);
 
+    glBindVertexArray(0);
+
     m_occlusionProgram->unuse();
-    m_occlusionProgram->disableVertexAttribArrays();
 }
 
 
@@ -271,6 +277,12 @@ void StarComponentRenderer::disposeShaders() {
     }
     if (m_glowProgram) {
         vg::ShaderManager::destroyProgram(&m_glowProgram);
+    }
+    if (m_occlusionProgram) {
+        vg::ShaderManager::destroyProgram(&m_occlusionProgram);
+        // Also destroy VAO since they are related
+        glDeleteVertexArrays(1, &m_oVao);
+        m_oVao = 0;
     }
     disposeBuffers();
 }

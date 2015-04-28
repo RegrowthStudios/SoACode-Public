@@ -81,7 +81,9 @@ private:
     VGIndexBuffer m_cIbo = 0;
     VGVertexArray m_cVao = 0;
     // Glow
-    VGBuffer m_gVao = 0;
+    VGVertexArray m_gVao = 0;
+    // Occlusion
+    VGVertexArray m_oVao = 0;
     
     vg::BitmapResource m_tempColorMap;
     VGTexture m_glowColorMap = 0;

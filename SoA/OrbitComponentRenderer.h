@@ -29,7 +29,7 @@ public:
     void drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& WVP, NamePositionComponent* npComponent,
                   const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent = nullptr);
 private:
-    void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp);
+    void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLProgram* colorProgram);
 };
 
 #endif // OrbitComponentRenderer_h__
