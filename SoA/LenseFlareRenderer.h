@@ -41,6 +41,8 @@ private:
     const ModPathResolver* m_textureResolver = nullptr;
     vg::GLProgram* m_program = nullptr;
     VGTexture m_texture = 0;
+    ui32 m_texWidth = 0;
+    ui32 m_texHeight = 0;
     VGBuffer m_vbo = 0;
     VGBuffer m_ibo = 0;
     VGVertexArray m_vao = 0;

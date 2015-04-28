@@ -15,27 +15,30 @@
 
 struct FlareVertex {
     f32v2 position;
-    ui8v2 uv;
-    ui8v2 padding;
+    f32v2 uv;
     f32 offset;
 };
 
 struct FlareSprite {
+    bool rotate = false;
     f32 offset;
     f32 size;
-    i32 textureIndex;
+    ui32 textureIndex;
 };
 KEG_TYPE_DEF_SAME_NAME(FlareSprite, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, rotate, BOOL);
     KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, offset, F32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, size, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, textureIndex, I32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareSprite, textureIndex, UI32);
 }
 
 struct FlareKegProperties {
-    f32 intensity;
+    ui32 spritesPerRow = 1;
+    f32 intensity = 1.0f;
     Array<FlareSprite> sprites;
 };
 KEG_TYPE_DEF_SAME_NAME(FlareKegProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FlareKegProperties, spritesPerRow, UI32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, FlareKegProperties, intensity, F32);
     kt.addValue("sprites", keg::Value::array(offsetof(FlareKegProperties, sprites), keg::Value::custom(0, "FlareSprite", false)));
 }
@@ -129,7 +132,8 @@ void LenseFlareRenderer::lazyInit() {
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load Effects/lens_flares.png\n");
         }
-
+        m_texWidth = res.width;
+        m_texHeight = res.height;
         m_texture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 
@@ -168,37 +172,39 @@ void LenseFlareRenderer::initMesh() {
         f32v2(1.0f, -1.0f),
         f32v2(1.0f, 1.0f)
     };
-    const ui8v2 uvs[2][4] = {
-        {
-            ui8v2(0, 255),
-            ui8v2(0, 0),
-            ui8v2(127, 0),
-            ui8v2(127, 255)
-        },
-        {
-            ui8v2(127, 255),
-            ui8v2(127, 0),
-            ui8v2(255, 0),
-            ui8v2(255, 255)
-        }
-        
+    const f32v2 uvs[4] = {
+        f32v2(0.0f, 1.0f),
+        f32v2(0.0f, 0.0f),
+        f32v2(1.0f, 0.0f),
+        f32v2(1.0f, 1.0f)
     };
+    
+    ui32 xSprites = properties.spritesPerRow;
+    ui32 spriteDims = m_texWidth / xSprites;
+    if (spriteDims == 0) pError("Lens flare has sprite dims of 0!");
+    ui32 ySprites = m_texHeight / spriteDims;
+    f32v2 uvSprite(spriteDims / (f32)m_texWidth,
+                   spriteDims / (f32)m_texHeight);
+
     const ui16 quadIndices[INDICES_PER_QUAD] = { 0, 1, 2, 2, 3, 0 };
 
     std::vector<FlareVertex> vertices(m_numSprites * VERTS_PER_QUAD);
     std::vector<ui16> indices(m_numSprites * INDICES_PER_QUAD);
     int index = 0;
-    // Rings
+
     for (int i = 0; i < m_numSprites; i++) {
         FlareSprite& s = sprites[i];
+        f32v2 uvOffset = f32v2(s.textureIndex % xSprites,
+                               s.textureIndex / xSprites) * uvSprite;
+
         vertices[index].position = positions[0] * s.size;
         vertices[index + 1].position = positions[1] * s.size;
         vertices[index + 2].position = positions[2] * s.size;
         vertices[index + 3].position = positions[3] * s.size;
-        vertices[index].uv = uvs[s.textureIndex][0];
-        vertices[index + 1].uv = uvs[s.textureIndex][1];
-        vertices[index + 2].uv = uvs[s.textureIndex][2];
-        vertices[index + 3].uv = uvs[s.textureIndex][3];
+        vertices[index].uv = uvs[0] * uvSprite + uvOffset;
+        vertices[index + 1].uv = uvs[1] * uvSprite + uvOffset;
+        vertices[index + 2].uv = uvs[2] * uvSprite + uvOffset;
+        vertices[index + 3].uv = uvs[3] * uvSprite + uvOffset;
         vertices[index].offset = s.offset;
         vertices[index + 1].offset = s.offset;
         vertices[index + 2].offset = s.offset;
@@ -226,7 +232,7 @@ void LenseFlareRenderer::initMesh() {
 
     m_program->enableVertexAttribArrays();
     glVertexAttribPointer(m_program->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, position));
-    glVertexAttribPointer(m_program->getAttribute("vUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(FlareVertex), offsetptr(FlareVertex, uv));
+    glVertexAttribPointer(m_program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, uv));
     glVertexAttribPointer(m_program->getAttribute("vOffset"), 1, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, offset));
 
     glBindVertexArray(0);
