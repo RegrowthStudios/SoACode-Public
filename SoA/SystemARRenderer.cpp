@@ -59,12 +59,10 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_selectorTexture = selectorTexture;
     m_viewport = viewport;
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     drawPaths();
     if (m_systemViewer) {
         drawHUD();
     }
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void SystemARRenderer::buildShader() {
@@ -81,8 +79,8 @@ void SystemARRenderer::buildShader() {
 
 void SystemARRenderer::drawPaths() {
 
-    vg::DepthState::READ.set();
-    float alpha;
+    //vg::DepthState::READ.set();
+    float blendFactor;
 
     // Draw paths
     m_colorProgram->use();
@@ -98,19 +96,19 @@ void SystemARRenderer::drawPaths() {
             if (bodyArData == nullptr) continue;
 
             // Interpolated alpha
-            alpha = 0.15 + 0.85 * hermite(bodyArData->hoverTime);
+            blendFactor = hermite(bodyArData->hoverTime);
         } else {
-            alpha = 0.15;
+            blendFactor = 0.0;
         }
 
         auto& cmp = it.second;
         if (cmp.parentOrbId) {
             OrbitComponent& pOrbCmp = m_spaceSystem->m_orbitCT.get(cmp.parentOrbId);
             m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                                              m_camera->getPosition(), alpha, &m_spaceSystem->m_namePositionCT.get(pOrbCmp.npID));
+                                              m_camera->getPosition(), blendFactor, &m_spaceSystem->m_namePositionCT.get(pOrbCmp.npID));
         } else {
             m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                                              m_camera->getPosition(), alpha);
+                                              m_camera->getPosition(), blendFactor);
         }
     }
     m_colorProgram->disableVertexAttribArrays();
@@ -160,13 +158,8 @@ void SystemARRenderer::drawHUD() {
 
             // Find its orbit path color and do color interpolation
             componentID = m_spaceSystem->m_orbitCT.getComponentID(it.first);
-            if (componentID) {
-                const ui8v4& tcolor = m_spaceSystem->m_orbitCT.get(componentID).pathColor;
-                ColorRGBA8 targetColor(tcolor.r, tcolor.g, tcolor.b, tcolor.a);
-                textColor.lerp(color::White, targetColor, interpolator);
-            } else {
-                textColor.lerp(color::White, color::Aquamarine, interpolator);
-            }
+     
+            textColor.lerp(color::LightGray, color::White, interpolator);
 
             f32 selectorSize = bodyArData->selectorSize;
 

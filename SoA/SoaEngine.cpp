@@ -157,6 +157,9 @@ void SoaEngine::destroyGameSystem(SoaState* state) {
 void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
+    // Load the path color scheme
+    loadPathColors(pr);
+
     // Load the system
     loadSystemProperties(pr);
 
@@ -165,6 +168,51 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
 
     // Set up parent connections and orbits
     initOrbits(pr);
+}
+
+// Only used in SoaEngine::loadPathColors
+struct PathColorKegProps {
+    ui8v3 base = ui8v3(0);
+    ui8v3 hover = ui8v3(0);
+};
+KEG_TYPE_DEF_SAME_NAME(PathColorKegProps, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, base, UI8_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, hover, UI8_V3);
+}
+
+bool SoaEngine::loadPathColors(SpaceSystemLoadParams& pr) {
+    nString data;
+    if (!pr.ioManager->readFileToString("PathColors.yml", data)) {
+        pError("Couldn't find " + pr.dirPath + "/PathColors.yml");
+    }
+
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        fprintf(stderr, "Failed to load %s\n", (pr.dirPath + "/PathColors.yml").c_str());
+        context.reader.dispose();
+        return false;
+    }
+   
+    bool goodParse = true;
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+        PathColorKegProps props;
+        keg::Error err = keg::parse((ui8*)&props, value, context, &KEG_GLOBAL_TYPE(PathColorKegProps));
+        if (err != keg::Error::NONE) {
+            fprintf(stderr, "Failed to parse node %s in PathColors.yml\n", name.c_str());
+            goodParse = false;
+        }
+        f32v3 base = f32v3(props.base) / 255.0f;
+        f32v3 hover = f32v3(props.hover) / 255.0f;
+        pr.spaceSystem->pathColorMap[name] = std::make_pair(base, hover);
+    });
+
+    context.reader.forAllInMap(node, f);
+    delete f;
+    context.reader.dispose();
+    return goodParse;
 }
 
 bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
@@ -187,12 +235,12 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
-            pr.spaceSystem->systemDescription = name;
+            pr.spaceSystem->systemDescription = keg::convert<nString>(value);
         } else {
             SystemBodyKegProperties properties;
             keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
+                fprintf(stderr, "Failed to parse node %s in SystemProperties.yml\n", name.c_str());
                 goodParse = false;
             }
 

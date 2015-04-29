@@ -37,6 +37,8 @@ DECL_VG(
 )
 DECL_VVOX(class VoxelMapData);
 
+enum class ObjectType;
+
 namespace SpaceSystemAssemblages {
     /************************************************************************/
     /* Entity Factories                                                     */
@@ -141,11 +143,10 @@ namespace SpaceSystemAssemblages {
 
     /// Orbit component
     extern vecs::ComponentID addOrbitComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                               vecs::ComponentID npComp,
+                                               vecs::ComponentID npComp, ObjectType oType,
                                                f64 eccentricity, f64 orbitalPeriod,
                                                f64 ascendingLong, f64 periapsisLong,
-                                               f64 inclination, f64 trueAnomaly,
-                                               const ui8v4& pathColor);
+                                               f64 inclination, f64 trueAnomaly);
     extern void removeOrbitComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Space Light Component

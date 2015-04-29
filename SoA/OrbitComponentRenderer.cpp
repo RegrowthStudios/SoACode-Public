@@ -2,20 +2,21 @@
 #include "OrbitComponentRenderer.h"
 
 #include <Vorb/graphics/GLProgram.h>
-#include <glm/gtx/quaternion.hpp>
 #include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/utils.h>
+
+#include <glm/gtx/quaternion.hpp>
 
 #include "Constants.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 
-void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent /*= nullptr*/) {
+void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
     
     // Lazily generate mesh
     if (cmp.vbo == 0) generateOrbitEllipse(cmp, colorProgram);
     if (cmp.numVerts == 0) return;
     
-    f32v4 color(f32v4(cmp.pathColor) / 255.0f);
     f32m4 w(1.0f);
     if (parentNpComponent) {
         setMatrixTranslation(w, parentNpComponent->position - camPos);
@@ -23,7 +24,10 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
         setMatrixTranslation(w, -camPos);
     }
     f32m4 pathMatrix = wvp * w;
-    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, alpha);
+    
+    // Blend hover color
+    f32v3 color = lerp(cmp.pathColor[0], cmp.pathColor[1], blendFactor);
+    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, 1.0f);
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     // Draw the ellipse

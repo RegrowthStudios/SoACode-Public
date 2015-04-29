@@ -25,29 +25,6 @@
 
 #define SEC_PER_DAY 86400.0
 
-ui8v4 getOrbitPathColor(const SystemBodyKegProperties* props) {
-    switch (props->type) {
-        case ObjectType::BARYCENTER:
-            return ui8v4(255, 0, 0, 255);
-        case ObjectType::STAR:
-            return ui8v4(255, 255, 0, 255);
-        case ObjectType::PLANET:
-            return ui8v4(0, 255, 0, 255);
-        case ObjectType::DWARF_PLANET:
-            return ui8v4(0, 128, 0, 255);
-        case ObjectType::MOON:
-            return ui8v4(96, 128, 255, 255);
-        case ObjectType::DWARF_MOON:
-            return ui8v4(48, 64, 128, 255);
-        case ObjectType::ASTEROID:
-            return ui8v4(80, 80, 80, 255);
-        case ObjectType::COMET:
-            return ui8v4(80, 104, 128, 255);
-        default:
-            return ui8v4(80, 80, 80, 255);
-    }
-}
-
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
                            const SystemBodyKegProperties* sysProps,
                            SystemBody* body, f64 bodyRadius) {
@@ -57,10 +34,9 @@ vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                               sysProps->t, sysProps->n, sysProps->p,
-                                              sysProps->i, sysProps->a,
-                                              getOrbitPathColor(sysProps));
+                                              sysProps->i, sysProps->a);
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, bodyRadius, body->mass);
 
@@ -97,10 +73,9 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                at.waveLength);
     }
 
-    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                               sysProps->t, sysProps->n, sysProps->p,
-                                              sysProps->i, sysProps->a,
-                                              getOrbitPathColor(sysProps));
+                                              sysProps->i, sysProps->a);
 
     return id;
 }
@@ -130,10 +105,9 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
-                                                     sysProps->i, sysProps->a,
-                                                     getOrbitPathColor(sysProps));
+                                                     sysProps->i, sysProps->a);
 
     return id;
 }
@@ -171,10 +145,9 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
                                at.waveLength);
     }
 
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->e,
+    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
-                                                     sysProps->i, sysProps->a,
-                                                     getOrbitPathColor(sysProps));
+                                                     sysProps->i, sysProps->a);
 
     return id;
 }
@@ -417,21 +390,43 @@ void SpaceSystemAssemblages::removeNamePositionComponent(SpaceSystem* spaceSyste
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addOrbitComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                            vecs::ComponentID npComp,
+                                                            vecs::ComponentID npComp, ObjectType oType,
                                                             f64 eccentricity, f64 orbitalPeriod,
                                                             f64 ascendingLong, f64 periapsisLong,
-                                                            f64 inclination, f64 trueAnomaly,
-                                                            const ui8v4& pathColor) {
+                                                            f64 inclination, f64 trueAnomaly) {
     vecs::ComponentID oCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
     auto& oCmp = spaceSystem->m_orbitCT.get(oCmpId);
     oCmp.e = eccentricity;
     oCmp.t = orbitalPeriod;
-    oCmp.pathColor = pathColor;
     oCmp.npID = npComp;
     oCmp.o = ascendingLong * DEG_TO_RAD;
     oCmp.p = periapsisLong * DEG_TO_RAD;
     oCmp.i = inclination * DEG_TO_RAD;
     oCmp.startTrueAnomaly = trueAnomaly * DEG_TO_RAD;
+
+    // Get the path color
+    std::pair<f32v3, f32v3> pathColor(f32v3(0.0f), f32v3(0.0f));
+    switch (oType) {
+        case ObjectType::STAR:
+            pathColor = spaceSystem->pathColorMap["Star"]; break;
+        case ObjectType::PLANET:
+            pathColor = spaceSystem->pathColorMap["Planet"]; break;
+        case ObjectType::DWARF_PLANET:
+            pathColor = spaceSystem->pathColorMap["DwarfPlanet"]; break;
+        case ObjectType::MOON:
+            pathColor = spaceSystem->pathColorMap["Moon"]; break;
+        case ObjectType::DWARF_MOON:
+            pathColor = spaceSystem->pathColorMap["DwarfMoon"]; break;
+        case ObjectType::ASTEROID:
+            pathColor = spaceSystem->pathColorMap["Asteroid"]; break;
+        case ObjectType::COMET:
+            pathColor = spaceSystem->pathColorMap["Comet"]; break;
+        default:
+            break;
+    }
+    oCmp.pathColor[0] = pathColor.first;
+    oCmp.pathColor[1] = pathColor.second;
+
     return oCmpId;
 }
 

@@ -76,6 +76,11 @@ private:
     /// @param pr: params
     static void addStarSystem(SpaceSystemLoadParams& pr);
 
+    /// Loads path color scheme
+    /// @param pr: params
+    /// @return true on success
+    static bool loadPathColors(SpaceSystemLoadParams& pr);
+
     /// Loads and adds system properties to the params
     /// @param pr: params
     /// @return true on success

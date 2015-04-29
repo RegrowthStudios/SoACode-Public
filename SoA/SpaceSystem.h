@@ -76,14 +76,7 @@ public:
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
     std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
 
-protected:
-    void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
-
-    void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
-
-    void addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body);
-
-    vio::IOManager m_ioManager;
+    std::map<nString, std::pair<f32v3, f32v3> > pathColorMap; ///< Map of body type to path colors
 };
 
 #endif // SpaceSystem_h__
