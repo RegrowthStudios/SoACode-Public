@@ -26,8 +26,12 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
     f32m4 pathMatrix = wvp * w;
     
     // Blend hover color
-    f32v3 color = lerp(cmp.pathColor[0], cmp.pathColor[1], blendFactor);
-    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, 1.0f);
+    if (cmp.pathColor[0].r == 0.0f && cmp.pathColor[0].g == 0.0f && cmp.pathColor[0].b == 0.0f) {
+        glUniform4f(colorProgram->getUniform("unColor"), cmp.pathColor[1].r, cmp.pathColor[1].g, cmp.pathColor[1].b, blendFactor);
+    } else {
+        f32v3 color = lerp(cmp.pathColor[0], cmp.pathColor[1], blendFactor);
+        glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, 1.0f);
+    }
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     // Draw the ellipse

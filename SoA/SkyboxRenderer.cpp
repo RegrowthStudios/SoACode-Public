@@ -53,7 +53,7 @@ uniform sampler2DArray unTex;
 in vec3 fUVW;
 out vec4 pColor;
 void main() {
-  pColor = texture(unTex, vec3(fUVW.xy, 0.0));
+  pColor = texture(unTex, vec3(fUVW.xyz));
   pColor.a = 1.0;
 })";
 }

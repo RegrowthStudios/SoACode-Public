@@ -18,7 +18,7 @@ public:
 
     f32 specularExponent = 8.0f;
     f32 specularIntensity = 0.3f;
-    f32 hdrExposure = 3.0f;
+    f32 hdrExposure = 1.3f;
     f32 gamma = 0.5f;
     f32 secColorMult = 0.1f;
     f32 fov = 70.0f;
