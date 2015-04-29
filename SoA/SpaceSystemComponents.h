@@ -103,8 +103,9 @@ struct OrbitComponent {
     vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
     VGBuffer vbo = 0; ///< vbo for the ellipse mesh
     VGBuffer vao = 0; ///< vao for the ellipse mesh
-    ui32 numVerts = 0;
+    ui32 numVerts = 0; ///< Number of vertices in the ellipse
     std::vector<f32v3> verts; ///< Vertices for the ellipse
+    bool isCalculated = false; ///< True when orbit has been calculated
 };
 
 struct SphericalGravityComponent {
@@ -137,8 +138,6 @@ struct SphericalVoxelComponent {
     vecs::ComponentID farTerrainComponent = 0;
     vecs::ComponentID namePositionComponent = 0;
     vecs::ComponentID axisRotationComponent = 0;
-
-    // WorldCubeFace transitionFace = FACE_NONE;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;

@@ -50,7 +50,7 @@ ui8v4 getOrbitPathColor(const SystemBodyKegProperties* props) {
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
                            const SystemBodyKegProperties* sysProps,
-                           SystemBody* body) {
+                           SystemBody* body, f64 bodyRadius) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -61,6 +61,9 @@ vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
                                               sysProps->t, sysProps->n, sysProps->p,
                                               sysProps->i, sysProps->a,
                                               getOrbitPathColor(sysProps));
+
+    addSphericalGravityComponent(spaceSystem, id, npCmp, bodyRadius, body->mass);
+
     return id;
 }
 

@@ -204,7 +204,8 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
             if (properties.path.size()) {
                 loadBodyProperties(pr, properties.path, &properties, body);
             } else {
-                SpaceSystemAssemblages::createOrbit(pr.spaceSystem, &properties, body);
+                // Make default orbit (used for barycenters)
+                SpaceSystemAssemblages::createOrbit(pr.spaceSystem, &properties, body, 0.0);
             }
             if (properties.type == ObjectType::BARYCENTER) {
                 pr.barycenters[name] = body;
@@ -295,41 +296,86 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
 
 void SoaEngine::initBinaries(SpaceSystemLoadParams& pr) {
     for (auto& it : pr.barycenters) {
-        f64 mass = 0.0;
         SystemBody* bary = it.second;
 
-        if (bary->properties.comps.size() != 2) return;
-        // A component
-        auto& bodyA = pr.systemBodies.find(std::string(bary->properties.comps[0]));
-        if (bodyA == pr.systemBodies.end()) return;
-        auto& aProps = bodyA->second->properties;
-        // Get the mass
-        mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyA->second->entity).mass;
+        initBinary(pr, bary);
+    }
+}
 
-        // B component
-        auto& bodyB = pr.systemBodies.find(std::string(bary->properties.comps[1]));
-        if (bodyB == pr.systemBodies.end()) return;
-        auto& bProps = bodyB->second->properties;
-        // Get the mass
-        mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyB->second->entity).mass;
-        // Use orbit parameters relative to A component
-        bProps.ref = bodyA->second->name;
-        bProps.td = 1.0f;
-        bProps.tf = 1.0f;
-        bProps.e = aProps.e;
-        bProps.i = aProps.i;
-        bProps.n = aProps.n;
-        bProps.p = aProps.p + 180.0;
-        bProps.a = aProps.a;
-        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
-        oCmp.e = bProps.e;
-        oCmp.i = bProps.i * DEG_TO_RAD;
-        oCmp.p = bProps.p * DEG_TO_RAD;
-        oCmp.o = bProps.n * DEG_TO_RAD;
-        oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
-        
-        // Set the barycenter mass
-        it.second->mass = mass;
+void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
+    // Don't update twice
+    if (bary->isBaryCalculated) return;
+    bary->isBaryCalculated = true;
+
+    // Need two components or its not a binary
+    if (bary->properties.comps.size() != 2) return;
+
+    // A component
+    auto& bodyA = pr.systemBodies.find(std::string(bary->properties.comps[0]));
+    if (bodyA == pr.systemBodies.end()) return;
+    auto& aProps = bodyA->second->properties;
+
+    // B component
+    auto& bodyB = pr.systemBodies.find(std::string(bary->properties.comps[1]));
+    if (bodyB == pr.systemBodies.end()) return;
+    auto& bProps = bodyB->second->properties;
+
+    // Set orbit parameters relative to A component
+    bProps.ref = bodyA->second->name;
+    bProps.td = 1.0f;
+    bProps.tf = 1.0f;
+    bProps.e = aProps.e;
+    bProps.i = aProps.i;
+    bProps.n = aProps.n;
+    bProps.p = aProps.p + 180.0;
+    bProps.a = aProps.a;
+    auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
+    oCmp.e = bProps.e;
+    oCmp.i = bProps.i * DEG_TO_RAD;
+    oCmp.p = bProps.p * DEG_TO_RAD;
+    oCmp.o = bProps.n * DEG_TO_RAD;
+    oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+
+    // Get the A mass
+    auto& aSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyA->second->entity);
+    f64 massA = aSgCmp.mass;
+    // Recurse if child is a non-constructed binary
+    if (massA == 0.0) {
+        initBinary(pr, bodyA->second);
+        massA = aSgCmp.mass;
+    }
+
+    // Get the B mass
+    auto& bSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyB->second->entity);
+    f64 massB = bSgCmp.mass;
+    // Recurse if child is a non-constructed binary
+    if (massB == 0.0) {
+        initBinary(pr, bodyB->second);
+        massB = bSgCmp.mass;
+    }
+
+    // Set the barycenter mass
+    bary->mass = massA + massB;
+
+    auto& barySgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bary->entity);
+    barySgCmp.mass = bary->mass;
+
+    {// Calculate A orbit
+        SystemBody* body = bodyA->second;
+        body->parent = bary;
+        f64 massRatio = massB / (massA + massB);
+        calculateOrbit(pr, body->entity,
+                       barySgCmp.mass,
+                       body, massRatio);
+    }
+
+    {// Calculate B orbit
+        SystemBody* body = bodyB->second;
+        body->parent = bary;
+        f64 massRatio = massA / (massA + massB);
+        calculateOrbit(pr, body->entity,
+                        barySgCmp.mass,
+                        body, massRatio);
     }
 }
 
@@ -342,10 +388,6 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
             auto& p = pr.systemBodies.find(parent);
             if (p != pr.systemBodies.end()) {
                 body->parent = p->second;
-
-                // Provide the orbit component with it's parent
-                pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
-                    pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
 
                 // Calculate the orbit using parent mass
                 calculateOrbit(pr, body->entity,
@@ -402,9 +444,17 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
 }
 
 void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               const SystemBody* body) {
+                               const SystemBody* body, f64 binaryMassRatio /* = 0.0 */) {
     SpaceSystem* spaceSystem = pr.spaceSystem;
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
+
+    // If the orbit was already calculated, don't do it again.
+    if (orbitC.isCalculated) return;
+    orbitC.isCalculated = true;
+
+    // Provide the orbit component with it's parent
+    pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
+        pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
 
     // Find reference body
     if (!body->properties.ref.empty()) {
@@ -420,13 +470,18 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
 
     f64 t = orbitC.t;
     f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
+   
+    if (binaryMassRatio > 0.0) { // Binary orbit
+        orbitC.a = pow((t * t) * M_G * parentMass /
+                       (4.0 * (M_PI * M_PI)), 1.0 / 3.0) * KM_PER_M * binaryMassRatio;
+    } else { // Regular orbit
+        // Calculate semi-major axis
+        orbitC.a = pow((t * t) * M_G * (mass + parentMass) /
+                       (4.0 * (M_PI * M_PI)), 1.0 / 3.0) * KM_PER_M;
+    } 
 
-    // Calculate semi-major axis
-    orbitC.a = pow((t * t) / 4.0 / (M_PI * M_PI) * M_G *
-                           (mass + parentMass), 1.0 / 3.0) * KM_PER_M;
     // Calculate semi-minor axis
-    orbitC.b = orbitC.a *
-        sqrt(1.0 - orbitC.e * orbitC.e);
+    orbitC.b = orbitC.a * sqrt(1.0 - orbitC.e * orbitC.e);
 
     // Set parent pass
     orbitC.parentMass = parentMass;

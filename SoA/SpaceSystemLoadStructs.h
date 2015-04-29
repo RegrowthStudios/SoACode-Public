@@ -86,6 +86,7 @@ struct SystemBody {
     BodyType type = BodyType::NONE;
     SystemBodyKegProperties properties;
     f64 mass = 0.0;
+    bool isBaryCalculated = false; ///< Used by barycenters
 };
 
 struct PlanetKegProperties {

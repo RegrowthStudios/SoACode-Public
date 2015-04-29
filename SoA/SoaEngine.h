@@ -92,6 +92,8 @@ private:
 
     // Sets up mass parameters for binaries
     static void initBinaries(SpaceSystemLoadParams& pr);
+    // Recursive function for binary creation
+    static void initBinary(SpaceSystemLoadParams& pr, SystemBody* bary);
 
     // Initializes orbits and parent connections
     static void initOrbits(SpaceSystemLoadParams& pr);
@@ -102,7 +104,7 @@ private:
                                SystemBody* body);
 
     static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               const SystemBody* body);
+                               const SystemBody* body, f64 binaryMassRatio = 0.0);
 
 };
 

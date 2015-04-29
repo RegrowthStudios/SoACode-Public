@@ -45,7 +45,7 @@ namespace SpaceSystemAssemblages {
     // Plain orbit entity
     extern vecs::EntityID createOrbit(SpaceSystem* spaceSystem,
                                        const SystemBodyKegProperties* sysProps,
-                                       SystemBody* body);
+                                       SystemBody* body, f64 bodyRadius);
 
     /// Planet entity
     extern vecs::EntityID createPlanet(SpaceSystem* spaceSystem,
