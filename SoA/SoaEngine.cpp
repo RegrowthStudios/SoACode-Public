@@ -350,7 +350,7 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
                 // Calculate the orbit using parent mass
                 calculateOrbit(pr, body->entity,
                                 pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
-                                body, false);
+                                body);
               
             }
         }
@@ -402,37 +402,36 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
 }
 
 void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               const SystemBody* body, bool isBinary) {
+                               const SystemBody* body) {
     SpaceSystem* spaceSystem = pr.spaceSystem;
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
 
+    // Find reference body
     if (!body->properties.ref.empty()) {
         auto it = pr.systemBodies.find(body->properties.ref);
         if (it != pr.systemBodies.end()) {
             SystemBody* ref = it->second;
+            // Calculate period using reference body
             orbitC.t = ref->properties.t * body->properties.tf / body->properties.td;
         } else {
             fprintf(stderr, "Failed to find ref body %s\n", body->properties.ref.c_str());
         }
     }
 
-    f64 per = orbitC.t;
+    f64 t = orbitC.t;
     f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
-    if (isBinary) parentMass -= mass;
-    orbitC.a = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
+
+    // Calculate semi-major axis
+    orbitC.a = pow((t * t) / 4.0 / (M_PI * M_PI) * M_G *
                            (mass + parentMass), 1.0 / 3.0) * KM_PER_M;
+    // Calculate semi-minor axis
     orbitC.b = orbitC.a *
         sqrt(1.0 - orbitC.e * orbitC.e);
-    orbitC.parentMass = parentMass;
-    if (isBinary) {
-        //  orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
-        //      mass / (orbitC.totalMass);
-        orbitC.r1 = orbitC.a;
-    } else {
-        orbitC.r1 = orbitC.a * (1.0 - orbitC.e);
-    }
 
-    { // Make the ellipse with stepwise simulation
+    // Set parent pass
+    orbitC.parentMass = parentMass;
+
+    { // Make the ellipse mesh with stepwise simulation
         OrbitComponentUpdater updater;
         static const int NUM_VERTS = 2880;
         orbitC.verts.resize(NUM_VERTS + 1);

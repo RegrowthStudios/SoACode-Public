@@ -36,9 +36,6 @@ void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLPro
 
     if (cmp.verts.empty()) return;
 
-    // Need to offset the ellipse mesh based on eccentricity
-    f64 xOffset = cmp.a - cmp.r1;
-
     glGenVertexArrays(1, &cmp.vao);
     glBindVertexArray(cmp.vao);
 

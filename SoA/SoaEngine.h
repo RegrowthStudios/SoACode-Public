@@ -102,7 +102,7 @@ private:
                                SystemBody* body);
 
     static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               const SystemBody* body, bool isBinary);
+                               const SystemBody* body);
 
 };
 

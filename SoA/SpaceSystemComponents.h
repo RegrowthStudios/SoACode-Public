@@ -96,7 +96,6 @@ struct OrbitComponent {
     f64 o = 0.0; ///< Longitude of the ascending node in rad
     f64 p = 0.0; ///< Longitude of the periapsis in rad
     f64 i = 0.0; ///< Inclination in rad
-    f64 r1 = 0.0; ///< Closest distance to focal point in KM
     f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space in KM/s
     f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent in KM/s
     ui8v4 pathColor = ui8v4(255); ///< Color of the path
