@@ -83,6 +83,7 @@ void MainMenuRenderPipeline::render() {
     m_spaceSystemRenderStage->setShowAR(m_showAR);
     m_spaceSystemRenderStage->render();
 
+
     f32v3 colorFilter(1.0);
     // Color filter rendering
     if (m_colorFilter != 0) {
@@ -100,6 +101,11 @@ void MainMenuRenderPipeline::render() {
         m_colorFilterRenderStage->render();
     }
 
+    // Render last
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_spaceSystemRenderStage->renderStarGlows(colorFilter);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Post processing
     m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
 
@@ -114,10 +120,7 @@ void MainMenuRenderPipeline::render() {
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
 
-    // Render stuff that doesn't want HDR
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_spaceSystemRenderStage->renderStarGlows(colorFilter);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  
 
     if (m_showUI) m_awesomiumRenderStage->render();
 

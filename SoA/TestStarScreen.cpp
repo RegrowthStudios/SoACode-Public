@@ -152,7 +152,14 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     // TODO(Ben): render star first and figure out why depth testing is failing
     m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
     m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
+    glBlendFunc(GL_ONE, GL_ONE);
+    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
+                                           m_camera.getAspectRatio(), m_camera.getDirection(),
+                                           m_camera.getRight());
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    
+    
     if (m_isHDR) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -195,11 +202,6 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     
     m_spriteBatch.end();
 
-    glBlendFunc(GL_ONE, GL_ONE);
-    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
-                                           m_camera.getAspectRatio(), m_camera.getDirection(),
-                                           m_camera.getRight());
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     f32 width = _game->getWindow().getWidth();
     f32 height = _game->getWindow().getHeight();

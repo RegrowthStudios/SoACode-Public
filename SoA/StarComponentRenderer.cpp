@@ -158,7 +158,6 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
   
     // Compute desired size based on distance and ratio of mass to Sol mass
     f64 s = calculateGlowSize(sCmp, relCamPos) * sCmp.visibility;
-    f32v3 colorShift = getTempColorShift(sCmp);
     // Don't render if its too small
     if (s <= 0.0) return;
 
@@ -174,12 +173,9 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glUniform3fv(m_glowProgram->getUniform("unColorMult"), 1, &colorMult[0]);
     glUniform1f(m_glowProgram->getUniform("unColorMapU"), scale);
     glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
-    glUniform3fv(m_glowProgram->getUniform("unColorShift"), 1, &colorShift[0]);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_glowTexture1);
+    glBindTexture(GL_TEXTURE_2D, m_glowTexture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_glowTexture2);
-    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
     // For sparkles
     f32v3 vs = viewDirW - viewRightW;
@@ -264,8 +260,8 @@ void StarComponentRenderer::dispose() {
         vg::ImageIO().free(m_tempColorMap);
         m_tempColorMap.data = nullptr;
     }
-    if (m_glowTexture1) vg::GpuMemory::freeTexture(m_glowTexture1);
-    if (m_glowTexture2) vg::GpuMemory::freeTexture(m_glowTexture2);
+    if (m_glowTexture) vg::GpuMemory::freeTexture(m_glowTexture);
+
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -319,7 +315,7 @@ void StarComponentRenderer::checkLazyLoad() {
     if (!m_starProgram) buildShaders();
     if (!m_sVbo) buildMesh();
     if (m_tempColorMap.width == -1) loadTempColorMap();
-    if (m_glowTexture1 == 0) loadGlowTextures();
+    if (m_glowTexture == 0) loadGlowTextures();
 }
 
 void StarComponentRenderer::buildShaders() {
@@ -336,9 +332,8 @@ void StarComponentRenderer::buildShaders() {
     m_glowProgram = ShaderLoader::createProgramFromFile("Shaders/Star/glow.vert",
                                                           "Shaders/Star/glow.frag");
     m_glowProgram->use();
-    glUniform1i(m_glowProgram->getUniform("unTexture"), 0);
-    glUniform1i(m_glowProgram->getUniform("unTextureOverlay"), 1);
-    glUniform1i(m_glowProgram->getUniform("unColorMap"), 2);
+    glUniform1i(m_glowProgram->getUniform("unTextureOverlay"), 0);
+    glUniform1i(m_glowProgram->getUniform("unColorMap"), 1);
     m_glowProgram->unuse();
 }
 
@@ -463,20 +458,12 @@ void StarComponentRenderer::loadTempColorMap() {
 
 void StarComponentRenderer::loadGlowTextures() {
     vio::Path path;
-    m_textureResolver->resolvePath("Sky/Star/star_glow.png", path);
-    vg::ScopedBitmapResource rs1 = vg::ImageIO().load(path);
-    if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow.png\n");
-    } else {
-        m_glowTexture1 = vg::GpuMemory::uploadTexture(rs1.bytesUI8, rs1.width, rs1.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
-    }
-
     m_textureResolver->resolvePath("Sky/Star/star_glow_overlay.png", path);
     vg::ScopedBitmapResource rs2 = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow_overlay.png\n");
     } else {
-        m_glowTexture2 = vg::GpuMemory::uploadTexture(rs2.bytesUI8, rs2.width, rs2.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        m_glowTexture = vg::GpuMemory::uploadTexture(rs2.bytesUI8, rs2.width, rs2.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 }
 
