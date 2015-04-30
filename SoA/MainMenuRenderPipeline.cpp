@@ -4,12 +4,14 @@
 #include <Vorb/graphics/TextureCache.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/FileOps.h>
+#include <Vorb/utils.h>
 
 #include "AwesomiumRenderStage.h"
 #include "ColorFilterRenderStage.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "HdrRenderStage.h"
+#include "LogLuminanceRenderStage.h"
 #include "Options.h"
 #include "SkyboxRenderStage.h"
 #include "SoaState.h"
@@ -65,8 +67,10 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr);
+    m_logLuminanceRenderStage = ADD_STAGE(LogLuminanceRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 512);
 }
 
+f32v4 pixels[10];
 void MainMenuRenderPipeline::render() {
     
     // Bind the FBO
@@ -110,8 +114,13 @@ void MainMenuRenderPipeline::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE1);
 
+    m_logLuminanceRenderStage->render();
+
+   // printf("%f - %f\n", graphicsOptions.hdrExposure, targetExposure);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
+    glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
 

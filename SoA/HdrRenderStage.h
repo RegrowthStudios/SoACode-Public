@@ -16,8 +16,10 @@
 #define HdrRenderStage_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/IRenderStage.h>
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VG(class GLProgram);
 
 class Camera;
 

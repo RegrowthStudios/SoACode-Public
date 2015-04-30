@@ -22,14 +22,15 @@
 /// Forward declarations
 class AwesomiumRenderStage;
 class Camera;
+class ColorFilterRenderStage;
 class HdrRenderStage;
 class IAwesomiumInterface;
+class LogLuminanceRenderStage;
 class MainMenuSystemViewer;
 class SkyboxRenderStage;
 class SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
-class ColorFilterRenderStage;
 
 class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
@@ -63,6 +64,7 @@ private:
     AwesomiumRenderStage* m_awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
     SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Renders space system
+    LogLuminanceRenderStage* m_logLuminanceRenderStage = nullptr; ///< Renders log luminance for tonemapping
 
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* m_swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing

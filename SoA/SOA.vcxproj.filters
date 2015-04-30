@@ -764,6 +764,9 @@
     <ClInclude Include="ColorFilterRenderStage.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="LogLuminanceRenderStage.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1244,6 +1247,7 @@
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="ColorFilterRenderStage.cpp" />
+    <ClCompile Include="LogLuminanceRenderStage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

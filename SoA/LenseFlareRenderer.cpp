@@ -143,8 +143,8 @@ void LenseFlareRenderer::lazyInit() {
 void LenseFlareRenderer::loadSprites(FlareKegProperties& kegProps) {
     nString data;
     vio::IOManager iom;
-    if (!iom.readFileToString("Shaders/LensFlare/sprites.yml", data)) {
-        pError("Couldn't find Shaders/LensFlare/sprites.yml");
+    if (!iom.readFileToString("Data/LensFlares/SoA_defaultFlares.yml", data)) {
+        pError("Couldn't find Data/LensFlares/SoA_defaultFlares.yml");
     }
 
     keg::ReadContext context;
@@ -154,7 +154,7 @@ void LenseFlareRenderer::loadSprites(FlareKegProperties& kegProps) {
 
     keg::Error err = keg::parse((ui8*)&kegProps, node, context, &KEG_GLOBAL_TYPE(FlareKegProperties));
     if (err != keg::Error::NONE) {
-        fprintf(stderr, "Failed to parse Shaders/LensFlare/sprites.yml");
+        fprintf(stderr, "Failed to parse Data/LensFlares/SoA_defaultFlares.yml");
     }
 }
 

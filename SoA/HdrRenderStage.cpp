@@ -38,7 +38,6 @@ void HdrRenderStage::dispose() {
     }
 }
 
-
 void HdrRenderStage::render() {
     f32m4 oldVP = m_oldVP;
     f32m4 vp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
