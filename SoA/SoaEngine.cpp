@@ -368,21 +368,22 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     if (bodyB == pr.systemBodies.end()) return;
     auto& bProps = bodyB->second->properties;
 
-    // Set orbit parameters relative to A component
-    bProps.ref = bodyA->second->name;
-    bProps.td = 1.0f;
-    bProps.tf = 1.0f;
-    bProps.e = aProps.e;
-    bProps.i = aProps.i;
-    bProps.n = aProps.n;
-    bProps.p = aProps.p + 180.0;
-    bProps.a = aProps.a;
-    auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
-    oCmp.e = bProps.e;
-    oCmp.i = bProps.i * DEG_TO_RAD;
-    oCmp.p = bProps.p * DEG_TO_RAD;
-    oCmp.o = bProps.n * DEG_TO_RAD;
-    oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+    { // Set orbit parameters relative to A component
+        bProps.ref = bodyA->second->name;
+        bProps.td = 1.0f;
+        bProps.tf = 1.0f;
+        bProps.e = aProps.e;
+        bProps.i = aProps.i;
+        bProps.n = aProps.n;
+        bProps.p = aProps.p + 180.0;
+        bProps.a = aProps.a;
+        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
+        oCmp.e = bProps.e;
+        oCmp.i = bProps.i * DEG_TO_RAD;
+        oCmp.p = bProps.p * DEG_TO_RAD;
+        oCmp.o = bProps.n * DEG_TO_RAD;
+        oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+    }
 
     // Get the A mass
     auto& aSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyA->second->entity);
@@ -424,6 +425,13 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
         calculateOrbit(pr, body->entity,
                         barySgCmp.mass,
                         body, massRatio);
+    }
+
+    { // Set orbit colors from A component
+        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyA->second->entity);
+        auto& baryOCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bary->entity);
+        baryOCmp.pathColor[0] = oCmp.pathColor[0];
+        baryOCmp.pathColor[1] = oCmp.pathColor[1];
     }
 }
 

@@ -83,7 +83,6 @@ void MainMenuRenderPipeline::render() {
     m_spaceSystemRenderStage->setShowAR(m_showAR);
     m_spaceSystemRenderStage->render();
 
-
     f32v3 colorFilter(1.0);
     // Color filter rendering
     if (m_colorFilter != 0) {
@@ -119,8 +118,6 @@ void MainMenuRenderPipeline::render() {
 
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
-
-  
 
     if (m_showUI) m_awesomiumRenderStage->render();
 

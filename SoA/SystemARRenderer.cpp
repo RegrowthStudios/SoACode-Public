@@ -133,7 +133,10 @@ void SystemARRenderer::drawHUD() {
     m_spriteBatch->begin();
 
     // Render all bodies
-    for (auto& it : m_spaceSystem->m_namePositionCT) {
+    for (auto& it : m_spaceSystem->m_orbitCT) {
+
+        auto& oCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(oCmp.npID);
 
         // Get the augmented reality data
         const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
@@ -141,7 +144,7 @@ void SystemARRenderer::drawHUD() {
 
         vecs::ComponentID componentID;
 
-        f64v3 position = it.second.position;
+        f64v3 position = npCmp.position;
         f64v3 relativePos = position - m_camera->getPosition();
         color4 textColor;
 
@@ -158,7 +161,8 @@ void SystemARRenderer::drawHUD() {
 
             // Find its orbit path color and do color interpolation
             componentID = m_spaceSystem->m_orbitCT.getComponentID(it.first);
-     
+            ui8v3 ui8Color = ui8v3(lerp(oCmp.pathColor[0], oCmp.pathColor[1], interpolator) * 255.0f);
+            color4 oColor(ui8Color.r, ui8Color.g, ui8Color.b, 255u);
             textColor.lerp(color::LightGray, color::White, interpolator);
 
             f32 selectorSize = bodyArData->selectorSize;
@@ -166,13 +170,21 @@ void SystemARRenderer::drawHUD() {
             // Only render if it isn't too big
             if (selectorSize < MainMenuSystemViewer::MAX_SELECTOR_SIZE) {
 
+                // Alpha interpolation from size so they fade out
+                f32 low = MainMenuSystemViewer::MAX_SELECTOR_SIZE * 0.7f;
+                if (selectorSize > low) {
+                    oColor.a = (ui8)((1.0f - (selectorSize - low) /
+                        (MainMenuSystemViewer::MAX_SELECTOR_SIZE - low)) * 255);
+                    textColor.a = oColor.a;
+                }
+
                 // Draw Indicator
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
                                     xyScreenCoords,
                                     f32v2(0.5f, 0.5f),
                                     f32v2(selectorSize),
                                     interpolator * ROTATION_FACTOR,
-                                    textColor, screenCoords.z);
+                                    oColor, screenCoords.z);
 
                 // Text offset and scaling
                 const f32v2 textOffset(selectorSize / 2.0f, -selectorSize / 2.0f);
@@ -181,7 +193,7 @@ void SystemARRenderer::drawHUD() {
 
                 // Draw Text
                 m_spriteBatch->drawString(m_spriteFont,
-                                          it.second.name.c_str(),
+                                          npCmp.name.c_str(),
                                           xyScreenCoords + textOffset,
                                           textScale,
                                           textColor,
