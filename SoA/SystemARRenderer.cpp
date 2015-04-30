@@ -111,19 +111,30 @@ void SystemARRenderer::drawPaths() {
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
     for (auto& it : m_spaceSystem->m_orbitCT) {
-
-        // Get the augmented reality data
+        auto& cmp = it.second;
+    
+        bool isSelected = false;
+        f32v3 oldPathColor; // To cache path color since we force it to a different one
         if (m_systemViewer) {
+            // Get the augmented reality data
             const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
             if (bodyArData == nullptr) continue;
 
-            // Interpolated alpha
-            blendFactor = hermite(bodyArData->hoverTime);
+            ui8v3 ui8Color;
+            // If its selected we force a different color
+            if (m_systemViewer->getSelectedPlanet() == it.first) {
+                isSelected = true;
+                oldPathColor = cmp.pathColor[0];
+                cmp.pathColor[0] = m_spaceSystem->pathColorMap["Selected"].second;
+                blendFactor = 0.0;
+            } else {
+                // Hermite interpolated alpha
+                blendFactor = hermite(bodyArData->hoverTime);
+            }
         } else {
             blendFactor = 0.0;
         }
 
-        auto& cmp = it.second;
         if (cmp.parentOrbId) {
             OrbitComponent& pOrbCmp = m_spaceSystem->m_orbitCT.get(cmp.parentOrbId);
             m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
@@ -132,6 +143,9 @@ void SystemARRenderer::drawPaths() {
             m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
                                               m_camera->getPosition(), blendFactor);
         }
+
+        // Restore path color
+        if (isSelected) cmp.pathColor[0] = oldPathColor;
     }
     m_colorProgram->disableVertexAttribArrays();
     m_colorProgram->unuse();
@@ -179,8 +193,16 @@ void SystemARRenderer::drawHUD() {
             // Get a smooth interpolator with hermite
             f32 interpolator = hermite(hoverTime);
 
-            // Find its orbit path color and do color interpolation
-            ui8v3 ui8Color = ui8v3(lerp(oCmp.pathColor[0], oCmp.pathColor[1], interpolator) * 255.0f);
+            // Calculate colors
+            ui8v3 ui8Color;
+            // If its selected we use a different color
+            bool isSelected = false;
+            if (m_systemViewer->getSelectedPlanet() == it.first) {
+                isSelected = true;
+                ui8Color = ui8v3(m_spaceSystem->pathColorMap["Selected"].second * 255.0f);
+            } else {
+                ui8Color = ui8v3(lerp(oCmp.pathColor[0], oCmp.pathColor[1], interpolator) * 255.0f);
+            }
             color4 oColor(ui8Color.r, ui8Color.g, ui8Color.b, 255u);
             textColor.lerp(color::LightGray, color::White, interpolator);
 
@@ -229,7 +251,7 @@ void SystemARRenderer::drawHUD() {
 
             }
             // Land selector
-            if (bodyArData->isLandSelected) {
+            if (isSelected && bodyArData->isLandSelected) {
                 f32v3 selectedPos = bodyArData->selectedPos;
                 // Apply axis rotation if applicable
                 vecs::ComponentID componentID = m_spaceSystem->m_axisRotationCT.getComponentID(it.first);
