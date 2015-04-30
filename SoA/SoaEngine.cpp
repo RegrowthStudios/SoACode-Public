@@ -255,7 +255,7 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
                 // Make default orbit (used for barycenters)
                 SpaceSystemAssemblages::createOrbit(pr.spaceSystem, &properties, body, 0.0);
             }
-            if (properties.type == ObjectType::BARYCENTER) {
+            if (properties.type == SpaceObjectType::BARYCENTER) {
                 pr.barycenters[name] = body;
             }
             pr.systemBodies[name] = body;
@@ -315,19 +315,19 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             }
 
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
-            body->type = BodyType::PLANET;
+            body->type = SpaceBodyType::PLANET;
         } else if (type == "star") {
             StarKegProperties properties;
             error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(StarKegProperties));
             KEG_CHECK;
             SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
-            body->type = BodyType::STAR;
+            body->type = SpaceBodyType::STAR;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
             error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             KEG_CHECK;
             createGasGiant(pr, sysProps, &properties, body);
-            body->type = BodyType::GAS_GIANT;
+            body->type = SpaceBodyType::GAS_GIANT;
         }
 
         pr.bodyLookupMap[body->name] = body->entity;
@@ -409,7 +409,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     auto& barySgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bary->entity);
     barySgCmp.mass = bary->mass;
 
-    {// Calculate A orbit
+    { // Calculate A orbit
         SystemBody* body = bodyA->second;
         body->parent = bary;
         f64 massRatio = massB / (massA + massB);
@@ -418,7 +418,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
                        body, massRatio);
     }
 
-    {// Calculate B orbit
+    { // Calculate B orbit
         SystemBody* body = bodyB->second;
         body->parent = bary;
         f64 massRatio = massA / (massA + massB);

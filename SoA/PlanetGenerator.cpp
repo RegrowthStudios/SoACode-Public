@@ -6,16 +6,16 @@
 #include <Vorb/graphics/SamplerState.h>
 #include <random>
 
-CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(ObjectType type) {
+CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type) {
     switch (type) {
-        case ObjectType::PLANET:
-        case ObjectType::DWARF_PLANET:
-        case ObjectType::MOON:
-        case ObjectType::DWARF_MOON:
+        case SpaceObjectType::PLANET:
+        case SpaceObjectType::DWARF_PLANET:
+        case SpaceObjectType::MOON:
+        case SpaceObjectType::DWARF_MOON:
             return generatePlanet();
-        case ObjectType::ASTEROID:
+        case SpaceObjectType::ASTEROID:
             return generateAsteroid();
-        case ObjectType::COMET:
+        case SpaceObjectType::COMET:
             return generateComet();
         default:
             return nullptr;

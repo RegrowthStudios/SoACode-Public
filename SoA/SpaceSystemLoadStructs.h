@@ -20,15 +20,15 @@ struct PlanetGenData;
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/Entity.h>
 
-enum class BodyType {
+enum class SpaceBodyType {
     NONE,
     PLANET,
     STAR,
     GAS_GIANT
 };
-KEG_TYPE_DECL(BodyType);
+KEG_TYPE_DECL(SpaceBodyType);
 
-enum class ObjectType {
+enum class SpaceObjectType {
     NONE,
     BARYCENTER,
     STAR,
@@ -39,7 +39,7 @@ enum class ObjectType {
     ASTEROID,
     COMET
 };
-KEG_TYPE_DECL(ObjectType);
+KEG_TYPE_DECL(SpaceObjectType);
 
 enum class TrojanType {
     NONE,
@@ -58,7 +58,7 @@ struct AtmosphereKegProperties {
 KEG_TYPE_DECL(AtmosphereKegProperties);
 
 struct SystemBodyKegProperties {
-    ObjectType type = ObjectType::NONE;
+    SpaceObjectType type = SpaceObjectType::NONE;
     TrojanType trojan = TrojanType::NONE;
     Array<const char*> comps;
     nString par = ""; ///< Parent name
@@ -83,7 +83,7 @@ struct SystemBody {
     nString parentName = "";
     SystemBody* parent = nullptr;
     vecs::EntityID entity = 0;
-    BodyType type = BodyType::NONE;
+    SpaceBodyType type = SpaceBodyType::NONE;
     SystemBodyKegProperties properties;
     f64 mass = 0.0;
     bool isBaryCalculated = false; ///< Used by barycenters

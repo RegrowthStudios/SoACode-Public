@@ -105,6 +105,7 @@ struct OrbitComponent {
     VGBuffer vao = 0; ///< vao for the ellipse mesh
     ui32 numVerts = 0; ///< Number of vertices in the ellipse
     std::vector<f32v3> verts; ///< Vertices for the ellipse
+    SpaceObjectType type; ///< Type of object
     bool isCalculated = false; ///< True when orbit has been calculated
 };
 

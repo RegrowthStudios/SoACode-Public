@@ -1,21 +1,21 @@
 #include "stdafx.h"
 #include "SpaceSystemLoadStructs.h"
 
-KEG_ENUM_DEF(BodyType, BodyType, kt) {
-    kt.addValue("planet", BodyType::PLANET);
-    kt.addValue("star", BodyType::STAR);
-    kt.addValue("gasGiant", BodyType::GAS_GIANT);
+KEG_ENUM_DEF(SpaceBodyType, SpaceBodyType, kt) {
+    kt.addValue("planet", SpaceBodyType::PLANET);
+    kt.addValue("star", SpaceBodyType::STAR);
+    kt.addValue("gasGiant", SpaceBodyType::GAS_GIANT);
 }
 
-KEG_ENUM_DEF(ObjectType, ObjectType, kt) {
-    kt.addValue("Barycenter", ObjectType::BARYCENTER);
-    kt.addValue("Star", ObjectType::STAR);
-    kt.addValue("Planet", ObjectType::PLANET);
-    kt.addValue("DwarfPlanet", ObjectType::DWARF_PLANET);
-    kt.addValue("Moon", ObjectType::MOON);
-    kt.addValue("DwarfMoon", ObjectType::DWARF_MOON);
-    kt.addValue("Asteroid", ObjectType::ASTEROID);
-    kt.addValue("Comet", ObjectType::COMET);
+KEG_ENUM_DEF(SpaceObjectType, SpaceObjectType, kt) {
+    kt.addValue("Barycenter", SpaceObjectType::BARYCENTER);
+    kt.addValue("Star", SpaceObjectType::STAR);
+    kt.addValue("Planet", SpaceObjectType::PLANET);
+    kt.addValue("DwarfPlanet", SpaceObjectType::DWARF_PLANET);
+    kt.addValue("Moon", SpaceObjectType::MOON);
+    kt.addValue("DwarfMoon", SpaceObjectType::DWARF_MOON);
+    kt.addValue("Asteroid", SpaceObjectType::ASTEROID);
+    kt.addValue("Comet", SpaceObjectType::COMET);
 }
 
 KEG_ENUM_DEF(TrojanType, TrojanType, kt) {

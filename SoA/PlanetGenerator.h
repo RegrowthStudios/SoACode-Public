@@ -22,7 +22,7 @@ struct PlanetGenData;
 
 class PlanetGenerator {
 public:
-    static CALLEE_DELETE PlanetGenData* generateRandomPlanet(ObjectType type);
+    static CALLEE_DELETE PlanetGenData* generateRandomPlanet(SpaceObjectType type);
 private:
     static CALLEE_DELETE PlanetGenData* generatePlanet();
     static CALLEE_DELETE PlanetGenData* generateAsteroid();

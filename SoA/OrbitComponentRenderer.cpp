@@ -27,6 +27,7 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
     
     // Blend hover color
     if (cmp.pathColor[0].r == 0.0f && cmp.pathColor[0].g == 0.0f && cmp.pathColor[0].b == 0.0f) {
+        if (blendFactor <= 0.0f) return;
         glUniform4f(colorProgram->getUniform("unColor"), cmp.pathColor[1].r, cmp.pathColor[1].g, cmp.pathColor[1].b, blendFactor);
     } else {
         f32v3 color = lerp(cmp.pathColor[0], cmp.pathColor[1], blendFactor);
