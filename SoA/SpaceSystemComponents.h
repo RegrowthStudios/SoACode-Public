@@ -20,6 +20,7 @@
 #include <Vorb/graphics/gtypes.h>
 
 #include "Constants.h"
+#include "SpaceSystemLoadStructs.h"
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"

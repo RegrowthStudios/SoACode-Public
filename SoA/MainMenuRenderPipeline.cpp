@@ -63,12 +63,8 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera, &soaState->texturePathResolver);
     m_awesomiumRenderStage = ADD_STAGE(AwesomiumRenderStage, awesomiumInterface);
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
-    // TODO(Ben): Use texture pack iomanager
-    vpath tpath;
-    soaState->texturePathResolver.resolvePath("GUI/selector.png", tpath);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
-                                                          spaceSystem, nullptr, systemViewer, camera, nullptr,
-                                                          GameManager::textureCache->addTexture(tpath).id);
+                                                          spaceSystem, nullptr, systemViewer, camera, nullptr);
 }
 
 void MainMenuRenderPipeline::render() {

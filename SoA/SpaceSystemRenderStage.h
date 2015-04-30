@@ -46,8 +46,7 @@ public:
                            GameSystem* gameSystem,
                            const MainMenuSystemViewer* systemViewer,
                            const Camera* spaceCamera,
-                           const Camera* farTerrainCamera,
-                           VGTexture selectorTexture);
+                           const Camera* farTerrainCamera);
     ~SpaceSystemRenderStage();
 
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
@@ -94,7 +93,6 @@ private:
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_spaceCamera = nullptr;
     const Camera* m_farTerrainCamera = nullptr;
-    VGTexture m_selectorTexture = 0;
     const MTRenderState* m_renderState = nullptr;
 
     AtmosphereComponentRenderer m_atmosphereComponentRenderer;

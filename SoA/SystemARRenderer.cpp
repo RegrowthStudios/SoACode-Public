@@ -2,15 +2,18 @@
 #include "SystemARRenderer.h"
 
 #include "Camera.h"
-#include "SpaceSystem.h"
 #include "MainMenuSystemViewer.h"
+#include "ModPathResolver.h"
+#include "ShaderLoader.h"
+#include "SpaceSystem.h"
 
+#include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/graphics/SpriteFont.h>
-#include <Vorb/colors.h>
 #include <Vorb/utils.h>
 
 namespace {
@@ -31,32 +34,26 @@ void main() {
 )";
 }
 
+SystemARRenderer::SystemARRenderer(const ModPathResolver* textureResolver) :
+    m_textureResolver(textureResolver) {
+    // Empty
+}
+
 SystemARRenderer::~SystemARRenderer() {
-    if (m_colorProgram) {
-        m_colorProgram->dispose();
-        delete m_colorProgram;
-    }
-    if (m_spriteBatch) {
-        m_spriteBatch->dispose();
-        m_spriteFont->dispose();
-        delete m_spriteBatch;
-        delete m_spriteFont;
-    }
+    dispose();
 }
 
 void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
-                            OPT const MainMenuSystemViewer* systemViewer, VGTexture selectorTexture,
+                            OPT const MainMenuSystemViewer* systemViewer,
                             const f32v2& viewport) {
-    // Lazy shader init
-    if (!m_colorProgram) {
-        buildShader();
-    }
+    // Lazy init
+    if (!m_colorProgram) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
+    if (m_selectorTexture == 0) loadTextures();
 
     // Get handles so we don't have huge parameter lists
     m_spaceSystem = spaceSystem;
     m_camera = camera;
     m_systemViewer = systemViewer;
-    m_selectorTexture = selectorTexture;
     m_viewport = viewport;
 
     drawPaths();
@@ -65,15 +62,40 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     }
 }
 
-void SystemARRenderer::buildShader() {
-    m_colorProgram = new vg::GLProgram(true);
-    m_colorProgram->addShader(vg::ShaderType::VERTEX_SHADER, VERT_SRC);
-    m_colorProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, FRAG_SRC);
-    m_colorProgram->link();
-    m_colorProgram->initAttributes();
-    m_colorProgram->initUniforms();
-    if (!m_colorProgram->getIsLinked()) {
-        std::cerr << "Failed to link shader for SystemARRenderer\n";
+void SystemARRenderer::dispose() {
+    if (m_colorProgram) {
+        m_colorProgram->dispose();
+        delete m_colorProgram;
+        m_colorProgram = nullptr;
+    }
+    if (m_spriteBatch) {
+        m_spriteBatch->dispose();
+        m_spriteFont->dispose();
+        delete m_spriteBatch;
+        m_spriteBatch = nullptr;
+        delete m_spriteFont;
+        m_spriteFont = nullptr;
+    }
+}
+
+void SystemARRenderer::loadTextures() {
+    { // Selector
+        vio::Path path;
+        m_textureResolver->resolvePath("GUI/selector.png", path);
+        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        if (!res.data) {
+            fprintf(stderr, "ERROR: Failed to load GUI/selector.png\n");
+        }
+        m_selectorTexture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+    }
+    { // Barycenter
+        vio::Path path;
+        m_textureResolver->resolvePath("GUI/barycenter.png", path);
+        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        if (!res.data) {
+            fprintf(stderr, "ERROR: Failed to load GUI/barycenter.png\n");
+        }
+        m_baryTexture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 }
 
@@ -119,7 +141,7 @@ void SystemARRenderer::drawHUD() {
     // Currently we need a viewer for this
     if (!m_systemViewer) return;
 
-    const f32 ROTATION_FACTOR = (f32)(M_PI * 2.0 + M_PI / 4.0);
+    const f32 ROTATION_FACTOR = (f32)(M_PI + M_PI / 4.0);
     static f32 dt = 0.0;
     dt += 0.01;
 
@@ -142,8 +164,6 @@ void SystemARRenderer::drawHUD() {
         const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
         if (bodyArData == nullptr) continue;
 
-        vecs::ComponentID componentID;
-
         f64v3 position = npCmp.position;
         f64v3 relativePos = position - m_camera->getPosition();
         color4 textColor;
@@ -160,7 +180,6 @@ void SystemARRenderer::drawHUD() {
             f32 interpolator = hermite(hoverTime);
 
             // Find its orbit path color and do color interpolation
-            componentID = m_spaceSystem->m_orbitCT.getComponentID(it.first);
             ui8v3 ui8Color = ui8v3(lerp(oCmp.pathColor[0], oCmp.pathColor[1], interpolator) * 255.0f);
             color4 oColor(ui8Color.r, ui8Color.g, ui8Color.b, 255u);
             textColor.lerp(color::LightGray, color::White, interpolator);
@@ -178,8 +197,17 @@ void SystemARRenderer::drawHUD() {
                     textColor.a = oColor.a;
                 }
 
+                // Pick texture
+                VGTexture tx;
+                if (oCmp.type == SpaceObjectType::BARYCENTER) {
+                    tx = m_baryTexture;
+                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 3.0f;
+                } else {
+                    tx = m_selectorTexture;
+                }
+
                 // Draw Indicator
-                m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
+                m_spriteBatch->draw(tx, nullptr, nullptr,
                                     xyScreenCoords,
                                     f32v2(0.5f, 0.5f),
                                     f32v2(selectorSize),
@@ -204,7 +232,7 @@ void SystemARRenderer::drawHUD() {
             if (bodyArData->isLandSelected) {
                 f32v3 selectedPos = bodyArData->selectedPos;
                 // Apply axis rotation if applicable
-                componentID = m_spaceSystem->m_axisRotationCT.getComponentID(it.first);
+                vecs::ComponentID componentID = m_spaceSystem->m_axisRotationCT.getComponentID(it.first);
                 if (componentID) {
                     f64q rot = m_spaceSystem->m_axisRotationCT.get(componentID).currentOrientation;
                     selectedPos = f32v3(rot * f64v3(selectedPos));

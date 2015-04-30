@@ -37,17 +37,16 @@ SpaceSystemRenderStage::SpaceSystemRenderStage(const SoaState* soaState,
                                                GameSystem* gameSystem,
                                                const MainMenuSystemViewer* systemViewer,
                                                const Camera* spaceCamera,
-                                               const Camera* farTerrainCamera,
-                                               VGTexture selectorTexture) :
+                                               const Camera* farTerrainCamera) :
     m_viewport(viewport),
     m_spaceSystem(spaceSystem),
     m_gameSystem(gameSystem),
     m_mainMenuSystemViewer(systemViewer),
     m_spaceCamera(spaceCamera),
     m_farTerrainCamera(farTerrainCamera),
-    m_selectorTexture(selectorTexture),
     m_lensFlareRenderer(&soaState->texturePathResolver),
-    m_starRenderer(&soaState->texturePathResolver){
+    m_starRenderer(&soaState->texturePathResolver),
+    m_systemARRenderer(&soaState->texturePathResolver) {
     // Empty
 }
 
@@ -62,7 +61,7 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 void SpaceSystemRenderStage::render() {
     drawBodies();
     if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
-                                          m_mainMenuSystemViewer, m_selectorTexture,
+                                          m_mainMenuSystemViewer,
                                           m_viewport);
 }
 

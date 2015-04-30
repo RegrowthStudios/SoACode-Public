@@ -91,8 +91,7 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(windowDims),
         spaceSystem, gameSystem,
         nullptr, &m_spaceCamera,
-        &m_farTerrainCamera,
-        GameManager::textureCache->addTexture("Textures/selector.png").id);
+        &m_farTerrainCamera);
 
     loadNightVision();
     // No post-process effects to begin with

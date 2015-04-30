@@ -403,6 +403,7 @@ vecs::ComponentID SpaceSystemAssemblages::addOrbitComponent(SpaceSystem* spaceSy
     oCmp.p = periapsisLong * DEG_TO_RAD;
     oCmp.i = inclination * DEG_TO_RAD;
     oCmp.startTrueAnomaly = trueAnomaly * DEG_TO_RAD;
+    oCmp.type = oType;
 
     // Get the path color
     std::pair<f32v3, f32v3> pathColor(f32v3(0.0f), f32v3(0.0f));
