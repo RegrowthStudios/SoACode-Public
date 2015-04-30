@@ -223,7 +223,7 @@ void SystemARRenderer::drawHUD() {
                 VGTexture tx;
                 if (oCmp.type == SpaceObjectType::BARYCENTER) {
                     tx = m_baryTexture;
-                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 3.0f;
+                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.0f;
                 } else {
                     tx = m_selectorTexture;
                 }

@@ -30,6 +30,9 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
     m_camera->setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
     targetBody("Aldrin");
+    // Force target focal point
+    m_camera->setFocalPoint(getTargetPosition() -
+                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
     // Register events
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
@@ -52,8 +55,6 @@ void MainMenuSystemViewer::update() {
     if (length == 0) length = 0.1f;
     m_camera->setClippingPlane(length, m_camera->getFarClip());
     // Target closest point on sphere
-    m_camera->setFocalPoint(getTargetPosition() -
-                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
     m_camera->setTargetFocalPoint(getTargetPosition() -
                                   f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
