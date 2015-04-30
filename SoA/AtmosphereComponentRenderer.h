@@ -37,6 +37,7 @@ public:
               const f32v3& relCamPos,
               const f32v3& lightDir,
               const SpaceLightComponent* spComponent);
+    void disposeShader();
 private:
     void buildShaders();
     void buildMesh();

@@ -21,7 +21,7 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
         /// Calculate camera distance
         f64 distance = glm::length(cameraPos);
 
-        // Update fading in and out
+        // Update fading in and out animation
         if (cmp.shouldFade) {
             cmp.alpha -= TERRAIN_ALPHA_STEP;
             if (cmp.alpha <= 0.0f) {

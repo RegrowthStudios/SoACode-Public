@@ -3,8 +3,6 @@
 #include <SDL/SDL.h>
 #include <Vorb/VorbPreDecl.inl>
 
-#include "GLProgramManager.h"
-
 class DevConsole;
 
 DECL_VG(class SpriteBatch;
@@ -19,7 +17,7 @@ public:
     DevConsoleView();
     ~DevConsoleView();
 
-    void init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager);
+    void init(DevConsole* console, i32 linesToRender);
     void dispose();
 
     void onEvent(const SDL_Event& e);

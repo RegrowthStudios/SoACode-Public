@@ -4,8 +4,6 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgramManager);
-
 const static float GOLDEN_RATIO = 1.61803398875f;
 
 const static int NUM_CUBE_VERTICES = 8;
@@ -79,7 +77,7 @@ public:
 
 class DebugRenderer {
 public:
-    DebugRenderer(const vg::GLProgramManager* glProgramManager);
+    DebugRenderer();
     ~DebugRenderer();
 
     void render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w = f32m4(1.0));
@@ -108,8 +106,7 @@ private:
     SimpleMesh* _lineMesh;
 
     // Program that is currently in use
-    vg::GLProgram* _program;
-    const vg::GLProgramManager* m_glProgramManager = nullptr;
+    vg::GLProgram* m_program = nullptr;
 
     static f32m4 _modelMatrix; ///< Reusable model matrix
 

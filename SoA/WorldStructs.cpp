@@ -5,7 +5,6 @@
 #include "Chunk.h"
 #include "Options.h"
 #include "GameManager.h"
-#include "GLProgramManager.h"
 #include "RenderTask.h"
 #include "Texture2d.h"
 

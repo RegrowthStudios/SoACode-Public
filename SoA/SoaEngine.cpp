@@ -7,7 +7,6 @@
 #include "Constants.h"
 #include "DebugRenderer.h"
 #include "Errors.h"
-#include "GLProgramManager.h"
 #include "MeshManager.h"
 #include "PlanetData.h"
 #include "PlanetLoader.h"
@@ -34,9 +33,8 @@ struct SpaceSystemLoadParams {
 };
 
 void SoaEngine::initState(SoaState* state) {
-    state->glProgramManager = std::make_unique<vg::GLProgramManager>();
-    state->debugRenderer = std::make_unique<DebugRenderer>(state->glProgramManager.get());
-    state->meshManager = std::make_unique<MeshManager>(state->glProgramManager.get());
+    state->debugRenderer = std::make_unique<DebugRenderer>();
+    state->meshManager = std::make_unique<MeshManager>();
     state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
     state->systemIoManager = std::make_unique<vio::IOManager>();
 }
@@ -139,7 +137,6 @@ void SoaEngine::setPlanetBlocks(SoaState* state) {
 }
 
 void SoaEngine::destroyAll(SoaState* state) {
-    state->glProgramManager.reset();
     state->debugRenderer.reset();
     state->meshManager.reset();
     state->systemIoManager.reset();

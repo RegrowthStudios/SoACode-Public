@@ -8,7 +8,7 @@ PauseMenuRenderStage::PauseMenuRenderStage(const PauseMenu* pauseMenu) :
      // Empty
 }
 
-void PauseMenuRenderStage::draw() {
+void PauseMenuRenderStage::render() {
     if (_pauseMenu->isOpen()) {
         _pauseMenu->draw();
     }

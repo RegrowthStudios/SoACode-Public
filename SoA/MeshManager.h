@@ -26,12 +26,11 @@ class ParticleMesh;
 class PhysicsBlockMesh;
 class TerrainPatchMesh;
 
-DECL_VG(class GLProgramManager);
 
 class MeshManager
 {
 public:
-    MeshManager(const vg::GLProgramManager* glProgramManager);
+    MeshManager();
 
     /// Updates a particle mesh
     /// @param pmm: The ParticleMeshMessage sent by the update thread
@@ -52,7 +51,6 @@ private:
 
     std::vector <ParticleMesh *> _particleMeshes;
     std::vector <PhysicsBlockMesh *> _physicsBlockMeshes;
-    const vg::GLProgramManager* m_glProgramManager = nullptr;
 };
 
 #endif // MESHMANAGER_H_

@@ -14,7 +14,6 @@
 
 class GasGiantRenderer;
 
-DECL_VG(class GLProgramManager);
 DECL_VIO(class IOManager);
 
 class TestGasGiantScreen : public vui::IGameScreen {

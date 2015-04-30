@@ -2,39 +2,51 @@
 #include "SkyboxRenderStage.h"
 
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
 #include <Vorb/graphics/DepthState.h>
+#include <Vorb/io/IOManager.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
+#include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
 
-SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
-                                     const Camera* camera) :
-                                     IRenderStage(camera),
-                                     _skyboxRenderer(new SkyboxRenderer()),
-                                     _glProgram(glProgram) {
+SkyboxRenderStage::SkyboxRenderStage(const Camera* camera) :
+                                     IRenderStage("Skybox", camera),
+                                     m_skyboxRenderer(new SkyboxRenderer()) {
 
    updateProjectionMatrix();
 }
 
 
 SkyboxRenderStage::~SkyboxRenderStage() {
-    delete _skyboxRenderer;
+    delete m_skyboxRenderer;
 }
 
-void SkyboxRenderStage::draw() {
+void SkyboxRenderStage::render() {
+
+    // Lazy shader init
+    if (!m_program) {
+        buildShaders();
+    }
+
     // Check if FOV or Aspect Ratio changed
-    if (_fieldOfView != _camera->getFieldOfView() ||
-        _aspectRatio != _camera->getAspectRatio()) {
+    if (m_fieldOfView != m_camera->getFieldOfView() ||
+        m_aspectRatio != m_camera->getAspectRatio()) {
         updateProjectionMatrix();
     }
     // Draw using custom proj and camera view
-    drawSpace(_projectionMatrix * _camera->getViewMatrix());
+    drawSpace(m_projectionMatrix * m_camera->getViewMatrix());
+}
+
+void SkyboxRenderStage::buildShaders() {
+    vio::IOManager iom; // TODO(Ben): Maybe pass in instead
+    m_program = ShaderLoader::createProgramFromFile("Shaders/TextureShading/TextureShading.vert",
+                                                    "Shaders/TextureShading/TextureShading.frag");
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
     vg::DepthState::NONE.set();
-    _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
+    m_skyboxRenderer->drawSkybox(m_program, VP, skyboxTextures);
     vg::DepthState::FULL.set();
 }
 
@@ -49,8 +61,8 @@ void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
     float sinTheta2 = sin(theta + off);
 
     // Bind shader
-    _glProgram->use();
-    _glProgram->enableVertexAttribArrays();
+    m_program->use();
+    m_program->enableVertexAttribArrays();
 
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
@@ -59,9 +71,9 @@ void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sunTexture.id);
     // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(_glProgram->getUniform("unTex"), 0);
+    glUniform1i(m_program->getUniform("unTex"), 0);
 
-    glUniformMatrix4fv(_glProgram->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -118,8 +130,8 @@ void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, sunIndices);
 
-    _glProgram->disableVertexAttribArrays();
-    _glProgram->unuse();
+    m_program->disableVertexAttribArrays();
+    m_program->unuse();
 
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);
@@ -131,9 +143,9 @@ void SkyboxRenderStage::updateProjectionMatrix() {
     #define SKYBOX_ZNEAR 0.01f
     #define SKYBOX_ZFAR 300.0f
 
-    _fieldOfView = _camera->getFieldOfView();
-    _aspectRatio = _camera->getAspectRatio();
+    m_fieldOfView = m_camera->getFieldOfView();
+    m_aspectRatio = m_camera->getAspectRatio();
 
     // Set up projection matrix
-    _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+    m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
 }

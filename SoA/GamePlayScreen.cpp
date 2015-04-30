@@ -22,7 +22,6 @@
 #include "GameSystemUpdater.h"
 #include "InputMapper.h"
 #include "Inputs.h"
-#include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "Options.h"
@@ -80,10 +79,10 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
 
     // Initialize the PDA
-    m_pda.init(this, m_soaState->glProgramManager.get());
+    m_pda.init(this);
 
     // Initialize the Pause Menu
-    m_pauseMenu.init(this, m_soaState->glProgramManager.get());
+    m_pauseMenu.init(this);
 
     // Set up the rendering
     initRenderPipeline();
@@ -105,7 +104,7 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_pda.destroy();
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
 }
 
@@ -255,6 +254,9 @@ void GameplayScreen::initInput() {
     });
     m_inputManager->get(INPUT_DRAW_MODE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
+    });
+    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderPipeline.reloadShaders();
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {

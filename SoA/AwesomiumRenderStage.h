@@ -24,13 +24,12 @@ public:
     /// Constructor which injects dependencies
     /// @param awesomiumInterface: The user interface handle
     /// @param glProgram: The opengl program used to render the interface
-    AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram);
+    AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface);
 
     // Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
-    IAwesomiumInterface* _awesomiumInterface; ///< The user interface handle
-    vg::GLProgram* _glProgram; ///< The texture GLSL program
+    IAwesomiumInterface* m_awesomiumInterface; ///< The user interface handle
 };
 
 #endif // AwesomiumRenderStage_h__

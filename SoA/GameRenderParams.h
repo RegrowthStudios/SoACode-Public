@@ -9,8 +9,6 @@ class ChunkMesh;
 class Camera;
 class ChunkMeshManager;
 
-DECL_VG(class GLProgramManager);
-
 class GameRenderParams {
 public:
     void calculateParams(const f64v3& worldCameraPos,
@@ -28,7 +26,6 @@ public:
     const Camera* chunkCamera;
     ChunkMeshManager* chunkMeshmanager;
     bool isUnderwater;
-    const vg::GLProgramManager* glProgramManager = nullptr;
 private:
     void calculateFog(float theta, bool isUnderwater);
     void calculateSunlight(float theta);

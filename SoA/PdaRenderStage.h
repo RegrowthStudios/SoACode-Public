@@ -23,7 +23,7 @@ public:
     PdaRenderStage(const PDA* pda);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
     const PDA* _pda; ///< Handle to the PDA
 };

@@ -9,7 +9,7 @@ PdaRenderStage::PdaRenderStage(const PDA* pda) :
     // Empty
 }
 
-void PdaRenderStage::draw() {
+void PdaRenderStage::render() {
     if (_pda->isOpen()) {
         _pda->draw();
     }

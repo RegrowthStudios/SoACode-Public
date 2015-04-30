@@ -2,6 +2,7 @@
 #include "PauseMenu.h"
 
 #include "GameplayScreen.h"
+#include "ShaderLoader.h"
 
 PauseMenu::PauseMenu() {
     // Empty
@@ -11,7 +12,7 @@ PauseMenu::~PauseMenu() {
     // Empty
 }
 
-void PauseMenu::init(GameplayScreen* ownerScreen, const vg::GLProgramManager* glProgramManager) {
+void PauseMenu::init(GameplayScreen* ownerScreen) {
     // Initialize the user interface
     _awesomiumInterface.init("UI/PauseMenu/",
                              "PAUSE_UI",
@@ -19,7 +20,6 @@ void PauseMenu::init(GameplayScreen* ownerScreen, const vg::GLProgramManager* gl
                              ownerScreen->getWindowWidth(),
                              ownerScreen->getWindowHeight(),
                              ownerScreen);
-    m_glProgramManager = glProgramManager;
 }
 
 void PauseMenu::open() {
@@ -39,7 +39,9 @@ void PauseMenu::update() {
 }
 
 void PauseMenu::draw() const {
-    _awesomiumInterface.draw(m_glProgramManager->getProgram("Texture2D"));
+    if (!m_program) ShaderLoader::createProgramFromFile("Shaders/TextureShading/Texture2dShader.vert",
+                                                             "Shaders/TextureShading/Texture2dShader.frag");
+    _awesomiumInterface.draw(m_program);
 }
 
 void PauseMenu::destroy() {

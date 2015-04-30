@@ -41,21 +41,21 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
                                   GameSystem* gameSystem,
                                   const PauseMenu* pauseMenu) {
     // Set the viewport
-    _viewport = viewport;
+    m_viewport = viewport;
 
     m_soaState = soaState;
 
     // Grab mesh manager handle
-    _meshManager = soaState->chunkMeshManager.get();
+    m_meshManager = soaState->chunkMeshManager.get();
 
     // Check to make sure we aren't leaking memory
-    if (_skyboxRenderStage != nullptr) {
+    if (m_skyboxRenderStage != nullptr) {
         pError("Reinitializing GamePlayRenderPipeline without first calling destroy()!");
     }
 
     // Construct framebuffer
-    _hdrFrameBuffer = new vg::GLRenderTarget(_viewport.z, _viewport.w);
-    _hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa, vg::TextureFormat::RGBA, vg::TexturePixelType::HALF_FLOAT).initDepth();
+    m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
+    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa, vg::TextureFormat::RGBA, vg::TexturePixelType::HALF_FLOAT).initDepth();
     if (graphicsOptions.msaa > 0) {
         glEnable(GL_MULTISAMPLE);
     } else {
@@ -63,44 +63,41 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     }
 
     // Make swap chain
-    _swapChain = new vg::RTSwapChain<2>(_viewport.z, _viewport.w);
-    _swapChain->init(vg::TextureInternalFormat::RGBA8);
-    _quad.init();
+    m_swapChain = new vg::RTSwapChain<2>(m_viewport.z, m_viewport.w);
+    m_swapChain->init(vg::TextureInternalFormat::RGBA8);
+    m_quad.init();
 
     // Get window dimensions
-    f32v2 windowDims(_viewport.z, _viewport.w);
+    f32v2 windowDims(m_viewport.z, m_viewport.w);
 
     m_spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
     m_voxelCamera.setAspectRatio(windowDims.x / windowDims.y);
 
-    // Set up shared params
-    const vg::GLProgramManager* glProgramManager = soaState->glProgramManager.get();
-    _gameRenderParams.glProgramManager = glProgramManager;
+    // Helpful macro to reduce code size
+#define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
-    // Init render stages
-    _skyboxRenderStage = new SkyboxRenderStage(glProgramManager->getProgram("Texture"), &m_spaceCamera);
-    //_physicsBlockRenderStage = new PhysicsBlockRenderStage(&_gameRenderParams, _meshManager->getPhysicsBlockMeshes(), glProgramManager->getProgram("PhysicsBlock"));
-    _opaqueVoxelRenderStage = new OpaqueVoxelRenderStage(&_gameRenderParams);
-    _cutoutVoxelRenderStage = new CutoutVoxelRenderStage(&_gameRenderParams);
-    _chunkGridRenderStage = new ChunkGridRenderStage(&_gameRenderParams);
-    _transparentVoxelRenderStage = new TransparentVoxelRenderStage(&_gameRenderParams);
-    _liquidVoxelRenderStage = new LiquidVoxelRenderStage(&_gameRenderParams);
-    _devHudRenderStage = new DevHudRenderStage("Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, app, windowDims);
-    _pdaRenderStage = new PdaRenderStage(pda);
-    _pauseMenuRenderStage = new PauseMenuRenderStage(pauseMenu);
-    _nightVisionRenderStage = new NightVisionRenderStage(glProgramManager->getProgram("NightVision"), &_quad);
-    _hdrRenderStage = new HdrRenderStage(glProgramManager, &_quad, &m_voxelCamera);
-    m_spaceSystemRenderStage = new SpaceSystemRenderStage(ui32v2(windowDims),
-                                                          spaceSystem,
-                                                          gameSystem,
-                                                          nullptr, &m_spaceCamera,
-                                                          &m_farTerrainCamera,
-                                                          GameManager::textureCache->addTexture("Textures/selector.png").id);
+    // Init and track render stages
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, &m_spaceCamera);
+    m_opaqueVoxelRenderStage = ADD_STAGE(OpaqueVoxelRenderStage, &m_gameRenderParams);
+    m_cutoutVoxelRenderStage = ADD_STAGE(CutoutVoxelRenderStage, &m_gameRenderParams);
+    m_chunkGridRenderStage = ADD_STAGE(ChunkGridRenderStage, &m_gameRenderParams);
+    m_transparentVoxelRenderStage = ADD_STAGE(TransparentVoxelRenderStage, &m_gameRenderParams);
+    m_liquidVoxelRenderStage = ADD_STAGE(LiquidVoxelRenderStage, &m_gameRenderParams);
+    m_devHudRenderStage = ADD_STAGE(DevHudRenderStage, "Fonts\\chintzy.ttf", DEVHUD_FONT_SIZE, app, windowDims);
+    m_pdaRenderStage = ADD_STAGE(PdaRenderStage, pda);
+    m_pauseMenuRenderStage = ADD_STAGE(PauseMenuRenderStage, pauseMenu);
+    m_nightVisionRenderStage = ADD_STAGE(NightVisionRenderStage, &m_quad);
+    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, &m_voxelCamera);
+    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, ui32v2(windowDims),
+        spaceSystem, gameSystem,
+        nullptr, &m_spaceCamera,
+        &m_farTerrainCamera,
+        GameManager::textureCache->addTexture("Textures/selector.png").id);
 
     loadNightVision();
     // No post-process effects to begin with
-    _nightVisionRenderStage->setIsVisible(false);
-    _chunkGridRenderStage->setIsVisible(false);
+    m_nightVisionRenderStage->setIsVisible(false);
+    m_chunkGridRenderStage->setIsVisible(false);
 }
 
 void GameplayRenderPipeline::setRenderState(const MTRenderState* renderState) {
@@ -108,7 +105,7 @@ void GameplayRenderPipeline::setRenderState(const MTRenderState* renderState) {
 }
 
 GameplayRenderPipeline::~GameplayRenderPipeline() {
-    destroy();
+    destroy(true);
 }
 
 void GameplayRenderPipeline::render() {
@@ -117,18 +114,18 @@ void GameplayRenderPipeline::render() {
 
     updateCameras();
     // Set up the gameRenderParams
-    _gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_voxelCamera,
-                                      _meshManager, false);
+    m_gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_voxelCamera,
+                                      m_meshManager, false);
     // Bind the FBO
-    _hdrFrameBuffer->use();
+    m_hdrFrameBuffer->use();
   
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
-    _skyboxRenderStage->draw();
+    m_skyboxRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
     m_spaceSystemRenderStage->setRenderState(m_renderState);
-    m_spaceSystemRenderStage->draw();
+    m_spaceSystemRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Check for face transition animation state
@@ -145,26 +142,26 @@ void GameplayRenderPipeline::render() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
-        _opaqueVoxelRenderStage->draw();
+        m_opaqueVoxelRenderStage->render();
        // _physicsBlockRenderStage->draw();
-        _cutoutVoxelRenderStage->draw();
+        m_cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
-        _chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
-        _chunkGridRenderStage->draw();
-        _liquidVoxelRenderStage->draw();
-        _transparentVoxelRenderStage->draw();
+        m_chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
+        m_chunkGridRenderStage->render();
+        m_liquidVoxelRenderStage->render();
+        m_transparentVoxelRenderStage->render();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     // Post processing
-    _swapChain->reset(0, _hdrFrameBuffer, graphicsOptions.msaa > 0, false);
+    m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
 
     // TODO: More Effects
-    if (_nightVisionRenderStage->isVisible()) {
-        _nightVisionRenderStage->draw();
-        _swapChain->swap();
-        _swapChain->use(0, false);
+    if (m_nightVisionRenderStage->isVisible()) {
+        m_nightVisionRenderStage->render();
+        m_swapChain->swap();
+        m_swapChain->use(0, false);
     }
 
     // Draw to backbuffer for the last effect
@@ -172,13 +169,13 @@ void GameplayRenderPipeline::render() {
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(_hdrFrameBuffer->getTextureTarget(), _hdrFrameBuffer->getTextureDepthID());
-    _hdrRenderStage->draw();
+    glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
+    m_hdrRenderStage->render();
 
     // UI
-    _devHudRenderStage->draw();
-    _pdaRenderStage->draw();
-    _pauseMenuRenderStage->draw();
+    m_devHudRenderStage->render();
+    m_pdaRenderStage->render();
+    m_pauseMenuRenderStage->render();
 
     // Cube face fade animation
     if (m_increaseQuadAlpha) {
@@ -188,10 +185,10 @@ void GameplayRenderPipeline::render() {
             m_coloredQuadAlpha = 3.5f;
             m_increaseQuadAlpha = false;
         }
-        m_coloredQuadRenderer.draw(_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+        m_coloredQuadRenderer.draw(m_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
     } else if (m_coloredQuadAlpha > 0.0f) {
         static const float FADE_DEC = 0.01f;  
-        m_coloredQuadRenderer.draw(_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+        m_coloredQuadRenderer.draw(m_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
         m_coloredQuadAlpha -= FADE_DEC;
     }
 
@@ -199,73 +196,46 @@ void GameplayRenderPipeline::render() {
     checkGlError("GamePlayRenderPipeline::render()");
 }
 
-void GameplayRenderPipeline::destroy() {
-    // Make sure everything is freed here!
-    delete _skyboxRenderStage;
-    _skyboxRenderStage = nullptr;
+void GameplayRenderPipeline::destroy(bool shouldDisposeStages) {
+    
+    // Call base destroy
+    RenderPipeline::destroy(shouldDisposeStages);
 
+    m_hdrFrameBuffer->dispose();
+    delete m_hdrFrameBuffer;
+    m_hdrFrameBuffer = nullptr;
 
-    delete _opaqueVoxelRenderStage;
-    _opaqueVoxelRenderStage = nullptr;
+    m_swapChain->dispose();
+    delete m_swapChain;
+    m_swapChain = nullptr;
 
-    delete _cutoutVoxelRenderStage;
-    _cutoutVoxelRenderStage = nullptr;
-
-    delete _transparentVoxelRenderStage;
-    _transparentVoxelRenderStage = nullptr;
-
-    delete _liquidVoxelRenderStage;
-    _liquidVoxelRenderStage = nullptr;
-
-    delete _devHudRenderStage;
-    _devHudRenderStage = nullptr;
-
-    delete _pdaRenderStage;
-    _pdaRenderStage = nullptr;
-
-    delete _pauseMenuRenderStage;
-    _pauseMenuRenderStage = nullptr;
-
-    delete _nightVisionRenderStage;
-    _nightVisionRenderStage = nullptr;
-
-    delete _hdrRenderStage;
-    _hdrRenderStage = nullptr;
-
-    _hdrFrameBuffer->dispose();
-    delete _hdrFrameBuffer;
-    _hdrFrameBuffer = nullptr;
-
-    _swapChain->dispose();
-    delete _swapChain;
-    _swapChain = nullptr;
-
-    _quad.dispose();
+    m_quad.dispose();
 }
 
 void GameplayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
-    _devHudRenderStage->cycleMode(offset);
+    m_devHudRenderStage->cycleMode(offset);
 }
 
 void GameplayRenderPipeline::toggleNightVision() {
-    if (!_nightVisionRenderStage->isVisible()) {
-        _nightVisionRenderStage->setIsVisible(true);
-        _nvIndex = 0;
-        _nightVisionRenderStage->setParams(&_nvParams[_nvIndex]);
+    if (!m_nightVisionRenderStage->isVisible()) {
+        m_nightVisionRenderStage->setIsVisible(true);
+        m_nvIndex = 0;
+        m_nightVisionRenderStage->setParams(m_nvParams[m_nvIndex]);
     } else {
-        _nvIndex++;
-        if (_nvIndex >= _nvParams.size()) {
-            _nightVisionRenderStage->setIsVisible(false);
+        m_nvIndex++;
+        if (m_nvIndex >= m_nvParams.size()) {
+            m_nightVisionRenderStage->setIsVisible(false);
         } else {
-            _nightVisionRenderStage->setParams(&_nvParams[_nvIndex]);
+            m_nightVisionRenderStage->setParams(m_nvParams[m_nvIndex]);
         }
     }
 }
-void GameplayRenderPipeline::loadNightVision() {
-    _nightVisionRenderStage->setIsVisible(false);
 
-    _nvIndex = 0;
-    _nvParams.clear();
+void GameplayRenderPipeline::loadNightVision() {
+    m_nightVisionRenderStage->setIsVisible(false);
+
+    m_nvIndex = 0;
+    m_nvParams.clear();
 
     vio::IOManager iom;
     const cString nvData = iom.readFileToString("Data/NightVision.yml");
@@ -277,18 +247,18 @@ void GameplayRenderPipeline::loadNightVision() {
         keg::Value v = keg::Value::array(0, keg::Value::custom(0, "NightVisionRenderParams", false));
         keg::evalData((ui8*)&arr, &v, node, reader, keg::getGlobalEnvironment());
         for (i32 i = 0; i < arr.size(); i++) {
-            _nvParams.push_back(arr[i]);
+            m_nvParams.push_back(arr[i]);
         }
         reader.dispose();
         delete[] nvData;
     }
-    if (_nvParams.size() < 1) {
-        _nvParams.push_back(NightVisionRenderParams::createDefault());
+    if (m_nvParams.size() < 1) {
+        m_nvParams.push_back(NightVisionRenderParams::createDefault());
     }
 }
 
 void GameplayRenderPipeline::toggleChunkGrid() {
-    _chunkGridRenderStage->setIsVisible(!_chunkGridRenderStage->isVisible());
+    m_chunkGridRenderStage->setIsVisible(!m_chunkGridRenderStage->isVisible());
 }
 
 void GameplayRenderPipeline::cycleDrawMode() {

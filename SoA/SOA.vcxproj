@@ -313,11 +313,9 @@ EXIT 0</Command>
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
-    <ClInclude Include="GLProgramManager.h" />
     <ClInclude Include="IAwesomiumAPI.h" />
     <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
-    <ClInclude Include="LoadTaskShaders.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="MainMenuAPI.h" />
@@ -347,6 +345,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetData.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SoaController.h" />
     <ClInclude Include="SoaEngine.h" />
@@ -505,9 +504,7 @@ EXIT 0</Command>
     <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
-    <ClCompile Include="GLProgramManager.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
-    <ClCompile Include="LoadTaskShaders.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
     <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
@@ -534,6 +531,7 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
     <ClCompile Include="PlanetData.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />
     <ClCompile Include="SoaEngine.cpp" />

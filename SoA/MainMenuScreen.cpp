@@ -22,7 +22,6 @@
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadScreen.h"
-#include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
@@ -112,7 +111,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_awesomiumInterface.destroy();
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
 
     delete m_inputManager;
 
@@ -161,8 +160,8 @@ void MainMenuScreen::initInput() {
     initInputs(m_inputManager);
     // Reload space system event
 
-    onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += onReloadSystemDel;
+    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
 }
 
 void MainMenuScreen::initRenderPipeline() {
@@ -170,8 +169,7 @@ void MainMenuScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
                           m_soaState->spaceSystem.get(),
-                          m_mainMenuSystemViewer.get(),
-                          m_soaState->glProgramManager.get());
+                          m_mainMenuSystemViewer.get());
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -252,7 +250,11 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
     m_camera = tmp; // Restore old camera
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
     m_renderPipeline = MainMenuRenderPipeline();
     initRenderPipeline();
+}
+
+void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
+    m_renderPipeline.reloadShaders();
 }

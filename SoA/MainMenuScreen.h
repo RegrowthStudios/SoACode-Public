@@ -17,9 +17,10 @@
 #ifndef MAINMENUSCREEN_H_
 #define MAINMENUSCREEN_H_
 
-#include <Vorb/ui/IGameScreen.h>
 #include <Vorb/Random.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/ui/IGameScreen.h>
 
 #include "AwesomiumInterface.h"
 #include "LoadMonitor.h"
@@ -86,7 +87,7 @@ private:
     void initSaveIomanager(const vio::Path& savePath);
 
     void onReloadSystem(Sender s, ui32 a);
-    Delegate<Sender, ui32> onReloadSystemDel;
+    void onReloadShaders(Sender s, ui32 a);
 
     const LoadScreen* m_loadScreen = nullptr;
     SoaState* m_soaState = nullptr;

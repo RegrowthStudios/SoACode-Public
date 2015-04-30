@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MainMenuAPI.h"
 
+#include <Vorb/io/IOManager.h>
 #include "MainMenuScreen.h"
 #include "GameManager.h"
 

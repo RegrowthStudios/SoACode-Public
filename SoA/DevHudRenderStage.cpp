@@ -25,7 +25,7 @@ DevHudRenderStage::~DevHudRenderStage() {
     delete _spriteFont;
 }
 
-void DevHudRenderStage::draw() {
+void DevHudRenderStage::render() {
     // Reset the yOffset
     _yOffset = 0;
 

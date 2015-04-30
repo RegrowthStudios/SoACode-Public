@@ -71,10 +71,7 @@ public:
     /// renderable.
     bool isRenderable() const;
 
-    /// Checks if the point is over the horizon
-    /// @param relCamPos: Relative observer position
-    /// @param point: The point to check
-    /// @param planetRadius: Radius of the planet
+                            
     static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
 
     /// Returns true if the patch can subdivide

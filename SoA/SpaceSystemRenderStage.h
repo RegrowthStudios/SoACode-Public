@@ -49,7 +49,9 @@ public:
     /// Call this every frame before render
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
+
+    virtual void reloadShader() override;
 
     /// Gets the desired near clipping plane based on distances of planets
     /// Returns 0 when it cannot be calculated

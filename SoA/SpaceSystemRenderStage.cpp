@@ -9,7 +9,6 @@
 #include "Camera.h"
 #include "DebugRenderer.h"
 #include "Errors.h"
-#include "GLProgramManager.h"
 #include "MTRenderState.h"
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"
@@ -17,6 +16,8 @@
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
 #include "soaUtils.h"
+
+#include <Vorb/Timing.h>
 
 #define ATMO_LOAD_DIST 50000.0f
 
@@ -54,13 +55,18 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void SpaceSystemRenderStage::draw() {
-
+void SpaceSystemRenderStage::render() {
     drawBodies();
     m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                             m_mainMenuSystemViewer, m_selectorTexture,
                             m_viewport);
    
+}
+
+void SpaceSystemRenderStage::reloadShader() {
+    m_sphericalTerrainComponentRenderer.disposeShaders();
+    m_farTerrainComponentRenderer.disposeShaders();
+    m_atmosphereComponentRenderer.disposeShader();
 }
 
 f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {

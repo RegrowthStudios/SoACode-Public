@@ -96,7 +96,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 
                 mapBufferData(cm->vboID, meshData->vertices.size() * sizeof(BlockVertex), &(meshData->vertices[0]), GL_STATIC_DRAW);
 
-                ChunkRenderer::bindVao(cm);
+                ChunkRenderer::buildVao(cm);
             } else {
                 if (cm->vboID != 0) {
                     glDeleteBuffers(1, &(cm->vboID));
@@ -118,7 +118,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 
                 cm->needsSort = true; //must sort when changing the mesh
 
-                ChunkRenderer::bindTransparentVao(cm);
+                ChunkRenderer::buildTransparentVao(cm);
             } else {
                 if (cm->transVaoID != 0) {
                     glDeleteVertexArrays(1, &(cm->transVaoID));
@@ -138,7 +138,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 
                 mapBufferData(cm->cutoutVboID, meshData->cutoutVertices.size() * sizeof(BlockVertex), &(meshData->cutoutVertices[0]), GL_STATIC_DRAW);
 
-                ChunkRenderer::bindCutoutVao(cm);
+                ChunkRenderer::buildCutoutVao(cm);
             } else {
                 if (cm->cutoutVaoID != 0) {
                     glDeleteVertexArrays(1, &(cm->cutoutVaoID));
@@ -157,7 +157,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
             if (meshData->waterVertices.size()) {
                 mapBufferData(cm->waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
 
-                ChunkRenderer::bindWaterVao(cm);
+                ChunkRenderer::buildWaterVao(cm);
             } else {
                 if (cm->waterVboID != 0) {
                     glDeleteBuffers(1, &(cm->waterVboID));

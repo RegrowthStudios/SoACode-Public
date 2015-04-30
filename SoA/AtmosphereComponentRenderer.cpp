@@ -6,11 +6,12 @@
 #include "soaUtils.h"
 
 #include "Camera.h"
-#include <Vorb/io/IOManager.h>
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/MeshGenerators.h>
+#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/RasterizerState.h>
+#include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/io/IOManager.h>
 
 #define ICOSPHERE_SUBDIVISIONS 6
 
@@ -19,10 +20,7 @@ AtmosphereComponentRenderer::AtmosphereComponentRenderer() {
 }
 
 AtmosphereComponentRenderer::~AtmosphereComponentRenderer() {
-    if (m_program) {
-        m_program->dispose();
-        delete m_program;
-    }
+    disposeShader();
     if (m_icoVbo) {
         vg::GpuMemory::freeBuffer(m_icoVbo);
     }
@@ -88,6 +86,12 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     m_program->disableVertexAttribArrays();
     m_program->unuse();
     vg::RasterizerState::CULL_CLOCKWISE.set();
+}
+
+void AtmosphereComponentRenderer::disposeShader() {
+    if (m_program) {
+        vg::ShaderManager::destroyProgram(&m_program);
+    }
 }
 
 void AtmosphereComponentRenderer::buildShaders() {

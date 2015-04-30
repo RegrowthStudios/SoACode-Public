@@ -28,9 +28,10 @@ public:
     /// @param meshManager: Handle to the class that holds meshes
     LiquidVoxelRenderStage(const GameRenderParams* gameRenderParams);
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Some shared rendering parameters
+    
+    const GameRenderParams* m_gameRenderParams; ///< Some shared rendering parameters
 };
 
 #endif // LiquidVoxelRenderStage_h__

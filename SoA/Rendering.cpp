@@ -5,7 +5,6 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "GLProgramManager.h"
 #include "GameManager.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"
@@ -251,8 +250,9 @@ GLuint MakeBlockVbo(Block *block){
     return vboID;
 }
 
-void Draw3DCube(vg::GLProgramManager* glProgramManager, Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation) {
+void Draw3DCube(Block *block, double x, double y, double z, glm::mat4 &VP, glm::mat4 &rotation) {
 
+    /*
     const float eyeDir[3] = { 0.0f, 0.0f, -1.0f };
     const float fadeDist = (GLfloat)10000.0f;
     const float blockAmbient = 0.000f;
@@ -349,5 +349,5 @@ void Draw3DCube(vg::GLProgramManager* glProgramManager, Block *block, double x, 
 
     glDeleteBuffers(1, &vboID);
 
-
+    */
 }

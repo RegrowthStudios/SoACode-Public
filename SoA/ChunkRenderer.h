@@ -10,26 +10,22 @@
 class GameRenderParams;
 class PhysicsBlockMesh;
 
+#define CHUNK_DIAGONAL_LENGTH 28.0f
+
 class ChunkRenderer {
 public:
-    static void drawSonar(const GameRenderParams* gameRenderParams);
-    static void drawBlocks(const GameRenderParams* gameRenderParams);
-    static void drawCutoutBlocks(const GameRenderParams* gameRenderParams);
-    static void drawTransparentBlocks(const GameRenderParams* gameRenderParams);
-    static void drawWater(const GameRenderParams* gameRenderParams);
+    static void buildTransparentVao(ChunkMesh *cm);
+    static void buildCutoutVao(ChunkMesh *cm);
+    static void buildVao(ChunkMesh *cm);
+    static void buildWaterVao(ChunkMesh *cm);
 
-    static void bindTransparentVao(ChunkMesh *cm);
-    static void bindCutoutVao(ChunkMesh *cm);
-    static void bindVao(ChunkMesh *cm);
-    static void bindWaterVao(ChunkMesh *cm);
-   
-    volatile static f32 fadeDist;
+    static void drawOpaque(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawTransparent(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawCutout(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+
+    static volatile f32 fadeDist;
 private:
-    static void drawChunkBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
-    static void drawChunkTransparentBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawChunkCutoutBlocks(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawChunkWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
-
     static f32m4 worldMatrix; ///< Reusable world matrix for chunks
 };
 

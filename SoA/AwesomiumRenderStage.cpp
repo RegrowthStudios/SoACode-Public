@@ -1,15 +1,24 @@
 #include "stdafx.h"
 #include "AwesomiumRenderStage.h"
 
+#include <Vorb/graphics/GLProgram.h>
+#include "ShaderLoader.h"
+
 #include "IAwesomiumInterface.h"
 
+AwesomiumRenderStage::AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface) :
+m_awesomiumInterface(awesomiumInterface) {}
 
-AwesomiumRenderStage::AwesomiumRenderStage(IAwesomiumInterface* awesomiumInterface, vg::GLProgram* glProgram) :
-_awesomiumInterface(awesomiumInterface),
-_glProgram(glProgram) {}
-
-void AwesomiumRenderStage::draw() {
+void AwesomiumRenderStage::render() {
     glDisable(GL_DEPTH_TEST);
-    _awesomiumInterface->draw(_glProgram);
+
+    if (!m_program) {
+        m_program = ShaderLoader::createProgramFromFile("Shaders/TextureShading/Texture2dShader.vert",
+                                                             "Shaders/TextureShading/Texture2dShader.frag");
+    }
+    m_program->use();
+    m_program->enableVertexAttribArrays();
+
+    m_awesomiumInterface->draw(m_program);
     glEnable(GL_DEPTH_TEST);
 }

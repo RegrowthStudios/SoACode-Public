@@ -5,7 +5,6 @@
 #include <Vorb/Vorb.h>
 
 #include "WorldStructs.h"
-#include "GLProgramManager.h"
 
 class ChunkSlot;
 class Player;

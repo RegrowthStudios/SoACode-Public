@@ -389,9 +389,6 @@
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="GLProgramManager.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuAPI.h">
       <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
@@ -728,9 +725,6 @@
     <ClInclude Include="LoadTaskStarSystem.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="LoadTaskShaders.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
@@ -748,6 +742,9 @@
     </ClInclude>
     <ClInclude Include="GameSystemEvents.h">
       <Filter>SOA Files\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -924,9 +921,6 @@
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="GLProgramManager.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="MainMenuAPI.cpp">
       <Filter>SOA Files\Rendering\UI</Filter>
@@ -1208,9 +1202,6 @@
     <ClCompile Include="AtmosphereComponentRenderer.cpp">
       <Filter>SOA Files\ECS\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="LoadTaskShaders.cpp">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="GameplayScreen.cpp">
       <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClCompile>
@@ -1225,6 +1216,9 @@
     </ClCompile>
     <ClCompile Include="GameSystemEvents.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLoader.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
