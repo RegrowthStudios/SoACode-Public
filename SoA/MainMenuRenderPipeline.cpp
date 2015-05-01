@@ -116,7 +116,9 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     m_logLuminanceRenderStage->render();
-    graphicsOptions.hdrExposure = m_logLuminanceRenderStage->getExposure();
+    // Move exposure towards target
+    static const f32 EXPOSURE_STEP = 0.01f;
+    stepTowards(graphicsOptions.hdrExposure, m_logLuminanceRenderStage->getExposure(), EXPOSURE_STEP);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
