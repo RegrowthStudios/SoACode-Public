@@ -67,7 +67,7 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr);
-    m_logLuminanceRenderStage = ADD_STAGE(LogLuminanceRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 512);
+    m_logLuminanceRenderStage = ADD_STAGE(LogLuminanceRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
 }
 
 f32v4 pixels[10];
@@ -116,6 +116,8 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     m_logLuminanceRenderStage->render();
+    graphicsOptions.hdrExposure = m_logLuminanceRenderStage->getAvgLuminance();
+    //printf("%f\n", graphicsOptions.hdrExposure);
 
    // printf("%f - %f\n", graphicsOptions.hdrExposure, targetExposure);
     glActiveTexture(GL_TEXTURE0);

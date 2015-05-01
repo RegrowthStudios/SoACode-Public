@@ -41,14 +41,18 @@ public:
     /// @pre no FBO is bound
     virtual void render() override;
 
-private:  
-    vg::GLRenderTarget* m_renderTarget = nullptr;
+    const f32& getAvgLuminance() const { return m_avgLuminance; }
+
+private:
+    vg::GLProgram* m_downsampleProgram = nullptr;
+    std::vector<vg::GLRenderTarget> m_renderTargets; ///< All render targets
     vg::FullQuadVBO* m_quad = nullptr;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
     const ui32v4* m_restoreViewport;
-    ui32v2 m_viewportDims;
-    ui32 m_mipLevels = 0;
-    bool m_hasPrevFrame = false;
+    ui32 m_resolution;
+    ui32 m_mipLevels = 1;
+    int m_mipStep = -1;
+    f32 m_avgLuminance = 0.0005f;
 };
 
 #endif // LogLuminanceRenderStage_h__
