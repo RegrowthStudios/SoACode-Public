@@ -1,5 +1,5 @@
 ///
-/// LogLuminanceRenderStage.h
+/// ExposureCalcRenderStage.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 30 Apr 2015
@@ -12,8 +12,8 @@
 
 #pragma once
 
-#ifndef LogLuminanceRenderStage_h__
-#define LogLuminanceRenderStage_h__
+#ifndef ExposureCalcRenderStage_h__
+#define ExposureCalcRenderStage_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/IRenderStage.h>
@@ -24,11 +24,11 @@
 DECL_VG(class GLProgram);
 DECL_VG(class GLRenderTarget);
 
-class LogLuminanceRenderStage : public vg::IRenderStage {
+class ExposureCalcRenderStage : public vg::IRenderStage {
 public:
     /// Constructor
     /// resolution should be power of 2
-    LogLuminanceRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+    ExposureCalcRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
                             const ui32v4* viewPort, ui32 resolution);
 
     /// Reloads the shader. By default, it simply
@@ -62,4 +62,4 @@ private:
     vscript::RFunction<f32> m_calculateExposure;
 };
 
-#endif // LogLuminanceRenderStage_h__
+#endif // ExposureCalcRenderStage_h__

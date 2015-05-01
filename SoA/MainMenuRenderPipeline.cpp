@@ -11,7 +11,7 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "HdrRenderStage.h"
-#include "LogLuminanceRenderStage.h"
+#include "ExposureCalcRenderStage.h"
 #include "Options.h"
 #include "SkyboxRenderStage.h"
 #include "SoaState.h"
@@ -67,7 +67,7 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr);
-    m_logLuminanceRenderStage = ADD_STAGE(LogLuminanceRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
+    m_logLuminanceRenderStage = ADD_STAGE(ExposureCalcRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
 }
 
 f32v4 pixels[10];

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "LogLuminanceRenderStage.h"
+#include "ExposureCalcRenderStage.h"
 
 #include "ShaderLoader.h"
 
@@ -11,7 +11,7 @@
 #define EXPOSURE_FUNCTION_FILE "Shaders/PostProcessing/exposure.lua"
 #define EXPOSURE_FUNCTION_NAME "calculateExposure"
 
-LogLuminanceRenderStage::LogLuminanceRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+ExposureCalcRenderStage::ExposureCalcRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
                                                  const ui32v4* viewPort, ui32 resolution) :
     m_quad(quad),
     m_hdrFrameBuffer(hdrFrameBuffer),
@@ -26,11 +26,11 @@ LogLuminanceRenderStage::LogLuminanceRenderStage(vg::FullQuadVBO* quad, vg::GLRe
     m_mipStep = 0;
 }
 
-void LogLuminanceRenderStage::reloadShader() {
+void ExposureCalcRenderStage::reloadShader() {
     dispose();
 }
 
-void LogLuminanceRenderStage::dispose() {
+void ExposureCalcRenderStage::dispose() {
     m_mipStep = 0;
     if (m_program) vg::ShaderManager::destroyProgram(&m_program);
     if (m_downsampleProgram) vg::ShaderManager::destroyProgram(&m_downsampleProgram);
@@ -41,7 +41,7 @@ void LogLuminanceRenderStage::dispose() {
     m_needsScriptLoad = true;
 }
 
-void LogLuminanceRenderStage::render() {
+void ExposureCalcRenderStage::render() {
     if (m_renderTargets.empty()) {
         m_renderTargets.resize(m_mipLevels);
         for (int i = 0; i < m_mipLevels; i++) {
