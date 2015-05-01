@@ -8,6 +8,9 @@
 #include <Vorb/graphics/ShaderManager.h>
 #include <Vorb/graphics/SamplerState.h>
 
+#define EXPOSURE_FUNCTION_FILE "Shaders/PostProcessing/exposure.lua"
+#define EXPOSURE_FUNCTION_NAME "calculateExposure"
+
 LogLuminanceRenderStage::LogLuminanceRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
                                                  const ui32v4* viewPort, ui32 resolution) :
     m_quad(quad),
@@ -35,6 +38,7 @@ void LogLuminanceRenderStage::dispose() {
         m_renderTargets[i].dispose();
     }
     m_renderTargets.clear();
+    m_needsScriptLoad = true;
 }
 
 void LogLuminanceRenderStage::render() {
@@ -61,6 +65,12 @@ void LogLuminanceRenderStage::render() {
         glUniform1i(m_downsampleProgram->getUniform("unTex"), 0);
         m_downsampleProgram->unuse();
     }
+    // Lazy script load
+    if (m_needsScriptLoad) {
+        m_scripts.load(EXPOSURE_FUNCTION_FILE);
+        m_calculateExposure = m_scripts[EXPOSURE_FUNCTION_NAME].as<f32>();
+        m_needsScriptLoad = false;
+    }
 
     vg::GLProgram* prog = nullptr;
     if (m_mipStep == m_mipLevels-1) {
@@ -69,8 +79,10 @@ void LogLuminanceRenderStage::render() {
         m_mipStep = 1;
         f32v4 pixel;
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &pixel[0]);
-        m_avgLuminance = glm::exp(pixel.r);
-        printf("%f  %f\n", m_avgLuminance, glm::exp(pixel.g));
+
+        // LUA SCRIPT
+        m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
+
         prog = m_program;
         m_hdrFrameBuffer->bindTexture();
     } else if (m_mipStep > 0) {

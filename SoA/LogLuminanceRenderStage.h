@@ -18,6 +18,8 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/script/Function.h>
+#include <Vorb/script/Environment.h>
 
 DECL_VG(class GLProgram);
 DECL_VG(class GLRenderTarget);
@@ -41,7 +43,7 @@ public:
     /// @pre no FBO is bound
     virtual void render() override;
 
-    const f32& getAvgLuminance() const { return m_avgLuminance; }
+    const f32& getExposure() const { return m_exposure; }
 
 private:
     vg::GLProgram* m_downsampleProgram = nullptr;
@@ -52,7 +54,12 @@ private:
     ui32 m_resolution;
     ui32 m_mipLevels = 1;
     int m_mipStep = -1;
-    f32 m_avgLuminance = 0.0005f;
+    f32 m_exposure = 0.0005f;
+
+    // Script for exposure calc
+    bool m_needsScriptLoad = true;
+    vscript::Environment m_scripts;
+    vscript::RFunction<f32> m_calculateExposure;
 };
 
 #endif // LogLuminanceRenderStage_h__

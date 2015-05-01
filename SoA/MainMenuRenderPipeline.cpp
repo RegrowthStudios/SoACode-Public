@@ -116,10 +116,8 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     m_logLuminanceRenderStage->render();
-    graphicsOptions.hdrExposure = m_logLuminanceRenderStage->getAvgLuminance();
-    //printf("%f\n", graphicsOptions.hdrExposure);
+    graphicsOptions.hdrExposure = m_logLuminanceRenderStage->getExposure();
 
-   // printf("%f - %f\n", graphicsOptions.hdrExposure, targetExposure);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
     glActiveTexture(GL_TEXTURE1);
