@@ -63,8 +63,8 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     }
 
     // Make swap chain
-    m_swapChain = new vg::RTSwapChain<2>(m_viewport.z, m_viewport.w);
-    m_swapChain->init(vg::TextureInternalFormat::RGBA8);
+    m_swapChain = new vg::RTSwapChain<2>();
+    m_swapChain->init(m_viewport.z, m_viewport.w, vg::TextureInternalFormat::RGBA8);
     m_quad.init();
 
     // Get window dimensions
@@ -154,7 +154,7 @@ void GameplayRenderPipeline::render() {
     }
 
     // Post processing
-    m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
+    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), graphicsOptions.msaa > 0, false);
 
     // TODO: More Effects
     if (m_nightVisionRenderStage->isVisible()) {
