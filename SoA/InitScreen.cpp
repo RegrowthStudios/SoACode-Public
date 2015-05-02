@@ -2,6 +2,7 @@
 #include "InitScreen.h"
 
 #include <Vorb/colors.h>
+#include <Vorb/graphics/GraphicsDevice.h>
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/graphics/SpriteFont.h>
@@ -92,7 +93,7 @@ void InitScreen::checkRequirements() {
     } \
     pos.y += rectSize.y;
 
-    const vg::GraphicsDeviceProperties gdProps = vg::GraphicsDevice::getCurrent()->getProperties();
+    const vg::GraphicsDeviceProperties& gdProps = vg::GraphicsDevice::getCurrent()->getProperties();
     _sb->begin();
     if (gdProps.glVersionMajor < 3) INIT_BRANCH("OpenGL Version");
     if (!GLEW_VERSION_2_1) INIT_BRANCH("GLEW 2.1");

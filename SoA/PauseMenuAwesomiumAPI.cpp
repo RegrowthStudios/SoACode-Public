@@ -34,6 +34,5 @@ void PauseMenuAwesomiumAPI::continueGame(const Awesomium::JSArray& args) {
 }
 
 void PauseMenuAwesomiumAPI::exitGame(const Awesomium::JSArray& args) {
-    // Remove the const qualifier and exit the game
-    const_cast<App*>(_ownerScreen->_app)->exitGame();
+    _ownerScreen->_state = vui::ScreenState::EXIT_APPLICATION;
 }

@@ -53,8 +53,8 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     }
 
     // Make swap chain
-    m_swapChain = new vg::RTSwapChain<2>(m_viewport.z, m_viewport.w);
-    m_swapChain->init(vg::TextureInternalFormat::RGBA8);
+    m_swapChain = new vg::RTSwapChain<2>();
+    m_swapChain->init(m_viewport.z, m_viewport.w, vg::TextureInternalFormat::RGBA8);
     m_quad.init();
 
     // Helpful macro to reduce code size
@@ -106,7 +106,7 @@ void MainMenuRenderPipeline::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
-    m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
+    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), graphicsOptions.msaa > 0, false);
 
     // TODO: More Effects?
 
