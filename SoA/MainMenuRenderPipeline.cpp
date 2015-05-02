@@ -117,7 +117,7 @@ void MainMenuRenderPipeline::render() {
 
     m_logLuminanceRenderStage->render();
     // Move exposure towards target
-    static const f32 EXPOSURE_STEP = 0.01f;
+    static const f32 EXPOSURE_STEP = 0.005f;
     stepTowards(graphicsOptions.hdrExposure, m_logLuminanceRenderStage->getExposure(), EXPOSURE_STEP);
 
     glActiveTexture(GL_TEXTURE0);
