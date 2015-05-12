@@ -29,6 +29,7 @@ class SkyboxRenderStage;
 class SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
+class MainMenuForm;
 
 class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
@@ -38,6 +39,7 @@ public:
 
     /// Initializes the pipeline and passes dependencies
     void init(const SoaState* soaState, const ui32v4& viewport,
+              MainMenuForm* mainMenuForm,
               Camera* camera,
               SpaceSystem* spaceSystem,
               const MainMenuSystemViewer* systemViewer);
@@ -65,6 +67,7 @@ private:
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* m_swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
     vg::FullQuadVBO m_quad; ///< Quad used for post-processing
+    MainMenuForm* m_mainMenuForm = nullptr; ///< The main menu UI
 
     ui32v4 m_viewport; ///< Viewport to draw to
     bool m_isInitialized = false;

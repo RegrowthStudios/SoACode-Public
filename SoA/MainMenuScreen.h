@@ -117,6 +117,7 @@ private:
 
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
     MainMenuForm m_form; ///< The UI form
+    vg::SpriteFont m_formFont; ///< The UI font
     vui::FormScriptEnvironment m_formEnv; ///< Form scripts
 
     // TODO: Remove to a client state

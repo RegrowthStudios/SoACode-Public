@@ -84,6 +84,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
 
     // Initialize the user interface
+    m_formFont.init("Fonts/orbitron_bold-webfont.ttf", 32);
     initUI();
 
     // Init rendering
@@ -96,6 +97,8 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_inputMapper->stopInput();
+    m_formFont.dispose();
+    m_form.dispose();
 
     m_mainMenuSystemViewer.reset();
 
@@ -168,18 +171,16 @@ void MainMenuScreen::initInput() {
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    m_renderPipeline.init(m_soaState, viewport, &m_camera,
+    m_renderPipeline.init(m_soaState, viewport, &m_form, &m_camera,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }
 
 void MainMenuScreen::initUI() {
-    // TODO(Ben): Memory leak on purpose
-    vg::SpriteFont* font = new vg::SpriteFont();
-    font->init("Fonts/chintzy.ttf", 32);
-    m_form.init(this, ui32v4(0, 0, _app->getWindow().getWidth(), _app->getWindow().getHeight()), font);
+    const ui32v2& vdims = _app->getWindow().getViewportDims();
+    m_form.init(this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
     // Load script file and init
-    m_formEnv.init(&m_form, "Data/Scripts/UI/main_menu.form.lua");
+    m_formEnv.init(&m_form, "Data/UI/Forms/main_menu.form.lua");
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -252,9 +253,11 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
 }
 
 void MainMenuScreen::reloadUI() {
+    m_form.dispose();
+    m_formEnv.dispose();
     initUI();
-    m_renderPipeline.destroy(true);
-    initRenderPipeline();
+  //  m_renderPipeline.destroy(true);
+  //  initRenderPipeline();
     m_shouldReloadUI = false;
     printf("UI was reloaded.\n");
 }

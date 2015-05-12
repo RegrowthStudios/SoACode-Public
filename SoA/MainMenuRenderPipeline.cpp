@@ -16,6 +16,7 @@
 #include "SoaState.h"
 #include "SpaceSystemRenderStage.h"
 #include "soaUtils.h"
+#include "MainMenuForm.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
@@ -27,11 +28,13 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
 }
 
 void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewport,
+                                  MainMenuForm* mainMenuForm,
                                   Camera* camera,
                                   SpaceSystem* spaceSystem,
                                   const MainMenuSystemViewer* systemViewer) {
     // Set the viewport
     m_viewport = viewport;
+    m_mainMenuForm = mainMenuForm;
 
     // Check to make sure we don't double init
     if (m_isInitialized) {
@@ -122,6 +125,8 @@ void MainMenuRenderPipeline::render() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
+
+    if (m_showUI) m_mainMenuForm->draw();
 
     if (m_shouldScreenshot) dumpScreenshot();
 
