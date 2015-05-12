@@ -20,11 +20,9 @@
 #include <Vorb/graphics/RTSwapChain.hpp>
 
 /// Forward declarations
-class AwesomiumRenderStage;
 class Camera;
 class ColorFilterRenderStage;
 class HdrRenderStage;
-class IAwesomiumInterface;
 class ExposureCalcRenderStage;
 class MainMenuSystemViewer;
 class SkyboxRenderStage;
@@ -41,7 +39,6 @@ public:
     /// Initializes the pipeline and passes dependencies
     void init(const SoaState* soaState, const ui32v4& viewport,
               Camera* camera,
-              IAwesomiumInterface* awesomiumInterface,
               SpaceSystem* spaceSystem,
               const MainMenuSystemViewer* systemViewer);
 
@@ -61,7 +58,6 @@ private:
 
     ColorFilterRenderStage* m_colorFilterRenderStage = nullptr; ///< Renders a color filter
     SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
-    AwesomiumRenderStage* m_awesomiumRenderStage = nullptr; ///< Renders the UI
     HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
     SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Renders space system
     ExposureCalcRenderStage* m_logLuminanceRenderStage = nullptr; ///< Renders log luminance for tonemapping

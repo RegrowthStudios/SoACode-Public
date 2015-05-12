@@ -135,9 +135,6 @@
     <Filter Include="SOA Files\Sound\Ambience">
       <UniqueIdentifier>{29e314c8-5ae6-4581-9595-811643a15e11}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\Rendering\Awesomium">
-      <UniqueIdentifier>{19a0ff49-6794-4225-847f-886ba6baa490}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\ECS\ComponentTables">
       <UniqueIdentifier>{f52bd506-1a48-4733-81fd-e5ccf12ec387}</UniqueIdentifier>
     </Filter>
@@ -389,9 +386,6 @@
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuAPI.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -403,9 +397,6 @@
     </ClInclude>
     <ClInclude Include="Computer.h">
       <Filter>SOA Files\Game\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="PdaAwesomiumAPI.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
     <ClInclude Include="TransparentVoxelRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -429,9 +420,6 @@
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
     <ClInclude Include="HdrRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="AwesomiumRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="SkyboxRenderStage.h">
@@ -479,9 +467,6 @@
     <ClInclude Include="PauseMenu.h">
       <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="PauseMenuAwesomiumAPI.h">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -521,9 +506,6 @@
     <ClInclude Include="SmartVoxelContainer.hpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="IAwesomiumAPI.h">
-      <Filter>SOA Files\Screens</Filter>
-    </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
@@ -562,15 +544,6 @@
     </ClInclude>
     <ClInclude Include="AmbiencePlayer.h">
       <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClInclude>
-    <ClInclude Include="AwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
-    </ClInclude>
-    <ClInclude Include="IAwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenglSurfaceFactory.h">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
     </ClInclude>
     <ClInclude Include="SpaceSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
@@ -946,9 +919,6 @@
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuAPI.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -957,9 +927,6 @@
     </ClCompile>
     <ClCompile Include="Computer.cpp">
       <Filter>SOA Files\Game\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="PdaAwesomiumAPI.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
     <ClCompile Include="CutoutVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -978,9 +945,6 @@
     </ClCompile>
     <ClCompile Include="MainMenuRenderPipeline.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="AwesomiumRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="HdrRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -1020,9 +984,6 @@
     </ClCompile>
     <ClCompile Include="CellularAutomataTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClCompile>
     <ClCompile Include="PauseMenu.cpp">
       <Filter>SOA Files\Screens\Gameplay</Filter>
@@ -1087,9 +1048,6 @@
     </ClCompile>
     <ClCompile Include="AmbiencePlayer.cpp">
       <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenglSurfaceFactory.cpp">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
     </ClCompile>
     <ClCompile Include="GameSystem.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
@@ -1276,12 +1234,6 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
-    <None Include="IAwesomiumAPI.inl">
-      <Filter>SOA Files\Screens</Filter>
-    </None>
-    <None Include="AwesomiumInterface.inl">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
     </None>
     <None Include="VoxelUpdateOrder.inl">
       <Filter>SOA Files\Voxel</Filter>

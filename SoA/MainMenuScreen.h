@@ -22,11 +22,10 @@
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
 
-#include "AwesomiumInterface.h"
 #include "LoadMonitor.h"
-#include "MainMenuAPI.h"
 #include "MainMenuRenderPipeline.h"
 #include "MainMenuForm.h"
+#include "Camera.h"
 #include <Vorb/ui/FormScriptEnvironment.h>
 
 class App;
@@ -103,8 +102,6 @@ private:
     const LoadScreen* m_loadScreen = nullptr;
     SoaState* m_soaState = nullptr;
 
-    vui::AwesomiumInterface<MainMenuAPI> m_awesomiumInterface; ///< The user interface
-    
     vio::IOManager m_ioManager; ///< Helper class for IO operations
 
     InputMapper* m_inputMapper = nullptr;

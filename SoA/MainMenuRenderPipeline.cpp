@@ -6,7 +6,6 @@
 #include <Vorb/io/FileOps.h>
 #include <Vorb/utils.h>
 
-#include "AwesomiumRenderStage.h"
 #include "ColorFilterRenderStage.h"
 #include "Errors.h"
 #include "GameManager.h"
@@ -29,7 +28,6 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
 
 void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewport,
                                   Camera* camera,
-                                  IAwesomiumInterface* awesomiumInterface,
                                   SpaceSystem* spaceSystem,
                                   const MainMenuSystemViewer* systemViewer) {
     // Set the viewport
@@ -63,7 +61,6 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     // Init render stages
     m_colorFilterRenderStage = ADD_STAGE(ColorFilterRenderStage, &m_quad);
     m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera, &soaState->texturePathResolver);
-    m_awesomiumRenderStage = ADD_STAGE(AwesomiumRenderStage, awesomiumInterface);
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
                                                           spaceSystem, nullptr, systemViewer, camera, nullptr);
@@ -125,8 +122,6 @@ void MainMenuRenderPipeline::render() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
-
-    if (m_showUI) m_awesomiumRenderStage->render();
 
     if (m_shouldScreenshot) dumpScreenshot();
 

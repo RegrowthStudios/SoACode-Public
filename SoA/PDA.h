@@ -18,13 +18,13 @@
 #include <SDL/SDL.h>
 #include <Vorb/VorbPreDecl.inl>
 
-#include "AwesomiumInterface.h"
 #include "Computer.h"
-#include "PdaAwesomiumAPI.h"
 
 class GameplayScreen;
 
 enum class PdaState { BIOMETRICS, INVENTORY, DATA, CODEX, COMMUNICATIONS, SCANNER };
+
+DECL_VG(class GLProgram)
 
 class PDA : public Computer
 {
@@ -59,7 +59,6 @@ public:
     bool isOpen() const { return _isOpen; }
 private:
     vg::GLProgram* m_program = nullptr;
-    vui::AwesomiumInterface<PdaAwesomiumAPI> _awesomiumInterface; ///< The user interface
     bool _isOpen = false;
 };
 

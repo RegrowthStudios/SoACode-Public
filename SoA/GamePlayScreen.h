@@ -19,7 +19,6 @@
 #include <Vorb/Random.h>
 #include <Vorb/ui/IGameScreen.h>
 
-#include "AwesomiumInterface.h"
 #include "GameplayRenderPipeline.h"
 #include "LoadMonitor.h"
 #include "MTRenderStateManager.h"
@@ -60,8 +59,6 @@ enum DevUiModes {
 };
 
 class GameplayScreen : public vui::IAppScreen<App> {
-    friend class PauseMenuAwesomiumAPI;
-    friend class PdaAwesomiumAPI;
 public:
     GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
     ~GameplayScreen();

@@ -17,8 +17,6 @@
 #include "GameManager.h"
 #include "GameplayScreen.h"
 #include "GameplayScreen.h"
-#include "IAwesomiumAPI.h"
-#include "IAwesomiumAPI.h"
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadScreen.h"
@@ -104,7 +102,6 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_threadRunning = false;
     m_updateThread->join();
     delete m_updateThread;
-    m_awesomiumInterface.destroy();
     m_renderPipeline.destroy(true);
 
     delete m_inputMapper;
@@ -128,8 +125,6 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
         if (m_inputMapper->getInputState(INPUT_TIME_BACK)) m_soaState->time -= TIME_WARP_SPEED;
         if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) m_soaState->time += TIME_WARP_SPEED;
     }
-
-    m_awesomiumInterface.update();
 
     m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
@@ -173,7 +168,7 @@ void MainMenuScreen::initInput() {
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    m_renderPipeline.init(m_soaState, viewport, &m_camera, &m_awesomiumInterface,
+    m_renderPipeline.init(m_soaState, viewport, &m_camera,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }
@@ -257,7 +252,6 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
 }
 
 void MainMenuScreen::reloadUI() {
-    m_awesomiumInterface.destroy();
     initUI();
     m_renderPipeline.destroy(true);
     initRenderPipeline();
