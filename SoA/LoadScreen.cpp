@@ -187,7 +187,7 @@ void LoadScreen::draw(const vui::GameTime& gameTime) {
 
     _sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
 
-    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+    _sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
     checkGlError("LoadScreen::draw()");
     
 }

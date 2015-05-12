@@ -473,8 +473,8 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
                 vg::BitmapResource b = vg::ImageIO().load(colorPath); 
                 if (b.data) {
-                    colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
-                                                            b.width, b.height,
+                    colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                            vg::TextureTarget::TEXTURE_2D,
                                                             &vg::SamplerState::LINEAR_CLAMP);
                     vg::ImageIO().free(b);
                 } else {
@@ -485,8 +485,8 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
         } else {
             vg::BitmapResource b = vg::ImageIO().load(colorPath);
             if (b.data) {
-                colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
-                                                        b.width, b.height,
+                colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                        vg::TextureTarget::TEXTURE_2D,
                                                         &vg::SamplerState::LINEAR_CLAMP);
                 vg::ImageIO().free(b);
                 

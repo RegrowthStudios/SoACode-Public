@@ -463,7 +463,7 @@ void StarComponentRenderer::loadGlowTextures() {
     if (!m_tempColorMap.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow_overlay.png\n");
     } else {
-        m_glowTexture = vg::GpuMemory::uploadTexture(rs2.bytesUI8, rs2.width, rs2.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        m_glowTexture = vg::GpuMemory::uploadTexture(&rs2);
     }
 }
 

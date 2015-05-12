@@ -175,6 +175,8 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
 #define BIOME_TEX_CODE \
     genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),\
                                                                    LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
+                                                                   vg::TexturePixelType::UNSIGNED_BYTE,\
+                                                                   vg::TextureTarget::TEXTURE_2D,\
                                                                    &vg::SamplerState::POINT_CLAMP,\
                                                                    vg::TextureInternalFormat::R8,\
                                                                    vg::TextureFormat::RED, 0);\
@@ -259,6 +261,7 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
                 genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                     pixelData,
                                                                     vg::ImageIOFormat::RGB_UI8,
+                                                                    vg::TextureTarget::TEXTURE_2D,
                                                                     &vg::SamplerState::LINEAR_CLAMP,
                                                                     vg::TextureInternalFormat::RGB8,
                                                                     vg::TextureFormat::RGB);
@@ -268,6 +271,7 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
             genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                 pixelData,
                                                                 vg::ImageIOFormat::RGB_UI8,
+                                                                vg::TextureTarget::TEXTURE_2D,
                                                                 &vg::SamplerState::LINEAR_CLAMP,
                                                                 vg::TextureInternalFormat::RGB8,
                                                                 vg::TextureFormat::RGB);
@@ -291,11 +295,11 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
     }
     genData->liquidFreezeTemp = kegProps.freezeTemp;
@@ -328,6 +332,7 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
                 genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                      pixelData,
                                                                      vg::ImageIOFormat::RGB_UI8,
+                                                                     vg::TextureTarget::TEXTURE_2D,
                                                                      &vg::SamplerState::LINEAR_CLAMP,
                                                                      vg::TextureInternalFormat::RGB8,
                                                                      vg::TextureFormat::RGB);
@@ -337,6 +342,7 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
             genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                  pixelData,
                                                                  vg::ImageIOFormat::RGB_UI8,
+                                                                 vg::TextureTarget::TEXTURE_2D,
                                                                  &vg::SamplerState::LINEAR_CLAMP,
                                                                  vg::TextureInternalFormat::RGB8,
                                                                  vg::TextureFormat::RGB);
@@ -360,11 +366,11 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->terrainTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
     }
     genData->terrainTint = kegProps.tint;

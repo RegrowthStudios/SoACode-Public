@@ -105,7 +105,7 @@ void LenseFlareRenderer::dispose() {
     }
     if (m_ibo) {
         glDeleteBuffers(1, &m_ibo);
-        m_vbo = 0;
+        m_ibo = 0;
     }
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);
@@ -134,7 +134,8 @@ void LenseFlareRenderer::lazyInit() {
         }
         m_texWidth = res.width;
         m_texHeight = res.height;
-        m_texture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        m_texture = vg::GpuMemory::uploadTexture(&res, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                 vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 
     initMesh();

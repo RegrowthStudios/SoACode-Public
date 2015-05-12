@@ -25,7 +25,7 @@ struct SphericalTerrainComponent;
 #include <Vorb/RPC.h>
 #include <Vorb/ecs/ECS.h>
 
-#define LOAD_DIST 80000.0
+#define LOAD_DIST 800000.0
 // Should be even
 #define ST_PATCH_ROW 2  
 #define NUM_FACES 6

@@ -179,12 +179,12 @@ void MainMenuScreen::initRenderPipeline() {
 }
 
 void MainMenuScreen::initUI() {
-    m_awesomiumInterface.init("UI/MainMenu/",
-                              "MainMenu_UI",
-                              "index.html",
-                              _app->getWindow().getWidth(),
-                              _app->getWindow().getHeight(),
-                              this);
+    // TODO(Ben): Memory leak on purpose
+    vg::SpriteFont* font = new vg::SpriteFont();
+    font->init("Fonts/chintzy.ttf", 32);
+    m_form.init(this, ui32v4(0, 0, _app->getWindow().getWidth(), _app->getWindow().getHeight()), font);
+    // Load script file and init
+    m_formEnv.init(&m_form, "Data/Scripts/UI/main_menu.form.lua");
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {

@@ -81,7 +81,7 @@ void DevScreen::draw(const vui::GameTime& gameTime) {
     }
 
     m_sb->end();
-    m_sb->renderBatch(f32v2(w->getWidth(), w->getHeight()));
+    m_sb->render(f32v2(w->getWidth(), w->getHeight()));
 }
 
 void DevScreen::addScreen(VirtualKey vKey, vui::IGameScreen* s, const nString& name) {

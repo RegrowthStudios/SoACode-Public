@@ -55,11 +55,12 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_camera = camera;
     m_systemViewer = systemViewer;
     m_viewport = viewport;
-
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     drawPaths();
     if (m_systemViewer) {
         drawHUD();
     }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void SystemARRenderer::dispose() {
@@ -86,7 +87,8 @@ void SystemARRenderer::loadTextures() {
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load GUI/selector.png\n");
         }
-        m_selectorTexture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        m_selectorTexture = vg::GpuMemory::uploadTexture(&res, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                     vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
     { // Barycenter
         vio::Path path;
@@ -95,7 +97,8 @@ void SystemARRenderer::loadTextures() {
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load GUI/barycenter.png\n");
         }
-        m_baryTexture = vg::GpuMemory::uploadTexture(res.bytesUI8, res.width, res.height, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+        m_baryTexture = vg::GpuMemory::uploadTexture(&res, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                     vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
     }
 }
 
@@ -247,6 +250,7 @@ void SystemARRenderer::drawHUD() {
                                           xyScreenCoords + textOffset,
                                           textScale,
                                           textColor,
+                                          vg::TextAlign::TOP_LEFT,
                                           screenCoords.z);
 
             }
@@ -277,7 +281,7 @@ void SystemARRenderer::drawHUD() {
     }
 
     m_spriteBatch->end();
-    m_spriteBatch->renderBatch(m_viewport, nullptr, &vg::DepthState::READ);
+    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ);
 
     // Restore depth state
     vg::DepthState::FULL.set();

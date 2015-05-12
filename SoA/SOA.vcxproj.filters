@@ -767,6 +767,9 @@
     <ClInclude Include="ExposureCalcRenderStage.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="MainMenuForm.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1248,6 +1251,9 @@
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="ColorFilterRenderStage.cpp" />
     <ClCompile Include="ExposureCalcRenderStage.cpp" />
+    <ClCompile Include="MainMenuForm.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

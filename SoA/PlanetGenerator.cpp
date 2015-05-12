@@ -73,5 +73,6 @@ VGTexture PlanetGenerator::getRandomColorMap() {
             break;
     }
 
-    return vg::GpuMemory::uploadTexture(&color[0], 1, 1, &vg::SamplerState::POINT_CLAMP);
+    return vg::GpuMemory::uploadTexture(&color[0], 1, 1, vg::TexturePixelType::UNSIGNED_BYTE,
+                                        vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::POINT_CLAMP);
 }

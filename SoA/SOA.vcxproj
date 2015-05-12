@@ -323,6 +323,7 @@ EXIT 0</Command>
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="ExposureCalcRenderStage.h" />
     <ClInclude Include="MainMenuAPI.h" />
+    <ClInclude Include="MainMenuForm.h" />
     <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
@@ -517,6 +518,7 @@ EXIT 0</Command>
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="ExposureCalcRenderStage.cpp" />
     <ClCompile Include="MainMenuAPI.cpp" />
+    <ClCompile Include="MainMenuForm.cpp" />
     <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />

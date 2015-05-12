@@ -52,7 +52,7 @@ void InitScreen::draw(const vui::GameTime& gameTime) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    _sb->renderBatch(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::FULL, &vg::RasterizerState::CULL_NONE);
+    _sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::FULL, &vg::RasterizerState::CULL_NONE);
 }
 
 void InitScreen::buildSpriteResources() {
@@ -85,11 +85,11 @@ void InitScreen::checkRequirements() {
     // Check If Application Can Proceed
 #define INIT_BRANCH(MESSAGE) { \
     _sb->draw(0, pos, rectSize, color::COLOR_FAILURE, 0.5f); \
-    _sb->drawString(_font, MESSAGE, pos + textOff, textSize, 1.0f, color::White, 0.0f); \
+    _sb->drawString(_font, MESSAGE, pos + textOff, textSize, 1.0f, color::White); \
     _canContinue = false; \
     } else { \
         _sb->draw(0, pos, rectSize, color::COLOR_SUCCESS, 0.5f); \
-        _sb->drawString(_font, MESSAGE, pos + textOff, textSize, 1.0f, color::White, 0.0f); \
+        _sb->drawString(_font, MESSAGE, pos + textOff, textSize, 1.0f, color::White); \
     } \
     pos.y += rectSize.y;
 
@@ -103,12 +103,12 @@ void InitScreen::checkRequirements() {
     pos.y += textSize * 0.5f;
     if (_canContinue) {
         _sb->draw(0, pos, rectSize, color::COLOR_SUCCESS, 0.5f);
-        _sb->drawString(_font, "Application Will Proceed", pos + textOff, textSize, 1.0f, color::White, 0.0f);
+        _sb->drawString(_font, "Application Will Proceed", pos + textOff, textSize, 1.0f, color::White);
     } else {
         _sb->draw(0, pos, rectSize, color::COLOR_FAILURE, 0.5f);
-        _sb->drawString(_font, "Application Will Now Exit", pos + textOff, textSize, 1.0f, color::White, 0.0f);
+        _sb->drawString(_font, "Application Will Now Exit", pos + textOff, textSize, 1.0f, color::White);
     }
-    _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, w->getHeight() - 30.0f), 24.0f, 1.0f, color::LightGray, 0.0f);
+    _sb->drawString(_font, "Press Any Key To Continue", f32v2(10.0f, w->getHeight() - 30.0f), 24.0f, 1.0f, color::LightGray);
     _sb->end(vg::SpriteSortMode::TEXTURE);
 
 #ifdef DEBUG

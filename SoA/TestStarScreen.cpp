@@ -205,7 +205,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     f32 width = _game->getWindow().getWidth();
     f32 height = _game->getWindow().getHeight();
-    m_spriteBatch.renderBatch(f32v2(width, height));
+    m_spriteBatch.render(f32v2(width, height));
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();

@@ -26,6 +26,8 @@
 #include "LoadMonitor.h"
 #include "MainMenuAPI.h"
 #include "MainMenuRenderPipeline.h"
+#include "MainMenuForm.h"
+#include <Vorb/ui/FormScriptEnvironment.h>
 
 class App;
 
@@ -117,6 +119,8 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
+    MainMenuForm m_form; ///< The UI form
+    vui::FormScriptEnvironment m_formEnv; ///< Form scripts
 
     // TODO: Remove to a client state
     vsound::Engine* m_engine;
