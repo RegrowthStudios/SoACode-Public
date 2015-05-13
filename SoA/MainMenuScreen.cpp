@@ -98,7 +98,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_inputMapper->stopInput();
     m_formFont.dispose();
-    m_form.dispose();
+    m_ui.dispose();
 
     m_mainMenuSystemViewer.reset();
 
@@ -171,16 +171,14 @@ void MainMenuScreen::initInput() {
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    m_renderPipeline.init(m_soaState, viewport, &m_form, &m_camera,
+    m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_camera,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }
 
 void MainMenuScreen::initUI() {
     const ui32v2& vdims = _app->getWindow().getViewportDims();
-    m_form.init(this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
-    // Load script file and init
-    m_formEnv.init(&m_form, "Data/UI/Forms/main_menu.form.lua");
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -253,11 +251,9 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
 }
 
 void MainMenuScreen::reloadUI() {
-    m_form.dispose();
-    m_formEnv.dispose();
+    m_ui.dispose();
     initUI();
-  //  m_renderPipeline.destroy(true);
-  //  initRenderPipeline();
+
     m_shouldReloadUI = false;
     printf("UI was reloaded.\n");
 }
