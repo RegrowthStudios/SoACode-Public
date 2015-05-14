@@ -27,8 +27,6 @@ public:
     MainMenuScreen* scrMainMenu = nullptr;
     GameplayScreen* scrGamePlay = nullptr;
 
-    SoaOptions options;
-
     DevScreen* scrDev = nullptr;
     std::vector<vui::IGameScreen*> scrTests;
 };

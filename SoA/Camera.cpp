@@ -29,8 +29,9 @@ void Camera::offsetPosition(glm::vec3 offset) {
 }
 
 void Camera::update() {
-    if (m_fieldOfView != graphicsOptions.fov) {
-        setFieldOfView(graphicsOptions.fov);
+    f32 optFov = soaOptions.get(OPT_FOV).value.f;
+    if (m_fieldOfView != optFov) {
+        setFieldOfView(optFov);
     }
 
     bool updateFrustum = false;

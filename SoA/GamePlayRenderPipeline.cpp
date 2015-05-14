@@ -55,8 +55,8 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
 
     // Construct framebuffer
     m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
-    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa, vg::TextureFormat::RGBA, vg::TexturePixelType::HALF_FLOAT).initDepth();
-    if (graphicsOptions.msaa > 0) {
+    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, soaOptions.get(OPT_MSAA).value.i, vg::TextureFormat::RGBA, vg::TexturePixelType::HALF_FLOAT).initDepth();
+    if (soaOptions.get(OPT_MSAA).value.i > 0) {
         glEnable(GL_MULTISAMPLE);
     } else {
         glDisable(GL_MULTISAMPLE);
@@ -154,7 +154,7 @@ void GameplayRenderPipeline::render() {
     }
 
     // Post processing
-    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), graphicsOptions.msaa > 0, false);
+    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     // TODO: More Effects
     if (m_nightVisionRenderStage->isVisible()) {

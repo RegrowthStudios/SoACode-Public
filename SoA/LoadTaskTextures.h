@@ -11,6 +11,6 @@ class LoadTaskTextures : public ILoadTask {
       
         //load the texture pack
         GameManager::texturePackLoader->setColorMaps(&PlanetGenData::colorMaps);
-        GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + graphicsOptions.currTexturePack + "/");
+        GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
     }
 };

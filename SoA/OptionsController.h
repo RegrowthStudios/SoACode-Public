@@ -20,6 +20,7 @@
 class OptionsController {
 public:
     OptionsController();
+    ~OptionsController();
     /// Begins a context for changing options.
     /// Call this when beginning to change options.
     void beginContext(SoaOptions* options);

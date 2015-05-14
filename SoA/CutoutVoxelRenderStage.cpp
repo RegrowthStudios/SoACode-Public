@@ -38,8 +38,8 @@ void CutoutVoxelRenderStage::render() {
     glUniform1f(m_program->getUniform("fogStart"), m_gameRenderParams->fogStart);
     glUniform3fv(m_program->getUniform("fogColor"), 1, &(m_gameRenderParams->fogColor[0]));
     glUniform3fv(m_program->getUniform("lightPosition_worldspace"), 1, &(m_gameRenderParams->sunlightDirection[0]));
-    glUniform1f(m_program->getUniform("specularExponent"), graphicsOptions.specularExponent);
-    glUniform1f(m_program->getUniform("alphaMult"), graphicsOptions.specularIntensity*0.3);
+    glUniform1f(m_program->getUniform("specularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
+    glUniform1f(m_program->getUniform("alphaMult"), soaOptions.get(OPT_SPECULAR_INTENSITY).value.f * 0.3f);
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);

@@ -29,6 +29,7 @@ class ChunkMeshManager;
 class DebugRenderer;
 class MeshManager;
 class PlanetLoader;
+class SoaOptions;
 DECL_VIO(class IOManager);
 
 class SoaState {

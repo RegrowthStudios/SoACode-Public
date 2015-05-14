@@ -47,8 +47,8 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
 
     // Construct framebuffer
     m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
-    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, graphicsOptions.msaa).initDepth();
-    if (graphicsOptions.msaa > 0) {
+    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
+    if (soaOptions.get(OPT_MSAA).value.i > 0) {
         glEnable(GL_MULTISAMPLE);
     } else {
         glDisable(GL_MULTISAMPLE);
@@ -107,7 +107,7 @@ void MainMenuRenderPipeline::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
-    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), graphicsOptions.msaa > 0, false);
+    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     // TODO: More Effects?
 
@@ -119,7 +119,7 @@ void MainMenuRenderPipeline::render() {
     m_logLuminanceRenderStage->render();
     // Move exposure towards target
     static const f32 EXPOSURE_STEP = 0.005f;
-    stepTowards(graphicsOptions.hdrExposure, m_logLuminanceRenderStage->getExposure(), EXPOSURE_STEP);
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, m_logLuminanceRenderStage->getExposure(), EXPOSURE_STEP);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());

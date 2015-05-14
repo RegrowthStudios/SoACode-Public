@@ -10,6 +10,8 @@
 
 std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
+SoaOptions soaOptions;
+
 void SoaOptions::addOption(int id, const nString& name, OptionValue defaultValue, SoaOptionFlags flags) {
 
 }
@@ -30,15 +32,15 @@ bool SoaOptions::removeOption(const nString& name) {
 
 }
 
-SoaOption* SoaOptions::get(int id) {
+SoaOption& SoaOptions::get(int id) {
 
 }
 
-SoaOption* SoaOptions::get(const nString& name) {
+SoaOption& SoaOptions::get(const nString& name) {
 
 }
 
-SoaStringOption* SoaOptions::getStringOption(const nString& name) {
+SoaStringOption& SoaOptions::getStringOption(const nString& name) {
 
 }
 

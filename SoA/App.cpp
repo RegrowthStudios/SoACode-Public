@@ -71,8 +71,8 @@ void App::addScreens() {
 void App::onInit() {
     
     // Load the game options
-    SoaEngine::initOptions(options);
-    SoaEngine::optionsController.loadOptions(&options);
+    SoaEngine::initOptions(soaOptions);
+    SoaEngine::optionsController.loadOptions(&soaOptions);
 
     vg::SamplerState::initPredefined();
 }

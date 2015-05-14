@@ -40,7 +40,7 @@ void LiquidVoxelRenderStage::render() {
     if (NoChunkFade) {
         glUniform1f(m_program->getUniform("FadeDistance"), (GLfloat)10000.0f);
     } else {
-        glUniform1f(m_program->getUniform("FadeDistance"), (GLfloat)graphicsOptions.voxelRenderDistance - 12.5f);
+        glUniform1f(m_program->getUniform("FadeDistance"), (GLfloat)soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f - 12.5f);
     }
 
     float blockAmbient = 0.000f;

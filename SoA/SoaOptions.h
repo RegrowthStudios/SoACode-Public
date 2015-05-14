@@ -40,13 +40,13 @@ struct OptionValue {
 };
 
 struct SoaOption {
-    int id;
-    nString name;
+    int id = -1;
+    nString name = "";
     OptionValue defaultValue;
     OptionValue value;
     SoaOptionFlags flags;
 };
-class SoaStringOption {
+struct SoaStringOption {
     nString name;
     nString defaultValue;
     nString value;
@@ -87,19 +87,22 @@ public:
     void addStringOption(const nString& name, const nString& defaultValue, const nString& value);
     bool removeOption(int id);
     bool removeOption(const nString& name);
-    SoaOption* get(int id);
-    SoaOption* get(const nString& name);
-    SoaStringOption* getStringOption(const nString& name);
+    SoaOption& get(int id);
+    SoaOption& get(const nString& name);
+    SoaStringOption& getStringOption(const nString& name);
 
-    const std::map<nString&, SoaOption*>& getOptions() const { return m_optionsLookup; }
+    const std::vector<SoaOption>& getOptions() const { return m_options; }
 
     const nString& getFilePath() const { return m_filePath; }
 
     void dispose();
 private:
-    std::vector<SoaOption*> m_options;
+    std::vector<SoaOption> m_options;
     // String lookups are slower than int lookups
-    std::map<nString&, SoaOption*> m_optionsLookup;
-    std::map<nString&, SoaStringOption*> m_stringOptionsLookup;
+    std::map<nString, int> m_optionsLookup;
+    std::map<nString, SoaStringOption> m_stringOptionsLookup;
     nString m_filePath = "Data/options.ini";
 };
+
+// Global options struct
+extern SoaOptions soaOptions;
