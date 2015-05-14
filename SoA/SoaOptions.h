@@ -31,7 +31,7 @@ public:
     SoaOptionFlags flags;
 };
 
-struct Options {
+struct SoaOptions {
     //****************** Graphics Options ******************//
     i32 lodDistance;
     i32 lodDetail = 1;

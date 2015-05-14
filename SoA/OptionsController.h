@@ -22,7 +22,7 @@ public:
     OptionsController();
     /// Begins a context for changing options.
     /// Call this when beginning to change options.
-    void beginContext(Options* options);
+    void beginContext(SoaOptions* options);
 
     void saveChanges();
 
@@ -33,9 +33,9 @@ public:
     bool needsShaderReload = false;
     bool needsWindowReload = false;
 private:
-    Options* m_options = nullptr;
-    Options m_tempCopy;
-    Options m_default;
+    SoaOptions* m_options = nullptr;
+    SoaOptions m_tempCopy;
+    SoaOptions m_default;
 };
 
 #endif // OptionsController_h__
