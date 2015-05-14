@@ -3,8 +3,35 @@
 
 extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
-class Options {
+struct SoaOptionFlags {
+    bool needsWindowReload : 1;
+    bool needsFBOReload : 1;
+    bool needsShaderReload : 1;
+    bool needsTextureReload : 1;
+};
+
+struct OptionValue {
+    union {
+        f64 lf;
+        f32 f;
+        ui64 lui;
+        ui32 ui;
+        i64 li;
+        i32 i;
+        bool b;
+        char c;
+    };
+};
+
+class SoaOption {
 public:
+    nString name;
+    OptionValue defaultValue;
+    OptionValue value;
+    SoaOptionFlags flags;
+};
+
+struct Options {
     //****************** Graphics Options ******************//
     i32 lodDistance;
     i32 lodDetail = 1;

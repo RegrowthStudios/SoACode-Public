@@ -48,6 +48,8 @@ public:
     std::unique_ptr<vio::IOManager> systemIoManager;
     std::unique_ptr<PlanetLoader> planetLoader;
 
+    Options options;
+
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;
     bool isNewGame = true;

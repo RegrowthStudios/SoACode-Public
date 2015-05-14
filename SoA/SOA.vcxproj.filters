@@ -743,6 +743,9 @@
     <ClInclude Include="MainMenuScriptedUI.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="OptionsController.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1210,6 +1213,7 @@
     <ClCompile Include="ColorFilterRenderStage.cpp" />
     <ClCompile Include="ExposureCalcRenderStage.cpp" />
     <ClCompile Include="MainMenuScriptedUI.cpp" />
+    <ClCompile Include="OptionsController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">
