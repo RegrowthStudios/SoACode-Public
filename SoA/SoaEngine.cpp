@@ -49,7 +49,7 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_MAX_MSAA, "Max MSAA", OptionValue(8));
     options.addOption(OPT_SPECULAR_EXPONENT, "Specular Exponent", OptionValue(8.0f));
     options.addOption(OPT_SPECULAR_INTENSITY, "Specular Intensity", OptionValue(0.3f));
-    options.addOption(OPT_HDR_EXPOSURE, "HDR Exposure", OptionValue(1.3f)); //TODO(Ben): Useless?
+    options.addOption(OPT_HDR_EXPOSURE, "HDR Exposure", OptionValue(0.5f)); //TODO(Ben): Useless?
     options.addOption(OPT_GAMMA, "Gamma", OptionValue(1.0f));
     options.addOption(OPT_SEC_COLOR_MULT, "Sec Color Mult", OptionValue(0.1f)); //TODO(Ben): Useless?
     options.addOption(OPT_FOV, "FOV", OptionValue(70.0f));
@@ -59,6 +59,7 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_EFFECT_VOLUME, "Effect Volume", OptionValue(1.0f));
     options.addOption(OPT_MOUSE_SENSITIVITY, "Mouse Sensitivity", OptionValue(1.0f));
     options.addOption(OPT_INVERT_MOUSE, "Invert Mouse", OptionValue(false));
+    options.addStringOption("Texture Pack", "Default");
 }
 
 void SoaEngine::initState(SoaState* state) {

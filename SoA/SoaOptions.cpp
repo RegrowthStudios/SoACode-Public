@@ -28,6 +28,7 @@ void SoaOptions::addOption(int id, const nString& name, OptionValue defaultValue
         m_options[id].defaultValue = defaultValue;
         m_options[id].value = defaultValue;
         m_options[id].flags = flags;
+        m_optionsLookup[name] = id;
     }
 }
 
@@ -39,9 +40,10 @@ void SoaOptions::addOption(const nString& name, OptionValue defaultValue, SoaOpt
     option.defaultValue = defaultValue;
     option.value = defaultValue;
     option.flags = flags;
+    m_optionsLookup[name] = option.id;
 }
 
-void SoaOptions::addStringOption(const nString& name, const nString& defaultValue, const nString& value) {
+void SoaOptions::addStringOption(const nString& name, const nString& defaultValue) {
     SoaStringOption option;
     option.name = name;
     option.defaultValue = defaultValue;

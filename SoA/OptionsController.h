@@ -15,6 +15,7 @@
 #ifndef OptionsController_h__
 #define OptionsController_h__
 
+#include <Vorb/script/Environment.h>
 #include "SoaOptions.h"
 
 class OptionsController {
@@ -23,20 +24,29 @@ public:
     ~OptionsController();
     /// Begins a context for changing options.
     /// Call this when beginning to change options.
-    void beginContext(SoaOptions* options);
+    void beginContext();
 
-    void loadOptions(SoaOptions* options);
+    void loadOptions();
 
-    void saveOptions(SoaOptions* options);
+    void saveOptions();
 
     void restoreDefault();
+
+    void registerScripting(vscript::Environment* env);
+
+    // These can be called from lua scripts
+    void setOptionInt(nString optionName, int val);
+    void setOptionFloat(nString optionName, f32 val);
+    void setOptionBool(nString optionName, bool val);
+    int getOptionInt(nString optionName);
+    f32 getOptionFloat(nString optionName);
+    bool getOptionBool(nString optionName);
     
     bool needsFboReload = false;
     bool needsTextureReload = false;
     bool needsShaderReload = false;
     bool needsWindowReload = false;
 private:
-    SoaOptions* m_options = nullptr;
     SoaOptions m_tempCopy;
     SoaOptions m_default;
 };

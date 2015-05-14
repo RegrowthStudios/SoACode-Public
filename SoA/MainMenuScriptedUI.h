@@ -15,15 +15,15 @@
 #ifndef MainMenuScriptedUI_h__
 #define MainMenuScriptedUI_h__
 
-
 #include <Vorb/ui/ScriptedUI.h>
 
 class MainMenuScriptedUI : public vui::ScriptedUI {
 public:
     MainMenuScriptedUI();
     ~MainMenuScriptedUI();
-protected:
 
+protected:
+    virtual void registerScriptValues(vui::FormScriptEnvironment* newFormEnv) override;
 };
 
 
