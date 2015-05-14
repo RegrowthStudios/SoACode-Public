@@ -5,7 +5,7 @@
 #include "ChunkRenderer.h"
 #include "PhysicsBlocks.h"
 #include "GameRenderParams.h"
-#include "Options.h"
+#include "SoaOptions.h"
 
 PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderParams, 
                                                  const std::vector<PhysicsBlockMesh*>& physicsBlockMeshes,

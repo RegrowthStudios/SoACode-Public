@@ -15,7 +15,7 @@
 #include "FileSystem.h"
 #include "InputMapper.h"
 #include "Inputs.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"

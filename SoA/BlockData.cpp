@@ -5,7 +5,7 @@
 #include "Errors.h"
 #include "FileSystem.h"
 #include "GameManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"

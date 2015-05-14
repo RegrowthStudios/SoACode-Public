@@ -16,7 +16,7 @@
 #include "MeshManager.h"
 #include "NightVisionRenderStage.h"
 #include "OpaqueVoxelRenderStage.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "PauseMenu.h"
 #include "PauseMenuRenderStage.h"
 #include "PdaRenderStage.h"

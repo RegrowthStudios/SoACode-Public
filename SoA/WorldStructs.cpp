@@ -3,7 +3,7 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "GameManager.h"
 #include "RenderTask.h"
 #include "Texture2d.h"

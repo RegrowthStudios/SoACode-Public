@@ -11,7 +11,7 @@
 #include "GameManager.h"
 #include "HdrRenderStage.h"
 #include "ExposureCalcRenderStage.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "SkyboxRenderStage.h"
 #include "SoaState.h"
 #include "SpaceSystemRenderStage.h"

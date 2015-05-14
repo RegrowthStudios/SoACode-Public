@@ -2,7 +2,7 @@
 #include "LoadMonitor.h"
 #include "GameManager.h"
 #include "TexturePackLoader.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "PlanetData.h"
 
 // TODO(Ben): Multiple loader threads

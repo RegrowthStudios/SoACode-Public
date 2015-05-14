@@ -4,7 +4,7 @@
 #include "soaUtils.h"
 #include "Errors.h"
 #include "HdrRenderStage.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "SoaState.h"
 #include <Vorb/Timing.h>
 #include <Vorb/colors.h>

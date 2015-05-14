@@ -7,7 +7,7 @@
 #include "GameSystemAssemblages.h"
 #include "GameSystemUpdater.h"
 #include "SoaState.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "SoaEngine.h"
 #include "OrbitComponentUpdater.h"
 

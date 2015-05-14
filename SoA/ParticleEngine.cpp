@@ -4,7 +4,7 @@
 #include "Particle.h"
 #include "ParticleBatch.h"
 #include "ParticleEmitter.h"
-#include "Options.h"
+#include "SoaOptions.h"
 
 ParticleEngine particleEngine;
 

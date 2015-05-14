@@ -4,6 +4,7 @@
 #define App_h_
 
 #include <Vorb/ui/MainGame.h>
+#include "SoaOptions.h"
 
 class DevScreen;
 class InitScreen;
@@ -25,6 +26,8 @@ public:
     LoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
     GameplayScreen* scrGamePlay = nullptr;
+
+    SoaOptions options;
 
     DevScreen* scrDev = nullptr;
     std::vector<vui::IGameScreen*> scrTests;

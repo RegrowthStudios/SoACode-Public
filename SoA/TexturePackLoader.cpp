@@ -5,7 +5,7 @@
 #include <Vorb/io/Keg.h>
 
 #include "FileSystem.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "PlanetData.h"
 
 /// yml definition for TexturePackInfo

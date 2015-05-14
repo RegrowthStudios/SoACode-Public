@@ -16,7 +16,7 @@
 #include "Errors.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"

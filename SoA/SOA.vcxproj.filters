@@ -272,9 +272,6 @@
     <ClInclude Include="OpenGLStructs.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Options.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClInclude>
@@ -746,6 +743,9 @@
     <ClInclude Include="OptionsController.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
+    <ClInclude Include="SoaOptions.h">
+      <Filter>SOA Files\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -827,9 +827,6 @@
       <Filter>SOA Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjectLoader.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="Options.cpp">
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
     <ClCompile Include="Particle.cpp">
@@ -1214,6 +1211,9 @@
     <ClCompile Include="ExposureCalcRenderStage.cpp" />
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="OptionsController.cpp" />
+    <ClCompile Include="SoaOptions.cpp">
+      <Filter>SOA Files\Data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

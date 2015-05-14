@@ -15,7 +15,7 @@
 #ifndef OptionsController_h__
 #define OptionsController_h__
 
-#include "Options.h"
+#include "SoaOptions.h"
 
 class OptionsController {
 public:
@@ -24,7 +24,9 @@ public:
     /// Call this when beginning to change options.
     void beginContext(SoaOptions* options);
 
-    void saveChanges();
+    void loadOptions(SoaOptions* options);
+
+    void saveOptions(SoaOptions* options);
 
     void restoreDefault();
     

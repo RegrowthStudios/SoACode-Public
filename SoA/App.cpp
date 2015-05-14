@@ -8,12 +8,13 @@
 #include "DevScreen.h"
 #include "GameManager.h"
 #include "GameplayScreen.h"
+#include "GameplayScreen.h"
 #include "InitScreen.h"
 #include "LoadScreen.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "Options.h"
-#include "GameplayScreen.h"
+#include "SoaEngine.h"
+#include "SoaOptions.h"
 #include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
@@ -70,7 +71,8 @@ void App::addScreens() {
 void App::onInit() {
     
     // Load the game options
-    loadOptions("Data/Options.yml");
+    SoaEngine::initOptions(options);
+    SoaEngine::optionsController.loadOptions(&options);
 
     vg::SamplerState::initPredefined();
 }

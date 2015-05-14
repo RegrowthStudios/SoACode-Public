@@ -8,7 +8,7 @@
 #include <SDL/SDL.h>
 #include <Vorb/utils.h>
 
-#include "Options.h"
+#include "SoaOptions.h"
 
 Camera::Camera() {
     // Empty

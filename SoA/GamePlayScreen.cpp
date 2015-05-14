@@ -24,7 +24,7 @@
 #include "Inputs.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
 #include "RenderTask.h"

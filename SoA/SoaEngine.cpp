@@ -8,7 +8,7 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "OrbitComponentUpdater.h"
 #include "PlanetData.h"
 #include "PlanetLoader.h"
@@ -24,6 +24,8 @@
 
 #define M_PER_KM 1000.0
 
+OptionsController SoaEngine::optionsController;
+
 struct SpaceSystemLoadParams {
     SpaceSystem* spaceSystem = nullptr;
     vio::IOManager* ioManager = nullptr;
@@ -35,6 +37,29 @@ struct SpaceSystemLoadParams {
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
     std::map<nString, vecs::EntityID> bodyLookupMap;
 };
+
+void SoaEngine::initOptions(SoaOptions& options) {
+    options.addOption(OPT_PLANET_DETAIL, "Planet Detail", OptionValue(1));
+    options.addOption(OPT_VOXEL_RENDER_DISTANCE, "Voxel Render Distance", OptionValue(144));
+    options.addOption(OPT_HUD_MODE, "Hud Mode", OptionValue(0));
+    options.addOption(OPT_TEXTURE_RES, "Texture Resolution", OptionValue(32));
+    options.addOption(OPT_MOTION_BLUR, "Motion Blur", OptionValue(0));
+    options.addOption(OPT_DEPTH_OF_FIELD, "Depth Of Field", OptionValue(0));
+    options.addOption(OPT_MSAA, "MSAA", OptionValue(0));
+    options.addOption(OPT_MAX_MSAA, "Max MSAA", OptionValue(8));
+    options.addOption(OPT_SPECULAR_EXPONENT, "Specular Exponent", OptionValue(8.0f));
+    options.addOption(OPT_SPECULAR_INTENSITY, "Specular Intensity", OptionValue(0.3f));
+    options.addOption(OPT_HDR_EXPOSURE, "HDR Exposure", OptionValue(1.3f)); //TODO(Ben): Useless?
+    options.addOption(OPT_GAMMA, "Gamma", OptionValue(1.0f));
+    options.addOption(OPT_SEC_COLOR_MULT, "Sec Color Mult", OptionValue(0.1f)); //TODO(Ben): Useless?
+    options.addOption(OPT_FOV, "FOV", OptionValue(70.0f));
+    options.addOption(OPT_MAX_FPS, "Max FPS", OptionValue(60.0f)); //TODO(Ben): appdata.config?
+    options.addOption(OPT_VOXEL_LOD_THRESHOLD, "Voxel LOD Threshold", OptionValue(128.0f));
+    options.addOption(OPT_MUSIC_VOLUME, "Music Volume", OptionValue(1.0f));
+    options.addOption(OPT_EFFECT_VOLUME, "Effect Volume", OptionValue(1.0f));
+    options.addOption(OPT_MOUSE_SENSITIVITY, "Mouse Sensitivity", OptionValue(1.0f));
+    options.addOption(OPT_INVERT_MOUSE, "Invert Mouse", OptionValue(false));
+}
 
 void SoaEngine::initState(SoaState* state) {
     state->debugRenderer = std::make_unique<DebugRenderer>();

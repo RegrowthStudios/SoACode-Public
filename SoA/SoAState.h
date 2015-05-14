@@ -48,7 +48,7 @@ public:
     std::unique_ptr<vio::IOManager> systemIoManager;
     std::unique_ptr<PlanetLoader> planetLoader;
 
-    SoaOptions options;
+    SoaOptions* options = nullptr; // Lives in App
 
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;

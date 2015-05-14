@@ -9,7 +9,7 @@
 #include "FloraTask.h"
 #include "GameSystem.h"
 #include "GenerateTask.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "PlanetData.h"
 #include "RenderTask.h"
 #include "SoaState.h"

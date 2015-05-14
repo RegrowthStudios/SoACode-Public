@@ -9,7 +9,7 @@
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 

@@ -23,7 +23,7 @@
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "SoAState.h"
 #include "SoaEngine.h"
 #include "SpaceSystem.h"
