@@ -85,8 +85,7 @@ public:
     void addOption(int id, const nString& name, OptionValue defaultValue, SoaOptionFlags flags = {});
     void addOption(const nString& name, OptionValue defaultValue, SoaOptionFlags flags = {});
     void addStringOption(const nString& name, const nString& defaultValue, const nString& value);
-    bool removeOption(int id);
-    bool removeOption(const nString& name);
+ 
     SoaOption& get(int id);
     SoaOption& get(const nString& name);
     SoaStringOption& getStringOption(const nString& name);
