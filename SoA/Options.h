@@ -3,8 +3,9 @@
 
 extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
-class GraphicsOptions {
+class Options {
 public:
+    //****************** Graphics Options ******************//
     i32 lodDistance;
     i32 lodDetail = 1;
     i32 voxelRenderDistance = 144;
@@ -33,28 +34,18 @@ public:
 
     nString defaultTexturePack = "Default";
     nString currTexturePack = defaultTexturePack; 
-};
-extern GraphicsOptions graphicsOptions;
 
-class SoundOptions {
-public:
+    //****************** Sound Options ******************//
     f32 musicVolume = 1.0f;
     f32 effectVolume = 1.0f;
-};
-extern SoundOptions soundOptions;
 
-class GameOptions {
-public:
+    //****************** Game Options ******************//
     f32 mouseSensitivity = 30.0f;
     bool invertMouse = false;
-};
-extern GameOptions gameOptions;
 
-class MenuOptions {
-public:
+    //****************** Menu Options ******************//
     nString newGameString = "", loadGameString = "", selectPlanetName = "", markerName = "";
     i32 markerR = 0, markerG = 0, markerB = 0;
 };
-extern MenuOptions menuOptions;
 
 extern bool loadOptions(const cString filePath);

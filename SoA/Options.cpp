@@ -8,34 +8,27 @@
 #include "GameManager.h"
 #include "InputMapper.h"
 
-KEG_TYPE_DEF(GraphicsOptions, GraphicsOptions, kt) {
-    kt.addValue("enableParticles", keg::Value::basic(offsetof(GraphicsOptions, enableParticles), keg::BasicType::BOOL));
-    kt.addValue("fov", keg::Value::basic(offsetof(GraphicsOptions, fov), keg::BasicType::F32));
-    kt.addValue("gamma", keg::Value::basic(offsetof(GraphicsOptions, gamma), keg::BasicType::F32));
-    kt.addValue("voxelRenderDistance", keg::Value::basic(offsetof(GraphicsOptions, voxelRenderDistance), keg::BasicType::I32));
-    kt.addValue("terrainQuality", keg::Value::basic(offsetof(GraphicsOptions, lodDetail), keg::BasicType::I32));
-    kt.addValue("texturePack", keg::Value::basic(offsetof(GraphicsOptions, currTexturePack), keg::BasicType::STRING));
-    kt.addValue("maxFps", keg::Value::basic(offsetof(GraphicsOptions, maxFPS), keg::BasicType::F32));
-    kt.addValue("motionBlur", keg::Value::basic(offsetof(GraphicsOptions, motionBlur), keg::BasicType::I32));
-    kt.addValue("msaa", keg::Value::basic(offsetof(GraphicsOptions, msaa), keg::BasicType::I32));
-}
-
-KEG_TYPE_DEF(GameOptions, GameOptions, kt) {
-    kt.addValue("mouseSensitivity", keg::Value::basic(offsetof(GameOptions, mouseSensitivity), keg::BasicType::F32));
-    kt.addValue("invertMouse", keg::Value::basic(offsetof(GameOptions, invertMouse), keg::BasicType::BOOL));
-}
-
-KEG_TYPE_DEF(SoundOptions, SoundOptions, kt) {
-    kt.addValue("musicVolume", keg::Value::basic(offsetof(SoundOptions, musicVolume), keg::BasicType::F32));
-    kt.addValue("effectVolume", keg::Value::basic(offsetof(SoundOptions, effectVolume), keg::BasicType::F32));
+KEG_TYPE_DEF(Options, Options, kt) {
+    kt.addValue("enableParticles", keg::Value::basic(offsetof(Options, enableParticles), keg::BasicType::BOOL));
+    kt.addValue("fov", keg::Value::basic(offsetof(Options, fov), keg::BasicType::F32));
+    kt.addValue("gamma", keg::Value::basic(offsetof(Options, gamma), keg::BasicType::F32));
+    kt.addValue("voxelRenderDistance", keg::Value::basic(offsetof(Options, voxelRenderDistance), keg::BasicType::I32));
+    kt.addValue("terrainQuality", keg::Value::basic(offsetof(Options, lodDetail), keg::BasicType::I32));
+    kt.addValue("texturePack", keg::Value::basic(offsetof(Options, currTexturePack), keg::BasicType::STRING));
+    kt.addValue("maxFps", keg::Value::basic(offsetof(Options, maxFPS), keg::BasicType::F32));
+    kt.addValue("motionBlur", keg::Value::basic(offsetof(Options, motionBlur), keg::BasicType::I32));
+    kt.addValue("msaa", keg::Value::basic(offsetof(Options, msaa), keg::BasicType::I32));
+    // Sound Options
+    kt.addValue("musicVolume", keg::Value::basic(offsetof(Options, musicVolume), keg::BasicType::F32));
+    kt.addValue("effectVolume", keg::Value::basic(offsetof(Options, effectVolume), keg::BasicType::F32));
+    // Game Options
+    kt.addValue("mouseSensitivity", keg::Value::basic(offsetof(Options, mouseSensitivity), keg::BasicType::F32));
+    kt.addValue("invertMouse", keg::Value::basic(offsetof(Options, invertMouse), keg::BasicType::BOOL));
 }
 
 std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
-GraphicsOptions graphicsOptions;
-SoundOptions soundOptions;
-GameOptions gameOptions;
-MenuOptions menuOptions;
+Options graphicsOptions;
 
 bool loadOptions(const cString filePath) {
     vio::IOManager ioManager; // TODO: Pass in a real boy
@@ -45,25 +38,7 @@ bool loadOptions(const cString filePath) {
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data);
     keg::Node node = context.reader.getFirst();
-    if (keg::getType(node) != keg::NodeType::MAP) {
-        context.reader.dispose();
-        delete[] data;
-        perror(filePath);
-        return false;
-    }
-
-    // Manually parse yml file
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& structName, keg::Node value) {
-        if (structName == "GraphicsOptions") {
-            keg::parse((ui8*)&graphicsOptions, value, context, &KEG_GLOBAL_TYPE(GraphicsOptions));
-        } else if (structName == "GameOptions") {
-            keg::parse((ui8*)&gameOptions, value, context, &KEG_GLOBAL_TYPE(GameOptions));
-        } else if (structName == "SoundOptions") {
-            keg::parse((ui8*)&soundOptions, value, context, &KEG_GLOBAL_TYPE(SoundOptions));
-        }
-    });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    keg::parse((ui8*)&graphicsOptions, node, context, &KEG_GLOBAL_TYPE(Options));
 
     context.reader.dispose();
     delete[] data;
