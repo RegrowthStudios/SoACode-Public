@@ -1,13 +1,17 @@
 #include "stdafx.h"
 #include "OptionsController.h"
 
-
 OptionsController::OptionsController() {
     // Empty
 }
 
 OptionsController::~OptionsController() {
     // Empty
+}
+
+void OptionsController::setDefault() {
+    m_tempCopy = soaOptions;
+    m_default = soaOptions; // TODO(Ben): This is wrong
 }
 
 void OptionsController::beginContext() {

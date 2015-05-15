@@ -59,6 +59,8 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_EFFECT_VOLUME, "Effect Volume", OptionValue(1.0f));
     options.addOption(OPT_MOUSE_SENSITIVITY, "Mouse Sensitivity", OptionValue(1.0f));
     options.addOption(OPT_INVERT_MOUSE, "Invert Mouse", OptionValue(false));
+    options.addOption(OPT_FULLSCREEN, "Fullscreen", OptionValue(false));
+    options.addOption(OPT_BORDERLESS, "Borderless Window", OptionValue(false));
     options.addStringOption("Texture Pack", "Default");
 }
 

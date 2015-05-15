@@ -22,6 +22,10 @@ class OptionsController {
 public:
     OptionsController();
     ~OptionsController();
+
+    // Call right before loading options
+    void setDefault();
+
     /// Begins a context for changing options.
     /// Call this when beginning to change options.
     void beginContext();

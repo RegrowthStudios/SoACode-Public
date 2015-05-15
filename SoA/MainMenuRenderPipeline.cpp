@@ -52,7 +52,7 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
         glEnable(GL_MULTISAMPLE);
     } else {
         glDisable(GL_MULTISAMPLE);
-    }
+    } 
 
     // Make swap chain
     m_swapChain = new vg::RTSwapChain<2>();

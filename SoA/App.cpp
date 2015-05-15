@@ -72,6 +72,7 @@ void App::onInit() {
     
     // Load the game options
     SoaEngine::initOptions(soaOptions);
+    SoaEngine::optionsController.setDefault();
     SoaEngine::optionsController.loadOptions();
 
     vg::SamplerState::initPredefined();

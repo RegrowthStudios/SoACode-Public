@@ -74,6 +74,8 @@ enum DefaultOptions : int {
     OPT_EFFECT_VOLUME,
     OPT_MOUSE_SENSITIVITY,
     OPT_INVERT_MOUSE,
+    OPT_FULLSCREEN,
+    OPT_BORDERLESS,
     OPT_NUM_OPTIONS // This should be last
 };
 
