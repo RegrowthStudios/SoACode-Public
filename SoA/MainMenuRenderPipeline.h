@@ -18,6 +18,7 @@
 #include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
+#include <Vorb/VorbPreDecl.inl>
 
 /// Forward declarations
 class Camera;
@@ -30,6 +31,7 @@ class SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
 class MainMenuScriptedUI;
+DECL_VUI(struct WindowResizeEvent);
 
 class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
@@ -50,12 +52,16 @@ public:
     /// Frees all resources
     virtual void destroy(bool shouldDisposeStages) override;
 
+    void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
+
     void takeScreenshot() { m_shouldScreenshot = true; }
 
     void toggleUI() { m_showUI = !m_showUI; }
     void toggleAR() { m_showAR = !m_showAR; }
     void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
 private:
+    void initFramebuffer();
+    void resize();
     void dumpScreenshot();
 
     ColorFilterRenderStage* m_colorFilterRenderStage = nullptr; ///< Renders a color filter
@@ -74,6 +80,8 @@ private:
     bool m_showUI = true;
     bool m_showAR = true;
     bool m_shouldScreenshot = false;
+    bool m_shouldResize = false;
+    ui32v2 m_newDims;
     int m_colorFilter = 0;
 };
 

@@ -96,6 +96,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
+    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
     m_inputMapper->stopInput();
     m_formFont.dispose();
     m_ui.dispose();
@@ -164,6 +165,8 @@ void MainMenuScreen::initInput() {
         m_renderPipeline.cycleColorFilter(); });
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.takeScreenshot(); });
+
+    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
 
     m_inputMapper->startInput();
 }
@@ -280,4 +283,8 @@ void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
 void MainMenuScreen::onQuit(Sender s, ui32 a) {
     SoaEngine::destroyAll(m_soaState);
     exit(0);
+}
+
+void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+    m_camera.setAspectRatio(_app->getWindow().getAspectRatio());
 }

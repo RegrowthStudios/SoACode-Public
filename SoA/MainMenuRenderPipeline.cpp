@@ -5,6 +5,7 @@
 #include <Vorb/io/IOManager.h>
 #include <Vorb/io/FileOps.h>
 #include <Vorb/utils.h>
+#include <Vorb/ui/InputDispatcher.h>
 
 #include "ColorFilterRenderStage.h"
 #include "Errors.h"
@@ -37,6 +38,8 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     m_viewport = viewport;
     m_mainMenuUI = mainMenuUI;
 
+    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
+
     // Check to make sure we don't double init
     if (m_isInitialized) {
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
@@ -45,18 +48,8 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
         m_isInitialized = true;
     }
 
-    // Construct framebuffer
-    m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
-    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
-    if (soaOptions.get(OPT_MSAA).value.i > 0) {
-        glEnable(GL_MULTISAMPLE);
-    } else {
-        glDisable(GL_MULTISAMPLE);
-    } 
+    initFramebuffer();
 
-    // Make swap chain
-    m_swapChain = new vg::RTSwapChain<2>();
-    m_swapChain->init(m_viewport.z, m_viewport.w, vg::TextureInternalFormat::RGBA8);
     m_quad.init();
 
     // Helpful macro to reduce code size
@@ -71,9 +64,11 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
     m_logLuminanceRenderStage = ADD_STAGE(ExposureCalcRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
 }
 
-f32v4 pixels[10];
 void MainMenuRenderPipeline::render() {
     
+    // Check for window resize
+    if (m_shouldResize) resize();
+
     // Bind the FBO
     m_hdrFrameBuffer->use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
@@ -145,9 +140,51 @@ void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
         m_swapChain = nullptr;
     }
 
+    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
+
     m_quad.dispose();
 
     m_isInitialized = false;
+}
+
+void MainMenuRenderPipeline::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+    m_newDims = ui32v2(e.w, e.h);
+    m_shouldResize = true;
+}
+
+void MainMenuRenderPipeline::initFramebuffer() {
+    // Construct framebuffer
+    m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
+    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
+    if (soaOptions.get(OPT_MSAA).value.i > 0) {
+        glEnable(GL_MULTISAMPLE);
+    } else {
+        glDisable(GL_MULTISAMPLE);
+    }
+
+    // Make swap chain
+    m_swapChain = new vg::RTSwapChain<2>();
+    m_swapChain->init(m_viewport.z, m_viewport.w, vg::TextureInternalFormat::RGBA8);
+}
+
+void MainMenuRenderPipeline::resize() {
+    m_viewport.z = m_newDims.x;
+    m_viewport.w = m_newDims.y;
+
+    std::cout << "NewSize " << m_newDims.x << " " << m_newDims.y << std::endl;
+
+    m_hdrFrameBuffer->dispose();
+    delete m_hdrFrameBuffer;
+    m_swapChain->dispose();
+    delete m_swapChain;
+    initFramebuffer();
+
+    m_spaceSystemRenderStage->setViewport(m_newDims);
+    m_logLuminanceRenderStage->setFrameBuffer(m_hdrFrameBuffer);
+
+    m_mainMenuUI->setDimensions(m_newDims);
+
+    m_shouldResize = false;
 }
 
 void MainMenuRenderPipeline::dumpScreenshot() {

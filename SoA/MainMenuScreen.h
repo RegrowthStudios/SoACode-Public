@@ -37,6 +37,7 @@ class SoaState;
 class SpaceSystemUpdater;
 
 DECL_VSOUND(class Engine)
+DECL_VUI(struct WindowResizeEvent);
 class AmbienceLibrary;
 class AmbiencePlayer;
 
@@ -97,6 +98,7 @@ private:
     void onReloadSystem(Sender s, ui32 a);
     void onReloadShaders(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);
+    void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
     // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;

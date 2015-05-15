@@ -43,6 +43,8 @@ public:
     /// @pre no FBO is bound
     virtual void render() override;
 
+    void setFrameBuffer(vg::GLRenderTarget* hdrFrameBuffer) { m_hdrFrameBuffer = hdrFrameBuffer; }
+
     const f32& getExposure() const { return m_exposure; }
 
 private:
