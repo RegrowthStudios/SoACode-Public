@@ -26,6 +26,9 @@ void HdrRenderStage::reloadShader() {
     if (m_glProgramBlur) {
         vg::ShaderManager::destroyProgram(&m_glProgramBlur);
     }
+    if (m_glProgramDoFBlur) {
+        vg::ShaderManager::destroyProgram(&m_glProgramDoFBlur);
+    }
 }
 
 void HdrRenderStage::dispose() {
@@ -34,7 +37,6 @@ void HdrRenderStage::dispose() {
         vg::ShaderManager::destroyProgram(&m_glProgramBlur);
     }
 }
-
 
 void HdrRenderStage::render() {
     f32m4 oldVP = m_oldVP;

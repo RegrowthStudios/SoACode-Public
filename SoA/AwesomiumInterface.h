@@ -32,21 +32,19 @@ template <class C>
 class CustomJSMethodHandler : public Awesomium::JSMethodHandler
 {
 public:
-    CustomJSMethodHandler() : _api(nullptr) {}
-
     /// Sets the callback API
     /// @param api: the AwesomiumAPI to use
-    void setAPI(C* api) { _api = api; }
+    void setAPI(C* api) { m_api = api; }
 
     /// Overloaded functions from Awesomium::JSMethodHandler
     void OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args);
     Awesomium::JSValue OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args);
 
     /// The interface objects for the JS and the game
-    Awesomium::JSObject *gameInterface, *jsInterface;
-
+    Awesomium::JSObject *gameInterface;
+    std::map<ui32, Awesomium::JSObject> m_customObjects;
 private:
-    C* _api; ///< The current function call API to use
+    C* m_api = nullptr; ///< The current function call API to use
 };
 
 /// This class provides an awesomium based UI implementation
@@ -55,8 +53,7 @@ private:
 template <class C>
 class AwesomiumInterface : public IAwesomiumInterface {
 public:
-    AwesomiumInterface();
-    ~AwesomiumInterface();
+    virtual ~AwesomiumInterface();
 
     /// Initializes the UI
     /// @param inputDir: the directory where the HTML files are located.
@@ -103,43 +100,38 @@ private:
     /************************************************************************/
     /* Event listeners                                                      */
     /************************************************************************/
-    void onMouseFocusGained(Sender sender, const MouseEvent& e);
-    void onMouseFocusLost(Sender sender, const MouseEvent& e);
-    void onMouseButtonUp(Sender sender, const MouseButtonEvent& e);
-    void onMouseButtonDown(Sender sender, const MouseButtonEvent& e);
-    void onMouseMotion(Sender sender, const MouseMotionEvent& e);
     void onKeyUp(Sender sender, const KeyEvent& e);
     void onKeyDown(Sender sender, const KeyEvent& e);
     void onText(Sender sender, const TextEvent& e);
-    std::vector<void*> m_delegatePool; ///< Listeners that must be freed
+    AutoDelegatePool m_delegatePool; ///< Listeners that must be freed
 
-    bool _isInitialized; ///< true when initialized
+    bool m_isInitialized = false; ///< true when initialized
 
-    ui32 _width, _height; ///< dimensions of the window
+    ui32 m_width = 0, m_height = 0; ///< dimensions of the window
 
-    i32v4 _drawRect; ///< dimensions of the destination rect for drawing
+    i32v4 m_drawRect; ///< dimensions of the destination rect for drawing
 
-    ui32 _renderedTexture; ///< the opengl texture ID
+    ui32 m_renderedTexture = 0; ///< the opengl texture ID
 
-    ui32 _vbo; ///< the opengl vboID
-    ui32 _ibo; ///< the opengl iboID
+    ui32 m_vbo = 0; ///< the opengl vboID
+    ui32 m_ibo = 0; ///< the opengl iboID
 
-    ColorRGBA8 _color; ///< the UI color
+    color4 m_color = color4(255, 255, 255, 255); ///< the UI color
 
-    ui16 _numFiles; ///< the number of files writen by the awesomium data pak
+    ui16 m_numFiles; ///< the number of files writen by the awesomium data pak
 
-    Awesomium::OpenglSurfaceFactory* _openglSurfaceFactory; ///< custom surface factory for rendering
+    Awesomium::OpenglSurfaceFactory* m_openglSurfaceFactory = nullptr; ///< custom surface factory for rendering
 
-    C _awesomiumAPI; ///< the API to use for custom function calls
+    C m_awesomiumAPI; ///< the API to use for custom function calls
 
-    CustomJSMethodHandler<C> _methodHandler; ///< the method handler for the function calls
+    CustomJSMethodHandler<C> m_methodHandler; ///< the method handler for the function calls
 
     /// the vertex struct for rendering
     struct Vertex2D {
         f32v2 pos;
-        ui8 uv[2];
-        ui8 pad[2];
-        ColorRGBA8 color;
+        ui8v2 uv;
+        ui8v2 pad;
+        color4 color;
     };
 };
 

@@ -86,8 +86,11 @@ public:
     void toggleChunkGrid();
     /// Cycle poly mode for voxels
     void cycleDrawMode();
+
+    void takeScreenshot() { m_shouldScreenshot = true; }
 private:
     void updateCameras();
+    void dumpScreenshot();
 
     SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
     PhysicsBlockRenderStage* m_physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
@@ -127,6 +130,7 @@ private:
     bool m_voxelsActive = false;
     float m_coloredQuadAlpha = 0.0f;
     bool m_increaseQuadAlpha = false;
+    bool m_shouldScreenshot = false;
 };
 
 #endif // GamePlayRenderPipeline_h__

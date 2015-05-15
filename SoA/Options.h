@@ -18,7 +18,7 @@ public:
 
     f32 specularExponent = 8.0f;
     f32 specularIntensity = 0.3f;
-    f32 hdrExposure = 3.0f;
+    f32 hdrExposure = 1.3f;
     f32 gamma = 1.0f;
     f32 secColorMult = 0.1f;
     f32 fov = 70.0f;
@@ -31,9 +31,8 @@ public:
     bool needsFullscreenToggle = false;
     bool enableParticles = true;
 
-    nString texturePackString = "Default";
-    nString currTexturePack = texturePackString;
-    nString defaultTexturePack = texturePackString;
+    nString defaultTexturePack = "Default";
+    nString currTexturePack = defaultTexturePack; 
 };
 extern GraphicsOptions graphicsOptions;
 

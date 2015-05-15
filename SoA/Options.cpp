@@ -14,7 +14,7 @@ KEG_TYPE_DEF(GraphicsOptions, GraphicsOptions, kt) {
     kt.addValue("gamma", keg::Value::basic(offsetof(GraphicsOptions, gamma), keg::BasicType::F32));
     kt.addValue("voxelRenderDistance", keg::Value::basic(offsetof(GraphicsOptions, voxelRenderDistance), keg::BasicType::I32));
     kt.addValue("terrainQuality", keg::Value::basic(offsetof(GraphicsOptions, lodDetail), keg::BasicType::I32));
-    kt.addValue("texturePack", keg::Value::basic(offsetof(GraphicsOptions, texturePackString), keg::BasicType::STRING));
+    kt.addValue("texturePack", keg::Value::basic(offsetof(GraphicsOptions, currTexturePack), keg::BasicType::STRING));
     kt.addValue("maxFps", keg::Value::basic(offsetof(GraphicsOptions, maxFPS), keg::BasicType::F32));
     kt.addValue("motionBlur", keg::Value::basic(offsetof(GraphicsOptions, motionBlur), keg::BasicType::I32));
     kt.addValue("msaa", keg::Value::basic(offsetof(GraphicsOptions, msaa), keg::BasicType::I32));
@@ -41,11 +41,12 @@ bool loadOptions(const cString filePath) {
     vio::IOManager ioManager; // TODO: Pass in a real boy
     const cString data = ioManager.readFileToString(filePath);
 
-    keg::YAMLReader reader;
-    reader.init(data);
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data);
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
-        reader.dispose();
+        context.reader.dispose();
         delete[] data;
         perror(filePath);
         return false;
@@ -54,17 +55,17 @@ bool loadOptions(const cString filePath) {
     // Manually parse yml file
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& structName, keg::Node value) {
         if (structName == "GraphicsOptions") {
-            keg::parse((ui8*)&graphicsOptions, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GraphicsOptions));
+            keg::parse((ui8*)&graphicsOptions, value, context, &KEG_GLOBAL_TYPE(GraphicsOptions));
         } else if (structName == "GameOptions") {
-            keg::parse((ui8*)&gameOptions, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GameOptions));
+            keg::parse((ui8*)&gameOptions, value, context, &KEG_GLOBAL_TYPE(GameOptions));
         } else if (structName == "SoundOptions") {
-            keg::parse((ui8*)&soundOptions, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SoundOptions));
+            keg::parse((ui8*)&soundOptions, value, context, &KEG_GLOBAL_TYPE(SoundOptions));
         }
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
 
-    reader.dispose();
+    context.reader.dispose();
     delete[] data;
     return true;
 }

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TestGasGiantScreen.h"
 #include "soaUtils.h"
-#include "GasGiantRenderer.h"
+#include "Errors.h"
 #include <Vorb\graphics\GLProgram.h>
 #include <Vorb\graphics\GpuMemory.h>
 #include <Vorb\graphics\ImageIO.h>
@@ -28,63 +28,77 @@ void TestGasGiantScreen::build() {
 void TestGasGiantScreen::destroy(const vui::GameTime& gameTime) {
 
 }
-static float eyePos = 1.5f;
+
 void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
  
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if(e.keyCode == VKEY_F1) {
-            m_gasGiantRenderer->dispose();
+            m_gasGiantRenderer.disposeShader();
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-        eyePos += -e.dy * 0.01f;
+        m_eyeDist += -e.dy * 0.025 * glm::length(m_eyeDist);
+    });
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_ESCAPE) {
+            exit(0);
+        }
     });
     glEnable(GL_DEPTH_TEST);
-    
-    m_gasGiantRenderer = new GasGiantRenderer();
-    //vg::Texture tex = m_textureCache.addTexture("Textures/Test/GasGiantLookup.png", &SamplerState::POINT_CLAMP);
-    //m_gasGiantRenderer->setColorBandLookupTexture(tex.id);
 
-    VGTexture colorBandLookup;
-    glGenTextures(1, &colorBandLookup);
-    glBindTexture(GL_TEXTURE_2D, colorBandLookup);
-    
-    vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/GasGiantLookup.png");
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, rs.width, rs.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs.data);
+    vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/GasGiantLookup2.png");
+    if (rs.data == nullptr) pError("Failed to load gas giant texture");
+    VGTexture colorBandLookup = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height,
+                                                             &vg::SamplerState::LINEAR_CLAMP);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-    m_gasGiantRenderer->setColorBandLookupTexture(colorBandLookup);
+    vg::ImageIO().free(rs);
 
     glClearColor(0, 0, 0, 1);
     glClearDepth(1.0);
-    m_eyePos = f32v3(0, 0, eyePos);
+
+    m_eyePos = f32v3(0, 0, m_eyeDist);
+
+    // Set up components
+    m_ggCmp.radius = GIANT_RADIUS;
+    m_ggCmp.colorMap = colorBandLookup;
+    m_aCmp.radius = GIANT_RADIUS * 1.025;
+    m_aCmp.planetRadius = GIANT_RADIUS;
+    m_aCmp.invWavelength4 = f32v3(1.0f / powf(0.475f, 4.0f),
+                                  1.0f / powf(0.57f, 4.0f),
+                                  1.0f / powf(0.65f, 4.0f));
+
+    m_camera.setFieldOfView(90.0f);
+    f32 width = _game->getWindow().getWidth();
+    f32 height = _game->getWindow().getHeight();
+    m_camera.setAspectRatio(width / height);
+    m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
+    m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
 }
 
 void TestGasGiantScreen::onExit(const vui::GameTime& gameTime) {
-    delete m_gasGiantRenderer;
+
 }
-static float dt = 1.0f;
+
 void TestGasGiantScreen::update(const vui::GameTime& gameTime) {
-    static float dt = 1.0f;
-    dt += 0.001f;
-    f32v3 eulerAngles(0, dt, 0);
-    f32q rotationQuat = f32q(eulerAngles);
-    m_eyePos = f32v3(0, 0, eyePos) * rotationQuat;
+    m_eyePos = f64v3(0, 0, GIANT_RADIUS + m_eyeDist + 100.0);
 }
 
 void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    f32m4 mvp = glm::translate(f32m4(1.0f), f32v3(0, 0, 0)) * glm::perspectiveFov(90.0f, 1280.0f, 720.0f, 0.1f, 1000.0f) * glm::lookAt(m_eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
-    
+
+    m_camera.setClippingPlane((f32)(m_eyeDist / 2.0), (f32)(m_eyeDist + GIANT_RADIUS * 10.0));
+    m_camera.setPosition(f64v3(m_eyePos));
+    m_camera.update();
+
+    f32v3 lightPos = glm::normalize(f32v3(0.0f, 0.0f, 1.0f));
+
     PreciseTimer timer;
-    timer.start();
-    m_gasGiantRenderer->drawGasGiant(mvp);
-    glFinish();
-    std::cout << timer.stop() << std::endl;
+    m_gasGiantRenderer.draw(m_ggCmp, m_camera.getViewProjectionMatrix(),
+                            f64q(), f32v3(m_eyePos), lightPos, &m_slCmp, &m_aCmp);
+
+    m_atmoRenderer.draw(m_aCmp, m_camera.getViewProjectionMatrix(), f32v3(m_eyePos), lightPos, &m_slCmp);
+    //glFinish();
+   
+    checkGlError("TestGasGiantScreen::draw");
 }
-
-
-//pColor = vec4(texture(unColorBandLookup, vec2(0.5, fPosition.y)).rgb, 1.0);

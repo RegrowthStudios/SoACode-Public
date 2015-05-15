@@ -21,6 +21,7 @@
 class GameSystem;
 class SoaState;
 class SpaceSystem;
+struct GasGiantKegProperties;
 struct SpaceSystemLoadParams;
 struct SystemBody;
 struct SystemBodyKegProperties;
@@ -75,6 +76,11 @@ private:
     /// @param pr: params
     static void addStarSystem(SpaceSystemLoadParams& pr);
 
+    /// Loads path color scheme
+    /// @param pr: params
+    /// @return true on success
+    static bool loadPathColors(SpaceSystemLoadParams& pr);
+
     /// Loads and adds system properties to the params
     /// @param pr: params
     /// @return true on success
@@ -89,7 +95,21 @@ private:
     static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
                                    const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
 
-    static void calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary);
+    // Sets up mass parameters for binaries
+    static void initBinaries(SpaceSystemLoadParams& pr);
+    // Recursive function for binary creation
+    static void initBinary(SpaceSystemLoadParams& pr, SystemBody* bary);
+
+    // Initializes orbits and parent connections
+    static void initOrbits(SpaceSystemLoadParams& pr);
+
+    static void createGasGiant(SpaceSystemLoadParams& pr,
+                               const SystemBodyKegProperties* sysProps,
+                               const GasGiantKegProperties* properties,
+                               SystemBody* body);
+
+    static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
+                               const SystemBody* body, f64 binaryMassRatio = 0.0);
 
 };
 

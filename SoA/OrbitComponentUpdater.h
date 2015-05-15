@@ -24,19 +24,14 @@ class OrbitComponentUpdater {
 public:
     void update(SpaceSystem* spaceSystem, f64 time);
 
-    /// Calculates current orbital speed in km/s
-    /// TODO(Ben): I am not sure that this is behaving right
-    static f64 calculateOrbitalSpeed(SpaceSystem* spaceSystem, const OrbitComponent& oCmp,
-                                     const SphericalGravityComponent& sgCmp);
-
-private:
     /// Updates the position based on time and parent position
     /// @param cmp: The component to update
     /// @param time: Time in seconds
     /// @param npComponent: The positional component of this component
     /// @param parentNpComponent: The parents positional component
-    void calculatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
-                                                  NamePositionComponent* parentNpComponent = nullptr );
+    void updatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
+                           OrbitComponent* parentOrbComponent = nullptr,
+                           NamePositionComponent* parentNpComponent = nullptr);
 };
 
 #endif // OrbitComponentUpdater_h__

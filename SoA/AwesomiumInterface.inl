@@ -5,19 +5,6 @@ namespace ui {
 #define DEFAULT_WEB_URL "asset://UI/"
 
 template <class C>
-AwesomiumInterface<C>::AwesomiumInterface() :
-    _isInitialized(false),
-    _openglSurfaceFactory(nullptr),
-    _renderedTexture(0),
-    _width(0),
-    _height(0),
-    _vbo(0),
-    _ibo(0),
-    _color(255, 255, 255, 255) {
-    // Empty
-}
-
-template <class C>
 AwesomiumInterface<C>::~AwesomiumInterface(void) {
     destroy();
 }
@@ -26,45 +13,45 @@ AwesomiumInterface<C>::~AwesomiumInterface(void) {
 template <class C>
 bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, const char* indexName, ui32 width, ui32 height, IGameScreen* ownerScreen)
 {
-    if (_isInitialized) {
+    if (m_isInitialized) {
         puts("Awesomium Error: Tried to call AwesomiumInterface::init twice without destroying.");
         return false;
     }
     // Set dimensions
-    _width = width;
-    _height = height;
+    m_width = width;
+    m_height = height;
 
     // Set default draw rectangle
-    i32v4 destRect(0, 0, _width, _height);
+    i32v4 destRect(0, 0, m_width, m_height);
     setDrawRect(destRect);
 
     // Sets up the webCore, which is the main process
-    _webCore = Awesomium::WebCore::instance();
-    if (_webCore == nullptr){
-        _webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
+    m_webCore = Awesomium::WebCore::instance();
+    if (m_webCore == nullptr){
+        m_webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
     }
 
     //Set up our custom surface factory for direct opengl rendering
-    _openglSurfaceFactory = new Awesomium::OpenglSurfaceFactory;
-    _webCore->set_surface_factory(_openglSurfaceFactory);
+    m_openglSurfaceFactory = new Awesomium::OpenglSurfaceFactory;
+    m_webCore->set_surface_factory(m_openglSurfaceFactory);
 
     //Sets up the session
-    _webSession = _webCore->CreateWebSession(Awesomium::WSLit(sessionName), Awesomium::WebPreferences());
-    _webView = _webCore->CreateWebView((i32)_width, (i32)_height, _webSession, Awesomium::kWebViewType_Offscreen);
+    m_webSession = m_webCore->CreateWebSession(Awesomium::WSLit(sessionName), Awesomium::WebPreferences());
+    m_webView = m_webCore->CreateWebView((i32)m_width, (i32)m_height, m_webSession, Awesomium::kWebViewType_Offscreen);
 
-    if (!_webView){
+    if (!m_webView){
         puts("Awesomium WebView could not be created!\n");
         return false;
     }
 
     nString pakName = nString(sessionName) + ".pak";
 
-    if (!Awesomium::WriteDataPak(Awesomium::WSLit(pakName.c_str()), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), _numFiles)){
+    if (!Awesomium::WriteDataPak(Awesomium::WSLit(pakName.c_str()), Awesomium::WSLit(inputDir), Awesomium::WSLit(""), m_numFiles)){
         puts(("UI Initialization Error: Failed to write " + pakName).c_str());
         return false;
     }
-    _data_source = new Awesomium::DataPakSource(Awesomium::WSLit(pakName.c_str()));
-    _webSession->AddDataSource(Awesomium::WSLit("UI"), _data_source);
+    m_data_source = new Awesomium::DataPakSource(Awesomium::WSLit(pakName.c_str()));
+    m_webSession->AddDataSource(Awesomium::WSLit("UI"), m_data_source);
 
     // Load a certain URL into our WebView instance.
     Awesomium::WebURL url(Awesomium::WSLit((DEFAULT_WEB_URL + nString(indexName)).c_str()));
@@ -75,110 +62,94 @@ bool AwesomiumInterface<C>::init(const char* inputDir, const char* sessionName, 
     }
     // Sleep a bit to give time for initialization
     Sleep(50);
-    // Set up the Game interface
-    _gameInterface = _webView->CreateGlobalJavascriptObject(Awesomium::WSLit("App"));
-    if (_gameInterface.IsObject()){
-        _methodHandler.gameInterface = &_gameInterface.ToObject();
 
-        //Initialize the callback API
-        _awesomiumAPI.init(_methodHandler.gameInterface, ownerScreen);
-    } else {
-        puts("Awesomium Error: Failed to create app object.");
-    }
-
-    _webView->LoadURL(url);
+    m_webView->LoadURL(url);
 
     // Wait for our WebView to finish loading
-    while (_webView->IsLoading()) {
+    while (m_webView->IsLoading()) {
         Sleep(50);
-        _webCore->Update();
+        m_webCore->Update();
     }
 
     // Sleep a bit and update once more to give scripts and plugins
     // on the page a chance to finish loading.
     Sleep(50);
-    _webCore->Update();
-    _webView->SetTransparent(true);
-    _webView->set_js_method_handler(&_methodHandler);
+    m_webCore->Update();
+    m_webView->SetTransparent(true);
+    m_webView->set_js_method_handler(&m_methodHandler);
 
     // Set the callback API
-    _methodHandler.setAPI(&_awesomiumAPI);
+    m_methodHandler.setAPI(&m_awesomiumAPI);
 
-    Awesomium::Error error = _webView->last_error();
+    Awesomium::Error error = m_webView->last_error();
     if (error) {
         puts(("Awesomium Error: " + std::to_string(error)).c_str());
     }
 
     // Retrieve the global 'window' object from the page
-    _window = _webView->ExecuteJavascriptWithResult(Awesomium::WSLit("window"), Awesomium::WSLit(""));
-    if (!_window.IsObject()) {
+    m_window = m_webView->ExecuteJavascriptWithResult(Awesomium::WSLit("window"), Awesomium::WSLit(""));
+    if (!m_window.IsObject()) {
         puts("Awesomium Error: No window object.");
+    }
+   
+    // Set up the Game interface
+    Sleep(10);
+    m_gameInterface = m_webView->CreateGlobalJavascriptObject(Awesomium::WSLit("App"));
+    if (m_gameInterface.IsObject()) {
+        m_methodHandler.gameInterface = &m_gameInterface.ToObject();
+
+        //Initialize the callback API
+        m_awesomiumAPI.init(m_webView, &m_methodHandler, ownerScreen, m_window);
+    } else {
+        puts("Awesomium Error: Failed to create app object.");
     }
 
     // Add input registration
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onFocusGained.addFunctor([=] (Sender s, const MouseEvent& e) { onMouseFocusGained(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onFocusLost.addFunctor([=] (Sender s, const MouseEvent& e) { onMouseFocusLost(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onMotion.addFunctor([=] (Sender s, const MouseMotionEvent& e) { onMouseMotion(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onButtonUp.addFunctor([=] (Sender s, const MouseButtonEvent& e) { onMouseButtonUp(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::mouse.onButtonDown.addFunctor([=] (Sender s, const MouseButtonEvent& e) { onMouseButtonDown(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::key.onKeyUp.addFunctor([=] (Sender s, const KeyEvent& e) { onKeyUp(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::key.onKeyDown.addFunctor([=] (Sender s, const KeyEvent& e) { onKeyDown(s, e); }));
-    m_delegatePool.push_back(vui::InputDispatcher::key.onText.addFunctor([=] (Sender s, const TextEvent& e) { onText(s, e); }));
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const MouseEvent& e) {
+        m_webView->Focus();
+    });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const MouseEvent& e) {
+        m_webView->Unfocus();
+    });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const MouseMotionEvent& e) {
+        f32 relX = (e.x - m_drawRect.x) / (f32)m_drawRect.z;
+        f32 relY = (e.y - m_drawRect.y) / (f32)m_drawRect.w;
+        m_webView->InjectMouseMove((i32)(relX * m_width), (i32)(relY * m_height));
+    });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const MouseButtonEvent& e) {
+        m_webView->InjectMouseUp(getAwesomiumButton(e.button));
+    });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const MouseButtonEvent& e) {
+        m_webView->InjectMouseDown(getAwesomiumButton(e.button));
+    });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyUp, [this](Sender s, const KeyEvent& e) { this->onKeyUp(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyDown, [this](Sender s, const KeyEvent& e) { this->onKeyDown(s, e); });
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onText, [this](Sender s, const TextEvent& e) { this->onText(s, e); });
 
-    _isInitialized = true;
+    m_isInitialized = true;
     return true;
 }
 
 template <class C>
 void AwesomiumInterface<C>::destroy() {
-    _webSession->Release();
-    _webView->Destroy();
+    m_webSession->Release();
+    m_webView->Destroy();
 
     // Unregister events
-    vui::InputDispatcher::mouse.onFocusGained -= *(Delegate<Sender, const MouseEvent&>*)m_delegatePool[0];
-    vui::InputDispatcher::mouse.onFocusLost -= *(Delegate<Sender, const MouseEvent&>*)m_delegatePool[1];
-    vui::InputDispatcher::mouse.onMotion -= *(Delegate<Sender, const MouseMotionEvent&>*)m_delegatePool[2];
-    vui::InputDispatcher::mouse.onButtonUp -= *(Delegate<Sender, const MouseButtonEvent&>*)m_delegatePool[3];
-    vui::InputDispatcher::mouse.onButtonDown -= *(Delegate<Sender, const MouseButtonEvent&>*)m_delegatePool[4];
-    vui::InputDispatcher::key.onKeyUp -= *(Delegate<Sender, const KeyEvent&>*)m_delegatePool[5];
-    vui::InputDispatcher::key.onKeyDown -= *(Delegate<Sender, const KeyEvent&>*)m_delegatePool[6];
-    vui::InputDispatcher::key.onText -= *(Delegate<Sender, const TextEvent&>*)m_delegatePool[7];
-    for (auto& p : m_delegatePool) delete p;
-    m_delegatePool.clear();
+    m_delegatePool.dispose();
 
-    delete _openglSurfaceFactory;
-    delete _data_source;
-    _isInitialized = false;
+    delete m_openglSurfaceFactory;
+    m_openglSurfaceFactory = nullptr;
+    delete m_data_source;
+    m_data_source = nullptr;
+    m_isInitialized = false;
 }
 
 template <class C>
 void AwesomiumInterface<C>::invokeFunction(const cString functionName, const Awesomium::JSArray& args) {
-    _window.ToObject().Invoke(Awesomium::WSLit(functionName), args);
+    m_window.ToObject().Invoke(Awesomium::WSLit(functionName), args);
 }
 
-template <class C>
-void AwesomiumInterface<C>::onMouseFocusGained(Sender sender, const MouseEvent& e) {
-    _webView->Focus();
-}
-template <class C>
-void AwesomiumInterface<C>::onMouseFocusLost(Sender sender, const MouseEvent& e) {
-    _webView->Unfocus();
-}
-template <class C>
-void AwesomiumInterface<C>::onMouseButtonUp(Sender sender, const MouseButtonEvent& e) {
-    _webView->InjectMouseUp(getAwesomiumButton(e.button));
-}
-template <class C>
-void AwesomiumInterface<C>::onMouseButtonDown(Sender sender, const MouseButtonEvent& e) {
-    _webView->InjectMouseDown(getAwesomiumButton(e.button));
-}
-template <class C>
-void AwesomiumInterface<C>::onMouseMotion(Sender sender, const MouseMotionEvent& e) {
-    f32 relX = (e.x - _drawRect.x) / (f32)_drawRect.z;
-    f32 relY = (e.y - _drawRect.y) / (f32)_drawRect.w;
-
-    _webView->InjectMouseMove((i32)(relX * _width), (i32)(relY * _height));
-}
 template <class C>
 void AwesomiumInterface<C>::onKeyDown(Sender sender, const KeyEvent& e) {
     Awesomium::WebKeyboardEvent keyEvent;
@@ -194,7 +165,7 @@ void AwesomiumInterface<C>::onKeyDown(Sender sender, const KeyEvent& e) {
     if (e.repeatCount > 0) keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModIsAutorepeat;
 
     keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyDown;
-    _webView->InjectKeyboardEvent(keyEvent);
+    m_webView->InjectKeyboardEvent(keyEvent);
 }
 template <class C>
 void AwesomiumInterface<C>::onKeyUp(Sender sender, const KeyEvent& e) {
@@ -211,7 +182,7 @@ void AwesomiumInterface<C>::onKeyUp(Sender sender, const KeyEvent& e) {
     if (e.repeatCount > 0) keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModIsAutorepeat;
 
     keyEvent.type = Awesomium::WebKeyboardEvent::kTypeKeyUp;
-    _webView->InjectKeyboardEvent(keyEvent);
+    m_webView->InjectKeyboardEvent(keyEvent);
 }
 template <class C>
 void AwesomiumInterface<C>::onText(Sender sender, const TextEvent& e) {
@@ -221,17 +192,17 @@ void AwesomiumInterface<C>::onText(Sender sender, const TextEvent& e) {
     memcpy(keyEvent.unmodified_text, e.wtext, 4 * sizeof(wchar_t));
 
     keyEvent.type = Awesomium::WebKeyboardEvent::kTypeChar;
-    _webView->InjectKeyboardEvent(keyEvent);
+    m_webView->InjectKeyboardEvent(keyEvent);
 }
 
 template <class C>
 void AwesomiumInterface<C>::update()
 {
-    _webCore->Update();
+    m_webCore->Update();
 
-    Awesomium::OpenglSurface* surface = (Awesomium::OpenglSurface*)_webView->surface();
+    Awesomium::OpenglSurface* surface = (Awesomium::OpenglSurface*)m_webView->surface();
 
-    _renderedTexture = surface->getTextureID();
+    m_renderedTexture = surface->getTextureID();
 
     if (!surface){
         puts("User Interface Error: webView->surface() returned null! Most likely due to erroneous code in the javascript or HTML5.\n");
@@ -242,26 +213,22 @@ template <class C>
 void AwesomiumInterface<C>::draw(vg::GLProgram* program) const
 {
     //Check if draw coords were set
-    if (_vbo == 0 || _renderedTexture == 0) return;
+    if (m_vbo == 0 || m_renderedTexture == 0) return;
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 
     // Bind shader
     program->use();
     program->enableVertexAttribArrays();
 
-    glUniform2f(program->getUniform("unScreenSize"), (f32)_width, (f32)_height);
+    glUniform2f(program->getUniform("unScreenSize"), (f32)m_width, (f32)m_height);
     glUniform2f(program->getUniform("unScreenDisplacement"), 0.0f, 0.0f);
     glUniform1i(program->getUniform("unTexMain"), 0);
-    // TODO: Will this be removed?
-    //glUniform1i(program->getUniform("unTexMask"), 1);
-    //glUniform1f(program->getUniform("unMaskModifier"), 0.0f);
-    //glUniform2f(program->getUniform("unUVMaskStart"), 0.0f, 0.0f);
 
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _renderedTexture);
+    glBindTexture(GL_TEXTURE_2D, m_renderedTexture);
 
     glVertexAttribPointer(program->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), offsetptr(Vertex2D, pos));
     glVertexAttribPointer(program->getAttribute("vUV"), 2, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex2D), offsetptr(Vertex2D, uv));
@@ -279,58 +246,58 @@ void AwesomiumInterface<C>::setDrawRect(const i32v4& rect) {
 
     const GLubyte uiBoxUVs[8] = { 0, 0, 0, 255, 255, 255, 255, 0 };
 
-    _drawRect = rect;
+    m_drawRect = rect;
 
-    if (_vbo == 0) {
-        glGenBuffers(1, &_vbo);
-        glGenBuffers(1, &_ibo);
+    if (m_vbo == 0) {
+        glGenBuffers(1, &m_vbo);
+        glGenBuffers(1, &m_ibo);
 
         GLushort elements[6] = { 0, 1, 2, 2, 3, 0 };
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     Vertex2D vertices[4];
 
-    vertices[0].pos.x = (f32)_drawRect.x;
-    vertices[0].pos.y = (f32)(_drawRect.y + _drawRect.w);
+    vertices[0].pos.x = (f32)m_drawRect.x;
+    vertices[0].pos.y = (f32)(m_drawRect.y + m_drawRect.w);
 
-    vertices[1].pos.x = (f32)_drawRect.x;
-    vertices[1].pos.y = (f32)_drawRect.y;
+    vertices[1].pos.x = (f32)m_drawRect.x;
+    vertices[1].pos.y = (f32)m_drawRect.y;
 
-    vertices[2].pos.x = (f32)(_drawRect.x + _drawRect.z);
-    vertices[2].pos.y = (f32)_drawRect.y;
+    vertices[2].pos.x = (f32)(m_drawRect.x + m_drawRect.z);
+    vertices[2].pos.y = (f32)m_drawRect.y;
 
-    vertices[3].pos.x = (f32)(_drawRect.x + _drawRect.z);
-    vertices[3].pos.y = (f32)(_drawRect.y + _drawRect.w);
+    vertices[3].pos.x = (f32)(m_drawRect.x + m_drawRect.z);
+    vertices[3].pos.y = (f32)(m_drawRect.y + m_drawRect.w);
 
     for (int i = 0; i < 4; i++) {
         vertices[i].uv[0] = uiBoxUVs[i * 2];
         vertices[i].uv[1] = uiBoxUVs[i * 2 + 1];
 
-        vertices[i].color = _color;
+        vertices[i].color = m_color;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 template <class C>
 void AwesomiumInterface<C>::setColor(const ColorRGBA8& color) {
-    _color = color;
+    m_color = color;
     // Update the vbo
-    setDrawRect(_drawRect);
+    setDrawRect(m_drawRect);
 }
 
 template <class C>
 void CustomJSMethodHandler<C>::OnMethodCall(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
    
     std::cout << "Method call: " << method_name << std::endl;
-    IAwesomiumAPI<C>::setptr funcptr = _api->getVoidFunction(Awesomium::ToString(method_name));
+    IAwesomiumAPI<C>::setptr funcptr = m_api->getVoidFunction(Awesomium::ToString(method_name));
     if (funcptr) {
-        ((*_api).*funcptr)(args);
+        ((*m_api).*funcptr)(args);
     }
 }
 
@@ -338,9 +305,9 @@ template <class C>
 Awesomium::JSValue CustomJSMethodHandler<C>::OnMethodCallWithReturnValue(Awesomium::WebView *caller, unsigned int remote_object_id, const Awesomium::WebString &method_name, const Awesomium::JSArray &args) {
    
     std::cout << "Method call with return value: " << method_name << std::endl;
-    IAwesomiumAPI<C>::getptr funcptr = _api->getFunctionWithReturnValue(Awesomium::ToString(method_name));
+    IAwesomiumAPI<C>::getptr funcptr = m_api->getFunctionWithReturnValue(Awesomium::ToString(method_name));
     if (funcptr) {
-        return ((*_api).*funcptr)(args);
+        return ((*m_api).*funcptr)(args);
     }
     return Awesomium::JSValue(0);
 }

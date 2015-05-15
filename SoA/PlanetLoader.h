@@ -49,6 +49,10 @@ public:
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
     PlanetGenData* getDefaultGenData(vcore::RPCManager* glrpc = nullptr);
+    /// Returns a default planetGenData
+    /// @param glrpc: Optional RPC if you want to load on a non-render thread
+    /// @return planet gen data
+    PlanetGenData* getRandomGenData(vcore::RPCManager* glrpc = nullptr);
 private:
     /// Loads the biomes from file
     /// @param filePath: Path to the biome file
@@ -62,22 +66,22 @@ private:
     /// @param terrainFuncs: The functions to parse
     /// @param reader: The YAML reader
     /// @param node: The YAML node
-    void parseTerrainFuncs(NoiseBase* terrainFuncs, keg::YAMLReader& reader, keg::Node node);
+    void parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node);
     /// Parses liquid color data
     /// @param reader: The YAML reader
     /// @param node: The YAML node
     /// @param genData: The generation data to modify
-    void parseLiquidColor(keg::YAMLReader& reader, keg::Node node, OUT PlanetGenData* genData);
+    void parseLiquidColor(keg::ReadContext& context, keg::Node node, OUT PlanetGenData* genData);
     /// Parses terrain color data
     /// @param reader: The YAML reader
     /// @param node: The YAML node
     /// @param genData: The generation data to modify
-    void parseTerrainColor(keg::YAMLReader& reader, keg::Node node, OUT PlanetGenData* genData);
+    void parseTerrainColor(keg::ReadContext& context, keg::Node node, OUT PlanetGenData* genData);
     /// Parses block layer data
     /// @param reader: The YAML reader
     /// @param node: The YAML node
     /// @param genData: The generation data to modify
-    void parseBlockLayers(keg::YAMLReader& reader, keg::Node node, OUT PlanetGenData* genData);
+    void parseBlockLayers(keg::ReadContext& context, keg::Node node, OUT PlanetGenData* genData);
 
     /// A lookup texture for biomes, to be used on the GPU
     class BiomeLookupTexture {

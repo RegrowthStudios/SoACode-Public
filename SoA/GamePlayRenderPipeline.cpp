@@ -77,7 +77,7 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init and track render stages
-    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, &m_spaceCamera);
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, &m_spaceCamera, &soaState->texturePathResolver);
     m_opaqueVoxelRenderStage = ADD_STAGE(OpaqueVoxelRenderStage, &m_gameRenderParams);
     m_cutoutVoxelRenderStage = ADD_STAGE(CutoutVoxelRenderStage, &m_gameRenderParams);
     m_chunkGridRenderStage = ADD_STAGE(ChunkGridRenderStage, &m_gameRenderParams);
@@ -88,11 +88,10 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     m_pauseMenuRenderStage = ADD_STAGE(PauseMenuRenderStage, pauseMenu);
     m_nightVisionRenderStage = ADD_STAGE(NightVisionRenderStage, &m_quad);
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, &m_voxelCamera);
-    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, ui32v2(windowDims),
+    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(windowDims),
         spaceSystem, gameSystem,
         nullptr, &m_spaceCamera,
-        &m_farTerrainCamera,
-        GameManager::textureCache->addTexture("Textures/selector.png").id);
+        &m_farTerrainCamera);
 
     loadNightVision();
     // No post-process effects to begin with
@@ -192,6 +191,8 @@ void GameplayRenderPipeline::render() {
         m_coloredQuadAlpha -= FADE_DEC;
     }
 
+    if (m_shouldScreenshot) dumpScreenshot();
+
     // Check for errors, just in case
     checkGlError("GamePlayRenderPipeline::render()");
 }
@@ -241,15 +242,16 @@ void GameplayRenderPipeline::loadNightVision() {
     const cString nvData = iom.readFileToString("Data/NightVision.yml");
     if (nvData) {
         Array<NightVisionRenderParams> arr;
-        keg::YAMLReader reader;
-        reader.init(nvData);
-        keg::Node node = reader.getFirst();
+        keg::ReadContext context;
+        context.env = keg::getGlobalEnvironment();
+        context.reader.init(nvData);
+        keg::Node node = context.reader.getFirst();
         keg::Value v = keg::Value::array(0, keg::Value::custom(0, "NightVisionRenderParams", false));
-        keg::evalData((ui8*)&arr, &v, node, reader, keg::getGlobalEnvironment());
+        keg::evalData((ui8*)&arr, &v, node, context);
         for (i32 i = 0; i < arr.size(); i++) {
             m_nvParams.push_back(arr[i]);
         }
-        reader.dispose();
+        context.reader.dispose();
         delete[] nvData;
     }
     if (m_nvParams.size() < 1) {
@@ -322,4 +324,12 @@ void GameplayRenderPipeline::updateCameras() {
    
     m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
     m_spaceCamera.update();
+}
+
+void GameplayRenderPipeline::dumpScreenshot() {
+    // Make screenshots directory
+    vio::IOManager().makeDirectory("Screenshots");
+    // Take screenshot
+    dumpFramebufferImage("Screenshots/", m_viewport);
+    m_shouldScreenshot = false;
 }

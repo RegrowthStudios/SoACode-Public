@@ -2,62 +2,65 @@
 #include "OrbitComponentRenderer.h"
 
 #include <Vorb/graphics/GLProgram.h>
-#include <glm/gtx/quaternion.hpp>
 #include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/utils.h>
+
+#include <glm/gtx/quaternion.hpp>
 
 #include "Constants.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 
-#define DEGREES 360
-#define VERTS_PER_DEGREE 8
-
-void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float alpha, NamePositionComponent* parentNpComponent /*= nullptr*/) {
-    f32v4 color(f32v4(cmp.pathColor) / 255.0f);
-    f32m4 transMatrix(1.0f);
+void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
+    
+    // Lazily generate mesh
+    if (cmp.vbo == 0) generateOrbitEllipse(cmp, colorProgram);
+    if (cmp.numVerts == 0) return;
+    
+    f32m4 w(1.0f);
     if (parentNpComponent) {
-        setMatrixTranslation(transMatrix, parentNpComponent->position - camPos);
+        setMatrixTranslation(w, parentNpComponent->position - camPos);
     } else {
-        setMatrixTranslation(transMatrix, -camPos);
+        setMatrixTranslation(w, -camPos);
     }
-    f32m4 pathMatrix = wvp * transMatrix * glm::mat4(glm::toMat4(cmp.orientation));
-    glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, alpha);
+    f32m4 pathMatrix = wvp * w;
+    
+    // Blend hover color
+    if (cmp.pathColor[0].r == 0.0f && cmp.pathColor[0].g == 0.0f && cmp.pathColor[0].b == 0.0f) {
+        if (blendFactor <= 0.0f) return;
+        glUniform4f(colorProgram->getUniform("unColor"), cmp.pathColor[1].r, cmp.pathColor[1].g, cmp.pathColor[1].b, blendFactor);
+    } else {
+        f32v3 color = lerp(cmp.pathColor[0], cmp.pathColor[1], blendFactor);
+        glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, 1.0f);
+    }
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
-    // Lazily generate mesh
-    if (cmp.vbo == 0) generateOrbitEllipse(cmp);
-
     // Draw the ellipse
-    vg::GpuMemory::bindBuffer(cmp.vbo, vg::BufferTarget::ARRAY_BUFFER);
-    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
-    glDrawArrays(GL_LINE_STRIP, 0, DEGREES * VERTS_PER_DEGREE + 1);
+    glBindVertexArray(cmp.vao);
+    glDrawArrays(GL_LINE_STRIP, 0, cmp.numVerts);
+    glBindVertexArray(0);
 }
 
-void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp) {
-#define DEGTORAD (M_PI / 180.0)
+void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLProgram* colorProgram) {
 
-    // Need to offset the ellipse mesh based on eccentricity
-    f64 xOffset = cmp.semiMajor - cmp.r1;
-    std::vector<f32v3> verts;
-    verts.reserve(DEGREES * VERTS_PER_DEGREE + 1);
+    if (cmp.verts.empty()) return;
 
-    // Generate all the verts
-    for (int i = 0; i < DEGREES * VERTS_PER_DEGREE; i++) {
-        f64 rad = ((double)i / VERTS_PER_DEGREE) * DEGTORAD;
-        verts.emplace_back(cos(rad)*cmp.semiMajor - xOffset,
-                           0.0,
-                           sin(rad)*cmp.semiMinor);
-    }
-    // First vertex is duplicated
-    verts.push_back(verts.front());
+    glGenVertexArrays(1, &cmp.vao);
+    glBindVertexArray(cmp.vao);
+
+    colorProgram->enableVertexAttribArrays();
 
     // Upload the buffer data
     vg::GpuMemory::createBuffer(cmp.vbo);
     vg::GpuMemory::bindBuffer(cmp.vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(cmp.vbo,
                                     vg::BufferTarget::ARRAY_BUFFER,
-                                    verts.size() * sizeof(f32v3),
-                                    verts.data(),
+                                    cmp.verts.size() * sizeof(f32v3),
+                                    cmp.verts.data(),
                                     vg::BufferUsageHint::STATIC_DRAW);
+    vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
+    glBindVertexArray(0);
+    cmp.numVerts = cmp.verts.size();
+    std::vector<f32v3>().swap(cmp.verts);
 }

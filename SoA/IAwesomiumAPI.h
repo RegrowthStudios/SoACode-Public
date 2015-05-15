@@ -20,6 +20,8 @@
 #include <Awesomium/JSArray.h>
 #include <Awesomium/JSValue.h>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/VorbPreDecl.inl>
+#include "AwesomiumInterface.h"
 
 /// class that implements the C++ callbacks for Awesomium
 /// The template argument should be the derived class
@@ -34,9 +36,8 @@ public:
     virtual ~IAwesomiumAPI();
 
     /// Initializes the API and hooks up all functions
-    /// @oaram interfaceObject: The object that the API will talk to
-    /// @param ownerScreen: The screen that owns this interface
-    virtual void init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) = 0;
+    virtual void init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<C>* methodHandler,
+                      vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) = 0;
 
     /// Sets the screen that owns this API
     /// @param ownerScreen: The screen
@@ -63,14 +64,24 @@ protected:
     /// @param func: The void function pointer
     virtual void addFunction(const nString& name, setptr func);
 
-    /// Prints a message to the console folowed by a newline
+    /// Adds a JS object to be tracked
+    /// @param name: The name of the function
+    /// @param id: ID of the object
+    virtual void addExistingObject(const cString name, ui32 id);
+
+    /// Returns the object associated with the id
+    virtual Awesomium::JSObject getObject(ui32 id);
+
+    /// Prints a message to the console followed by a newline
     /// @param args: Argument can be a string, int, float, or bool
     virtual void print(const Awesomium::JSArray& args);
 
-    std::map<nString, setptr> _voidFunctions; ///< map of void functions
-    std::map<nString, getptr> _returnFunctions; ///< map of get functions
+    std::map<nString, setptr> m_voidFunctions; ///< map of void functions
+    std::map<nString, getptr> m_returnFunctions; ///< map of get functions
 
-    Awesomium::JSObject* _interfaceObject; ///< the interface object to talk to
+    Awesomium::JSValue m_window;
+    Awesomium::WebView* m_webView = nullptr;
+    vui::CustomJSMethodHandler<C>* m_methodHandler = nullptr; ///< Has interface objects
 };
 
 #include "IAwesomiumAPI.inl"

@@ -24,8 +24,6 @@ DECL_VG(class GLProgram)
 
 struct AtmosphereComponent;
 struct SpaceLightComponent;
-class SpaceSystem;
-class Camera;
 
 class AtmosphereComponentRenderer {
 public:
@@ -39,12 +37,12 @@ public:
               const SpaceLightComponent* spComponent);
     void disposeShader();
 private:
-    void buildShaders();
     void buildMesh();
 
     vg::GLProgram* m_program = nullptr;
     VGBuffer m_icoVbo = 0;
     VGIndexBuffer m_icoIbo = 0;
+    VGVertexArray m_vao = 0;
     int m_numIndices = 0;
 };
 

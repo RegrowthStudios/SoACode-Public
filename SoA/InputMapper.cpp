@@ -22,7 +22,7 @@ KEG_TYPE_DEF(InputKegArray, InputKegArray, kt) {
     kt.addValue("key", Value::array(offsetof(InputKegArray, key), Value::custom(0, "VirtualKey", true)));
 }
 InputMapper::InputMapper() {
-    memset(m_keyStates, 0, VKEY_HIGHEST_VALUE * sizeof(bool));
+    memset(m_keyStates, 0, sizeof(m_keyStates));
 }
 
 InputMapper::~InputMapper() {
@@ -72,12 +72,13 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         throw 33;
     }
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         perror(location.c_str());
-        reader.dispose();
+        context.reader.dispose();
         throw 34;
     }
 
@@ -85,7 +86,7 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
         InputKegArray kegArray;
         
-        keg::parse((ui8*)&kegArray, value, reader, keg::getGlobalEnvironment(), &KEG_GET_TYPE(InputKegArray));
+        keg::parse((ui8*)&kegArray, value, context, &KEG_GET_TYPE(InputKegArray));
         
         // TODO(Ben): Somehow do multikey support
         // Right now its only using the first key
@@ -102,9 +103,9 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         m_inputLookup[name] = id;
 
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
 }
 
 void InputMapper::startInput() {
@@ -166,29 +167,31 @@ void InputMapper::setKeyToDefault(const InputID id) {
 }
 
 void InputMapper::onMouseButtonDown(Sender, const vui::MouseButtonEvent& e) {
-    switch (e.button) {
-    case vui::MouseButton::LEFT:
-        m_keyStates[SDL_BUTTON_LEFT] = true;
-        break;
-    case vui::MouseButton::RIGHT:
-        m_keyStates[SDL_BUTTON_RIGHT] = true;
-        break;
-    default:
-        break;
+    ui32 code = VKEY_HIGHEST_VALUE + (ui32)e.button;
+    if (!m_keyStates[code]) {
+        m_keyStates[code] = true;
+        // TODO(Ben): input mapping for mouse
+        //auto& it = m_keyCodeMap.find((VirtualKey)e.keyCode);
+        //if (it != m_keyCodeMap.end()) {
+        //    // Call all events mapped to that virtual key
+        //    for (auto& id : it->second) {
+        //        m_inputs[id].downEvent(e.keyCode);
+        //    }
+        //}
     }
 }
 
 void InputMapper::onMouseButtonUp(Sender, const vui::MouseButtonEvent& e) {
-    switch (e.button) {
-    case vui::MouseButton::LEFT:
-        m_keyStates[SDL_BUTTON_LEFT] = false;
-        break;
-    case vui::MouseButton::RIGHT:
-        m_keyStates[SDL_BUTTON_RIGHT] = false;
-        break;
-    default:
-        break;
-    }
+    ui32 code = VKEY_HIGHEST_VALUE + (ui32)e.button;
+    m_keyStates[code] = false;
+    // TODO(Ben): input mapping for mouse
+    //auto& it = m_keyCodeMap.find((VirtualKey)e.keyCode);
+    //if (it != m_keyCodeMap.end()) {
+    //    // Call all events mapped to that virtual key
+    //    for (auto& id : it->second) {
+    //        m_inputs[id].upEvent(e.keyCode);
+    //    }
+    //} 
 }
 
 void InputMapper::onKeyDown(Sender, const vui::KeyEvent& e) {

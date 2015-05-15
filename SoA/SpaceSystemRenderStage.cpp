@@ -12,6 +12,7 @@
 #include "MTRenderState.h"
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"
+#include "SoaState.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
@@ -30,20 +31,22 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
-SpaceSystemRenderStage::SpaceSystemRenderStage(ui32v2 viewport,
+SpaceSystemRenderStage::SpaceSystemRenderStage(const SoaState* soaState,
+                                               ui32v2 viewport,
                                                SpaceSystem* spaceSystem,
                                                GameSystem* gameSystem,
                                                const MainMenuSystemViewer* systemViewer,
                                                const Camera* spaceCamera,
-                                               const Camera* farTerrainCamera,
-                                               VGTexture selectorTexture) :
+                                               const Camera* farTerrainCamera) :
     m_viewport(viewport),
     m_spaceSystem(spaceSystem),
     m_gameSystem(gameSystem),
     m_mainMenuSystemViewer(systemViewer),
     m_spaceCamera(spaceCamera),
     m_farTerrainCamera(farTerrainCamera),
-    m_selectorTexture(selectorTexture) {
+    m_lensFlareRenderer(&soaState->texturePathResolver),
+    m_starRenderer(&soaState->texturePathResolver),
+    m_systemARRenderer(&soaState->texturePathResolver) {
     // Empty
 }
 
@@ -57,16 +60,33 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
 
 void SpaceSystemRenderStage::render() {
     drawBodies();
-    m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
-                            m_mainMenuSystemViewer, m_selectorTexture,
-                            m_viewport);
-   
+    if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
+                                          m_mainMenuSystemViewer,
+                                          m_viewport);
 }
+
+void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
+    for (auto& it : m_starGlowsToRender) {
+        m_starRenderer.drawGlow(it.first, m_spaceCamera->getViewProjectionMatrix(), it.second,
+                                m_spaceCamera->getAspectRatio(), m_spaceCamera->getDirection(),
+                                m_spaceCamera->getRight(), colorMult);
+        // TODO(Ben): Don't do this twice?
+        f32v3 starColor = m_starRenderer.calculateStarColor(it.first);
+        f32 intensity = glm::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
+        m_lensFlareRenderer.render(m_spaceCamera->getViewProjectionMatrix(), it.second,
+                                   starColor * colorMult,
+                                   m_spaceCamera->getAspectRatio(), 0.1f, intensity);
+    }
+}
+
 
 void SpaceSystemRenderStage::reloadShader() {
     m_sphericalTerrainComponentRenderer.disposeShaders();
     m_farTerrainComponentRenderer.disposeShaders();
     m_atmosphereComponentRenderer.disposeShader();
+    m_gasGiantComponentRenderer.disposeShader();
+    m_starRenderer.disposeShaders();
+    m_lensFlareRenderer.dispose();
 }
 
 f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {
@@ -88,7 +108,7 @@ void SpaceSystemRenderStage::drawBodies() {
     m_closestPatchDistance2 = DOUBLE_SENTINEL;
 
     bool needsDepthClear = false;
-    // TODO(Ben): Try to optimize out getFromEntity
+    // TODO(Ben): Optimize out getFromEntity
     f64v3 lightPos;
     // For caching light for far terrain
     std::map<vecs::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
@@ -112,7 +132,7 @@ void SpaceSystemRenderStage::drawBodies() {
             needsDepthClear = true;
         }
 
-        SpaceLightComponent* lightCmp = getBrightestLight(cmp, lightPos);
+        SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
         f32v3 lightDir(glm::normalize(lightPos - *pos));
@@ -127,25 +147,45 @@ void SpaceSystemRenderStage::drawBodies() {
         f64 dist = cmp.meshManager->getClosestSphericalDistance2();
         if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
     }
+    // Render gas giants
+    for (auto& it : m_spaceSystem->m_gasGiantCT) {
+        auto& ggCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(ggCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+
+        SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
+        lightCache[it.first] = std::make_pair(lightPos, lightCmp);
+
+        f32v3 lightDir(glm::normalize(lightPos - *pos));
+
+        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(),
+                                         m_spaceSystem->m_axisRotationCT.getFromEntity(it.first).currentOrientation,
+                                         relCamPos, lightDir, lightCmp,
+                                         &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+    }
 
     // Render atmospheres
-     for (auto& it : m_spaceSystem->m_atmosphereCT) {
-         auto& atCmp = it.second;
-         auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
+    for (auto& it : m_spaceSystem->m_atmosphereCT) {
+        auto& atCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
 
-         pos = getBodyPosition(npCmp, it.first);
+        pos = getBodyPosition(npCmp, it.first);
 
-         f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
 
-         if (glm::length(relCamPos) < ATMO_LOAD_DIST) {
-             auto& l = lightCache[it.first];
+        if (glm::length(relCamPos) < atCmp.radius * 11.0f) {
+            auto& l = lightCache[it.first];
 
-             f32v3 lightDir(glm::normalize(l.first - *pos));
+            f32v3 lightDir(glm::normalize(l.first - *pos));
 
-             m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
-         }
-     }
+            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+        }
+    }
 
+    // Render far terrain
     if (m_farTerrainCamera) {
 
         if (needsDepthClear) {
@@ -174,19 +214,38 @@ void SpaceSystemRenderStage::drawBodies() {
         }
     }
 
+    // Render stars
+    m_starGlowsToRender.clear();
+    for (auto& it : m_spaceSystem->m_starCT) {
+        auto& sCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(sCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f64v3 relCamPos = m_spaceCamera->getPosition() - *pos;
+        f32v3 fRelCamPos(relCamPos);
+
+        // Render the star
+        m_starRenderer.updateOcclusionQuery(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos);
+        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
+        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
+        
+        m_starGlowsToRender.emplace_back(sCmp, relCamPos);
+    }
+
     vg::DepthState::FULL.set();
 }
 
-SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(SphericalTerrainComponent& cmp, OUT f64v3& pos) {
+SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(NamePositionComponent& npCmp, OUT f64v3& pos) {
     SpaceLightComponent* rv = nullptr;
-    f64 closestDist = 9999999999999999.0;
+    f64 closestDist = 999999999999999999999999999999999999999999999.0;
     for (auto& it : m_spaceSystem->m_spaceLightCT) {
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(it.second.parentNpId);
-        // TODO(Ben): Optimize out sqrt
-        f64 dist = glm::length(npCmp.position - m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent).position);
+        auto& lightNpCmp = m_spaceSystem->m_namePositionCT.get(it.second.npID);    
+        f64 dist = selfDot(lightNpCmp.position - npCmp.position);
         if (dist < closestDist) {
             closestDist = dist;
             rv = &it.second;
+            pos = lightNpCmp.position;
         }
     }
     return rv;

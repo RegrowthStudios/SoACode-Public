@@ -18,9 +18,9 @@
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
-#include "TestMappingScreen.h"
 #include "TestGasGiantScreen.h"
-
+#include "TestMappingScreen.h"
+#include "TestStarScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -35,34 +35,41 @@ void App::addScreens() {
 
     // Add development screen
     scrDev = new DevScreen;
-    scrDev->addScreen(VKEY_RETURN, scrInit);
-    scrDev->addScreen(VKEY_SPACE, scrInit);
+    scrDev->addScreen(VKEY_RETURN, scrInit, "Seed of Andromeda");
     _screenList->addScreen(scrDev);
 
     // Add test screens
     scrTests.push_back(new TestConsoleScreen);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_C, scrTests.back());
+    scrDev->addScreen(VKEY_C, scrTests.back(), "TestConsoleScreen");
     scrTests.push_back(new TestMappingScreen);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_M, scrTests.back());
+    scrDev->addScreen(VKEY_M, scrTests.back(), "TestMappingScreen");
     scrTests.push_back(new TestDeferredScreen);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_D, scrTests.back());
+    scrDev->addScreen(VKEY_D, scrTests.back(), "TestDeferredScreen");
     scrTests.push_back(new TestBlockView);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_B, scrTests.back());
+    scrDev->addScreen(VKEY_B, scrTests.back(), "TestBlockView");
     scrTests.push_back(new TestGasGiantScreen);
     _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_G, scrTests.back());
+    scrDev->addScreen(VKEY_G, scrTests.back(), "TestGasGiantScreen");
+    scrTests.push_back(new TestStarScreen(this));
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
 
-    // Start from dev screen for convenience
+    // Uncomment to start from dev screen for testing other screens
+#define START_AT_DEV_SCREEN
+#ifdef START_AT_DEV_SCREEN
     _screenList->setScreen(scrDev->getIndex());
+#else
+    _screenList->setScreen(scrInit->getIndex());
+#endif
 }
 
 void App::onInit() {
     
-    // Load the graphical options
+    // Load the game options
     loadOptions("Data/Options.yml");
 
     vg::SamplerState::initPredefined();

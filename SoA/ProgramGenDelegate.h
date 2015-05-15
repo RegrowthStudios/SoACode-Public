@@ -15,6 +15,8 @@
 #ifndef ProgramGenDelegate_h__
 #define ProgramGenDelegate_h__
 
+#include "ShaderLoader.h"
+
 #include <Vorb/RPC.h>
 #include <Vorb/graphics/GLProgram.h>
 
@@ -22,32 +24,11 @@ class ProgramGenDelegate {
 public:
     virtual void invoke(Sender sender, void* userData) {
         std::cout << "Building shader: " << name << std::endl;
-        program = new vg::GLProgram(true);
-        if (!program->addShader(vs)) {
-            errorMessage = "Vertex shader for " + name + " failed to compile.";
-            program->dispose();
-            delete program;
-            program = nullptr;
-            return;
+        if (isFromFile) {
+            program = ShaderLoader::createProgramFromFile(vs, fs, iom);
+        } else {
+            program = ShaderLoader::createProgram(name, vs, fs);
         }
-        if (!program->addShader(fs)) {
-            errorMessage = "Fragment shader for " + name + " failed to compile.";
-            program->dispose();
-            delete program;
-            program = nullptr;
-            return;
-        }
-        if (attr) program->setAttributes(*attr);
-
-        if (!program->link()) {
-            errorMessage = name + " failed to link.";
-            program->dispose();
-            delete program;
-            program = nullptr;
-            return;
-        }
-        program->initAttributes();
-        program->initUniforms();
     }
 
     ProgramGenDelegate() {
@@ -55,21 +36,31 @@ public:
         rpc.data.f = &del;
     }
 
-    void init(nString name, const vg::ShaderSource& vs, const vg::ShaderSource& fs, std::vector<nString>* attr = nullptr) {
+    void init(const cString name, const cString vs, const cString fs) {
         this->name = name;
         this->vs = vs;
         this->fs = fs;
-        this->attr = attr;
         rpc.data.userData = nullptr;
+        isFromFile = false;
     }
 
-    nString name;
-    vg::ShaderSource vs;
-    vg::ShaderSource fs;
-    std::vector<nString>* attr = nullptr;
+    void initFromFile(const cString name, const cString vertPath, const cString fragPath, vio::IOManager* iom) {
+        this->name = name;
+        this->vs = vertPath;
+        this->fs = fragPath;
+        this->iom = iom;
+        rpc.data.userData = nullptr;
+        isFromFile = true;
+    }
+
+    const cString name;
+    const cString vs = nullptr;
+    const cString fs = nullptr;
+    bool isFromFile = false;
 
     vcore::RPC rpc;
     Delegate<Sender, void*> del;
+    vio::IOManager* iom = nullptr;
 
     vg::GLProgram* program = nullptr;
     nString errorMessage;

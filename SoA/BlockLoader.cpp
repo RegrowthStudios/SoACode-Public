@@ -87,12 +87,13 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
     if (!data) return false;
 
     // Convert to YAML
-    keg::YAMLReader reader;
-    reader.init(data);
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data);
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         delete[] data;
-        reader.dispose();
+        context.reader.dispose();
         return false;
     }
 
@@ -107,11 +108,11 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
         b.name = name;
         
         // Load data
-        keg::parse((ui8*)&b, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+        keg::parse((ui8*)&b, value, context, &KEG_GLOBAL_TYPE(Block));
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
     delete[] data;
 
     // Add blocks to pack

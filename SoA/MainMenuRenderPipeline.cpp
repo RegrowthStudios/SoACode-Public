@@ -2,14 +2,21 @@
 #include "MainMenuRenderPipeline.h"
 
 #include <Vorb/graphics/TextureCache.h>
+#include <Vorb/io/IOManager.h>
+#include <Vorb/io/FileOps.h>
+#include <Vorb/utils.h>
 
 #include "AwesomiumRenderStage.h"
+#include "ColorFilterRenderStage.h"
 #include "Errors.h"
+#include "GameManager.h"
 #include "HdrRenderStage.h"
+#include "LogLuminanceRenderStage.h"
 #include "Options.h"
 #include "SkyboxRenderStage.h"
+#include "SoaState.h"
 #include "SpaceSystemRenderStage.h"
-#include "GameManager.h"
+#include "soaUtils.h"
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
@@ -20,16 +27,20 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
     destroy(true);
 }
 
-void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
+void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewport,
+                                  Camera* camera,
                                   IAwesomiumInterface* awesomiumInterface,
                                   SpaceSystem* spaceSystem,
                                   const MainMenuSystemViewer* systemViewer) {
     // Set the viewport
     m_viewport = viewport;
 
-    // Check to make sure we aren't leaking memory
-    if (m_skyboxRenderStage != nullptr) {
+    // Check to make sure we don't double init
+    if (m_isInitialized) {
         pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
+        return;
+    } else {
+        m_isInitialized = true;
     }
 
     // Construct framebuffer
@@ -50,15 +61,16 @@ void MainMenuRenderPipeline::init(const ui32v4& viewport, Camera* camera,
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
 
     // Init render stages
-    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera);
+    m_colorFilterRenderStage = ADD_STAGE(ColorFilterRenderStage, &m_quad);
+    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera, &soaState->texturePathResolver);
     m_awesomiumRenderStage = ADD_STAGE(AwesomiumRenderStage, awesomiumInterface);
     m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
-    // TODO(Ben): Use texture pack iomanager
-    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, ui32v2(m_viewport.z, m_viewport.w),
-                                                          spaceSystem, nullptr, systemViewer, camera, nullptr,
-                                                          GameManager::textureCache->addTexture("Textures/selector.png").id);
+    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
+                                                          spaceSystem, nullptr, systemViewer, camera, nullptr);
+    m_logLuminanceRenderStage = ADD_STAGE(LogLuminanceRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 512);
 }
 
+f32v4 pixels[10];
 void MainMenuRenderPipeline::render() {
     
     // Bind the FBO
@@ -68,7 +80,30 @@ void MainMenuRenderPipeline::render() {
 
     // Main render passes
     m_skyboxRenderStage->render();
+    m_spaceSystemRenderStage->setShowAR(m_showAR);
     m_spaceSystemRenderStage->render();
+
+    f32v3 colorFilter(1.0);
+    // Color filter rendering
+    if (m_colorFilter != 0) {
+        switch (m_colorFilter) {
+            case 1:
+                colorFilter = f32v3(0.66f);
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
+            case 2:
+                colorFilter = f32v3(0.3f);
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
+            case 3:
+                colorFilter = f32v3(0.0f);
+                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
+        }
+        m_colorFilterRenderStage->render();
+    }
+
+    // Render last
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_spaceSystemRenderStage->renderStarGlows(colorFilter);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
     m_swapChain->reset(0, m_hdrFrameBuffer, graphicsOptions.msaa > 0, false);
@@ -79,21 +114,43 @@ void MainMenuRenderPipeline::render() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+    m_logLuminanceRenderStage->render();
+
+   // printf("%f - %f\n", graphicsOptions.hdrExposure, targetExposure);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
     m_hdrRenderStage->render();
 
-    m_awesomiumRenderStage->render();
+    if (m_showUI) m_awesomiumRenderStage->render();
+
+    if (m_shouldScreenshot) dumpScreenshot();
 
     // Check for errors, just in case
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
 void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
+    if (!m_isInitialized) return;
     RenderPipeline::destroy(shouldDisposeStages);
 
-    delete m_swapChain;
-    m_swapChain = nullptr;
+    if (m_swapChain) {
+        m_swapChain->dispose();
+        delete m_swapChain;
+        m_swapChain = nullptr;
+    }
 
     m_quad.dispose();
+
+    m_isInitialized = false;
+}
+
+void MainMenuRenderPipeline::dumpScreenshot() {
+    // Make screenshots directory
+    vio::buildDirectoryTree("Screenshots");
+    // Take screenshot
+    dumpFramebufferImage("Screenshots/", m_viewport);
+    m_shouldScreenshot = false;
 }

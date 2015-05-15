@@ -3,13 +3,15 @@
 
 #include "GameplayScreen.h"
 
-void PdaAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
-
+void PdaAwesomiumAPI::init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<PdaAwesomiumAPI>* methodHandler,
+                           vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) {
+    m_window = window;
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PdaAwesomiumAPI::##a)
 
-    // Set up the interface object so we can talk to the JS
-    _interfaceObject = interfaceObject;
+    // Set up the method handler so we can talk to the JS
+    m_methodHandler = methodHandler;
+    m_webView = webView;
 
     // Set up our screen handle so we can talk to the game
     setOwnerScreen(ownerScreen);

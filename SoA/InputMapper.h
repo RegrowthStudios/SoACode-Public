@@ -22,7 +22,7 @@
 #define INPUTMAPPER_DEFAULT_CONFIG_LOCATION "Data/KeyConfig.yml"
 
 /// Handles all the user input through the mouse, keyboard and gamepad.
-/// @author Frank McCoy
+/// @author Frank McCoy and Ben Arnold
 class InputMapper {
 public:
     typedef Event<ui32>::Listener Listener;
@@ -53,6 +53,7 @@ public:
         Event<ui32> downEvent; ///< The event for when the key is pressed
     };
     typedef std::vector<Input> InputList;
+    typedef std::unordered_map<nString, InputID> InputMap;
 
     /// Returns the state of an input
     /// @param id: The id of the input which is being looked up.
@@ -103,13 +104,15 @@ public:
 
     const bool& isRecievingInput() const { return m_receivingInput; }
 
-    // Gets the input associated with the InputID
+    /// Gets the input associated with the InputID
     Input& get(InputID i) {
         return m_inputs[i];
     }
     Input& operator[](InputID i) {
         return m_inputs[i];
     }
+
+    const InputMap& getInputLookup() const { return m_inputLookup; }
 
 private:
     void onMouseButtonDown(Sender, const vui::MouseButtonEvent& e);
@@ -118,10 +121,11 @@ private:
     void onKeyUp(Sender, const vui::KeyEvent& e);
    
     InputList m_inputs; ///< All the stored axes.
-    std::unordered_map<nString, InputID> m_inputLookup; ///< A map of input names to input IDs for quick look up.
+    InputMap m_inputLookup; ///< A map of input names to input IDs for quick look up.
     std::unordered_map<VirtualKey, std::vector<InputID> > m_keyCodeMap; ///< Map of keycodes to active input
     
-    bool m_keyStates[VKEY_HIGHEST_VALUE]; ///< The state of the keys and mouse buttons this frame.
+    /// Assuming vui::MouseButton wont change...
+    bool m_keyStates[VKEY_HIGHEST_VALUE + (ui32)vui::MouseButton::X2]; ///< The state of the keys and mouse buttons this frame.
   
     bool m_receivingInput = false; ///< Tracks input reception state
     AutoDelegatePool m_inputHooks; ///< Stores input reception function hooks for deallocation

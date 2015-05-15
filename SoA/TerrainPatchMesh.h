@@ -63,13 +63,11 @@ public:
     void recycleNormalMap(vg::TextureRecycler* recycler);
 
     /// Draws the terrain mesh
-    void draw(const f64v3& relativePos, const f32m4& VP,
-              const f32m4& rot, vg::GLProgram* program,
+    void draw(const f32m4& WVP, vg::GLProgram* program,
               bool drawSkirts) const;
 
     /// Draws the water mesh
-    void drawWater(const f64v3& relativePos, const f32m4& VP,
-                   const f32m4& rot, vg::GLProgram* program) const;
+    void drawWater(const f32m4& WVP, vg::GLProgram* program) const;
 
     /// Draws the terrain mesh as a far terrain mesh
     void drawAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
@@ -91,8 +89,8 @@ public:
 private:
     VGVertexArray m_vao = 0; ///< Vertex array object
     VGVertexBuffer m_vbo = 0; ///< Vertex buffer object
-    VGIndexBuffer m_ibo = 0; ///< Shared Index buffer object. DONT FREE THIS
-
+  
+    VGVertexArray m_wvao = 0; ///< Water vertex array object
     VGVertexBuffer m_wvbo = 0; ///< Water Vertex buffer object
     VGIndexBuffer m_wibo = 0; ///< Water Index Buffer Object
 

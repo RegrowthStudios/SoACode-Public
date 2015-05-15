@@ -6,13 +6,15 @@
 #include "App.h"
 #include "GameplayScreen.h"
 
-void PauseMenuAwesomiumAPI::init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen) {
-
+void PauseMenuAwesomiumAPI::init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<PauseMenuAwesomiumAPI>* methodHandler,
+                                 vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) {
+    m_window = window;
     // Helper macro for adding functions
     #define ADDFUNC(a) addFunction(""#a"", &PauseMenuAwesomiumAPI::##a)
 
     // Set up the interface object so we can talk to the JS
-    _interfaceObject = interfaceObject;
+    m_methodHandler = methodHandler;
+    m_webView = webView;
 
     // Set up our screen handle so we can talk to the game
     setOwnerScreen(ownerScreen);

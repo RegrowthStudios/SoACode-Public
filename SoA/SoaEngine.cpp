@@ -8,6 +8,8 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "MeshManager.h"
+#include "Options.h"
+#include "OrbitComponentUpdater.h"
 #include "PlanetData.h"
 #include "PlanetLoader.h"
 #include "ProgramGenDelegate.h"
@@ -15,8 +17,10 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
-#include <Vorb/io/keg.h>
 #include <Vorb/RPC.h>
+#include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/io/keg.h>
 
 #define M_PER_KM 1000.0
 
@@ -27,7 +31,7 @@ struct SpaceSystemLoadParams {
     PlanetLoader* planetLoader = nullptr;
     vcore::RPCManager* glrpc = nullptr;
 
-    std::map<nString, Binary*> binaries; ///< Contains all binary systems
+    std::map<nString, SystemBody*> barycenters; ///< Contains all barycenter objects
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
     std::map<nString, vecs::EntityID> bodyLookupMap;
 };
@@ -37,6 +41,9 @@ void SoaEngine::initState(SoaState* state) {
     state->meshManager = std::make_unique<MeshManager>();
     state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
     state->systemIoManager = std::make_unique<vio::IOManager>();
+    state->texturePathResolver.init("Textures/TexturePacks/" + graphicsOptions.defaultTexturePack + "/",
+                                    "Textures/TexturePacks/" + graphicsOptions.currTexturePack + "/");
+   
 }
 // TODO: A vorb helper would be nice.
 vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr) {
@@ -72,8 +79,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     // Load normal map gen shader
     ProgramGenDelegate gen;
     vio::IOManager iom;
-    gen.init("NormalMapGen", createShaderSource(vg::ShaderType::VERTEX_SHADER, iom, "Shaders/Generation/NormalMap.vert"),
-                  createShaderSource(vg::ShaderType::FRAGMENT_SHADER, iom, "Shaders/Generation/NormalMap.frag"));
+    gen.initFromFile("NormalMapGen", "Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag", &iom);
 
     if (glrpc) {
         glrpc->invoke(&gen.rpc, true);
@@ -151,72 +157,77 @@ void SoaEngine::destroyGameSystem(SoaState* state) {
 void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
     pr.ioManager->setSearchDirectory((pr.dirPath + "/").c_str());
 
+    // Load the path color scheme
+    loadPathColors(pr);
+
     // Load the system
     loadSystemProperties(pr);
 
     // Set up binary masses
-    for (auto& it : pr.binaries) {
-        f64 mass = 0.0;
-        Binary* bin = it.second;
-
-        // Loop through all children
-        for (int i = 0; i < bin->bodies.size(); i++) {
-            // Find the body
-            auto& body = pr.systemBodies.find(std::string(bin->bodies[i]));
-            if (body != pr.systemBodies.end()) {
-                // Get the mass
-                mass += pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->second->entity).mass;
-            }
-        }
-        it.second->mass = mass;
-    }
+    initBinaries(pr);
 
     // Set up parent connections and orbits
-    for (auto& it : pr.systemBodies) {
-        SystemBody* body = it.second;
-        const nString& parent = body->parentName;
-        if (parent.length()) {
-            // Check for parent
-            auto& p = pr.systemBodies.find(parent);
-            if (p != pr.systemBodies.end()) {
-                body->parent = p->second;
+    initOrbits(pr);
+}
 
-                // Provide the orbit component with it's parent
-                pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentNpId =
-                    pr.spaceSystem->m_namePositionCT.getComponentID(body->parent->entity);
+// Only used in SoaEngine::loadPathColors
+struct PathColorKegProps {
+    ui8v3 base = ui8v3(0);
+    ui8v3 hover = ui8v3(0);
+};
+KEG_TYPE_DEF_SAME_NAME(PathColorKegProps, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, base, UI8_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, hover, UI8_V3);
+}
 
-
-                // Calculate the orbit using parent mass
-                calculateOrbit(pr.spaceSystem, body->entity,
-                               pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass, false);
-            } else {
-                auto& b = pr.binaries.find(parent);
-                if (b != pr.binaries.end()) {
-                    f64 mass = b->second->mass;
-                    // If this body is part of the system, subtract it's mass
-                    if (b->second->containsBody(it.second)) {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(pr.spaceSystem, body->entity, mass, true);
-                    } else {
-                        // Calculate the orbit using parent mass
-                        calculateOrbit(pr.spaceSystem, body->entity, mass, false);
-                    }
-                }
-            }
-        }
+bool SoaEngine::loadPathColors(SpaceSystemLoadParams& pr) {
+    nString data;
+    if (!pr.ioManager->readFileToString("PathColors.yml", data)) {
+        pError("Couldn't find " + pr.dirPath + "/PathColors.yml");
     }
+
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        fprintf(stderr, "Failed to load %s\n", (pr.dirPath + "/PathColors.yml").c_str());
+        context.reader.dispose();
+        return false;
+    }
+   
+    bool goodParse = true;
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+        PathColorKegProps props;
+        keg::Error err = keg::parse((ui8*)&props, value, context, &KEG_GLOBAL_TYPE(PathColorKegProps));
+        if (err != keg::Error::NONE) {
+            fprintf(stderr, "Failed to parse node %s in PathColors.yml\n", name.c_str());
+            goodParse = false;
+        }
+        f32v3 base = f32v3(props.base) / 255.0f;
+        f32v3 hover = f32v3(props.hover) / 255.0f;
+        pr.spaceSystem->pathColorMap[name] = std::make_pair(base, hover);
+    });
+
+    context.reader.forAllInMap(node, f);
+    delete f;
+    context.reader.dispose();
+    return goodParse;
 }
 
 bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     nString data;
-    pr.ioManager->readFileToString("SystemProperties.yml", data);
+    if (!pr.ioManager->readFileToString("SystemProperties.yml", data)) {
+        pError("Couldn't find " + pr.dirPath +  "/SystemProperties.yml");
+    }
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         fprintf(stderr, "Failed to load %s\n", (pr.dirPath + "/SystemProperties.yml").c_str());
-        reader.dispose();
+        context.reader.dispose();
         return false;
     }
 
@@ -224,43 +235,35 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
-            pr.spaceSystem->systemDescription = name;
-        } else if (name == "Binary") {
-            // Binary systems
-            Binary* newBinary = new Binary;
-            keg::Error err = keg::parse((ui8*)newBinary, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Binary));
-            if (err != keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                goodParse = false;
-            }
-
-            pr.binaries[newBinary->name] = newBinary;
+            pr.spaceSystem->systemDescription = keg::convert<nString>(value);
         } else {
-            // We assume this is just a generic SystemBody
             SystemBodyKegProperties properties;
-            properties.pathColor = ui8v4(rand() % 255, rand() % 255, rand() % 255, 255);
-            keg::Error err = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
+            keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
             if (err != keg::Error::NONE) {
-                fprintf(stderr, "Failed to parse node %s in %s\n", name.c_str(), pr.dirPath.c_str());
+                fprintf(stderr, "Failed to parse node %s in SystemProperties.yml\n", name.c_str());
                 goodParse = false;
             }
 
-            if (properties.path.empty()) {
-                fprintf(stderr, "Missing path: for node %s in %s\n", name.c_str(), pr.dirPath.c_str());
-                goodParse = false;
-            }
             // Allocate the body
             SystemBody* body = new SystemBody;
             body->name = name;
-            body->parentName = properties.parent;
-            loadBodyProperties(pr, properties.path, &properties, body);
+            body->parentName = properties.par;
+            body->properties = properties;
+            if (properties.path.size()) {
+                loadBodyProperties(pr, properties.path, &properties, body);
+            } else {
+                // Make default orbit (used for barycenters)
+                SpaceSystemAssemblages::createOrbit(pr.spaceSystem, &properties, body, 0.0);
+            }
+            if (properties.type == SpaceObjectType::BARYCENTER) {
+                pr.barycenters[name] = body;
+            }
             pr.systemBodies[name] = body;
         }
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
-
+    context.reader.dispose();
     return goodParse;
 }
 
@@ -272,18 +275,19 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         fprintf(stderr, "keg error %d for %s\n", (int)error, filePath); \
         goodParse = false; \
         return;  \
-    }
+        }
 
     keg::Error error;
     nString data;
     pr.ioManager->readFileToString(filePath.c_str(), data);
 
-    keg::YAMLReader reader;
-    reader.init(data.c_str());
-    keg::Node node = reader.getFirst();
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to load " + filePath;
-        reader.dispose();
+        context.reader.dispose();
         return false;
     }
 
@@ -295,14 +299,14 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         // Parse based on type
         if (type == "planet") {
             PlanetKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(PlanetKegProperties));
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(PlanetKegProperties));
             KEG_CHECK;
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getDefaultGenData(pr.glrpc);
+                properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
             }
 
             // Set the radius for use later
@@ -311,16 +315,19 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             }
 
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
+            body->type = SpaceBodyType::PLANET;
         } else if (type == "star") {
             StarKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(StarKegProperties));
-            SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(StarKegProperties));
             KEG_CHECK;
+            SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
+            body->type = SpaceBodyType::STAR;
         } else if (type == "gasGiant") {
             GasGiantKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, reader, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(GasGiantKegProperties));
-            SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, &properties, body);
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(GasGiantKegProperties));
             KEG_CHECK;
+            createGasGiant(pr, sysProps, &properties, body);
+            body->type = SpaceBodyType::GAS_GIANT;
         }
 
         pr.bodyLookupMap[body->name] = body->entity;
@@ -328,33 +335,238 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
         //Only parse the first
         foundOne = true;
     });
-    reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, f);
     delete f;
-    reader.dispose();
+    context.reader.dispose();
 
     return goodParse;
 }
 
-void SoaEngine::calculateOrbit(SpaceSystem* spaceSystem, vecs::EntityID entity, f64 parentMass, bool isBinary) {
-    OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
+void SoaEngine::initBinaries(SpaceSystemLoadParams& pr) {
+    for (auto& it : pr.barycenters) {
+        SystemBody* bary = it.second;
 
-    f64 per = orbitC.orbitalPeriod;
-    f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
-    if (isBinary) parentMass -= mass;
-    orbitC.semiMajor = pow((per * per) / 4.0 / (M_PI * M_PI) * M_G *
-                           (mass + parentMass), 1.0 / 3.0);
-    orbitC.semiMinor = orbitC.semiMajor *
-        sqrt(1.0 - orbitC.eccentricity * orbitC.eccentricity);
-    orbitC.totalMass = mass + parentMass;
-    if (isBinary) {
-        //  orbitC.r1 = 2.0 * orbitC.semiMajor * (1.0 - orbitC.eccentricity) *
-        //      mass / (orbitC.totalMass);
-        orbitC.r1 = orbitC.semiMajor;
-    } else {
-        orbitC.r1 = orbitC.semiMajor * (1.0 - orbitC.eccentricity);
+        initBinary(pr, bary);
     }
 }
 
-void SoaEngine::destroySpaceSystem(OUT SoaState* state) {
+void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
+    // Don't update twice
+    if (bary->isBaryCalculated) return;
+    bary->isBaryCalculated = true;
+
+    // Need two components or its not a binary
+    if (bary->properties.comps.size() != 2) return;
+
+    // A component
+    auto& bodyA = pr.systemBodies.find(std::string(bary->properties.comps[0]));
+    if (bodyA == pr.systemBodies.end()) return;
+    auto& aProps = bodyA->second->properties;
+
+    // B component
+    auto& bodyB = pr.systemBodies.find(std::string(bary->properties.comps[1]));
+    if (bodyB == pr.systemBodies.end()) return;
+    auto& bProps = bodyB->second->properties;
+
+    { // Set orbit parameters relative to A component
+        bProps.ref = bodyA->second->name;
+        bProps.td = 1.0f;
+        bProps.tf = 1.0f;
+        bProps.e = aProps.e;
+        bProps.i = aProps.i;
+        bProps.n = aProps.n;
+        bProps.p = aProps.p + 180.0;
+        bProps.a = aProps.a;
+        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
+        oCmp.e = bProps.e;
+        oCmp.i = bProps.i * DEG_TO_RAD;
+        oCmp.p = bProps.p * DEG_TO_RAD;
+        oCmp.o = bProps.n * DEG_TO_RAD;
+        oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+    }
+
+    // Get the A mass
+    auto& aSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyA->second->entity);
+    f64 massA = aSgCmp.mass;
+    // Recurse if child is a non-constructed binary
+    if (massA == 0.0) {
+        initBinary(pr, bodyA->second);
+        massA = aSgCmp.mass;
+    }
+
+    // Get the B mass
+    auto& bSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyB->second->entity);
+    f64 massB = bSgCmp.mass;
+    // Recurse if child is a non-constructed binary
+    if (massB == 0.0) {
+        initBinary(pr, bodyB->second);
+        massB = bSgCmp.mass;
+    }
+
+    // Set the barycenter mass
+    bary->mass = massA + massB;
+
+    auto& barySgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bary->entity);
+    barySgCmp.mass = bary->mass;
+
+    { // Calculate A orbit
+        SystemBody* body = bodyA->second;
+        body->parent = bary;
+        f64 massRatio = massB / (massA + massB);
+        calculateOrbit(pr, body->entity,
+                       barySgCmp.mass,
+                       body, massRatio);
+    }
+
+    { // Calculate B orbit
+        SystemBody* body = bodyB->second;
+        body->parent = bary;
+        f64 massRatio = massA / (massA + massB);
+        calculateOrbit(pr, body->entity,
+                        barySgCmp.mass,
+                        body, massRatio);
+    }
+
+    { // Set orbit colors from A component
+        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyA->second->entity);
+        auto& baryOCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bary->entity);
+        baryOCmp.pathColor[0] = oCmp.pathColor[0];
+        baryOCmp.pathColor[1] = oCmp.pathColor[1];
+    }
+}
+
+void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
+    for (auto& it : pr.systemBodies) {
+        SystemBody* body = it.second;
+        const nString& parent = body->parentName;
+        if (parent.length()) {
+            // Check for parent
+            auto& p = pr.systemBodies.find(parent);
+            if (p != pr.systemBodies.end()) {
+                body->parent = p->second;
+
+                // Calculate the orbit using parent mass
+                calculateOrbit(pr, body->entity,
+                                pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                                body);
+              
+            }
+        }
+    }
+}
+
+void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
+                               const SystemBodyKegProperties* sysProps,
+                               const GasGiantKegProperties* properties,
+                               SystemBody* body) {
+
+    // Load the texture
+    VGTexture colorMap = 0;
+    if (properties->colorMap.size()) {
+        vio::Path colorPath;
+        if (!pr.ioManager->resolvePath(properties->colorMap, colorPath)) {
+            fprintf(stderr, "Failed to resolve %s\n", properties->colorMap.c_str());
+            return;
+        }
+        if (pr.glrpc) {
+            vcore::RPC rpc;
+            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                vg::BitmapResource b = vg::ImageIO().load(colorPath); 
+                if (b.data) {
+                    colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
+                                                            b.width, b.height,
+                                                            &vg::SamplerState::LINEAR_CLAMP);
+                    vg::ImageIO().free(b);
+                } else {
+                    fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
+                }
+            });
+            pr.glrpc->invoke(&rpc, true);
+        } else {
+            vg::BitmapResource b = vg::ImageIO().load(colorPath);
+            if (b.data) {
+                colorMap = vg::GpuMemory::uploadTexture(b.bytesUI8,
+                                                        b.width, b.height,
+                                                        &vg::SamplerState::LINEAR_CLAMP);
+                vg::ImageIO().free(b);
+                
+            } else {
+                fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
+                return;
+            }
+        }
+    }
+    SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, properties, body, colorMap);
+}
+
+void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
+                               const SystemBody* body, f64 binaryMassRatio /* = 0.0 */) {
+    SpaceSystem* spaceSystem = pr.spaceSystem;
+    OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
+
+    // If the orbit was already calculated, don't do it again.
+    if (orbitC.isCalculated) return;
+    orbitC.isCalculated = true;
+
+    // Provide the orbit component with it's parent
+    pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
+        pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
+
+    // Find reference body
+    if (!body->properties.ref.empty()) {
+        auto it = pr.systemBodies.find(body->properties.ref);
+        if (it != pr.systemBodies.end()) {
+            SystemBody* ref = it->second;
+            // Calculate period using reference body
+            orbitC.t = ref->properties.t * body->properties.tf / body->properties.td;
+        } else {
+            fprintf(stderr, "Failed to find ref body %s\n", body->properties.ref.c_str());
+        }
+    }
+
+    f64 t = orbitC.t;
+    f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
+   
+    if (binaryMassRatio > 0.0) { // Binary orbit
+        orbitC.a = pow((t * t) * M_G * parentMass /
+                       (4.0 * (M_PI * M_PI)), 1.0 / 3.0) * KM_PER_M * binaryMassRatio;
+    } else { // Regular orbit
+        // Calculate semi-major axis
+        orbitC.a = pow((t * t) * M_G * (mass + parentMass) /
+                       (4.0 * (M_PI * M_PI)), 1.0 / 3.0) * KM_PER_M;
+    } 
+
+    // Calculate semi-minor axis
+    orbitC.b = orbitC.a * sqrt(1.0 - orbitC.e * orbitC.e);
+
+    // Set parent pass
+    orbitC.parentMass = parentMass;
+
+    { // Make the ellipse mesh with stepwise simulation
+        OrbitComponentUpdater updater;
+        static const int NUM_VERTS = 2880;
+        orbitC.verts.resize(NUM_VERTS + 1);
+        f64 timePerDeg = orbitC.t / (f64)NUM_VERTS;
+        NamePositionComponent& npCmp = spaceSystem->m_namePositionCT.get(orbitC.npID);
+        f64v3 startPos = npCmp.position;
+        for (int i = 0; i < NUM_VERTS; i++) {
+
+            if (orbitC.parentOrbId) {
+                OrbitComponent* pOrbC = &spaceSystem->m_orbitCT.get(orbitC.parentOrbId);
+                updater.updatePosition(orbitC, i * timePerDeg, &npCmp,
+                               pOrbC,
+                               &spaceSystem->m_namePositionCT.get(pOrbC->npID));
+            } else {
+                updater.updatePosition(orbitC, i * timePerDeg, &npCmp);
+            }
+
+            orbitC.verts[i] = npCmp.position;
+        }
+        orbitC.verts.back() = orbitC.verts.front();
+        npCmp.position = startPos;
+    }
+}
+
+void SoaEngine::destroySpaceSystem(SoaState* state) {
     state->spaceSystem.reset();
 }

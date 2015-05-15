@@ -20,6 +20,7 @@
 #include <Vorb/graphics/gtypes.h>
 
 #include "Constants.h"
+#include "SpaceSystemLoadStructs.h"
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
@@ -60,10 +61,6 @@ struct AtmosphereComponent {
     f32 kr = 0.0025f;
     f32 km = 0.0020f;
     f32 esun = 30.0f; // TODO(Ben): This should be dynamic
-    f32 krEsun = kr * esun;
-    f32 kmEsun = km * esun;
-    f32 kr4PI = kr * 4.0f * M_PI;
-    f32 km4PI = km * 4.0f * M_PI;
     f32 g = -0.99f;
     f32 scaleDepth = 0.25f;
     f32v3 invWavelength4 = f32v3(1.0f / powf(0.65f, 4.0f),
@@ -85,22 +82,32 @@ struct NamePositionComponent {
 };
 
 struct SpaceLightComponent {
-    vecs::ComponentID parentNpId; ///< Component ID of parent NamePosition component
+    vecs::ComponentID npID; ///< Component ID of parent NamePosition component
     color3 color; ///< Color of the light
     f32 intensity; ///< Intensity of the light
 };
 
 struct OrbitComponent {
-    f64 semiMajor = 0.0; ///< Semi-major of the ellipse
-    f64 semiMinor = 0.0; ///< Semi-minor of the ellipse
-    f64 orbitalPeriod = 0.0; ///< Period in seconds of a full orbit
-    f64 totalMass = 0.0; ///< Mass of this body + parent
-    f64 eccentricity = 0.0; ///< Shape of orbit, 0-1
-    f64 r1 = 0.0; ///< Closest distance to focal point
-    f64q orientation = f64q(0.0, 0.0, 0.0, 0.0); ///< Orientation of the orbit path
-    ui8v4 pathColor = ui8v4(255); ///< Color of the path
-    vecs::ComponentID parentNpId = 0; ///< Component ID of parent NamePosition component
-    VGBuffer vbo = 0; ///< vbo for the ellipse
+    f64 a = 0.0; ///< Semi-major of the ellipse in KM
+    f64 b = 0.0; ///< Semi-minor of the ellipse in KM
+    f64 t = 0.0; ///< Period of a full orbit in sec
+    f64 parentMass = 0.0; ///< Mass of the parent in KG
+    f64 startTrueAnomaly = 0.0; ///< Start true anomaly in rad
+    f64 e = 0.0; ///< Shape of orbit, 0-1
+    f64 o = 0.0; ///< Longitude of the ascending node in rad
+    f64 p = 0.0; ///< Longitude of the periapsis in rad
+    f64 i = 0.0; ///< Inclination in rad
+    f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space in KM/s
+    f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent in KM/s
+    f32v3 pathColor[2]; ///< Color of the path
+    vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
+    vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
+    VGBuffer vbo = 0; ///< vbo for the ellipse mesh
+    VGBuffer vao = 0; ///< vao for the ellipse mesh
+    ui32 numVerts = 0; ///< Number of vertices in the ellipse
+    std::vector<f32v3> verts; ///< Vertices for the ellipse
+    SpaceObjectType type; ///< Type of object
+    bool isCalculated = false; ///< True when orbit has been calculated
 };
 
 struct SphericalGravityComponent {
@@ -133,8 +140,6 @@ struct SphericalVoxelComponent {
     vecs::ComponentID farTerrainComponent = 0;
     vecs::ComponentID namePositionComponent = 0;
     vecs::ComponentID axisRotationComponent = 0;
-
-    // WorldCubeFace transitionFace = FACE_NONE;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
@@ -169,6 +174,24 @@ struct SphericalTerrainComponent {
     f32 faceTransTime = START_FACE_TRANS; ///< For animation on fade
     bool isFaceTransitioning = false;
     volatile bool needsFaceTransitionAnimation = false;
+};
+
+struct GasGiantComponent {
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
+    f64 radius = 0.0;
+    f32 oblateness = 1.0f;
+    VGTexture colorMap = 0;
+};
+
+struct StarComponent {
+    vecs::ComponentID namePositionComponent = 0;
+    vecs::ComponentID axisRotationComponent = 0;
+    f64 mass = 0.0; ///< In KG
+    f64 radius = 0.0; ///< In KM
+    f64 temperature = 0.0; ///< In kelvin
+    VGQuery occlusionQuery[2]; ///< TODO(Ben): Delete this
+    f32 visibility = 1.0;
 };
 
 struct FarTerrainComponent {

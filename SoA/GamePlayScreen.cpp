@@ -278,6 +278,15 @@ void GameplayScreen::initInput() {
         m_soaState->isInputEnabled = false;
     });
 
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_ESCAPE) {
+            SoaEngine::destroyAll(m_soaState);
+            exit(0);
+        } else if (e.keyCode == VKEY_F2) {
+            m_renderPipeline.takeScreenshot();
+        }
+    });
+
     m_inputManager->startInput();
 }
 

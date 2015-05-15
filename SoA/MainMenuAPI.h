@@ -27,28 +27,66 @@ public:
     /// Initializes the API and hooks up all functions
     /// @oaram interfaceObject: The object that the API will talk to
     /// @param ownerScreen: The MainMenuScreen that owns this interface
-    void init(Awesomium::JSObject* interfaceObject, vui::IGameScreen* ownerScreen);
+    void init(Awesomium::WebView* webView, vui::CustomJSMethodHandler<MainMenuAPI>* methodHandler,
+              vui::IGameScreen* ownerScreen, const Awesomium::JSValue& window) override;
 
     // Sets the owner screen. Should be a MainMenuScreen type
     /// @param ownerScreen: The screen
-    void setOwnerScreen(vui::IGameScreen* ownerScreen);
+    void setOwnerScreen(vui::IGameScreen* ownerScreen) override;
 
 private:
+    Awesomium::JSArray initMainMenu();
+    Awesomium::JSArray initVideoOptionsMenu();
+    Awesomium::JSArray initControlsMenu();
+
+    Awesomium::JSValue generateClickable(const cString name, const Awesomium::JSArray& linkData,
+                                         const cString category, const cString description,
+                                         int id, const cString updateCallback);
+    Awesomium::JSValue generateText(const cString name, const cString text,
+                                    const cString category, const cString description);
+    Awesomium::JSValue generateToggle(const cString name, bool isToggled,
+                                      const cString category, const cString description,
+                                      int id, const cString updateCallback,
+                                      bool updateInRealTime);
+    Awesomium::JSValue generateSlider(const cString name, Awesomium::JSValue min,
+                                      Awesomium::JSValue max, Awesomium::JSValue initialVal,
+                                      Awesomium::JSValue intervalRes,
+                                      const cString category, const cString description,
+                                      int id, const cString updateCallback,
+                                      bool updateInRealTime);
+    Awesomium::JSValue generateDiscrete(const cString name, Awesomium::JSArray vals,
+                                        Awesomium::JSValue initialVal,
+                                        const cString category, const cString description,
+                                        int id, const cString updateCallback,
+                                        bool updateInRealTime);
+    Awesomium::JSValue generateTextArea(const cString name,
+                                        const cString defaultVal,
+                                        int maxLength,
+                                        const cString category, const cString description,
+                                        int id);
+    Awesomium::JSValue generateSubList(const cString name, Awesomium::JSArray subItems,
+                                        const cString category, const cString description);
+    Awesomium::JSValue generateCombo(const cString name, Awesomium::JSArray vals,
+                                     Awesomium::JSValue initialVal,
+                                     const cString category, const cString description,
+                                     int id, const cString updateCallback,
+                                     bool updateInRealTime);
     /// Gets the camera position
     /// @param args: Empty arguments.
     /// @return float[3] position
     Awesomium::JSValue getCameraPosition(const Awesomium::JSArray& args);
-
-    /// Gets the current planet radius
-    /// @param args: Empty arguments.
-    /// @return float radius
-    Awesomium::JSValue getPlanetRadius(const Awesomium::JSArray& args);
 
     /// Gets a list of all save games
     /// @param args: Empty arguments.
     /// @return array of pairs specified as:
     /// pair<string filename, string timestamp>
     Awesomium::JSValue getSaveFiles(const Awesomium::JSArray& args);
+
+    Awesomium::JSValue getControls(const Awesomium::JSArray& args);
+
+    Awesomium::JSValue getPageProperties(const Awesomium::JSArray& args);
+
+    void setPage(const Awesomium::JSArray& args);
 
     /// Sets the camera focal length
     /// @param args: Argument should be float.
@@ -76,6 +114,21 @@ private:
     /// doesn't already exist.
     /// @param args: Argument should be the string name
     void newSaveGame(const Awesomium::JSArray& args);
+
+    // Updates an option
+    void optionUpdate(const Awesomium::JSArray& args);
+
+    /// Exits the game
+    void quit(const Awesomium::JSArray& args);
+
+
+    enum class MENU_PAGE {
+        NONE,
+        MAIN_MENU,
+        VIDEO_OPTIONS_MENU,
+        CONTROLS_MENU
+    };
+    MENU_PAGE m_currentPage = MENU_PAGE::MAIN_MENU;
 
     MainMenuScreen* _ownerScreen; ///< Handle to the main menu screen
 };

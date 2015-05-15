@@ -87,13 +87,6 @@ void GameManager::getTextureHandles() {
     treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
     waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
 
-    skyboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
-    skyboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
-    skyboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
-    skyboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
-    skyboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
-    skyboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
-
     waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
     ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
     crosshairTexture = textureCache->findTexture("GUI/crosshair.png");
