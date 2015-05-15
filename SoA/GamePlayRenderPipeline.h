@@ -33,7 +33,6 @@ class CutoutVoxelRenderStage;
 class DevHudRenderStage;
 class GameSystem;
 class HdrRenderStage;
-class IAwesomiumInterface;
 class LiquidVoxelRenderStage;
 struct MTRenderState;
 class MeshManager;

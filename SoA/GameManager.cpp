@@ -15,7 +15,7 @@
 #include "FileSystem.h"
 #include "InputMapper.h"
 #include "Inputs.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
@@ -94,7 +94,7 @@ void GameManager::getTextureHandles() {
     // TODO(Ben): Parallelize this
     logoTexture = textureCache->addTexture("Textures/logo.png");
     sunTexture = textureCache->addTexture("Textures/sun_texture.png");
-    BlankTextureID = textureCache->addTexture("Textures/blank.png", &vg::SamplerState::POINT_CLAMP);
+    BlankTextureID = textureCache->addTexture("Textures/blank.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::POINT_CLAMP);
     explosionTexture = textureCache->addTexture("Textures/explosion.png");
     fireTexture = textureCache->addTexture("Textures/fire.png");
 }

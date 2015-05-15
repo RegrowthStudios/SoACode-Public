@@ -17,6 +17,7 @@
 
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
+#include "OptionsController.h"
 
 class GameSystem;
 class SoaState;
@@ -39,8 +40,11 @@ public:
     struct GameSystemLoadData {
         // More stuff here
     };
+
+    /// Initializes the default SoaOptions
+    static void initOptions(SoaOptions& options);
+
     /// Initializes SoaState resources
-    /// @param state: The SoaState
     static void initState(SoaState* state);
     
     /// Loads and initializes the SpaceSystem
@@ -56,21 +60,16 @@ public:
     static bool loadGameSystem(SoaState* state, const GameSystemLoadData& loadData);
 
     /// Sets block IDs for planet data
-    /// @param state: The SoaState
     static void setPlanetBlocks(SoaState* state);
 
-    /// Destroys the SoaState
-    /// @param state: The SoaState
+    /// Destroys the SoaState completely
     static void destroyAll(SoaState* state);
 
-    /// Destroys the Game System
-    /// @param state: The SoaState
     static void destroyGameSystem(SoaState* state);
 
-    /// Destroys the Space System
-    /// @param state: The SoaState
     static void destroySpaceSystem(SoaState* state);
 
+    static OptionsController optionsController;
 private:
     /// Loads and adds a star system to the SpaceSystem
     /// @param pr: params

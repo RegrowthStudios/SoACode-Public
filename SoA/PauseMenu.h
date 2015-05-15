@@ -17,10 +17,9 @@
 
 #include <Vorb/VorbPreDecl.inl>
 
-#include "AwesomiumInterface.h"
-#include "PauseMenuAwesomiumAPI.h"
-
 DECL_VG(class GLProgram);
+class GameplayScreen;
+
 
 class PauseMenu {
 public:
@@ -45,7 +44,7 @@ public:
 
     /// Handles an event
     /// @param e: The event to handle
-    void onEvent(const SDL_Event& e);
+    //void onEvent(const SDL_Event& e);
 
     /// Frees all resources
     void destroy();
@@ -54,7 +53,6 @@ public:
     const bool& isOpen() const { return _isOpen; }
 private:
     vg::GLProgram* m_program = nullptr;
-    vui::AwesomiumInterface<PauseMenuAwesomiumAPI> _awesomiumInterface; ///< The user interface
     bool _isOpen = false;
 };
 

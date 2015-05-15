@@ -11,7 +11,7 @@
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
@@ -45,7 +45,7 @@ void HdrRenderStage::render() {
 
     vg::GLProgram* program;
     
-    if (graphicsOptions.motionBlur > 0) {
+    if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {
         if (!m_glProgramBlur) {
             m_glProgramBlur = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                        "Shaders/PostProcessing/MotionBlur.frag",
@@ -67,14 +67,14 @@ void HdrRenderStage::render() {
     program->enableVertexAttribArrays();
 
     glUniform1i(program->getUniform("unTex"), 0);
-    glUniform1f(program->getUniform("unGamma"), 1.0f / graphicsOptions.gamma);
-    glUniform1f(program->getUniform("unExposure"), graphicsOptions.hdrExposure);
-    if (graphicsOptions.motionBlur > 0) {
+    glUniform1f(program->getUniform("unGamma"), 1.0f / soaOptions.get(OPT_GAMMA).value.f);
+    glUniform1f(program->getUniform("unExposure"), soaOptions.get(OPT_HDR_EXPOSURE).value.f);
+    if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {
         f32m4 newInverseVP = glm::inverse(vp);
         glUniform1i(program->getUniform("unTexDepth"), 1);
         glUniformMatrix4fv(program->getUniform("unVPPrev"), 1, GL_FALSE, &oldVP[0][0]);
         glUniformMatrix4fv(program->getUniform("unVPInv"), 1, GL_FALSE, &newInverseVP[0][0]);
-        glUniform1i(program->getUniform("unNumSamples"), (int)graphicsOptions.motionBlur);
+        glUniform1i(program->getUniform("unNumSamples"), soaOptions.get(OPT_MOTION_BLUR).value.i);
         glUniform1f(program->getUniform("unBlurIntensity"), 0.5f);
     }
     //if (graphicsOptions.depthOfField > 0) {

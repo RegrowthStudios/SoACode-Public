@@ -8,7 +8,7 @@
 #include "ChunkUpdater.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "RenderUtils.h"

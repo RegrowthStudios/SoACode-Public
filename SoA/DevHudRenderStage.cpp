@@ -53,7 +53,7 @@ void DevHudRenderStage::render() {
 
     _spriteBatch->end();
     // Render to the screen
-    _spriteBatch->renderBatch(_windowDims);
+    _spriteBatch->render(_windowDims);
 }
 
 void DevHudRenderStage::cycleMode(int offset /*= 1*/) {

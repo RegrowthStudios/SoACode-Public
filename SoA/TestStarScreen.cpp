@@ -4,7 +4,7 @@
 #include "soaUtils.h"
 #include "Errors.h"
 #include "HdrRenderStage.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "SoaState.h"
 #include <Vorb/Timing.h>
 #include <Vorb/colors.h>
@@ -23,8 +23,8 @@
 
 TestStarScreen::TestStarScreen(const App* app) :
 IAppScreen<App>(app) {
-    m_modPathResolver.init("Textures/TexturePacks/" + graphicsOptions.defaultTexturePack + "/",
-                           "Textures/TexturePacks/" + graphicsOptions.currTexturePack + "/");
+    m_modPathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
+                           "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
 }
 
 
@@ -130,10 +130,11 @@ void TestStarScreen::update(const vui::GameTime& gameTime) {
         m_sCmp.temperature += TMP_INC;
     }
 
-    if (m_is1Pressed) graphicsOptions.hdrExposure -= 0.01f;
-    if (m_is2Pressed) graphicsOptions.hdrExposure += 0.01f;
-    if (m_is3Pressed) graphicsOptions.gamma -= 0.01f;
-    if (m_is4Pressed) graphicsOptions.gamma += 0.01f;
+    // TODO(Ben): Remove
+    //if (m_is1Pressed) graphicsOptions.hdrExposure -= 0.01f;
+    //if (m_is2Pressed) graphicsOptions.hdrExposure += 0.01f;
+    //if (m_is3Pressed) graphicsOptions.gamma -= 0.01f;
+    //if (m_is4Pressed) graphicsOptions.gamma += 0.01f;
 }
 
 void TestStarScreen::draw(const vui::GameTime& gameTime) {
@@ -192,10 +193,11 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
       }
       if (m_isHDR) {
           m_spriteBatch.drawString(&m_spriteFont, "HDR: Enabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
-          sprintf(buf, "  Exposure (1,2): %.1lf", (f64)graphicsOptions.hdrExposure);
-          m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 205.0f), f32v2(1.0f), color::AliceBlue);
-          sprintf(buf, "  Gamma (3,4): %.1lf", (f64)graphicsOptions.gamma);
-          m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 240.0f), f32v2(1.0f), color::AliceBlue);
+        // TODO(Ben): Remove
+          //   sprintf(buf, "  Exposure (1,2): %.1lf", (f64)graphicsOptions.hdrExposure);
+       //   m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 205.0f), f32v2(1.0f), color::AliceBlue);
+       //   sprintf(buf, "  Gamma (3,4): %.1lf", (f64)graphicsOptions.gamma);
+        //  m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 240.0f), f32v2(1.0f), color::AliceBlue);
       } else {
           m_spriteBatch.drawString(&m_spriteFont, "HDR: Disabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
       }
@@ -205,7 +207,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     f32 width = _game->getWindow().getWidth();
     f32 height = _game->getWindow().getHeight();
-    m_spriteBatch.renderBatch(f32v2(width, height));
+    m_spriteBatch.render(f32v2(width, height));
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();

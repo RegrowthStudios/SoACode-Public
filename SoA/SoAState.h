@@ -29,6 +29,7 @@ class ChunkMeshManager;
 class DebugRenderer;
 class MeshManager;
 class PlanetLoader;
+class SoaOptions;
 DECL_VIO(class IOManager);
 
 class SoaState {
@@ -47,6 +48,8 @@ public:
 
     std::unique_ptr<vio::IOManager> systemIoManager;
     std::unique_ptr<PlanetLoader> planetLoader;
+
+    SoaOptions* options = nullptr; // Lives in App
 
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;

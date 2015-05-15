@@ -8,7 +8,7 @@
 #include "GameManager.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "Texture2d.h"
 

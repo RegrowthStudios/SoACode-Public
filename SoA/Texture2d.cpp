@@ -9,7 +9,7 @@
 
 #include "BlockData.h"
 #include "Errors.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "ZipFile.h"

@@ -46,7 +46,19 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     buildLightMaps();
 
     m_gbuffer = vg::GBuffer(_game->getWindow().getWidth(), _game->getWindow().getHeight());
-    m_gbuffer.init().initDepthStencil();
+    Array<vg::GBufferAttachment> ga;
+    ga.setData(4);
+    ga[0].format = vg::TextureInternalFormat::RGBA16F;
+    ga[0].pixelFormat = vg::TextureFormat::RGBA;
+    ga[0].pixelType = vg::TexturePixelType::HALF_FLOAT;
+    ga[0].number = 0;
+    ga[1] = ga[0];
+    ga[1].number = 1;
+    ga[2].format = vg::TextureInternalFormat::RG32F;
+    ga[2].pixelFormat = vg::TextureFormat::RG;
+    ga[2].pixelType = vg::TexturePixelType::FLOAT;
+    ga[2].number = 2;
+    m_gbuffer.init(ga, vg::TextureInternalFormat::RGB16F).initDepthStencil();
 
     m_sb.init();
 
@@ -214,10 +226,10 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
         vg::GLProgram& progLight = m_deferredPrograms.light["Directional"];
         progLight.use();
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getGeometryTexture(1));
         glUniform1i(progLight.getUniform("unTexNormal"), 0);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().depth);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getGeometryTexture(2));
         glUniform1i(progLight.getUniform("unTexDepth"), 1);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
@@ -298,13 +310,13 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     vg::DepthState::WRITE.set();
     m_deferredPrograms.composition.use();
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().color);
+    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getGeometryTexture(0));
     glUniform1i(m_deferredPrograms.composition.getUniform("unTexColor"), 0);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().depth);
+    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getGeometryTexture(2));
     glUniform1i(m_deferredPrograms.composition.getUniform("unTexDepth"), 1);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().light);
+    glBindTexture(GL_TEXTURE_2D, m_gbuffer.getLightTexture());
     glUniform1i(m_deferredPrograms.composition.getUniform("unTexLight"), 2);
     m_quad.draw();
 
@@ -312,12 +324,12 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     /* Debug                                                                */
     /************************************************************************/
     m_sb.begin();
-    m_sb.draw(m_gbuffer.getTextureIDs().color, f32v2(0, 0), f32v2(200, 150), color::White);
-    m_sb.draw(m_gbuffer.getTextureIDs().normal, f32v2(200, 0), f32v2(200, 150), color::White);
-    m_sb.draw(m_gbuffer.getTextureIDs().depth, f32v2(400, 0), f32v2(200, 150), color::White);
-    m_sb.draw(m_gbuffer.getTextureIDs().light, f32v2(600, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getGeometryTexture(0), f32v2(0, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getGeometryTexture(1), f32v2(200, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getGeometryTexture(2), f32v2(400, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getLightTexture(), f32v2(600, 0), f32v2(200, 150), color::White);
     m_sb.end();
-    m_sb.renderBatch(f32v2(_game->getWindow().getWidth(), _game->getWindow().getHeight()));
+    m_sb.render(f32v2(_game->getWindow().getWidth(), _game->getWindow().getHeight()));
 }
 
 void TestDeferredScreen::buildGeometry() {

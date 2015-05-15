@@ -9,7 +9,7 @@
 #include <Vorb/graphics/SamplerState.h>
 #include "ShaderLoader.h"
 
-#include "Options.h"
+#include "SoaOptions.h"
 
 KEG_TYPE_DEF_SAME_NAME(NightVisionRenderParams, kt) {
     using namespace keg;

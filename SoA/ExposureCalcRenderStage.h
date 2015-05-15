@@ -1,5 +1,5 @@
 ///
-/// LogLuminanceRenderStage.h
+/// ExposureCalcRenderStage.h
 /// Seed of Andromeda
 ///
 /// Created by Benjamin Arnold on 30 Apr 2015
@@ -12,21 +12,23 @@
 
 #pragma once
 
-#ifndef LogLuminanceRenderStage_h__
-#define LogLuminanceRenderStage_h__
+#ifndef ExposureCalcRenderStage_h__
+#define ExposureCalcRenderStage_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/script/Function.h>
+#include <Vorb/script/Environment.h>
 
 DECL_VG(class GLProgram);
 DECL_VG(class GLRenderTarget);
 
-class LogLuminanceRenderStage : public vg::IRenderStage {
+class ExposureCalcRenderStage : public vg::IRenderStage {
 public:
     /// Constructor
     /// resolution should be power of 2
-    LogLuminanceRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+    ExposureCalcRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
                             const ui32v4* viewPort, ui32 resolution);
 
     /// Reloads the shader. By default, it simply
@@ -41,14 +43,25 @@ public:
     /// @pre no FBO is bound
     virtual void render() override;
 
-private:  
-    vg::GLRenderTarget* m_renderTarget = nullptr;
+    void setFrameBuffer(vg::GLRenderTarget* hdrFrameBuffer) { m_hdrFrameBuffer = hdrFrameBuffer; }
+
+    const f32& getExposure() const { return m_exposure; }
+
+private:
+    vg::GLProgram* m_downsampleProgram = nullptr;
+    std::vector<vg::GLRenderTarget> m_renderTargets; ///< All render targets
     vg::FullQuadVBO* m_quad = nullptr;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
     const ui32v4* m_restoreViewport;
-    ui32v2 m_viewportDims;
-    ui32 m_mipLevels = 0;
-    bool m_hasPrevFrame = false;
+    ui32 m_resolution;
+    ui32 m_mipLevels = 1;
+    int m_mipStep = -1;
+    f32 m_exposure = 0.0005f;
+
+    // Script for exposure calc
+    bool m_needsScriptLoad = true;
+    vscript::Environment m_scripts;
+    vscript::RFunction<f32> m_calculateExposure;
 };
 
-#endif // LogLuminanceRenderStage_h__
+#endif // ExposureCalcRenderStage_h__

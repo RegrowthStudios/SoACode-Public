@@ -75,6 +75,18 @@ inline f64v3 getClosestPointOnAABB(const f64v3& pos, const f64v3& aabbPos,
            (aabbPos.z + aabbDims.z) : pos.z));
 }
 
+/// Moves val towards target in increments of step
+template <typename T>
+inline void stepTowards(T& val, const T& target, const T& step) {
+    if (val < target) {
+        val += step;
+        if (val > target) val = target;
+    } else if (val > target) {
+        val -= step;
+        if (val < target) val = target;
+    }
+}
+
 /// Gets dot product with self, cheaper than glm::dot because less copy
 inline f32 selfDot(const f32v3& v) {
     return v.x * v.x + v.y * v.y + v.z * v.z;

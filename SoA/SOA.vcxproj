@@ -278,8 +278,6 @@ EXIT 0</Command>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
-    <ClInclude Include="AwesomiumInterface.h" />
-    <ClInclude Include="AwesomiumRenderStage.h" />
     <ClInclude Include="AxisRotationComponentUpdater.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockPack.h" />
@@ -315,16 +313,14 @@ EXIT 0</Command>
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
-    <ClInclude Include="IAwesomiumAPI.h" />
-    <ClInclude Include="IAwesomiumInterface.h" />
     <ClInclude Include="LenseFlareRenderer.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
-    <ClInclude Include="LogLuminanceRenderStage.h" />
-    <ClInclude Include="MainMenuAPI.h" />
+    <ClInclude Include="ExposureCalcRenderStage.h" />
     <ClInclude Include="MainMenuRenderPipeline.h" />
     <ClInclude Include="MainMenuScreen.h" />
+    <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ModPathResolver.h" />
@@ -335,15 +331,13 @@ EXIT 0</Command>
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="NoiseShaderGenerator.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
+    <ClInclude Include="OptionsController.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
     <ClInclude Include="OrbitComponentUpdater.h" />
-    <ClInclude Include="OpenglSurfaceFactory.h" />
     <ClInclude Include="ParkourComponentUpdater.h" />
     <ClInclude Include="PauseMenu.h" />
-    <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
     <ClInclude Include="PDA.h" />
-    <ClInclude Include="PdaAwesomiumAPI.h" />
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
@@ -456,7 +450,7 @@ EXIT 0</Command>
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="OpenGLStructs.h" />
-    <ClInclude Include="Options.h" />
+    <ClInclude Include="SoaOptions.h" />
     <ClInclude Include="Particles.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
@@ -477,7 +471,6 @@ EXIT 0</Command>
     <ClCompile Include="AmbienceStream.cpp" />
     <ClCompile Include="ARProcessor.cpp" />
     <ClCompile Include="AtmosphereComponentRenderer.cpp" />
-    <ClCompile Include="AwesomiumRenderStage.cpp" />
     <ClCompile Include="AxisRotationComponentUpdater.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp" />
@@ -515,12 +508,12 @@ EXIT 0</Command>
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
-    <ClCompile Include="LogLuminanceRenderStage.cpp" />
-    <ClCompile Include="MainMenuAPI.cpp" />
+    <ClCompile Include="ExposureCalcRenderStage.cpp" />
     <ClCompile Include="MainMenuRenderPipeline.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
@@ -529,15 +522,13 @@ EXIT 0</Command>
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
+    <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
     <ClCompile Include="OrbitComponentUpdater.cpp" />
     <ClCompile Include="ParkourComponentUpdater.cpp" />
-    <ClCompile Include="OpenglSurfaceFactory.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
-    <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
     <ClCompile Include="PauseMenuRenderStage.cpp" />
     <ClCompile Include="PDA.cpp" />
-    <ClCompile Include="PdaAwesomiumAPI.cpp" />
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
@@ -632,7 +623,7 @@ EXIT 0</Command>
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
-    <ClCompile Include="Options.cpp" />
+    <ClCompile Include="SoaOptions.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />
@@ -653,9 +644,7 @@ EXIT 0</Command>
     <Text Include="docs\FileSpecs\WSO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AwesomiumInterface.inl" />
     <None Include="Chunk.inl" />
-    <None Include="IAwesomiumAPI.inl" />
     <None Include="VirtualKeyKegDef.inl" />
     <None Include="VoxelIntervalTree.inl" />
     <None Include="VoxelUpdateOrder.inl" />

@@ -16,7 +16,7 @@
 #include "Errors.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "ParticleEngine.h"
@@ -101,7 +101,8 @@ i32 FileManager::createWorldFile(nString filePath) {
         perror((filePath + "world.txt").c_str());
         return 1;
     }
-    file << menuOptions.selectPlanetName << std::endl;
+    throw 404;
+   // file << menuOptions.selectPlanetName << std::endl;
     file.close();
     return 0;
 }

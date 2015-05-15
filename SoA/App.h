@@ -4,6 +4,7 @@
 #define App_h_
 
 #include <Vorb/ui/MainGame.h>
+#include "SoaOptions.h"
 
 class DevScreen;
 class InitScreen;

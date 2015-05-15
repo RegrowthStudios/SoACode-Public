@@ -48,7 +48,9 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
 
     vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/GasGiantLookup2.png");
     if (rs.data == nullptr) pError("Failed to load gas giant texture");
-    VGTexture colorBandLookup = vg::GpuMemory::uploadTexture(rs.bytesUI8, rs.width, rs.height,
+    VGTexture colorBandLookup = vg::GpuMemory::uploadTexture(&rs,
+                                                             vg::TexturePixelType::UNSIGNED_BYTE,
+                                                             vg::TextureTarget::TEXTURE_2D,
                                                              &vg::SamplerState::LINEAR_CLAMP);
 
     vg::ImageIO().free(rs);
