@@ -171,8 +171,6 @@ void MainMenuRenderPipeline::resize() {
     m_viewport.z = m_newDims.x;
     m_viewport.w = m_newDims.y;
 
-    std::cout << "NewSize " << m_newDims.x << " " << m_newDims.y << std::endl;
-
     m_hdrFrameBuffer->dispose();
     delete m_hdrFrameBuffer;
     m_swapChain->dispose();
