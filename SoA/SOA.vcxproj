@@ -379,6 +379,7 @@ EXIT 0</Command>
     <ClInclude Include="TestDeferredScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
+    <ClInclude Include="TestVoxelModelScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
@@ -418,6 +419,7 @@ EXIT 0</Command>
     <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelModelLoader.h" />
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelSpaceConversions.h" />
     <ClInclude Include="VoxelSpaceUtils.h" />
@@ -564,6 +566,7 @@ EXIT 0</Command>
     <ClCompile Include="TestDeferredScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
+    <ClCompile Include="TestVoxelModelScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
@@ -603,6 +606,7 @@ EXIT 0</Command>
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
+    <ClCompile Include="VoxelModelLoader.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
     <ClCompile Include="VoxelSpaceUtils.cpp" />

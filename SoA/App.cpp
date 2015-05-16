@@ -20,6 +20,7 @@
 #include "TestDeferredScreen.h"
 #include "TestMappingScreen.h"
 #include "TestGasGiantScreen.h"
+#include "TestVoxelModelScreen.h"
 
 
 void App::addScreens() {
@@ -55,6 +56,9 @@ void App::addScreens() {
     scrTests.push_back(new TestGasGiantScreen);
     _screenList->addScreen(scrTests.back());
     scrDev->addScreen(VKEY_G, scrTests.back());
+    scrTests.push_back(new TestVoxelModelScreen);
+    _screenList->addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_V, scrTests.back());
 
     // Start from dev screen for convenience
     _screenList->setScreen(scrDev->getIndex());

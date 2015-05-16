@@ -40,7 +40,7 @@ void main() {
     float f1 = min(ff.x, ff.y);
     float f2 = max(ff.x, ff.y);
     float f = 1.0 - max(1.0 - f1, f2);
-    pColor = vec4(fColor * f, 1);
+    pColor = vec4(fColor * f , 1);
 }
 )";
 #pragma endregion
@@ -107,9 +107,11 @@ public:
     }
     void result(const vvox::meshalg::VoxelQuad& quad) {
         VertexPosColor v;
+        ColorRGBA8 c;
         switch (m_data[quad.startIndex]) {
         case 1:
-            v.color = color::Red.rgb;
+            c = ColorRGBA8((i32)(quad.voxelPosition.x / 3.0f * 255), (i32)(quad.voxelPosition.y / 3.0f * 255), (i32)(quad.voxelPosition.z / 3.0f * 255));
+            v.color = c.rgb;
             break;
         default:
             v.color = color::Blue.rgb;
@@ -254,6 +256,7 @@ void TestBlockView::genBlockMesh() {
             ui32 h = (ui32)(r.genMH() * 4) + 15;
             for (ui32 y = 0; y < h; y++) {
                 size_t vi = (y * TEST_CHUNK_SIZE + z) * TEST_CHUNK_SIZE + x;
+                
                 data[vi] = 1;
             }
         }

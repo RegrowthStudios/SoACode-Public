@@ -749,6 +749,12 @@
     <ClInclude Include="GameSystemEvents.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="TestVoxelModelScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelLoader.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1225,6 +1231,12 @@
     </ClCompile>
     <ClCompile Include="GameSystemEvents.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="TestVoxelModelScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelLoader.cpp">
+      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
