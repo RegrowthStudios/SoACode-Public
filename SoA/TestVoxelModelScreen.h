@@ -15,11 +15,14 @@
 #ifndef TestVoxelModelScreen_h__
 #define TestVoxelModelScreen_h__
 
+#include <vector>
+
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/ui/IGameScreen.h>
+#include <Vorb/ui/IGameScreen.h>s
 
-#include "BlockPack.h"
+class VoxelMatrix;
+class VoxelModelVertex;
 
 class TestVoxelModelScreen : public vui::IGameScreen {
 public:
@@ -37,6 +40,7 @@ public:
 private:
 
     void genBlockMesh();
+    void genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     VGVertexBuffer m_verts;

@@ -82,9 +82,9 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
         matrices.push_back(matrix);
 
         if(compressed == 0) { // Uncompressed Data
-            for(i32 z = 0; z < matrix->size.x; z++) {
+            for(i32 z = 0; z < matrix->size.z; z++) {
                 for(i32 y = 0; y < matrix->size.y; y++) {
-                    for(i32 x = 0; x < matrix->size.z; x++) {
+                    for(i32 x = 0; x < matrix->size.x; x++) {
                         //file.read((char*)(matrix->data + matrix->getIndex(i32v3(x, y, z))), 4);
                         ui32 data = 0;
                         ok = fread(&data, sizeof(ui32), 1, file) == 1;
@@ -92,7 +92,8 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
                         ui32 g = (data & 0x0000ff00) >> 8;
                         ui32 b = (data & 0x00ff0000) >> 16;
                         ui32 a = (data & 0xff000000) >> 24;
-                        matrix->data[matrix->getIndex(i32v3(x, y, z))] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+                        int location = matrix->getIndex(x, y, z);
+                        matrix->data[location] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
                     }
                 }
             }
@@ -100,7 +101,7 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
             i32 z = 0;
             while(z < matrix->size.z) {
                 z++;
-                ui32 index;
+                ui32 index = 0;
                 while(true) {
                     ui32 data = 0;
                     //file >> data;
@@ -120,17 +121,19 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
                             ui32 g = (data & 0x0000ff00) >> 8;
                             ui32 b = (data & 0x00ff0000) >> 16;
                             ui32 a = (data & 0xff000000) >> 24;
-                            matrix->data[matrix->getIndex(i32v3(x, y, z))] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+                            int location = matrix->getIndex(x, y, z);
+                            matrix->data[location] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
                         }
                     } else {
                         i32 x = index % matrix->size.x + 1;
-                        i32 y = index / matrix->size.y + 1;
+                        i32 y = index / matrix->size.x + 1;
                         index++;
                         ui32 r = data & 0x000000ff;
                         ui32 g = (data & 0x0000ff00) >> 8;
                         ui32 b = (data & 0x00ff0000) >> 16;
                         ui32 a = (data & 0xff000000) >> 24;
-                        matrix->data[matrix->getIndex(i32v3(x, y, z))] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+                        int location = matrix->getIndex(x, y, z);
+                        matrix->data[location] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
                     }
                 }
             }

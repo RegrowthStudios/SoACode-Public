@@ -6,11 +6,6 @@
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/io/IOManager.h>
-#include <Vorb/Random.h>
-#include <Vorb/Timing.h>
-#include <Vorb/voxel/VoxelMesherCulled.h>
-
-#include "BlockLoader.h"
 
 #include "VoxelModelLoader.h"
 
@@ -39,8 +34,12 @@ void main() {
 )";
 #pragma endregion
 
-struct VertexPosColor {
+class VoxelModelVertex {
 public:
+    VoxelModelVertex(f32v3 pos, color3 color):
+        pos(pos),
+        color(color)
+    {}
     f32v3 pos;
     color3 color;
 };
@@ -77,65 +76,9 @@ f32v3 VOXEL_MODEL[24] = {
     f32v3(1, 0, 1)
 };
 
-class APIVoxelCullSimple {
-public:
-    APIVoxelCullSimple(const ColorRGBA8* data):
-        m_data(data) {
-        // Empty
-    }
-
-    vvox::meshalg::VoxelFaces occludes(const ColorRGBA8& v1, const ColorRGBA8& v2, const vvox::Axis& axis) const {
-        vvox::meshalg::VoxelFaces f = {};
-        if(v1.a != 0 && v2.a == 0) f.block1Face = true;
-        else if(v1.a == 0 && v2.a != 0) f.block2Face = true;
-        return f;
-    }
-    void result(const vvox::meshalg::VoxelQuad& quad) {
-        VertexPosColor v;
-        switch(m_data[quad.startIndex].a) {
-        case 0:
-            v.color = color::Blue.rgb;
-            break;
-        default:
-            v.color = m_data[quad.startIndex].rgb;
-            break;
-        }
-
-        f32v3 off(quad.voxelPosition);
-        f32v3 scale;
-
-        switch(quad.direction) {
-        case vvox::Cardinal::X_NEG:
-        case vvox::Cardinal::X_POS:
-            scale.x = 1;
-            scale.z = (f32)quad.size.x;
-            scale.y = (f32)quad.size.y;
-            break;
-        case vvox::Cardinal::Y_NEG:
-        case vvox::Cardinal::Y_POS:
-            scale.y = 1;
-            scale.x = (f32)quad.size.x;
-            scale.z = (f32)quad.size.y;
-            break;
-        case vvox::Cardinal::Z_NEG:
-        case vvox::Cardinal::Z_POS:
-            scale.z = 1;
-            scale.x = (f32)quad.size.x;
-            scale.y = (f32)quad.size.y;
-            break;
-        default:
-            break;
-        }
-
-        for(size_t i = 0; i < 4; i++) {
-            v.pos = off + VOXEL_MODEL[(size_t)quad.direction * 4 + i] * scale;
-            vertices.emplace_back(v);
-        }
-    }
-
-    std::vector<VertexPosColor> vertices;
-private:
-    const ColorRGBA8* m_data;
+ui32 VOXEL_INDICES[6] = {
+    0, 2, 1,
+    1, 2, 3
 };
 
 i32 TestVoxelModelScreen::getNextScreen() const {
@@ -193,7 +136,7 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
 
     m_program.use();
     f32 tCenter = (f32)20 * -0.5f;
-    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, -1), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(tCenter, tCenter, tCenter);
+    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, 20), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(tCenter, tCenter, tCenter);
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
@@ -204,8 +147,8 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, false, (f32*)&mWVP[0][0]);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_verts);
-    glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, false, sizeof(VertexPosColor), offsetptr(VertexPosColor, pos));
-    glVertexAttribPointer(m_program.getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, true, sizeof(VertexPosColor), offsetptr(VertexPosColor, color));
+    glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, pos));
+    glVertexAttribPointer(m_program.getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, true, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, color));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_inds);
@@ -218,33 +161,90 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
 
 void TestVoxelModelScreen::genBlockMesh() {
     printf("Loading Models!\n");
-    std::vector<VoxelMatrix*> matrices = VoxelModelLoader::loadModel("Models\\deer.qb");
+    std::vector<VoxelMatrix*> matrices = VoxelModelLoader::loadModel("Models\\Iron_anvil.qb");
     printf("Loaded %d matrices\n", matrices.size());
     printf("Matrix Size: (%d, %d, %d)\n", matrices[0]->size.x, matrices[0]->size.y, matrices[0]->size.z);
 
-    APIVoxelCullSimple* api = new APIVoxelCullSimple(matrices[0]->data);
-    //api.vertices.reserve(10000);
-    vvox::meshalg::createCulled<ColorRGBA8>(matrices[0]->data, matrices[0]->size, api);
+    std::vector<VoxelModelVertex> vertices;
+    std::vector<ui32> indices;
+    genMatrixMesh(matrices[0], vertices, indices);
 
     glGenBuffers(1, &m_verts);
     glBindBuffer(GL_ARRAY_BUFFER, m_verts);
-    glBufferData(GL_ARRAY_BUFFER, api->vertices.size() * sizeof(VertexPosColor), api->vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VoxelModelVertex), vertices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    m_indCount = (api->vertices.size()) / 4 * 6;
-    printf("Tris: %d\n", m_indCount / 3);
-
-    ui32* inds = vvox::meshalg::generateQuadIndices<ui32>(api->vertices.size() / 4);
+    
+    m_indCount = indices.size();
     glGenBuffers(1, &m_inds);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_inds);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indCount * sizeof(ui32), inds, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indCount * sizeof(ui32), indices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    delete[] inds;
+
     for(int i = matrices.size()-1; i >= 0; i--) {
         VoxelMatrix* matrix = matrices.back();
         matrices.pop_back();
         delete matrix;
     }
-    delete api;
+}
+
+void TestVoxelModelScreen::genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {
+    for(i32 i = 0; i < matrix->size.x; i++) {
+        for(i32 j = 0; j < matrix->size.y; j++) {
+            for(i32 k = 0; k < matrix->size.z; k++) {
+                ColorRGBA8 voxel = matrix->getColor(i,j,k);
+                if(voxel.a == 0) continue;
+                f32v3 offset(i, j, k);
+                ColorRGBA8 temp = matrix->getColor(i - 1, j, k);
+                if(temp.a == 0) {
+                    i32 indexStart = vertices.size();
+                    for(int l = 0; l < 4; l++)
+                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[l], voxel.rgb));
+                    for(int l = 0; l < 6; l++)
+                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                }
+                temp = matrix->getColor(i + 1, j, k);
+                if(temp.a == 0) {
+                    i32 indexStart = vertices.size();
+                    for(int l = 0; l < 4; l++)
+                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[4 + l], voxel.rgb));
+                    for(int l = 0; l < 6; l++)
+                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                }
+                temp = matrix->getColor(i, j-1, k);
+                if(temp.a == 0) {
+                    i32 indexStart = vertices.size();
+                    for(int l = 0; l < 4; l++)
+                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[8 + l], voxel.rgb));
+                    for(int l = 0; l < 6; l++)
+                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                }
+                temp = matrix->getColor(i, j+1, k);
+                if(temp.a == 0) {
+                    i32 indexStart = vertices.size();
+                    for(int l = 0; l < 4; l++)
+                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[12 + l], voxel.rgb));
+                    for(int l = 0; l < 6; l++)
+                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                }
+                temp = matrix->getColor(i, j, k-1);
+                if(temp.a == 0) {
+                    i32 indexStart = vertices.size();
+                    for(int l = 0; l < 4; l++)
+                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[16 + l], voxel.rgb));
+                    for(int l = 0; l < 6; l++)
+                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                }
+                temp = matrix->getColor(i, j, k+1);
+                if(temp.a == 0) {
+                    i32 indexStart = vertices.size();
+                    for(int l = 0; l < 4; l++)
+                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[20 + l], voxel.rgb));
+                    for(int l = 0; l < 6; l++)
+                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                }
+            }
+        }
+    }
+
 }
 
