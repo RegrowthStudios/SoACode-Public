@@ -99,6 +99,7 @@ private:
     void onReloadShaders(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);
     void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
+    void onWindowClose(Sender s);
     void onOptionsChange(Sender s);
     // ----------------------------------------------
 
