@@ -22,10 +22,9 @@
 #include "GameSystemUpdater.h"
 #include "InputMapper.h"
 #include "Inputs.h"
-#include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
 #include "RenderTask.h"
@@ -80,10 +79,10 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
 
     // Initialize the PDA
-    m_pda.init(this, m_soaState->glProgramManager.get());
+    m_pda.init(this);
 
     // Initialize the Pause Menu
-    m_pauseMenu.init(this, m_soaState->glProgramManager.get());
+    m_pauseMenu.init(this);
 
     // Set up the rendering
     initRenderPipeline();
@@ -105,7 +104,7 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_pda.destroy();
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
 }
 
@@ -256,6 +255,9 @@ void GameplayScreen::initInput() {
     m_inputManager->get(INPUT_DRAW_MODE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDrawMode();
     });
+    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderPipeline.reloadShaders();
+    });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -274,6 +276,15 @@ void GameplayScreen::initInput() {
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
+    });
+
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_ESCAPE) {
+            SoaEngine::destroyAll(m_soaState);
+            exit(0);
+        } else if (e.keyCode == VKEY_F2) {
+            m_renderPipeline.takeScreenshot();
+        }
     });
 
     m_inputManager->startInput();
@@ -344,7 +355,7 @@ void GameplayScreen::updateWorldCameraClip() {
     if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
     // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(soaOptions.get(OPT_FOV).value.f / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
     if (a < 0) a = 0;
 
     double clip = MAX(nearClip / planetScale * 0.5, a);

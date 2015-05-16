@@ -32,7 +32,7 @@ public:
                             vg::GLProgram* glProgram);
 
     // Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 
 private:
     vg::GLProgram* _glProgram; ///< Shader program that renders the voxels

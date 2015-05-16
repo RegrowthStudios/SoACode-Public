@@ -8,8 +8,10 @@ InputMapper::InputID INPUT_BACKWARD = -1;
 InputMapper::InputID INPUT_BLOCK_DRAG = -1;
 InputMapper::InputID INPUT_BLOCK_SCANNER = -1;
 InputMapper::InputID INPUT_CROUCH = -1;
+InputMapper::InputID INPUT_CYCLE_COLOR_FILTER = -1;
 InputMapper::InputID INPUT_DEBUG = -1;
 InputMapper::InputID INPUT_DRAW_MODE = -1;
+InputMapper::InputID INPUT_EXIT = -1;
 InputMapper::InputID INPUT_FLASH_LIGHT = -1;
 InputMapper::InputID INPUT_FLY = -1;
 InputMapper::InputID INPUT_FORWARD = -1;
@@ -38,13 +40,19 @@ InputMapper::InputID INPUT_RELOAD_UI = -1;
 InputMapper::InputID INPUT_RIGHT = -1;
 InputMapper::InputID INPUT_RIGHT_ROLL = -1;
 InputMapper::InputID INPUT_SCAN_WSO = -1;
+InputMapper::InputID INPUT_SCREENSHOT = -1;
 InputMapper::InputID INPUT_SONAR = -1;
+InputMapper::InputID INPUT_SPEED_TIME = -1;
 InputMapper::InputID INPUT_SPRINT = -1;
+InputMapper::InputID INPUT_TIME_BACK = -1;
+InputMapper::InputID INPUT_TIME_BACKWARD = -1;
+InputMapper::InputID INPUT_TIME_FORWARD = -1;
+InputMapper::InputID INPUT_TOGGLE_AR = -1;
+InputMapper::InputID INPUT_TOGGLE_UI = -1;
 InputMapper::InputID INPUT_UPDATE_FRUSTUM = -1;
 InputMapper::InputID INPUT_WATER_UPDATE = -1;
 InputMapper::InputID INPUT_ZOOM = -1;
-InputMapper::InputID INPUT_TIME_FORWARD = -1;
-InputMapper::InputID INPUT_TIME_BACKWARD = -1;
+
 
 // Reduce Some Code
 #define CREATE_INPUT(ID,KEY,VAR) \
@@ -81,6 +89,7 @@ void initInputs(InputMapper* inputManager) {
     CREATE_INPUT(Draw Mode, VKEY_M, INPUT_DRAW_MODE);
     CREATE_INPUT(Planet Draw Mode, VKEY_J, INPUT_PLANET_DRAW_MODE);
     CREATE_INPUT(Update Frustum, VKEY_U, INPUT_UPDATE_FRUSTUM);
+    CREATE_INPUT(Cycle Color Filter, VKEY_C, INPUT_CYCLE_COLOR_FILTER);
 
     // Movement
     CREATE_INPUT(Fly, VKEY_F, INPUT_FLY);
@@ -112,4 +121,13 @@ void initInputs(InputMapper* inputManager) {
     // Block Utilities
     CREATE_INPUT(Block Scanner, VKEY_Q, INPUT_BLOCK_SCANNER);
     CREATE_INPUT(Block Select, VKEY_B, INPUT_BLOCK_DRAG);
+
+    // Main Menu
+    CREATE_INPUT(Exit, VKEY_ESCAPE, INPUT_EXIT);
+    CREATE_INPUT(Toggle UI, VKEY_U, INPUT_TOGGLE_UI);
+    CREATE_INPUT(Toggle AR, VKEY_A, INPUT_TOGGLE_AR);
+    CREATE_INPUT(Speed Time, VKEY_LCTRL, INPUT_SPEED_TIME);
+    CREATE_INPUT(Take Screenshot, VKEY_F2, INPUT_SCREENSHOT);
+    CREATE_INPUT(Time Back, VKEY_LEFT, INPUT_TIME_BACK);
+    CREATE_INPUT(Time Forward, VKEY_RIGHT, INPUT_TIME_FORWARD);
 }

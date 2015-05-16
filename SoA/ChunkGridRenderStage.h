@@ -31,7 +31,7 @@ public:
 
     // Draws the render stage
     void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
-    virtual void draw() override;
+    virtual void render() override;
 private:
     const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
     const ChunkMemoryManager* m_chunkMemoryManager = nullptr;

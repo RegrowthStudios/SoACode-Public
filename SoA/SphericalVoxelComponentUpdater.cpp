@@ -9,21 +9,22 @@
 #include "FloraTask.h"
 #include "GameSystem.h"
 #include "GenerateTask.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "PlanetData.h"
 #include "RenderTask.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainGpuGenerator.h"
+#include "soaUtils.h"
 
 void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
 
         // TODO(Ben): This is temporary hard coded player stuff.
+
         auto& playerPosCmp = gameSystem->voxelPosition.getFromEntity(soaState->playerEntity);
         auto& playerFrustumCmp = gameSystem->frustum.getFromEntity(soaState->playerEntity);
-        
 
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
             if (it.second.chunkGrid) {
@@ -165,7 +166,9 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
         if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
             chunk->updateContainers();
         }
-        if (chunk->distance2 > (graphicsOptions.voxelRenderDistance + 36) * (graphicsOptions.voxelRenderDistance + 36)) { //out of maximum range
+
+        float vRenderDist = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + 36.0f);
+        if (chunk->distance2 >  vRenderDist * vRenderDist) { //out of maximum range
 
             // Only remove it if it isn't needed by its neighbors
             if (!chunk->lastOwnerTask && !chunk->chunkDependencies) {
@@ -185,7 +188,7 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
                 updateChunkNeighbors(chunk, intPosition);
             }
             // Calculate the LOD as a power of two
-            int newLOD = (int)(sqrt(chunk->distance2) / graphicsOptions.voxelLODThreshold) + 1;
+            int newLOD = (int)(sqrt(chunk->distance2) / soaOptions.get(OPT_VOXEL_LOD_THRESHOLD).value.f) + 1;
             //  newLOD = 2;
             if (newLOD > 6) newLOD = 6;
             if (newLOD != chunk->getLevelOfDetail()) {
@@ -703,8 +706,10 @@ void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(Chunk* chunk, const i3
     ChunkPosition3D newPosition = chunk->gridPosition;
     newPosition.pos += offset;
 
+    // TODO(Ben): Redundant with elsewhere
+    f32 vRenderDist = soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH;
     double dist2 = Chunk::getDistance2(newPosition.pos * CHUNK_WIDTH, cameraPos);
-    if (dist2 <= (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH) * (graphicsOptions.voxelRenderDistance + CHUNK_WIDTH)) {
+    if (dist2 <= (vRenderDist) * (vRenderDist)) {
         makeChunkAt(newPosition);
     }
 }

@@ -10,7 +10,7 @@ void showMessage(const nString& message)
     SDL_Delay(100);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     MessageBox(NULL, message.c_str(), "SoA", MB_OK);
-#elif
+#else
     cout << "ERROR! MESSAGE BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
@@ -27,7 +27,7 @@ int showYesNoBox(const nString& message)
     if (id == IDYES) return 1;
     if (id == IDNO) return 0;
     return 0;
-#elif
+#else
     cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
@@ -45,7 +45,7 @@ int showYesNoCancelBox(const nString& message)
     if (id == IDNO) return 0;
     if (id == IDCANCEL) return -1;
     return 0;
-#elif
+#else
     cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;

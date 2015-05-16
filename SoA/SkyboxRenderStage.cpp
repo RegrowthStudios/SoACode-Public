@@ -2,127 +2,123 @@
 #include "SkyboxRenderStage.h"
 
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
 #include <Vorb/graphics/DepthState.h>
+#include <Vorb/io/IOManager.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
+#include "Errors.h"
+#include "ModPathResolver.h"
+#include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
 
-SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
-                                     const Camera* camera) :
-                                     IRenderStage(camera),
-                                     _skyboxRenderer(new SkyboxRenderer()),
-                                     _glProgram(glProgram) {
+SkyboxRenderStage::SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver) :
+                                     IRenderStage("Skybox", camera),
+                                     m_textureResolver(textureResolver) {
 
    updateProjectionMatrix();
 }
 
 
 SkyboxRenderStage::~SkyboxRenderStage() {
-    delete _skyboxRenderer;
+    // Empty
 }
 
-void SkyboxRenderStage::draw() {
+void SkyboxRenderStage::render() {
+
+    // Lazy texture init
+    if (m_skyboxTextureArray == 0) {
+        loadSkyboxTexture();
+    }
+
     // Check if FOV or Aspect Ratio changed
-    if (_fieldOfView != _camera->getFieldOfView() ||
-        _aspectRatio != _camera->getAspectRatio()) {
+    if (m_fieldOfView != m_camera->getFieldOfView() ||
+        m_aspectRatio != m_camera->getAspectRatio()) {
         updateProjectionMatrix();
     }
     // Draw using custom proj and camera view
-    drawSpace(_projectionMatrix * _camera->getViewMatrix());
+    drawSpace(m_projectionMatrix * m_camera->getViewMatrix());
+}
+
+void SkyboxRenderStage::reloadShader() {
+    m_skyboxRenderer.destroy();
+}
+
+void SkyboxRenderStage::loadSkyboxTexture() {
+    // Set up the storage
+    glGenTextures(1, &m_skyboxTextureArray);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+
+    vio::Path path;
+    // TODO(Ben): Error check for dimensions
+    m_textureResolver->resolvePath("Sky/Skybox/front.png", path);
+    vg::BitmapResource frontRes = vg::ImageIO().load(path);
+    if (frontRes.data == nullptr) pError("Failed to load Sky/Skybox/front.png");
+    m_textureResolver->resolvePath("Sky/Skybox/right.png", path);
+    vg::BitmapResource rightRes = vg::ImageIO().load(path);
+    if (rightRes.data == nullptr) pError("Failed to load Sky/Skybox/right.png");
+    m_textureResolver->resolvePath("Sky/Skybox/top.png", path);
+    vg::BitmapResource topRes = vg::ImageIO().load(path);
+    if (topRes.data == nullptr) pError("Failed to load Sky/Skybox/top.png");
+    m_textureResolver->resolvePath("Sky/Skybox/left.png", path);
+    vg::BitmapResource leftRes = vg::ImageIO().load(path);
+    if (leftRes.data == nullptr) pError("Failed to load Sky/Skybox/left.png");
+    m_textureResolver->resolvePath("Sky/Skybox/bottom.png", path);
+    vg::BitmapResource botRes = vg::ImageIO().load(path);
+    if (botRes.data == nullptr) pError("Failed to load Sky/Skybox/bottom.png");
+    m_textureResolver->resolvePath("Sky/Skybox/back.png", path);
+    vg::BitmapResource backRes = vg::ImageIO().load(path);
+    if (backRes.data == nullptr) pError("Failed to load Sky/Skybox/back.png");
+
+    if (frontRes.width != frontRes.height) {
+        pError("Skybox textures must have equal width and height!");
+    }
+
+    // Calculate max mipmap level
+    int maxMipLevel = 0;
+    int width = frontRes.width;
+    while (width > 1) {
+        width >>= 1;
+        maxMipLevel++;
+    }
+
+    // Set up all the mimpap storage
+    width = frontRes.width;
+    for (i32 i = 0; i < maxMipLevel; i++) {
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, i, GL_RGBA8, width, width, 6, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        width >>= 1;
+        if (width < 1) width = 1;
+    }
+
+    // Upload the data to VRAM
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, frontRes.width, frontRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, frontRes.data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, rightRes.width, rightRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, rightRes.data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, topRes.width, topRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, topRes.data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 3, leftRes.width, leftRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, leftRes.data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 4, botRes.width, botRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, botRes.data);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 5, backRes.width, backRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, backRes.data);
+
+    // Set up tex parameters
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, maxMipLevel);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LOD, maxMipLevel);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_GENERATE_MIPMAP, GL_TRUE);
+    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+    // Unbind
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+    // Check if we had any errors
+    checkGlError("SkyboxRenderStage::loadSkyboxTexture()"); 
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
     vg::DepthState::NONE.set();
-    _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
+    m_skyboxRenderer.drawSkybox(VP, m_skyboxTextureArray);
     vg::DepthState::FULL.set();
-}
-
-// Ben: This is terrible but I don't feel like fixing it since its temporary
-void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
-    double radius = 2800000.0;
-    double size = 200000.0;
-    float off = (float)atan(size / radius); // in radians
-    float cosTheta = cos(theta - off);
-    float sinTheta = sin(theta - off);
-    float cosTheta2 = cos(theta + off);
-    float sinTheta2 = sin(theta + off);
-
-    // Bind shader
-    _glProgram->use();
-    _glProgram->enableVertexAttribArrays();
-
-    glDepthMask(GL_FALSE);
-    glDisable(GL_CULL_FACE);
-
-    // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sunTexture.id);
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(_glProgram->getUniform("unTex"), 0);
-
-    glUniformMatrix4fv(_glProgram->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    GLfloat sunUVs[8];
-    GLfloat sunVerts[12];
-    const GLushort sunIndices[6] = { 0, 1, 2, 2, 3, 0 };
-
-    sunUVs[0] = 0;
-    sunUVs[1] = 0;
-    sunUVs[2] = 0;
-    sunUVs[3] = 1;
-    sunUVs[4] = 1;
-    sunUVs[5] = 1;
-    sunUVs[6] = 1;
-    sunUVs[7] = 0;
-
-    sunVerts[0] = cosTheta2*radius;
-    sunVerts[2] = sinTheta2*radius;
-    sunVerts[1] = -size;
-
-    sunVerts[3] = cosTheta*radius;
-    sunVerts[5] = sinTheta*radius;
-    sunVerts[4] = -size;
-
-    sunVerts[6] = cosTheta*radius;
-    sunVerts[8] = sinTheta*radius;
-    sunVerts[7] = size;
-
-    sunVerts[9] = cosTheta2*radius;
-    sunVerts[11] = sinTheta2*radius;
-    sunVerts[10] = size;
-
-    static GLuint vertexbuffer = 0;
-    static GLuint uvbuffer = 0;
-
-    if (vertexbuffer == 0) {
-        glGenBuffers(1, &vertexbuffer);
-        glGenBuffers(1, &uvbuffer);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sunVerts), sunVerts, GL_STREAM_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sunUVs), sunUVs, GL_STREAM_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    // 2nd attribute buffer : UVs
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, sunIndices);
-
-    _glProgram->disableVertexAttribArrays();
-    _glProgram->unuse();
-
-    glDepthMask(GL_TRUE);
-    glEnable(GL_CULL_FACE);
 }
 
 void SkyboxRenderStage::updateProjectionMatrix() {
@@ -131,9 +127,9 @@ void SkyboxRenderStage::updateProjectionMatrix() {
     #define SKYBOX_ZNEAR 0.01f
     #define SKYBOX_ZFAR 300.0f
 
-    _fieldOfView = _camera->getFieldOfView();
-    _aspectRatio = _camera->getAspectRatio();
+    m_fieldOfView = m_camera->getFieldOfView();
+    m_aspectRatio = m_camera->getAspectRatio();
 
     // Set up projection matrix
-    _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+    m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
 }

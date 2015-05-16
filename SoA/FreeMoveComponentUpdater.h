@@ -16,11 +16,12 @@
 #define FreeMoveComponentUpdater_h__
 
 class GameSystem;
+class SpaceSystem;
 class FreeMoveInputComponent;
 
 class FreeMoveComponentUpdater {
 public:
-    void update(GameSystem* gameSystem);
+    void update(GameSystem* gameSystem, SpaceSystem* spaceSystem);
     static void rotateFromMouse(GameSystem* gameSystem, FreeMoveInputComponent& cmp, float dx, float dy, float speed);
 };
 

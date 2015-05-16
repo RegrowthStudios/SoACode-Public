@@ -25,7 +25,7 @@ DevHudRenderStage::~DevHudRenderStage() {
     delete _spriteFont;
 }
 
-void DevHudRenderStage::draw() {
+void DevHudRenderStage::render() {
     // Reset the yOffset
     _yOffset = 0;
 
@@ -53,7 +53,7 @@ void DevHudRenderStage::draw() {
 
     _spriteBatch->end();
     // Render to the screen
-    _spriteBatch->renderBatch(_windowDims);
+    _spriteBatch->render(_windowDims);
 }
 
 void DevHudRenderStage::cycleMode(int offset /*= 1*/) {

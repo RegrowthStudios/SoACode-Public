@@ -17,7 +17,7 @@
 #include "Errors.h"
 #include "FileSystem.h"
 #include "GameManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 
 ChunkIOManager::ChunkIOManager(const nString& saveDir) :
     _regionFileManager(saveDir)

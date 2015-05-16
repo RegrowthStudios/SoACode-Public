@@ -12,6 +12,7 @@
 
 #include "FarTerrainPatch.h"
 #include "PlanetData.h"
+#include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMesh.h"
@@ -40,6 +41,9 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     orientationF32.w = (f32)orientation.w;
     // Convert to matrix
     f32m4 rotationMatrix = glm::toMat4(orientationF32);
+    f32m4 W(1.0);
+    setMatrixTranslation(W, -relativePos);
+    f32m4 WVP = camera->getViewProjectionMatrix() * W * rotationMatrix;
 
     if (m_waterMeshes.size()) {
         // Bind textures
@@ -73,7 +77,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
               
             } else {
                 // TODO(Ben): Horizon and frustum culling for water too
-                m->drawWater(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, waterProgram);
+                m->drawWater(WVP, waterProgram);
                 i++;
             }
         }
@@ -125,7 +129,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                     f32v3 relSpherePos = orientationF32 * m->m_aabbCenter - f32v3(relativePos);
                     if (camera->sphereInFrustum(relSpherePos,
                         m->m_boundingSphereRadius)) {
-                        m->draw(relativePos, camera->getViewProjectionMatrix(), rotationMatrix, program, drawSkirts);
+                        m->draw(WVP, program, drawSkirts);
                     }
                 }
                 i++;
@@ -313,10 +317,10 @@ void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram* program, const f
         glUniform1f(program->getUniform("unInnerRadius"), aCmp->planetRadius);
         glUniform1f(program->getUniform("unOuterRadius"), aCmp->radius);
         glUniform1f(program->getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
-        glUniform1f(program->getUniform("unKrESun"), aCmp->krEsun);
-        glUniform1f(program->getUniform("unKmESun"), aCmp->kmEsun);
-        glUniform1f(program->getUniform("unKr4PI"), aCmp->kr4PI);
-        glUniform1f(program->getUniform("unKm4PI"), aCmp->km4PI);
+        glUniform1f(program->getUniform("unKrESun"), aCmp->kr * aCmp->esun);
+        glUniform1f(program->getUniform("unKmESun"), aCmp->km * aCmp->esun);
+        glUniform1f(program->getUniform("unKr4PI"), aCmp->kr * M_4_PI);
+        glUniform1f(program->getUniform("unKm4PI"), aCmp->km * M_4_PI);
         f32 scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
         glUniform1f(program->getUniform("unScale"), scale);
         glUniform1f(program->getUniform("unScaleDepth"), aCmp->scaleDepth);

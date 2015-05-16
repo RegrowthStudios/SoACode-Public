@@ -71,11 +71,10 @@ public:
     /// renderable.
     bool isRenderable() const;
 
-    /// Checks if the point is over the horizon
-    /// @param relCamPos: Relative observer position
-    /// @param point: The point to check
-    /// @param planetRadius: Radius of the planet
+                            
     static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
+
+    static void setQuality(int quality);
 
     /// Returns true if the patch can subdivide
     bool canSubdivide() const;
@@ -86,6 +85,11 @@ protected:
     /// @param cameraPos: position of the observer
     /// @return closest point on the AABB
     f64v3 calculateClosestPointAndDist(const f64v3& cameraPos);
+
+    static f32 DIST_MIN;
+    static f32 DIST_MAX;
+    static f32 MIN_SIZE;
+    static int PATCH_MAX_LOD;
 
     f64v2 m_gridPos = f64v2(0.0); ///< Position on 2D grid
     f64v3 m_aabbPos = f64v3(0.0); ///< Position relative to world

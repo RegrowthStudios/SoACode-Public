@@ -16,7 +16,7 @@
 #define SpaceSystem_h__
 
 #include "SpaceSystemComponents.h"
-#include "SphericalVoxelComponentTable.h"
+#include "SpaceSystemComponentTables.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/ComponentTable.hpp>
@@ -29,6 +29,8 @@
 #define SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME "SphericalTerrain"
 #define SPACE_SYSTEM_CT_FARTERRAIN_NAME "FarTerrain"
 #define SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME "SphericalGravity"
+#define SPACE_SYSTEM_CT_GASGIANT_NAME "GasGiant"
+#define SPACE_SYSTEM_CT_STAR_NAME "Star"
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 #define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
 #define SPACE_SYSTEM_CT_ATMOSPHERE_NAME "Atmosphere"
@@ -60,9 +62,11 @@ public:
 
     vecs::ComponentTable<NamePositionComponent> m_namePositionCT;
     vecs::ComponentTable<AxisRotationComponent> m_axisRotationCT;
-    vecs::ComponentTable<OrbitComponent> m_orbitCT;
+    OrbitComponentTable m_orbitCT;
     vecs::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
-    vecs::ComponentTable<SphericalTerrainComponent> m_sphericalTerrainCT;
+    SphericalTerrainComponentTable m_sphericalTerrainCT;
+    vecs::ComponentTable<GasGiantComponent> m_gasGiantCT;
+    vecs::ComponentTable<StarComponent> m_starCT;
     vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
     vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
@@ -72,14 +76,7 @@ public:
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
     std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
 
-protected:
-    void addPlanet(const SystemBodyKegProperties* sysProps, const PlanetKegProperties* properties, SystemBody* body);
-
-    void addStar(const SystemBodyKegProperties* sysProps, const StarKegProperties* properties, SystemBody* body);
-
-    void addGasGiant(const SystemBodyKegProperties* sysProps, const GasGiantKegProperties* properties, SystemBody* body);
-
-    vio::IOManager m_ioManager;
+    std::map<nString, std::pair<f32v3, f32v3> > pathColorMap; ///< Map of body type to path colors
 };
 
 #endif // SpaceSystem_h__

@@ -18,7 +18,8 @@
 #include "SpaceSystem.h"
 #include "GameSystem.h"
 
-#include "PlanetLoader.h" //Why is this needed here??
+#include "PlanetLoader.h" // TODO(Ben): Why is this needed here for unique_ptr?
+#include "ModPathResolver.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
@@ -28,7 +29,7 @@ class ChunkMeshManager;
 class DebugRenderer;
 class MeshManager;
 class PlanetLoader;
-DECL_VG(class GLProgramManager);
+class SoaOptions;
 DECL_VIO(class IOManager);
 
 class SoaState {
@@ -41,7 +42,6 @@ public:
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
 
-    std::unique_ptr<vg::GLProgramManager> glProgramManager;
     std::unique_ptr<DebugRenderer> debugRenderer;
     std::unique_ptr<MeshManager> meshManager;
     std::unique_ptr<ChunkMeshManager> chunkMeshManager;
@@ -49,7 +49,10 @@ public:
     std::unique_ptr<vio::IOManager> systemIoManager;
     std::unique_ptr<PlanetLoader> planetLoader;
 
+    SoaOptions* options = nullptr; // Lives in App
+
     vio::IOManager saveFileIom;
+    ModPathResolver texturePathResolver;
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f);
     int startFace = 0;

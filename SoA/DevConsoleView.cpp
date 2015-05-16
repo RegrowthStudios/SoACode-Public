@@ -22,7 +22,7 @@ DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
-void DevConsoleView::init(DevConsole* console, i32 linesToRender, vg::GLProgramManager* glProgramManager) {
+void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
     _renderRing.resize(linesToRender);
     _renderRing.clear();
 
@@ -81,7 +81,7 @@ void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
         0, 0, 1, 0,
         position.x, position.y, 0, 1
         );
-    _batch->renderBatch(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+    _batch->render(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
 }
 
 void DevConsoleView::onNewCommand(const nString& str) {
@@ -110,8 +110,8 @@ void DevConsoleView::redrawBatch() {
                 f32v2(10, textHeight * i + 10),
                 f32v2(1),
                 ColorRGBA8(0, 255, 0, 255),
-                0.9f
-                );
+                vg::TextAlign::TOP_LEFT,
+                0.9f);
         }
     }
 

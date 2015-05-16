@@ -6,20 +6,17 @@
 #include "TerrainPatchMeshManager.h"
 #include "TerrainPatch.h"
 #include "soaUtils.h"
+#include "ShaderLoader.h"
 
 #include <glm/gtx/quaternion.hpp>
 
-#include <Vorb/io/IOManager.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/utils.h>
 
 SphericalTerrainComponentRenderer::~SphericalTerrainComponentRenderer() {
-    if (m_terrainProgram) {
-        m_terrainProgram->dispose();
-        m_waterProgram->dispose();
-        delete m_terrainProgram;
-        delete m_waterProgram;
-    }
+    disposeShaders();
 }
 
 void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
@@ -29,7 +26,6 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const SpaceLightComponent* spComponent,
                                              const AxisRotationComponent* arComponent,
                                              const AtmosphereComponent* aComponent) {
-
     if (cmp.patches) {
         // Lazy shader init
         if (!m_terrainProgram) {
@@ -53,37 +49,19 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
     }
 }
 
+void SphericalTerrainComponentRenderer::disposeShaders() {
+    if (m_terrainProgram) {
+        vg::ShaderManager::destroyProgram(&m_terrainProgram);
+    }
+    if (m_waterProgram) {
+        vg::ShaderManager::destroyProgram(&m_waterProgram);
+    }
+}
+
 void SphericalTerrainComponentRenderer::buildShaders() {
-    // Attributes for spherical terrain
-    std::vector<nString> sphericalAttribs;
-    sphericalAttribs.push_back("vPosition");
-    sphericalAttribs.push_back("vTangent");
-    sphericalAttribs.push_back("vUV");
-    sphericalAttribs.push_back("vColor");
-    sphericalAttribs.push_back("vNormUV");
-    sphericalAttribs.push_back("vTemp_Hum");
 
-    // Attributes for spherical water
-    std::vector<nString> sphericalWaterAttribs;
-    sphericalWaterAttribs.push_back("vPosition");
-    sphericalWaterAttribs.push_back("vTangent");
-    sphericalWaterAttribs.push_back("vColor_Temp");
-    sphericalWaterAttribs.push_back("vUV");
-    sphericalWaterAttribs.push_back("vDepth");
-
-    vio::IOManager iom;
-    nString vertSource;
-    nString fragSource;
-    // Build terrain shader
-    iom.readFileToString("Shaders/SphericalTerrain/SphericalTerrain.vert", vertSource);
-    iom.readFileToString("Shaders/SphericalTerrain/SphericalTerrain.frag", fragSource);
-    m_terrainProgram = new vg::GLProgram(true);
-    m_terrainProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
-    m_terrainProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
-    m_terrainProgram->setAttributes(sphericalAttribs);
-    m_terrainProgram->link();
-    m_terrainProgram->initAttributes();
-    m_terrainProgram->initUniforms();
+    m_terrainProgram = ShaderLoader::createProgramFromFile("Shaders/SphericalTerrain/SphericalTerrain.vert",
+                                                           "Shaders/SphericalTerrain/SphericalTerrain.frag");
     // Set constant uniforms
     m_terrainProgram->use();
     glUniform1i(m_terrainProgram->getUniform("unNormalMap"), 0);
@@ -93,16 +71,8 @@ void SphericalTerrainComponentRenderer::buildShaders() {
     glUniform1f(m_terrainProgram->getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
     m_terrainProgram->unuse();
 
-    // Build water shader
-    iom.readFileToString("Shaders/SphericalTerrain/SphericalWater.vert", vertSource);
-    iom.readFileToString("Shaders/SphericalTerrain/SphericalWater.frag", fragSource);
-    m_waterProgram = new vg::GLProgram(true);
-    m_waterProgram->addShader(vg::ShaderType::VERTEX_SHADER, vertSource.c_str());
-    m_waterProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, fragSource.c_str());
-    m_waterProgram->setAttributes(sphericalWaterAttribs);
-    m_waterProgram->link();
-    m_waterProgram->initAttributes();
-    m_waterProgram->initUniforms();
+    m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/SphericalTerrain/SphericalWater.vert",
+                                                         "Shaders/SphericalTerrain/SphericalWater.frag");
     // Set constant uniforms
     m_waterProgram->use();
     glUniform1i(m_waterProgram->getUniform("unNormalMap"), 0);

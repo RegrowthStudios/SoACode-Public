@@ -16,57 +16,73 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
-#include <Vorb/graphics/IRenderPipeline.h>
+#include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
-
-#include "GLProgramManager.h"
+#include <Vorb/VorbPreDecl.inl>
 
 /// Forward declarations
-class AwesomiumRenderStage;
 class Camera;
+class ColorFilterRenderStage;
 class HdrRenderStage;
-class IAwesomiumInterface;
+class ExposureCalcRenderStage;
+class MainMenuSystemViewer;
 class SkyboxRenderStage;
+class SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
-class MainMenuSystemViewer;
+class MainMenuScriptedUI;
+DECL_VUI(struct WindowResizeEvent);
 
-class MainMenuRenderPipeline : public vg::IRenderPipeline 
+class MainMenuRenderPipeline : public vg::RenderPipeline 
 {
 public:
     MainMenuRenderPipeline();
     ~MainMenuRenderPipeline();
 
     /// Initializes the pipeline and passes dependencies
-    /// @param viewport: The viewport to draw to.
-    /// @param camera: The camera used for rendering.
-    /// @param awesomiumInterface: The user interface
-    /// @param spaceSystem: The space system for rendering
-    /// @param systemViewer: System viewing controller for main menu
-    /// @param glProgramManager: The program cache that contains all needed
-    /// GLPrograms
-    void init(const ui32v4& viewport, Camera* camera,
-              IAwesomiumInterface* awesomiumInterface,
+    void init(const SoaState* soaState, const ui32v4& viewport,
+              MainMenuScriptedUI* mainMenuUI,
+              Camera* camera,
               SpaceSystem* spaceSystem,
-              const MainMenuSystemViewer* systemViewer,
-              const vg::GLProgramManager* glProgramManager);
+              const MainMenuSystemViewer* systemViewer);
 
     /// Renders the pipeline
     virtual void render() override;
 
     /// Frees all resources
-    virtual void destroy() override;
+    virtual void destroy(bool shouldDisposeStages) override;
+
+    void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
+
+    void takeScreenshot() { m_shouldScreenshot = true; }
+
+    void toggleUI() { m_showUI = !m_showUI; }
+    void toggleAR() { m_showAR = !m_showAR; }
+    void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
 private:
-    SkyboxRenderStage* _skyboxRenderStage = nullptr; ///< Renders the skybox
-    AwesomiumRenderStage* _awesomiumRenderStage = nullptr; ///< Renders the UI
-    HdrRenderStage* _hdrRenderStage = nullptr; ///< Renders HDR post-processing
+    void initFramebuffer();
+    void resize();
+    void dumpScreenshot();
+
+    ColorFilterRenderStage* m_colorFilterRenderStage = nullptr; ///< Renders a color filter
+    SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
+    HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
     SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Renders space system
+    ExposureCalcRenderStage* m_logLuminanceRenderStage = nullptr; ///< Renders log luminance for tonemapping
 
-    vg::GLRenderTarget* _hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
-    vg::RTSwapChain<2>* _swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
-    vg::FullQuadVBO _quad; ///< Quad used for post-processing
+    vg::GLRenderTarget* m_hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2>* m_swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
+    vg::FullQuadVBO m_quad; ///< Quad used for post-processing
+    MainMenuScriptedUI* m_mainMenuUI; ///< The main menu UI
 
-    ui32v4 _viewport; ///< Viewport to draw to
+    ui32v4 m_viewport; ///< Viewport to draw to
+    bool m_isInitialized = false;
+    bool m_showUI = true;
+    bool m_showAR = true;
+    bool m_shouldScreenshot = false;
+    bool m_shouldResize = false;
+    ui32v2 m_newDims;
+    int m_colorFilter = 0;
 };
 
 #endif // MainMenuRenderPipeline_h__

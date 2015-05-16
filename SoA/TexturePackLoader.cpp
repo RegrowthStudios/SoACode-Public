@@ -5,7 +5,7 @@
 #include <Vorb/io/Keg.h>
 
 #include "FileSystem.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "PlanetData.h"
 
 /// yml definition for TexturePackInfo
@@ -88,7 +88,7 @@ void TexturePackLoader::uploadTextures() {
     // Upload all the non block textures
     for (auto it = _texturesToUpload.begin(); it != _texturesToUpload.end(); ++it) {
         TextureToUpload& texture = it->second;
-        _textureCache->addTexture(it->first, texture.bitmap.bytesUI8, texture.bitmap.width, texture.bitmap.height, texture.samplerState);
+        _textureCache->addTexture(it->first, &texture.bitmap, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, texture.samplerState);
     }
 
     // TODO(Ben): This could be done better

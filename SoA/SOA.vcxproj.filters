@@ -126,9 +126,6 @@
     <Filter Include="SOA Files\ECS\Updaters">
       <UniqueIdentifier>{85765d6e-8575-45fa-82db-357787c61b39}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SOA Files\ECS\Renderers">
-      <UniqueIdentifier>{b9e3a61e-f44d-40ff-bbfa-9feae3a45d83}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SOA Files\ECS\Systems">
       <UniqueIdentifier>{73eeb8a0-c66a-4fc2-bd59-edcbe41b3993}</UniqueIdentifier>
     </Filter>
@@ -137,9 +134,6 @@
     </Filter>
     <Filter Include="SOA Files\Sound\Ambience">
       <UniqueIdentifier>{29e314c8-5ae6-4581-9595-811643a15e11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Awesomium">
-      <UniqueIdentifier>{19a0ff49-6794-4225-847f-886ba6baa490}</UniqueIdentifier>
     </Filter>
     <Filter Include="SOA Files\ECS\ComponentTables">
       <UniqueIdentifier>{f52bd506-1a48-4733-81fd-e5ccf12ec387}</UniqueIdentifier>
@@ -167,6 +161,9 @@
     </Filter>
     <Filter Include="SOA Files\Screens\Gameplay">
       <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Rendering\Components">
+      <UniqueIdentifier>{452e9a89-0e3d-42af-827a-14a1b726bc20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -274,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="OpenGLStructs.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Options.h">
-      <Filter>SOA Files\Data</Filter>
     </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>SOA Files\Game\Particles</Filter>
@@ -389,12 +383,6 @@
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="GLProgramManager.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuAPI.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -406,9 +394,6 @@
     </ClInclude>
     <ClInclude Include="Computer.h">
       <Filter>SOA Files\Game\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="PdaAwesomiumAPI.h">
-      <Filter>SOA Files\Rendering\UI</Filter>
     </ClInclude>
     <ClInclude Include="TransparentVoxelRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -432,9 +417,6 @@
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
     <ClInclude Include="HdrRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="AwesomiumRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="SkyboxRenderStage.h">
@@ -482,9 +464,6 @@
     <ClInclude Include="PauseMenu.h">
       <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="PauseMenuAwesomiumAPI.h">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="PauseMenuRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -524,17 +503,8 @@
     <ClInclude Include="SmartVoxelContainer.hpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="IAwesomiumAPI.h">
-      <Filter>SOA Files\Screens</Filter>
-    </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="OrbitComponentRenderer.h">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainComponentRenderer.h">
-      <Filter>SOA Files\ECS\Renderers</Filter>
     </ClInclude>
     <ClInclude Include="MainMenuSystemViewer.h">
       <Filter>SOA Files\Screens\Menu</Filter>
@@ -571,18 +541,6 @@
     </ClInclude>
     <ClInclude Include="AmbiencePlayer.h">
       <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClInclude>
-    <ClInclude Include="AwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
-    </ClInclude>
-    <ClInclude Include="IAwesomiumInterface.h">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenglSurfaceFactory.h">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalVoxelComponentTable.h">
-      <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
     <ClInclude Include="SpaceSystemComponents.h">
       <Filter>SOA Files\ECS\Components</Filter>
@@ -692,9 +650,6 @@
     <ClInclude Include="soaUtils.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="FarTerrainComponentRenderer.h">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClInclude>
     <ClInclude Include="SystemARRenderer.h">
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClInclude>
@@ -719,16 +674,7 @@
     <ClInclude Include="TestGasGiantScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
-    <ClInclude Include="GasGiantRenderer.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="AtmosphereComponentRenderer.h">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClInclude>
     <ClInclude Include="LoadTaskStarSystem.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskShaders.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="LoadTaskTextures.h">
@@ -754,6 +700,57 @@
     </ClInclude>
     <ClInclude Include="VoxelModelLoader.h">
       <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="AtmosphereComponentRenderer.h">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="FarTerrainComponentRenderer.h">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GasGiantComponentRenderer.h">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitComponentRenderer.h">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalTerrainComponentRenderer.h">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="StarComponentRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestStarScreen.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemComponentTables.h">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetGenerator.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModPathResolver.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LenseFlareRenderer.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorFilterRenderStage.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExposureCalcRenderStage.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuScriptedUI.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionsController.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoaOptions.h">
+      <Filter>SOA Files\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -836,9 +833,6 @@
       <Filter>SOA Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjectLoader.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="Options.cpp">
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
     <ClCompile Include="Particle.cpp">
@@ -931,12 +925,6 @@
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
-    <ClCompile Include="GLProgramManager.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuAPI.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
-    </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -945,9 +933,6 @@
     </ClCompile>
     <ClCompile Include="Computer.cpp">
       <Filter>SOA Files\Game\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="PdaAwesomiumAPI.cpp">
-      <Filter>SOA Files\Rendering\UI</Filter>
     </ClCompile>
     <ClCompile Include="CutoutVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -966,9 +951,6 @@
     </ClCompile>
     <ClCompile Include="MainMenuRenderPipeline.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="AwesomiumRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="HdrRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -1009,9 +991,6 @@
     <ClCompile Include="CellularAutomataTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
-    <ClCompile Include="PauseMenuAwesomiumAPI.cpp">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClCompile>
     <ClCompile Include="PauseMenu.cpp">
       <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClCompile>
@@ -1046,12 +1025,6 @@
     <ClCompile Include="TestBlockViewScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="OrbitComponentRenderer.cpp">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClCompile>
     <ClCompile Include="MainMenuSystemViewer.cpp">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClCompile>
@@ -1081,12 +1054,6 @@
     </ClCompile>
     <ClCompile Include="AmbiencePlayer.cpp">
       <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenglSurfaceFactory.cpp">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalVoxelComponentTable.cpp">
-      <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
     <ClCompile Include="GameSystem.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
@@ -1184,9 +1151,6 @@
     <ClCompile Include="NoiseShaderGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="FarTerrainComponentRenderer.cpp">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClCompile>
     <ClCompile Include="SystemARRenderer.cpp">
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClCompile>
@@ -1208,15 +1172,6 @@
     <ClCompile Include="TestGasGiantScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="GasGiantRenderer.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="AtmosphereComponentRenderer.cpp">
-      <Filter>SOA Files\ECS\Renderers</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadTaskShaders.cpp">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="GameplayScreen.cpp">
       <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClCompile>
@@ -1237,6 +1192,39 @@
     </ClCompile>
     <ClCompile Include="VoxelModelLoader.cpp">
       <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLoader.cpp">
+      <Filter>SOA Files\Rendering\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="AtmosphereComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="FarTerrainComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GasGiantComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="StarComponentRenderer.cpp" />
+    <ClCompile Include="TestStarScreen.cpp" />
+    <ClCompile Include="SpaceSystemComponentTables.cpp">
+      <Filter>SOA Files\ECS\ComponentTables</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetGenerator.cpp" />
+    <ClCompile Include="ModPathResolver.cpp" />
+    <ClCompile Include="LenseFlareRenderer.cpp" />
+    <ClCompile Include="ColorFilterRenderStage.cpp" />
+    <ClCompile Include="ExposureCalcRenderStage.cpp" />
+    <ClCompile Include="MainMenuScriptedUI.cpp" />
+    <ClCompile Include="OptionsController.cpp" />
+    <ClCompile Include="SoaOptions.cpp">
+      <Filter>SOA Files\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1260,12 +1248,6 @@
     </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
-    <None Include="IAwesomiumAPI.inl">
-      <Filter>SOA Files\Screens</Filter>
-    </None>
-    <None Include="AwesomiumInterface.inl">
-      <Filter>SOA Files\Rendering\Awesomium</Filter>
     </None>
     <None Include="VoxelUpdateOrder.inl">
       <Filter>SOA Files\Voxel</Filter>

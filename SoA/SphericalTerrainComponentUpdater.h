@@ -23,8 +23,9 @@ struct SphericalTerrainComponent;
 #include "TerrainRpcDispatcher.h"
 #include "VoxelCoordinateSpaces.h"
 #include <Vorb/RPC.h>
+#include <Vorb/ecs/ECS.h>
 
-#define LOAD_DIST 80000.0
+#define LOAD_DIST 800000.0
 // Should be even
 #define ST_PATCH_ROW 2  
 #define NUM_FACES 6
@@ -40,6 +41,7 @@ public:
 
 private:
     void initPatches(SphericalTerrainComponent& cmp);
+    void updateVoxelComponentLogic(const SoaState* state, vecs::EntityID eid, SphericalTerrainComponent& stCmp);
 };
 
 #endif // SphericalTerrainComponentUpdater_h__

@@ -3,6 +3,8 @@
 
 #include "SoAState.h"
 
+#include <Vorb/Timing.h>
+
 void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* gameSystem,
                                 const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
 
@@ -20,7 +22,7 @@ void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* 
     m_sphericalVoxelComponentUpdater.update(spaceSystem, gameSystem, soaState);
 
     // Update Orbits ( Do this last)
-    m_orbitComponentUpdater.update(spaceSystem, 0.0);
+    m_orbitComponentUpdater.update(spaceSystem, soaState->time);
 }
 
 void SpaceSystemUpdater::glUpdate(OUT SpaceSystem* spaceSystem) {

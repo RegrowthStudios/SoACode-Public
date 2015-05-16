@@ -4,7 +4,7 @@
 #include "Particle.h"
 #include "ParticleBatch.h"
 #include "ParticleEmitter.h"
-#include "Options.h"
+#include "SoaOptions.h"
 
 ParticleEngine particleEngine;
 
@@ -46,9 +46,9 @@ void ParticleEngine::addParticles(ChunkManager* chunkManager, int num, glm::dvec
     Color[1] = (GLubyte)(color.g);
     Color[2] = (GLubyte)(color.b);
     Color[3] = (GLubyte)(color.a);
-    if(graphicsOptions.enableParticles) {
-        staticParticles.addParticles(chunkManager, num, pos, tex, force, life, billSize, Color, expForce);
-    }
+ //   if(graphicsOptions.enableParticles) {
+ //       staticParticles.addParticles(chunkManager, num, pos, tex, force, life, billSize, Color, expForce);
+  //  }
 }
 
 void ParticleEngine::addAnimatedParticles(ChunkManager* chunkManager, int num, glm::dvec3 pos, int type, double force, int time, int deg, glm::vec4 color, int tex, float life, GLubyte billSize, glm::vec3 expForce) {

@@ -13,10 +13,10 @@
 #include "VoxelSpaceConversions.h"
 #include "soaUtils.h"
 
-// TODO(Ben): These constants are fairly arbitrary
-const float DIST_MIN = 3.0f;
-const float DIST_MAX = 3.1f;
-const float MIN_SIZE = 0.4096f;
+f32 TerrainPatch::DIST_MIN = 3.0f;
+f32 TerrainPatch::DIST_MAX = 3.1f;
+f32 TerrainPatch::MIN_SIZE = 0.4096f;
+int TerrainPatch::PATCH_MAX_LOD = 25;
 
 TerrainPatch::~TerrainPatch() {
     destroy();
@@ -167,6 +167,12 @@ bool TerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64
         return true;
     }
     return false;
+}
+
+void TerrainPatch::setQuality(int quality) {
+    DIST_MIN = (f32)quality;
+    DIST_MAX = DIST_MIN + 0.1f;
+    PATCH_MAX_LOD = 18 + quality * 2;
 }
 
 bool TerrainPatch::canSubdivide() const {

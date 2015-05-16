@@ -59,7 +59,6 @@ void GameSystemEvents::onForwardDown(Sender s, ui32 a) {
     if (!m_soaState->isInputEnabled) return;
     for (auto& it : m_soaState->gameSystem->freeMoveInput) {
         it.second.tryMoveForward = true;
-        std::cout << "MOVING FORWARD\n";
     }
 }
 

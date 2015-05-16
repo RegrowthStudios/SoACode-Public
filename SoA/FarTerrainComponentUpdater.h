@@ -37,6 +37,7 @@ public:
 
 private:
     void initPatches(FarTerrainComponent& cmp, const f64v3& cameraPos);
+    // Checks and possibly shifts the far terrain patch grid to always center on the player
     void checkGridShift(FarTerrainComponent& cmp, const i32v2& newCenter);
 };
 

@@ -3,9 +3,8 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "GameManager.h"
-#include "GLProgramManager.h"
 #include "RenderTask.h"
 #include "Texture2d.h"
 

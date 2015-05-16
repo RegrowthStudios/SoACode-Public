@@ -22,6 +22,7 @@
 class Camera;
 class MainMenuSystemViewer;
 class SpaceSystem;
+class ModPathResolver;
 
 DECL_VG(class GLProgram;
         class SpriteBatch;
@@ -29,13 +30,16 @@ DECL_VG(class GLProgram;
 
 class SystemARRenderer {
 public:
+    SystemARRenderer(const ModPathResolver* textureResolver);
     ~SystemARRenderer();
     void draw(SpaceSystem* spaceSystem, const Camera* camera,
-              OPT const MainMenuSystemViewer* systemViewer, VGTexture selectorTexture,
+              OPT const MainMenuSystemViewer* systemViewer,
               const f32v2& viewport);
 
+    void dispose();
+
 private:
-    void buildShader();
+    void loadTextures();
     // Renders space paths
     void drawPaths();
     // Renders heads up display
@@ -46,10 +50,12 @@ private:
     vg::SpriteFont* m_spriteFont = nullptr;
 
     // Helper variables to avoid passing
+    const ModPathResolver* m_textureResolver = nullptr;
     SpaceSystem* m_spaceSystem = nullptr;
     const Camera* m_camera = nullptr;
     const MainMenuSystemViewer* m_systemViewer = nullptr;
     VGTexture m_selectorTexture = 0;
+    VGTexture m_baryTexture = 0;
     f32v2 m_viewport;
 
     OrbitComponentRenderer m_orbitComponentRenderer;

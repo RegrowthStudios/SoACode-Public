@@ -9,7 +9,7 @@
 
 #include "BlockData.h"
 #include "Errors.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "FileSystem.h"
 #include "GameManager.h"
 #include "ZipFile.h"
@@ -80,7 +80,6 @@ vg::Texture cloudTexture1;
 vg::Texture normalLeavesTexture, pineLeavesTexture, mushroomCapTexture, treeTrunkTexture1;
 vg::Texture waterNormalTexture;
 vg::Texture WaterTexture;
-vg::Texture skyboxTextures[6];
 vg::Texture ballMaskTexture;
 vg::Texture BlankTextureID;
 vg::Texture explosionTexture;

@@ -24,7 +24,7 @@ public:
     PauseMenuRenderStage(const PauseMenu* pauseMenu);
 
     // Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 
 private:
     const PauseMenu* _pauseMenu; ///< Handle to pause menu for rendering

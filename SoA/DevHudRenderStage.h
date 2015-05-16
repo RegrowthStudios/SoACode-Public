@@ -30,7 +30,7 @@ public:
     ~DevHudRenderStage();
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render() override;
 
     /// Cycles the Hud mode
     /// @param offset: How much to offset the current mode

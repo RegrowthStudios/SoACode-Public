@@ -15,7 +15,7 @@
 #include "FileSystem.h"
 #include "InputMapper.h"
 #include "Inputs.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
@@ -87,13 +87,6 @@ void GameManager::getTextureHandles() {
     treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
     waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
 
-    skyboxTextures[0] = textureCache->findTexture("Sky/StarSkybox/front.png");
-    skyboxTextures[1] = textureCache->findTexture("Sky/StarSkybox/right.png");
-    skyboxTextures[2] = textureCache->findTexture("Sky/StarSkybox/top.png");
-    skyboxTextures[3] = textureCache->findTexture("Sky/StarSkybox/left.png");
-    skyboxTextures[4] = textureCache->findTexture("Sky/StarSkybox/bottom.png");
-    skyboxTextures[5] = textureCache->findTexture("Sky/StarSkybox/back.png");
-
     waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
     ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
     crosshairTexture = textureCache->findTexture("GUI/crosshair.png");
@@ -101,7 +94,7 @@ void GameManager::getTextureHandles() {
     // TODO(Ben): Parallelize this
     logoTexture = textureCache->addTexture("Textures/logo.png");
     sunTexture = textureCache->addTexture("Textures/sun_texture.png");
-    BlankTextureID = textureCache->addTexture("Textures/blank.png", &vg::SamplerState::POINT_CLAMP);
+    BlankTextureID = textureCache->addTexture("Textures/blank.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::POINT_CLAMP);
     explosionTexture = textureCache->addTexture("Textures/explosion.png");
     fireTexture = textureCache->addTexture("Textures/fire.png");
 }

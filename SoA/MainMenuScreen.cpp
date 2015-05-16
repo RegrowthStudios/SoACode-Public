@@ -17,16 +17,13 @@
 #include "GameManager.h"
 #include "GameplayScreen.h"
 #include "GameplayScreen.h"
-#include "IAwesomiumAPI.h"
-#include "IAwesomiumAPI.h"
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "LoadScreen.h"
-#include "LoadTaskShaders.h"
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
 #include "MeshManager.h"
-#include "Options.h"
+#include "SoaOptions.h"
 #include "SoAState.h"
 #include "SoaEngine.h"
 #include "SpaceSystem.h"
@@ -72,7 +69,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     initInput();
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
@@ -87,12 +84,8 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
 
     // Initialize the user interface
-    m_awesomiumInterface.init("UI/MainMenu/",
-                             "MainMenu_UI",
-                             "index.html", 
-                             _app->getWindow().getWidth(), 
-                             _app->getWindow().getHeight(),
-                             this);
+    m_formFont.init("Fonts/orbitron_bold-webfont.ttf", 32);
+    initUI();
 
     // Init rendering
     initRenderPipeline();
@@ -100,21 +93,22 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     // Run the update thread for updating the planet
     m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 
-    m_inputManager->startInput();
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
-    m_inputManager->stopInput();
+    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    m_inputMapper->stopInput();
+    m_formFont.dispose();
+    m_ui.dispose();
 
     m_mainMenuSystemViewer.reset();
 
     m_threadRunning = false;
     m_updateThread->join();
     delete m_updateThread;
-    m_awesomiumInterface.destroy();
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
 
-    delete m_inputManager;
+    delete m_inputMapper;
 
     m_ambPlayer->dispose();
     m_engine->dispose();
@@ -125,23 +119,21 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
-    m_awesomiumInterface.update();
+    // Check for UI reload
+    if (m_shouldReloadUI) {
+        reloadUI();
+    }
 
-    //m_soaState->time += m_soaState->timeStep;
+    { // Handle time warp
+        const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
+        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) m_soaState->time -= TIME_WARP_SPEED;
+        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) m_soaState->time += TIME_WARP_SPEED;
+    }
+
+    m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
     m_mainMenuSystemViewer->update();
-
-
-    // Check for shader reload
-    //if (m_inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-    //    GameManager::glProgramManager->destroy();
-    //    LoadTaskShaders shaderTask(nullptr);
-    //    shaderTask.load();
-    //    // Reload the pipeline with new shaders
-    //    m_renderPipeline.destroy();
-    //    initRenderPipeline();
-    //}
 
     bdt += glSpeedFactor * 0.01;
 
@@ -157,21 +149,39 @@ void MainMenuScreen::draw(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::initInput() {
-    m_inputManager = new InputMapper;
-    initInputs(m_inputManager);
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
     // Reload space system event
+  
+    m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
+    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
+    m_inputMapper->get(INPUT_EXIT).downEvent += makeDelegate(*this, &MainMenuScreen::onQuit);
+    m_inputMapper->get(INPUT_TOGGLE_UI).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.toggleUI(); });
+    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.toggleAR(); });
+    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.cycleColorFilter(); });
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.takeScreenshot(); });
 
-    onReloadSystemDel = makeDelegate(*this, &MainMenuScreen::onReloadSystem);
-    m_inputManager->get(INPUT_RELOAD_SYSTEM).downEvent += onReloadSystemDel;
+    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
+
+    m_inputMapper->startInput();
 }
 
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    m_renderPipeline.init(viewport, &m_camera, &m_awesomiumInterface,
+    m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_camera,
                           m_soaState->spaceSystem.get(),
-                          m_mainMenuSystemViewer.get(),
-                          m_soaState->glProgramManager.get());
+                          m_mainMenuSystemViewer.get());
+}
+
+void MainMenuScreen::initUI() {
+    const ui32v2& vdims = _app->getWindow().getViewportDims();
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -243,6 +253,14 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
     ioManager.makeDirectory("cache");
 }
 
+void MainMenuScreen::reloadUI() {
+    m_ui.dispose();
+    initUI();
+
+    m_shouldReloadUI = false;
+    printf("UI was reloaded.\n");
+}
+
 void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::destroySpaceSystem(m_soaState);
     SoaEngine::SpaceSystemLoadData loadData;
@@ -250,9 +268,23 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
-                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputManager);
+                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_camera = tmp; // Restore old camera
-    m_renderPipeline.destroy();
+    m_renderPipeline.destroy(true);
     m_renderPipeline = MainMenuRenderPipeline();
     initRenderPipeline();
+}
+
+void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
+    std::cout << "Reloading Shaders\n";
+    m_renderPipeline.reloadShaders();
+}
+
+void MainMenuScreen::onQuit(Sender s, ui32 a) {
+    SoaEngine::destroyAll(m_soaState);
+    exit(0);
+}
+
+void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+    m_camera.setAspectRatio(_app->getWindow().getAspectRatio());
 }
