@@ -60,8 +60,8 @@ void App::addScreens() {
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
     scrTests.push_back(new TestVoxelModelScreen);
-    _screenList->addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_V, scrTests.back());
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_V, scrTests.back(), "TestVoxelModelScreen");
 
     // Uncomment to start from dev screen for testing other screens
 #define START_AT_DEV_SCREEN

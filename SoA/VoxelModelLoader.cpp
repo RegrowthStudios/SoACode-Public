@@ -15,6 +15,7 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
     bool ok = true;
     ui8* version = new ui8[4];
     ok = fread(&version[0], sizeof(char)*4, 1, file) == 1;
+    printf("version check: %d.%d.%d.%d\n", version[0], version[1], version[2], version[3]);
     ui32 colorFormat;
     ok = fread(&colorFormat, sizeof(ui32), 1, file) == 1;
     ui32 zAxisOrientation;
@@ -25,7 +26,8 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
     ok = fread(&visibilityMaskEncoded, sizeof(ui32), 1, file) == 1;
     ui32 numMatrices;
     ok = fread(&numMatrices, sizeof(ui32), 1, file) == 1;
-    
+    printf("colorFormat: %u\nzAxisOrientation: %u\compressed: %u\visibilityMaskEncoded: %u\nnumMatrices: %u\n", colorFormat, zAxisOrientation, compressed, visibilityMaskEncoded, numMatrices);
+
     std::vector<VoxelMatrix*> matrices;
 
     for(int i = 0; i < numMatrices; i++) {
@@ -43,8 +45,8 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
         ok = fread(&matrix->size.z, sizeof(ui32), 1, file) == 1;
 
         ok = fread(&matrix->position.x, sizeof(ui32), 1, file) == 1;
-        ok = fread(&matrix->position.x, sizeof(ui32), 1, file) == 1;
-        ok = fread(&matrix->position.x, sizeof(ui32), 1, file) == 1;
+        ok = fread(&matrix->position.y, sizeof(ui32), 1, file) == 1;
+        ok = fread(&matrix->position.z, sizeof(ui32), 1, file) == 1;
 
         matrix->data = new ColorRGBA8[matrix->size.x * matrix->size.y * matrix->size.z];
         matrices.push_back(matrix);
@@ -67,7 +69,6 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
         } else { // RLE compressed
             i32 z = 0;
             while(z < matrix->size.z) {
-                z++;
                 ui32 index = 0;
                 while(true) {
                     ui32 data = 0;
@@ -79,8 +80,8 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
                         ok = fread(&count, sizeof(ui32), 1, file) == 1;
                         ok = fread(&data, sizeof(ui32), 1, file) == 1;
                         for(i32 j = 0; j < count; j++) {
-                            i32 x = index % matrix->size.x + 1;
-                            i32 y = index / matrix->size.x + 1;
+                            i32 x = index % matrix->size.x;
+                            i32 y = index / matrix->size.x;
                             index++;
                             ui32 r = data & 0x000000ff;
                             ui32 g = (data & 0x0000ff00) >> 8;
@@ -90,8 +91,8 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
                             matrix->data[location] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
                         }
                     } else {
-                        i32 x = index % matrix->size.x + 1;
-                        i32 y = index / matrix->size.x + 1;
+                        i32 x = index % matrix->size.x;
+                        i32 y = index / matrix->size.x;
                         index++;
                         ui32 r = data & 0x000000ff;
                         ui32 g = (data & 0x0000ff00) >> 8;
@@ -101,6 +102,8 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
                         matrix->data[location] = ColorRGBA8(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
                     }
                 }
+
+                z++;
             }
         }
     }

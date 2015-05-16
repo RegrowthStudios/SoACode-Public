@@ -161,7 +161,7 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
 
 void TestVoxelModelScreen::genBlockMesh() {
     printf("Loading Models!\n");
-    std::vector<VoxelMatrix*> matrices = VoxelModelLoader::loadModel("Models\\deer.qb");
+    std::vector<VoxelMatrix*> matrices = VoxelModelLoader::loadModel("Models\\Iron_anvil.qb");
     printf("Loaded %d matrices\n", matrices.size());
     printf("Matrix Size: (%d, %d, %d)\n", matrices[0]->size.x, matrices[0]->size.y, matrices[0]->size.z);
 
