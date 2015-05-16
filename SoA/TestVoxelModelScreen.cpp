@@ -136,7 +136,7 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
 
     m_program.use();
     f32 tCenter = (f32)20 * -0.5f;
-    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, 20), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(tCenter, tCenter, tCenter);
+    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, 5), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(tCenter, tCenter, tCenter);
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
@@ -161,7 +161,7 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
 
 void TestVoxelModelScreen::genBlockMesh() {
     printf("Loading Models!\n");
-    std::vector<VoxelMatrix*> matrices = VoxelModelLoader::loadModel("Models\\Iron_anvil.qb");
+    std::vector<VoxelMatrix*> matrices = VoxelModelLoader::loadModel("Models\\deer.qb");
     printf("Loaded %d matrices\n", matrices.size());
     printf("Matrix Size: (%d, %d, %d)\n", matrices[0]->size.x, matrices[0]->size.y, matrices[0]->size.z);
 

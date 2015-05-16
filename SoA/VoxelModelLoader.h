@@ -68,10 +68,9 @@ public:
 
 class VoxelModelLoader {
 public:
-    VoxelModelLoader();
-    ~VoxelModelLoader();
-
     static std::vector<VoxelMatrix*> loadModel(const nString& filePath);
+private:
+    VoxelModelLoader();
 };
 
 #endif // VoxelModelLoader_h__
