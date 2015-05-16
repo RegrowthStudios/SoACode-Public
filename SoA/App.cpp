@@ -26,7 +26,7 @@
 void App::addScreens() {
     scrInit = new InitScreen(this);
     scrLoad = new LoadScreen(this);
-    scrMainMenu = new MainMenuScreen(this, scrLoad);
+    scrMainMenu = new MainMenuScreen(this, m_window, scrLoad);
     scrGamePlay = new GameplayScreen(this, scrMainMenu);
 
     m_screenList.addScreen(scrInit);
@@ -60,7 +60,7 @@ void App::addScreens() {
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
 
     // Uncomment to start from dev screen for testing other screens
-#define START_AT_DEV_SCREEN
+//#define START_AT_DEV_SCREEN
 #ifdef START_AT_DEV_SCREEN
     m_screenList.setScreen(scrDev->getIndex());
 #else
@@ -72,7 +72,12 @@ void App::onInit() {
     
     // Load the game options
     SoaEngine::initOptions(soaOptions);
-    SoaEngine::optionsController.setDefault();
+
+    // Set the window options
+    soaOptions.get(OPT_FULLSCREEN).value.b = m_window.isFullscreen();
+    soaOptions.get(OPT_BORDERLESS).value.b = m_window.isBorderless();
+
+    // Load the options from file
     SoaEngine::optionsController.loadOptions();
 
     vg::SamplerState::initPredefined();

@@ -31,11 +31,12 @@
 #include "TerrainPatch.h"
 #include "VoxelEditor.h"
 
-MainMenuScreen::MainMenuScreen(const App* app, const LoadScreen* loadScreen) :
+MainMenuScreen::MainMenuScreen(const App* app, vui::GameWindow* window, const LoadScreen* loadScreen) :
     IAppScreen<App>(app),
     m_loadScreen(loadScreen),
     m_updateThread(nullptr),
-    m_threadRunning(false) {
+    m_threadRunning(false),
+    m_window(window) {
     // Empty
 }
 
@@ -64,11 +65,11 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     // Get the state handle
     m_soaState = m_loadScreen->getSoAState();
                              
-    m_camera.init(_app->getWindow().getAspectRatio());
+    m_camera.init(m_window->getAspectRatio());
 
     initInput();
 
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_engine = new vsound::Engine;
     m_engine->init();
@@ -97,6 +98,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    SoaEngine::optionsController.OptionsChange -= makeDelegate(*this, &MainMenuScreen::onOptionsChange);
     m_inputMapper->stopInput();
     m_formFont.dispose();
     m_ui.dispose();
@@ -167,20 +169,21 @@ void MainMenuScreen::initInput() {
         m_renderPipeline.takeScreenshot(); });
 
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    SoaEngine::optionsController.OptionsChange += makeDelegate(*this, &MainMenuScreen::onOptionsChange);
 
     m_inputMapper->startInput();
 }
 
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
+    ui32v4 viewport(0, 0, m_window->getViewportDims());
     m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_camera,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }
 
 void MainMenuScreen::initUI() {
-    const ui32v2& vdims = _app->getWindow().getViewportDims();
+    const ui32v2& vdims = m_window->getViewportDims();
     m_ui.init("Data/UI/Forms/main_menu.form.lua", this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
 }
 
@@ -267,7 +270,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     loadData.filePath = "StarSystems/Trinity";
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_camera = tmp; // Restore old camera
     m_renderPipeline.destroy(true);
@@ -286,5 +289,9 @@ void MainMenuScreen::onQuit(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
-    m_camera.setAspectRatio(_app->getWindow().getAspectRatio());
+    m_camera.setAspectRatio(m_window->getAspectRatio());
+}
+
+void MainMenuScreen::onOptionsChange(Sender s) {
+    std::cout << "Options Change\n";
 }

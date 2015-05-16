@@ -62,6 +62,8 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_FULLSCREEN, "Fullscreen", OptionValue(false));
     options.addOption(OPT_BORDERLESS, "Borderless Window", OptionValue(false));
     options.addStringOption("Texture Pack", "Default");
+
+    SoaEngine::optionsController.setDefault();
 }
 
 void SoaEngine::initState(SoaState* state) {
