@@ -17,7 +17,6 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
     bool ok = true;
     ui8* version = new ui8[4];
     ok = fread(&version[0], sizeof(char)*4, 1, file) == 1;
-    printf("version check: %d.%d.%d.%d\n", version[0], version[1], version[2], version[3]);
     ui32 colorFormat;
     ok = fread(&colorFormat, sizeof(ui32), 1, file) == 1;
     ui32 zAxisOrientation;
@@ -28,7 +27,6 @@ std::vector<VoxelMatrix*> VoxelModelLoader::loadModel(const nString& filePath) {
     ok = fread(&visibilityMaskEncoded, sizeof(ui32), 1, file) == 1;
     ui32 numMatrices;
     ok = fread(&numMatrices, sizeof(ui32), 1, file) == 1;
-    printf("colorFormat: %u\nzAxisOrientation: %u\compressed: %u\visibilityMaskEncoded: %u\nnumMatrices: %u\n", colorFormat, zAxisOrientation, compressed, visibilityMaskEncoded, numMatrices);
 
     std::vector<VoxelMatrix*> matrices;
 

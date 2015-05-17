@@ -52,6 +52,15 @@ ui32 VOXEL_INDICES[6] = {
     1, 2, 3
 };
 
+i32v3 VOXEL_SIDES[6] = {
+    i32v3(-1, 0, 0),
+    i32v3( 1, 0, 0),
+    i32v3(0, -1, 0),
+    i32v3( 0, 1, 0),
+    i32v3( 0, 0,-1),
+    i32v3( 0, 0, 1),
+};
+
 VoxelModel::VoxelModel():
 m_matrices(),
 m_verts(0),
@@ -133,56 +142,17 @@ void VoxelModel::genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModel
     for(i32 i = 0; i < matrix->size.x; i++) {
         for(i32 j = 0; j < matrix->size.y; j++) {
             for(i32 k = 0; k < matrix->size.z; k++) {
-                ColorRGBA8 voxel = matrix->getColor(i, j, k);
-                if(voxel.a == 0) continue;
-                f32v3 offset = f32v3(i, j, k) + position;
-                ColorRGBA8 temp = matrix->getColor(i - 1, j, k);
-                if(temp.a == 0) {
-                    i32 indexStart = vertices.size();
-                    for(int l = 0; l < 4; l++)
-                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[l], voxel.rgb));
-                    for(int l = 0; l < 6; l++)
-                        indices.push_back(indexStart + VOXEL_INDICES[l]);
-                }
-                temp = matrix->getColor(i + 1, j, k);
-                if(temp.a == 0) {
-                    i32 indexStart = vertices.size();
-                    for(int l = 0; l < 4; l++)
-                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[4 + l], voxel.rgb));
-                    for(int l = 0; l < 6; l++)
-                        indices.push_back(indexStart + VOXEL_INDICES[l]);
-                }
-                temp = matrix->getColor(i, j - 1, k);
-                if(temp.a == 0) {
-                    i32 indexStart = vertices.size();
-                    for(int l = 0; l < 4; l++)
-                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[8 + l], voxel.rgb));
-                    for(int l = 0; l < 6; l++)
-                        indices.push_back(indexStart + VOXEL_INDICES[l]);
-                }
-                temp = matrix->getColor(i, j + 1, k);
-                if(temp.a == 0) {
-                    i32 indexStart = vertices.size();
-                    for(int l = 0; l < 4; l++)
-                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[12 + l], voxel.rgb));
-                    for(int l = 0; l < 6; l++)
-                        indices.push_back(indexStart + VOXEL_INDICES[l]);
-                }
-                temp = matrix->getColor(i, j, k - 1);
-                if(temp.a == 0) {
-                    i32 indexStart = vertices.size();
-                    for(int l = 0; l < 4; l++)
-                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[16 + l], voxel.rgb));
-                    for(int l = 0; l < 6; l++)
-                        indices.push_back(indexStart + VOXEL_INDICES[l]);
-                }
-                temp = matrix->getColor(i, j, k + 1);
-                if(temp.a == 0) {
-                    i32 indexStart = vertices.size();
-                    for(int l = 0; l < 4; l++)
-                        vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[20 + l], voxel.rgb));
-                    for(int l = 0; l < 6; l++)
-                        indices.push_back(indexStart + VOXEL_INDICES[l]);
+                for(i32 side = 0; side < 6; side++) {
+                    ColorRGBA8 voxel = matrix->getColor(i, j, k);
+                    if(voxel.a == 0) continue;
+                    f32v3 offset = f32v3(i, j, k) + position;
+                    if(matrix->getColor(i32v3(i, j, k) + VOXEL_SIDES[side]).a == 0) {
+                        i32 indexStart = vertices.size();
+                        for(int l = 0; l < 4; l++)
+                            vertices.push_back(VoxelModelVertex(offset + VOXEL_MODEL[side * 4 + l], voxel.rgb));
+                        for(int l = 0; l < 6; l++)
+                            indices.push_back(indexStart + VOXEL_INDICES[l]);
+                    }
                 }
             }
         }
