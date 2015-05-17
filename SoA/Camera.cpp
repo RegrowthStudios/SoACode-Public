@@ -53,7 +53,7 @@ void Camera::update() {
 }
 
 void Camera::updateView() {
-    m_viewMatrix = glm::lookAt(glm::vec3(0.0f), m_direction, m_up);
+    m_viewMatrix = glm::lookAt(f32v3((f32)m_position.x, (f32)m_position.y, (f32)m_position.z), m_direction, m_up);
 }
 
 void Camera::updateProjection() {

@@ -19,7 +19,10 @@
 
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/ui/IGameScreen.h>s
+#include <Vorb/ui/IGameScreen.h>
+
+#include "Camera.h"
+#include "VoxelModel.h"
 
 class VoxelMatrix;
 class VoxelModelVertex;
@@ -38,17 +41,18 @@ public:
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
-
-    void genBlockMesh();
-    void genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);
-
+    Camera* m_camera;
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    VGVertexBuffer m_verts;
-    VGVertexBuffer m_inds;
-    ui32 m_indCount;
-    vg::GLProgram m_program;
-    f32m4 m_mRotation;
     bool m_movingCamera;
+
+    VoxelModel* m_model;
+
+    bool m_movingForward;
+    bool m_movingBack;
+    bool m_movingLeft;
+    bool m_movingRight;
+    bool m_movingUp;
+    bool m_movingDown;
 };
 
 #endif

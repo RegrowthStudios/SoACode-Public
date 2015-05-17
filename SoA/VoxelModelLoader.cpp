@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "VoxelMatrix.h"
+
 VoxelModelLoader::VoxelModelLoader() {
     //Empty
 }

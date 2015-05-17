@@ -387,6 +387,7 @@ EXIT 0</Command>
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="VoxelBits.h" />
     <ClInclude Include="VoxelCoordinateSpaces.h" />
+    <ClInclude Include="VoxelMatrix.h" />
     <ClInclude Include="VoxelMesh.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -420,6 +421,7 @@ EXIT 0</Command>
     <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelModel.h" />
     <ClInclude Include="VoxelModelLoader.h" />
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelSpaceConversions.h" />
@@ -573,6 +575,7 @@ EXIT 0</Command>
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
+    <ClCompile Include="VoxelMatrix.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
     <ClCompile Include="ChunkMesh.cpp" />
@@ -610,6 +613,7 @@ EXIT 0</Command>
     <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
+    <ClCompile Include="VoxelModel.cpp" />
     <ClCompile Include="VoxelModelLoader.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
