@@ -34,12 +34,9 @@ TerrainPatchMesher::TerrainPatchMesher(TerrainPatchMeshManager* meshManager,
                                        PlanetGenData* planetGenData) :
     m_meshManager(meshManager),
     m_planetGenData(planetGenData) {
-    // Construct reusable index buffer object
-    if (m_sharedIbo == 0) {
-        generateIndices(m_sharedIbo);
-    }
-
+    
     m_radius = m_planetGenData->radius;
+
 }
 
 TerrainPatchMesher::~TerrainPatchMesher() {
@@ -49,6 +46,10 @@ TerrainPatchMesher::~TerrainPatchMesher() {
 void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
                                    float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
                                    bool isSpherical) {
+    // Construct reusable index buffer object
+    if (m_sharedIbo == 0) {
+        generateIndices(m_sharedIbo);
+    }
 
     m_isSpherical = isSpherical;
     m_cubeFace = cubeFace;
