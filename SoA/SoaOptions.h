@@ -1,8 +1,6 @@
 #pragma once
 #include "Errors.h"
 
-extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
-
 struct SoaOptionFlags {
     bool needsWindowReload : 1;
     bool needsFBOReload : 1;

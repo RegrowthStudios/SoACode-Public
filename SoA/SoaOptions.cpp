@@ -8,8 +8,6 @@
 #include "GameManager.h"
 #include "InputMapper.h"
 
-std::vector<ui32v2> SCREEN_RESOLUTIONS;
-
 SoaOptions soaOptions;
 
 SoaOptions::SoaOptions() {

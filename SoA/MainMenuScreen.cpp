@@ -127,6 +127,8 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
         reloadUI();
     }
 
+    m_ui.update();
+
     { // Handle time warp
         const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
         if (m_inputMapper->getInputState(INPUT_TIME_BACK)) m_soaState->time -= TIME_WARP_SPEED;
@@ -186,7 +188,7 @@ void MainMenuScreen::initRenderPipeline() {
 
 void MainMenuScreen::initUI() {
     const ui32v2& vdims = m_window->getViewportDims();
-    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &_app->getWindow(), ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
