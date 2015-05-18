@@ -304,4 +304,5 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     std::cout << "Options Change\n";
     m_window->setBorderless(soaOptions.get(OPT_BORDERLESS).value.b);
     m_window->setFullscreen(soaOptions.get(OPT_FULLSCREEN).value.b);
+    m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
 }

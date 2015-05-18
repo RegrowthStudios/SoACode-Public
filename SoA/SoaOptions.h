@@ -74,6 +74,8 @@ enum DefaultOptions : int {
     OPT_INVERT_MOUSE,
     OPT_FULLSCREEN,
     OPT_BORDERLESS,
+    OPT_SCREEN_WIDTH,
+    OPT_SCREEN_HEIGHT,
     OPT_NUM_OPTIONS // This should be last
 };
 

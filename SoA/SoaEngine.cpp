@@ -61,6 +61,8 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_INVERT_MOUSE, "Invert Mouse", OptionValue(false));
     options.addOption(OPT_FULLSCREEN, "Fullscreen", OptionValue(false));
     options.addOption(OPT_BORDERLESS, "Borderless Window", OptionValue(false));
+    options.addOption(OPT_SCREEN_WIDTH, "Screen Width", OptionValue(1280));
+    options.addOption(OPT_SCREEN_HEIGHT, "Screen Height", OptionValue(720));
     options.addStringOption("Texture Pack", "Default");
 
     SoaEngine::optionsController.setDefault();

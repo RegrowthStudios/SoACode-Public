@@ -76,6 +76,8 @@ void App::onInit() {
     // Set the window options
     soaOptions.get(OPT_FULLSCREEN).value.b = m_window.isFullscreen();
     soaOptions.get(OPT_BORDERLESS).value.b = m_window.isBorderless();
+    soaOptions.get(OPT_SCREEN_WIDTH).value.i = m_window.getWidth();
+    soaOptions.get(OPT_SCREEN_HEIGHT).value.i = m_window.getHeight();
 
     // Load the options from file
     SoaEngine::optionsController.loadOptions();
