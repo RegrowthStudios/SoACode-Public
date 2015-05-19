@@ -293,9 +293,11 @@ void MainMenuScreen::onQuit(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
-    m_ui.onOptionsChanged();
+    SoaEngine::optionsController.setInt("Screen Width", e.w);
+    SoaEngine::optionsController.setInt("Screen Height", e.h);
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
+    m_ui.onOptionsChanged();
     m_camera.setAspectRatio(m_window->getAspectRatio());
 }
 
@@ -304,8 +306,12 @@ void MainMenuScreen::onWindowClose(Sender s) {
 }
 
 void MainMenuScreen::onOptionsChange(Sender s) {
-    std::cout << "Options Change\n";
+    m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
     m_window->setBorderless(soaOptions.get(OPT_BORDERLESS).value.b);
     m_window->setFullscreen(soaOptions.get(OPT_FULLSCREEN).value.b);
-    m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
+    if (soaOptions.get(OPT_VSYNC).value.b) {
+        m_window->setSwapInterval(vui::GameSwapInterval::V_SYNC);
+    } else {
+        m_window->setSwapInterval(vui::GameSwapInterval::UNLIMITED_FPS);
+    }
 }

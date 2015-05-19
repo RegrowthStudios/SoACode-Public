@@ -78,6 +78,7 @@ void App::onInit() {
     soaOptions.get(OPT_BORDERLESS).value.b = m_window.isBorderless();
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = m_window.getWidth();
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = m_window.getHeight();
+    soaOptions.get(OPT_VSYNC).value.i = (m_window.getSwapInterval() == vui::GameSwapInterval::V_SYNC);
 
     // Load the options from file
     SoaEngine::optionsController.loadOptions();

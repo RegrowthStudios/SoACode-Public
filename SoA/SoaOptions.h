@@ -66,6 +66,7 @@ enum DefaultOptions : int {
     OPT_GAMMA,
     OPT_SEC_COLOR_MULT,
     OPT_FOV,
+    OPT_VSYNC,
     OPT_MAX_FPS,
     OPT_VOXEL_LOD_THRESHOLD,
     OPT_MUSIC_VOLUME,
