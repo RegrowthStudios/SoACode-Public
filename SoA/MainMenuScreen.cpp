@@ -294,6 +294,8 @@ void MainMenuScreen::onQuit(Sender s, ui32 a) {
 
 void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     m_ui.onOptionsChanged();
+    soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
+    soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
     m_camera.setAspectRatio(m_window->getAspectRatio());
 }
 
