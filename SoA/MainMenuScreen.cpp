@@ -188,7 +188,7 @@ void MainMenuScreen::initRenderPipeline() {
 
 void MainMenuScreen::initUI() {
     const ui32v2& vdims = m_window->getViewportDims();
-    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &_app->getWindow(), ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -293,6 +293,7 @@ void MainMenuScreen::onQuit(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+    m_ui.onOptionsChanged();
     m_camera.setAspectRatio(m_window->getAspectRatio());
 }
 

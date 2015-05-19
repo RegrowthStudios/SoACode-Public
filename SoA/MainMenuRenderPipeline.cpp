@@ -180,7 +180,7 @@ void MainMenuRenderPipeline::resize() {
     m_spaceSystemRenderStage->setViewport(m_newDims);
     m_logLuminanceRenderStage->setFrameBuffer(m_hdrFrameBuffer);
 
-    m_mainMenuUI->setDimensions(m_newDims);
+    m_mainMenuUI->setDimensions(f32v2(m_newDims));
 
     m_shouldResize = false;
 }
