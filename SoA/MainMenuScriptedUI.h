@@ -44,5 +44,4 @@ protected:
     InputMapper* m_inputMapper = nullptr;
 };
 
-
 #endif // MainMenuScriptedUI_h__
