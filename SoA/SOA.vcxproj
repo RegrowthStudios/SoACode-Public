@@ -39,14 +39,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -87,7 +87,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>SoA</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
   </PropertyGroup>
@@ -101,7 +101,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>SoA</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
   </PropertyGroup>
@@ -111,7 +111,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;VORB_IMPL_GRAPHICS_OPENGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions>VORB_USING_PCH;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -125,7 +125,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>awesomium.lib;Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -149,7 +149,7 @@ EXIT 0</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>VORB_USING_PCH;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -162,7 +162,7 @@ EXIT 0</Command>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>awesomium.lib;Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -191,7 +191,7 @@ EXIT 0</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>VORB_USING_PCH;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -206,7 +206,7 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>awesomium.lib;Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
@@ -236,7 +236,7 @@ EXIT 0</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>VORB_USING_PCH;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -251,7 +251,7 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>awesomium.lib;Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>

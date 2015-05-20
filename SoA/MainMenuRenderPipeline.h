@@ -19,6 +19,7 @@
 #include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/Events.hpp>
 
 /// Forward declarations
 class Camera;
