@@ -100,15 +100,15 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_spriteBatch.init();
     m_spriteFont.init("Fonts/orbitron_black-webfont.ttf", 32);
 
-    m_hdrFrameBuffer = new vg::GLRenderTarget(_game->getWindow().getViewportDims());
+    m_hdrFrameBuffer = new vg::GLRenderTarget(m_game->getWindow().getViewportDims());
     m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, 0).initDepth();
 
     m_quad.init();
     m_hdr = new HdrRenderStage(&m_quad, &m_camera);
 
     m_camera.setFieldOfView(90.0f);
-    f32 width = _game->getWindow().getWidth();
-    f32 height = _game->getWindow().getHeight();
+    f32 width = m_game->getWindow().getWidth();
+    f32 height = m_game->getWindow().getHeight();
     m_camera.setAspectRatio(width / height);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
     m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
@@ -205,8 +205,8 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     m_spriteBatch.end();
 
 
-    f32 width = _game->getWindow().getWidth();
-    f32 height = _game->getWindow().getHeight();
+    f32 width = m_game->getWindow().getWidth();
+    f32 height = m_game->getWindow().getHeight();
     m_spriteBatch.render(f32v2(width, height));
 
     vg::DepthState::FULL.set();

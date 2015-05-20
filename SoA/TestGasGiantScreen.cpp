@@ -70,8 +70,8 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
                                   1.0f / powf(0.65f, 4.0f));
 
     m_camera.setFieldOfView(90.0f);
-    f32 width = _game->getWindow().getWidth();
-    f32 height = _game->getWindow().getHeight();
+    f32 width = m_game->getWindow().getWidth();
+    f32 height = m_game->getWindow().getHeight();
     m_camera.setAspectRatio(width / height);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
     m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));

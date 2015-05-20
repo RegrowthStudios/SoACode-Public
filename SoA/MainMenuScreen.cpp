@@ -45,7 +45,7 @@ MainMenuScreen::~MainMenuScreen() {
 }
 
 i32 MainMenuScreen::getNextScreen() const {
-    return _app->scrGamePlay->getIndex();
+    return m_app->scrGamePlay->getIndex();
 }
 
 i32 MainMenuScreen::getPreviousScreen() const {
@@ -188,7 +188,7 @@ void MainMenuScreen::initRenderPipeline() {
 
 void MainMenuScreen::initUI() {
     const ui32v2& vdims = m_window->getViewportDims();
-    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &m_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -203,7 +203,7 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    _state = vui::ScreenState::CHANGE_NEXT;
+    m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::newGame(const nString& fileName) {
@@ -221,7 +221,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     initSaveIomanager(fileName);  
 
-    _state = vui::ScreenState::CHANGE_NEXT;
+    m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {
