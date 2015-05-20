@@ -48,31 +48,43 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateComet() {
 }
 
 VGTexture PlanetGenerator::getRandomColorMap() {
+    static const int WIDTH = 256;
+    color4 pixels[WIDTH][WIDTH];
     static std::mt19937 generator(1053);
-    static std::uniform_int_distribution<int> colors(0, 6);
+    static std::uniform_int_distribution<int> numColors(1, 12);
+    static std::uniform_int_distribution<int> rPos(0, WIDTH - 1);
+    static std::uniform_int_distribution<int> rColor(0, 255);
 
-    int r = colors(generator);
-    ui8v4 color;
-
-    switch (r) {
-        case 0:
-            color = ui8v4(255, 0, 0, 255); break;
-        case 1:
-            color = ui8v4(0, 255, 0, 255); break;
-        case 2:
-            color = ui8v4(0, 0, 255, 255); break;
-        case 3:
-            color = ui8v4(255, 255, 0, 255); break;
-        case 4:
-            color = ui8v4(0, 255, 255, 255); break;
-        case 5:
-            color = ui8v4(255, 255, 255, 255); break;
-        case 6:
-            color = ui8v4(128, 128, 128, 255); break;
-        default:
-            break;
+    int numPoints = numColors(generator);
+    std::vector<color4> randColors(numPoints);
+    std::vector<i32v2> randPoints(numPoints);
+    for (int i = 0; i < numPoints; i++) {
+        randColors[i].r = (ui8)rColor(generator);
+        randColors[i].g = (ui8)rColor(generator);
+        randColors[i].b = (ui8)rColor(generator);
+        randColors[i].a = (ui8)255;
+        randPoints[i].x = rPos(generator);
+        randPoints[i].y = rPos(generator);
+    }
+    
+    // Voronoi diagram generation
+    for (int y = 0; y < WIDTH; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            int closestDist = INT_MAX;
+            int closestIndex = 0;
+            for (int i = 0; i < numPoints; i++) {
+                int dx = (x - randPoints[i].x);
+                int dy = (y - randPoints[i].y);
+                int dist = dx * dx + dy * dy;
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestIndex = i;
+                }
+            }
+            pixels[y][x] = randColors[closestIndex];
+        }
     }
 
-    return vg::GpuMemory::uploadTexture(&color[0], 1, 1, vg::TexturePixelType::UNSIGNED_BYTE,
-                                        vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::POINT_CLAMP);
+    return vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
+                                        vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
 }
