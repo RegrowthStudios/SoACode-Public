@@ -24,21 +24,23 @@ void OptionsController::loadOptions() {
 
 void OptionsController::saveOptions() {
     soaOptions = m_tempCopy;
+    OptionsChange();
 }
 
 void OptionsController::restoreDefault() {
     soaOptions = m_default;
     m_tempCopy = m_default;
+    OptionsChange();
 }
 
 void OptionsController::registerScripting(vscript::Environment* env) {
     env->setNamespaces("Options");
-    env->addCDelegate("setOptionInt", makeDelegate(*this, &OptionsController::setOptionInt));
-    env->addCDelegate("setOptionFloat", makeDelegate(*this, &OptionsController::setOptionFloat));
-    env->addCDelegate("setOptionBool", makeDelegate(*this, &OptionsController::setOptionBool));
-    env->addCRDelegate("getOptionInt", makeRDelegate(*this, &OptionsController::getOptionInt));
-    env->addCRDelegate("getOptionFloat", makeRDelegate(*this, &OptionsController::getOptionFloat));
-    env->addCRDelegate("getOptionBool", makeRDelegate(*this, &OptionsController::getOptionBool));
+    env->addCDelegate("setInt", makeDelegate(*this, &OptionsController::setInt));
+    env->addCDelegate("setFloat", makeDelegate(*this, &OptionsController::setFloat));
+    env->addCDelegate("setBool", makeDelegate(*this, &OptionsController::setBool));
+    env->addCRDelegate("getInt", makeRDelegate(*this, &OptionsController::getInt));
+    env->addCRDelegate("getFloat", makeRDelegate(*this, &OptionsController::getFloat));
+    env->addCRDelegate("getBool", makeRDelegate(*this, &OptionsController::getBool));
     env->addCDelegate("beginContext", makeDelegate(*this, &OptionsController::beginContext));
     env->addCDelegate("save", makeDelegate(*this, &OptionsController::saveOptions));
     env->addCDelegate("load", makeDelegate(*this, &OptionsController::loadOptions));
@@ -46,35 +48,35 @@ void OptionsController::registerScripting(vscript::Environment* env) {
     env->setNamespaces();
 }
 
-void OptionsController::setOptionInt(nString optionName, int val) {
+void OptionsController::setInt(nString optionName, int val) {
     auto& option = m_tempCopy.get(optionName);
     if (option.value.i != val) {
         option.value.i = val;
     }
 }
 
-void OptionsController::setOptionFloat(nString optionName, f32 val) {
+void OptionsController::setFloat(nString optionName, f32 val) {
     auto& option = m_tempCopy.get(optionName);
     if (option.value.f != val) {
         option.value.f = val;
     }
 }
 
-void OptionsController::setOptionBool(nString optionName, bool val) {
+void OptionsController::setBool(nString optionName, bool val) {
     auto& option = m_tempCopy.get(optionName);
     if (option.value.b != val) {
         option.value.b = val;
     }
 }
 
-int OptionsController::getOptionInt(nString optionName) {
+int OptionsController::getInt(nString optionName) {
     return m_tempCopy.get(optionName).value.i;
 }
 
-f32 OptionsController::getOptionFloat(nString optionName) {
+f32 OptionsController::getFloat(nString optionName) {
     return m_tempCopy.get(optionName).value.f;
 }
 
-bool OptionsController::getOptionBool(nString optionName) {
+bool OptionsController::getBool(nString optionName) {
     return m_tempCopy.get(optionName).value.b;
 }

@@ -32,9 +32,9 @@ const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
 const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 
 CTOR_APP_SCREEN_DEF(LoadScreen, App),
-_sf(nullptr),
-_sb(nullptr),
-_monitor(),
+m_sf(nullptr),
+m_sb(nullptr),
+m_monitor(),
 m_glrpc() {
     // Empty
 }
@@ -44,7 +44,7 @@ LoadScreen::~LoadScreen() {
 }
 
 i32 LoadScreen::getNextScreen() const {
-    return _app->scrMainMenu->getIndex();
+    return m_app->scrMainMenu->getIndex();
 }
 i32 LoadScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
@@ -67,9 +67,9 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     SoaEngine::initState(m_soaState.get());
 
     // Make LoadBar Resources
-    _sb = new vg::SpriteBatch(true, true);
-    _sf = new vg::SpriteFont();
-    _sf->init("Fonts/orbitron_bold-webfont.ttf", 32);
+    m_sb = new vg::SpriteBatch(true, true);
+    m_sf = new vg::SpriteFont();
+    m_sf->init("Fonts/orbitron_bold-webfont.ttf", 32);
 
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
@@ -78,7 +78,7 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     //_monitor.setDep("BlockData", "GameManager");
 
     addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_soaState.get()));
-    _monitor.setDep("SpaceSystem", "GameManager");
+    m_monitor.setDep("SpaceSystem", "GameManager");
 
     // TODO(Ben): Uncomment after demo build!
    // addLoadTask("Textures", "Textures", new LoadTaskTextures);
@@ -86,30 +86,30 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
    // _monitor.setDep("Textures", "SpaceSystem");
 
     // Start the tasks
-    _monitor.start();
+    m_monitor.start();
 
     // Clear State For The Screen
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
 void LoadScreen::onExit(const vui::GameTime& gameTime) {
-    _sf->dispose();
-    delete _sf;
-    _sf = nullptr;
+    m_sf->dispose();
+    delete m_sf;
+    m_sf = nullptr;
 
-    _sb->dispose();
-    delete _sb;
-    _sb = nullptr;
+    m_sb->dispose();
+    delete m_sb;
+    m_sb = nullptr;
 
     // Free the vector memory
-    std::vector<LoadBar>().swap(_loadBars);
+    std::vector<LoadBar>().swap(m_loadBars);
 
-    for (ui32 i = 0; i < _loadTasks.size(); i++) {
+    for (ui32 i = 0; i < m_loadTasks.size(); i++) {
         // Free memory
-        delete _loadTasks[i];
-        _loadTasks[i] = nullptr;
+        delete m_loadTasks[i];
+        m_loadTasks[i] = nullptr;
     }
-    std::vector<ILoadTask*>().swap(_loadTasks);
+    std::vector<ILoadTask*>().swap(m_loadTasks);
 
     // Restore default rasterizer state
     vg::RasterizerState::CULL_CLOCKWISE.set();
@@ -118,15 +118,15 @@ void LoadScreen::onExit(const vui::GameTime& gameTime) {
 void LoadScreen::update(const vui::GameTime& gameTime) {
     static ui64 fCounter = 0;
 
-    for (ui32 i = 0; i < _loadTasks.size(); i++) {
-        if (_loadTasks[i] != nullptr && _loadTasks[i]->isFinished()) {
+    for (ui32 i = 0; i < m_loadTasks.size(); i++) {
+        if (m_loadTasks[i] != nullptr && m_loadTasks[i]->isFinished()) {
             // Make The Task Visuals Disappear
-            _loadBars[i].setColor(color::Black, color::Teal);
-            _loadBars[i].retract();
+            m_loadBars[i].setColor(color::Black, color::Teal);
+            m_loadBars[i].retract();
         }
 
         // Update Visual Position
-        _loadBars[i].update((f32)gameTime.elapsed);
+        m_loadBars[i].update((f32)gameTime.elapsed);
     }
 
     // Perform OpenGL calls
@@ -135,8 +135,8 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
 
     // Defer texture loading
     // TODO(BEN): Uncomment after demo build
-    if (_monitor.isTaskFinished("SpaceSystem")) {
-        _state = vui::ScreenState::CHANGE_NEXT;
+    if (m_monitor.isTaskFinished("SpaceSystem")) {
+        m_state = vui::ScreenState::CHANGE_NEXT;
     }
     //static bool loadedTextures = false;
     //if (!loadedTextures && _monitor.isTaskFinished("Textures")) {
@@ -175,38 +175,38 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     //}
 }
 void LoadScreen::draw(const vui::GameTime& gameTime) {
-    const vui::GameWindow* w = &_game->getWindow();
+    const vui::GameWindow* w = &m_game->getWindow();
 
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    _sb->begin();
-    for (ui32 i = 0; i < _loadTasks.size(); i++) {
-        _loadBars[i].draw(_sb, _sf, 0, 0.8f);
+    m_sb->begin();
+    for (ui32 i = 0; i < m_loadTasks.size(); i++) {
+        m_loadBars[i].draw(m_sb, m_sf, 0, 0.8f);
     }
 
-    _sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
+    m_sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
 
-    _sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+    m_sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
     checkGlError("LoadScreen::draw()");
     
 }
 
 void LoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
     // Add the load task to the monitor
-    _loadTasks.push_back(task);
-    _monitor.addTask(name, _loadTasks.back());
+    m_loadTasks.push_back(task);
+    m_monitor.addTask(name, m_loadTasks.back());
 
     // Load bar properties
     LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
     // Add the new loadbar and get its index
-    int i = _loadBars.size();
-    _loadBars.emplace_back();
+    int i = m_loadBars.size();
+    m_loadBars.emplace_back();
 
     // Set the properties
-    _loadBars[i].setCommonProperties(lbcp);
-    _loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
-    _loadBars[i].expand();
-    _loadBars[i].setColor(color::Black, color::Maroon);
-    _loadBars[i].setText(loadText);
+    m_loadBars[i].setCommonProperties(lbcp);
+    m_loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
+    m_loadBars[i].expand();
+    m_loadBars[i].setColor(color::Black, color::Maroon);
+    m_loadBars[i].setText(loadText);
 }

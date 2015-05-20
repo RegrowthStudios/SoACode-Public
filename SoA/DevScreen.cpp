@@ -56,13 +56,13 @@ void DevScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void DevScreen::update(const vui::GameTime& gameTime) {
-    if (m_nextScreen) _state = vui::ScreenState::CHANGE_NEXT;
+    if (m_nextScreen) m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void DevScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const vui::GameWindow* w = &_game->getWindow();
+    const vui::GameWindow* w = &m_game->getWindow();
 
     m_sb->begin();
 

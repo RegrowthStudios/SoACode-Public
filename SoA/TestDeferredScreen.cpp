@@ -45,7 +45,7 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     buildGeometry();
     buildLightMaps();
 
-    m_gbuffer = vg::GBuffer(_game->getWindow().getWidth(), _game->getWindow().getHeight());
+    m_gbuffer = vg::GBuffer(m_game->getWindow().getWidth(), m_game->getWindow().getHeight());
     Array<vg::GBufferAttachment> ga;
     ga.setData(4);
     ga[0].format = vg::TextureInternalFormat::RGBA16F;
@@ -301,7 +301,7 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     /************************************************************************/
     /* Compose deferred and lighting                                        */
     /************************************************************************/
-    vg::GLRenderTarget::unuse(_game->getWindow().getWidth(), _game->getWindow().getHeight());
+    vg::GLRenderTarget::unuse(m_game->getWindow().getWidth(), m_game->getWindow().getHeight());
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -329,7 +329,7 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     m_sb.draw(m_gbuffer.getGeometryTexture(2), f32v2(400, 0), f32v2(200, 150), color::White);
     m_sb.draw(m_gbuffer.getLightTexture(), f32v2(600, 0), f32v2(200, 150), color::White);
     m_sb.end();
-    m_sb.render(f32v2(_game->getWindow().getWidth(), _game->getWindow().getHeight()));
+    m_sb.render(f32v2(m_game->getWindow().getWidth(), m_game->getWindow().getHeight()));
 }
 
 void TestDeferredScreen::buildGeometry() {

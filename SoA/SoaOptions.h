@@ -1,8 +1,6 @@
 #pragma once
 #include "Errors.h"
 
-extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
-
 struct SoaOptionFlags {
     bool needsWindowReload : 1;
     bool needsFBOReload : 1;
@@ -68,6 +66,7 @@ enum DefaultOptions : int {
     OPT_GAMMA,
     OPT_SEC_COLOR_MULT,
     OPT_FOV,
+    OPT_VSYNC,
     OPT_MAX_FPS,
     OPT_VOXEL_LOD_THRESHOLD,
     OPT_MUSIC_VOLUME,
@@ -76,6 +75,8 @@ enum DefaultOptions : int {
     OPT_INVERT_MOUSE,
     OPT_FULLSCREEN,
     OPT_BORDERLESS,
+    OPT_SCREEN_WIDTH,
+    OPT_SCREEN_HEIGHT,
     OPT_NUM_OPTIONS // This should be last
 };
 

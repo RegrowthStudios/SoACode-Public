@@ -21,6 +21,7 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/io/keg.h>
+#include <Vorb/ui/GameWindow.h>
 
 #define M_PER_KM 1000.0
 
@@ -53,6 +54,7 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_GAMMA, "Gamma", OptionValue(1.0f));
     options.addOption(OPT_SEC_COLOR_MULT, "Sec Color Mult", OptionValue(0.1f)); //TODO(Ben): Useless?
     options.addOption(OPT_FOV, "FOV", OptionValue(70.0f));
+    options.addOption(OPT_VSYNC, "VSYNC", OptionValue(true));
     options.addOption(OPT_MAX_FPS, "Max FPS", OptionValue(60.0f)); //TODO(Ben): appdata.config?
     options.addOption(OPT_VOXEL_LOD_THRESHOLD, "Voxel LOD Threshold", OptionValue(128.0f));
     options.addOption(OPT_MUSIC_VOLUME, "Music Volume", OptionValue(1.0f));
@@ -61,7 +63,11 @@ void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_INVERT_MOUSE, "Invert Mouse", OptionValue(false));
     options.addOption(OPT_FULLSCREEN, "Fullscreen", OptionValue(false));
     options.addOption(OPT_BORDERLESS, "Borderless Window", OptionValue(false));
+    options.addOption(OPT_SCREEN_WIDTH, "Screen Width", OptionValue(1280));
+    options.addOption(OPT_SCREEN_HEIGHT, "Screen Height", OptionValue(720));
     options.addStringOption("Texture Pack", "Default");
+
+    SoaEngine::optionsController.setDefault();
 }
 
 void SoaEngine::initState(SoaState* state) {

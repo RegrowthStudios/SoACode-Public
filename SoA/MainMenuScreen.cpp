@@ -31,11 +31,12 @@
 #include "TerrainPatch.h"
 #include "VoxelEditor.h"
 
-MainMenuScreen::MainMenuScreen(const App* app, const LoadScreen* loadScreen) :
+MainMenuScreen::MainMenuScreen(const App* app, vui::GameWindow* window, const LoadScreen* loadScreen) :
     IAppScreen<App>(app),
     m_loadScreen(loadScreen),
     m_updateThread(nullptr),
-    m_threadRunning(false) {
+    m_threadRunning(false),
+    m_window(window) {
     // Empty
 }
 
@@ -44,7 +45,7 @@ MainMenuScreen::~MainMenuScreen() {
 }
 
 i32 MainMenuScreen::getNextScreen() const {
-    return _app->scrGamePlay->getIndex();
+    return m_app->scrGamePlay->getIndex();
 }
 
 i32 MainMenuScreen::getPreviousScreen() const {
@@ -64,11 +65,11 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     // Get the state handle
     m_soaState = m_loadScreen->getSoAState();
                              
-    m_camera.init(_app->getWindow().getAspectRatio());
+    m_camera.init(m_window->getAspectRatio());
 
     initInput();
 
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_engine = new vsound::Engine;
     m_engine->init();
@@ -97,6 +98,8 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    vui::InputDispatcher::window.onClose -= makeDelegate(*this, &MainMenuScreen::onWindowClose);
+    SoaEngine::optionsController.OptionsChange -= makeDelegate(*this, &MainMenuScreen::onOptionsChange);
     m_inputMapper->stopInput();
     m_formFont.dispose();
     m_ui.dispose();
@@ -123,6 +126,8 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadUI) {
         reloadUI();
     }
+
+    m_ui.update();
 
     { // Handle time warp
         const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
@@ -167,21 +172,23 @@ void MainMenuScreen::initInput() {
         m_renderPipeline.takeScreenshot(); });
 
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    vui::InputDispatcher::window.onClose += makeDelegate(*this, &MainMenuScreen::onWindowClose);
+    SoaEngine::optionsController.OptionsChange += makeDelegate(*this, &MainMenuScreen::onOptionsChange);
 
     m_inputMapper->startInput();
 }
 
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
+    ui32v4 viewport(0, 0, m_window->getViewportDims());
     m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_camera,
                           m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }
 
 void MainMenuScreen::initUI() {
-    const ui32v2& vdims = _app->getWindow().getViewportDims();
-    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, ui32v4(0u, 0u, vdims.x, vdims.y), &m_formFont);
+    const ui32v2& vdims = m_window->getViewportDims();
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &m_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
@@ -196,7 +203,7 @@ void MainMenuScreen::loadGame(const nString& fileName) {
         return;
     }
 
-    _state = vui::ScreenState::CHANGE_NEXT;
+    m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::newGame(const nString& fileName) {
@@ -214,7 +221,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     initSaveIomanager(fileName);  
 
-    _state = vui::ScreenState::CHANGE_NEXT;
+    m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::updateThreadFunc() {
@@ -267,7 +274,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     loadData.filePath = "StarSystems/Trinity";
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(_app->getWindow().getViewportDims(),
+    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_camera = tmp; // Restore old camera
     m_renderPipeline.destroy(true);
@@ -276,7 +283,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
-    std::cout << "Reloading Shaders\n";
+    printf("Reloading Shaders\n");
     m_renderPipeline.reloadShaders();
 }
 
@@ -286,5 +293,25 @@ void MainMenuScreen::onQuit(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
-    m_camera.setAspectRatio(_app->getWindow().getAspectRatio());
+    SoaEngine::optionsController.setInt("Screen Width", e.w);
+    SoaEngine::optionsController.setInt("Screen Height", e.h);
+    soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
+    soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
+    m_ui.onOptionsChanged();
+    m_camera.setAspectRatio(m_window->getAspectRatio());
+}
+
+void MainMenuScreen::onWindowClose(Sender s) {
+    onQuit(s, 0);
+}
+
+void MainMenuScreen::onOptionsChange(Sender s) {
+    m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
+    m_window->setBorderless(soaOptions.get(OPT_BORDERLESS).value.b);
+    m_window->setFullscreen(soaOptions.get(OPT_FULLSCREEN).value.b);
+    if (soaOptions.get(OPT_VSYNC).value.b) {
+        m_window->setSwapInterval(vui::GameSwapInterval::V_SYNC);
+    } else {
+        m_window->setSwapInterval(vui::GameSwapInterval::UNLIMITED_FPS);
+    }
 }

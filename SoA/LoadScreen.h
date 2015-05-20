@@ -38,13 +38,13 @@ private:
     std::unique_ptr<SoaState> m_soaState = nullptr;
 
     // Visualization Of Loading Tasks
-    std::vector<LoadBar> _loadBars;
-    vg::SpriteBatch* _sb;
-    vg::SpriteFont* _sf;
+    std::vector<LoadBar> m_loadBars;
+    vg::SpriteBatch* m_sb;
+    vg::SpriteFont* m_sf;
 
     // Loading Tasks
-    LoadMonitor _monitor;
-    std::vector<ILoadTask*> _loadTasks;
+    LoadMonitor m_monitor;
+    std::vector<ILoadTask*> m_loadTasks;
 
     vcore::RPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
 };

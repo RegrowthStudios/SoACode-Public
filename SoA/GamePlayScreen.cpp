@@ -115,8 +115,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Space System");
 
     // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
-    if (_app->getFps()) {
-        glSpeedFactor = 60.0f / _app->getFps();
+    if (m_app->getFps()) {
+        glSpeedFactor = 60.0f / m_app->getFps();
         if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
             glSpeedFactor = 3.0f;
         }
@@ -209,11 +209,11 @@ void GameplayScreen::unPause() {
 }
 
 i32 GameplayScreen::getWindowWidth() const {
-    return _app->getWindow().getWidth();
+    return m_app->getWindow().getWidth();
 }
 
 i32 GameplayScreen::getWindowHeight() const {
-    return _app->getWindow().getHeight();
+    return m_app->getWindow().getHeight();
 }
 
 void GameplayScreen::initInput() {
@@ -292,9 +292,9 @@ void GameplayScreen::initInput() {
 
 void GameplayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
+    ui32v4 viewport(0, 0, m_app->getWindow().getViewportDims());
     m_renderPipeline.init(viewport, m_soaState,
-                          _app, &m_pda,
+                          m_app, &m_pda,
                           m_soaState->spaceSystem.get(),
                           m_soaState->gameSystem.get(),
                           &m_pauseMenu);
@@ -355,7 +355,7 @@ void GameplayScreen::updateWorldCameraClip() {
     if (nearClip < 0.1) nearClip = 0.1;
     double a = 0.0;
     // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(soaOptions.get(OPT_FOV).value.f / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
+    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(soaOptions.get(OPT_FOV).value.f / 2.0), 2.0) * (pow((double)m_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
     if (a < 0) a = 0;
 
     double clip = MAX(nearClip / planetScale * 0.5, a);

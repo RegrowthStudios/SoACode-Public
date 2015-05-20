@@ -41,11 +41,10 @@ DECL_VUI(struct WindowResizeEvent);
 class AmbienceLibrary;
 class AmbiencePlayer;
 
-class MainMenuScreen : public vui::IAppScreen<App>
-{
-    friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
+class MainMenuScreen : public vui::IAppScreen<App> {
+    friend class MainMenuScriptedUI;
 public:
-    MainMenuScreen(const App* app, const LoadScreen* loadScreen);
+    MainMenuScreen(const App* app, vui::GameWindow* window, const LoadScreen* loadScreen);
     ~MainMenuScreen();
 
     virtual i32 getNextScreen() const;
@@ -99,6 +98,8 @@ private:
     void onReloadShaders(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);
     void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
+    void onWindowClose(Sender s);
+    void onOptionsChange(Sender s);
     // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;
@@ -120,11 +121,12 @@ private:
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
     MainMenuScriptedUI m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
-
+    
     // TODO: Remove to a client state
-    vsound::Engine* m_engine;
-    AmbienceLibrary* m_ambLibrary;
-    AmbiencePlayer* m_ambPlayer;
+    vsound::Engine* m_engine = nullptr;
+    AmbienceLibrary* m_ambLibrary = nullptr;
+    AmbiencePlayer* m_ambPlayer = nullptr;
+    vui::GameWindow* m_window = nullptr;
 
     bool m_shouldReloadUI = false;
 };
