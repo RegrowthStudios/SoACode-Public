@@ -72,7 +72,7 @@ public:
     /// If the input does not exist return UINT32_MAX.
     /// @param id: The id of the input to look up.
     /// @return The id of the positive key of the input.
-    VirtualKey getKey(const i32 id);
+    VirtualKey getKey(const InputID id);
 
     /// Set the positive key of the supplied input.
     /// @param id: The id of the input to look up.

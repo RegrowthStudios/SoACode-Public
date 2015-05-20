@@ -41,9 +41,8 @@ DECL_VUI(struct WindowResizeEvent);
 class AmbienceLibrary;
 class AmbiencePlayer;
 
-class MainMenuScreen : public vui::IAppScreen<App>
-{
-    friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
+class MainMenuScreen : public vui::IAppScreen<App> {
+    friend class MainMenuScriptedUI;
 public:
     MainMenuScreen(const App* app, vui::GameWindow* window, const LoadScreen* loadScreen);
     ~MainMenuScreen();

@@ -283,7 +283,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
-    std::cout << "Reloading Shaders\n";
+    printf("Reloading Shaders\n");
     m_renderPipeline.reloadShaders();
 }
 
