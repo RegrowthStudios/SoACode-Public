@@ -17,9 +17,9 @@ MainMenuScriptedUI::~MainMenuScriptedUI() {
     // Empty
 }
 
-void MainMenuScriptedUI::init(const nString& startFormPath, MainMenuScreen* ownerScreen, const vui::GameWindow* window, const f32v4& destRect, vg::SpriteFont* defaultFont /*= nullptr*/) {
-    ScriptedUI::init(startFormPath, ownerScreen, window, destRect, defaultFont);
-    m_inputMapper = ownerScreen->m_inputMapper;
+void MainMenuScriptedUI::init(const nString& startFormPath, vui::IGameScreen* ownerScreen, const vui::GameWindow* window, const f32v4& destRect, vg::SpriteFont* defaultFont /*= nullptr*/) {
+    m_inputMapper = ((MainMenuScreen*)ownerScreen)->m_inputMapper; 
+    ScriptedUI::init(startFormPath, ownerScreen, window, destRect, defaultFont); 
 }
 
 
@@ -31,7 +31,7 @@ void MainMenuScriptedUI::registerScriptValues(vui::FormScriptEnvironment* newFor
 
     // Controls menu stuff
     env->setNamespaces("Controls");
-    env->addCRDelegate("getSize", makeRDelegate(*this, &MainMenuScriptedUI::getNumInputs));
+    env->addCRDelegate("size", makeRDelegate(*this, &MainMenuScriptedUI::getNumInputs));
     env->addCRDelegate("getInput", makeRDelegate(*this, &MainMenuScriptedUI::getInput));
     env->addCRDelegate("getKey", makeRDelegate(*this, &MainMenuScriptedUI::getKey));
     env->addCRDelegate("getDefaultKey", makeRDelegate(*this, &MainMenuScriptedUI::getDefaultKey));

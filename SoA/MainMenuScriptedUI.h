@@ -25,9 +25,9 @@ public:
     MainMenuScriptedUI();
     ~MainMenuScriptedUI();
 
-    void init(const nString& startFormPath, MainMenuScreen* ownerScreen,
+    void init(const nString& startFormPath, vui::IGameScreen* ownerScreen,
               const vui::GameWindow* window, const f32v4& destRect,
-              vg::SpriteFont* defaultFont = nullptr);
+              vg::SpriteFont* defaultFont = nullptr) override;
 
 protected:
     virtual void registerScriptValues(vui::FormScriptEnvironment* newFormEnv) override;
