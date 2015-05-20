@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "PlanetGenerator.h"
-#include "PlanetData.h"
 
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
-#include <random>
+
+std::mt19937 PlanetGenerator::generator(36526);
 
 CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type) {
     switch (type) {
@@ -28,12 +28,32 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet() {
     data->terrainTexture = getRandomColorMap();
     data->liquidColorMap = getRandomColorMap();
 
-    TerrainFuncKegProperties tf1;
-    tf1.low = 1.0;
-    tf1.high = 100.0;
-    data->baseTerrainFuncs.funcs.setData(&tf1, 1);
-    data->tempTerrainFuncs.funcs.setData(&tf1, 1);
-    data->humTerrainFuncs.funcs.setData(&tf1, 1);
+    std::vector<TerrainFuncKegProperties> funcs;
+    // Terrain
+    getRandomTerrainFuncs(funcs,
+                          std::uniform_int_distribution<int>(1, 5),
+                          std::uniform_int_distribution<int>(1, 4),
+                          std::uniform_real_distribution<f32>(0.0008, 0.2f),
+                          std::uniform_real_distribution<f32>(-100.0f, 300.0f),
+                          std::uniform_real_distribution<f32>(100.0f, 10000.0f));
+    data->baseTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
+    // Temperature
+    getRandomTerrainFuncs(funcs,
+                          std::uniform_int_distribution<int>(1, 5),
+                          std::uniform_int_distribution<int>(1, 4),
+                          std::uniform_real_distribution<f32>(0.0008, 0.2f),
+                          std::uniform_real_distribution<f32>(0.0f, 50.0f),
+                          std::uniform_real_distribution<f32>(200.0f, 255.0f));
+    data->tempTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
+    // Humidity
+    getRandomTerrainFuncs(funcs,
+                          std::uniform_int_distribution<int>(1, 5),
+                          std::uniform_int_distribution<int>(1, 4),
+                          std::uniform_real_distribution<f32>(0.0008, 0.2f),
+                          std::uniform_real_distribution<f32>(0.0f, 50.0f),
+                          std::uniform_real_distribution<f32>(200.0f, 255.0f));
+    data->humTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
+
     return data;
 }
 
@@ -50,7 +70,6 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateComet() {
 VGTexture PlanetGenerator::getRandomColorMap() {
     static const int WIDTH = 256;
     color4 pixels[WIDTH][WIDTH];
-    static std::mt19937 generator(1053);
     static std::uniform_int_distribution<int> numColors(1, 12);
     static std::uniform_int_distribution<int> rPos(0, WIDTH - 1);
     static std::uniform_int_distribution<int> rColor(0, 255);
@@ -87,4 +106,23 @@ VGTexture PlanetGenerator::getRandomColorMap() {
 
     return vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
                                         vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
+}
+
+void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProperties>& funcs,
+                                            const std::uniform_int_distribution<int>& funcsRange,
+                                            const std::uniform_int_distribution<int>& octavesRange,
+                                            const std::uniform_real_distribution<f32>& freqRange,
+                                            const std::uniform_real_distribution<f32>& heightMinRange,
+                                            const std::uniform_real_distribution<f32>& heightWidthRange) {
+    int numFuncs = funcsRange(generator);
+    funcs.resize(numFuncs);
+
+    for (int i = 0; i < numFuncs; i++) {
+        auto& f = funcs[i];
+        f.low = heightMinRange(generator);
+        f.high = f.low + heightWidthRange(generator);
+        f.octaves = octavesRange(generator);
+        f.frequency = freqRange(generator);
+        f.persistence = 0.8;
+    }
 }
