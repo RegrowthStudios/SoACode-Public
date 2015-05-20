@@ -39,6 +39,10 @@ void MainMenuScriptedUI::registerScriptValues(vui::FormScriptEnvironment* newFor
     env->addCRDelegate("getDefaultKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getDefaultKeyString));
     env->addCRDelegate("getName", makeRDelegate(*this, &MainMenuScriptedUI::getName));
     env->setNamespaces();
+
+    env->setNamespaces("Game");
+    env->addCDelegate("exit", makeDelegate(*this, &MainMenuScriptedUI::onExit));
+    env->setNamespaces();
 }
 
 size_t MainMenuScriptedUI::getNumInputs() {
@@ -72,3 +76,6 @@ nString MainMenuScriptedUI::getName(InputMapper::InputID id) {
     return m_inputMapper->get(id).name;
 }
 
+void MainMenuScriptedUI::onExit(int code) {
+    ((MainMenuScreen*)m_ownerScreen)->onQuit(this, code);
+}

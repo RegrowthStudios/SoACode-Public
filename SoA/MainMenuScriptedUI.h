@@ -39,6 +39,7 @@ protected:
     nString getKeyString(InputMapper::InputID id);
     nString getDefaultKeyString(InputMapper::InputID id);
     nString getName(InputMapper::InputID id);
+    void onExit(int code);
 
     InputMapper* m_inputMapper = nullptr;
 };
