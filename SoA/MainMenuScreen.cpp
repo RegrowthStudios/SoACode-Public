@@ -314,4 +314,5 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     } else {
         m_window->setSwapInterval(vui::GameSwapInterval::UNLIMITED_FPS);
     }
+    TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
 }

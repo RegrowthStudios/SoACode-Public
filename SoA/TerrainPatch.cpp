@@ -13,8 +13,8 @@
 #include "VoxelSpaceConversions.h"
 #include "soaUtils.h"
 
-f32 TerrainPatch::DIST_MIN = 3.0f;
-f32 TerrainPatch::DIST_MAX = 3.1f;
+f32 TerrainPatch::DIST_MIN = 1.0f;
+f32 TerrainPatch::DIST_MAX = 1.1f;
 f32 TerrainPatch::MIN_SIZE = 0.4096f;
 int TerrainPatch::PATCH_MAX_LOD = 25;
 
