@@ -17,6 +17,7 @@
 
 #include "PlanetData.h"
 #include "SpaceSystemLoadStructs.h"
+#include <Vorb/RPC.h>
 #include <Vorb/graphics/gtypes.h>
 #include <vector>
 #include <random>
@@ -25,12 +26,12 @@ struct PlanetGenData;
 
 class PlanetGenerator {
 public:
-    static CALLEE_DELETE PlanetGenData* generateRandomPlanet(SpaceObjectType type);
+    static CALLEE_DELETE PlanetGenData* generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc = nullptr );
 private:
-    static CALLEE_DELETE PlanetGenData* generatePlanet();
-    static CALLEE_DELETE PlanetGenData* generateAsteroid();
-    static CALLEE_DELETE PlanetGenData* generateComet();
-    static VGTexture getRandomColorMap();
+    static CALLEE_DELETE PlanetGenData* generatePlanet(vcore::RPCManager* glrpc);
+    static CALLEE_DELETE PlanetGenData* generateAsteroid(vcore::RPCManager* glrpc);
+    static CALLEE_DELETE PlanetGenData* generateComet(vcore::RPCManager* glrpc);
+    static VGTexture getRandomColorMap(vcore::RPCManager* glrpc);
     static void getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProperties>& funcs,
                                       const std::uniform_int_distribution<int>& funcsRange,
                                       const std::uniform_int_distribution<int>& octavesRange,

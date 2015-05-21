@@ -100,7 +100,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = null
     // Lazily construct default data
 
         // Allocate data
-    PlanetGenData* genData = PlanetGenerator::generateRandomPlanet(SpaceObjectType::PLANET);
+    PlanetGenData* genData = PlanetGenerator::generateRandomPlanet(SpaceObjectType::PLANET, glrpc);
 
     //genData->
 
