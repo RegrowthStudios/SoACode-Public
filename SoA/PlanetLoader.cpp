@@ -3,6 +3,8 @@
 #include "PlanetData.h"
 #include "PlanetGenerator.h"
 
+#include <random>
+
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
@@ -127,6 +129,16 @@ PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = null
 
     
     return m_defaultGenData;
+}
+
+AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
+    static std::mt19937 generator(2636);
+    static std::uniform_real_distribution<f32> randomWav(0.4f, 0.8f);
+    AtmosphereKegProperties props;
+    props.waveLength.r = randomWav(generator);
+    props.waveLength.g = randomWav(generator);
+    props.waveLength.b = randomWav(generator);
+    return props;
 }
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {

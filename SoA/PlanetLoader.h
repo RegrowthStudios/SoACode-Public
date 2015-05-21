@@ -22,6 +22,7 @@
 #include <Vorb/graphics/TextureCache.h>
 #include <Vorb/VorbPreDecl.inl>
 
+#include "SpaceSystemLoadStructs.h"
 #include "NoiseShaderGenerator.h"
 
 DECL_VIO(class IOManager);
@@ -53,6 +54,7 @@ public:
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
     PlanetGenData* getRandomGenData(vcore::RPCManager* glrpc = nullptr);
+    AtmosphereKegProperties getRandomAtmosphere();
 private:
     /// Loads the biomes from file
     /// @param filePath: Path to the biome file

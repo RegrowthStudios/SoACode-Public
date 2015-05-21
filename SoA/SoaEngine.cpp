@@ -342,6 +342,7 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
                 properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
+                properties.atmosphere = pr.planetLoader->getRandomAtmosphere();
             }
 
             // Set the radius for use later
