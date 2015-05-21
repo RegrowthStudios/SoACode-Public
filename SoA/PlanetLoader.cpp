@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 #include "PlanetData.h"
-#include "PlanetGenerator.h"
 
 #include <random>
 
@@ -102,7 +101,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = null
     // Lazily construct default data
 
     // Allocate data
-    PlanetGenData* genData = PlanetGenerator::generateRandomPlanet(SpaceObjectType::PLANET, glrpc);
+    PlanetGenData* genData = m_planetGenerator.generateRandomPlanet(SpaceObjectType::PLANET, glrpc);
 
     // Load textures
     if (glrpc) {

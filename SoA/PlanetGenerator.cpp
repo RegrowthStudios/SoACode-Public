@@ -4,8 +4,6 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
 
-std::mt19937 PlanetGenerator::generator(36526);
-
 CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc /* = nullptr */) {
     switch (type) {
         case SpaceObjectType::PLANET:
@@ -24,8 +22,8 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectTy
 
 CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* glrpc) {
     PlanetGenData* data = new PlanetGenData;
-    data->terrainColorMap = getRandomColorMap(glrpc);
-    data->liquidColorMap = getRandomColorMap(glrpc);
+    data->terrainColorMap = getRandomColorMap(glrpc, true);
+    data->liquidColorMap = getRandomColorMap(glrpc, true);
 
     std::vector<TerrainFuncKegProperties> funcs;
     // Terrain
@@ -69,7 +67,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateComet(vcore::RPCManager* g
     return data;
 }
 
-VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc) {
+VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shouldBlur) {
     static const int WIDTH = 256;
     color4 pixels[WIDTH][WIDTH];
     static std::uniform_int_distribution<int> numColors(11, 12);
@@ -119,6 +117,11 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc) {
         tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
                                            vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
     }
+
+    if (shouldBlur) {
+
+    }
+
     return tex;
 }
 

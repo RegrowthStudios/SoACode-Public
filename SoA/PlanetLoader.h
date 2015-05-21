@@ -22,6 +22,7 @@
 #include <Vorb/graphics/TextureCache.h>
 #include <Vorb/VorbPreDecl.inl>
 
+#include "PlanetGenerator.h"
 #include "SpaceSystemLoadStructs.h"
 #include "NoiseShaderGenerator.h"
 
@@ -105,6 +106,8 @@ private:
     NoiseShaderGenerator m_shaderGenerator; ///< Generates the generation shaders
 
     vcore::RPCManager* m_glRpc = nullptr;
+
+    PlanetGenerator m_planetGenerator;
 };
 
 #endif // PlanetLoader_h__
