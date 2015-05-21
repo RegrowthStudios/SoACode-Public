@@ -746,6 +746,9 @@
     <ClInclude Include="SoaOptions.h">
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
+    <ClInclude Include="TestDisplacementMappingScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1213,6 +1216,9 @@
     <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="SoaOptions.cpp">
       <Filter>SOA Files\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDisplacementMappingScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

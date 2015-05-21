@@ -377,6 +377,7 @@ EXIT 0</Command>
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
+    <ClInclude Include="TestDisplacementMappingScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
@@ -565,6 +566,7 @@ EXIT 0</Command>
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
+    <ClCompile Include="TestDisplacementMappingScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
