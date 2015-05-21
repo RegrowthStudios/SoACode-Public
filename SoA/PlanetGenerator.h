@@ -17,15 +17,25 @@
 
 #include "PlanetData.h"
 #include "SpaceSystemLoadStructs.h"
+
 #include <Vorb/RPC.h>
+#include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/gtypes.h>
-#include <vector>
+
 #include <random>
+#include <vector>
+
+DECL_VG(class GLProgram);
 
 struct PlanetGenData;
 
 class PlanetGenerator {
 public:
+    PlanetGenerator();
+    void dispose(vcore::RPCManager* glrpc);
+
     CALLEE_DELETE PlanetGenData* generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc = nullptr );
 private:
     CALLEE_DELETE PlanetGenData* generatePlanet(vcore::RPCManager* glrpc);
@@ -39,7 +49,10 @@ private:
                                       const std::uniform_real_distribution<f32>& heightMinRange,
                                       const std::uniform_real_distribution<f32>& heightWidthRange);
 
-    std::mt19937 generator = std::mt19937(36526);
+    vg::FullQuadVBO m_quad;
+    vg::GLRenderTarget m_targets[2];
+    vg::GLProgram* m_blurPrograms[2];
+    std::mt19937 m_generator = std::mt19937(36526);
 };
 
 #endif // PlanetGenerator_h__
