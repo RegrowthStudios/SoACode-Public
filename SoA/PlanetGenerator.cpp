@@ -25,20 +25,6 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectTy
 CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* glrpc) {
     PlanetGenData* data = new PlanetGenData;
     data->terrainColorMap = getRandomColorMap(glrpc);
-    color4 whitePix(255, 255, 255, 255);
-    if (glrpc) {
-        vcore::RPC rpc;
-        rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-            data->terrainTexture = vg::GpuMemory::uploadTexture(&whitePix, 1u, 1u, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                                vg::TextureTarget::TEXTURE_2D,
-                                                                &vg::SamplerState::POINT_CLAMP);
-        });
-        glrpc->invoke(&rpc, true);
-    } else {
-        data->terrainTexture = vg::GpuMemory::uploadTexture(&whitePix, 1u, 1u, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                            vg::TextureTarget::TEXTURE_2D,
-                                                            &vg::SamplerState::POINT_CLAMP);
-    }
     data->liquidColorMap = getRandomColorMap(glrpc);
 
     std::vector<TerrainFuncKegProperties> funcs;
@@ -86,7 +72,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateComet(vcore::RPCManager* g
 VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc) {
     static const int WIDTH = 256;
     color4 pixels[WIDTH][WIDTH];
-    static std::uniform_int_distribution<int> numColors(1, 12);
+    static std::uniform_int_distribution<int> numColors(11, 12);
     static std::uniform_int_distribution<int> rPos(0, WIDTH - 1);
     static std::uniform_int_distribution<int> rColor(0, 16777215); // 0-2^24
 

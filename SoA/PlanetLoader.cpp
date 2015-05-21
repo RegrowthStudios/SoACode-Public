@@ -99,10 +99,21 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
 PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
 
-        // Allocate data
+    // Allocate data
     PlanetGenData* genData = PlanetGenerator::generateRandomPlanet(SpaceObjectType::PLANET, glrpc);
 
-    //genData->
+    // Load textures
+    if (glrpc) {
+        vcore::RPC rpc;
+        rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            genData->terrainTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        });
+        glrpc->invoke(&rpc, true);
+    } else {
+        genData->terrainTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    }
 
     // Generate the program
     vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
