@@ -139,60 +139,62 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     }
 
     // Handle Gaussian blur
+    auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+        if (!m_blurPrograms[0]) {
+            m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+                                                                    "Shaders/PostProcessing/Blur.frag", nullptr,
+                                                                    "#define HORIZONTAL_BLUR_9\n");
+            m_blurPrograms[1] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+                                                                    "Shaders/PostProcessing/Blur.frag", nullptr,
+                                                                    "#define VERTICAL_BLUR_9\n");
+            m_quad.init();
+            m_targets[0].setSize(WIDTH, WIDTH);
+            m_targets[1].setSize(WIDTH, WIDTH);
+            m_targets[0].init();
+            m_targets[1].init();
+        }
+        // Bind the voronoi color map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        // Compute BLUR_PASSES passes of 2-pass gaussian blur
+        for (int p = 0; p < BLUR_PASSES; p++) {
+            // Two pass Gaussian blur
+            for (int i = 0; i < 2; i++) {
+                m_blurPrograms[i]->use();
+                m_blurPrograms[i]->enableVertexAttribArrays();
+
+                glUniform1i(m_blurPrograms[i]->getUniform("unTex"), 0);
+                glUniform1f(m_blurPrograms[i]->getUniform("unSigma"), 5.0f);
+                glUniform1f(m_blurPrograms[i]->getUniform("unBlurSize"), 1.0f / (f32)WIDTH);
+                m_targets[i].use();
+
+                m_quad.draw();
+
+                m_targets[i].unuse(soaOptions.get(OPT_SCREEN_WIDTH).value.f, soaOptions.get(OPT_SCREEN_HEIGHT).value.f);
+                m_blurPrograms[i]->disableVertexAttribArrays();
+                m_blurPrograms[i]->unuse();
+                m_targets[i].bindTexture();
+            }
+        }
+
+        // Get the pixels and use them to re-upload the texture
+        // TODO(Ben): A direct copy would be more efficient.
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, WIDTH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    });
+
+    // See if we should use RPC
     if (shouldBlur) {
         if (glrpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                if (!m_blurPrograms[0]) {
-                    m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
-                                                                        "Shaders/PostProcessing/Blur.frag", nullptr,
-                                                                        "#define HORIZONTAL_BLUR_9\n");
-                    m_blurPrograms[1] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
-                                                                         "Shaders/PostProcessing/Blur.frag", nullptr,
-                                                                         "#define VERTICAL_BLUR_9\n");
-                    m_quad.init();
-                    m_targets[0].setSize(WIDTH, WIDTH);
-                    m_targets[1].setSize(WIDTH, WIDTH);
-                    m_targets[0].init();
-                    m_targets[1].init();
-                }
-                // Bind the voronoi color map
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, tex);
-                // Compute BLUR_PASSES passes of 2-pass gaussian blur
-                for (int p = 0; p < BLUR_PASSES; p++) {
-                    // Two pass Gaussian blur
-                    for (int i = 0; i < 2; i++) {
-                        m_blurPrograms[i]->use();
-                        m_blurPrograms[i]->enableVertexAttribArrays();
-
-                        glUniform1i(m_blurPrograms[i]->getUniform("unTex"), 0);
-                        glUniform1f(m_blurPrograms[i]->getUniform("unSigma"), 5.0f);
-                        glUniform1f(m_blurPrograms[i]->getUniform("unBlurSize"), 1.0f / (f32)WIDTH);
-                        m_targets[i].use();
-
-                        m_quad.draw();
-
-                        m_targets[i].unuse(soaOptions.get(OPT_SCREEN_WIDTH).value.f, soaOptions.get(OPT_SCREEN_HEIGHT).value.f);
-                        m_blurPrograms[i]->disableVertexAttribArrays();
-                        m_blurPrograms[i]->unuse();
-                        m_targets[i].bindTexture();
-                    }
-                }
-                
-                // Get the pixels and use them to re-upload the texture
-                // TODO(Ben): A direct copy would be more efficient.
-                glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-                glBindTexture(GL_TEXTURE_2D, tex);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH, WIDTH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            });
+            rpc.data.f = f;
             glrpc->invoke(&rpc, true);
-            delete rpc.data.f;
         } else {
-          
+            f->invoke(nullptr, nullptr);
         }
     }
-
+    delete f;
     glBindTexture(GL_TEXTURE_2D, 0);
     return tex;
 }
