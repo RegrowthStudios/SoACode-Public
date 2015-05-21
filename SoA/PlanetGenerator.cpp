@@ -41,19 +41,29 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     data->liquidColorMap = getRandomColorMap(glrpc, true);
 
     std::vector<TerrainFuncKegProperties> funcs;
+    // Mountains
+    getRandomTerrainFuncs(funcs,
+                          TerrainStage::RIDGED_NOISE,
+                          std::uniform_int_distribution<int>(0, 2),
+                          std::uniform_int_distribution<int>(3, 7),
+                          std::uniform_real_distribution<f32>(0.00001, 0.001f),
+                          std::uniform_real_distribution<f32>(-15000.0f, 15000.0f),
+                          std::uniform_real_distribution<f32>(100.0f, 30000.0f));
     // Terrain
     getRandomTerrainFuncs(funcs,
-                          std::uniform_int_distribution<int>(1, 5),
+                          TerrainStage::NOISE,
+                          std::uniform_int_distribution<int>(2, 5),
                           std::uniform_int_distribution<int>(1, 4),
-                          std::uniform_real_distribution<f32>(0.0001, 0.2f),
-                          std::uniform_real_distribution<f32>(-4000.0f, 5000.0f),
-                          std::uniform_real_distribution<f32>(10.0f, 8000.0f));
+                          std::uniform_real_distribution<f32>(0.0002, 0.2f),
+                          std::uniform_real_distribution<f32>(-500.0f, 500.0f),
+                          std::uniform_real_distribution<f32>(10.0f, 1000.0f));
     data->baseTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
     funcs.clear();
     // Temperature
 
     data->tempTerrainFuncs.base = 128.0f;
     getRandomTerrainFuncs(funcs,
+                          TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(1, 2),
                           std::uniform_int_distribution<int>(3, 8),
                           std::uniform_real_distribution<f32>(0.00008, 0.008f),
@@ -64,6 +74,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     // Humidity
     data->humTerrainFuncs.base = 128.0f;
     getRandomTerrainFuncs(funcs,
+                          TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(1, 2),
                           std::uniform_int_distribution<int>(3, 8),
                           std::uniform_real_distribution<f32>(0.00008, 0.008f),
@@ -200,16 +211,19 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
 }
 
 void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProperties>& funcs,
+                                            TerrainStage func,
                                             const std::uniform_int_distribution<int>& funcsRange,
                                             const std::uniform_int_distribution<int>& octavesRange,
                                             const std::uniform_real_distribution<f32>& freqRange,
                                             const std::uniform_real_distribution<f32>& heightMinRange,
                                             const std::uniform_real_distribution<f32>& heightWidthRange) {
     int numFuncs = funcsRange(m_generator);
+    if (numFuncs <= 0) return;
     funcs.resize(funcs.size() + numFuncs);
 
     for (int i = 0; i < numFuncs; i++) {
         auto& f = funcs[i];
+        f.func = func;
         f.low = heightMinRange(m_generator);
         f.high = f.low + heightWidthRange(m_generator);
         f.octaves = octavesRange(m_generator);

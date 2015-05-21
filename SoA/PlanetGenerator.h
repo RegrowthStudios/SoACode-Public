@@ -43,11 +43,12 @@ private:
     CALLEE_DELETE PlanetGenData* generateComet(vcore::RPCManager* glrpc);
     VGTexture getRandomColorMap(vcore::RPCManager* glrpc, bool shouldBlur);
     void getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProperties>& funcs,
-                                      const std::uniform_int_distribution<int>& funcsRange,
-                                      const std::uniform_int_distribution<int>& octavesRange,
-                                      const std::uniform_real_distribution<f32>& freqRange,
-                                      const std::uniform_real_distribution<f32>& heightMinRange,
-                                      const std::uniform_real_distribution<f32>& heightWidthRange);
+                               TerrainStage func,
+                               const std::uniform_int_distribution<int>& funcsRange,
+                               const std::uniform_int_distribution<int>& octavesRange,
+                               const std::uniform_real_distribution<f32>& freqRange,
+                               const std::uniform_real_distribution<f32>& heightMinRange,
+                               const std::uniform_real_distribution<f32>& heightWidthRange);
 
     vg::FullQuadVBO m_quad;
     vg::GLRenderTarget m_targets[2];
