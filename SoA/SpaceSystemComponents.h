@@ -172,6 +172,8 @@ struct SphericalTerrainComponent {
     WorldCubeFace transitionFace = FACE_NONE;
     f32 alpha = 0.0f; ///< Alpha blending coefficient
     f32 faceTransTime = START_FACE_TRANS; ///< For animation on fade
+    f64 distance = FLT_MAX;
+    f64 radius = 0.0;
     bool isFaceTransitioning = false;
     volatile bool needsFaceTransitionAnimation = false;
 };

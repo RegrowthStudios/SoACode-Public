@@ -102,6 +102,7 @@ namespace SpaceSystemAssemblages {
     extern vecs::ComponentID addSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                            vecs::ComponentID npComp,
                                                            vecs::ComponentID arComp,
+                                                           f64 radius,
                                                            PlanetGenData* planetGenData,
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);

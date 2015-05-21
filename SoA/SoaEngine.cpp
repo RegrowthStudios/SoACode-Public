@@ -341,7 +341,8 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             if (properties.generation.length()) {
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
+                properties.planetGenData = nullptr;
+                //properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
                 properties.atmosphere = pr.planetLoader->getRandomAtmosphere();
             }
 

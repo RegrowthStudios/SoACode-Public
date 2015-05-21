@@ -83,6 +83,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_ambPlayer->setToTrack("Menu", 50);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
+    m_spaceSystemUpdater->init(m_soaState);
 
     // Initialize the user interface
     m_formFont.init("Fonts/orbitron_bold-webfont.ttf", 32);
@@ -136,8 +137,8 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     }
 
     m_soaState->time += m_soaState->timeStep;
-    m_spaceSystemUpdater->update(m_soaState->spaceSystem.get(), m_soaState->gameSystem.get(), m_soaState, m_camera.getPosition(), f64v3(0.0));
-    m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
+    m_spaceSystemUpdater->update(m_soaState, m_camera.getPosition(), f64v3(0.0));
+    m_spaceSystemUpdater->glUpdate(m_soaState);
     m_mainMenuSystemViewer->update();
 
     bdt += glSpeedFactor * 0.01;

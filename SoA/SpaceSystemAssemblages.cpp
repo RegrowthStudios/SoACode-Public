@@ -58,6 +58,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
+                                 properties->diameter * 0.5,
                                  properties->planetGenData,
                                  spaceSystem->normalMapGenProgram.get(),
                                  spaceSystem->normalMapRecycler.get());
@@ -257,6 +258,7 @@ void SpaceSystemAssemblages::removeAxisRotationComponent(SpaceSystem* spaceSyste
 vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                       vecs::ComponentID npComp,
                                                                       vecs::ComponentID arComp,
+                                                                      f64 radius,
                                                                       PlanetGenData* planetGenData,
                                                                       vg::GLProgram* normalProgram,
                                                                       vg::TextureRecycler* normalMapRecycler) {
@@ -267,18 +269,23 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
     stCmp.axisRotationComponent = arComp;
     stCmp.planetGenData = planetGenData;
 
-    stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
-                                                  normalMapRecycler);
-    stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
-                                              planetGenData,
-                                              normalProgram, normalMapRecycler);
-    stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
-                                                       planetGenData);
-    stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
+  
+    if (planetGenData) {
+        stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
+                                                        normalMapRecycler);
+        stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
+                                                              planetGenData,
+                                                              normalProgram, normalMapRecycler);
+        stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
+                                                              planetGenData);
+        stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
+    }
+    
+    stCmp.radius = radius;
     stCmp.alpha = 1.0f;
 
-    f64 patchWidth = (planetGenData->radius * 2.000) / ST_PATCH_ROW;
-    stCmp.sphericalTerrainData = new TerrainPatchData(planetGenData->radius, patchWidth);
+    f64 patchWidth = (radius * 2.000) / ST_PATCH_ROW;
+    stCmp.sphericalTerrainData = new TerrainPatchData(radius, patchWidth);
 
     return stCmpId;
 }

@@ -117,7 +117,8 @@ void SpaceSystemRenderStage::drawBodies() {
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent);
-
+        // Cant render if it hasn't generated yet
+        if (!cmp.planetGenData) continue;
         // Indicate the need for face transition animation
         if (cmp.needsFaceTransitionAnimation) {
             cmp.needsFaceTransitionAnimation = false;
