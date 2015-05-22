@@ -65,7 +65,7 @@ void main()
 	float bias = -unDispScale / 2.0;
 	vec2 offsetUV = fUV + calculateOffset(fUV, unDispTexture, fTbnMatrix, directionToEye, unDispScale, bias);
 	
-	vec3 correctNormal = normalize(texture2D(unNormalTexture, offsetUV).rgb * 2.0 - 1.0) * fTbnMatrix;
+	vec3 correctNormal = fTbnMatrix * normalize(texture2D(unNormalTexture, offsetUV).rgb * 2.0 - 1.0);
 	vec3 directionToLight = vec3(-0.5, 0.25, -2.5) - fPosition;
 	float light = dot(correctNormal, normalize(directionToLight)) / (length(directionToLight) + 1.0);
 
@@ -114,17 +114,17 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 
 	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/stone.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
-	m_diffuseTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP);
+	m_diffuseTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
 	rs = vg::ImageIO().load("Textures/Test/stone_NRM.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
-	m_normalTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP);
+	m_normalTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
 	rs = vg::ImageIO().load("Textures/Test/stone_DISP.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
-	m_displacementTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP);
+	m_displacementTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -139,7 +139,10 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 
 void TestDisplacementMappingScreen::onExit(const vui::GameTime& gameTime)
 {
-
+	delete m_program;
+	glDeleteTextures(1, &m_diffuseTexture);
+	glDeleteTextures(1, &m_normalTexture);
+	glDeleteTextures(1, &m_displacementTexture);
 }
 
 void TestDisplacementMappingScreen::update(const vui::GameTime& gameTime)
@@ -153,7 +156,7 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
 
 	m_program->use();
 
-	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.5f) * 40.0f, f32v3(0.0f, 1.0f, 0.0f));
+	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.0f) * 80.0f, f32v3(0.0f, 1.0f, 0.0f)) * glm::rotate((float)gameTime.total * 30.0f, f32v3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(m_program->getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
 	f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
 	glUniformMatrix4fv(m_program->getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);
