@@ -449,6 +449,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     { // Calculate A orbit
         SystemBody* body = bodyA->second;
         body->parent = bary;
+        bary->children.push_back(body);
         f64 massRatio = massB / (massA + massB);
         calculateOrbit(pr, body->entity,
                        barySgCmp.mass,
@@ -458,6 +459,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     { // Calculate B orbit
         SystemBody* body = bodyB->second;
         body->parent = bary;
+        bary->children.push_back(body);
         f64 massRatio = massA / (massA + massB);
         calculateOrbit(pr, body->entity,
                         barySgCmp.mass,
@@ -472,7 +474,16 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     }
 }
 
+void recursiveInclinationCalc(OrbitComponentTable& ct, SystemBody* body, f64 inclination) {
+    for (auto& c : body->children) {
+        OrbitComponent& orbitC = ct.getFromEntity(c->entity);
+        orbitC.i += inclination;
+        recursiveInclinationCalc(ct, c, orbitC.i);
+    }
+}
+
 void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
+    // Set parent connections
     for (auto& it : pr.systemBodies) {
         SystemBody* body = it.second;
         const nString& parent = body->parentName;
@@ -480,14 +491,34 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
             // Check for parent
             auto& p = pr.systemBodies.find(parent);
             if (p != pr.systemBodies.end()) {
+                // Set up parent connection
                 body->parent = p->second;
+                p->second->children.push_back(body);
 
-                // Calculate the orbit using parent mass
-                calculateOrbit(pr, body->entity,
-                                pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
-                                body);
+               
               
             }
+        }
+    }
+
+    // Child propagation for inclination
+    // TODO(Ben): Do this right
+   /* for (auto& it : pr.systemBodies) {
+        SystemBody* body = it.second;
+        if (!body->parent) {
+            recursiveInclinationCalc(pr.spaceSystem->m_orbitCT, body,
+                                     pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).i);
+        }
+    }*/
+
+    // Finally, calculate the orbits
+    for (auto& it : pr.systemBodies) {
+        SystemBody* body = it.second;
+        // Calculate the orbit using parent mass
+        if (body->parent) {
+            calculateOrbit(pr, body->entity,
+                           pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                           body);
         }
     }
 }

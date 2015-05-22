@@ -82,6 +82,7 @@ struct SystemBody {
     nString name = "";
     nString parentName = "";
     SystemBody* parent = nullptr;
+    std::vector<SystemBody*> children;
     vecs::EntityID entity = 0;
     SpaceBodyType type = SpaceBodyType::NONE;
     SystemBodyKegProperties properties;
