@@ -115,17 +115,17 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 	
 	m_program = ShaderLoader::createProgram("ParallaxDisplacementMapping", vertexShader, fragmentShader);
 
-	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/bricks.jpg");
+	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/stone_lines.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_diffuseTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
-	rs = vg::ImageIO().load("Textures/Test/bricks_NRM.png");
+	rs = vg::ImageIO().load("Textures/Test/stone_NRM.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_normalTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
-	rs = vg::ImageIO().load("Textures/Test/bricks_DISP.jpg");
+	rs = vg::ImageIO().load("Textures/Test/stone_DISP.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_displacementTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);

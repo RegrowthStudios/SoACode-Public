@@ -78,6 +78,7 @@ void App::onInit() {
     SoaEngine::initOptions(soaOptions);
 
     // Set the window options
+	m_window.setFullscreen(true);
     soaOptions.get(OPT_FULLSCREEN).value.b = m_window.isFullscreen();
     soaOptions.get(OPT_BORDERLESS).value.b = m_window.isBorderless();
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = m_window.getWidth();
