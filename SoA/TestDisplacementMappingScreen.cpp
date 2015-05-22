@@ -25,7 +25,7 @@ out mat3 fTbnMatrix;
 void main()
 {
 	fPosition = (unModelMatrix * vec4(vPosition, 1.0)).xyz;
-	fUV = vUV;
+	fUV = vec2(vUV.x, vUV.y);
 
 	vec3 normal = normalize((unModelMatrix * vec4(vNormal, 0.0)).xyz);
 	vec3 tangent = normalize((unModelMatrix * vec4(vTangent, 0.0)).xyz);
@@ -62,12 +62,15 @@ vec2 calculateOffset(vec2 uv, sampler2D dispTexture, mat3 tbnMatrix, vec3 direct
 void main()
 {
 	vec3 directionToEye = normalize(unEyePosition - fPosition);
-	float bias = -unDispScale / 2.0;
-	vec2 offsetUV = fUV + calculateOffset(fUV, unDispTexture, fTbnMatrix, directionToEye, unDispScale, bias);
+	float bias = -unDispScale;// / 2.0;
+	vec2 offsetUV = fUV;
+	if (gl_FragCoord.x > 1920 / 2.0) offsetUV += calculateOffset(fUV, unDispTexture, fTbnMatrix, directionToEye, unDispScale, bias);
 	
-	vec3 correctNormal = fTbnMatrix * normalize(texture2D(unNormalTexture, offsetUV).rgb * 2.0 - 1.0);
-	vec3 directionToLight = vec3(-0.5, 0.25, -2.5) - fPosition;
-	float light = dot(correctNormal, normalize(directionToLight)) / (length(directionToLight) + 1.0);
+	vec3 correctNormal = fTbnMatrix[2];
+	if (gl_FragCoord.y > 1080.0 / 2.0)  correctNormal = fTbnMatrix * normalize(texture2D(unNormalTexture, offsetUV).rgb * 2.0 - 1.0);
+
+	vec3 directionToLight = vec3(0.0, 0.0, -2.5) - fPosition;
+	float light = dot(correctNormal, normalize(directionToLight)) / (length(directionToLight) + 1.0) * 4.0;
 
 	pColor = vec4(texture(unDiffuseTexture, offsetUV).rgb * light, 1.0);
 }
@@ -112,17 +115,17 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 	
 	m_program = ShaderLoader::createProgram("ParallaxDisplacementMapping", vertexShader, fragmentShader);
 
-	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/stone.png");
+	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/bricks.jpg");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_diffuseTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
-	rs = vg::ImageIO().load("Textures/Test/stone_NRM.png");
+	rs = vg::ImageIO().load("Textures/Test/bricks_NRM.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_normalTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
 
-	rs = vg::ImageIO().load("Textures/Test/stone_DISP.png");
+	rs = vg::ImageIO().load("Textures/Test/bricks_DISP.jpg");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_displacementTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
@@ -161,8 +164,9 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m_program->use();
+	//m_displacementScale = (sinf(gameTime.total * 4.0) * 0.5f + 0.5f) * 0.1f;
 
-	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.0f) * 60.0f - 20.0f, f32v3(0.0f, 1.0f, 0.0f)) * glm::rotate((float)gameTime.total * 30.0f, f32v3(0.0f, 0.0f, 1.0f));
+	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.0f) * 40.0f, f32v3(0.0f, 1.0f, 0.0f)) * glm::rotate((float)gameTime.total * 30.0f, f32v3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(m_program->getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
 	f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
 	glUniformMatrix4fv(m_program->getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);
