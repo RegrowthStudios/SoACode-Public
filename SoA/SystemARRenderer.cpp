@@ -218,9 +218,26 @@ void SystemARRenderer::drawHUD() {
                 // Alpha interpolation from size so they fade out
                 f32 low = MainMenuSystemViewer::MAX_SELECTOR_SIZE * 0.7f;
                 if (selectorSize > low) {
+                    // Fade out when close
                     oColor.a = (ui8)((1.0f - (selectorSize - low) /
                         (MainMenuSystemViewer::MAX_SELECTOR_SIZE - low)) * 255);
                     textColor.a = oColor.a;
+                } else {
+                    f64 d = distance - (f64)low;
+                    // Fade name based on distance
+                    switch (oCmp.type) {
+                        case SpaceObjectType::STAR:
+                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.00000000001));
+                            break;
+                        case SpaceObjectType::BARYCENTER:
+                        case SpaceObjectType::PLANET:
+                        case SpaceObjectType::DWARF_PLANET:
+                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.000000001));
+                            break;
+                        default:
+                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.000001));
+                            break;
+                    }
                 }
 
                 // Pick texture
@@ -248,13 +265,15 @@ void SystemARRenderer::drawHUD() {
                     (MainMenuSystemViewer::MAX_SELECTOR_SIZE - MainMenuSystemViewer::MIN_SELECTOR_SIZE)) * 0.5 + 0.5) * 0.6);
 
                 // Draw Text
-                m_spriteBatch->drawString(m_spriteFont,
-                                          npCmp.name.c_str(),
-                                          xyScreenCoords + textOffset,
-                                          textScale,
-                                          textColor,
-                                          vg::TextAlign::TOP_LEFT,
-                                          screenCoords.z);
+                if (textColor.a > 0) {
+                    m_spriteBatch->drawString(m_spriteFont,
+                                              npCmp.name.c_str(),
+                                              xyScreenCoords + textOffset,
+                                              textScale,
+                                              textColor,
+                                              vg::TextAlign::TOP_LEFT,
+                                              screenCoords.z);
+                }
 
             }
             // Land selector

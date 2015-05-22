@@ -57,11 +57,6 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
-
-    if (body->name == "Aldrin") {
-        std::cout << "LOL";
-    }
-
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
                                  properties->diameter * 0.5,
                                  properties->planetGenData,
