@@ -23,7 +23,7 @@
 #include "TexturePackLoader.h"
 #include "PlanetData.h"
 
-#define SEC_PER_DAY 86400.0
+#define SEC_PER_HOUR 3600.0
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
                            const SystemBodyKegProperties* sysProps,
@@ -52,10 +52,15 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
 
     const f64v3 up(0.0, 1.0, 0.0);
     vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
+                                                       0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
+
+
+    if (body->name == "Aldrin") {
+        std::cout << "LOL";
+    }
 
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
                                  properties->diameter * 0.5,
@@ -94,7 +99,7 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
 
     const f64v3 up(0.0, 1.0, 0.0);
     vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
+                                                       0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
@@ -128,7 +133,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
 
     const f64v3 up(0.0, 1.0, 0.0);
     vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
-                                                        0.0, properties->rotationalPeriod * SEC_PER_DAY);
+                                                       0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
     f64v3 tmpPos(0.0);
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
