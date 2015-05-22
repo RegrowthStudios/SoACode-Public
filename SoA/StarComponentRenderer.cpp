@@ -252,7 +252,6 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     m_occlusionProgram->unuse();
 }
 
-
 void StarComponentRenderer::dispose() {
     disposeShaders();
     disposeBuffers();

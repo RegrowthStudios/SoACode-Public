@@ -593,7 +593,9 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
     }
 
     f64 t = orbitC.t;
-    f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
+    auto& sgCmp = spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
+    f64 mass = sgCmp.mass;
+    f64 diameter = sgCmp.radius * 2.0;
    
     if (binaryMassRatio > 0.0) { // Binary orbit
         orbitC.a = pow((t * t) * M_G * parentMass /
@@ -609,6 +611,14 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
 
     // Set parent pass
     orbitC.parentMass = parentMass;
+
+    { // Check tidal lock
+        f64 ns = log(0.003 * pow(orbitC.a, 6.0) * pow(diameter + 500.0, 3.0) / (mass * orbitC.parentMass) * (1.0 + (f64)1e20 / (mass + orbitC.parentMass)));
+        if (ns < 0) {
+            // It is tidally locked so lock the rotational period
+            spaceSystem->m_axisRotationCT.getFromEntity(entity).period = t;
+        }
+    }
 
     { // Make the ellipse mesh with stepwise simulation
         OrbitComponentUpdater updater;
