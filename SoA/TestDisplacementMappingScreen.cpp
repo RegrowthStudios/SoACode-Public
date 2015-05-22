@@ -162,7 +162,7 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
 
 	m_program->use();
 
-	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.0f) * 80.0f, f32v3(0.0f, 1.0f, 0.0f)) * glm::rotate((float)gameTime.total * 30.0f, f32v3(0.0f, 0.0f, 1.0f));
+	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.0f) * 60.0f - 20.0f, f32v3(0.0f, 1.0f, 0.0f)) * glm::rotate((float)gameTime.total * 30.0f, f32v3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(m_program->getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
 	f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
 	glUniformMatrix4fv(m_program->getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);
