@@ -227,6 +227,7 @@ void SystemARRenderer::drawHUD() {
                 if (oCmp.type == SpaceObjectType::BARYCENTER) {
                     tx = m_baryTexture;
                     selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.0f;
+                    interpolator = 0.0f; // Don't rotate barycenters
                 } else {
                     tx = m_selectorTexture;
                 }
