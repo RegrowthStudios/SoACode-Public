@@ -62,6 +62,7 @@ public:
     const f32v3& getSelectedGridPos() const { return m_selectedGridPos; }
     const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
     vecs::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
+    vecs::EntityID getTargetBody() const { return m_targetEntity; }
     const f64v3& getClickPos() const { return m_clickPos; }
 
     /// Gets the position of the targeted entity

@@ -201,7 +201,7 @@ void SystemARRenderer::drawHUD() {
             ui8v3 ui8Color;
             // If its selected we use a different color
             bool isSelected = false;
-            if (m_systemViewer->getSelectedPlanet() == it.first) {
+            if (m_systemViewer->getTargetBody() == it.first) {
                 isSelected = true;
                 ui8Color = ui8v3(m_spaceSystem->pathColorMap["Selected"].second * 255.0f);
             } else {
