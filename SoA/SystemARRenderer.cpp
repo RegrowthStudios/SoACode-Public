@@ -56,10 +56,12 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_systemViewer = systemViewer;
     m_viewport = viewport;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDepthMask(GL_FALSE);
     drawPaths();
     if (m_systemViewer) {
         drawHUD();
     }
+    glDepthMask(GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -125,7 +127,7 @@ void SystemARRenderer::drawPaths() {
 
             ui8v3 ui8Color;
             // If its selected we force a different color
-            if (m_systemViewer->getSelectedPlanet() == it.first) {
+            if (m_systemViewer->getTargetBody() == it.first) {
                 isSelected = true;
                 oldPathColor = cmp.pathColor[0];
                 cmp.pathColor[0] = m_spaceSystem->pathColorMap["Selected"].second;
