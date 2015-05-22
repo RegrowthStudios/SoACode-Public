@@ -207,12 +207,12 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
 
 // Only used in SoaEngine::loadPathColors
 struct PathColorKegProps {
-    ui8v3 base = ui8v3(0);
-    ui8v3 hover = ui8v3(0);
+    ui8v4 base = ui8v4(0);
+    ui8v4 hover = ui8v4(0);
 };
 KEG_TYPE_DEF_SAME_NAME(PathColorKegProps, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, base, UI8_V3);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, hover, UI8_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, base, UI8_V4);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, hover, UI8_V4);
 }
 
 bool SoaEngine::loadPathColors(SpaceSystemLoadParams& pr) {
@@ -239,8 +239,8 @@ bool SoaEngine::loadPathColors(SpaceSystemLoadParams& pr) {
             fprintf(stderr, "Failed to parse node %s in PathColors.yml\n", name.c_str());
             goodParse = false;
         }
-        f32v3 base = f32v3(props.base) / 255.0f;
-        f32v3 hover = f32v3(props.hover) / 255.0f;
+        f32v4 base = f32v4(props.base) / 255.0f;
+        f32v4 hover = f32v4(props.hover) / 255.0f;
         pr.spaceSystem->pathColorMap[name] = std::make_pair(base, hover);
     });
 
@@ -419,7 +419,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
         oCmp.i = bProps.i * DEG_TO_RAD;
         oCmp.p = bProps.p * DEG_TO_RAD;
         oCmp.o = bProps.n * DEG_TO_RAD;
-        oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+        oCmp.startMeanAnomaly = bProps.a * DEG_TO_RAD;
     }
 
     // Get the A mass

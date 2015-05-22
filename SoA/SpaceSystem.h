@@ -76,7 +76,7 @@ public:
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
     std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
 
-    std::map<nString, std::pair<f32v3, f32v3> > pathColorMap; ///< Map of body type to path colors
+    std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors
 };
 
 #endif // SpaceSystem_h__

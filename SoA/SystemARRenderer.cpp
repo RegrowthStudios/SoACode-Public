@@ -117,7 +117,7 @@ void SystemARRenderer::drawPaths() {
         auto& cmp = it.second;
     
         bool isSelected = false;
-        f32v3 oldPathColor; // To cache path color since we force it to a different one
+        f32v4 oldPathColor; // To cache path color since we force it to a different one
         if (m_systemViewer) {
             // Get the augmented reality data
             const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);

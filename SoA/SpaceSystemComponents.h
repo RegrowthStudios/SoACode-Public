@@ -92,14 +92,14 @@ struct OrbitComponent {
     f64 b = 0.0; ///< Semi-minor of the ellipse in KM
     f64 t = 0.0; ///< Period of a full orbit in sec
     f64 parentMass = 0.0; ///< Mass of the parent in KG
-    f64 startTrueAnomaly = 0.0; ///< Start true anomaly in rad
+    f64 startMeanAnomaly = 0.0; ///< Start mean anomaly in rad
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 o = 0.0; ///< Longitude of the ascending node in rad
     f64 p = 0.0; ///< Longitude of the periapsis in rad
     f64 i = 0.0; ///< Inclination in rad
     f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space in KM/s
     f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent in KM/s
-    f32v3 pathColor[2]; ///< Color of the path
+    f32v4 pathColor[2]; ///< Color of the path
     vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
     vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
     VGBuffer vbo = 0; ///< vbo for the ellipse mesh
