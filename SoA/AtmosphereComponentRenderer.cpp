@@ -41,7 +41,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
 
     // Set up matrix
     f32m4 WVP(1.0);
-    setMatrixScale(WVP, f32v3(aCmp.radius));
+    setMatrixScale(WVP, f32v3(aCmp.radius, aCmp.radius * (1.0 - aCmp.oblateness), aCmp.radius));
     setMatrixTranslation(WVP, -relCamPos);
     WVP = VP * WVP;
 

@@ -134,7 +134,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
     f64 radius = properties->diameter / 2.0;
-    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, 1.0f, radius, colorMap);
+    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, properties->oblateness, radius, colorMap);
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
@@ -143,7 +143,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     if (at.scaleDepth != -1.0f) {
         addAtmosphereComponent(spaceSystem, id, npCmp, (f32)radius, (f32)(radius * 1.025),
                                at.kr, at.km, at.g, at.scaleDepth,
-                               at.waveLength);
+                               at.waveLength, properties->oblateness);
     }
 
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
@@ -160,12 +160,13 @@ void SpaceSystemAssemblages::destroyGasGiant(SpaceSystem* gameSystem, vecs::Enti
 vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                  vecs::ComponentID namePositionComponent, f32 planetRadius,
                                                                  f32 radius, f32 kr, f32 km, f32 g, f32 scaleDepth,
-                                                                 f32v3 wavelength) {
+                                                                 f32v3 wavelength, f32 oblateness /*= 0.0f*/) {
     vecs::ComponentID aCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
     auto& aCmp = spaceSystem->m_atmosphereCT.get(aCmpId);
     aCmp.namePositionComponent = namePositionComponent;
     aCmp.planetRadius = planetRadius;
     aCmp.radius = radius;
+    aCmp.oblateness = oblateness;
     aCmp.kr = kr;
     aCmp.km = km;
     aCmp.g = g;

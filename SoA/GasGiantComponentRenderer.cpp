@@ -63,7 +63,7 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     // Set up matrix
     f32m4 WVP(1.0);
     setMatrixTranslation(WVP, -relCamPos);
-    WVP = VP * WVP * glm::scale(f32v3(ggCmp.radius)) * rotationMatrix;
+    WVP = VP * WVP * glm::scale(f32v3(ggCmp.radius, ggCmp.radius * (1.0 - ggCmp.oblateness), ggCmp.radius)) * rotationMatrix;
 
     f32v3 rotRelCamPos = relCamPos * orientationF32;
 

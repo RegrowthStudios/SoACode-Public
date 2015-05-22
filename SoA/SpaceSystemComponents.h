@@ -58,6 +58,7 @@ struct AtmosphereComponent {
     vecs::ComponentID namePositionComponent = 0;
     f32 planetRadius;
     f32 radius;
+    f32 oblateness = 0.0f;
     f32 kr = 0.0025f;
     f32 km = 0.0020f;
     f32 esun = 30.0f; // TODO(Ben): This should be dynamic
