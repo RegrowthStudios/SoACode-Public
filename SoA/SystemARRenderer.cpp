@@ -181,13 +181,14 @@ void SystemARRenderer::drawHUD() {
         const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
         if (bodyArData == nullptr) continue;
 
-        f64v3 position = npCmp.position;
-        f64v3 relativePos = position - m_camera->getPosition();
-        color4 textColor;
-
-        f32 hoverTime = bodyArData->hoverTime;
-
         if (bodyArData->inFrustum) {
+
+            f64v3 position = npCmp.position;
+            f64v3 relativePos = position - m_camera->getPosition();
+            f64 distance = glm::length(relativePos);
+            color4 textColor;
+
+            f32 hoverTime = bodyArData->hoverTime;
 
             // Get screen position 
             f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
@@ -226,7 +227,8 @@ void SystemARRenderer::drawHUD() {
                 VGTexture tx;
                 if (oCmp.type == SpaceObjectType::BARYCENTER) {
                     tx = m_baryTexture;
-                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.0f;
+                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.5f - distance * 0.00000000001;
+                    if (selectorSize < 0.0) continue;        
                     interpolator = 0.0f; // Don't rotate barycenters
                 } else {
                     tx = m_selectorTexture;
