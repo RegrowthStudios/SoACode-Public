@@ -93,8 +93,6 @@ private:
     VGUniform unWVP;
     VGUniform unDT;
 
-    VGTexture m_glowTexture = 0;
-
     const ModPathResolver* m_textureResolver = nullptr;
 };
 
