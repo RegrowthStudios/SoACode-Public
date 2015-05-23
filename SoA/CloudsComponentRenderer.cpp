@@ -60,8 +60,8 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
 	glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
 	glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &cCmp.invWavelength4[0]);
 	glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight2);
-	glUniform1f(m_program->getUniform("unOuterRadius"), cCmp.planetRadius + cCmp.height * 1.025f);
-	glUniform1f(m_program->getUniform("unOuterRadius2"), (cCmp.planetRadius + cCmp.height * 1.025f) * (cCmp.planetRadius + cCmp.height * 1.025f));
+	glUniform1f(m_program->getUniform("unOuterRadius"), cCmp.planetRadius + cCmp.height);
+	glUniform1f(m_program->getUniform("unOuterRadius2"), (cCmp.planetRadius + cCmp.height) * (cCmp.planetRadius + cCmp.height));
 	glUniform1f(m_program->getUniform("unInnerRadius"), cCmp.planetRadius);
 	glUniform1f(m_program->getUniform("unKrESun"), cCmp.kr * cCmp.esun);
 	glUniform1f(m_program->getUniform("unKmESun"), cCmp.km * cCmp.esun);
