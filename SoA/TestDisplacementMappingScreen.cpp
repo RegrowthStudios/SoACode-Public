@@ -62,7 +62,7 @@ vec2 calculateOffset(vec2 uv, sampler2D dispTexture, mat3 tbnMatrix, vec3 direct
 void main()
 {
 	vec3 directionToEye = normalize(unEyePosition - fPosition);
-	float bias = -unDispScale;// / 2.0;
+	float bias = -unDispScale / 2.0;
 	vec2 offsetUV = fUV;
 	if (gl_FragCoord.x > 1920 / 2.0) offsetUV += calculateOffset(fUV, unDispTexture, fTbnMatrix, directionToEye, unDispScale, bias);
 	
@@ -98,10 +98,23 @@ void TestDisplacementMappingScreen::destroy(const vui::GameTime& gameTime)
 
 void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 {
-	m_displacementScale = 0.05f;
+	m_displacementScale = 0.08f;
+	m_view = f32v3(0.0f);
 	m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-		m_displacementScale += e.dy * 0.01;
+		m_displacementScale += e.dy * 0.01f;
 		if (m_displacementScale < 0.0f) m_displacementScale = 0.0f;
+	});
+	m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+		if (e.button == vui::MouseButton::LEFT) m_ldown = true;
+	});
+	m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+		if (e.button == vui::MouseButton::LEFT) m_ldown = false;
+	});
+	m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
+		if (m_ldown) {
+			m_view.x += e.dy * 0.1f;
+			m_view.y += e.dx * 0.1f;
+		}
 	});
 
 	m_camera.setPosition(f64v3(0.0f, 0.0f, 0.0f));
@@ -115,7 +128,7 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 	
 	m_program = ShaderLoader::createProgram("ParallaxDisplacementMapping", vertexShader, fragmentShader);
 
-	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/stone_lines.png");
+	vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/stone.png");
 	if (rs.data == nullptr) pError("Failed to load texture");
 	m_diffuseTexture = vg::GpuMemory::uploadTexture(&rs, vg::TexturePixelType::UNSIGNED_BYTE, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 	vg::ImageIO().free(rs);
@@ -166,7 +179,7 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
 	m_program->use();
 	//m_displacementScale = (sinf(gameTime.total * 4.0) * 0.5f + 0.5f) * 0.1f;
 
-	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f) * glm::rotate(sinf(gameTime.total * 1.0f) * 40.0f, f32v3(0.0f, 1.0f, 0.0f)) * glm::rotate((float)gameTime.total * 30.0f, f32v3(0.0f, 0.0f, 1.0f));
+	f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f - m_view.z) * glm::rotate(m_view.x, f32v3(1.0f, 0.0f, 0.0f)) * glm::rotate(m_view.y, f32v3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(m_program->getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
 	f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
 	glUniformMatrix4fv(m_program->getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);

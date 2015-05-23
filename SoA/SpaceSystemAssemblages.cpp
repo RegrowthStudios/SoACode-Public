@@ -73,6 +73,13 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                at.waveLength);
     }
 
+	const CloudsKegProperties& cl = properties->clouds;
+
+	if (cl.density > 0.0f) {
+		addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0125), cl.color, cl.scale, cl.density,
+			at.kr, at.km, at.g, at.scaleDepth, at.waveLength); // Scattering
+	}
+
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                               sysProps->t, sysProps->n, sysProps->p,
                                               sysProps->i, sysProps->a);
@@ -177,6 +184,33 @@ vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* sp
 
 void SpaceSystemAssemblages::removeAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
+}
+
+vecs::ComponentID SpaceSystemAssemblages::addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+															vecs::ComponentID namePositionComponent, f32 planetRadius,
+															f32 height, f32v3 color, f32v3 scale, float density,
+															f32 kr, f32 km, f32 g, f32 scaleDepth, // Scattering
+															f32v3 wavelength) {
+
+	vecs::ComponentID cCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
+	auto& cCmp = spaceSystem->m_cloudsCT.get(cCmpId);
+	cCmp.namePositionComponent = namePositionComponent;
+	cCmp.planetRadius = planetRadius;
+	cCmp.height = height;
+	cCmp.color = color;
+	cCmp.scale = scale;
+	cCmp.density = density;
+	//Scattering
+	cCmp.kr = kr;
+	cCmp.km = km;
+	cCmp.g = g;
+	cCmp.scaleDepth = scaleDepth;
+	cCmp.invWavelength4 = wavelength;
+	return cCmpId;
+}
+
+void SpaceSystemAssemblages::removeCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
+	spaceSystem->deleteComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,

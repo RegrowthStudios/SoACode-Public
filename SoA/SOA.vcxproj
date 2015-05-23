@@ -288,6 +288,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkListManager.h" />
     <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="CloudsComponentRenderer.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="ColoredFullQuadRenderer.h" />
     <ClInclude Include="ColorFilterRenderStage.h" />
@@ -482,6 +483,7 @@ EXIT 0</Command>
     <ClCompile Include="ChunkListManager.cpp" />
     <ClCompile Include="ChunkMemoryManager.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
     <ClCompile Include="ColorFilterRenderStage.cpp" />

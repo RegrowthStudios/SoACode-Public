@@ -19,6 +19,7 @@
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
 
+#include "CloudsComponentRenderer.h"
 #include "AtmosphereComponentRenderer.h"
 #include "Camera.h"
 #include "FarTerrainComponentRenderer.h"
@@ -95,7 +96,8 @@ private:
     const Camera* m_farTerrainCamera = nullptr;
     const MTRenderState* m_renderState = nullptr;
 
-    AtmosphereComponentRenderer m_atmosphereComponentRenderer;
+	CloudsComponentRenderer m_cloudsComponentRenderer;
+	AtmosphereComponentRenderer m_atmosphereComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
     GasGiantComponentRenderer m_gasGiantComponentRenderer;
     LenseFlareRenderer m_lensFlareRenderer;

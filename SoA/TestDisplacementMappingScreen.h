@@ -28,6 +28,8 @@ private:
 	float m_displacementScale;
 
 	AutoDelegatePool m_hooks;
+	bool m_ldown;
+	f32v3 m_view;
 };
 
 #endif

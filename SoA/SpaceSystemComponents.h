@@ -68,6 +68,24 @@ struct AtmosphereComponent {
                                  1.0f / powf(0.475f, 4.0f));
 };
 
+struct CloudsComponent {
+	vecs::ComponentID namePositionComponent = 0;
+	f32 planetRadius;
+	f32 height;
+	f32v3 color;
+	f32v3 scale;
+	float density;
+	// Scattering
+	f32 kr = 0.0025f;
+	f32 km = 0.0020f;
+	f32 esun = 30.0f; // TODO(Ben): This should be dynamic
+	f32 g = -0.99f;
+	f32 scaleDepth = 0.25f;
+	f32v3 invWavelength4 = f32v3(1.0f / powf(0.65f, 4.0f),
+		1.0f / powf(0.57f, 4.0f),
+		1.0f / powf(0.475f, 4.0f));
+};
+
 struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
     f64q currentOrientation; ///< Current orientation with axis and rotation
