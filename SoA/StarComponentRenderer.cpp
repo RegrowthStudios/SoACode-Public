@@ -115,7 +115,7 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
     m_coronaProgram->use();
 
     // Corona color
-    f32v3 tColor = f32v3(0.9f) + getTempColorShift(sCmp);
+    f32v3 tColor = getTempColorShift(sCmp);
 
     // Upload uniforms
     glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
