@@ -142,9 +142,9 @@ void VoxelModel::genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModel
     for(i32 i = 0; i < matrix->size.x; i++) {
         for(i32 j = 0; j < matrix->size.y; j++) {
             for(i32 k = 0; k < matrix->size.z; k++) {
+                ColorRGBA8 voxel = matrix->getColor(i, j, k);
+                if(voxel.a == 0) continue;
                 for(i32 side = 0; side < 6; side++) {
-                    ColorRGBA8 voxel = matrix->getColor(i, j, k);
-                    if(voxel.a == 0) continue;
                     f32v3 offset = f32v3(i, j, k) + position;
                     if(matrix->getColor(i32v3(i, j, k) + VOXEL_SIDES[side]).a == 0) {
                         i32 indexStart = vertices.size();
