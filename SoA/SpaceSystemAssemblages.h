@@ -93,9 +93,9 @@ namespace SpaceSystemAssemblages {
 
     /// Axis rotation component
     extern vecs::ComponentID addAxisRotationComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                         const f64q& axisOrientation,
-                                                         f64 startAngle,
-                                                         f64 rotationalPeriod);
+                                                      f32 aTilt, f32 lNorth,
+                                                      f64 startAngle,
+                                                      f64 rotationalPeriod);
     extern void removeAxisRotationComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical terrain component

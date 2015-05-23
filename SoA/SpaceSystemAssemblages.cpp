@@ -23,6 +23,8 @@
 #include "TexturePackLoader.h"
 #include "PlanetData.h"
 
+#include <glm/gtx/quaternion.hpp>
+
 #define SEC_PER_HOUR 3600.0
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
@@ -51,7 +53,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     const vecs::EntityID& id = body->entity;
 
     const f64v3 up(0.0, 1.0, 0.0);
-    vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
+    vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, properties->aTilt, properties->lNorth,
                                                        0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
     f64v3 tmpPos(0.0);
@@ -93,7 +95,7 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     const vecs::EntityID& id = body->entity;
 
     const f64v3 up(0.0, 1.0, 0.0);
-    vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
+    vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, properties->aTilt, properties->lNorth,
                                                        0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
     f64v3 tmpPos(0.0);
@@ -127,7 +129,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     const vecs::EntityID& id = body->entity;
 
     const f64v3 up(0.0, 1.0, 0.0);
-    vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, quatBetweenVectors(up, glm::normalize(properties->axis)),
+    vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, properties->aTilt, properties->lNorth,
                                                        0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
     f64v3 tmpPos(0.0);
@@ -242,11 +244,11 @@ void SpaceSystemAssemblages::removeSphericalVoxelComponent(SpaceSystem* spaceSys
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                                  const f64q& axisOrientation, f64 startAngle,
+                                                                  f32 aTilt, f32 lNorth, f64 startAngle,
                                                                   f64 rotationalPeriod) {
     vecs::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
-    arCmp.axisOrientation = axisOrientation;
+    arCmp.axisOrientation = glm::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
     arCmp.currentRotation = startAngle;
     arCmp.period = rotationalPeriod;
     return arCmpId;

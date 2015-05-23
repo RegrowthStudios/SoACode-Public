@@ -94,7 +94,8 @@ struct PlanetKegProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
-    f64v3 axis;
+    f32 aTilt = 0.0;
+    f32 lNorth = 0.0;
     f64 rotationalPeriod = 0.0;
     nString displayName = "";
     nString generation = "";
@@ -108,7 +109,8 @@ struct StarKegProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
-    f64v3 axis;
+    f32 aTilt = 0.0;
+    f32 lNorth = 0.0;
     f64 rotationalPeriod = 0.0;
     nString displayName = "";
 };
@@ -118,7 +120,8 @@ struct GasGiantKegProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
-    f64v3 axis;
+    f32 aTilt = 0.0;
+    f32 lNorth = 0.0;
     f64 rotationalPeriod = 0.0;
     f32 oblateness = 0.0;
     nString colorMap = "";

@@ -55,7 +55,8 @@ KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, diameter, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, density, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, mass, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, axis, F64_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, lNorth, F32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, rotationalPeriod, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, displayName, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, generation, STRING);
@@ -67,7 +68,8 @@ KEG_TYPE_DEF_SAME_NAME(StarKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, diameter, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, density, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, mass, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, axis, F64_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, lNorth, F32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, rotationalPeriod, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, displayName, STRING);
 }
@@ -76,7 +78,8 @@ KEG_TYPE_DEF_SAME_NAME(GasGiantKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, diameter, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, density, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, mass, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, axis, F64_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, lNorth, F32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, rotationalPeriod, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, oblateness, F32);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, colorMap, STRING);
