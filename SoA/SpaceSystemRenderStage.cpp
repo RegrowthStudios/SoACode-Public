@@ -79,13 +79,13 @@ void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
     }
 }
 
-
 void SpaceSystemRenderStage::reloadShader() {
     m_sphericalTerrainComponentRenderer.disposeShaders();
     m_farTerrainComponentRenderer.disposeShaders();
     m_atmosphereComponentRenderer.disposeShader();
     m_gasGiantComponentRenderer.disposeShader();
     m_starRenderer.disposeShaders();
+    m_ringsRenderer.disposeShader();
     m_lensFlareRenderer.dispose();
 }
 
@@ -185,6 +185,24 @@ void SpaceSystemRenderStage::drawBodies() {
             m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
         }
     }
+
+    // Render planet rings
+    glDepthMask(GL_FALSE);
+    for (auto& it : m_spaceSystem->m_planetRingCT) {
+        auto& prCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(prCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+
+        auto& l = lightCache[it.first];
+
+        f32v3 lightDir(glm::normalize(l.first - *pos));
+
+        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+    }
+    glDepthMask(GL_TRUE);
 
     // Render far terrain
     if (m_farTerrainCamera) {

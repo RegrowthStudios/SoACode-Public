@@ -111,6 +111,18 @@ struct OrbitComponent {
     bool isCalculated = false; ///< True when orbit has been calculated
 };
 
+struct PlanetRing {
+    f32 innerRadius;
+    f32 outerRadius;
+    f64q orientation;
+    VGTexture colorLookup;
+};
+
+struct PlanetRingsComponent {
+    vecs::ComponentID namePositionComponent;
+    std::vector<PlanetRing> rings;
+};
+
 struct SphericalGravityComponent {
     vecs::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
     f64 radius = 0.0; ///< Radius in KM

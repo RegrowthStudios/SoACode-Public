@@ -148,6 +148,10 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
                                at.waveLength, properties->oblateness);
     }
 
+    if (properties->rings.size()) {
+        addPlanetRingsComponent(spaceSystem, id, npCmp, properties->rings);
+    }
+
     return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a);
@@ -181,6 +185,29 @@ vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* sp
 
 void SpaceSystemAssemblages::removeAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
+}
+
+vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                          vecs::ComponentID namePositionComponent, const Array<PlanetRingKegProperties>& rings) {
+    vecs::ComponentID prCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_PLANETRINGS_NAME, entity);
+    if (prCmpId == 0) {
+        return 0;
+    }
+    auto& prCmp = spaceSystem->m_planetRingCT.get(prCmpId);
+    prCmp.namePositionComponent = namePositionComponent;
+    prCmp.rings.resize(rings.size());
+    for (size_t i = 0; i < rings.size(); i++) {
+        auto& r1 = prCmp.rings[i];
+        auto& r2 = rings[i];
+        r1.innerRadius = r2.innerRadius;
+        r1.outerRadius = r2.outerRadius;
+        r1.colorLookup = r2.texture;
+        r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
+    }
+}
+
+void  SpaceSystemAssemblages::removePlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_PLANETRINGS_NAME, entity);
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,

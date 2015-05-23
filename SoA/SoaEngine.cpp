@@ -525,7 +525,7 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
 
 void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
                                const SystemBodyKegProperties* sysProps,
-                               const GasGiantKegProperties* properties,
+                               GasGiantKegProperties* properties,
                                SystemBody* body) {
 
     // Load the texture
@@ -536,32 +536,57 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
             fprintf(stderr, "Failed to resolve %s\n", properties->colorMap.c_str());
             return;
         }
-        if (pr.glrpc) {
-            vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                vg::BitmapResource b = vg::ImageIO().load(colorPath); 
-                if (b.data) {
-                    colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                            vg::TextureTarget::TEXTURE_2D,
-                                                            &vg::SamplerState::LINEAR_CLAMP);
-                    vg::ImageIO().free(b);
-                } else {
-                    fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
-                }
-            });
-            pr.glrpc->invoke(&rpc, true);
-        } else {
-            vg::BitmapResource b = vg::ImageIO().load(colorPath);
+        // Make the functor for loading texture
+        auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            vg::ScopedBitmapResource b = vg::ImageIO().load(colorPath);
             if (b.data) {
                 colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
                                                         vg::TextureTarget::TEXTURE_2D,
                                                         &vg::SamplerState::LINEAR_CLAMP);
-                vg::ImageIO().free(b);
-                
             } else {
                 fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
-                return;
             }
+        });
+        // Check if we need to do RPC
+        if (pr.glrpc) {
+            vcore::RPC rpc;
+            rpc.data.f = f;
+            pr.glrpc->invoke(&rpc, true);
+        } else {
+            f->invoke(0, nullptr);
+        }
+        delete f;
+    }
+
+    // Load the rings
+    if (properties->rings.size()) {
+       
+        auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            for (size_t i = 0; i < properties->rings.size(); i++) {
+                auto& r = properties->rings[i];
+                // Resolve the path
+                vio::Path ringPath;
+                if (!pr.ioManager->resolvePath(r.colorLookup, ringPath)) {
+                    fprintf(stderr, "Failed to resolve %s\n", r.colorLookup.c_str());
+                    return;
+                }
+                // Load the texture
+                vg::ScopedBitmapResource b = vg::ImageIO().load(ringPath);
+                if (b.data) {
+                    r.texture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                            vg::TextureTarget::TEXTURE_2D,
+                                                            &vg::SamplerState::LINEAR_CLAMP);
+                } else {
+                    fprintf(stderr, "Failed to load %s\n", r.colorLookup.c_str());
+                }
+            }
+        });
+        if (pr.glrpc) {
+            vcore::RPC rpc;
+            rpc.data.f = f;
+            pr.glrpc->invoke(&rpc, true);
+        } else {
+            f->invoke(0, nullptr);
         }
     }
     SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, properties, body, colorMap);

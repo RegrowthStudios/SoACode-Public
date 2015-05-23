@@ -17,6 +17,7 @@
 
 struct PlanetGenData;
 
+#include <Vorb/graphics/gtypes.h>
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/Entity.h>
 
@@ -56,6 +57,16 @@ struct AtmosphereKegProperties {
     f32v3 waveLength = f32v3(0.65, 0.57, 0.475);
 };
 KEG_TYPE_DECL(AtmosphereKegProperties);
+
+struct PlanetRingKegProperties {
+    f32 innerRadius = 0.0f;
+    f32 outerRadius = 0.0f;
+    f32 aTilt = 0.0f;
+    f32 lNorth = 0.0f;
+    nString colorLookup = "";
+    VGTexture texture = 0;
+};
+KEG_TYPE_DECL(PlanetRingKegProperties);
 
 struct SystemBodyKegProperties {
     SpaceObjectType type = SpaceObjectType::NONE;
@@ -127,6 +138,7 @@ struct GasGiantKegProperties {
     nString colorMap = "";
     nString displayName = "";
     AtmosphereKegProperties atmosphere;
+    Array<PlanetRingKegProperties> rings;
 };
 KEG_TYPE_DECL(GasGiantKegProperties);
 

@@ -51,6 +51,14 @@ KEG_TYPE_DEF_SAME_NAME(AtmosphereKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, waveLength, F32_V3);
 }
 
+KEG_TYPE_DEF_SAME_NAME(PlanetRingKegProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, innerRadius, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, outerRadius, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, lNorth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, colorLookup, STRING);
+}
+
 KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, diameter, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, density, F64);
@@ -85,4 +93,5 @@ KEG_TYPE_DEF_SAME_NAME(GasGiantKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, colorMap, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, displayName, STRING);
     kt.addValue("atmosphere", keg::Value::custom(offsetof(GasGiantKegProperties, atmosphere), "AtmosphereKegProperties", false));
+    kt.addValue("rings", keg::Value::array(offsetof(GasGiantKegProperties, rings), keg::Value::custom(0, "PlanetRingKegProperties", false)));
 }

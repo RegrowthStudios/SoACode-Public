@@ -18,6 +18,7 @@
 class SpaceSystem;
 
 #include "VoxelCoordinateSpaces.h"
+#include "SpaceSystemLoadStructs.h"
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
@@ -80,6 +81,11 @@ namespace SpaceSystemAssemblages {
                                                     f32 radius, f32 kr, f32 km, f32 g, f32 scaleDepth,
                                                     f32v3 wavelength, f32 oblateness = 0.0f);
     extern void removeAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
+
+    /// PlanetRings component
+    extern vecs::ComponentID addPlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                    vecs::ComponentID namePositionComponent, const Array<PlanetRingKegProperties>& rings);
+    extern void removePlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical voxel component
     extern vecs::ComponentID addSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
