@@ -192,6 +192,9 @@ void SpaceSystemRenderStage::drawBodies() {
         auto& prCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(prCmp.namePositionComponent);
 
+        // TODO(Ben): Don't use getFromEntity
+        auto& sgCmp = m_spaceSystem->m_sphericalGravityCT.getFromEntity(it.first);
+
         pos = getBodyPosition(npCmp, it.first);
 
         f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
@@ -200,7 +203,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
         f32v3 lightDir(glm::normalize(l.first - *pos));
 
-        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+        // TODO(Ben): Worry about f64 to f32 precision loss
+        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, f32v3(l.first - m_spaceCamera->getPosition()), sgCmp.radius, l.second);
     }
     glDepthMask(GL_TRUE);
 
