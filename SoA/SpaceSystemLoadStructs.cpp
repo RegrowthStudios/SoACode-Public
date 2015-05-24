@@ -52,9 +52,9 @@ KEG_TYPE_DEF_SAME_NAME(AtmosphereKegProperties, kt) {
 }
 
 KEG_TYPE_DEF_SAME_NAME(CloudsKegProperties, kt) {
-	KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, color, F32_V3);
-	KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, scale, F32_V3);
-	KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, density, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, color, F32_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, scale, F32_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, density, F32);
 }
 
 KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {

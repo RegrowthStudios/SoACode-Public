@@ -69,12 +69,12 @@ struct AtmosphereComponent {
 };
 
 struct CloudsComponent {
-	vecs::ComponentID namePositionComponent = 0;
-	f32 planetRadius;
-	f32 height;
-	f32v3 color;
-	f32v3 scale;
-	float density;
+    vecs::ComponentID namePositionComponent = 0;
+    f32 planetRadius;
+    f32 height;
+    f32v3 color;
+    f32v3 scale;
+    float density;
 };
 
 struct AxisRotationComponent {

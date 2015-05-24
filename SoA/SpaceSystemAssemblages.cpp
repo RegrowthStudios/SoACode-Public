@@ -73,11 +73,11 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                at.waveLength);
     }
 
-	const CloudsKegProperties& cl = properties->clouds;
+    const CloudsKegProperties& cl = properties->clouds;
 
-	if (cl.density > 0.0f) {
-		addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0075), cl.color, cl.scale, cl.density);
-	}
+    if (cl.density > 0.0f) {
+        addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0075), cl.color, cl.scale, cl.density);
+    }
 
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                               sysProps->t, sysProps->n, sysProps->p,
@@ -186,22 +186,22 @@ void SpaceSystemAssemblages::removeAtmosphereComponent(SpaceSystem* spaceSystem,
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-															vecs::ComponentID namePositionComponent, f32 planetRadius,
-															f32 height, f32v3 color, f32v3 scale, float density) {
+                                                            vecs::ComponentID namePositionComponent, f32 planetRadius,
+                                                            f32 height, f32v3 color, f32v3 scale, float density) {
 
-	vecs::ComponentID cCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
-	auto& cCmp = spaceSystem->m_cloudsCT.get(cCmpId);
-	cCmp.namePositionComponent = namePositionComponent;
-	cCmp.planetRadius = planetRadius;
-	cCmp.height = height;
-	cCmp.color = color;
-	cCmp.scale = scale;
-	cCmp.density = density;
-	return cCmpId;
+    vecs::ComponentID cCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
+    auto& cCmp = spaceSystem->m_cloudsCT.get(cCmpId);
+    cCmp.namePositionComponent = namePositionComponent;
+    cCmp.planetRadius = planetRadius;
+    cCmp.height = height;
+    cCmp.color = color;
+    cCmp.scale = scale;
+    cCmp.density = density;
+    return cCmpId;
 }
 
 void SpaceSystemAssemblages::removeCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
-	spaceSystem->deleteComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
+    spaceSystem->deleteComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,

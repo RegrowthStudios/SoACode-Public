@@ -58,9 +58,9 @@ struct AtmosphereKegProperties {
 KEG_TYPE_DECL(AtmosphereKegProperties);
 
 struct CloudsKegProperties {
-	f32v3 color = f32v3(1.0f, 1.0f, 1.0f);
-	f32v3 scale = f32v3(1.0f, 1.5f, 1.0f);
-	float density = 0.0f;
+    f32v3 color = f32v3(1.0f, 1.0f, 1.0f);
+    f32v3 scale = f32v3(1.0f, 1.5f, 1.0f);
+    float density = 0.0f;
 };
 KEG_TYPE_DECL(CloudsKegProperties);
 
