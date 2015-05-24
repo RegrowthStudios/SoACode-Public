@@ -59,6 +59,12 @@ KEG_TYPE_DEF_SAME_NAME(PlanetRingKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, colorLookup, STRING);
 }
 
+KEG_TYPE_DEF_SAME_NAME(CloudsKegProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, color, F32_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, scale, F32_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, density, F32);
+}
+
 KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, diameter, F64);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, density, F64);
@@ -69,6 +75,7 @@ KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, displayName, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, generation, STRING);
     kt.addValue("atmosphere", keg::Value::custom(offsetof(PlanetKegProperties, atmosphere), "AtmosphereKegProperties", false));
+    kt.addValue("clouds", keg::Value::custom(offsetof(PlanetKegProperties, clouds), "CloudsKegProperties", false));
 }
 
 KEG_TYPE_DEF_SAME_NAME(StarKegProperties, kt) {

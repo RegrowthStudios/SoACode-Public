@@ -69,6 +69,15 @@ struct AtmosphereComponent {
                                  1.0f / powf(0.475f, 4.0f));
 };
 
+struct CloudsComponent {
+    vecs::ComponentID namePositionComponent = 0;
+    f32 planetRadius;
+    f32 height;
+    f32v3 color;
+    f32v3 scale;
+    float density;
+};
+
 struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
     f64q currentOrientation; ///< Current orientation with axis and rotation

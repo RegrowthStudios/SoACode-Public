@@ -49,6 +49,7 @@ protected:
     f32 getBodyMass(vecs::EntityID entity);
     f32 getBodyDiameter(vecs::EntityID entity);
     f32 getBodyRotPeriod(vecs::EntityID entity);
+    f32 getBodyOrbitPeriod(vecs::EntityID entity);
     f32 getBodyAxialTilt(vecs::EntityID entity);
 
     InputMapper* m_inputMapper = nullptr;

@@ -288,6 +288,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkListManager.h" />
     <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="CloudsComponentRenderer.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="ColoredFullQuadRenderer.h" />
     <ClInclude Include="ColorFilterRenderStage.h" />
@@ -378,6 +379,7 @@ EXIT 0</Command>
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
+    <ClInclude Include="TestDisplacementMappingScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
@@ -482,6 +484,7 @@ EXIT 0</Command>
     <ClCompile Include="ChunkListManager.cpp" />
     <ClCompile Include="ChunkMemoryManager.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
     <ClCompile Include="ColorFilterRenderStage.cpp" />
@@ -567,6 +570,7 @@ EXIT 0</Command>
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
+    <ClCompile Include="TestDisplacementMappingScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />

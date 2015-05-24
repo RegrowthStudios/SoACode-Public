@@ -716,9 +716,6 @@
     <ClInclude Include="StarComponentRenderer.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestStarScreen.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="SpaceSystemComponentTables.h">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
@@ -747,6 +744,14 @@
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
     <ClInclude Include="PlanetRingsComponentRenderer.h">
+    </ClInclude>
+    <ClInclude Include="TestDisplacementMappingScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="TestStarScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="CloudsComponentRenderer.h">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1203,7 +1208,6 @@
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClCompile>
     <ClCompile Include="StarComponentRenderer.cpp" />
-    <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="SpaceSystemComponentTables.cpp">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
@@ -1218,6 +1222,14 @@
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
     <ClCompile Include="PlanetRingsComponentRenderer.cpp">
+    </ClInclude>
+    <ClCompile Include="TestDisplacementMappingScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="TestStarScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="CloudsComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClCompile>
   </ItemGroup>
