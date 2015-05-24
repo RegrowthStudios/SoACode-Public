@@ -81,11 +81,11 @@ namespace SpaceSystemAssemblages {
                                                     f32v3 wavelength);
     extern void removeAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
-	/// Clouds component
-	extern vecs::ComponentID addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-													vecs::ComponentID namePositionComponent, f32 planetRadius,
-													f32 height, f32v3 color, f32v3 scale, float density);
-	extern void removeCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
+    /// Clouds component
+    extern vecs::ComponentID addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                    vecs::ComponentID namePositionComponent, f32 planetRadius,
+                                                    f32 height, f32v3 color, f32v3 scale, float density);
+    extern void removeCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical voxel component
     extern vecs::ComponentID addSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
