@@ -67,7 +67,7 @@ KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, displayName, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, generation, STRING);
     kt.addValue("atmosphere", keg::Value::custom(offsetof(PlanetKegProperties, atmosphere), "AtmosphereKegProperties", false));
-	kt.addValue("clouds", keg::Value::custom(offsetof(PlanetKegProperties, clouds), "CloudsKegProperties", false));
+    kt.addValue("clouds", keg::Value::custom(offsetof(PlanetKegProperties, clouds), "CloudsKegProperties", false));
 }
 
 KEG_TYPE_DEF_SAME_NAME(StarKegProperties, kt) {

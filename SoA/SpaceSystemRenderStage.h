@@ -95,9 +95,9 @@ private:
     const Camera* m_spaceCamera = nullptr;
     const Camera* m_farTerrainCamera = nullptr;
     const MTRenderState* m_renderState = nullptr;
-
-	CloudsComponentRenderer m_cloudsComponentRenderer;
-	AtmosphereComponentRenderer m_atmosphereComponentRenderer;
+    
+    CloudsComponentRenderer m_cloudsComponentRenderer;
+    AtmosphereComponentRenderer m_atmosphereComponentRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
     GasGiantComponentRenderer m_gasGiantComponentRenderer;
     LenseFlareRenderer m_lensFlareRenderer;

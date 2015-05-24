@@ -107,7 +107,7 @@ struct PlanetKegProperties {
     nString generation = "";
     PlanetGenData* planetGenData = nullptr;
     AtmosphereKegProperties atmosphere;
-	CloudsKegProperties clouds;
+    CloudsKegProperties clouds;
 };
 KEG_TYPE_DECL(PlanetKegProperties);
 
