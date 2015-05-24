@@ -59,9 +59,9 @@ void App::addScreens() {
     scrTests.push_back(new TestStarScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
-	scrTests.push_back(new TestDisplacementMappingScreen);
-	m_screenList.addScreen(scrTests.back());
-	scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
+    scrTests.push_back(new TestDisplacementMappingScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
 
     // Uncomment to start from dev screen for testing other screens
 //#define START_AT_DEV_SCREEN
@@ -78,7 +78,7 @@ void App::onInit() {
     SoaEngine::initOptions(soaOptions);
 
     // Set the window options
-	soaOptions.get(OPT_FULLSCREEN).value.b = m_window.isFullscreen();
+    soaOptions.get(OPT_FULLSCREEN).value.b = m_window.isFullscreen();
     soaOptions.get(OPT_BORDERLESS).value.b = m_window.isBorderless();
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = m_window.getWidth();
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = m_window.getHeight();
