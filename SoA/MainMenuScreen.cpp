@@ -74,12 +74,15 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
-    m_ambLibrary->addTrack("Menu", "Track1", "Data/Music/Abyss.mp3");
-    m_ambLibrary->addTrack("Menu", "Track2", "Data/Music/BGM Creepy.mp3");
-    m_ambLibrary->addTrack("Menu", "Track3", "Data/Music/BGM Unknown.mp3");
-    m_ambLibrary->addTrack("Menu", "Track4", "Data/Music/Stranded.mp3");
+    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Music/Andromeda Fallen.mp3");
+    m_ambLibrary->addTrack("Menu", "Brethren", "Data/Music/Brethren.mp3");
+    m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Music/Crystalite.mp3");
+    m_ambLibrary->addTrack("Menu", "Stranded", "Data/Music/Stranded.mp3");
+    m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Music/Toxic Haze.mp3");
+    m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Music/BGM Unknown.mp3");
     m_ambPlayer = new AmbiencePlayer;
     m_ambPlayer->init(m_engine, m_ambLibrary);
+    m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
     m_ambPlayer->setToTrack("Menu", 50);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
@@ -311,5 +314,6 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     } else {
         m_window->setSwapInterval(vui::GameSwapInterval::UNLIMITED_FPS);
     }
-    TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);  
+    TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
+    m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
 }
