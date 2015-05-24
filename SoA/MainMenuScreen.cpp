@@ -300,6 +300,7 @@ void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
     m_ui.onOptionsChanged();
     m_camera.setAspectRatio(m_window->getAspectRatio());
+    m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
 
 void MainMenuScreen::onWindowClose(Sender s) {
