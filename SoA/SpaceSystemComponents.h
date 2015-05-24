@@ -75,6 +75,7 @@ struct AxisRotationComponent {
     f64q invCurrentOrientation; ///< Inverse of currentOrientation
     f64 period = 0.0; ///< Period of rotation in seconds
     f64 currentRotation = 0.0; ///< Current rotation about axis in radians
+    f32 tilt = 0.0f;
 };
 
 struct NamePositionComponent {

@@ -15,6 +15,7 @@
 #ifndef MainMenuScriptedUI_h__
 #define MainMenuScriptedUI_h__
 
+#include <vorb/ecs/Entity.h>
 #include <Vorb/ui/ScriptedUI.h>
 #include "InputMapper.h"
 
@@ -40,6 +41,15 @@ protected:
     nString getDefaultKeyString(InputMapper::InputID id);
     nString getName(InputMapper::InputID id);
     void onExit(int code);
+    void onTargetChange(Sender s, vecs::EntityID id);
+
+    // Planet functions (temporary???)
+    vecs::EntityID getTargetBody();
+    nString getBodyName(vecs::EntityID entity);
+    f32 getBodyMass(vecs::EntityID entity);
+    f32 getBodyDiameter(vecs::EntityID entity);
+    f32 getBodyRotPeriod(vecs::EntityID entity);
+    f32 getBodyAxialTilt(vecs::EntityID entity);
 
     InputMapper* m_inputMapper = nullptr;
 };

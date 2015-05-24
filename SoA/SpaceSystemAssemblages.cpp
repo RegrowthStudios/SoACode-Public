@@ -275,6 +275,7 @@ vecs::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(SpaceSystem* 
                                                                   f64 rotationalPeriod) {
     vecs::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
+    arCmp.tilt = aTilt;
     arCmp.axisOrientation = glm::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
     arCmp.currentRotation = startAngle;
     arCmp.period = rotationalPeriod;

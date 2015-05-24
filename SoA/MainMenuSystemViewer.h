@@ -80,6 +80,8 @@ public:
     static const f32 MIN_SELECTOR_SIZE;
     static const f32 MAX_SELECTOR_SIZE;
 
+    Event<vecs::EntityID> TargetChange;
+
 private:
     // Events
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
