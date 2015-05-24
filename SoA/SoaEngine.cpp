@@ -641,8 +641,12 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
         f64 ns = log(0.003 * pow(orbitC.a, 6.0) * pow(diameter + 500.0, 3.0) / (mass * orbitC.parentMass) * (1.0 + (f64)1e20 / (mass + orbitC.parentMass)));
         if (ns < 0) {
             // It is tidally locked so lock the rotational period
-            //std::cout << "Lock " << body->name << " spin= " << ns << std::endl;
+            // std::cout << "Lock " << body->name << " spin= " << ns << std::endl;
             spaceSystem->m_axisRotationCT.getFromEntity(entity).period = t;
+        }
+        if (body->name == "Aldrin") {
+
+            std::cout << "lol";
         }
     }
 

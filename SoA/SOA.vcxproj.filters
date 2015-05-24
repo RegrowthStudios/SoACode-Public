@@ -1222,7 +1222,7 @@
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
     <ClCompile Include="PlanetRingsComponentRenderer.cpp">
-    </ClInclude>
+    </ClCompile>
     <ClCompile Include="TestDisplacementMappingScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "OptionsController.h"
 
-OptionsController::OptionsController() {
+OptionsController::OptionsController(const nString& filePath /*= "Data/options.ini"*/) {
     // Empty
 }
 

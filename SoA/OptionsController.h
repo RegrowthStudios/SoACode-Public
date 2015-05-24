@@ -21,7 +21,7 @@
 
 class OptionsController {
 public:
-    OptionsController();
+    OptionsController(const nString& filePath = "Data/options.ini");
     ~OptionsController();
 
     // Call right before loading options
