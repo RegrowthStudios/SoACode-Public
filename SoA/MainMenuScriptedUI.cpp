@@ -99,10 +99,12 @@ void MainMenuScriptedUI::onExit(int code) {
 
 void MainMenuScriptedUI::onTargetChange(Sender s, vecs::EntityID id) {
     // TODO(Ben): Race condition???
-    for (auto& it : m_activeForms) {
-        vscript::Environment* env = it.second->getEnv();
-        const vscript::Function& f = (*env)[ON_TARGET_CHANGE_NAME];
-        if (!f.isNil()) f(id);
+    for (auto& it : m_forms) {
+        if (it.first->isEnabled()) {
+            vscript::Environment* env = it.second->getEnv();
+            const vscript::Function& f = (*env)[ON_TARGET_CHANGE_NAME];
+            if (!f.isNil()) f(id);
+        }
     }
 }
 

@@ -33,7 +33,10 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
         m_program = ShaderLoader::createProgramFromFile("Shaders/PlanetRings/Rings.vert",
                                                         "Shaders/PlanetRings/Rings.frag");
     }
-    if (!m_isInitialized) m_quad.init();
+    if (!m_isInitialized) {
+        m_isInitialized = true;
+        m_quad.init();
+    }
 
     m_program->use();
     glDisable(GL_CULL_FACE);
