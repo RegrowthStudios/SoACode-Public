@@ -91,8 +91,6 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     data->humTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
     funcs.clear();
 
-
-
     return data;
 }
 
