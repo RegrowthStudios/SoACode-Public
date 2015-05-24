@@ -87,6 +87,7 @@ void SpaceSystemRenderStage::reloadShader() {
     m_gasGiantComponentRenderer.disposeShader();
     m_starRenderer.disposeShaders();
     m_lensFlareRenderer.dispose();
+    m_cloudsComponentRenderer.disposeShader();
 }
 
 f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {
@@ -165,6 +166,19 @@ void SpaceSystemRenderStage::drawBodies() {
                                          m_spaceSystem->m_axisRotationCT.getFromEntity(it.first).currentOrientation,
                                          relCamPos, lightDir, lightCmp,
                                          &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+    }
+
+    // Render clouds
+    for (auto& it : m_spaceSystem->m_cloudsCT) {
+        auto& cCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(cCmp.namePositionComponent);
+
+        pos = getBodyPosition(npCmp, it.first);
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+        auto& l = lightCache[it.first];
+        f32v3 lightDir(glm::normalize(l.first - *pos));
+        
+        m_cloudsComponentRenderer.draw(cCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second, m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 
     // Render atmospheres

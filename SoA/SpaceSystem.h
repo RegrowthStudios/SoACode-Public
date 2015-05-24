@@ -34,6 +34,7 @@
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 #define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
 #define SPACE_SYSTEM_CT_ATMOSPHERE_NAME "Atmosphere"
+#define SPACE_SYSTEM_CT_CLOUDS_NAME "Clouds"
 
 class App;
 class Binary;
@@ -70,12 +71,13 @@ public:
     vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
     vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
+    vecs::ComponentTable<CloudsComponent> m_cloudsCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
-
+    
     nString systemDescription; ///< textual description of the system
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
     std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
-
+    
     std::map<nString, std::pair<f32v3, f32v3> > pathColorMap; ///< Map of body type to path colors
 };
 

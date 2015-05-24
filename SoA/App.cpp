@@ -22,6 +22,7 @@
 #include "TestGasGiantScreen.h"
 #include "TestMappingScreen.h"
 #include "TestStarScreen.h"
+#include "TestDisplacementMappingScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -58,6 +59,9 @@ void App::addScreens() {
     scrTests.push_back(new TestStarScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
+    scrTests.push_back(new TestDisplacementMappingScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
 
     // Uncomment to start from dev screen for testing other screens
 //#define START_AT_DEV_SCREEN
