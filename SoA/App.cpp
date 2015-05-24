@@ -97,7 +97,6 @@ void App::onExit() {
 }
 
 App::~App() {
-
     delete scrInit;
     delete scrLoad;
     delete scrMainMenu;

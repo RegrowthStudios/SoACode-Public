@@ -10,9 +10,7 @@ struct SoaOptionFlags {
 
 enum class OptionValueType {
     NONE,
-    F64,
     F32,
-    I64,
     I32,
     BOOL,
     CHAR
@@ -20,16 +18,12 @@ enum class OptionValueType {
 
 struct OptionValue {
     OptionValue() {}
-    OptionValue(f64 lf) : lf(lf), type(OptionValueType::F64) {}
     OptionValue(f32 f) : f(f), type(OptionValueType::F32) {}
-    OptionValue(i64 li) : li(li), type(OptionValueType::I64) {}
     OptionValue(i32 i) : i(i), type(OptionValueType::I32) {}
     OptionValue(bool b) : b(b), type(OptionValueType::BOOL) {}
     OptionValue(char c) : c(c), type(OptionValueType::CHAR) {}
     union {
-        f64 lf;
         f32 f;
-        i64 li;
         i32 i;
         bool b;
         char c;
@@ -89,6 +83,8 @@ public:
     void addOption(const nString& name, OptionValue defaultValue, SoaOptionFlags flags = {});
     void addStringOption(const nString& name, const nString& defaultValue);
  
+    int findID(const nString& name);
+    SoaOption* find(const nString& name);
     SoaOption& get(int id);
     SoaOption& get(const nString& name);
     SoaStringOption& getStringOption(const nString& name);

@@ -494,9 +494,6 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
                 // Set up parent connection
                 body->parent = p->second;
                 p->second->children.push_back(body);
-
-               
-              
             }
         }
     }
@@ -637,16 +634,12 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
     // Set parent pass
     orbitC.parentMass = parentMass;
 
+    // TODO(Ben): Doesn't work right for binaries due to parentMass
     { // Check tidal lock
-        f64 ns = log(0.003 * pow(orbitC.a, 6.0) * pow(diameter + 500.0, 3.0) / (mass * orbitC.parentMass) * (1.0 + (f64)1e20 / (mass + orbitC.parentMass)));
+        f64 ns = log10(0.003 * pow(orbitC.a, 6.0) * pow(diameter + 500.0, 3.0) / (mass * orbitC.parentMass) * (1.0 + (f64)1e20 / (mass + orbitC.parentMass)));
         if (ns < 0) {
             // It is tidally locked so lock the rotational period
-            // std::cout << "Lock " << body->name << " spin= " << ns << std::endl;
             spaceSystem->m_axisRotationCT.getFromEntity(entity).period = t;
-        }
-        if (body->name == "Aldrin") {
-
-            std::cout << "lol";
         }
     }
 

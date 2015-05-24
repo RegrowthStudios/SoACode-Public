@@ -289,6 +289,7 @@ void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onQuit(Sender s, ui32 a) {
+    m_window->saveSettings();
     SoaEngine::destroyAll(m_soaState);
     exit(0);
 }
@@ -316,5 +317,5 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     } else {
         m_window->setSwapInterval(vui::GameSwapInterval::UNLIMITED_FPS);
     }
-    TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
+    TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);  
 }

@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "OptionsController.h"
 
-OptionsController::OptionsController(const nString& filePath /*= "Data/options.ini"*/) {
+#include <fstream>
+
+OptionsController::OptionsController(const nString& filePath /*= "Data/options.ini"*/) :
+    m_filePath(filePath) {
     // Empty
 }
 
@@ -18,13 +21,63 @@ void OptionsController::beginContext() {
     m_tempCopy = soaOptions;
 }
 
-void OptionsController::loadOptions() {
-    // TODO(Ben): Implement
+// TODO(Ben): Better parsing
+bool OptionsController::loadOptions() {
+    std::ifstream file(m_filePath);
+    if (file.fail()) return false;
+    nString token;
+    nString dummy;
+    while (std::getline(file, token, ':')) {
+        int id = soaOptions.findID(token);
+        if (id != -1) {
+            SoaOption& opt = soaOptions.get(id);
+            switch (opt.value.type) {
+                case OptionValueType::F32:
+                    file >> opt.value.f; break;
+                case OptionValueType::I32:
+                    file >> opt.value.i; break;
+                case OptionValueType::BOOL:
+                    file >> opt.value.b; break;
+                case OptionValueType::CHAR:
+                    file >> opt.value.c; break;
+                default:
+                    file >> dummy; break;
+            }
+            char nl;
+            file.get(nl);
+        }
+    }
+    return true;
 }
 
 void OptionsController::saveOptions() {
     soaOptions = m_tempCopy;
     OptionsChange();
+
+    std::ofstream file(m_filePath);
+    if (file.fail()) return;
+
+    auto& options = soaOptions.getOptions();
+    for (int id = 0; id < (int)options.size(); id++) {
+        auto& opt = options[id];
+        // Don't duplicated app.config
+        if (id != OPT_SCREEN_HEIGHT && id != OPT_SCREEN_WIDTH &&
+            id != OPT_FULLSCREEN && id != OPT_BORDERLESS && id != OPT_VSYNC) {
+            file << opt.name << ": ";
+            switch (opt.value.type) {
+                case OptionValueType::F32:
+                    file << opt.value.f << '\n'; break;
+                case OptionValueType::I32:
+                    file << opt.value.i << '\n'; break;
+                case OptionValueType::BOOL:
+                    file << opt.value.b << '\n'; break;
+                case OptionValueType::CHAR:
+                    file << opt.value.c << '\n'; break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void OptionsController::restoreDefault() {
@@ -43,7 +96,7 @@ void OptionsController::registerScripting(vscript::Environment* env) {
     env->addCRDelegate("getBool", makeRDelegate(*this, &OptionsController::getBool));
     env->addCDelegate("beginContext", makeDelegate(*this, &OptionsController::beginContext));
     env->addCDelegate("save", makeDelegate(*this, &OptionsController::saveOptions));
-    env->addCDelegate("load", makeDelegate(*this, &OptionsController::loadOptions));
+    env->addCRDelegate("load", makeRDelegate(*this, &OptionsController::loadOptions));
     env->addCDelegate("restoreDefault", makeDelegate(*this, &OptionsController::restoreDefault));
     env->setNamespaces();
 }

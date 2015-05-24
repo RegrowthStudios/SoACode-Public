@@ -31,7 +31,7 @@ public:
     /// Call this when beginning to change options.
     void beginContext();
 
-    void loadOptions();
+    bool loadOptions();
 
     void saveOptions();
 
@@ -55,6 +55,7 @@ public:
     Event<> OptionsChange;
 
 private:
+    nString m_filePath = "";
     SoaOptions m_tempCopy;
     SoaOptions m_default;
 };
