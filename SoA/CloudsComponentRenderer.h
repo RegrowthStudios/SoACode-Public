@@ -9,6 +9,7 @@ DECL_VG(class GLProgram)
 
 struct CloudsComponent;
 struct SpaceLightComponent;
+struct AtmosphereComponent;
 
 class CloudsComponentRenderer
 {
@@ -20,7 +21,8 @@ public:
 			  const f32m4& VP,
 			  const f32v3& relCamPos,
 			  const f32v3& lightDir,
-			  const SpaceLightComponent* spComponent);
+			  const SpaceLightComponent* spComponent,
+			  const AtmosphereComponent& aCmp);
 	void disposeShader();
 private:
 	void buildMesh();

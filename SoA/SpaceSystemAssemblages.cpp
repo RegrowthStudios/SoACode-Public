@@ -76,8 +76,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
 	const CloudsKegProperties& cl = properties->clouds;
 
 	if (cl.density > 0.0f) {
-		addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0125), cl.color, cl.scale, cl.density,
-			at.kr, at.km, at.g, at.scaleDepth, at.waveLength); // Scattering
+		addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0075), cl.color, cl.scale, cl.density);
 	}
 
     SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
@@ -188,9 +187,7 @@ void SpaceSystemAssemblages::removeAtmosphereComponent(SpaceSystem* spaceSystem,
 
 vecs::ComponentID SpaceSystemAssemblages::addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
 															vecs::ComponentID namePositionComponent, f32 planetRadius,
-															f32 height, f32v3 color, f32v3 scale, float density,
-															f32 kr, f32 km, f32 g, f32 scaleDepth, // Scattering
-															f32v3 wavelength) {
+															f32 height, f32v3 color, f32v3 scale, float density) {
 
 	vecs::ComponentID cCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
 	auto& cCmp = spaceSystem->m_cloudsCT.get(cCmpId);
@@ -200,12 +197,6 @@ vecs::ComponentID SpaceSystemAssemblages::addCloudsComponent(SpaceSystem* spaceS
 	cCmp.color = color;
 	cCmp.scale = scale;
 	cCmp.density = density;
-	//Scattering
-	cCmp.kr = kr;
-	cCmp.km = km;
-	cCmp.g = g;
-	cCmp.scaleDepth = scaleDepth;
-	cCmp.invWavelength4 = wavelength;
 	return cCmpId;
 }
 

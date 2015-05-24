@@ -26,7 +26,8 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
 								   const f32m4& VP,
 								   const f32v3& relCamPos,
 								   const f32v3& lightDir,
-								   const SpaceLightComponent* spComponent)
+								   const SpaceLightComponent* spComponent,
+								   const AtmosphereComponent& aCmp)
 {
 	if (!m_program) {
 		m_program = ShaderLoader::createProgramFromFile("Shaders/CloudsShading/Clouds.vert",
@@ -51,6 +52,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
 	glUniform3fv(m_program->getUniform("unColor"), 1, &cCmp.color[0]);
 	glUniform3fv(m_program->getUniform("unNoiseScale"), 1, &cCmp.scale[0]);
 	glUniform1f(m_program->getUniform("unDensity"), cCmp.density);
+	glUniform1f(m_program->getUniform("unCloudsRadius"), cCmp.planetRadius + cCmp.height);
 
 	// Scattering
 	f32 camHeight = glm::length(relCamPos);
@@ -58,32 +60,35 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
 	glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
 
 	glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
-	glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &cCmp.invWavelength4[0]);
-	glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight2);
-	glUniform1f(m_program->getUniform("unOuterRadius"), cCmp.planetRadius + cCmp.height);
-	glUniform1f(m_program->getUniform("unOuterRadius2"), (cCmp.planetRadius + cCmp.height) * (cCmp.planetRadius + cCmp.height));
-	glUniform1f(m_program->getUniform("unInnerRadius"), cCmp.planetRadius);
-	glUniform1f(m_program->getUniform("unKrESun"), cCmp.kr * cCmp.esun);
-	glUniform1f(m_program->getUniform("unKmESun"), cCmp.km * cCmp.esun);
-	glUniform1f(m_program->getUniform("unKr4PI"), cCmp.kr * M_4_PI);
-	glUniform1f(m_program->getUniform("unKm4PI"), cCmp.km * M_4_PI);
-	float scale = 1.0f / cCmp.height;
+	glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &aCmp.invWavelength4[0]);
+	glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight * camHeight);
+	glUniform1f(m_program->getUniform("unOuterRadius"), aCmp.radius);
+	glUniform1f(m_program->getUniform("unOuterRadius2"), aCmp.radius * aCmp.radius);
+	glUniform1f(m_program->getUniform("unInnerRadius"), aCmp.planetRadius);
+	glUniform1f(m_program->getUniform("unKrESun"), aCmp.kr * aCmp.esun);
+	glUniform1f(m_program->getUniform("unKmESun"), aCmp.km * aCmp.esun);
+	glUniform1f(m_program->getUniform("unKr4PI"), aCmp.kr * M_4_PI);
+	glUniform1f(m_program->getUniform("unKm4PI"), aCmp.km * M_4_PI);
+	float scale = 1.0f / (aCmp.radius - aCmp.planetRadius);
 	glUniform1f(m_program->getUniform("unScale"), scale);
-	glUniform1f(m_program->getUniform("unScaleDepth"), cCmp.scaleDepth);
-	glUniform1f(m_program->getUniform("unScaleOverScaleDepth"), scale / cCmp.scaleDepth);
+	glUniform1f(m_program->getUniform("unScaleDepth"), aCmp.scaleDepth);
+	glUniform1f(m_program->getUniform("unScaleOverScaleDepth"), scale / aCmp.scaleDepth);
 	glUniform1i(m_program->getUniform("unNumSamples"), 3);
 	glUniform1f(m_program->getUniform("unNumSamplesF"), 3.0f);
-	glUniform1f(m_program->getUniform("unG"), cCmp.g);
-	glUniform1f(m_program->getUniform("unG2"), cCmp.g * cCmp.g);
+	glUniform1f(m_program->getUniform("unG"), aCmp.g);
+	glUniform1f(m_program->getUniform("unG2"), aCmp.g * aCmp.g);
 
 	// Bind VAO
 	glBindVertexArray(m_vao);
 
 	// Render
 	glDepthMask(GL_FALSE);
-	vg::RasterizerState::CULL_CLOCKWISE.set();
+
+	if (camHeight > cCmp.planetRadius + cCmp.height) vg::RasterizerState::CULL_CLOCKWISE.set();
+	else vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
 	glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
 	glDepthMask(GL_TRUE);
+	vg::RasterizerState::CULL_CLOCKWISE.set();
 
 	glBindVertexArray(0);
 

@@ -178,7 +178,7 @@ void SpaceSystemRenderStage::drawBodies() {
 		auto& l = lightCache[it.first];
 		f32v3 lightDir(glm::normalize(l.first - *pos));
 		
-		m_cloudsComponentRenderer.draw(cCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+		m_cloudsComponentRenderer.draw(cCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second, m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
 	}
 
     // Render atmospheres

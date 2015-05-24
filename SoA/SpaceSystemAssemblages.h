@@ -84,9 +84,7 @@ namespace SpaceSystemAssemblages {
 	/// Clouds component
 	extern vecs::ComponentID addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
 													vecs::ComponentID namePositionComponent, f32 planetRadius,
-													f32 height, f32v3 color, f32v3 scale, float density,
-													f32 kr, f32 km, f32 g, f32 scaleDepth, // Scattering
-													f32v3 wavelength);
+													f32 height, f32v3 color, f32v3 scale, float density);
 	extern void removeCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical voxel component
