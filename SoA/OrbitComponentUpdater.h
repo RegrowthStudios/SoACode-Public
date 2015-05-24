@@ -32,6 +32,8 @@ public:
     void updatePosition(OrbitComponent& cmp, f64 time, NamePositionComponent* npComponent,
                            OrbitComponent* parentOrbComponent = nullptr,
                            NamePositionComponent* parentNpComponent = nullptr);
+
+    static f64 calculateTrueAnomaly(f64 meanAnomaly, f64 e);
 };
 
 #endif // OrbitComponentUpdater_h__
