@@ -76,7 +76,8 @@ public:
     vecs::ComponentTable<CloudsComponent> m_cloudsCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
     
-    nString systemDescription; ///< textual description of the system
+    f32 age = 0.0f; ///< age of the system
+    nString systemDescription = "No description"; ///< textual description of the system
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
     std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
     

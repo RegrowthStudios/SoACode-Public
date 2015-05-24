@@ -271,6 +271,8 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
         // Parse based on the name
         if (name == "description") {
             pr.spaceSystem->systemDescription = keg::convert<nString>(value);
+        } else if (name == "age") {
+            pr.spaceSystem->age = keg::convert<f32>(value);
         } else {
             SystemBodyKegProperties properties;
             keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
