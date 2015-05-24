@@ -20,16 +20,20 @@ namespace {
     const cString VERT_SRC = R"(
 uniform mat4 unWVP;
 in vec4 vPosition;
+in float vOpaqueness;
+out float fOpaqueness;
 void main() {
+    fOpaqueness = vOpaqueness;
     gl_Position = unWVP * vPosition;
 }
 )";
 
     const cString FRAG_SRC = R"(
 uniform vec4 unColor;
+in float fOpaqueness;
 out vec4 pColor;
 void main() {
-    pColor = unColor;
+    pColor = unColor * vec4(1.0, 1.0, 1.0, fOpaqueness);
 }
 )";
 }

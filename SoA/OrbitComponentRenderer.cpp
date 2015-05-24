@@ -36,9 +36,11 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     // Draw the ellipse
+    glDepthMask(false);
     glBindVertexArray(cmp.vao);
     glDrawArrays(GL_LINE_STRIP, 0, cmp.numVerts);
     glBindVertexArray(0);
+    glDepthMask(true);
 }
 
 void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLProgram* colorProgram) {
@@ -59,8 +61,9 @@ void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLPro
                                     cmp.verts.data(),
                                     vg::BufferUsageHint::STATIC_DRAW);
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(OrbitComponent::Vertex), 0);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(OrbitComponent::Vertex), (const void*)offsetof(OrbitComponent::Vertex, opaqueness));
     glBindVertexArray(0);
     cmp.numVerts = cmp.verts.size();
-    std::vector<f32v3>().swap(cmp.verts);
+    std::vector<OrbitComponent::Vertex>().swap(cmp.verts);
 }
