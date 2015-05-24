@@ -45,7 +45,6 @@ InputMapper::InputID INPUT_SONAR = -1;
 InputMapper::InputID INPUT_SPEED_TIME = -1;
 InputMapper::InputID INPUT_SPRINT = -1;
 InputMapper::InputID INPUT_TIME_BACK = -1;
-InputMapper::InputID INPUT_TIME_BACKWARD = -1;
 InputMapper::InputID INPUT_TIME_FORWARD = -1;
 InputMapper::InputID INPUT_TOGGLE_AR = -1;
 InputMapper::InputID INPUT_TOGGLE_UI = -1;
@@ -111,8 +110,6 @@ void initInputs(InputMapper* inputManager) {
     // Physics
     CREATE_INPUT(Water Update, VKEY_N, INPUT_WATER_UPDATE);
     CREATE_INPUT(Update Physics Blocks, VKEY_P, INPUT_PHYSICS_BLOCK_UPDATES);
-    CREATE_INPUT(Time Backward, VKEY_LEFTBRACKET, INPUT_TIME_BACKWARD);
-    CREATE_INPUT(Time Forward, VKEY_RIGHTBRACKET, INPUT_TIME_FORWARD);
 
     // Mouse Buttons
     CREATE_INPUT(Mouse Right, (VirtualKey)SDL_BUTTON_RIGHT, INPUT_MOUSE_RIGHT);

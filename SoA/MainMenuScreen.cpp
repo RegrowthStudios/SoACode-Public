@@ -71,7 +71,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
-  /*  m_engine = new vsound::Engine;
+    m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
     m_ambLibrary->addTrack("Menu", "Track1", "Data/Music/Abyss.mp3");
@@ -80,7 +80,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_ambLibrary->addTrack("Menu", "Track4", "Data/Music/Stranded.mp3");
     m_ambPlayer = new AmbiencePlayer;
     m_ambPlayer->init(m_engine, m_ambLibrary);
-    m_ambPlayer->setToTrack("Menu", 50); */
+    m_ambPlayer->setToTrack("Menu", 50);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_spaceSystemUpdater->init(m_soaState);
@@ -114,11 +114,11 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
 
     delete m_inputMapper;
 
-  //  m_ambPlayer->dispose();
- //   m_engine->dispose();
- //   delete m_ambLibrary;
- //   delete m_ambPlayer;
- //   delete m_engine;
+    m_ambPlayer->dispose();
+    m_engine->dispose();
+    delete m_ambLibrary;
+    delete m_ambPlayer;
+    delete m_engine;
 }
 
 void MainMenuScreen::update(const vui::GameTime& gameTime) {
@@ -143,8 +143,8 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     bdt += glSpeedFactor * 0.01;
 
-  //  m_ambPlayer->update((f32)gameTime.elapsed);
-  //  m_engine->update(vsound::Listener());
+    m_ambPlayer->update((f32)gameTime.elapsed);
+    m_engine->update(vsound::Listener());
 }
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
@@ -228,12 +228,6 @@ void MainMenuScreen::newGame(const nString& fileName) {
 void MainMenuScreen::updateThreadFunc() {
 
     m_threadRunning = true;
-
-    /*
-    messageManager->waitForMessage(THREAD, MessageID::DONE, message);
-    if (message.id == MessageID::QUIT) {
-        std::terminate();
-    }*/
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(maxPhysicsFps);
