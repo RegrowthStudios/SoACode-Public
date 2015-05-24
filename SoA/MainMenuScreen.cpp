@@ -74,7 +74,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
-    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Music/Andromeda Fallen.mp3");
+    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Music/Andromeda Fallen.ogg");
     m_ambLibrary->addTrack("Menu", "Brethren", "Data/Music/Brethren.mp3");
     m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Music/Crystalite.mp3");
     m_ambLibrary->addTrack("Menu", "Stranded", "Data/Music/Stranded.mp3");
@@ -83,7 +83,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_ambPlayer = new AmbiencePlayer;
     m_ambPlayer->init(m_engine, m_ambLibrary);
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
-    m_ambPlayer->setToTrack("Menu", 50);
+    m_ambPlayer->setToTrack("Menu", 3);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_spaceSystemUpdater->init(m_soaState);
@@ -97,7 +97,6 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Run the update thread for updating the planet
     m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
-
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
@@ -131,7 +130,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
         reloadUI();
     }
 
-    m_ui.update();
+    if (m_uiEnabled) m_ui.update();
 
     { // Handle time warp
         const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
@@ -166,8 +165,8 @@ void MainMenuScreen::initInput() {
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
     m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
     m_inputMapper->get(INPUT_EXIT).downEvent += makeDelegate(*this, &MainMenuScreen::onQuit);
-    m_inputMapper->get(INPUT_TOGGLE_UI).downEvent.addFunctor([&](Sender s, ui32 i) {
-        m_renderPipeline.toggleUI(); });
+    m_inputMapper->get(INPUT_TOGGLE_UI).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleUI);
+    // TODO(Ben): addFunctor = memory leak
     m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.toggleAR(); });
     m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s, ui32 i) {
@@ -296,7 +295,7 @@ void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     SoaEngine::optionsController.setInt("Screen Height", e.h);
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
-    m_ui.onOptionsChanged();
+    if (m_uiEnabled) m_ui.onOptionsChanged();
     m_camera.setAspectRatio(m_window->getAspectRatio());
     m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
@@ -316,4 +315,14 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     }
     TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
+}
+
+void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
+    m_renderPipeline.toggleUI();
+    m_uiEnabled = !m_uiEnabled;
+    if (m_uiEnabled) {
+        initUI();
+    } else {
+        m_ui.dispose();
+    }
 }

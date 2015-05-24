@@ -170,6 +170,11 @@ bool TerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64
 }
 
 void TerrainPatch::setQuality(int quality) {
+    // Prevent infinite loop memory allocation due to bad input
+    if (quality < 0 || quality > 12) {
+        fprintf(stderr, "ERROR: Bad terrain quality: %d", quality);
+        return;
+    }
     DIST_MIN = (f32)quality;
     DIST_MAX = DIST_MIN + 0.1f;
     PATCH_MAX_LOD = 18 + quality * 2;
