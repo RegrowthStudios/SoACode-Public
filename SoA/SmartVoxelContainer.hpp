@@ -32,6 +32,30 @@ namespace vorb {
         static ui32 MAX_COMPRESSIONS_PER_FRAME = UINT_MAX; ///< You can optionally set this in order to limit changes per frame
         static ui32 totalContainerCompressions = 1; ///< Set this to 1 each frame
 
+        template<typename T, size_t SIZE> class SmartVoxelContainer;
+
+        template<typename T, size_t SIZE>
+        class SmartHandle {
+            friend class SmartVoxelContainer<T, SIZE>;
+        public:
+            operator const T&() const;
+
+            SmartHandle& operator= (T data);
+            SmartHandle& operator= (const SmartHandle& o);
+
+            SmartHandle(const SmartHandle& o) = delete;
+            SmartHandle& operator= (SmartHandle&& o) = delete;
+        private:
+            SmartHandle(SmartVoxelContainer<T, SIZE>& container, size_t index) :
+                m_container(container),
+                m_index(index) {
+                // Empty
+            }
+
+            SmartVoxelContainer<T, SIZE>& m_container; ///< The parent container that created the handle
+            size_t m_index; ///< The index of this handle into the smart container
+        };
+
         /// This should be called once per frame to reset totalContainerChanges
         inline void clearContainerCompressionsCounter() {
             totalContainerCompressions = 1; ///< Start at 1 so that integer overflow handles the default case
@@ -44,10 +68,8 @@ namespace vorb {
 
         template <typename T, size_t SIZE = CHUNK_SIZE>
         class SmartVoxelContainer {
+            friend class SmartHandle<T, SIZE>;
         public:
-            friend class Chunk;
-            friend class ChunkGenerator;
-
             /// Constructor
             SmartVoxelContainer() {
                 // Empty
@@ -68,23 +90,14 @@ namespace vorb {
                 _arrayRecycler = arrayRecycler;
             }
 
+            SmartHandle<T, SIZE>&& operator[] (size_t index) {
+                SmartHandle<T, SIZE> hnd(*this, index);
+                return std::move(hnd);
+            }
             const T& operator[] (size_t index) const {
                 return (getters[(size_t)_state])(this, index);
             }
 
-            /// Gets the element at index
-            /// @param index: must be (0, CHUNK_SIZE]
-            /// @return The element
-            inline const T& get(size_t index) const {
-                return (getters[(size_t)_state])(this, index);
-            }
-            /// Sets the element at index
-            /// @param index: must be (0, CHUNK_SIZE]
-            /// @param value: The value to set at index
-            inline void set(size_t index, T value) {
-                _accessCount++;
-                (setters[(size_t)_state])(this, index, value);
-            }
 
             /// Initializes the container
             inline void init(VoxelStorageState state) {
@@ -175,7 +188,18 @@ namespace vorb {
             VoxelStorageState getState() {
                 return _state;
             }
-            T* getDataArray() { return _dataArray; }
+            T* getDataArray() {
+                return _dataArray;
+            }
+            const T* getDataArray() const {
+                return _dataArray;
+            }
+            VoxelIntervalTree<T>& getTree() {
+                return _dataTree;
+            }
+            const VoxelIntervalTree<T>& getTree() const {
+                return _dataTree;
+            }
         private:
             typedef const T& (*Getter)(const SmartVoxelContainer*, size_t);
             typedef void (*Setter)(SmartVoxelContainer*, size_t, T);
@@ -195,6 +219,20 @@ namespace vorb {
 
             static Getter getters[2];
             static Setter setters[2];
+
+            /// Gets the element at index
+            /// @param index: must be (0, SIZE]
+            /// @return The element
+            inline const T& get(size_t index) const {
+                return (getters[(size_t)_state])(this, index);
+            }
+            /// Sets the element at index
+            /// @param index: must be (0, SIZE]
+            /// @param value: The value to set at index
+            inline void set(size_t index, T value) {
+                _accessCount++;
+                (setters[(size_t)_state])(this, index, value);
+            }
 
             inline void uncompress(std::mutex& dataLock) {
                 dataLock.lock();
@@ -247,6 +285,21 @@ namespace vorb {
         };
 
         template<typename T, size_t SIZE>
+        inline SmartHandle<T, SIZE>::operator const T&() const {
+            return m_container[m_index];
+        }
+        template<typename T, size_t SIZE>
+        inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (T data) {
+            m_container.set(m_index, data);
+            return *this;
+        }
+        template<typename T, size_t SIZE>
+        inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (const SmartHandle<T, SIZE>& o) {
+            m_container.set(m_index, o.m_container[o.m_index]);
+            return *this;
+        }
+
+        template<typename T, size_t SIZE>
         typename SmartVoxelContainer<T, SIZE>::Getter SmartVoxelContainer<T, SIZE>::getters[2] = {
             SmartVoxelContainer<T, SIZE>::getFlat,
             SmartVoxelContainer<T, SIZE>::getInterval
@@ -256,6 +309,7 @@ namespace vorb {
             SmartVoxelContainer<T, SIZE>::setFlat,
             SmartVoxelContainer<T, SIZE>::setInterval
         };
+
     }
 }
 namespace vvox = vorb::voxel;

@@ -33,7 +33,7 @@ inline int Chunk::getTopSunlight(int c) {
 }
 
 inline int Chunk::getSunlight(int c) const {
-    return _sunlightContainer.get(c);
+    return _sunlightContainer[c];
 }
 
 inline int Chunk::getSunlightSafe(int c, Chunk*& lockedChunk) {
@@ -42,31 +42,31 @@ inline int Chunk::getSunlightSafe(int c, Chunk*& lockedChunk) {
 }
 
 inline ui16 Chunk::getTertiaryData(int c) const {
-    return _tertiaryDataContainer.get(c);
+    return _tertiaryDataContainer[c];
 }
 
 inline int Chunk::getFloraHeight(int c) const {
-    return _tertiaryDataContainer.get(c) & FLORA_HEIGHT_MASK;
+    return _tertiaryDataContainer[c] & FLORA_HEIGHT_MASK;
 }
 
 inline ui16 Chunk::getLampLight(int c) const {
-    return _lampLightContainer.get(c);
+    return _lampLightContainer[c];
 }
 
 inline ui16 Chunk::getLampRed(int c) const {
-    return _lampLightContainer.get(c) & LAMP_RED_MASK;
+    return _lampLightContainer[c] & LAMP_RED_MASK;
 }
 
 inline ui16 Chunk::getLampGreen(int c) const {
-    return _lampLightContainer.get(c) & LAMP_GREEN_MASK;
+    return _lampLightContainer[c] & LAMP_GREEN_MASK;
 }
 
 inline ui16 Chunk::getLampBlue(int c) const {
-    return _lampLightContainer.get(c) & LAMP_BLUE_MASK;
+    return _lampLightContainer[c] & LAMP_BLUE_MASK;
 }
 
 inline void Chunk::setSunlight(int c, ui8 val) {
-    _sunlightContainer.set(c, val);
+    _sunlightContainer[c] = val;
 }
 
 inline void Chunk::setSunlightSafe(Chunk*& lockedChunk, int c, ui8 val) {
@@ -75,7 +75,7 @@ inline void Chunk::setSunlightSafe(Chunk*& lockedChunk, int c, ui8 val) {
 }
 
 inline void Chunk::setLampLight(int c, ui16 val) {
-    _lampLightContainer.set(c, val);
+    _lampLightContainer[c] = val;
 }
 
 inline void Chunk::setLampLightSafe(Chunk*& lockedChunk, int c, ui16 val) {
@@ -85,11 +85,11 @@ inline void Chunk::setLampLightSafe(Chunk*& lockedChunk, int c, ui16 val) {
 
 // TODO(Ben): .setWithMask to avoid an extra traversal
 inline void Chunk::setFloraHeight(int c, ui16 val) {
-    _tertiaryDataContainer.set(c, (_tertiaryDataContainer.get(c) & (~FLORA_HEIGHT_MASK)) | val);
+    _tertiaryDataContainer[c] = (_tertiaryDataContainer[c] & (~FLORA_HEIGHT_MASK)) | val;
 }
 
 inline void Chunk::setBlockData(int c, ui16 val) {
-    _blockIDContainer.set(c, val);
+    _blockIDContainer[c] = val;
 }
 
 inline void Chunk::setBlockDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
@@ -98,7 +98,7 @@ inline void Chunk::setBlockDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
 }
 
 inline void Chunk::setTertiaryData(int c, ui16 val) {
-    _tertiaryDataContainer.set(c, val);
+    _tertiaryDataContainer[c] = val;
 }
 
 inline void Chunk::setTertiaryDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
@@ -107,7 +107,7 @@ inline void Chunk::setTertiaryDataSafe(Chunk*& lockedChunk, int c, ui16 val) {
 }
 
 inline ui16 Chunk::getBlockData(int c) const {
-    return _blockIDContainer.get(c);
+    return _blockIDContainer[c];
 }
 
 inline ui16 Chunk::getBlockDataSafe(Chunk*& lockedChunk, int c) {
@@ -116,7 +116,7 @@ inline ui16 Chunk::getBlockDataSafe(Chunk*& lockedChunk, int c) {
 }
 
 inline int Chunk::getBlockID(int c) const {
-    return _blockIDContainer.get(c) & 0x0FFF;
+    return _blockIDContainer[c] & 0x0FFF;
 }
 
 inline int Chunk::getBlockIDSafe(Chunk*& lockedChunk, int c) {
