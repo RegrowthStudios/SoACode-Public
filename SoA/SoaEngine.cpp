@@ -597,7 +597,7 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
 
             OrbitComponent::Vertex vert;
             vert.position = npCmp.position;
-            vert.opaqueness = (f32)i / (f32)NUM_VERTS;
+            vert.angle = 1.0 - (f32)i / (f32)NUM_VERTS;
             orbitC.verts[i] = vert;
         }
         orbitC.verts.back() = orbitC.verts.front();

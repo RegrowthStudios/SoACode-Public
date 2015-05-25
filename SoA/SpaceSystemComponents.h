@@ -116,9 +116,10 @@ struct OrbitComponent {
     ui32 numVerts = 0; ///< Number of vertices in the ellipse
     struct Vertex {
         f32v3 position;
-        float opaqueness;
+        float angle;
     };
     std::vector<Vertex> verts; ///< Vertices for the ellipse
+    float currentAngle;
     SpaceObjectType type; ///< Type of object
     bool isCalculated = false; ///< True when orbit has been calculated
 };

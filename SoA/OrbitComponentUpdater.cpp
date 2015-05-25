@@ -29,6 +29,7 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
     f64 meanAnomaly = (M_2_PI / cmp.t) * time + cmp.startTrueAnomaly;
 
     f64 v = calculateTrueAnomaly(meanAnomaly, cmp.e);
+    cmp.currentAngle = v;
 
     // Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html

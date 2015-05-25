@@ -10,6 +10,7 @@
 #include "Constants.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
+#include "OrbitComponentUpdater.h"
 
 void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
     
@@ -23,6 +24,7 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
     } else {
         setMatrixTranslation(w, -camPos);
     }
+    
     f32m4 pathMatrix = wvp * w;
     
     // Blend hover color
@@ -34,6 +36,9 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
         glUniform4f(colorProgram->getUniform("unColor"), color.r, color.g, color.b, blendFactor / 2.0 + 0.5);
     }
     glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
+
+    float currentAngle = cmp.currentAngle - OrbitComponentUpdater::calculateTrueAnomaly(cmp.startTrueAnomaly, cmp.e);
+    glUniform1f(colorProgram->getUniform("currentAngle"), currentAngle / (float)M_2_PI);
 
     // Draw the ellipse
     glDepthMask(false);
@@ -57,12 +62,12 @@ void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLPro
     vg::GpuMemory::bindBuffer(cmp.vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(cmp.vbo,
                                     vg::BufferTarget::ARRAY_BUFFER,
-                                    cmp.verts.size() * sizeof(f32v3),
+                                    cmp.verts.size() * sizeof(OrbitComponent::Vertex),
                                     cmp.verts.data(),
                                     vg::BufferUsageHint::STATIC_DRAW);
     vg::GpuMemory::bindBuffer(0, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(OrbitComponent::Vertex), 0);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(OrbitComponent::Vertex), (const void*)offsetof(OrbitComponent::Vertex, opaqueness));
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(OrbitComponent::Vertex), (const void*)offsetof(OrbitComponent::Vertex, angle));
     glBindVertexArray(0);
     cmp.numVerts = cmp.verts.size();
     std::vector<OrbitComponent::Vertex>().swap(cmp.verts);
