@@ -207,12 +207,12 @@ void SoaEngine::addStarSystem(SpaceSystemLoadParams& pr) {
 
 // Only used in SoaEngine::loadPathColors
 struct PathColorKegProps {
-    ui8v3 base = ui8v3(0);
-    ui8v3 hover = ui8v3(0);
+    ui8v4 base = ui8v4(0);
+    ui8v4 hover = ui8v4(0);
 };
 KEG_TYPE_DEF_SAME_NAME(PathColorKegProps, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, base, UI8_V3);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, hover, UI8_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, base, UI8_V4);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PathColorKegProps, hover, UI8_V4);
 }
 
 bool SoaEngine::loadPathColors(SpaceSystemLoadParams& pr) {
@@ -239,8 +239,8 @@ bool SoaEngine::loadPathColors(SpaceSystemLoadParams& pr) {
             fprintf(stderr, "Failed to parse node %s in PathColors.yml\n", name.c_str());
             goodParse = false;
         }
-        f32v3 base = f32v3(props.base) / 255.0f;
-        f32v3 hover = f32v3(props.hover) / 255.0f;
+        f32v4 base = f32v4(props.base) / 255.0f;
+        f32v4 hover = f32v4(props.hover) / 255.0f;
         pr.spaceSystem->pathColorMap[name] = std::make_pair(base, hover);
     });
 
@@ -271,6 +271,8 @@ bool SoaEngine::loadSystemProperties(SpaceSystemLoadParams& pr) {
         // Parse based on the name
         if (name == "description") {
             pr.spaceSystem->systemDescription = keg::convert<nString>(value);
+        } else if (name == "age") {
+            pr.spaceSystem->age = keg::convert<f32>(value);
         } else {
             SystemBodyKegProperties properties;
             keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
@@ -341,7 +343,9 @@ bool SoaEngine::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& fil
             if (properties.generation.length()) {
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
-                properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
+                properties.planetGenData = nullptr;
+                //properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
+                properties.atmosphere = pr.planetLoader->getRandomAtmosphere();
             }
 
             // Set the radius for use later
@@ -417,7 +421,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
         oCmp.i = bProps.i * DEG_TO_RAD;
         oCmp.p = bProps.p * DEG_TO_RAD;
         oCmp.o = bProps.n * DEG_TO_RAD;
-        oCmp.startTrueAnomaly = bProps.a * DEG_TO_RAD;
+        oCmp.startMeanAnomaly = bProps.a * DEG_TO_RAD;
     }
 
     // Get the A mass
@@ -447,6 +451,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     { // Calculate A orbit
         SystemBody* body = bodyA->second;
         body->parent = bary;
+        bary->children.push_back(body);
         f64 massRatio = massB / (massA + massB);
         calculateOrbit(pr, body->entity,
                        barySgCmp.mass,
@@ -456,6 +461,7 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     { // Calculate B orbit
         SystemBody* body = bodyB->second;
         body->parent = bary;
+        bary->children.push_back(body);
         f64 massRatio = massA / (massA + massB);
         calculateOrbit(pr, body->entity,
                         barySgCmp.mass,
@@ -470,7 +476,16 @@ void SoaEngine::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) {
     }
 }
 
+void recursiveInclinationCalc(OrbitComponentTable& ct, SystemBody* body, f64 inclination) {
+    for (auto& c : body->children) {
+        OrbitComponent& orbitC = ct.getFromEntity(c->entity);
+        orbitC.i += inclination;
+        recursiveInclinationCalc(ct, c, orbitC.i);
+    }
+}
+
 void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
+    // Set parent connections
     for (auto& it : pr.systemBodies) {
         SystemBody* body = it.second;
         const nString& parent = body->parentName;
@@ -478,21 +493,38 @@ void SoaEngine::initOrbits(SpaceSystemLoadParams& pr) {
             // Check for parent
             auto& p = pr.systemBodies.find(parent);
             if (p != pr.systemBodies.end()) {
+                // Set up parent connection
                 body->parent = p->second;
-
-                // Calculate the orbit using parent mass
-                calculateOrbit(pr, body->entity,
-                                pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
-                                body);
-              
+                p->second->children.push_back(body);
             }
+        }
+    }
+
+    // Child propagation for inclination
+    // TODO(Ben): Do this right
+   /* for (auto& it : pr.systemBodies) {
+        SystemBody* body = it.second;
+        if (!body->parent) {
+            recursiveInclinationCalc(pr.spaceSystem->m_orbitCT, body,
+                                     pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).i);
+        }
+    }*/
+
+    // Finally, calculate the orbits
+    for (auto& it : pr.systemBodies) {
+        SystemBody* body = it.second;
+        // Calculate the orbit using parent mass
+        if (body->parent) {
+            calculateOrbit(pr, body->entity,
+                           pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                           body);
         }
     }
 }
 
 void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
                                const SystemBodyKegProperties* sysProps,
-                               const GasGiantKegProperties* properties,
+                               GasGiantKegProperties* properties,
                                SystemBody* body) {
 
     // Load the texture
@@ -503,32 +535,57 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
             fprintf(stderr, "Failed to resolve %s\n", properties->colorMap.c_str());
             return;
         }
-        if (pr.glrpc) {
-            vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                vg::BitmapResource b = vg::ImageIO().load(colorPath); 
-                if (b.data) {
-                    colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                            vg::TextureTarget::TEXTURE_2D,
-                                                            &vg::SamplerState::LINEAR_CLAMP);
-                    vg::ImageIO().free(b);
-                } else {
-                    fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
-                }
-            });
-            pr.glrpc->invoke(&rpc, true);
-        } else {
-            vg::BitmapResource b = vg::ImageIO().load(colorPath);
+        // Make the functor for loading texture
+        auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            vg::ScopedBitmapResource b = vg::ImageIO().load(colorPath);
             if (b.data) {
                 colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
                                                         vg::TextureTarget::TEXTURE_2D,
                                                         &vg::SamplerState::LINEAR_CLAMP);
-                vg::ImageIO().free(b);
-                
             } else {
                 fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
-                return;
             }
+        });
+        // Check if we need to do RPC
+        if (pr.glrpc) {
+            vcore::RPC rpc;
+            rpc.data.f = f;
+            pr.glrpc->invoke(&rpc, true);
+        } else {
+            f->invoke(0, nullptr);
+        }
+        delete f;
+    }
+
+    // Load the rings
+    if (properties->rings.size()) {
+       
+        auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            for (size_t i = 0; i < properties->rings.size(); i++) {
+                auto& r = properties->rings[i];
+                // Resolve the path
+                vio::Path ringPath;
+                if (!pr.ioManager->resolvePath(r.colorLookup, ringPath)) {
+                    fprintf(stderr, "Failed to resolve %s\n", r.colorLookup.c_str());
+                    return;
+                }
+                // Load the texture
+                vg::ScopedBitmapResource b = vg::ImageIO().load(ringPath);
+                if (b.data) {
+                    r.texture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                            vg::TextureTarget::TEXTURE_2D,
+                                                            &vg::SamplerState::LINEAR_CLAMP);
+                } else {
+                    fprintf(stderr, "Failed to load %s\n", r.colorLookup.c_str());
+                }
+            }
+        });
+        if (pr.glrpc) {
+            vcore::RPC rpc;
+            rpc.data.f = f;
+            pr.glrpc->invoke(&rpc, true);
+        } else {
+            f->invoke(0, nullptr);
         }
     }
     SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, properties, body, colorMap);
@@ -560,7 +617,9 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
     }
 
     f64 t = orbitC.t;
-    f64 mass = spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
+    auto& sgCmp = spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
+    f64 mass = sgCmp.mass;
+    f64 diameter = sgCmp.radius * 2.0;
    
     if (binaryMassRatio > 0.0) { // Binary orbit
         orbitC.a = pow((t * t) * M_G * parentMass /
@@ -576,6 +635,15 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
 
     // Set parent pass
     orbitC.parentMass = parentMass;
+
+    // TODO(Ben): Doesn't work right for binaries due to parentMass
+    { // Check tidal lock
+        f64 ns = log10(0.003 * pow(orbitC.a, 6.0) * pow(diameter + 500.0, 3.0) / (mass * orbitC.parentMass) * (1.0 + (f64)1e20 / (mass + orbitC.parentMass)));
+        if (ns < 0) {
+            // It is tidally locked so lock the rotational period
+            spaceSystem->m_axisRotationCT.getFromEntity(entity).period = t;
+        }
+    }
 
     { // Make the ellipse mesh with stepwise simulation
         OrbitComponentUpdater updater;
@@ -597,7 +665,7 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
 
             OrbitComponent::Vertex vert;
             vert.position = npCmp.position;
-            vert.opaqueness = (f32)i / (f32)NUM_VERTS;
+            vert.angle = 1.0 - (f32)i / (f32)NUM_VERTS;
             orbitC.verts[i] = vert;
         }
         orbitC.verts.back() = orbitC.verts.front();

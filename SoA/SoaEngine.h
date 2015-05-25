@@ -104,7 +104,7 @@ private:
 
     static void createGasGiant(SpaceSystemLoadParams& pr,
                                const SystemBodyKegProperties* sysProps,
-                               const GasGiantKegProperties* properties,
+                               GasGiantKegProperties* properties,
                                SystemBody* body);
 
     static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,

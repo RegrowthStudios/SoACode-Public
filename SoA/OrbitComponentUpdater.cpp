@@ -25,11 +25,13 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
     if (cmp.a == 0.0) return;
     /// Calculates position as a function of time
     /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
-    // Calculate the mean anomaly
-    f64 meanAnomaly = (M_2_PI / cmp.t) * time + cmp.startTrueAnomaly;
+
+    // 1. Calculate the mean anomaly
+    f64 meanAnomaly = (M_2_PI / cmp.t) * time + cmp.startMeanAnomaly;
+    cmp.currentMeanAnomaly = meanAnomaly;
 
     f64 v = calculateTrueAnomaly(meanAnomaly, cmp.e);
-
+  
     // Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html
     f64 r = cmp.a * (1.0 - cmp.e * cmp.e) / (1.0 + cmp.e * cos(v));

@@ -121,7 +121,7 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
             glSpeedFactor = 3.0f;
         }
     }
-    m_spaceSystemUpdater->glUpdate(m_soaState->spaceSystem.get());
+    m_spaceSystemUpdater->glUpdate(m_soaState);
 
     globalRenderAccumulationTimer.start("Update Meshes");
 
@@ -153,7 +153,7 @@ void GameplayScreen::updateECS() {
     // Calculate non-relative space position
     f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
 
-    m_spaceSystemUpdater->update(spaceSystem, gameSystem, m_soaState,
+    m_spaceSystemUpdater->update(m_soaState,
                                  trueSpacePosition,
                                  m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
 

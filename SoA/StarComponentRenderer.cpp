@@ -115,7 +115,7 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
     m_coronaProgram->use();
 
     // Corona color
-    f32v3 tColor = f32v3(0.9f) + getTempColorShift(sCmp);
+    f32v3 tColor = getTempColorShift(sCmp);
 
     // Upload uniforms
     glUniform3fv(m_coronaProgram->getUniform("unCameraRight"), 1, &camRight[0]);
@@ -174,12 +174,10 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
     glUniform1f(m_glowProgram->getUniform("unColorMapU"), scale);
     glUniform2fv(m_glowProgram->getUniform("unDims"), 1, &dims[0]);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_glowTexture);
-    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_glowColorMap);
     // For sparkles
     f32v3 vs = viewDirW - viewRightW;
-    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z) * 0.5f);
+    glUniform1f(m_glowProgram->getUniform("unNoiseZ"), (vs.x + vs.y - vs.z) * 0.125f);
 
     glUniformMatrix4fv(m_glowProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     // Bind VAO
@@ -252,7 +250,6 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     m_occlusionProgram->unuse();
 }
 
-
 void StarComponentRenderer::dispose() {
     disposeShaders();
     disposeBuffers();
@@ -260,8 +257,6 @@ void StarComponentRenderer::dispose() {
         vg::ImageIO().free(m_tempColorMap);
         m_tempColorMap.data = nullptr;
     }
-    if (m_glowTexture) vg::GpuMemory::freeTexture(m_glowTexture);
-
 }
 
 void StarComponentRenderer::disposeShaders() {
@@ -315,7 +310,6 @@ void StarComponentRenderer::checkLazyLoad() {
     if (!m_starProgram) buildShaders();
     if (!m_sVbo) buildMesh();
     if (m_tempColorMap.width == -1) loadTempColorMap();
-    if (m_glowTexture == 0) loadGlowTextures();
 }
 
 void StarComponentRenderer::buildShaders() {
@@ -332,8 +326,7 @@ void StarComponentRenderer::buildShaders() {
     m_glowProgram = ShaderLoader::createProgramFromFile("Shaders/Star/glow.vert",
                                                           "Shaders/Star/glow.frag");
     m_glowProgram->use();
-    glUniform1i(m_glowProgram->getUniform("unTextureOverlay"), 0);
-    glUniform1i(m_glowProgram->getUniform("unColorMap"), 1);
+    glUniform1i(m_glowProgram->getUniform("unColorMap"), 0);
     m_glowProgram->unuse();
 }
 
@@ -457,14 +450,15 @@ void StarComponentRenderer::loadTempColorMap() {
 }
 
 void StarComponentRenderer::loadGlowTextures() {
-    vio::Path path;
+    // TODO(Ben): remove this
+    /*vio::Path path;
     m_textureResolver->resolvePath("Sky/Star/star_glow_overlay.png", path);
     vg::ScopedBitmapResource rs2 = vg::ImageIO().load(path);
     if (!m_tempColorMap.data) {
-        fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow_overlay.png\n");
+    fprintf(stderr, "ERROR: Failed to load Sky/Star/star_glow_overlay.png\n");
     } else {
-        m_glowTexture = vg::GpuMemory::uploadTexture(&rs2);
-    }
+    m_glowTexture = vg::GpuMemory::uploadTexture(&rs2);
+    }*/
 }
 
 f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos) {

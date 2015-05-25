@@ -60,8 +60,6 @@ extern InputMapper::InputID INPUT_SONAR;
 extern InputMapper::InputID INPUT_SPEED_TIME;
 extern InputMapper::InputID INPUT_SPRINT;
 extern InputMapper::InputID INPUT_TIME_BACK;
-extern InputMapper::InputID INPUT_TIME_BACKWARD;
-extern InputMapper::InputID INPUT_TIME_FORWARD;
 extern InputMapper::InputID INPUT_TIME_FORWARD;
 extern InputMapper::InputID INPUT_TOGGLE_AR;
 extern InputMapper::InputID INPUT_TOGGLE_UI;

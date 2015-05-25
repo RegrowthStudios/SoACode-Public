@@ -33,7 +33,7 @@ public:
                            OrbitComponent* parentOrbComponent = nullptr,
                            NamePositionComponent* parentNpComponent = nullptr);
 
-    static f64 calculateTrueAnomaly(f64 meanAnomaly, f64 e);
+    f64 calculateTrueAnomaly(f64 meanAnomaly, f64 e);
 };
 
 #endif // OrbitComponentUpdater_h__

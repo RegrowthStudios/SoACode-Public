@@ -27,11 +27,11 @@ class SoaState;
 
 class SpaceSystemUpdater {
 public:
-    void update(OUT SpaceSystem* spaceSystem, const GameSystem* gameSystem,
-                const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos);
+    void init(const SoaState* soaState);
+    void update(const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos);
 
     /// Updates OpenGL specific stuff, should be called on render thread
-    void glUpdate(OUT SpaceSystem* spaceSystem);
+    void glUpdate(const SoaState* soaState);
 
 private:
     /// Updaters

@@ -68,13 +68,13 @@ void AmbiencePlayer::update(const f32& dt) {
                 stream.resource = m_engine->loadSound(track.second, false, true);
                 stream.instance = m_engine->createInstance(stream.resource);
                 stream.instance.setLooped(false);
-                stream.instance.setVolume(stream.stream.getVolume());
+                stream.instance.setVolume(stream.stream.getVolume() * m_volume);
                 stream.instance.play();
             }
 
             // Update volume
             if (soundChanged) {
-                stream.instance.setVolume(stream.stream.getVolume());
+                stream.instance.setVolume(stream.stream.getVolume() * m_volume);
             }
         }
     }

@@ -186,21 +186,21 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 65.0f), f32v2(1.0f), color::AliceBlue);
     sprintf(buf, "Distance (AU): %.4lf", (m_eyeDist + 100.0) * 0.00000000668458712);
     m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 100.0f), f32v2(1.0f), color::AliceBlue);
-      if (m_isGlow) {
-          m_spriteBatch.drawString(&m_spriteFont, "Glow: Enabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
-      } else {
-          m_spriteBatch.drawString(&m_spriteFont, "Glow: Disabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
-      }
-      if (m_isHDR) {
-          m_spriteBatch.drawString(&m_spriteFont, "HDR: Enabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
-        // TODO(Ben): Remove
-          //   sprintf(buf, "  Exposure (1,2): %.1lf", (f64)graphicsOptions.hdrExposure);
-       //   m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 205.0f), f32v2(1.0f), color::AliceBlue);
-       //   sprintf(buf, "  Gamma (3,4): %.1lf", (f64)graphicsOptions.gamma);
-        //  m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 240.0f), f32v2(1.0f), color::AliceBlue);
-      } else {
-          m_spriteBatch.drawString(&m_spriteFont, "HDR: Disabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
-      }
+    if (m_isGlow) {
+        m_spriteBatch.drawString(&m_spriteFont, "Glow: Enabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
+    } else {
+        m_spriteBatch.drawString(&m_spriteFont, "Glow: Disabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
+    }
+    if (m_isHDR) {
+        m_spriteBatch.drawString(&m_spriteFont, "HDR: Enabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
+    // TODO(Ben): Remove
+        //   sprintf(buf, "  Exposure (1,2): %.1lf", (f64)graphicsOptions.hdrExposure);
+    //   m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 205.0f), f32v2(1.0f), color::AliceBlue);
+    //   sprintf(buf, "  Gamma (3,4): %.1lf", (f64)graphicsOptions.gamma);
+    //  m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 240.0f), f32v2(1.0f), color::AliceBlue);
+    } else {
+        m_spriteBatch.drawString(&m_spriteFont, "HDR: Disabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
+    }
     
     m_spriteBatch.end();
 

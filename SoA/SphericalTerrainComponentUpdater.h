@@ -37,7 +37,7 @@ public:
     void update(const SoaState* state, const f64v3& cameraPos);
 
     /// Updates openGL specific stuff. Call on render thread
-    void glUpdate(SpaceSystem* spaceSystem);
+    void glUpdate(const SoaState* soaState);
 
 private:
     void initPatches(SphericalTerrainComponent& cmp);
