@@ -49,6 +49,18 @@ void SoaOptions::addStringOption(const nString& name, const nString& defaultValu
     m_stringOptionsLookup[name] = option;
 }
 
+int SoaOptions::findID(const nString& name) {
+    auto& it = m_optionsLookup.find(name);
+    if (it == m_optionsLookup.end()) return -1;
+    return it->second;
+}
+
+SoaOption* SoaOptions::find(const nString& name) {
+    auto& it = m_optionsLookup.find(name);
+    if (it == m_optionsLookup.end()) return nullptr;
+    return &m_options[it->second];
+}
+
 SoaOption& SoaOptions::get(int id) {
     return m_options.at(id);
 }

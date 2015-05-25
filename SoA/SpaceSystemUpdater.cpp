@@ -5,8 +5,18 @@
 
 #include <Vorb/Timing.h>
 
-void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* gameSystem,
-                                const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
+void SpaceSystemUpdater::init(const SoaState* soaState) {
+    // Set planet rotation
+    m_axisRotationComponentUpdater.update(soaState->spaceSystem.get(), soaState->time);
+    // Set initial position
+    m_orbitComponentUpdater.update(soaState->spaceSystem.get(), soaState->time);
+}
+
+void SpaceSystemUpdater::update(const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
+
+    // Get handles
+    SpaceSystem* spaceSystem = soaState->spaceSystem.get();
+    const GameSystem* gameSystem = soaState->gameSystem.get();
 
     // Update planet rotation
     m_axisRotationComponentUpdater.update(spaceSystem, soaState->time);
@@ -25,7 +35,7 @@ void SpaceSystemUpdater::update(OUT SpaceSystem* spaceSystem, const GameSystem* 
     m_orbitComponentUpdater.update(spaceSystem, soaState->time);
 }
 
-void SpaceSystemUpdater::glUpdate(OUT SpaceSystem* spaceSystem) {
-    m_sphericalTerrainComponentUpdater.glUpdate(spaceSystem);
-    m_farTerrainComponentUpdater.glUpdate(spaceSystem);
+void SpaceSystemUpdater::glUpdate(const SoaState* soaState) {
+    m_sphericalTerrainComponentUpdater.glUpdate(soaState);
+    m_farTerrainComponentUpdater.glUpdate(soaState->spaceSystem.get());
 }

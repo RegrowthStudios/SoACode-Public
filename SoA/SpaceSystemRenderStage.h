@@ -25,6 +25,7 @@
 #include "FarTerrainComponentRenderer.h"
 #include "GasGiantComponentRenderer.h"
 #include "LenseFlareRenderer.h"
+#include "PlanetRingsComponentRenderer.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentRenderer.h"
 #include "StarComponentRenderer.h"
@@ -98,6 +99,7 @@ private:
     
     CloudsComponentRenderer m_cloudsComponentRenderer;
     AtmosphereComponentRenderer m_atmosphereComponentRenderer;
+    PlanetRingsComponentRenderer m_ringsRenderer;
     FarTerrainComponentRenderer m_farTerrainComponentRenderer;
     GasGiantComponentRenderer m_gasGiantComponentRenderer;
     LenseFlareRenderer m_lensFlareRenderer;

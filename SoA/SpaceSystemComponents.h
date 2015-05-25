@@ -58,6 +58,7 @@ struct AtmosphereComponent {
     vecs::ComponentID namePositionComponent = 0;
     f32 planetRadius;
     f32 radius;
+    f32 oblateness = 0.0f;
     f32 kr = 0.0025f;
     f32 km = 0.0020f;
     f32 esun = 30.0f; // TODO(Ben): This should be dynamic
@@ -83,6 +84,7 @@ struct AxisRotationComponent {
     f64q invCurrentOrientation; ///< Inverse of currentOrientation
     f64 period = 0.0; ///< Period of rotation in seconds
     f64 currentRotation = 0.0; ///< Current rotation about axis in radians
+    f32 tilt = 0.0f;
 };
 
 struct NamePositionComponent {
@@ -101,22 +103,39 @@ struct OrbitComponent {
     f64 b = 0.0; ///< Semi-minor of the ellipse in KM
     f64 t = 0.0; ///< Period of a full orbit in sec
     f64 parentMass = 0.0; ///< Mass of the parent in KG
-    f64 startTrueAnomaly = 0.0; ///< Start true anomaly in rad
+    f64 startMeanAnomaly = 0.0; ///< Start mean anomaly in rad
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 o = 0.0; ///< Longitude of the ascending node in rad
     f64 p = 0.0; ///< Longitude of the periapsis in rad
     f64 i = 0.0; ///< Inclination in rad
     f64v3 velocity = f64v3(0.0); ///< Current velocity relative to space in KM/s
     f64v3 relativeVelocity = f64v3(0.0); ///< Current velocity relative to parent in KM/s
-    f32v3 pathColor[2]; ///< Color of the path
+    f32v4 pathColor[2]; ///< Color of the path
     vecs::ComponentID npID = 0; ///< Component ID of NamePosition component
     vecs::ComponentID parentOrbId = 0; ///< Component ID of parent OrbitComponent
     VGBuffer vbo = 0; ///< vbo for the ellipse mesh
     VGBuffer vao = 0; ///< vao for the ellipse mesh
     ui32 numVerts = 0; ///< Number of vertices in the ellipse
-    std::vector<f32v3> verts; ///< Vertices for the ellipse
+    struct Vertex {
+        f32v3 position;
+        f32 angle;
+    };
+    std::vector<Vertex> verts; ///< Vertices for the ellipse
+    f32 currentMeanAnomaly;
     SpaceObjectType type; ///< Type of object
     bool isCalculated = false; ///< True when orbit has been calculated
+};
+
+struct PlanetRing {
+    f32 innerRadius;
+    f32 outerRadius;
+    f64q orientation;
+    VGTexture colorLookup;
+};
+
+struct PlanetRingsComponent {
+    vecs::ComponentID namePositionComponent;
+    std::vector<PlanetRing> rings;
 };
 
 struct SphericalGravityComponent {
@@ -181,6 +200,8 @@ struct SphericalTerrainComponent {
     WorldCubeFace transitionFace = FACE_NONE;
     f32 alpha = 0.0f; ///< Alpha blending coefficient
     f32 faceTransTime = START_FACE_TRANS; ///< For animation on fade
+    f64 distance = FLT_MAX;
+    f64 radius = 0.0;
     bool isFaceTransitioning = false;
     volatile bool needsFaceTransitionAnimation = false;
 };

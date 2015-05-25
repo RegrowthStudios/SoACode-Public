@@ -64,7 +64,7 @@ void App::addScreens() {
     scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
 
     // Uncomment to start from dev screen for testing other screens
-//#define START_AT_DEV_SCREEN
+#define START_AT_DEV_SCREEN
 #ifdef START_AT_DEV_SCREEN
     m_screenList.setScreen(scrDev->getIndex());
 #else
@@ -97,7 +97,6 @@ void App::onExit() {
 }
 
 App::~App() {
-
     delete scrInit;
     delete scrLoad;
     delete scrMainMenu;

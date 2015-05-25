@@ -45,6 +45,9 @@ public:
     /// @param dt: Elapsed time since the last update
     /// TODO: return volume-change bool to allow intelligent sleeping
     void update(UNIT_SPACE(SECONDS) const f32& dt);
+
+    const f32& getVolume() const { return m_volume; }
+    void setVolume(f32 volume) { m_volume = volume; }
 private:
     /// A stream with a controller and sound information
     struct SoundStream {
@@ -62,6 +65,7 @@ private:
     StreamMap m_streams; ///< Currently playing ambience streams
     Random m_rand; ///< Random number generator
 
+    f32 m_volume = 1.0f;
     nString currentAmbience = ""; ///< Current ambience type
     nString currentTrack = ""; ///< Currently playing track in the ambience stream
 };

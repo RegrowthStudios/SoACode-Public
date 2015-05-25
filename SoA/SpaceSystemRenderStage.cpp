@@ -79,13 +79,13 @@ void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
     }
 }
 
-
 void SpaceSystemRenderStage::reloadShader() {
     m_sphericalTerrainComponentRenderer.disposeShaders();
     m_farTerrainComponentRenderer.disposeShaders();
     m_atmosphereComponentRenderer.disposeShader();
     m_gasGiantComponentRenderer.disposeShader();
     m_starRenderer.disposeShaders();
+    m_ringsRenderer.disposeShader();
     m_lensFlareRenderer.dispose();
     m_cloudsComponentRenderer.disposeShader();
 }
@@ -118,7 +118,8 @@ void SpaceSystemRenderStage::drawBodies() {
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent);
-
+        // Cant render if it hasn't generated yet
+        if (!cmp.planetGenData) continue;
         // Indicate the need for face transition animation
         if (cmp.needsFaceTransitionAnimation) {
             cmp.needsFaceTransitionAnimation = false;
@@ -198,6 +199,28 @@ void SpaceSystemRenderStage::drawBodies() {
             m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
         }
     }
+
+    // Render planet rings
+    glDepthMask(GL_FALSE);
+    for (auto& it : m_spaceSystem->m_planetRingCT) {
+        auto& prCmp = it.second;
+        auto& npCmp = m_spaceSystem->m_namePositionCT.get(prCmp.namePositionComponent);
+
+        // TODO(Ben): Don't use getFromEntity
+        auto& sgCmp = m_spaceSystem->m_sphericalGravityCT.getFromEntity(it.first);
+
+        pos = getBodyPosition(npCmp, it.first);
+
+        f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
+
+        auto& l = lightCache[it.first];
+
+        f32v3 lightDir(glm::normalize(l.first - *pos));
+
+        // TODO(Ben): Worry about f64 to f32 precision loss
+        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, f32v3(l.first - m_spaceCamera->getPosition()), sgCmp.radius, l.second);
+    }
+    glDepthMask(GL_TRUE);
 
     // Render far terrain
     if (m_farTerrainCamera) {

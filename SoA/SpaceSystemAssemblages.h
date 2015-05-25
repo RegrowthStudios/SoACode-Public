@@ -18,6 +18,7 @@
 class SpaceSystem;
 
 #include "VoxelCoordinateSpaces.h"
+#include "SpaceSystemLoadStructs.h"
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
@@ -78,8 +79,13 @@ namespace SpaceSystemAssemblages {
     extern vecs::ComponentID addAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                     vecs::ComponentID namePositionComponent, f32 planetRadius,
                                                     f32 radius, f32 kr, f32 km, f32 g, f32 scaleDepth,
-                                                    f32v3 wavelength);
+                                                    f32v3 wavelength, f32 oblateness = 0.0f);
     extern void removeAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
+
+    /// PlanetRings component
+    extern vecs::ComponentID addPlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
+                                                    vecs::ComponentID namePositionComponent, const Array<PlanetRingKegProperties>& rings);
+    extern void removePlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Clouds component
     extern vecs::ComponentID addCloudsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
@@ -99,15 +105,16 @@ namespace SpaceSystemAssemblages {
 
     /// Axis rotation component
     extern vecs::ComponentID addAxisRotationComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                         const f64q& axisOrientation,
-                                                         f64 startAngle,
-                                                         f64 rotationalPeriod);
+                                                      f32 aTilt, f32 lNorth,
+                                                      f64 startAngle,
+                                                      f64 rotationalPeriod);
     extern void removeAxisRotationComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Spherical terrain component
     extern vecs::ComponentID addSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                            vecs::ComponentID npComp,
                                                            vecs::ComponentID arComp,
+                                                           f64 radius,
                                                            PlanetGenData* planetGenData,
                                                            vg::GLProgram* normalProgram,
                                                            vg::TextureRecycler* normalMapRecycler);

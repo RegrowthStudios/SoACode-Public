@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
 #include "PlanetData.h"
-#include "PlanetGenerator.h"
+
+#include <random>
 
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -99,10 +100,21 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
 PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
 
-        // Allocate data
-    PlanetGenData* genData = PlanetGenerator::generateRandomPlanet(SpaceObjectType::PLANET);
+    // Allocate data
+    PlanetGenData* genData = m_planetGenerator.generateRandomPlanet(SpaceObjectType::PLANET, glrpc);
 
-    //genData->
+    // Load textures
+    if (glrpc) {
+        vcore::RPC rpc;
+        rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            genData->terrainTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        });
+        glrpc->invoke(&rpc, true);
+    } else {
+        genData->terrainTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    }
 
     // Generate the program
     vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
@@ -116,6 +128,16 @@ PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = null
 
     
     return m_defaultGenData;
+}
+
+AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
+    static std::mt19937 generator(2636);
+    static std::uniform_real_distribution<f32> randomWav(0.4f, 0.8f);
+    AtmosphereKegProperties props;
+    props.waveLength.r = randomWav(generator);
+    props.waveLength.g = randomWav(generator);
+    props.waveLength.b = randomWav(generator);
+    return props;
 }
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {

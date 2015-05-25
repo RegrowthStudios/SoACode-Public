@@ -20,16 +20,21 @@ namespace {
     const cString VERT_SRC = R"(
 uniform mat4 unWVP;
 in vec4 vPosition;
+in float vAngle;
+out float fAngle;
 void main() {
+    fAngle = vAngle;
     gl_Position = unWVP * vPosition;
 }
 )";
 
     const cString FRAG_SRC = R"(
 uniform vec4 unColor;
+uniform float currentAngle;
+in float fAngle;
 out vec4 pColor;
 void main() {
-    pColor = unColor;
+    pColor = unColor * vec4(1.0, 1.0, 1.0, 1.0 - mod(fAngle + currentAngle, 1.0));
 }
 )";
 }
@@ -56,10 +61,12 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_systemViewer = systemViewer;
     m_viewport = viewport;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDepthMask(GL_FALSE);
     drawPaths();
     if (m_systemViewer) {
         drawHUD();
     }
+    glDepthMask(GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -117,7 +124,7 @@ void SystemARRenderer::drawPaths() {
         auto& cmp = it.second;
     
         bool isSelected = false;
-        f32v3 oldPathColor; // To cache path color since we force it to a different one
+        f32v4 oldPathColor; // To cache path color since we force it to a different one
         if (m_systemViewer) {
             // Get the augmented reality data
             const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
@@ -125,7 +132,7 @@ void SystemARRenderer::drawPaths() {
 
             ui8v3 ui8Color;
             // If its selected we force a different color
-            if (m_systemViewer->getSelectedPlanet() == it.first) {
+            if (m_systemViewer->getTargetBody() == it.first) {
                 isSelected = true;
                 oldPathColor = cmp.pathColor[0];
                 cmp.pathColor[0] = m_spaceSystem->pathColorMap["Selected"].second;
@@ -181,13 +188,14 @@ void SystemARRenderer::drawHUD() {
         const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
         if (bodyArData == nullptr) continue;
 
-        f64v3 position = npCmp.position;
-        f64v3 relativePos = position - m_camera->getPosition();
-        color4 textColor;
-
-        f32 hoverTime = bodyArData->hoverTime;
-
         if (bodyArData->inFrustum) {
+
+            f64v3 position = npCmp.position;
+            f64v3 relativePos = position - m_camera->getPosition();
+            f64 distance = glm::length(relativePos);
+            color4 textColor;
+
+            f32 hoverTime = bodyArData->hoverTime;
 
             // Get screen position 
             f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
@@ -200,7 +208,7 @@ void SystemARRenderer::drawHUD() {
             ui8v3 ui8Color;
             // If its selected we use a different color
             bool isSelected = false;
-            if (m_systemViewer->getSelectedPlanet() == it.first) {
+            if (m_systemViewer->getTargetBody() == it.first) {
                 isSelected = true;
                 ui8Color = ui8v3(m_spaceSystem->pathColorMap["Selected"].second * 255.0f);
             } else {
@@ -217,16 +225,35 @@ void SystemARRenderer::drawHUD() {
                 // Alpha interpolation from size so they fade out
                 f32 low = MainMenuSystemViewer::MAX_SELECTOR_SIZE * 0.7f;
                 if (selectorSize > low) {
+                    // Fade out when close
                     oColor.a = (ui8)((1.0f - (selectorSize - low) /
                         (MainMenuSystemViewer::MAX_SELECTOR_SIZE - low)) * 255);
                     textColor.a = oColor.a;
+                } else {
+                    f64 d = distance - (f64)low;
+                    // Fade name based on distance
+                    switch (oCmp.type) {
+                        case SpaceObjectType::STAR:
+                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.00000000001));
+                            break;
+                        case SpaceObjectType::BARYCENTER:
+                        case SpaceObjectType::PLANET:
+                        case SpaceObjectType::DWARF_PLANET:
+                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.000000001));
+                            break;
+                        default:
+                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.000001));
+                            break;
+                    }
                 }
 
                 // Pick texture
                 VGTexture tx;
                 if (oCmp.type == SpaceObjectType::BARYCENTER) {
                     tx = m_baryTexture;
-                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.0f;
+                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.5f - distance * 0.00000000001;
+                    if (selectorSize < 0.0) continue;        
+                    interpolator = 0.0f; // Don't rotate barycenters
                 } else {
                     tx = m_selectorTexture;
                 }
@@ -245,13 +272,15 @@ void SystemARRenderer::drawHUD() {
                     (MainMenuSystemViewer::MAX_SELECTOR_SIZE - MainMenuSystemViewer::MIN_SELECTOR_SIZE)) * 0.5 + 0.5) * 0.6);
 
                 // Draw Text
-                m_spriteBatch->drawString(m_spriteFont,
-                                          npCmp.name.c_str(),
-                                          xyScreenCoords + textOffset,
-                                          textScale,
-                                          textColor,
-                                          vg::TextAlign::TOP_LEFT,
-                                          screenCoords.z);
+                if (textColor.a > 0) {
+                    m_spriteBatch->drawString(m_spriteFont,
+                                              npCmp.name.c_str(),
+                                              xyScreenCoords + textOffset,
+                                              textScale,
+                                              textColor,
+                                              vg::TextAlign::TOP_LEFT,
+                                              screenCoords.z);
+                }
 
             }
             // Land selector

@@ -100,6 +100,7 @@ private:
     void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
     void onWindowClose(Sender s);
     void onOptionsChange(Sender s);
+    void onToggleUI(Sender s, ui32 i);
     // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;
@@ -127,6 +128,7 @@ private:
     AmbienceLibrary* m_ambLibrary = nullptr;
     AmbiencePlayer* m_ambPlayer = nullptr;
     vui::GameWindow* m_window = nullptr;
+    bool m_uiEnabled = true;
 
     bool m_shouldReloadUI = false;
 };

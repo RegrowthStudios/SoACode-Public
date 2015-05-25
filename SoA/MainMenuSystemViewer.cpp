@@ -133,8 +133,11 @@ void MainMenuSystemViewer::targetBody(const nString& name) {
 }
 
 void MainMenuSystemViewer::targetBody(vecs::EntityID eid) {
-    m_targetEntity = eid;
-    m_targetComponent = m_spaceSystem->m_namePositionCT.getComponentID(m_targetEntity);
+    if (m_targetEntity != eid) {
+        TargetChange(eid);
+        m_targetEntity = eid;
+        m_targetComponent = m_spaceSystem->m_namePositionCT.getComponentID(m_targetEntity);
+    }
 }
 
 f64v3 MainMenuSystemViewer::getTargetPosition() {
