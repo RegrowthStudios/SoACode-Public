@@ -25,27 +25,14 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
     if (cmp.a == 0.0) return;
     /// Calculates position as a function of time
     /// http://en.wikipedia.org/wiki/Kepler%27s_laws_of_planetary_motion#Position_as_a_function_of_time
+
     // 1. Calculate the mean anomaly
     f64 meanAnomaly = (M_2_PI / cmp.t) * time + cmp.startMeanAnomaly;
+    cmp.currentMeanAnomaly = meanAnomaly;
 
-    // 2. Solve Kepler's equation to compute eccentric anomaly 
-    // using Newton's method
-    // http://www.jgiesen.de/kepler/kepler.html
-#define ITERATIONS 3
-    f64 E; ///< Eccentric Anomaly
-    f64 F;
-    E = meanAnomaly;
-    F = E - cmp.e * sin(meanAnomaly) - meanAnomaly;
-    for (int n = 0; n < ITERATIONS; n++) {
-        E = E -
-            F / (1.0 - cmp.e * cos(E));
-        F = E -
-            cmp.e * sin(E) - meanAnomaly;
-    }
-    // 3. Calculate true anomaly
-    f64 v = atan2(sqrt(1.0 - cmp.e * cmp.e) * sin(E), cos(E) - cmp.e);
-
-    // 4. Calculate radius
+    f64 v = calculateTrueAnomaly(meanAnomaly, cmp.e);
+  
+    // Calculate radius
     // http://www.stargazing.net/kepler/ellipse.html
     f64 r = cmp.a * (1.0 - cmp.e * cmp.e) / (1.0 + cmp.e * cos(v));
     
@@ -78,4 +65,23 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
         cmp.velocity = cmp.relativeVelocity;
         npComponent->position = position;
     }
+}
+
+f64 OrbitComponentUpdater::calculateTrueAnomaly(f64 meanAnomaly, f64 e) {
+    // 2. Solve Kepler's equation to compute eccentric anomaly 
+    // using Newton's method
+    // http://www.jgiesen.de/kepler/kepler.html
+#define ITERATIONS 3
+    f64 E; ///< Eccentric Anomaly
+    f64 F;
+    E = meanAnomaly;
+    F = E - e * sin(meanAnomaly) - meanAnomaly;
+    for (int n = 0; n < ITERATIONS; n++) {
+        E = E -
+            F / (1.0 - e * cos(E));
+        F = E -
+            e * sin(E) - meanAnomaly;
+    }
+    // 3. Calculate true anomaly
+    return atan2(sqrt(1.0 - e * e) * sin(E), cos(E) - e);
 }

@@ -116,7 +116,12 @@ struct OrbitComponent {
     VGBuffer vbo = 0; ///< vbo for the ellipse mesh
     VGBuffer vao = 0; ///< vao for the ellipse mesh
     ui32 numVerts = 0; ///< Number of vertices in the ellipse
-    std::vector<f32v3> verts; ///< Vertices for the ellipse
+    struct Vertex {
+        f32v3 position;
+        f32 angle;
+    };
+    std::vector<Vertex> verts; ///< Vertices for the ellipse
+    f32 currentMeanAnomaly;
     SpaceObjectType type; ///< Type of object
     bool isCalculated = false; ///< True when orbit has been calculated
 };

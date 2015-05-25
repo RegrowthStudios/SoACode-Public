@@ -6,6 +6,7 @@
 #include "ChunkListManager.h"
 #include "ChunkMemoryManager.h"
 #include "FarTerrainPatch.h"
+#include "OrbitComponentUpdater.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "SoaState.h"

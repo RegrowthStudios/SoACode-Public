@@ -663,7 +663,10 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
                 updater.updatePosition(orbitC, i * timePerDeg, &npCmp);
             }
 
-            orbitC.verts[i] = npCmp.position;
+            OrbitComponent::Vertex vert;
+            vert.position = npCmp.position;
+            vert.angle = 1.0 - (f32)i / (f32)NUM_VERTS;
+            orbitC.verts[i] = vert;
         }
         orbitC.verts.back() = orbitC.verts.front();
         npCmp.position = startPos;
