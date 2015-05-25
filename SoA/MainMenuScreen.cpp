@@ -71,6 +71,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
+
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
@@ -82,8 +83,6 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Music/BGM Unknown.mp3");
     m_ambPlayer = new AmbiencePlayer;
     m_ambPlayer->init(m_engine, m_ambLibrary);
-    m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
-    m_ambPlayer->setToTrack("Menu", 3);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_spaceSystemUpdater->init(m_soaState);
@@ -95,8 +94,12 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     // Init rendering
     initRenderPipeline();
 
+    // TODO(Ben): Do this or something
     // Run the update thread for updating the planet
-    m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+    //m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+
+    m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
+    m_ambPlayer->setToTrack("Menu", 3);
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
@@ -110,8 +113,8 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_mainMenuSystemViewer.reset();
 
     m_threadRunning = false;
-    m_updateThread->join();
-    delete m_updateThread;
+    //m_updateThread->join();
+    //delete m_updateThread;
     m_renderPipeline.destroy(true);
 
     delete m_inputMapper;

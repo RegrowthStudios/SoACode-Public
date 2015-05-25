@@ -55,10 +55,16 @@ void MainMenuScriptedUI::registerScriptValues(vui::FormScriptEnvironment* newFor
     env->setNamespaces("Space");
     env->addCRDelegate("getTargetBody", makeRDelegate(*this, &MainMenuScriptedUI::getTargetBody));
     env->addCRDelegate("getBodyName", makeRDelegate(*this, &MainMenuScriptedUI::getBodyName));
+    env->addCRDelegate("getBodyParentName", makeRDelegate(*this, &MainMenuScriptedUI::getBodyName));
+    env->addCRDelegate("getBodyTypeName", makeRDelegate(*this, &MainMenuScriptedUI::getBodyTypeName));
     env->addCRDelegate("getBodyMass", makeRDelegate(*this, &MainMenuScriptedUI::getBodyMass));
     env->addCRDelegate("getBodyDiameter", makeRDelegate(*this, &MainMenuScriptedUI::getBodyDiameter));
     env->addCRDelegate("getBodyRotPeriod", makeRDelegate(*this, &MainMenuScriptedUI::getBodyRotPeriod));
+    env->addCRDelegate("getBodyOrbPeriod", makeRDelegate(*this, &MainMenuScriptedUI::getBodyOrbPeriod));
     env->addCRDelegate("getBodyAxialTilt", makeRDelegate(*this, &MainMenuScriptedUI::getBodyAxialTilt));
+    env->addCRDelegate("getBodyEccentricity", makeRDelegate(*this, &MainMenuScriptedUI::getBodyEccentricity));
+    env->addCRDelegate("getBodyInclination", makeRDelegate(*this, &MainMenuScriptedUI::getBodyInclination));
+    env->addCRDelegate("getBodySemiMajor", makeRDelegate(*this, &MainMenuScriptedUI::getBodySemiMajor));
     env->setNamespaces();
 }
 
@@ -117,6 +123,40 @@ nString MainMenuScriptedUI::getBodyName(vecs::EntityID entity) {
     return state->spaceSystem->m_namePositionCT.getFromEntity(entity).name;
 }
 
+nString MainMenuScriptedUI::getBodyParentName(vecs::EntityID entity) {
+    SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
+    auto parentOID = state->spaceSystem->m_orbitCT.getFromEntity(entity).parentOrbId;
+    if (parentOID == 0) return "None";
+    return state->spaceSystem->m_namePositionCT.get(parentOID).name;
+}
+
+nString MainMenuScriptedUI::getBodyTypeName(vecs::EntityID entity) {
+    SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
+    auto t = state->spaceSystem->m_orbitCT.getFromEntity(entity).type;
+    nString n;
+    switch (t) {
+        case SpaceObjectType::BARYCENTER:
+            n = "Barycenter"; break;
+        case SpaceObjectType::STAR: // TODO(Ben): Spectral classes
+            n = "Star"; break;
+        case SpaceObjectType::PLANET:
+            n = "Planet"; break;
+        case SpaceObjectType::DWARF_PLANET:
+            n = "Dwarf Planet"; break;
+        case SpaceObjectType::MOON:
+            n = "Moon"; break;
+        case SpaceObjectType::DWARF_MOON:
+            n = "Dwarf Moon"; break;
+        case SpaceObjectType::ASTEROID:
+            n = "Asteroid"; break;
+        case SpaceObjectType::COMET:
+            n = "Comet"; break;
+        default:
+            n = "UNKNOWN"; break;
+    }
+    return n;
+}
+
 f32 MainMenuScriptedUI::getBodyMass(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     return state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
@@ -132,7 +172,27 @@ f32 MainMenuScriptedUI::getBodyRotPeriod(vecs::EntityID entity) {
     return state->spaceSystem->m_axisRotationCT.getFromEntity(entity).period;
 }
 
+f32 MainMenuScriptedUI::getBodyOrbPeriod(vecs::EntityID entity) {
+    SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
+    return state->spaceSystem->m_orbitCT.getFromEntity(entity).t;
+}
+
 f32 MainMenuScriptedUI::getBodyAxialTilt(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     return state->spaceSystem->m_axisRotationCT.getFromEntity(entity).tilt;
+}
+
+f32 MainMenuScriptedUI::getBodyEccentricity(vecs::EntityID entity) {
+    SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
+    return state->spaceSystem->m_orbitCT.getFromEntity(entity).e;
+}
+
+f32 MainMenuScriptedUI::getBodyInclination(vecs::EntityID entity) {
+    SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
+    return state->spaceSystem->m_orbitCT.getFromEntity(entity).i;
+}
+
+f32 MainMenuScriptedUI::getBodySemiMajor(vecs::EntityID entity) {
+    SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
+    return state->spaceSystem->m_orbitCT.getFromEntity(entity).a;
 }
