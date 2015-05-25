@@ -137,8 +137,20 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     { // Handle time warp
         const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
-        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) m_soaState->time -= TIME_WARP_SPEED;
-        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) m_soaState->time += TIME_WARP_SPEED;
+        bool isWarping = false;
+        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) {
+            isWarping = true;
+            m_soaState->time -= TIME_WARP_SPEED;
+        }
+        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) {
+            isWarping = true;
+            m_soaState->time += TIME_WARP_SPEED;
+        }
+        if (isWarping) {
+            m_camera.setSpeed(1.0);
+        } else {
+            m_camera.setSpeed(0.3);
+        }
     }
 
     m_soaState->time += m_soaState->timeStep;
