@@ -9,6 +9,8 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include "VoxelModelMesh.h"
+
 class VoxelMatrix;
 class VoxelModelVertex;
 
@@ -20,24 +22,14 @@ public:
     void loadFromFile(const nString& path);
     void addMatrix(VoxelMatrix* matrix);
     void addMatrices(std::vector<VoxelMatrix*> matrices);
+    const std::vector<VoxelMatrix*>& getMatrices() const { return m_matrices; }
 
-    void generateMesh();
-    void draw(f32m4 projectionMatrix);
-
-    void setShaderProgram(vg::GLProgram program) { m_program = program; }
+    void setMesh(const VoxelModelMesh& mesh) { m_mesh = mesh; }
+    const VoxelModelMesh& getMesh() const { return m_mesh; }
 
 private:
     std::vector<VoxelMatrix*> m_matrices;
-    VGVertexBuffer m_verts;
-    VGVertexBuffer m_inds;
-    ui32 m_indCount;
-    vg::GLProgram m_program;
-
-    f32v3 m_translation;
-    glm::quat m_rotation;
-    f32v3 m_scale;
-
-    void genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);
+    VoxelModelMesh m_mesh;
 };
 
 #endif //VoxelModel_h__
