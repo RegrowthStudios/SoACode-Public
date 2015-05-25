@@ -198,6 +198,9 @@ void MainMenuSystemViewer::onMouseButtonUp(Sender sender, const vui::MouseButton
 void MainMenuSystemViewer::onMouseWheel(Sender sender, const vui::MouseWheelEvent& e) {
 #define SCROLL_SPEED 0.1f
     m_camera->offsetTargetFocalLength(m_camera->getTargetFocalLength() * SCROLL_SPEED * -e.dy);
+    if (m_camera->getTargetFocalLength() < 0.1f) {
+        m_camera->setTargetFocalLength(0.1f);
+    }
 }
 
 void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEvent& e) {
