@@ -285,6 +285,7 @@ EXIT 0</Command>
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="ChunkHandle.h" />
     <ClInclude Include="ChunkListManager.h" />
     <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
@@ -324,6 +325,7 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="MetaSection.h" />
     <ClInclude Include="ModPathResolver.h" />
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
@@ -520,6 +522,7 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="MetaSection.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />

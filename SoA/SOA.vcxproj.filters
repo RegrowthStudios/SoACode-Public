@@ -165,6 +165,9 @@
     <Filter Include="SOA Files\Rendering\Components">
       <UniqueIdentifier>{452e9a89-0e3d-42af-827a-14a1b726bc20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\API">
+      <UniqueIdentifier>{705cf454-4163-4629-a5a8-b8f21eceeea7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -754,6 +757,12 @@
     <ClInclude Include="CloudsComponentRenderer.h">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkHandle.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaSection.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1231,6 +1240,9 @@
     </ClCompile>
     <ClCompile Include="CloudsComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaSection.cpp">
+      <Filter>SOA Files\Voxel\API</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
