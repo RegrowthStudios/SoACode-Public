@@ -93,6 +93,9 @@ private:
     /// Reloads the user interface
     void reloadUI();
 
+    /// Cycles the draw mode for wireframe
+    void cycleDrawMode();
+
     // --------------- Event handlers ---------------
     void onReloadSystem(Sender s, ui32 a);
     void onReloadShaders(Sender s, ui32 a);
@@ -101,6 +104,7 @@ private:
     void onWindowClose(Sender s);
     void onOptionsChange(Sender s);
     void onToggleUI(Sender s, ui32 i);
+    void onToggleWireframe(Sender s, ui32 i);
     // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;

@@ -59,6 +59,7 @@ public:
 
     void toggleUI() { m_showUI = !m_showUI; }
     void toggleAR() { m_showAR = !m_showAR; }
+    void toggleWireframe() { m_wireframe = !m_wireframe; }
     void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
 private:
     void initFramebuffer();
@@ -82,6 +83,7 @@ private:
     bool m_showAR = true;
     bool m_shouldScreenshot = false;
     bool m_shouldResize = false;
+    bool m_wireframe = false;
     ui32v2 m_newDims;
     int m_colorFilter = 0;
 };

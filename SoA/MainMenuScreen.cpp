@@ -188,6 +188,7 @@ void MainMenuScreen::initInput() {
         m_renderPipeline.cycleColorFilter(); });
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.takeScreenshot(); });
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleWireframe);
 
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
     vui::InputDispatcher::window.onClose += makeDelegate(*this, &MainMenuScreen::onWindowClose);
@@ -341,4 +342,8 @@ void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
     } else {
         m_ui.dispose();
     }
+}
+
+void MainMenuScreen::onToggleWireframe(Sender s, ui32 i) {
+    m_renderPipeline.toggleWireframe();
 }

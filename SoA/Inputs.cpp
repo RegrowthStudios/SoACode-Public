@@ -85,7 +85,7 @@ void initInputs(InputMapper* inputManager) {
 
     // Visual Debugging
  //   CREATE_INPUT(Grid Toggle, VKEY_G, INPUT_GRID);
- //   CREATE_INPUT(Draw Mode, VKEY_M, INPUT_DRAW_MODE);
+    CREATE_INPUT(Cycle Draw Mode, VKEY_M, INPUT_DRAW_MODE);
  //   CREATE_INPUT(Planet Draw Mode, VKEY_J, INPUT_PLANET_DRAW_MODE);
  //   CREATE_INPUT(Update Frustum, VKEY_U, INPUT_UPDATE_FRUSTUM);
     CREATE_INPUT(Cycle Color Filter, VKEY_C, INPUT_CYCLE_COLOR_FILTER);
