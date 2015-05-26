@@ -217,10 +217,11 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
         if (passedSamples == 0) {
             sCmp.visibility = 0.0f;
         } else {
-            sCmp.visibility = glm::min(1.0f, (f32)passedSamples / (f32)totalSamples);
+            sCmp.visibility = (f32)passedSamples / (f32)totalSamples;
         }
     }
-    f32v3 center(-relCamPos);
+    // Hacky fix for a GPU precision issue that duplicates stars.
+    f32v3 center(-glm::normalize(relCamPos) * glm::min(10000000.0, glm::length(relCamPos)));
 
     f64 s = calculateGlowSize(sCmp, relCamPos) / 128.0;
     s = glm::max(0.005, s); // make sure it never gets too small

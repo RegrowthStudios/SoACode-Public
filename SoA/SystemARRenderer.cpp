@@ -62,11 +62,13 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_viewport = viewport;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
     drawPaths();
     if (m_systemViewer) {
         drawHUD();
     }
     glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
