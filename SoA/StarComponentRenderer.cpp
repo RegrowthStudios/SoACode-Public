@@ -239,11 +239,13 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     glDisable(GL_DEPTH_TEST);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
     glEndQuery(GL_SAMPLES_PASSED);
     glBeginQuery(GL_SAMPLES_PASSED, sCmp.occlusionQuery[1]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
     glEndQuery(GL_SAMPLES_PASSED);
     glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 
     glBindVertexArray(0);
 
