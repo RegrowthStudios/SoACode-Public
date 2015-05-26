@@ -9,6 +9,7 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 #include "SpaceSystemComponents.h"
+#include "soaUtils.h"
 
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/GLProgram.h>
@@ -24,15 +25,13 @@
 
 namespace {
     cString OCCLUSION_VERT_SRC = R"(
-uniform mat4 unVP;
-uniform vec3 unCenter;
+uniform vec3 unCenterScreenspace;
 uniform float unSize;
 in vec2 vPosition;
 void main() {
-    gl_Position = unVP * vec4(unCenter, 1.0);
-    gl_Position /= gl_Position.w;
-    // Move the vertex in screen space.
+    gl_Position.xyz = unCenterScreenspace;
     gl_Position.xy += vPosition * unSize;
+	gl_Position.w = 1.0;
 }
 
 )";
@@ -220,8 +219,15 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
             sCmp.visibility = (f32)passedSamples / (f32)totalSamples;
         }
     }
-    // Hacky fix for a GPU precision issue that duplicates stars.
-    f32v3 center(-glm::normalize(relCamPos) * glm::min(10000000.0, glm::length(relCamPos)));
+    // Have to calculate on the CPU since we need 64 bit precision. Otherwise
+    // we get the "phantom star" bug.
+    f64v4 pos(-relCamPos, 1.0);
+    f64v4 gl_Position = f64m4(VP) * pos;
+    f64v3 centerScreenspace64(gl_Position.x / gl_Position.w,
+                              gl_Position.y / gl_Position.w,
+                              gl_Position.z / gl_Position.w);
+    if (centerScreenspace64.z > 1.0) centerScreenspace64.z = 2.0;
+    f32v3 centerScreenspace(centerScreenspace64);
 
     f64 s = calculateGlowSize(sCmp, relCamPos) / 128.0;
     s = glm::max(0.005, s); // make sure it never gets too small
@@ -229,9 +235,8 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     m_occlusionProgram->use();
 
     // Upload uniforms
-    glUniform3fv(m_occlusionProgram->getUniform("unCenter"), 1, &center[0]);
+    glUniform3fv(m_occlusionProgram->getUniform("unCenterScreenspace"), 1, &centerScreenspace[0]);
     glUniform1f(m_occlusionProgram->getUniform("unSize"), (f32)s);
-    glUniformMatrix4fv(m_occlusionProgram->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
 
     glBindVertexArray(m_oVao);
 
