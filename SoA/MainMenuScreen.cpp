@@ -75,12 +75,12 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
-    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Music/Andromeda Fallen.ogg");
-    m_ambLibrary->addTrack("Menu", "Brethren", "Data/Music/Brethren.mp3");
-    m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Music/Crystalite.mp3");
-    m_ambLibrary->addTrack("Menu", "Stranded", "Data/Music/Stranded.mp3");
-    m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Music/Toxic Haze.mp3");
-    m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Music/BGM Unknown.mp3");
+    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
+    m_ambLibrary->addTrack("Menu", "Brethren", "Data/Sound/Music/Brethren.mp3");
+    m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Sound/Music/Crystalite.mp3");
+    m_ambLibrary->addTrack("Menu", "Stranded", "Data/Sound/Music/Stranded.mp3");
+    m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Sound/Music/Toxic Haze.mp3");
+    m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Sound/Music/BGM Unknown.mp3");
     m_ambPlayer = new AmbiencePlayer;
     m_ambPlayer->init(m_engine, m_ambLibrary);
 
