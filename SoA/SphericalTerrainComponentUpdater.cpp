@@ -67,7 +67,7 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
         SphericalTerrainComponent& stCmp = it.second;
         // Lazy random planet loading
         if(stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
-            PlanetGenData* data = soaState->planetLoader->getRandomGenData();
+            PlanetGenData* data = soaState->planetLoader->getRandomGenData(stCmp.radius);
             stCmp.meshManager = new TerrainPatchMeshManager(data,
                                                             spaceSystem->normalMapRecycler.get());
             stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,

@@ -76,8 +76,15 @@ void MainMenuRenderPipeline::render() {
 
     // Main render passes
     m_skyboxRenderStage->render();
+
+    // Check fore wireframe mode
+    if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     m_spaceSystemRenderStage->setShowAR(m_showAR);
     m_spaceSystemRenderStage->render();
+
+    // Restore fill
+    if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     f32v3 colorFilter(1.0);
     // Color filter rendering

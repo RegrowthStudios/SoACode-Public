@@ -84,7 +84,7 @@ struct SystemBodyKegProperties {
     nString ref = ""; ///< Orbital period reference body
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 t = 0.0; ///< Period of a full orbit in sec
-    f64 a = 0.0; ///< Start true anomaly in deg
+    f64 a = 0.0; ///< Start mean anomaly in deg
     f64 n = 0.0; ///< Longitude of the ascending node in deg
     f64 p = 0.0; ///< Longitude of the periapsis in deg
     f64 i = 0.0; ///< Inclination in deg
@@ -106,6 +106,7 @@ struct SystemBody {
     SystemBodyKegProperties properties;
     f64 mass = 0.0;
     bool isBaryCalculated = false; ///< Used by barycenters
+    bool hasComputedRef = false; ///< True when it has computed trojan and t with ref body
 };
 
 struct PlanetKegProperties {

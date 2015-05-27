@@ -6,6 +6,8 @@
 #include "soaUtils.h"
 #include "ShaderLoader.h"
 
+#include <glm/gtx/quaternion.hpp>
+
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/MeshGenerators.h>
@@ -27,8 +29,8 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const f32v3& relCamPos,
                                    const f32v3& lightDir,
                                    const SpaceLightComponent* spComponent,
-                                   const AtmosphereComponent& aCmp)
-{
+                                   const AxisRotationComponent& arComponent,
+                                   const AtmosphereComponent& aCmp) {
     if (!m_program) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/CloudsShading/Clouds.vert",
             "Shaders/CloudsShading/Clouds.frag");
@@ -37,15 +39,26 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
 
     m_program->use();
 
+    f64q invOrientation = glm::inverse(arComponent.currentOrientation);
+    const f32v3 rotpos(invOrientation * f64v3(relCamPos));
+    const f32v3 rotLightDir = f32v3(invOrientation * f64v3(lightDir));
+    // Convert f64q to f32q
+    f32q orientationF32;
+    orientationF32.x = (f32)arComponent.currentOrientation.x;
+    orientationF32.y = (f32)arComponent.currentOrientation.y;
+    orientationF32.z = (f32)arComponent.currentOrientation.z;
+    orientationF32.w = (f32)arComponent.currentOrientation.w;
+    // Convert to matrix
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
+
     // Create WVP matrix
     f32m4 WVP(1.0);
     setMatrixScale(WVP, f32v3(cCmp.height + cCmp.planetRadius));
     setMatrixTranslation(WVP, -relCamPos);
-    WVP = VP * WVP;
+    WVP = VP * WVP * rotationMatrix;
     
     // Set uniforms
     glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
     static f32 time = 0.0;
     time += 0.001f;
     glUniform1f(m_program->getUniform("unTime"), time);
@@ -55,11 +68,11 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
     glUniform1f(m_program->getUniform("unCloudsRadius"), cCmp.planetRadius + cCmp.height);
 
     // Scattering
-    f32 camHeight = glm::length(relCamPos);
+    f32 camHeight = glm::length(rotpos);
     f32 camHeight2 = camHeight * camHeight;
-    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
+    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
 
-    glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
+    glUniform3fv(m_program->getUniform("unCameraPos"), 1, &rotpos[0]);
     glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &aCmp.invWavelength4[0]);
     glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight * camHeight);
     glUniform1f(m_program->getUniform("unOuterRadius"), aCmp.radius);

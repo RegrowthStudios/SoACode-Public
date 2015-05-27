@@ -47,7 +47,7 @@ public:
     void update(UNIT_SPACE(SECONDS) const f32& dt);
 
     const f32& getVolume() const { return m_volume; }
-    void setVolume(f32 volume) { m_volume = volume; }
+    void setVolume(f32 volume);
 private:
     /// A stream with a controller and sound information
     struct SoundStream {

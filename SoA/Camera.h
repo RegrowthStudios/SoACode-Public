@@ -62,8 +62,8 @@ protected:
     float m_zFar = 100000.0f;
     float m_fieldOfView = 75.0f;
     float m_aspectRatio = 4.0f / 3.0f;
-    double m_focalLength = 0.0;
-    double m_maxFocalLength = 10000000000000000000000.0;
+    f64 m_focalLength = 0.0;
+    f64 m_maxFocalLength = 10000000000000000000000.0;
     bool m_viewChanged = true;
     bool m_projectionChanged = true;
 
@@ -92,11 +92,13 @@ public:
     void offsetTargetFocalLength(float offset);
 
     // Getters
-    const double& getTargetFocalLength() const { return m_targetFocalLength; }
+    const f64& getTargetFocalLength() const { return m_targetFocalLength; }
+    const f64& getSpeed() const { return m_speed; }
 
     // Setters
+    void setSpeed(f64 speed) { m_speed = speed; }
     void setTarget(const f64v3& targetFocalPoint, const f32v3& targetDirection,
-                   const f32v3& targetRight, double targetFocalLength);
+                   const f32v3& targetRight, f64 targetFocalLength);
     void setTargetDirection(const f32v3& targetDirection) { m_targetDirection = targetDirection; }
     void setTargetRight(const f32v3& targetRight) { m_targetRight = targetRight; }
     void setTargetFocalPoint(const f64v3& targetFocalPoint) { m_targetFocalPoint = targetFocalPoint; }
@@ -106,6 +108,6 @@ private:
     f32v3 m_targetDirection = m_direction; ///< Desired direction
     f32v3 m_targetRight = m_right; ///< Desired right
     f64v3 m_targetFocalPoint = m_focalPoint; ///< Target focal position
-    double m_targetFocalLength = m_focalLength; ///< Desired focal length
-    double m_speed = 0.3; ///< The speed of the camera. 1.0 is the highest
+    f64 m_targetFocalLength = m_focalLength; ///< Desired focal length
+    f64 m_speed = 0.3; ///< The speed of the camera. 1.0 is the highest
 };

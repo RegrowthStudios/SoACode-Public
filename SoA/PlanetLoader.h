@@ -54,7 +54,7 @@ public:
     /// Returns a default planetGenData
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
-    PlanetGenData* getRandomGenData(vcore::RPCManager* glrpc = nullptr);
+    PlanetGenData* getRandomGenData(f32 radius, vcore::RPCManager* glrpc = nullptr);
     AtmosphereKegProperties getRandomAtmosphere();
 private:
     /// Loads the biomes from file

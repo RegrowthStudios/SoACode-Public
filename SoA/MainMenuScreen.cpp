@@ -75,12 +75,12 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_engine = new vsound::Engine;
     m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
-    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Music/Andromeda Fallen.ogg");
-    m_ambLibrary->addTrack("Menu", "Brethren", "Data/Music/Brethren.mp3");
-    m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Music/Crystalite.mp3");
-    m_ambLibrary->addTrack("Menu", "Stranded", "Data/Music/Stranded.mp3");
-    m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Music/Toxic Haze.mp3");
-    m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Music/BGM Unknown.mp3");
+    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
+    m_ambLibrary->addTrack("Menu", "Brethren", "Data/Sound/Music/Brethren.mp3");
+    m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Sound/Music/Crystalite.mp3");
+    m_ambLibrary->addTrack("Menu", "Stranded", "Data/Sound/Music/Stranded.mp3");
+    m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Sound/Music/Toxic Haze.mp3");
+    m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Sound/Music/BGM Unknown.mp3");
     m_ambPlayer = new AmbiencePlayer;
     m_ambPlayer->init(m_engine, m_ambLibrary);
 
@@ -100,6 +100,9 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
     m_ambPlayer->setToTrack("Menu", 3);
+
+    m_isFullscreen = soaOptions.get(OPT_BORDERLESS).value.b;
+    m_isBorderless = soaOptions.get(OPT_FULLSCREEN).value.b;
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
@@ -137,8 +140,20 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     { // Handle time warp
         const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
-        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) m_soaState->time -= TIME_WARP_SPEED;
-        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) m_soaState->time += TIME_WARP_SPEED;
+        bool isWarping = false;
+        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) {
+            isWarping = true;
+            m_soaState->time -= TIME_WARP_SPEED;
+        }
+        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) {
+            isWarping = true;
+            m_soaState->time += TIME_WARP_SPEED;
+        }
+        if (isWarping) {
+            m_camera.setSpeed(1.0);
+        } else {
+            m_camera.setSpeed(0.3);
+        }
     }
 
     m_soaState->time += m_soaState->timeStep;
@@ -153,9 +168,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
-
     m_camera.updateProjection();
-
     m_renderPipeline.render();
 }
 
@@ -167,7 +180,6 @@ void MainMenuScreen::initInput() {
     m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
     m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
-    m_inputMapper->get(INPUT_EXIT).downEvent += makeDelegate(*this, &MainMenuScreen::onQuit);
     m_inputMapper->get(INPUT_TOGGLE_UI).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleUI);
     // TODO(Ben): addFunctor = memory leak
     m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
@@ -176,6 +188,7 @@ void MainMenuScreen::initInput() {
         m_renderPipeline.cycleColorFilter(); });
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.takeScreenshot(); });
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleWireframe);
 
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
     vui::InputDispatcher::window.onClose += makeDelegate(*this, &MainMenuScreen::onWindowClose);
@@ -228,21 +241,6 @@ void MainMenuScreen::newGame(const nString& fileName) {
     initSaveIomanager(fileName);  
 
     m_state = vui::ScreenState::CHANGE_NEXT;
-}
-
-void MainMenuScreen::updateThreadFunc() {
-
-    m_threadRunning = true;
-
-    FpsLimiter fpsLimiter;
-    fpsLimiter.init(maxPhysicsFps);
-
-    while (m_threadRunning) {
-
-        fpsLimiter.beginFrame();
-
-        physicsFps = fpsLimiter.endFrame();
-    }
 }
 
 void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
@@ -308,9 +306,18 @@ void MainMenuScreen::onWindowClose(Sender s) {
 }
 
 void MainMenuScreen::onOptionsChange(Sender s) {
-    m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
-    m_window->setBorderless(soaOptions.get(OPT_BORDERLESS).value.b);
-    m_window->setFullscreen(soaOptions.get(OPT_FULLSCREEN).value.b);
+    bool fullscreen = soaOptions.get(OPT_FULLSCREEN).value.b;
+    bool borderless = soaOptions.get(OPT_BORDERLESS).value.b;
+    bool screenChanged = false;
+    ui32v2 screenSize = m_window->getViewportDims();
+    if (screenSize.x != soaOptions.get(OPT_SCREEN_WIDTH).value.i ||
+        screenSize.y != soaOptions.get(OPT_SCREEN_HEIGHT).value.i) {
+        m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
+        screenChanged = true;
+    }
+    m_window->setFullscreen(fullscreen);
+    m_window->setBorderless(borderless);
+
     if (soaOptions.get(OPT_VSYNC).value.b) {
         m_window->setSwapInterval(vui::GameSwapInterval::V_SYNC);
     } else {
@@ -318,6 +325,13 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     }
     TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
+
+    // Re-center the window
+    if (screenChanged || m_isFullscreen != fullscreen || m_isBorderless != borderless) {
+        m_isFullscreen = fullscreen;
+        m_isBorderless = borderless;
+        m_window->setPosition(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    }
 }
 
 void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
@@ -328,4 +342,8 @@ void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
     } else {
         m_ui.dispose();
     }
+}
+
+void MainMenuScreen::onToggleWireframe(Sender s, ui32 i) {
+    m_renderPipeline.toggleWireframe();
 }

@@ -96,3 +96,15 @@ void AmbiencePlayer::update(const f32& dt) {
         m_streams.swap(updated);
     }
 }
+
+void AmbiencePlayer::setVolume(f32 volume) {
+    m_volume = volume;
+    // Update volumes if necessary
+    for (auto& kvp : m_streams) {
+        SoundStream& stream = kvp.second;
+
+        if (stream.stream.isAlive()) {
+            stream.instance.setVolume(stream.stream.getVolume() * m_volume);
+        }
+    }
+}

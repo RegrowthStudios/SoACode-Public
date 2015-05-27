@@ -83,15 +83,14 @@ private:
     /// @param fileName: The name of the save file
     void newGame(const nString& fileName);
 
-    /// The function that runs on the update thread. It handles
-    /// loading the planet in the background.
-    void updateThreadFunc();
-
     /// Sets up iomanager and makes save file directories if they don't exist
     void initSaveIomanager(const vio::Path& savePath);
 
     /// Reloads the user interface
     void reloadUI();
+
+    /// Cycles the draw mode for wireframe
+    void cycleDrawMode();
 
     // --------------- Event handlers ---------------
     void onReloadSystem(Sender s, ui32 a);
@@ -101,6 +100,7 @@ private:
     void onWindowClose(Sender s);
     void onOptionsChange(Sender s);
     void onToggleUI(Sender s, ui32 i);
+    void onToggleWireframe(Sender s, ui32 i);
     // ----------------------------------------------
 
     const LoadScreen* m_loadScreen = nullptr;
@@ -129,6 +129,9 @@ private:
     AmbiencePlayer* m_ambPlayer = nullptr;
     vui::GameWindow* m_window = nullptr;
     bool m_uiEnabled = true;
+
+    bool m_isFullscreen = false;
+    bool m_isBorderless = false;
 
     bool m_shouldReloadUI = false;
 };

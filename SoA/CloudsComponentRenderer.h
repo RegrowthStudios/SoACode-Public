@@ -7,9 +7,10 @@
 
 DECL_VG(class GLProgram)
 
+struct AtmosphereComponent;
+struct AxisRotationComponent;
 struct CloudsComponent;
 struct SpaceLightComponent;
-struct AtmosphereComponent;
 
 class CloudsComponentRenderer
 {
@@ -22,6 +23,7 @@ public:
               const f32v3& relCamPos,
               const f32v3& lightDir,
               const SpaceLightComponent* spComponent,
+              const AxisRotationComponent& arComponent,
               const AtmosphereComponent& aCmp);
     void disposeShader();
 private:
