@@ -100,6 +100,9 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
     m_ambPlayer->setToTrack("Menu", 3);
+
+    m_isFullscreen = soaOptions.get(OPT_BORDERLESS).value.b;
+    m_isBorderless = soaOptions.get(OPT_FULLSCREEN).value.b;
 }
 
 void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
@@ -165,9 +168,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
-
     m_camera.updateProjection();
-
     m_renderPipeline.render();
 }
 
@@ -243,21 +244,6 @@ void MainMenuScreen::newGame(const nString& fileName) {
     m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
-void MainMenuScreen::updateThreadFunc() {
-
-    m_threadRunning = true;
-
-    FpsLimiter fpsLimiter;
-    fpsLimiter.init(maxPhysicsFps);
-
-    while (m_threadRunning) {
-
-        fpsLimiter.beginFrame();
-
-        physicsFps = fpsLimiter.endFrame();
-    }
-}
-
 void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
 
     vio::IOManager& ioManager = m_soaState->saveFileIom;
@@ -321,9 +307,18 @@ void MainMenuScreen::onWindowClose(Sender s) {
 }
 
 void MainMenuScreen::onOptionsChange(Sender s) {
-    m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
-    m_window->setBorderless(soaOptions.get(OPT_BORDERLESS).value.b);
-    m_window->setFullscreen(soaOptions.get(OPT_FULLSCREEN).value.b);
+    bool fullscreen = soaOptions.get(OPT_FULLSCREEN).value.b;
+    bool borderless = soaOptions.get(OPT_BORDERLESS).value.b;
+    bool screenChanged = false;
+    ui32v2 screenSize = m_window->getViewportDims();
+    if (screenSize.x != soaOptions.get(OPT_SCREEN_WIDTH).value.i ||
+        screenSize.y != soaOptions.get(OPT_SCREEN_HEIGHT).value.i) {
+        m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
+        screenChanged = true;
+    }
+    m_window->setFullscreen(fullscreen);
+    m_window->setBorderless(borderless);
+
     if (soaOptions.get(OPT_VSYNC).value.b) {
         m_window->setSwapInterval(vui::GameSwapInterval::V_SYNC);
     } else {
@@ -331,6 +326,13 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     }
     TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
+
+    // Re-center the window
+    if (screenChanged || m_isFullscreen != fullscreen || m_isBorderless != borderless) {
+        m_isFullscreen = fullscreen;
+        m_isBorderless = borderless;
+        m_window->setPosition(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    }
 }
 
 void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
