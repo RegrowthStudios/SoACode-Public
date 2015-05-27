@@ -591,8 +591,36 @@ void SoaEngine::createGasGiant(SpaceSystemLoadParams& pr,
     SpaceSystemAssemblages::createGasGiant(pr.spaceSystem, sysProps, properties, body, colorMap);
 }
 
+void computeRef(SpaceSystemLoadParams& pr, SystemBody* body) {
+    if (!body->properties.ref.empty()) {
+        SpaceSystem* spaceSystem = pr.spaceSystem;
+        OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(body->entity);
+        // Find reference body
+        auto it = pr.systemBodies.find(body->properties.ref);
+        if (it != pr.systemBodies.end()) {
+            SystemBody* ref = it->second;
+            // Recursively compute ref if needed
+            if (!ref->hasComputedRef) computeRef(pr, ref);
+            // Calculate period using reference body
+            orbitC.t = ref->properties.t * body->properties.tf / body->properties.td;
+            body->properties.t = orbitC.t;
+            // Handle trojans
+            if (body->properties.trojan == TrojanType::L4) {
+                body->properties.a = ref->properties.a + 60.0f;
+                orbitC.startMeanAnomaly = body->properties.a * DEG_TO_RAD;
+            } else if (body->properties.trojan == TrojanType::L5) {
+                body->properties.a = ref->properties.a - 60.0f;
+                orbitC.startMeanAnomaly = body->properties.a * DEG_TO_RAD;
+            } 
+        } else {
+            fprintf(stderr, "Failed to find ref body %s\n", body->properties.ref.c_str());
+        }
+    }
+    body->hasComputedRef = true;
+}
+
 void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               const SystemBody* body, f64 binaryMassRatio /* = 0.0 */) {
+                               SystemBody* body, f64 binaryMassRatio /* = 0.0 */) {
     SpaceSystem* spaceSystem = pr.spaceSystem;
     OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
 
@@ -603,19 +631,9 @@ void SoaEngine::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity,
     // Provide the orbit component with it's parent
     pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
         pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
-
-    // Find reference body
-    if (!body->properties.ref.empty()) {
-        auto it = pr.systemBodies.find(body->properties.ref);
-        if (it != pr.systemBodies.end()) {
-            SystemBody* ref = it->second;
-            // Calculate period using reference body
-            orbitC.t = ref->properties.t * body->properties.tf / body->properties.td;
-        } else {
-            fprintf(stderr, "Failed to find ref body %s\n", body->properties.ref.c_str());
-        }
-    }
-
+   
+    computeRef(pr, body);
+    
     f64 t = orbitC.t;
     auto& sgCmp = spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
     f64 mass = sgCmp.mass;
