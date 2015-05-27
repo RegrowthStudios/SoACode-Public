@@ -97,11 +97,15 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     return m_defaultGenData;
 }
 
-PlanetGenData* PlanetLoader::getRandomGenData(vcore::RPCManager* glrpc /* = nullptr */) {
+PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
 
     // Allocate data
     PlanetGenData* genData = m_planetGenerator.generateRandomPlanet(SpaceObjectType::PLANET, glrpc);
+    // TODO(Ben): Radius is temporary hacky fix for small planet darkness!
+    if (radius < 15.0) {
+        genData->baseTerrainFuncs.funcs.setData();
+    }
 
     // Load textures
     if (glrpc) {

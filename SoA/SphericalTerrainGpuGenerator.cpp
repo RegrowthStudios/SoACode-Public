@@ -172,8 +172,8 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
     f32v3 cornerPos = data->startPos;
-    f32 texelSize = 1.0f / (TEXELS_PER_PATCH); // Without padding
-    // Get padded position
+    f32 texelSize = 1.0f / (TEXELS_PER_PATCH);
+    // Get padded position for heightmap (2 texel border)
     cornerPos.x -= 2.0f * texelSize * data->width;
     cornerPos.z -= 2.0f * texelSize * data->width;
 
