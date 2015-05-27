@@ -96,7 +96,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
 
             // Set color
             v.color = m_planetGenData->terrainTint;
-            // v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
+            //v.color = DebugColors[(int)mesh->m_cubeFace]; // Uncomment for unique face colors
 
             // TODO(Ben): This is temporary edge debugging stuff
            /* const float delta = 100.0f;
@@ -152,8 +152,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             v.tangent = glm::normalize(tmpPos - v.position);
 
             // Make sure tangent is orthogonal
-            f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
-            v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
+            normal = glm::normalize(v.position);
+            f32v3 binormal = glm::normalize(glm::cross(normal, v.tangent));
+            v.tangent = glm::normalize(glm::cross(binormal, normal));
 
             // Check bounding box
             // TODO(Ben): Worry about water too!

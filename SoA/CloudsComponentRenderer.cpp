@@ -30,8 +30,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const f32v3& lightDir,
                                    const SpaceLightComponent* spComponent,
                                    const AxisRotationComponent& arComponent,
-                                   const AtmosphereComponent& aCmp)
-{
+                                   const AtmosphereComponent& aCmp) {
     if (!m_program) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/CloudsShading/Clouds.vert",
             "Shaders/CloudsShading/Clouds.frag");

@@ -331,7 +331,6 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     }
     TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
     m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
-    std::cout << "Setting Volume " << soaOptions.get(OPT_MUSIC_VOLUME).value.f << std::endl;
 }
 
 void MainMenuScreen::onToggleUI(Sender s, ui32 i) {

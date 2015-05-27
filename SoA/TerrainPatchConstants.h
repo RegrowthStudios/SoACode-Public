@@ -20,6 +20,7 @@ const int PATCH_WIDTH = 33; ///< Width of patches in vertices
 const int PATCH_SIZE = PATCH_WIDTH * PATCH_WIDTH; ///< Size of patches in vertices
 const int PATCH_NORMALMAP_WIDTH = (PATCH_WIDTH - 1) * PATCH_NORMALMAP_PIXELS_PER_QUAD + 2; ///< Width of normalmap in pixels, + 2 for padding
 const int PATCH_HEIGHTMAP_WIDTH = PATCH_NORMALMAP_WIDTH + 2; ///< Width of heightmap in pixels, + 2 for padding
+const int TEXELS_PER_PATCH = PATCH_NORMALMAP_WIDTH - 2; ///< The number of texels contained in a patch.
 
 const int NUM_SKIRTS = 4;
 const int INDICES_PER_QUAD = 6; ///< Indices used to render a quad with glDrawElements

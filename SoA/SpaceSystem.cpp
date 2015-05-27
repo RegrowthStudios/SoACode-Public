@@ -27,7 +27,7 @@ SpaceSystem::SpaceSystem() : vecs::ECS() {
                                                   (ui32)PATCH_NORMALMAP_WIDTH,
                                                   &vg::SamplerState::LINEAR_CLAMP,
                                                   0,
-                                                  vg::TextureInternalFormat::RGB8,
+                                                  vg::TextureInternalFormat::RGB16F,
                                                   MAX_NORMAL_MAPS);
 }
 

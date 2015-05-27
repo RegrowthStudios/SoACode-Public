@@ -172,9 +172,10 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     m_patchDelegates[m_dBufferIndex][patchCounter] = data;
 
     f32v3 cornerPos = data->startPos;
+    f32 texelSize = 1.0f / (TEXELS_PER_PATCH); // Without padding
     // Get padded position
-    cornerPos.x -= (0.5f / PATCH_HEIGHTMAP_WIDTH) * data->width;
-    cornerPos.z -= (0.5f / PATCH_HEIGHTMAP_WIDTH) * data->width;
+    cornerPos.x -= 2.0f * texelSize * data->width;
+    cornerPos.z -= 2.0f * texelSize * data->width;
 
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     const f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)data->cubeFace]);
@@ -188,7 +189,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     glUniform3fv(unCornerPos, 1, &cornerPos[0]);
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
-    glUniform1f(unPatchWidth, data->width + (2.0f / PATCH_HEIGHTMAP_WIDTH) * data->width);
+    glUniform1f(unPatchWidth, data->width + (texelSize * 4.0f) * data->width);
     glUniform1f(unRadius, m_planetGenData->radius);
 
     m_quad.draw();
@@ -322,8 +323,6 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
             glBindTexture(GL_TEXTURE_2D, data->mesh->m_normalMap);
         }
 
-        // std::cout << m_normalMapRecycler->getNumTextures() << " " << vg::GpuMemory::getTextureVramUsage() / 1024.0 / 1024.0 << std::endl;
-
         // Bind normal map texture to fbo
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, data->mesh->m_normalMap, 0);
 
@@ -338,7 +337,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         glBindTexture(GL_TEXTURE_2D, m_patchTextures[m_dBufferIndex][i].getTextureIDs().height_temp_hum);
 
         // Set uniform
-        glUniform1f(unWidth, (data->width / PATCH_HEIGHTMAP_WIDTH) * M_PER_KM);
+        glUniform1f(unWidth, (data->width / TEXELS_PER_PATCH) * M_PER_KM);
 
         // Generate normal map
         m_quad.draw();
