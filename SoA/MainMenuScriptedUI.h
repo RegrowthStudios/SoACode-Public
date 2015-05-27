@@ -56,6 +56,9 @@ protected:
     f32 getBodyEccentricity(vecs::EntityID entity);
     f32 getBodyInclination(vecs::EntityID entity);
     f32 getBodySemiMajor(vecs::EntityID entity);
+    f32 getGravityAccel(vecs::EntityID entity);
+    f32 getVolume(vecs::EntityID entity);
+    f32 getAverageDensity(vecs::EntityID entity);
 
     InputMapper* m_inputMapper = nullptr;
 };
