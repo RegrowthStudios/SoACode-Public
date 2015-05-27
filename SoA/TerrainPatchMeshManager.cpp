@@ -28,7 +28,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   bool drawSkirts) {
     
     static f32 dt = 0.0;
-    dt += 0.000005;
+    dt += 0.00001;
 
     f64q invOrientation = glm::inverse(orientation);
     const f64v3 rotpos = invOrientation * relativePos;

@@ -29,7 +29,7 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
     m_camera->setClippingPlane(10000.0f, 30000000000000.0f);
     m_camera->setTarget(glm::dvec3(0.0, 0.0, 0.0), f32v3(1.0f, 0.0f, 0.0f), f32v3(0.0f, 0.0f, 1.0f), 20000.0);
 
-    targetBody("(B-6) Puck");
+    targetBody("Aldrin");
     // Force target focal point
     m_camera->setFocalPoint(getTargetPosition() -
                             f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());

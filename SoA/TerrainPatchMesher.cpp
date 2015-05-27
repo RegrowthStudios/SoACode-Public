@@ -117,10 +117,6 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                 addWater(z, x, heightData);
             }
 
-            // Set texture coordinates using grid position
-            v.texCoords.x = v.position[m_coordMapping.x];
-            v.texCoords.y = v.position[m_coordMapping.z];
-
             // Set normal map texture coordinates
             v.normTexCoords.x = (ui8)(((float)x / (float)(PATCH_WIDTH - 1)) * 255.0f);
             v.normTexCoords.y = (ui8)(((float)z / (float)(PATCH_WIDTH - 1)) * 255.0f);
@@ -207,19 +203,15 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, tangent));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, texCoords));
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_UNSIGNED_BYTE, GL_TRUE,
+    glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, color));
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, normTexCoords));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_TRUE,
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, temperature));
 
@@ -260,11 +252,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                               sizeof(WaterVertex),
                               offsetptr(WaterVertex, color));
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_TRUE,
-                              sizeof(WaterVertex),
-                              offsetptr(WaterVertex, texCoords));
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE,
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
                               sizeof(WaterVertex),
                               offsetptr(WaterVertex, depth));
     }
@@ -382,10 +370,6 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
         v.position[m_coordMapping.x] = (x * mvw + m_startPos.x) * m_coordMults.x;
         v.position[m_coordMapping.y] = m_startPos.y;
         v.position[m_coordMapping.z] = (z * mvw + m_startPos.z) * m_coordMults.y;
-
-        // Set texture coordinates
-        v.texCoords.x = v.position[m_coordMapping.x] * UV_SCALE;
-        v.texCoords.y = v.position[m_coordMapping.z] * UV_SCALE;
 
         // Spherify it!
         f32v3 normal;
