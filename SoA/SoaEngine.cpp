@@ -41,7 +41,7 @@ struct SpaceSystemLoadParams {
 
 void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_PLANET_DETAIL, "Planet Detail", OptionValue(1));
-    options.addOption(OPT_VOXEL_RENDER_DISTANCE, "Voxel Render Distance", OptionValue(144));
+    options.addOption(OPT_VOXEL_RENDER_DISTANCE, "Voxel Render Distance", OptionValue(144.0f));
     options.addOption(OPT_HUD_MODE, "Hud Mode", OptionValue(0));
     options.addOption(OPT_TEXTURE_RES, "Texture Resolution", OptionValue(32));
     options.addOption(OPT_MOTION_BLUR, "Motion Blur", OptionValue(0));

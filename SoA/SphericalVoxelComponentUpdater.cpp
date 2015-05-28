@@ -592,7 +592,6 @@ void SphericalVoxelComponentUpdater::processFinishedFloraTask(FloraTask* task) {
 }
 
 void SphericalVoxelComponentUpdater::addGenerateTask(Chunk* chunk) {
-
     // TODO(Ben): alternative to new?
     GenerateTask* generateTask = new GenerateTask();
 
