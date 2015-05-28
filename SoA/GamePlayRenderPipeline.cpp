@@ -144,13 +144,13 @@ void GameplayRenderPipeline::render() {
         glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
         m_opaqueVoxelRenderStage->render();
        // _physicsBlockRenderStage->draw();
-        m_cutoutVoxelRenderStage->render();
+      //  m_cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
         m_chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
         m_chunkGridRenderStage->render();
-        m_liquidVoxelRenderStage->render();
-        m_transparentVoxelRenderStage->render();
+      //  m_liquidVoxelRenderStage->render();
+      //  m_transparentVoxelRenderStage->render();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
