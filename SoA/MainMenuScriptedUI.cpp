@@ -45,11 +45,12 @@ void MainMenuScriptedUI::registerScriptValues(vui::FormScriptEnvironment* newFor
     env->addCRDelegate("getKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getKeyString));
     env->addCRDelegate("getDefaultKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getDefaultKeyString));
     env->addCRDelegate("getName", makeRDelegate(*this, &MainMenuScriptedUI::getName));
+
     env->setNamespaces();
+    env->addCDelegate("newGame", makeDelegate(*this, &MainMenuScriptedUI::newGame));
 
     env->setNamespaces("Game");
     env->addCDelegate("exit", makeDelegate(*this, &MainMenuScriptedUI::onExit));
-    env->setNamespaces();
 
     // TODO(Ben): Expose and use ECS instead???
     env->setNamespaces("Space");
@@ -115,6 +116,10 @@ void MainMenuScriptedUI::onTargetChange(Sender s, vecs::EntityID id) {
             if (!f.isNil()) f(id);
         }
     }
+}
+
+void MainMenuScriptedUI::newGame() {
+    ((MainMenuScreen*)m_ownerScreen)->m_newGameClicked = true;
 }
 
 vecs::EntityID MainMenuScriptedUI::getTargetBody() {

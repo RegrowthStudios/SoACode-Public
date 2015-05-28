@@ -133,6 +133,7 @@ private:
     bool m_isFullscreen = false;
     bool m_isBorderless = false;
 
+    bool m_newGameClicked = false;
     bool m_shouldReloadUI = false;
 };
 

@@ -42,6 +42,7 @@ protected:
     nString getName(InputMapper::InputID id);
     void onExit(int code);
     void onTargetChange(Sender s, vecs::EntityID id);
+    void newGame();
 
     // Planet functions (temporary???)
     vecs::EntityID getTargetBody();

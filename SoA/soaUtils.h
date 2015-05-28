@@ -162,11 +162,11 @@ inline f64 fastAtan2(f64 y, f64 x) {
     f64 t0 = ax > ay ? ax : ay; // max
     f64 t1 = ax < ay ? ax : ay; // min
 
-    double a = 1 / t0;
+    f64 a = 1 / t0;
     a *= t1;
 
-    double s = a * a;
-    double p = atan_tbl[9];
+    f64 s = a * a;
+    f64 p = atan_tbl[9];
 
     p = fma(fma(fma(fma(fma(fma(fma(fma(fma(fma(p, s,
         atan_tbl[8]), s,
@@ -179,7 +179,7 @@ inline f64 fastAtan2(f64 y, f64 x) {
         atan_tbl[1]), s,
         atan_tbl[0]), s*a, a);
 
-    double r = ay > ax ? (1.57079632679489661923 - p) : p;
+    f64 r = ay > ax ? (1.57079632679489661923 - p) : p;
 
     r = x < 0 ? 3.14159265358979323846 - r : r;
     r = y < 0 ? -r : r;

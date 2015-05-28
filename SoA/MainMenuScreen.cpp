@@ -109,7 +109,6 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
     vui::InputDispatcher::window.onClose -= makeDelegate(*this, &MainMenuScreen::onWindowClose);
     SoaEngine::optionsController.OptionsChange -= makeDelegate(*this, &MainMenuScreen::onOptionsChange);
-    m_inputMapper->stopInput();
     m_formFont.dispose();
     m_ui.dispose();
 
@@ -135,6 +134,8 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadUI) {
         reloadUI();
     }
+
+    if (m_newGameClicked) newGame("TEST");
 
     if (m_uiEnabled) m_ui.update();
 
@@ -228,6 +229,7 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 void MainMenuScreen::newGame(const nString& fileName) {
 
     if (m_mainMenuSystemViewer->getSelectedCubeFace() == -1) {
+        m_newGameClicked = false;
         return;
     }
 

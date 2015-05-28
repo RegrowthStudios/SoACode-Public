@@ -26,7 +26,7 @@ InputMapper::InputMapper() {
 }
 
 InputMapper::~InputMapper() {
-    // Empty
+    stopInput();
 }
 
 bool InputMapper::getInputState(const InputID id) {
@@ -109,18 +109,22 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
 }
 
 void InputMapper::startInput() {
-    vui::InputDispatcher::mouse.onButtonDown += makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputMapper::onKeyDown);
-    vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputMapper::onKeyUp);
-    m_receivingInput = true;
+    if (!m_receivingInput) {
+        vui::InputDispatcher::mouse.onButtonDown += makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputMapper::onKeyDown);
+        vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputMapper::onKeyUp);
+        m_receivingInput = true;
+    }
 }
 void InputMapper::stopInput() {
-    vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputMapper::onKeyDown);
-    vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
-    m_receivingInput = false;
+    if (m_receivingInput) {
+        vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputMapper::onKeyDown);
+        vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
+        m_receivingInput = false;
+    }
 }
 
 void InputMapper::saveInputs(const nString &filePath /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
