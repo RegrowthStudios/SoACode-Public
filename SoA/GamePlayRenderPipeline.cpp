@@ -123,6 +123,7 @@ void GameplayRenderPipeline::render() {
     // worldCamera passes
     m_skyboxRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+    m_spaceSystemRenderStage->setShowAR(false);
     m_spaceSystemRenderStage->setRenderState(m_renderState);
     m_spaceSystemRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -152,6 +153,11 @@ void GameplayRenderPipeline::render() {
         m_transparentVoxelRenderStage->render();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
+
+    // Render last
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_spaceSystemRenderStage->renderStarGlows(f32v3(1.0f));
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
     m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);

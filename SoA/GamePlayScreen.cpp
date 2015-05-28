@@ -145,6 +145,15 @@ void GameplayScreen::updateECS() {
     SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
     GameSystem* gameSystem = m_soaState->gameSystem.get();
 
+    // Time warp
+    const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputManager->getInputState(INPUT_SPEED_TIME) * 1000.0;
+    if (m_inputManager->getInputState(INPUT_TIME_BACK)) {
+        m_soaState->time -= TIME_WARP_SPEED;
+    }
+    if (m_inputManager->getInputState(INPUT_TIME_FORWARD)) {
+        m_soaState->time += TIME_WARP_SPEED;
+    }
+
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
     auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
