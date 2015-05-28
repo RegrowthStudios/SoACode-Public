@@ -73,6 +73,7 @@ void TerrainPatchMesh::drawAsFarTerrain(const f64v3& relativePos, const f32m4& V
 
     glUniformMatrix4fv(program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     glUniform3fv(program->getUniform("unTranslation"), 1, &translation[0]);
+    glUniform3fv(program->getUniform("unPosition"), 1, &m_aabbPos[0]);
 
     glBindVertexArray(m_vao);
 
@@ -95,6 +96,7 @@ void TerrainPatchMesh::drawWaterAsFarTerrain(const f64v3& relativePos, const f32
 
     glUniformMatrix4fv(program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
     glUniform3fv(program->getUniform("unTranslation"), 1, &translation[0]);
+    glUniform3fv(program->getUniform("unPosition"), 1, &m_aabbPos[0]);
 
     glBindVertexArray(m_wvao);
 
