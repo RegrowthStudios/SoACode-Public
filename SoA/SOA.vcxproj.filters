@@ -763,6 +763,12 @@
     <ClInclude Include="MetaSection.h">
       <Filter>SOA Files\Voxel\API</Filter>
     </ClInclude>
+    <ClInclude Include="TestNewBlockAPIScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Positional.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1243,6 +1249,9 @@
     </ClCompile>
     <ClCompile Include="MetaSection.cpp">
       <Filter>SOA Files\Voxel\API</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNewBlockAPIScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

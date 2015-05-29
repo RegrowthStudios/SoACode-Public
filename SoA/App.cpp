@@ -23,6 +23,7 @@
 #include "TestMappingScreen.h"
 #include "TestStarScreen.h"
 #include "TestDisplacementMappingScreen.h"
+#include "TestNewBlockAPIScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -62,6 +63,9 @@ void App::addScreens() {
     scrTests.push_back(new TestDisplacementMappingScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
+    scrTests.push_back(new TestNewBlockAPIScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_A, scrTests.back(), "TestNewBlockAPIScreen");
 
     // Uncomment to start from dev screen for testing other screens
 #define START_AT_DEV_SCREEN

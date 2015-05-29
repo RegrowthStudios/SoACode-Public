@@ -607,6 +607,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetGenerator.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
+    <ClInclude Include="Positional.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
@@ -643,6 +644,7 @@ EXIT 0</Command>
     <ClInclude Include="TestDisplacementMappingScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
+    <ClInclude Include="TestNewBlockAPIScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -835,6 +837,7 @@ EXIT 0</Command>
     <ClCompile Include="TestDisplacementMappingScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
+    <ClCompile Include="TestNewBlockAPIScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
