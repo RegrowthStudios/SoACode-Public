@@ -77,6 +77,9 @@ public:
     VoxelIterablePositionClampZ<MIN, MAX>& cz() {
         return reinterpret_cast<VoxelIterablePositionClampZ<MIN, MAX>&>(*this);
     }
+
+    operator VoxelVectorType() const {
+    }
 };
 
 // Check alignment against glm types
