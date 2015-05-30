@@ -79,6 +79,7 @@ public:
     }
 
     operator VoxelVectorType() const {
+        return VoxelVectorType(x, y, z);
     }
 };
 
