@@ -63,12 +63,6 @@ public:
 
     virtual void reloadShader() override;
 
-    /// Gets the desired near clipping plane based on distances of planets
-    /// Returns 0 when it cannot be calculated
-    /// @param verticalFOV: vertical fov of camera in degrees
-    /// @param aspectRatio: camera aspect ratio
-    f32 getDynamicNearPlane(float verticalFOV, float aspectRatio);
-
     void setShowAR(bool showAR) { m_showAR = showAR; }
 
     bool needsFaceTransitionAnimation = false; ///< true when we need to fade out camera for transition between faces
@@ -106,8 +100,7 @@ private:
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     StarComponentRenderer m_starRenderer;
     SystemARRenderer m_systemARRenderer;
-    f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
-
+  
     std::vector<std::pair<StarComponent, f64v3> > m_starGlowsToRender;
     bool m_showAR = true;
 };

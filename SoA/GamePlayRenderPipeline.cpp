@@ -288,11 +288,6 @@ void GameplayRenderPipeline::updateCameras() {
     const GameSystem* gs = m_soaState->gameSystem.get();
     const SpaceSystem* ss = m_soaState->spaceSystem.get();
 
-    // For dynamic clipping plane to minimize Z fighting
-    float dynamicZNear = m_spaceSystemRenderStage->getDynamicNearPlane(m_spaceCamera.getFieldOfView(),
-                                                                       m_spaceCamera.getAspectRatio());
-    if (dynamicZNear < 0.1f) dynamicZNear = 0.1f; // Clamp to 1/10 KM
-
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
@@ -320,8 +315,8 @@ void GameplayRenderPipeline::updateCameras() {
     } else {
         m_spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
-    //printVec("POSITION: ", spcmp.position);
-    m_spaceCamera.setClippingPlane(dynamicZNear, 100000000000.0f);
+
+    m_spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
    
     m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
     m_spaceCamera.update();

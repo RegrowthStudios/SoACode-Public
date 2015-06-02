@@ -50,10 +50,7 @@ void MainMenuSystemViewer::update() {
     const f32 HOVER_SPEED = 0.08f;
     const f32 HOVER_SIZE_INC = 7.0f;
 
-    // Connect camera to target planet
-    f32 length = m_camera->getFocalLength() / 10.0f;
-    if (length == 0) length = 0.1f;
-    m_camera->setClippingPlane(length, m_camera->getFarClip());
+    m_camera->setClippingPlane(0.1f * KM_PER_M, m_camera->getFarClip());
     // Target closest point on sphere
     m_camera->setTargetFocalPoint(getTargetPosition() -
                                   f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());

@@ -90,23 +90,8 @@ void SpaceSystemRenderStage::reloadShader() {
     m_cloudsComponentRenderer.disposeShader();
 }
 
-f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectRatio) {
-    if (m_closestPatchDistance2 == DOUBLE_SENTINEL) return 0.0f;
-    f32 radFOV = verticalFOV * (f32)DEG_TO_RAD;
-
-    // This is just algebra using the formulas at
-    // http://gamedev.stackexchange.com/a/19801
-    // We have to solve for Z
-    f32 planeDist = (f32)sqrt(m_closestPatchDistance2);
-    f32 g = tan(radFOV / 2.0f);
-    f32 g2 = g * g;
-    f32 a = g * planeDist / sqrt(g2 * aspectRatio * aspectRatio + g2 + 1);
-    return a / g; // Return Z
-}
-
 void SpaceSystemRenderStage::drawBodies() {
 
-    m_closestPatchDistance2 = DOUBLE_SENTINEL;
     glEnable(GL_DEPTH_CLAMP);
     bool needsDepthClear = false;
     // TODO(Ben): Optimize out getFromEntity
@@ -147,9 +132,6 @@ void SpaceSystemRenderStage::drawBodies() {
                                                  lightCmp,
                                                  &m_spaceSystem->m_axisRotationCT.get(cmp.axisRotationComponent),
                                                  &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
-        
-        f64 dist = cmp.meshManager->getClosestSphericalDistance2();
-        if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
     }
     // Render gas giants
     for (auto& it : m_spaceSystem->m_gasGiantCT) {
@@ -257,9 +239,6 @@ void SpaceSystemRenderStage::drawBodies() {
                                                l.second,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),
                                                &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
-            
-            f64 dist = cmp.meshManager->getClosestFarDistance2();
-            if (dist < m_closestPatchDistance2) m_closestPatchDistance2 = dist;
         }
     }
 
