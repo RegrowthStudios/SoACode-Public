@@ -11,6 +11,7 @@
 #include "MeshManager.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
+#include "soaUtils.h"
 #include "ShaderLoader.h"
 
 OpaqueVoxelRenderStage::OpaqueVoxelRenderStage(const GameRenderParams* gameRenderParams) :
@@ -32,6 +33,9 @@ void OpaqueVoxelRenderStage::render() {
     }
     m_program->use();
     m_program->enableVertexAttribArrays();
+
+    // For logarithmic Z buffer
+    glUniform1f(m_program->getUniform("unZCoef"), computeZCoef(m_gameRenderParams->chunkCamera->getFarClip()));
 
     glUniform1f(m_program->getUniform("lightType"), m_gameRenderParams->lightActive);
 

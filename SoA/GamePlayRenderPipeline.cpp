@@ -122,7 +122,26 @@ void GameplayRenderPipeline::render() {
 
     // worldCamera passes
     m_skyboxRenderStage->render();
+
     glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+
+    if (m_voxelsActive) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+        m_opaqueVoxelRenderStage->render();
+        // _physicsBlockRenderStage->draw();
+        //  m_cutoutVoxelRenderStage->render();
+
+        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
+        m_chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
+        m_chunkGridRenderStage->render();
+        //  m_liquidVoxelRenderStage->render();
+        //  m_transparentVoxelRenderStage->render();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+
     m_spaceSystemRenderStage->setShowAR(false);
     m_spaceSystemRenderStage->setRenderState(m_renderState);
     m_spaceSystemRenderStage->render();
@@ -133,25 +152,6 @@ void GameplayRenderPipeline::render() {
         m_spaceSystemRenderStage->needsFaceTransitionAnimation = false;
         m_increaseQuadAlpha = true;
         m_coloredQuadAlpha = 0.0f;
-    }
-
-    // Clear the depth buffer so we can draw the voxel passes
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    if (m_voxelsActive) {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
-        m_opaqueVoxelRenderStage->render();
-       // _physicsBlockRenderStage->draw();
-      //  m_cutoutVoxelRenderStage->render();
-
-        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).parentVoxelComponent;
-        m_chunkGridRenderStage->setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
-        m_chunkGridRenderStage->render();
-      //  m_liquidVoxelRenderStage->render();
-      //  m_transparentVoxelRenderStage->render();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     // Render last

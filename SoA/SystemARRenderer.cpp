@@ -303,7 +303,7 @@ void SystemARRenderer::drawHUD() {
 
                 relativePos = (position + f64v3(selectedPos)) - m_camera->getPosition();
                 // Bring it close to the camera so it doesn't get occluded by anything
-                relativePos = glm::normalize(relativePos) * (f64)m_camera->getNearClip() + 0.001;
+                relativePos = glm::normalize(relativePos) * ((f64)m_camera->getNearClip() + 0.0001);
                 screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
                 xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 

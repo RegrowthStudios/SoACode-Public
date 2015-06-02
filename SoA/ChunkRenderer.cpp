@@ -23,7 +23,7 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram* program
         //printf("VBO is 0 in drawChunkBlocks\n");
         return;
     }
-    setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
+    setMatrixTranslation(worldMatrix, f64v3(cm->position * KM_PER_VOXEL), PlayerPos * KM_PER_VOXEL);
 
     f32m4 MVP = VP * worldMatrix;
 
