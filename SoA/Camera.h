@@ -33,7 +33,9 @@ public:
 
     // Gets the position of a 3D point on the screen plane
     f32v3 worldToScreenPoint(const f32v3& worldPoint) const;
+    f32v3 worldToScreenPointLogZ(const f32v3& worldPoint, f32 zFar) const;
     f32v3 worldToScreenPoint(const f64v3& worldPoint) const;
+    f32v3 worldToScreenPointLogZ(const f64v3& worldPoint, f64 zFar) const;
     f32v3 getPickRay(const f32v2& ndcScreenPos) const;
 
     //getters

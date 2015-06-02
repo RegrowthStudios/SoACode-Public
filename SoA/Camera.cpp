@@ -99,6 +99,17 @@ f32v3 Camera::worldToScreenPoint(const f32v3& worldPoint) const {
                  clipPoint.z);
 }
 
+f32v3 Camera::worldToScreenPointLogZ(const f32v3& worldPoint, f32 zFar) const {
+    // Transform world to clipping coordinates
+    f32v4 clipPoint = m_viewProjectionMatrix * f32v4(worldPoint, 1.0f);
+    clipPoint.z = log2(glm::max(0.0001f, clipPoint.w + 1.0f)) * 2.0f / log2(zFar + 1.0f) - 1.0f;
+    clipPoint.x /= clipPoint.w;
+    clipPoint.y /= clipPoint.w;
+    return f32v3((clipPoint.x + 1.0f) / 2.0f,
+                 (1.0f - clipPoint.y) / 2.0f,
+                 clipPoint.z);
+}
+
 f32v3 Camera::worldToScreenPoint(const f64v3& worldPoint) const {
     // Transform world to clipping coordinates
     f64v4 clipPoint = f64m4(m_viewProjectionMatrix) * f64v4(worldPoint, 1.0);
@@ -107,6 +118,17 @@ f32v3 Camera::worldToScreenPoint(const f64v3& worldPoint) const {
     clipPoint.z /= clipPoint.w;
     return f32v3((clipPoint.x + 1.0f) / 2.0f,
                  (1.0f - clipPoint.y) / 2.0f,
+                 clipPoint.z);
+}
+
+f32v3 Camera::worldToScreenPointLogZ(const f64v3& worldPoint, f64 zFar) const {
+    // Transform world to clipping coordinates
+    f64v4 clipPoint = f64m4(m_viewProjectionMatrix) * f64v4(worldPoint, 1.0);
+    clipPoint.z = log2(glm::max(0.0001, clipPoint.w + 1.0)) * 2.0 / log2(zFar + 1.0) - 1.0;
+    clipPoint.x /= clipPoint.w;
+    clipPoint.y /= clipPoint.w;
+    return f32v3((clipPoint.x + 1.0) / 2.0,
+                 (1.0 - clipPoint.y) / 2.0,
                  clipPoint.z);
 }
 

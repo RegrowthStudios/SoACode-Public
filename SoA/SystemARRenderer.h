@@ -46,7 +46,6 @@ private:
     void drawHUD();
 
     vg::GLProgram* m_colorProgram = nullptr;
-    vg::GLProgram* m_spriteProgram = nullptr;
     vg::SpriteBatch* m_spriteBatch = nullptr;
     vg::SpriteFont* m_spriteFont = nullptr;
 

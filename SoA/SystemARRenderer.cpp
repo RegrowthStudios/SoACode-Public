@@ -8,6 +8,8 @@
 #include "SpaceSystem.h"
 #include "soaUtils.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
 #include <Vorb/graphics/GLProgram.h>
@@ -40,44 +42,6 @@ void main() {
     pColor = unColor * vec4(1.0, 1.0, 1.0, 1.0 - mod(fAngle + currentAngle, 1.0));
 }
 )";
-
-    const cString SPRITE_VERT_SRC = R"(
-uniform mat4 World;
-uniform mat4 VP;
-
-in vec4 vPosition;
-in vec2 vUV;
-in vec4 vUVRect;
-in vec4 vTint;
-
-out vec2 fUV;
-flat out vec4 fUVRect;
-out vec4 fTint;
-
-#include "Shaders/Utils/logz.glsl"
-
-void main() {
-    fTint = vTint;
-    fUV = vUV;
-    fUVRect = vUVRect;
-    vec4 worldPos = World * vPosition;
-    gl_Position = VP * worldPos;
-    applyLogZ();
-}
-)";
-    const cString SPRITE_FRAG_SRC = R"(
-uniform sampler2D SBTex;
-
-in vec2 fUV;
-flat in vec4 fUVRect;
-in vec4 fTint;
-
-out vec4 fColor;
-
-void main() {
-    fColor = texture(SBTex, fract(fUV.xy) * fUVRect.zw + fUVRect.xy) * fTint;
-}
-)";
 }
 
 SystemARRenderer::SystemARRenderer(const ModPathResolver* textureResolver) :
@@ -107,7 +71,6 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     glDepthFunc(GL_LEQUAL);
     drawPaths();
     if (m_systemViewer) {
-        if (!m_spriteProgram) m_spriteProgram = ShaderLoader::createProgram("SystemARHUD", SPRITE_VERT_SRC, SPRITE_FRAG_SRC);
         drawHUD();
     }
     glDepthMask(GL_TRUE);
@@ -121,11 +84,7 @@ void SystemARRenderer::dispose() {
         delete m_colorProgram;
         m_colorProgram = nullptr;
     }
-    if (m_spriteProgram) {
-        m_spriteProgram->dispose();
-        delete m_spriteProgram;
-        m_spriteProgram = nullptr;
-    }
+  
     if (m_spriteBatch) {
         m_spriteBatch->dispose();
         m_spriteFont->dispose();
@@ -161,7 +120,6 @@ void SystemARRenderer::loadTextures() {
 
 void SystemARRenderer::drawPaths() {
 
-    //vg::DepthState::READ.set();
     float blendFactor;
 
     // Draw paths
@@ -215,9 +173,6 @@ void SystemARRenderer::drawPaths() {
 }
 
 void SystemARRenderer::drawHUD() {
-    // Currently we need a viewer for this
-    if (!m_systemViewer) return;
-
     const f32 ROTATION_FACTOR = (f32)(M_PI + M_PI / 4.0);
     static f32 dt = 0.0;
     dt += 0.01;
@@ -251,7 +206,7 @@ void SystemARRenderer::drawHUD() {
             f32 hoverTime = bodyArData->hoverTime;
 
             // Get screen position 
-            f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
+            f32v3 screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
             f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
             // Get a smooth interpolator with hermite
@@ -363,8 +318,5 @@ void SystemARRenderer::drawHUD() {
     }
 
     m_spriteBatch->end();
-    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ, nullptr, m_spriteProgram);
-
-    // Restore depth state
-    vg::DepthState::FULL.set();
+    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ, nullptr);
 }
