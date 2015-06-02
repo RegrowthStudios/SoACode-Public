@@ -52,6 +52,7 @@ public:
                              vg::GLProgram* program, vg::GLProgram* waterProgram,
                              const f32v3& lightDir,
                              f32 alpha,
+                             const f32 zCoef,
                              const AtmosphereComponent* aCmp,
                              bool drawSkirts);
     /// Draws the far meshes

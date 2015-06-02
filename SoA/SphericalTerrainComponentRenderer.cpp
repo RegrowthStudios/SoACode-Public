@@ -23,6 +23,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const Camera* camera,
                                              const f32v3& lightDir,
                                              const f64v3& position,
+                                             const f32 zCoef,
                                              const SpaceLightComponent* spComponent,
                                              const AxisRotationComponent* arComponent,
                                              const AtmosphereComponent* aComponent) {
@@ -43,6 +44,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                                  m_terrainProgram, m_waterProgram,
                                                  lightDir,
                                                  1.0f,
+                                                 zCoef,
                                                  aComponent,
                                                  true);
         }

@@ -39,6 +39,7 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
                                      const f64q& orientation,
                                      const f32v3& relCamPos,
                                      const f32v3& lightDir,
+                                     const float zCoef,
                                      const SpaceLightComponent* spCmp,
                                      const AtmosphereComponent* aCmp) {
     // Lazily construct buffer and shaders
@@ -46,6 +47,8 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     if (!m_vbo) buildMesh();
 
     m_program->use();
+    // For logarithmic Z buffer
+    glUniform1f(m_program->getUniform("unZCoef"), zCoef);
 
     // Convert f64q to f32q
     f32q orientationF32;

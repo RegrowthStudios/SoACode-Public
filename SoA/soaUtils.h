@@ -187,4 +187,9 @@ inline f64 fastAtan2(f64 y, f64 x) {
     return r;
 }
 
+/// For logarithmic z-buffer shaders
+inline f32 computeZCoef(f32 zFar) {
+    return 2.0 / log2(zFar + 1.0);
+}
+
 #endif // soaUtils_h__

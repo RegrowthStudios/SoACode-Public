@@ -97,9 +97,12 @@ void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
 
     PreciseTimer timer;
     m_gasGiantRenderer.draw(m_ggCmp, m_camera.getViewProjectionMatrix(),
-                            f64q(), f32v3(m_eyePos), lightPos, &m_slCmp, &m_aCmp);
+                            f64q(), f32v3(m_eyePos), lightPos,
+                            computeZCoef(m_camera.getFarClip()),
+                            &m_slCmp, &m_aCmp);
 
-    m_atmoRenderer.draw(m_aCmp, m_camera.getViewProjectionMatrix(), f32v3(m_eyePos), lightPos, &m_slCmp);
+    m_atmoRenderer.draw(m_aCmp, m_camera.getViewProjectionMatrix(), f32v3(m_eyePos), lightPos,
+                        computeZCoef(m_camera.getFarClip()), &m_slCmp);
     //glFinish();
    
     checkGlError("TestGasGiantScreen::draw");

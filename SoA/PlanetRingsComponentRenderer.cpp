@@ -27,6 +27,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
                                         const f32v3& relCamPos,
                                         const f32v3& lightPos,
                                         const f32 planetRadius,
+                                        const f32 zCoef,
                                         const SpaceLightComponent* spComponent) {
     // Lazily construct buffer and shaders
     if (!m_program) {
@@ -39,6 +40,9 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
     }
 
     m_program->use();
+    // For logarithmic Z buffer
+    glUniform1f(m_program->getUniform("unZCoef"), zCoef);
+
     glDisable(GL_CULL_FACE);
     // Set up matrix
     for (auto& r : prCmp.rings) {

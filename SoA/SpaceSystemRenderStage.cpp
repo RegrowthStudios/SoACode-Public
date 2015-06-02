@@ -107,13 +107,14 @@ f32 SpaceSystemRenderStage::getDynamicNearPlane(float verticalFOV, float aspectR
 void SpaceSystemRenderStage::drawBodies() {
 
     m_closestPatchDistance2 = DOUBLE_SENTINEL;
-
+    glEnable(GL_DEPTH_CLAMP);
     bool needsDepthClear = false;
     // TODO(Ben): Optimize out getFromEntity
     f64v3 lightPos;
     // For caching light for far terrain
     std::map<vecs::EntityID, std::pair<f64v3, SpaceLightComponent*> > lightCache;
     const f64v3* pos;
+    f32 zCoef = computeZCoef(m_spaceCamera->getFarClip());
     // Render spherical terrain
     for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
         auto& cmp = it.second;
@@ -142,6 +143,7 @@ void SpaceSystemRenderStage::drawBodies() {
         m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                  lightDir,
                                                  *pos,
+                                                 zCoef,
                                                  lightCmp,
                                                  &m_spaceSystem->m_axisRotationCT.get(cmp.axisRotationComponent),
                                                  &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
@@ -165,7 +167,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
         m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(),
                                          m_spaceSystem->m_axisRotationCT.getFromEntity(it.first).currentOrientation,
-                                         relCamPos, lightDir, lightCmp,
+                                         relCamPos, lightDir,
+                                         zCoef, lightCmp,
                                          &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
 
@@ -180,7 +183,8 @@ void SpaceSystemRenderStage::drawBodies() {
         auto& l = lightCache[it.first];
         f32v3 lightDir(glm::normalize(l.first - *pos));
         
-        m_cloudsComponentRenderer.draw(cCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second,
+        m_cloudsComponentRenderer.draw(cCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir,
+                                       zCoef, l.second,
                                        m_spaceSystem->m_axisRotationCT.getFromEntity(it.first), 
                                        m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
@@ -200,7 +204,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
             f32v3 lightDir(glm::normalize(l.first - *pos));
 
-            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir, l.second);
+            m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir,
+                                               zCoef, l.second);
         }
     }
 
@@ -222,7 +227,9 @@ void SpaceSystemRenderStage::drawBodies() {
         f32v3 lightDir(glm::normalize(l.first - *pos));
 
         // TODO(Ben): Worry about f64 to f32 precision loss
-        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, f32v3(l.first - m_spaceCamera->getPosition()), sgCmp.radius, l.second);
+        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
+                             f32v3(l.first - m_spaceCamera->getPosition()), sgCmp.radius,
+                             zCoef, l.second);
     }
     glDepthMask(GL_TRUE);
 
@@ -274,6 +281,7 @@ void SpaceSystemRenderStage::drawBodies() {
         m_starGlowsToRender.emplace_back(sCmp, relCamPos);
     }
 
+    glDisable(GL_DEPTH_CLAMP);
     vg::DepthState::FULL.set();
 }
 

@@ -24,6 +24,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   vg::GLProgram* waterProgram,
                                                   const f32v3& lightDir,
                                                   f32 alpha,
+                                                  const f32 zCoef,
                                                   const AtmosphereComponent* aCmp,
                                                   bool drawSkirts) {
     
@@ -59,6 +60,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
         glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
+        // For logarithmic Z buffer
+        glUniform1f(waterProgram->getUniform("unZCoef"), zCoef);
         // Set up scattering uniforms
         setScatterUniforms(waterProgram, rotpos, aCmp);
 
@@ -94,6 +97,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glActiveTexture(GL_TEXTURE0);
         program->use();
         program->enableVertexAttribArrays();
+        // For logarithmic Z buffer
+        glUniform1f(program->getUniform("unZCoef"), zCoef);
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
         // Set up scattering uniforms

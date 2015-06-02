@@ -46,11 +46,11 @@ public:
     const f32m4& getViewMatrix() const { return m_viewMatrix; }
     const f32m4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; }
 
-    const float& getNearClip() const { return m_zNear; }
-    const float& getFarClip() const { return m_zFar; }
-    const float& getFieldOfView() const { return m_fieldOfView; }
-    const float& getAspectRatio() const { return m_aspectRatio; }
-    const float& getFocalLength() const { return m_focalLength; }
+    const f32& getNearClip() const { return m_zNear; }
+    const f32& getFarClip() const { return m_zFar; }
+    const f32& getFieldOfView() const { return m_fieldOfView; }
+    const f32& getAspectRatio() const { return m_aspectRatio; }
+    const f64& getFocalLength() const { return m_focalLength; }
 
     const Frustum& getFrustum() const { return m_frustum; }
 
@@ -58,10 +58,10 @@ protected:
     void normalizeAngles();
     void updateView();
 
-    float m_zNear = 0.1f;
-    float m_zFar = 100000.0f;
-    float m_fieldOfView = 75.0f;
-    float m_aspectRatio = 4.0f / 3.0f;
+    f32 m_zNear = 0.1f;
+    f32 m_zFar = 100000.0f;
+    f32 m_fieldOfView = 75.0f;
+    f32 m_aspectRatio = 4.0f / 3.0f;
     f64 m_focalLength = 0.0;
     f64 m_maxFocalLength = 10000000000000000000000.0;
     bool m_viewChanged = true;

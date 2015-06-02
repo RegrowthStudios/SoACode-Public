@@ -28,6 +28,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const f32m4& VP,
                                    const f32v3& relCamPos,
                                    const f32v3& lightDir,
+                                   const f32 zCoef,
                                    const SpaceLightComponent* spComponent,
                                    const AxisRotationComponent& arComponent,
                                    const AtmosphereComponent& aCmp) {
@@ -66,6 +67,8 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
     glUniform3fv(m_program->getUniform("unNoiseScale"), 1, &cCmp.scale[0]);
     glUniform1f(m_program->getUniform("unDensity"), cCmp.density);
     glUniform1f(m_program->getUniform("unCloudsRadius"), cCmp.planetRadius + cCmp.height);
+    // For logarithmic Z buffer
+    glUniform1f(m_program->getUniform("unZCoef"), zCoef);
 
     // Scattering
     f32 camHeight = glm::length(rotpos);

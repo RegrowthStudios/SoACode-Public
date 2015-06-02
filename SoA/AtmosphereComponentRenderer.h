@@ -34,6 +34,7 @@ public:
               const f32m4& VP,
               const f32v3& relCamPos,
               const f32v3& lightDir,
+              const f32 zCoef,
               const SpaceLightComponent* spComponent);
     void disposeShader();
 private:

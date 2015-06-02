@@ -29,6 +29,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
                                        const f32m4& VP,
                                        const f32v3& relCamPos,
                                        const f32v3& lightDir,
+                                       const f32 zCoef,
                                        const SpaceLightComponent* spComponent) {
     // Lazily construct buffer and shaders
     if (!m_program) {
@@ -69,6 +70,8 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     glUniform1f(m_program->getUniform("unNumSamplesF"), 3.0f);
     glUniform1f(m_program->getUniform("unG"), aCmp.g);
     glUniform1f(m_program->getUniform("unG2"), aCmp.g * aCmp.g);
+    // For logarithmic Z buffer
+    glUniform1f(m_program->getUniform("unZCoef"), zCoef);
 
     // Bind VAO
     glBindVertexArray(m_vao);

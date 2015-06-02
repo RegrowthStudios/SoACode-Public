@@ -33,6 +33,7 @@ public:
               const Camera* camera,
               const f32v3& lightDir,
               const f64v3& position,
+              const f32 zCoef,
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent,
               const AtmosphereComponent* aComponent);

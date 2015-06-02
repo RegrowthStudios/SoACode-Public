@@ -41,6 +41,7 @@ public:
               const f64q& orientation,
               const f32v3& relCamPos,
               const f32v3& lightDir,
+              const float zCoef,
               const SpaceLightComponent* spCmp,
               const AtmosphereComponent* aCmp);
     void disposeShader();
