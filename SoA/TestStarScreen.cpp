@@ -150,9 +150,10 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     // Render the star
     f32v3 fEyePos(m_eyePos);
 
+    f32 zCoef = computeZCoef(m_camera.getFarClip());
     // TODO(Ben): render star first and figure out why depth testing is failing
-    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
-    m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
+    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos, zCoef);
+    m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos, zCoef);
     glBlendFunc(GL_ONE, GL_ONE);
     if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
                                            m_camera.getAspectRatio(), m_camera.getDirection(),

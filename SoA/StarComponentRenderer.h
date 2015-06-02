@@ -36,11 +36,13 @@ public:
     void drawStar(const StarComponent& sCmp,
                   const f32m4& VP,
                   const f64q& orientation,
-                  const f32v3& relCamPos);
+                  const f32v3& relCamPos,
+                  const f32 zCoef);
     void drawCorona(StarComponent& sCmp,
                     const f32m4& VP,
                     const f32m4& V,
-                    const f32v3& relCamPos);
+                    const f32v3& relCamPos,
+                    const f32 zCoef);
     void drawGlow(const StarComponent& sCmp,
                   const f32m4& VP,
                   const f64v3& relCamPos,

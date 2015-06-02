@@ -275,8 +275,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
         // Render the star
         m_starRenderer.updateOcclusionQuery(sCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos);
-        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos);
-        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos);
+        m_starRenderer.drawStar(sCmp, m_spaceCamera->getViewProjectionMatrix(), f64q(), fRelCamPos, zCoef);
+        m_starRenderer.drawCorona(sCmp, m_spaceCamera->getViewProjectionMatrix(), m_spaceCamera->getViewMatrix(), fRelCamPos, zCoef);
         
         m_starGlowsToRender.emplace_back(sCmp, relCamPos);
     }

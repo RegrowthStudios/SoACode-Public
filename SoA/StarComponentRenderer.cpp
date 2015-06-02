@@ -55,7 +55,8 @@ StarComponentRenderer::~StarComponentRenderer() {
 void StarComponentRenderer::drawStar(const StarComponent& sCmp,
                                      const f32m4& VP,
                                      const f64q& orientation,
-                                     const f32v3& relCamPos) {
+                                     const f32v3& relCamPos,
+                                     const f32 zCoef) {
     checkLazyLoad();
     if (sCmp.visibility == 0.0f) return;
 
@@ -89,6 +90,8 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     glUniform1f(m_starProgram->getUniform("unRadius"), sCmp.radius);
     f32v3 unCenterDir = glm::normalize(relCamPos);
     glUniform3fv(m_starProgram->getUniform("unCenterDir"), 1, &unCenterDir[0]);
+    // For logarithmic Z buffer
+    glUniform1f(m_starProgram->getUniform("unZCoef"), zCoef);
 
     // Bind VAO
     glBindVertexArray(m_sVao);
@@ -102,7 +105,8 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
 void StarComponentRenderer::drawCorona(StarComponent& sCmp,
                                        const f32m4& VP,
                                        const f32m4& V,
-                                       const f32v3& relCamPos) {
+                                       const f32v3& relCamPos,
+                                       const f32 zCoef) {
     checkLazyLoad();
 
     f32v3 center(-relCamPos);
@@ -121,6 +125,8 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
     glUniform3fv(m_coronaProgram->getUniform("unCameraUp"), 1, &camUp[0]);
     glUniform3fv(m_coronaProgram->getUniform("unCenter"), 1, &center[0]);
     glUniform3fv(m_coronaProgram->getUniform("unColor"), 1, &tColor[0]);
+    // For logarithmic Z buffer
+    glUniform1f(m_coronaProgram->getUniform("unZCoef"), zCoef);
     // Size
     glUniform1f(m_coronaProgram->getUniform("unMaxSize"), 4.0f);
     glUniform1f(m_coronaProgram->getUniform("unStarRadius"), (f32)sCmp.radius);
