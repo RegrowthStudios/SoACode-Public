@@ -71,7 +71,7 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     f32v2 windowDims(m_viewport.z, m_viewport.w);
 
     m_spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
-    m_voxelCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_localCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Helpful macro to reduce code size
 #define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
@@ -87,11 +87,11 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     m_pdaRenderStage = ADD_STAGE(PdaRenderStage, pda);
     m_pauseMenuRenderStage = ADD_STAGE(PauseMenuRenderStage, pauseMenu);
     m_nightVisionRenderStage = ADD_STAGE(NightVisionRenderStage, &m_quad);
-    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, &m_voxelCamera);
+    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, &m_localCamera);
     m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(windowDims),
         spaceSystem, gameSystem,
         nullptr, &m_spaceCamera,
-        &m_farTerrainCamera);
+        &m_localCamera);
 
     loadNightVision();
     // No post-process effects to begin with
@@ -113,7 +113,7 @@ void GameplayRenderPipeline::render() {
 
     updateCameras();
     // Set up the gameRenderParams
-    m_gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_voxelCamera,
+    m_gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_localCamera,
                                       m_meshManager, false);
     // Bind the FBO
     m_hdrFrameBuffer->use();
@@ -297,15 +297,10 @@ void GameplayRenderPipeline::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_voxelCamera.setClippingPlane(0.1f, 10000.0f);
-        m_voxelCamera.setPosition(vpcmp.gridPosition.pos);
-        m_voxelCamera.setOrientation(vpcmp.orientation);
-        m_voxelCamera.update();
-
-        // Far terrain camera is exactly like voxel camera except for clip plane
-        m_farTerrainCamera = m_voxelCamera;
-        m_farTerrainCamera.setClippingPlane(dynamicZNear, 100000.0f);
-        m_farTerrainCamera.update();
+        m_localCamera.setClippingPlane(0.1f, 10000.0f);
+        m_localCamera.setPosition(vpcmp.gridPosition.pos);
+        m_localCamera.setOrientation(vpcmp.orientation);
+        m_localCamera.update();
 
         m_voxelsActive = true;
     } else {

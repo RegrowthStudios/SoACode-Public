@@ -302,7 +302,9 @@ void SystemARRenderer::drawHUD() {
                 }
 
                 relativePos = (position + f64v3(selectedPos)) - m_camera->getPosition();
-                screenCoords = m_camera->worldToScreenPoint(relativePos);
+                // Bring it close to the camera so it doesn't get occluded by anything
+                relativePos = glm::normalize(relativePos) * (f64)m_camera->getNearClip() + 0.001;
+                screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
                 xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
                 color4 sColor = color::Red;
@@ -312,7 +314,7 @@ void SystemARRenderer::drawHUD() {
                                     f32v2(0.5f, 0.5f),
                                     f32v2(22.0f) + cos(dt * 8.0f) * 4.0f,
                                     dt * ROTATION_FACTOR,
-                                    sColor, 0.0f);
+                                    sColor, screenCoords.z);
             }
         }
     }

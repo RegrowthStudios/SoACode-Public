@@ -122,8 +122,7 @@ private:
 
     ui32v4 m_viewport; ///< Viewport to draw to
     Camera m_spaceCamera; ///< handle to world camera
-    Camera m_farTerrainCamera; ///< Camera for far terrain only
-    Camera m_voxelCamera; ///< handle to voxel camera
+    Camera m_localCamera; ///< handle to voxel camera
     ChunkMeshManager* m_meshManager; ///< Handle to the meshes
     const MTRenderState* m_renderState = nullptr; ///< The current MT render state
     bool m_voxelsActive = false;
