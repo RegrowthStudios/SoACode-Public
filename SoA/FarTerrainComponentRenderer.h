@@ -33,6 +33,7 @@ public:
     void draw(const FarTerrainComponent& cmp,
               const Camera* camera,
               const f64v3& lightDir,
+              const f32 zCoef,
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent,
               const AtmosphereComponent* aComponent);

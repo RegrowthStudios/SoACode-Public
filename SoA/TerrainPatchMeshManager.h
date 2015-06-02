@@ -70,6 +70,7 @@ public:
                        vg::GLProgram* program, vg::GLProgram* waterProgram,
                        const f32v3& lightDir,
                        f32 alpha, f32 radius,
+                       const f32 zCoef,
                        const AtmosphereComponent* aCmp,
                        bool drawSkirts);
 

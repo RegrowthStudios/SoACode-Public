@@ -105,8 +105,8 @@ f32v3 Camera::worldToScreenPoint(const f64v3& worldPoint) const {
     clipPoint.x /= clipPoint.w;
     clipPoint.y /= clipPoint.w;
     clipPoint.z /= clipPoint.w;
-    return f32v3((clipPoint.x + 1.0) / 2.0,
-                 (1.0 - clipPoint.y) / 2.0,
+    return f32v3((clipPoint.x + 1.0f) / 2.0f,
+                 (1.0f - clipPoint.y) / 2.0f,
                  clipPoint.z);
 }
 

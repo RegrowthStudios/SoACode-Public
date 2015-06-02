@@ -253,6 +253,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
             m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightDir,
+                                               zCoef,
                                                l.second,
                                                &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),
                                                &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));

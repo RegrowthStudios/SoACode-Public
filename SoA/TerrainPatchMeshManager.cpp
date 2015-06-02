@@ -211,6 +211,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                                             vg::GLProgram* program, vg::GLProgram* waterProgram,
                                             const f32v3& lightDir,
                                             f32 alpha, f32 radius,
+                                            const f32 zCoef,
                                             const AtmosphereComponent* aCmp,
                                             bool drawSkirts) {
     // TODO(Ben): This will lose precision over time
@@ -232,6 +233,8 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glUniform1f(waterProgram->getUniform("unRadius"), radius);
         glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
+        // For logarithmic Z buffer
+        glUniform1f(waterProgram->getUniform("unZCoef"), zCoef);
         // Set up scattering uniforms
         setScatterUniforms(waterProgram, f64v3(0, relativePos.y + radius, 0), aCmp);
 
@@ -269,7 +272,8 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glUniform1f(program->getUniform("unRadius"), radius); // TODO(Ben): Use real radius
         glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
         glUniform1f(program->getUniform("unAlpha"), alpha);
-
+        // For logarithmic Z buffer
+        glUniform1f(program->getUniform("unZCoef"), zCoef);
         // Set up scattering uniforms
         setScatterUniforms(program, f64v3(0, relativePos.y + radius, 0), aCmp);
 

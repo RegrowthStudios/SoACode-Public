@@ -20,6 +20,7 @@ FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
 void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        const Camera* camera,
                                        const f64v3& lightDir,
+                                       const f32 zCoef,
                                        const SpaceLightComponent* spComponent,
                                        const AxisRotationComponent* arComponent,
                                        const AtmosphereComponent* aComponent) {
@@ -47,6 +48,7 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        f32v3(relLightDir),
                                        glm::min(cmp.alpha, 1.0f),
                                        cmp.planetGenData->radius,
+                                       zCoef,
                                        aComponent,
                                        (cmp.alpha >= 1.0f));
     }

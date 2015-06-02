@@ -6,6 +6,7 @@
 #include "ModPathResolver.h"
 #include "ShaderLoader.h"
 #include "SpaceSystem.h"
+#include "soaUtils.h"
 
 #include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
@@ -22,9 +23,11 @@ uniform mat4 unWVP;
 in vec4 vPosition;
 in float vAngle;
 out float fAngle;
+#include "Shaders/Utils/logz.glsl"
 void main() {
     fAngle = vAngle;
     gl_Position = unWVP * vPosition;
+    applyLogZ();
 }
 )";
 
@@ -35,6 +38,44 @@ in float fAngle;
 out vec4 pColor;
 void main() {
     pColor = unColor * vec4(1.0, 1.0, 1.0, 1.0 - mod(fAngle + currentAngle, 1.0));
+}
+)";
+
+    const cString SPRITE_VERT_SRC = R"(
+uniform mat4 World;
+uniform mat4 VP;
+
+in vec4 vPosition;
+in vec2 vUV;
+in vec4 vUVRect;
+in vec4 vTint;
+
+out vec2 fUV;
+flat out vec4 fUVRect;
+out vec4 fTint;
+
+#include "Shaders/Utils/logz.glsl"
+
+void main() {
+    fTint = vTint;
+    fUV = vUV;
+    fUVRect = vUVRect;
+    vec4 worldPos = World * vPosition;
+    gl_Position = VP * worldPos;
+    applyLogZ();
+}
+)";
+    const cString SPRITE_FRAG_SRC = R"(
+uniform sampler2D SBTex;
+
+in vec2 fUV;
+flat in vec4 fUVRect;
+in vec4 fTint;
+
+out vec4 fColor;
+
+void main() {
+    fColor = texture(SBTex, fract(fUV.xy) * fUVRect.zw + fUVRect.xy) * fTint;
 }
 )";
 }
@@ -60,11 +101,13 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_camera = camera;
     m_systemViewer = systemViewer;
     m_viewport = viewport;
+    m_zCoef = computeZCoef(camera->getFarClip());
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_LEQUAL);
     drawPaths();
     if (m_systemViewer) {
+        if (!m_spriteProgram) m_spriteProgram = ShaderLoader::createProgram("SystemARHUD", SPRITE_VERT_SRC, SPRITE_FRAG_SRC);
         drawHUD();
     }
     glDepthMask(GL_TRUE);
@@ -77,6 +120,11 @@ void SystemARRenderer::dispose() {
         m_colorProgram->dispose();
         delete m_colorProgram;
         m_colorProgram = nullptr;
+    }
+    if (m_spriteProgram) {
+        m_spriteProgram->dispose();
+        delete m_spriteProgram;
+        m_spriteProgram = nullptr;
     }
     if (m_spriteBatch) {
         m_spriteBatch->dispose();
@@ -119,6 +167,9 @@ void SystemARRenderer::drawPaths() {
     // Draw paths
     m_colorProgram->use();
     m_colorProgram->enableVertexAttribArrays();
+
+    // For logarithmic Z buffer
+    glUniform1f(m_colorProgram->getUniform("unZCoef"), m_zCoef);
     glLineWidth(3.0f);
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
@@ -312,7 +363,7 @@ void SystemARRenderer::drawHUD() {
     }
 
     m_spriteBatch->end();
-    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ);
+    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ, nullptr, m_spriteProgram);
 
     // Restore depth state
     vg::DepthState::FULL.set();
