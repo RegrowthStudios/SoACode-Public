@@ -198,6 +198,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
 }
 
 void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
+                                                 const f32 zCoef,
                                                  const f32m4& VP,
                                                  const f64v3& relCamPos) {
     checkLazyLoad();
@@ -231,7 +232,12 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     f64v3 centerScreenspace64(gl_Position.x / gl_Position.w,
                               gl_Position.y / gl_Position.w,
                               gl_Position.z / gl_Position.w);
-    if (centerScreenspace64.z > 1.0) centerScreenspace64.z = 2.0;
+    if (gl_Position.z < 0.0) {
+        centerScreenspace64.x = -100.0f; // force it off screen
+    } else {
+        centerScreenspace64.z = log2(glm::max(1e-6, gl_Position.w + 1.0)) * zCoef - 1.0;
+        centerScreenspace64.z *= gl_Position.w;
+    }
     f32v3 centerScreenspace(centerScreenspace64);
 
     f64 s = calculateGlowSize(sCmp, relCamPos) / 128.0;
