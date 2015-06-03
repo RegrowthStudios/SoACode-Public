@@ -109,6 +109,7 @@ private:
     void onReloadShaders(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);
     void onToggleWireframe(Sender s, ui32 i);
+    void onWindowClose(Sender s);
     // ----------------------------------------------
 
     const MainMenuScreen* m_mainMenuScreen = nullptr;

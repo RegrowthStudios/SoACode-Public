@@ -238,7 +238,7 @@ void GameplayScreen::initInput() {
         m_renderPipeline.toggleChunkGrid();
     });
     m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        if (m_pda.isOpen()) {
+       /* if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
             m_soaState->isInputEnabled = true;
@@ -248,7 +248,10 @@ void GameplayScreen::initInput() {
             SDL_SetRelativeMouseMode(SDL_FALSE);
             m_soaState->isInputEnabled = false;
             SDL_StopTextInput();
-        }
+        }*/
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_inputMapper->stopInput();
+        m_soaState->isInputEnabled = false;
     });
     m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (isInGame()) {
@@ -275,22 +278,18 @@ void GameplayScreen::initInput() {
             //TODO(Ben): Edit voxels
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
-        m_soaState->isInputEnabled = true;
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        m_inputMapper->startInput();
+        m_soaState->isInputEnabled = true;     
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
     });
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
-        if (e.keyCode == VKEY_ESCAPE) {
-            SoaEngine::destroyAll(m_soaState);
-            exit(0);
-        } else if (e.keyCode == VKEY_F2) {
-            m_renderPipeline.takeScreenshot();
-        }
-    });
+    vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
 
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
         m_renderPipeline.takeScreenshot(); });
@@ -385,4 +384,8 @@ void GameplayScreen::onQuit(Sender s, ui32 a) {
 
 void GameplayScreen::onToggleWireframe(Sender s, ui32 i) {
     m_renderPipeline.toggleWireframe();
+}
+
+void GameplayScreen::onWindowClose(Sender s) {
+    onQuit(s, 0);
 }
