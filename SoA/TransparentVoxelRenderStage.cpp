@@ -86,7 +86,7 @@ void TransparentVoxelRenderStage::render() {
         oldPos = intPosition;
     }
 
-    for (int i = 0; i < chunkMeshes.size(); i++) {
+    for (size_t i = 0; i < chunkMeshes.size(); i++) {
         cm = chunkMeshes[i];
         if (sort) cm->needsSort = true;
 

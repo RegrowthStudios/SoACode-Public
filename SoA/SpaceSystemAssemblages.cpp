@@ -211,6 +211,7 @@ vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* s
         r1.colorLookup = r2.texture;
         r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
     }
+    return prCmpId;
 }
 
 void  SpaceSystemAssemblages::removePlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {

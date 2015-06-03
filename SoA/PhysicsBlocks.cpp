@@ -80,7 +80,8 @@ PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 Block
     done(false),
     colliding(false)
 {
-    double v = 0.0;
+    // TODO(Ben): What the fuck is this shit?
+    f32 v = 0.0;
     bool tree = 0;
     done = 0;
     if (dir[0] != 0 || dir[1] != 0) tree = 1;
@@ -92,7 +93,7 @@ PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 Block
      //       grav = GRAVITY;
      //       fric = 0.98f - 0.02f;
         }
-        v = 1.0;
+        v = 1.0f;
     } else if (ydiff > 1){
         v = (ydiff - 1) / 49.0f;
         if (tree){
@@ -102,9 +103,9 @@ PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 Block
     }
 
     if (v){
-        velocity.x = ((rand() % 100) * .001 - 0.05 + dir[0] * 1.65f)*v;
+        velocity.x = ((rand() % 100) * .001f - 0.05f + dir[0] * 1.65f)*v;
         velocity.y = 0;
-        velocity.z = ((rand() % 100) * .001 - 0.05 + dir[1] * 1.65f)*v;
+        velocity.z = ((rand() % 100) * .001f - 0.05f + dir[1] * 1.65f)*v;
     } else{
         velocity = glm::vec3(0.0f);
     }

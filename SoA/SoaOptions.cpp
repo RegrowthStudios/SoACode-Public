@@ -19,7 +19,7 @@ SoaOptions::~SoaOptions() {
 }
 
 void SoaOptions::addOption(int id, const nString& name, OptionValue defaultValue, SoaOptionFlags flags) {
-    if (id >= m_options.size()) {
+    if (id >= (int)m_options.size()) {
         m_options.resize(id + 1);
         m_options[id].id = id;
         m_options[id].name = name;

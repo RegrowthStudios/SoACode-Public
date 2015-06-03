@@ -56,7 +56,7 @@ void FloraTask::execute(WorkerData* workerData) {
         if (generatedTreeNodes->wnodes.size()) {
             ui16 lastPos = generatedTreeNodes->wnodes[0].chunkOffset;
             allChunkOffsets.push_back(lastPos);
-            for (int i = 1; i < generatedTreeNodes->wnodes.size(); i++) {
+            for (size_t i = 1; i < generatedTreeNodes->wnodes.size(); i++) {
                 if (generatedTreeNodes->wnodes[i].chunkOffset != lastPos) {
                     lastPos = generatedTreeNodes->wnodes[i].chunkOffset;
                     allChunkOffsets.push_back(lastPos);
@@ -68,7 +68,7 @@ void FloraTask::execute(WorkerData* workerData) {
             if (!searchVector(allChunkOffsets, lastPos)) {
                 allChunkOffsets.push_back(lastPos);
             }
-            for (int i = 0; i < generatedTreeNodes->lnodes.size(); i++) {
+            for (size_t i = 0; i < generatedTreeNodes->lnodes.size(); i++) {
                 if (generatedTreeNodes->lnodes[i].chunkOffset != lastPos) {
                     lastPos = generatedTreeNodes->lnodes[i].chunkOffset;
                     if (!searchVector(allChunkOffsets, lastPos)) {

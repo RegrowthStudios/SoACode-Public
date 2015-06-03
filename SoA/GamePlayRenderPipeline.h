@@ -117,7 +117,7 @@ private:
 
     // TODO: This is only for visualization purposes, must remove
     std::vector<NightVisionRenderParams> m_nvParams; ///< Different night vision styles
-    i32 m_nvIndex = 0;
+    ui32 m_nvIndex = 0;
 
     ui32v4 m_viewport; ///< Viewport to draw to
     Camera m_spaceCamera; ///< handle to world camera

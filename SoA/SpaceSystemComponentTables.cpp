@@ -11,7 +11,10 @@
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "PlanetData.h"
+#include "SphericalTerrainCpuGenerator.h"
 #include "SphericalTerrainGpuGenerator.h"
+#include "TerrainPatchMeshManager.h"
+#include "TerrainRpcDispatcher.h"
 
 void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
     SphericalVoxelComponent& cmp = _components[cID].second;

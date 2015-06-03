@@ -100,7 +100,7 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
     
     TerrainOp nextOp;
     // NOTE: Make sure this implementation matches SphericalTerrainCpuGenerator::getNoiseValue()
-    for (int f = 0; f < funcs.size(); f++) {
+    for (size_t f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
 
         // Each function gets its own h variable
@@ -199,7 +199,7 @@ void NoiseShaderGenerator::addBiomes(OUT nString& fSource, PlanetGenData* genDat
     fSource += N_BIOME + " = biomeIndex;\n";
     fSource += "float baseMult = 1.0;\n";
 
-    for (int i = 0; i < genData->biomes.size(); i++) {
+    for (size_t i = 0; i < genData->biomes.size(); i++) {
         // Add if
         if (i == 0) {
             fSource += "if ";
@@ -261,10 +261,10 @@ void NoiseShaderGenerator::dumpShaderCode(std::ostream& stream, nString source, 
         }
     }
     // Insert line numbers
-    int width = log10(totalLines) + 1;
+    int width = (int)log10(totalLines) + 1;
     if (addLineNumbers) {
         // See how much room we need for line numbers
-        int width = log10(totalLines) + 1;
+        int width = (int)log10(totalLines) + 1;
         char buf[32];
         int lineNum = 1;
         for (size_t i = 0; i < source.size(); i++) {

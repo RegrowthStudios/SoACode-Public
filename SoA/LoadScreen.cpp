@@ -145,7 +145,7 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
         SetBlockAvgTexColors();
 
         //load the emitters
-        for (int i = 0; i < Blocks.size(); i++) {
+        for (size_t i = 0; i < Blocks.size(); i++) {
             if (Blocks[i].active) {
                 if (Blocks[i].emitterName.size()) {
                 //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);

@@ -61,17 +61,17 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
     m_eyePos = f32v3(0, 0, m_eyeDist);
 
     // Set up components
-    m_ggCmp.radius = GIANT_RADIUS;
+    m_ggCmp.radius = (f32)GIANT_RADIUS;
     m_ggCmp.colorMap = colorBandLookup;
-    m_aCmp.radius = GIANT_RADIUS * 1.025;
-    m_aCmp.planetRadius = GIANT_RADIUS;
+    m_aCmp.radius = (f32)(GIANT_RADIUS * 1.025);
+    m_aCmp.planetRadius = (f32)GIANT_RADIUS;
     m_aCmp.invWavelength4 = f32v3(1.0f / powf(0.475f, 4.0f),
                                   1.0f / powf(0.57f, 4.0f),
                                   1.0f / powf(0.65f, 4.0f));
 
     m_camera.setFieldOfView(90.0f);
-    f32 width = m_game->getWindow().getWidth();
-    f32 height = m_game->getWindow().getHeight();
+    f32 width = (f32)m_game->getWindow().getWidth();
+    f32 height = (f32)m_game->getWindow().getHeight();
     m_camera.setAspectRatio(width / height);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
     m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));

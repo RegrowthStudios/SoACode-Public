@@ -178,7 +178,7 @@ ui32 TextureAtlasStitcher::buildTextureArray() {
 
 void TextureAtlasStitcher::destroy() {
 
-    for (int i = 0; i < _pages.size(); i++) {
+    for (size_t i = 0; i < _pages.size(); i++) {
         delete _pages[i];
     }
     std::vector<BlockAtlasPage*>().swap(_pages);
@@ -210,7 +210,7 @@ i32 TextureAtlasStitcher::mapSingle() {
         pageIndex = _oldestFreeSlot / BLOCK_TEXTURE_ATLAS_SIZE;
 
         // If we need to allocate a new page
-        if (pageIndex >= _pages.size()) {
+        if (pageIndex >= (int)_pages.size()) {
             _pages.push_back(new BlockAtlasPage({}));
         }
 
@@ -247,7 +247,7 @@ i32 TextureAtlasStitcher::mapBox(int width, int height) {
         fits = true;
 
         // If we need to alocate a new atlas
-        if (pageIndex >= _pages.size()) {
+        if (pageIndex >= (int)_pages.size()) {
             _pages.push_back(new BlockAtlasPage({}));
         }
 
@@ -306,7 +306,7 @@ i32 TextureAtlasStitcher::mapContiguous(int numTiles) {
         pageIndex = searchIndex / BLOCK_TEXTURE_ATLAS_SIZE;
 
         // If we need to alocate a new atlas
-        if (pageIndex >= _pages.size()) {
+        if (pageIndex >= (int)_pages.size()) {
             _pages.push_back(new BlockAtlasPage({}));
         }
 

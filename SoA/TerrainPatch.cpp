@@ -190,7 +190,7 @@ void TerrainPatch::requestMesh() {
                    m_terrainPatchData->radius,
                    m_gridPos.y);
     m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
-                                              m_width,
+                                              (f32)m_width,
                                               m_lod,
                                               m_cubeFace, true);
 }

@@ -172,7 +172,7 @@ void SystemARRenderer::drawPaths() {
 void SystemARRenderer::drawHUD() {
     const f32 ROTATION_FACTOR = (f32)(M_PI + M_PI / 4.0);
     static f32 dt = 0.0;
-    dt += 0.01;
+    dt += 0.01f;
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
@@ -256,7 +256,7 @@ void SystemARRenderer::drawHUD() {
                 VGTexture tx;
                 if (oCmp.type == SpaceObjectType::BARYCENTER) {
                     tx = m_baryTexture;
-                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.5f - distance * 0.00000000001;
+                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.5f - (f32)(distance * 0.00000000001);
                     if (selectorSize < 0.0) continue;        
                     interpolator = 0.0f; // Don't rotate barycenters
                 } else {

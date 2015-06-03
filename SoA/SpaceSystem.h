@@ -42,15 +42,15 @@ class App;
 class Binary;
 class Camera;
 class GameSystem;
-class GasGiantKegProperties;
-class PlanetKegProperties;
 class PlanetLoader;
 class SoaState;
 class SpriteBatch;
 class SpriteFont;
-class StarKegProperties;
-class SystemBodyKegProperties;
+struct GasGiantKegProperties;
+struct PlanetKegProperties;
+struct StarKegProperties;
 struct SystemBody;
+struct SystemBodyKegProperties;
 
 DECL_VG(class TextureRecycler)
 

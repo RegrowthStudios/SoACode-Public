@@ -79,16 +79,16 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     bool didTransition = false;
     if (vpcmp.gridPosition.pos.x < -svcmp.voxelRadius) {
         didTransition = true;
-        transitionNegX(vpcmp, pyCmp, svcmp.voxelRadius);
+        transitionNegX(vpcmp, pyCmp, (f32)svcmp.voxelRadius);
     } else if (vpcmp.gridPosition.pos.x > svcmp.voxelRadius) {
         didTransition = true;
-        transitionPosX(vpcmp, pyCmp, svcmp.voxelRadius);
+        transitionPosX(vpcmp, pyCmp, (f32)svcmp.voxelRadius);
     } else if (vpcmp.gridPosition.pos.z < -svcmp.voxelRadius) {
         didTransition = true;
-        transitionNegZ(vpcmp, pyCmp, svcmp.voxelRadius);
+        transitionNegZ(vpcmp, pyCmp, (f32)svcmp.voxelRadius);
     } else if (vpcmp.gridPosition.pos.z > svcmp.voxelRadius) {
         didTransition = true;
-        transitionPosZ(vpcmp, pyCmp, svcmp.voxelRadius);
+        transitionPosZ(vpcmp, pyCmp, (f32)svcmp.voxelRadius);
     }
 
     // Compute the relative space position and orientation from voxel position and orientation

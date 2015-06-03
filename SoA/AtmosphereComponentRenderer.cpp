@@ -59,8 +59,8 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     glUniform1f(m_program.getUniform("unInnerRadius"), aCmp.planetRadius);
     glUniform1f(m_program.getUniform("unKrESun"), aCmp.kr * aCmp.esun);
     glUniform1f(m_program.getUniform("unKmESun"), aCmp.km * aCmp.esun);
-    glUniform1f(m_program.getUniform("unKr4PI"), aCmp.kr * M_4_PI);
-    glUniform1f(m_program.getUniform("unKm4PI"), aCmp.km * M_4_PI);
+    glUniform1f(m_program.getUniform("unKr4PI"), (f32)(aCmp.kr * M_4_PI));
+    glUniform1f(m_program.getUniform("unKm4PI"), (f32)(aCmp.km * M_4_PI));
     float scale = 1.0f / (aCmp.radius - aCmp.planetRadius);
     glUniform1f(m_program.getUniform("unScale"), scale);
     glUniform1f(m_program.getUniform("unScaleDepth"), aCmp.scaleDepth);

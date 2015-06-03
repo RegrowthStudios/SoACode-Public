@@ -20,7 +20,7 @@ ChunkMeshManager::~ChunkMeshManager() {
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
     size_t numUpdates;
     if (numUpdates = m_meshQueue.try_dequeue_bulk(m_updateBuffer.begin(), MAX_UPDATES_PER_FRAME)) {
-        for (int i = 0; i < numUpdates; i++) {
+        for (size_t i = 0; i < numUpdates; i++) {
             updateMesh(m_updateBuffer[i]);
         }
     }

@@ -43,7 +43,6 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
     // Load the pack file to get the texture pack description
     _packInfo = loadPackFile(texturePackPath + "pack.yml");
 
-    ui32 width, height;
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
         // TODO: Use iom to get a path
         vpath texPath; _ioManager.resolvePath(_texturePackPath + it->first, texPath);
@@ -210,9 +209,6 @@ void TexturePackLoader::writeDebugAtlases() {
 }
 
 void TexturePackLoader::loadAllBlockTextures() {
-    // Used to get the texture pixel dimensions
-    ui32 width, height;
-
     vg::BitmapResource bitmap;
 
     // Free _blockTextureLayers in case a pack has been loaded before
@@ -272,13 +268,13 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
         if (keg::parse(rv, data.c_str(), "BlockTexture") == keg::Error::NONE) {
             if (rv->base.weights.size() > 0) {
                 rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.size(); i++) {
+                for (size_t i = 0; i < rv->base.weights.size(); i++) {
                     rv->base.totalWeight += rv->base.weights[i];
                 }
             }
             if (rv->overlay.weights.size() > 0) {
                 rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.size(); i++) {
+                for (size_t i = 0; i < rv->overlay.weights.size(); i++) {
                     rv->overlay.totalWeight += rv->overlay.weights[i];
                 }
             }

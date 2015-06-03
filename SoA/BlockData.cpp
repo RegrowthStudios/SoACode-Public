@@ -267,7 +267,7 @@ void Block::InitializeTexture() {
             // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
             // which becomes n = (sqrt(8 * y + 1) - 1) / 2
             int y = pxTexInfo.base.size.y;
-            floraHeight = (sqrt(8 * y + 1) - 1) / 2;
+            floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
         }
     }
 }

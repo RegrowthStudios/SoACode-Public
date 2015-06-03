@@ -59,7 +59,7 @@ bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridDa
         gen.cubeFace = facePosition.face;
 
         gen.width = 32;
-        gen.step = KM_PER_VOXEL;
+        gen.step = (f32)KM_PER_VOXEL;
         // Invoke generator
         m_generator->invokeRawGen(&gen.rpc);
         // Go to next generator
@@ -191,7 +191,7 @@ void SphericalTerrainGpuGenerator::generateTerrainPatch(TerrainGenDelegate* data
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
     glUniform1f(unPatchWidth, data->width + (texelSize * 4.0f) * data->width);
-    glUniform1f(unRadius, m_planetGenData->radius);
+    glUniform1f(unRadius, (f32)m_planetGenData->radius);
 
     m_quad.draw();
 
@@ -225,7 +225,7 @@ void SphericalTerrainGpuGenerator::generateRawHeightmap(RawHeightGenerator* data
     glUniform2fv(unCoordMults, 1, &coordMults[0]);
     i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)data->cubeFace];
     glUniform3iv(unCoordMapping, 1, &coordMapping[0]);
-    glUniform1f(unRadius, m_planetGenData->radius);
+    glUniform1f(unRadius, (f32)m_planetGenData->radius);
 
     glUniform1f(unPatchWidth, (float)data->width * data->step);
     m_quad.draw();
@@ -338,7 +338,7 @@ void SphericalTerrainGpuGenerator::updatePatchGeneration() {
         glBindTexture(GL_TEXTURE_2D, m_patchTextures[m_dBufferIndex][i].getTextureIDs().height_temp_hum);
 
         // Set uniform
-        glUniform1f(unWidth, (data->width / TEXELS_PER_PATCH) * M_PER_KM);
+        glUniform1f(unWidth, (f32)((data->width / TEXELS_PER_PATCH) * M_PER_KM));
 
         // Generate normal map
         m_quad.draw();
@@ -376,9 +376,9 @@ void SphericalTerrainGpuGenerator::updateRawGeneration() {
         int c = 0;
         for (int y = 0; y < CHUNK_WIDTH; y++) {
             for (int x = 0; x < CHUNK_WIDTH; x++, c++) {
-                data->gridData->heightData[c].height = heightData[y][x][0] * VOXELS_PER_M;
-                data->gridData->heightData[c].temperature = heightData[y][x][1];
-                data->gridData->heightData[c].rainfall = heightData[y][x][2];
+                data->gridData->heightData[c].height = (int)(heightData[y][x][0] * VOXELS_PER_M);
+                data->gridData->heightData[c].temperature = (int)heightData[y][x][1];
+                data->gridData->heightData[c].rainfall = (int)heightData[y][x][2];
                 //TODO(Ben): Biomes
                 data->gridData->heightData[c].biome = nullptr;
                 data->gridData->heightData[c].surfaceBlock = STONE;

@@ -29,8 +29,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   const AtmosphereComponent* aCmp,
                                                   bool drawSkirts) {
     
-    static f32 dt = 0.0;
-    dt += 0.00003;
+    static f32 dt = 0.0f;
+    dt += 0.00003f;
 
     f64q invOrientation = glm::inverse(orientation);
     const f64v3 rotpos = invOrientation * relativePos;
@@ -66,7 +66,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         // Set up scattering uniforms
         setScatterUniforms(waterProgram, rotpos, aCmp);
 
-        for (int i = 0; i < m_waterMeshes.size();) {
+        for (size_t i = 0; i < m_waterMeshes.size();) {
             auto& m = m_waterMeshes[i];
             if (m->m_shouldDelete) {
                 // Only delete here if m_wvbo is 0. See comment [15] in below block
@@ -105,7 +105,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         // Set up scattering uniforms
         setScatterUniforms(program, rotpos, aCmp);
 
-        for (int i = 0; i < m_meshes.size();) {
+        for (size_t i = 0; i < m_meshes.size();) {
             auto& m = m_meshes[i];
 
             if (m->m_shouldDelete) {
@@ -240,7 +240,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         // Set up scattering uniforms
         setScatterUniforms(waterProgram, f64v3(0, relativePos.y + radius, 0), aCmp);
 
-        for (int i = 0; i < m_farWaterMeshes.size();) {
+        for (size_t i = 0; i < m_farWaterMeshes.size();) {
             auto& m = m_farWaterMeshes[i];
             if (m->m_shouldDelete) {
                 // Only delete here if m_wvbo is 0. See comment [15] in below block
@@ -279,7 +279,7 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         // Set up scattering uniforms
         setScatterUniforms(program, f64v3(0, relativePos.y + radius, 0), aCmp);
 
-        for (int i = 0; i < m_farMeshes.size();) {
+        for (size_t i = 0; i < m_farMeshes.size();) {
             auto& m = m_farMeshes[i];
             if (m->m_shouldDelete) {
                 m->recycleNormalMap(m_normalMapRecycler);
@@ -330,8 +330,8 @@ void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram& program, const f
         glUniform1f(program.getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
         glUniform1f(program.getUniform("unKrESun"), aCmp->kr * aCmp->esun);
         glUniform1f(program.getUniform("unKmESun"), aCmp->km * aCmp->esun);
-        glUniform1f(program.getUniform("unKr4PI"), aCmp->kr * M_4_PI);
-        glUniform1f(program.getUniform("unKm4PI"), aCmp->km * M_4_PI);
+        glUniform1f(program.getUniform("unKr4PI"), (f32)(aCmp->kr * M_4_PI));
+        glUniform1f(program.getUniform("unKm4PI"), (f32)(aCmp->km * M_4_PI));
         f32 scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
         glUniform1f(program.getUniform("unScale"), scale);
         glUniform1f(program.getUniform("unScaleDepth"), aCmp->scaleDepth);

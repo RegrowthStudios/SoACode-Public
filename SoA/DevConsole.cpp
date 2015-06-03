@@ -19,7 +19,7 @@ void DevConsole::removeListener(FuncNewCommand f) {
 void DevConsole::write(const nString& s) {
     _commands.push(s);
     EventBinding eb;
-    for (i32 i = 0; i < _commandListeners.size(); i++) {
+    for (size_t i = 0; i < _commandListeners.size(); i++) {
         eb = _commandListeners[i];
         eb.function(eb.metaData, s);
     }

@@ -212,7 +212,7 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, flo
                 // Check for roots and branches
                 if (h == 0) { //roots
                     int dr = rand() % 4;
-                    if (!recursiveMakeBranch(innerBlockIndex, innerChunkOffset, branchLength * treeType->rootDepthMult, (TreeDir)dr, (TreeDir)dr, MAX(branchWidth, thickness), true)) return false;
+                    if (!recursiveMakeBranch(innerBlockIndex, innerChunkOffset, (int)(branchLength * treeType->rootDepthMult), (TreeDir)dr, (TreeDir)dr, MAX(branchWidth, thickness), true)) return false;
                 } else if (h > treeType->branchStart) {
                     //branches
                     float r = rand() % RAND_MAX / ((float)RAND_MAX);
@@ -464,9 +464,9 @@ bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, 
 int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, int X, int Z) {
     srand(Z*X - x*z - globalTreeSeed);
 
-    float mod = ((PseudoRand(globalTreeSeed + X*CHUNK_SIZE + z - X, Z*Z - x*z - globalTreeSeed) + 1.0) / 2.0);
+    f32 mod = (f32)((PseudoRand(globalTreeSeed + X*CHUNK_SIZE + z - X, Z*Z - x*z - globalTreeSeed) + 1.0) / 2.0);
     td.treeHeight = (int)(mod*(tt->trunkHeight.max - tt->trunkHeight.min) + tt->trunkHeight.min);
-    td.topLeafSize = mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min;
+    td.topLeafSize = (int)(mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min);
     td.treeType = tt;
 
     if (tt->possibleAltLeafFlags.size()) {
@@ -489,30 +489,29 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
     srand(chunk->voxelPosition.z*chunk->voxelPosition.x - x*z - globalTreeSeed);
 
-    float mod = ((PseudoRand(globalTreeSeed + chunk->voxelPosition.x*CHUNK_SIZE + z - chunk->voxelPosition.x, chunk->voxelPosition.z*chunk->voxelPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
+    f32 mod = (f32)((PseudoRand(globalTreeSeed + chunk->voxelPosition.x*CHUNK_SIZE + z - chunk->voxelPosition.x, chunk->voxelPosition.z*chunk->voxelPosition.z - x*z - globalTreeSeed) + 1.0) / 2.0);
     td.ageMod = mod;
     td.treeHeight = (int)(mod*(tt->trunkHeight.max - tt->trunkHeight.min) + tt->trunkHeight.min);
-    td.droopyLength = mod * (tt->droopyLength.max - tt->droopyLength.min) + tt->droopyLength.min;
+    td.droopyLength = (int)(mod * (tt->droopyLength.max - tt->droopyLength.min) + tt->droopyLength.min);
     td.branchStart = (int)(tt->branchStart*td.treeHeight);
-    td.topLeafSize = mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min;
+    td.topLeafSize = (int)(mod * (tt->leafCapSize.max - tt->leafCapSize.min) + tt->leafCapSize.min);
     td.trunkDir = (int)((PseudoRand(chunk->voxelPosition.x + z - x, x*z - z*z + x - chunk->voxelPosition.z) + 1.0)*2.0);
     if (td.trunkDir == 4) td.trunkDir = 3;
     if (tt->isSlopeRandom == 0) {
-        td.trunkStartSlope = mod*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min;
-        td.trunkEndSlope = mod*(tt->trunkEndSlope.max - tt->trunkEndSlope.min) + tt->trunkEndSlope.min;
+        td.trunkStartSlope = (int)(mod*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min);
+        td.trunkEndSlope = (int)(mod*(tt->trunkEndSlope.max - tt->trunkEndSlope.min) + tt->trunkEndSlope.min);
     } else {
         float mod2 = (rand() % 101) / 100.0f;
-        td.trunkStartSlope = mod2*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min;
+        td.trunkStartSlope = (int)(mod2*(tt->trunkStartSlope.max - tt->trunkStartSlope.min) + tt->trunkStartSlope.min);
         mod2 = (rand() % 101) / 100.0f;
-        td.trunkEndSlope = mod2*(tt->trunkEndSlope.max - tt->trunkEndSlope.min) + tt->trunkEndSlope.min;
+        td.trunkEndSlope = (int)(mod2*(tt->trunkEndSlope.max - tt->trunkEndSlope.min) + tt->trunkEndSlope.min);
     }
-    td.treeBaseHeight = mod*(tt->trunkBaseHeight.max - tt->trunkBaseHeight.min) + tt->trunkBaseHeight.min;
-    td.trunkBaseWidth = mod*(tt->trunkBaseWidth.max - tt->trunkBaseWidth.min) + tt->trunkBaseWidth.min;
-    td.trunkMidWidth = mod*(tt->trunkMidWidth.max - tt->trunkMidWidth.min) + tt->trunkMidWidth.min;
-    td.trunkTopWidth = mod*(tt->trunkTopWidth.max - tt->trunkTopWidth.min) + tt->trunkTopWidth.min;
+    td.treeBaseHeight = (int)(mod*(tt->trunkBaseHeight.max - tt->trunkBaseHeight.min) + tt->trunkBaseHeight.min);
+    td.trunkBaseWidth = (int)(mod*(tt->trunkBaseWidth.max - tt->trunkBaseWidth.min) + tt->trunkBaseWidth.min);
+    td.trunkMidWidth = (int)(mod*(tt->trunkMidWidth.max - tt->trunkMidWidth.min) + tt->trunkMidWidth.min);
+    td.trunkTopWidth = (int)(mod*(tt->trunkTopWidth.max - tt->trunkTopWidth.min) + tt->trunkTopWidth.min);
     lerpBranch(tt->branchingPropsTop, tt->branchingPropsBottom, td, mod);
     td.treeType = tt;
-
 
     if (tt->possibleAltLeafFlags.size()) {
         int rnd = rand() % (tt->possibleAltLeafFlags.size() + 1);
@@ -969,10 +968,10 @@ bool FloraGenerator::makeSphere(int blockIndex, ui16 chunkOffset, int radius, in
 }
 
 void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio) {
-    outProps.botBranchChance = ratio * (bottom.chance.max - bottom.chance.min) + bottom.chance.min;
-    outProps.topBranchChance = ratio * (top.chance.max - top.chance.min) + top.chance.min;
-    outProps.botBranchLength = ratio * (bottom.length.max - bottom.length.min) + bottom.length.min;
-    outProps.topBranchLength = ratio * (top.length.max - top.length.min) + top.length.min;
-    outProps.botBranchWidth = ratio * (bottom.width.max - bottom.width.min) + bottom.width.min;
-    outProps.topBranchWidth = ratio * (top.width.max - top.width.min) + top.width.min;
+    outProps.botBranchChance = ratio * (f32)(bottom.chance.max - bottom.chance.min) + (f32)bottom.chance.min;
+    outProps.topBranchChance = ratio * (f32)(top.chance.max - top.chance.min) + (f32)top.chance.min;
+    outProps.botBranchLength = (i32)(ratio * (f32)(bottom.length.max - bottom.length.min) + (f32)bottom.length.min);
+    outProps.topBranchLength = (i32)(ratio * (f32)(top.length.max - top.length.min) + (f32)top.length.min);
+    outProps.botBranchWidth = (i32)(ratio * (f32)(bottom.width.max - bottom.width.min) + (f32)bottom.width.min);
+    outProps.topBranchWidth = (i32)(ratio * (f32)(top.width.max - top.width.min) + (f32)top.width.min);
 }

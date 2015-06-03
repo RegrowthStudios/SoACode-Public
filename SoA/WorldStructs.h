@@ -64,9 +64,8 @@ public:
     const PlanetGenData* genData;
 };
 
-class MineralData
+struct MineralData
 {
-public:
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)
     {
         blockType = btype;

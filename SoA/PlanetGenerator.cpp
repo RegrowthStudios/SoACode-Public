@@ -43,7 +43,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     f32 f = falloff(m_generator);
     data->tempLatitudeFalloff = f * 1.9f;
     data->tempHeightFalloff = 5.0f;
-    data->humLatitudeFalloff = f * 0.3;
+    data->humLatitudeFalloff = f * 0.3f;
     data->humHeightFalloff = 1.0f;
 
     std::vector<TerrainFuncKegProperties> funcs;
@@ -52,7 +52,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::RIDGED_NOISE,
                           std::uniform_int_distribution<int>(0, 2),
                           std::uniform_int_distribution<int>(3, 7),
-                          std::uniform_real_distribution<f32>(0.00001, 0.001f),
+                          std::uniform_real_distribution<f32>(0.00001f, 0.001f),
                           std::uniform_real_distribution<f32>(-15000.0f, 15000.0f),
                           std::uniform_real_distribution<f32>(100.0f, 30000.0f));
     // Terrain
@@ -60,7 +60,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(2, 5),
                           std::uniform_int_distribution<int>(1, 4),
-                          std::uniform_real_distribution<f32>(0.0002, 0.2f),
+                          std::uniform_real_distribution<f32>(0.0002f, 0.2f),
                           std::uniform_real_distribution<f32>(-500.0f, 500.0f),
                           std::uniform_real_distribution<f32>(10.0f, 1000.0f));
     data->baseTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
@@ -72,7 +72,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(1, 2),
                           std::uniform_int_distribution<int>(3, 8),
-                          std::uniform_real_distribution<f32>(0.00008, 0.008f),
+                          std::uniform_real_distribution<f32>(0.00008f, 0.008f),
                           std::uniform_real_distribution<f32>(-128.0f, -128.0f),
                           std::uniform_real_distribution<f32>(255.0f, 255.0f));
     data->tempTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
@@ -83,7 +83,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(1, 2),
                           std::uniform_int_distribution<int>(3, 8),
-                          std::uniform_real_distribution<f32>(0.00008, 0.008f),
+                          std::uniform_real_distribution<f32>(0.00008f, 0.008f),
                           std::uniform_real_distribution<f32>(-128.0f, -128.0f),
                           std::uniform_real_distribution<f32>(255.0f, 255.0f));
     data->humTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
@@ -187,7 +187,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
 
                 m_quad.draw();
 
-                m_targets[i].unuse(soaOptions.get(OPT_SCREEN_WIDTH).value.f, soaOptions.get(OPT_SCREEN_HEIGHT).value.f);
+                m_targets[i].unuse((ui32)soaOptions.get(OPT_SCREEN_WIDTH).value.i, (ui32)soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
                 m_blurPrograms[i].disableVertexAttribArrays();
                 m_blurPrograms[i].unuse();
                 m_targets[i].bindTexture();
@@ -234,6 +234,6 @@ void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProper
         f.high = f.low + heightWidthRange(m_generator);
         f.octaves = octavesRange(m_generator);
         f.frequency = freqRange(m_generator);
-        f.persistence = 0.8;
+        f.persistence = 0.8f;
     }
 }

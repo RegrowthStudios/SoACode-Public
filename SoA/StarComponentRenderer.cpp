@@ -86,7 +86,7 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     glUniform1f(unDT, (f32)dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_starProgram.getUniform("unColor"), 1, &tColor[0]);
-    glUniform1f(m_starProgram.getUniform("unRadius"), sCmp.radius);
+    glUniform1f(m_starProgram.getUniform("unRadius"), (f32)sCmp.radius);
     f32v3 unCenterDir = glm::normalize(relCamPos);
     glUniform3fv(m_starProgram.getUniform("unCenterDir"), 1, &unCenterDir[0]);
     // For logarithmic Z buffer
@@ -488,10 +488,10 @@ f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f6
 f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     // Calculate temperature color
     f32v3 tColor;
-    f32 scale = m_tempColorMap.width * (sCmp.temperature - MIN_TMP) / TMP_RANGE;
+    f32 scale = (f32)(m_tempColorMap.width * (sCmp.temperature - MIN_TMP) / TMP_RANGE);
     scale = glm::clamp(scale, 0.0f, (f32)m_tempColorMap.width);
-    int rScale = (int)(scale + 0.5f);
-    int iScale = (int)scale;
+    ui32 rScale = (ui32)(scale + 0.5f);
+    ui32 iScale = (ui32)scale;
 
     if (rScale >= m_tempColorMap.width) rScale = m_tempColorMap.width - 1;
 
@@ -502,7 +502,7 @@ f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
             tColor = lerp(getColor(iScale), getColor(rScale), scale - (f32)iScale);
         }
     } else { // Interpolate up
-        if (rScale >= (int)m_tempColorMap.width-1) {
+        if (rScale >= m_tempColorMap.width-1) {
             tColor = getColor((int)m_tempColorMap.width - 1);
         } else {
             tColor = lerp(getColor(rScale), getColor(rScale + 1), scale - (f32)rScale);

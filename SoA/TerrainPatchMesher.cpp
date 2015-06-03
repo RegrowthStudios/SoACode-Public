@@ -35,7 +35,7 @@ TerrainPatchMesher::TerrainPatchMesher(TerrainPatchMeshManager* meshManager,
     m_meshManager(meshManager),
     m_planetGenData(planetGenData) {
     
-    m_radius = m_planetGenData->radius;
+    m_radius = (f32)m_planetGenData->radius;
 
 }
 
@@ -110,7 +110,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             // Get data from heightmap 
             zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
             xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-            h = heightData[zIndex][xIndex][0] * KM_PER_M;
+            h = heightData[zIndex][xIndex][0] * (f32)KM_PER_M;
 
             // Water indexing
             if (h < 0) {
@@ -357,8 +357,8 @@ void TerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_HEIGHTMAP
 
 void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
     // TEMPORARY? Add slight offset so we don't need skirts
-    float mvw = m_vertWidth * 1.005;
-    const float UV_SCALE = 0.04;
+    f32 mvw = m_vertWidth * 1.005f;
+    const f32 UV_SCALE = 0.04f;
     int xIndex;
     int zIndex;
 
@@ -521,10 +521,10 @@ void TerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
                                     indices);
 }
 
-float TerrainPatchMesher::computeAngleFromNormal(const f32v3& normal) {
+f32 TerrainPatchMesher::computeAngleFromNormal(const f32v3& normal) {
     // Compute angle
     if (normal.y == 1.0f || normal.y == -1.0f) {
-        return M_PI / 2.0;
+        return (f32)(M_PI / 2.0);
     } else if (abs(normal.y) < 0.001) {
         // Need to do this to fix an equator bug
         return 0.0f;

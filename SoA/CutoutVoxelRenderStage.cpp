@@ -72,12 +72,6 @@ void CutoutVoxelRenderStage::render() {
         saveTicks = SDL_GetTicks();
     }
 
-    int mx, my, mz;
-    double cx, cy, cz;
-    double dx, dy, dz;
-    mx = (int)position.x;
-    my = (int)position.y;
-    mz = (int)position.z;
     ChunkMesh *cm;
 
     for (int i = chunkMeshes.size() - 1; i >= 0; i--) {

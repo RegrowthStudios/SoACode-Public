@@ -72,7 +72,7 @@ void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
                                 m_spaceCamera->getRight(), colorMult);
         // TODO(Ben): Don't do this twice?
         f32v3 starColor = m_starRenderer.calculateStarColor(it.first);
-        f32 intensity = glm::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
+        f32 intensity = (f32)glm::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
         m_lensFlareRenderer.render(m_spaceCamera->getViewProjectionMatrix(), it.second,
                                    starColor * colorMult,
                                    m_spaceCamera->getAspectRatio(), 0.1f, intensity);
@@ -210,7 +210,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
         // TODO(Ben): Worry about f64 to f32 precision loss
         m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
-                             f32v3(l.first - m_spaceCamera->getPosition()), sgCmp.radius,
+                             f32v3(l.first - m_spaceCamera->getPosition()), (f32)sgCmp.radius,
                              zCoef, l.second);
     }
     glDepthMask(GL_TRUE);

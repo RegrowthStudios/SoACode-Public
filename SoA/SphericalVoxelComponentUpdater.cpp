@@ -17,6 +17,8 @@
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainGpuGenerator.h"
 #include "soaUtils.h"
+#include "ParticleEngine.h"
+#include "PhysicsEngine.h"
 
 void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
@@ -252,7 +254,7 @@ void SphericalVoxelComponentUpdater::updateLoadedChunks(ui32 maxTicks) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!m_cmp->generator->heightmapGenRpcDispatcher.dispatchHeightmapGen(chunkGridData,
-                    ch->gridPosition, m_cmp->planetGenData->radius * VOXELS_PER_KM));
+                    ch->gridPosition, (f32)(m_cmp->planetGenData->radius * VOXELS_PER_KM)));
             }
 
             canGenerate = false;

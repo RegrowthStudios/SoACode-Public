@@ -34,7 +34,7 @@ void ExposureCalcRenderStage::dispose() {
     m_mipStep = 0;
     if (m_program.isCreated()) m_program.dispose();
     if (m_downsampleProgram.isCreated()) m_downsampleProgram.dispose();
-    for (int i = 0; i < m_renderTargets.size(); i++) {
+    for (size_t i = 0; i < m_renderTargets.size(); i++) {
         m_renderTargets[i].dispose();
     }
     m_renderTargets.clear();
@@ -44,7 +44,7 @@ void ExposureCalcRenderStage::dispose() {
 void ExposureCalcRenderStage::render() {
     if (m_renderTargets.empty()) {
         m_renderTargets.resize(m_mipLevels);
-        for (int i = 0; i < m_mipLevels; i++) {
+        for (size_t i = 0; i < m_mipLevels; i++) {
             ui32 res = m_resolution >> i;
             m_renderTargets[i].setSize(res, res);
             m_renderTargets[i].init(vg::TextureInternalFormat::RGBA16F);

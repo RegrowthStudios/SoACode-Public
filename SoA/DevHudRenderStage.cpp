@@ -82,8 +82,8 @@ void DevHudRenderStage::drawCrosshair() {
 }
 
 void DevHudRenderStage::drawHands() {
-    const f32v2 SCALE(0.75f);
-    char buffer[256];
+   // const f32v2 SCALE(0.75f);
+   // char buffer[256];
     // Left Hand
     //if (_player->leftEquippedItem) {
     //    std::sprintf(buffer, "Left Hand: %s (%d)",
@@ -131,7 +131,7 @@ void DevHudRenderStage::drawFps() {
 
 void DevHudRenderStage::drawPosition() {
     const f32v2 NUMBER_SCALE(0.75f);
-    char buffer[256];
+   // char buffer[256];
     // Grid position
     _yOffset += _fontHeight;
 

@@ -209,7 +209,7 @@ f32 MainMenuScriptedUI::getBodySemiMajor(vecs::EntityID entity) {
 f32 MainMenuScriptedUI::getGravityAccel(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     auto& sgCmp = state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
-    f32 rad = sgCmp.radius * M_PER_KM;
+    f32 rad = (f32)(sgCmp.radius * M_PER_KM);
     return (f32)(M_G * sgCmp.mass / (rad * rad));
 }
 
@@ -217,7 +217,7 @@ f32 MainMenuScriptedUI::getVolume(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     // TODO(Ben): Handle oblateness
     auto& sgCmp = state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
-    f32 rad = sgCmp.radius * M_PER_KM;
+    f32 rad = (f32)(sgCmp.radius * M_PER_KM);
     return (f32)(4.0 / 3.0 * M_PI * rad * rad * rad);
 }
 

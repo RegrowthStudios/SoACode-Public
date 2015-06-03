@@ -14,5 +14,5 @@ private:
     /// @param depth: The depth underground
     /// @param genData: The planet generation data
     /// @return the containing layer
-    static const BlockLayer& calculateBlockLayer(int depth, const PlanetGenData* genData);
+    static const BlockLayer& calculateBlockLayer(ui32 depth, const PlanetGenData* genData);
 };

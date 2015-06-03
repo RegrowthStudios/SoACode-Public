@@ -33,7 +33,7 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram& colorP
 
     glUniformMatrix4fv(colorProgram.getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
-    float currentAngle = cmp.currentMeanAnomaly - cmp.startMeanAnomaly;
+    float currentAngle = cmp.currentMeanAnomaly - (f32)cmp.startMeanAnomaly;
     glUniform1f(colorProgram.getUniform("currentAngle"), currentAngle / (float)M_2_PI);
 
     // Draw the ellipse

@@ -99,8 +99,8 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
     int j;
 
     float interpolater = (emitter->dt / (float)emitter->maxDuration);
-    currMaxSize = interpolater * (emitter->maxSizeE - emitter->maxSizeS) + emitter->maxSizeS;
-    currMinSize = interpolater * (emitter->minSizeE - emitter->minSizeS) + emitter->minSizeS;
+    currMaxSize = (int)(interpolater * (emitter->maxSizeE - emitter->maxSizeS) + emitter->maxSizeS);
+    currMinSize = (int)(interpolater * (emitter->minSizeE - emitter->minSizeS) + emitter->minSizeS);
 
     switch(emitter->type) {
     case EMITTER_STATIC:

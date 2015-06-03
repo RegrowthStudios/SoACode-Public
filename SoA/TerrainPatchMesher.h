@@ -78,7 +78,7 @@ private:
 
     /// Computes angle with the equator based on the normal of position
     /// @param normal: Normalized position on sphere
-    float computeAngleFromNormal(const f32v3& normal);
+    f32 computeAngleFromNormal(const f32v3& normal);
 
     static VGIndexBuffer m_sharedIbo; ///< Reusable CCW IBO
 
@@ -97,8 +97,8 @@ private:
     int m_index;
     int m_waterIndex;
     int m_waterIndexCount;
-    float m_vertWidth;
-    float m_radius;
+    f32 m_vertWidth;
+    f32 m_radius;
     i32v3 m_coordMapping;
     f32v3 m_startPos;
     f32v2 m_coordMults;

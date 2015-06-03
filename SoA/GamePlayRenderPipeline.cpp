@@ -258,7 +258,7 @@ void GameplayRenderPipeline::loadNightVision() {
         keg::Node node = context.reader.getFirst();
         keg::Value v = keg::Value::array(0, keg::Value::custom(0, "NightVisionRenderParams", false));
         keg::evalData((ui8*)&arr, &v, node, context);
-        for (i32 i = 0; i < arr.size(); i++) {
+        for (size_t i = 0; i < arr.size(); i++) {
             m_nvParams.push_back(arr[i]);
         }
         context.reader.dispose();

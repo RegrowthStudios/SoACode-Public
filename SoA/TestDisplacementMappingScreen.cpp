@@ -184,7 +184,9 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
     f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
     glUniformMatrix4fv(m_program.getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);
 
-    glUniform3f(m_program.getUniform("unEyePosition"), m_camera.getPosition().x, m_camera.getPosition().y, m_camera.getPosition().z);
+    glUniform3f(m_program.getUniform("unEyePosition"), (f32)m_camera.getPosition().x,
+                (f32)m_camera.getPosition().y,
+                (f32)m_camera.getPosition().z);
     glUniform1i(m_program.getUniform("unDiffuseTexture"), 0);
     glUniform1i(m_program.getUniform("unNormalTexture"), 1);
     glUniform1i(m_program.getUniform("unDispTexture"), 2);
