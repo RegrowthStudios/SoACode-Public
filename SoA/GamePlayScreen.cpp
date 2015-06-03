@@ -76,7 +76,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     controller.startGame(m_soaState);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
-    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputMapper);
 
     // Initialize the PDA
     m_pda.init(this);
@@ -95,7 +95,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
 void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 
-    m_inputManager->stopInput();
+    m_inputMapper->stopInput();
     m_hooks.dispose();
 
     SoaEngine::destroyGameSystem(m_soaState);
@@ -146,11 +146,11 @@ void GameplayScreen::updateECS() {
     GameSystem* gameSystem = m_soaState->gameSystem.get();
 
     // Time warp
-    const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputManager->getInputState(INPUT_SPEED_TIME) * 1000.0;
-    if (m_inputManager->getInputState(INPUT_TIME_BACK)) {
+    const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 1000.0;
+    if (m_inputMapper->getInputState(INPUT_TIME_BACK)) {
         m_soaState->time -= TIME_WARP_SPEED;
     }
-    if (m_inputManager->getInputState(INPUT_TIME_FORWARD)) {
+    if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) {
         m_soaState->time += TIME_WARP_SPEED;
     }
 
@@ -227,17 +227,17 @@ i32 GameplayScreen::getWindowHeight() const {
 
 void GameplayScreen::initInput() {
 
-    m_inputManager = new InputMapper;
-    initInputs(m_inputManager);
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
 
-    m_inputManager->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
     });
-    m_inputManager->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.toggleChunkGrid();
     });
-    m_inputManager->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -250,23 +250,19 @@ void GameplayScreen::initInput() {
             SDL_StopTextInput();
         }
     });
-    m_inputManager->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (isInGame()) {
             m_renderPipeline.toggleNightVision();
         }
     });
-    m_inputManager->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.cycleDevHud();
     });
-    m_inputManager->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         m_renderPipeline.loadNightVision();
     });
-    m_inputManager->get(INPUT_DRAW_MODE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.cycleDrawMode();
-    });
-    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.reloadShaders();
-    });
+
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &GameplayScreen::onReloadShaders);
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -296,7 +292,11 @@ void GameplayScreen::initInput() {
         }
     });
 
-    m_inputManager->startInput();
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderPipeline.takeScreenshot(); });
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
+
+    m_inputMapper->startInput();
 }
 
 void GameplayScreen::initRenderPipeline() {
@@ -371,4 +371,18 @@ void GameplayScreen::updateWorldCameraClip() {
     // The world camera has a dynamic clipping plane
     //m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
     //m_player->getWorldCamera().updateProjection();
+}
+
+void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
+    printf("Reloading Shaders\n");
+    m_renderPipeline.reloadShaders();
+}
+
+void GameplayScreen::onQuit(Sender s, ui32 a) {
+    SoaEngine::destroyAll(m_soaState);
+    exit(0);
+}
+
+void GameplayScreen::onToggleWireframe(Sender s, ui32 i) {
+    m_renderPipeline.toggleWireframe();
 }

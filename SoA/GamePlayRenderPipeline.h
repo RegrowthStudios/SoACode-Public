@@ -83,8 +83,8 @@ public:
     void loadNightVision();
     /// Toggle the visibility of chunkGrid
     void toggleChunkGrid();
-    /// Cycle poly mode for voxels
-    void cycleDrawMode();
+
+    void toggleWireframe() { m_wireframe = !m_wireframe; }
 
     void takeScreenshot() { m_shouldScreenshot = true; }
 private:
@@ -118,7 +118,6 @@ private:
     // TODO: This is only for visualization purposes, must remove
     std::vector<NightVisionRenderParams> m_nvParams; ///< Different night vision styles
     i32 m_nvIndex = 0;
-    VGEnum m_drawMode;
 
     ui32v4 m_viewport; ///< Viewport to draw to
     Camera m_spaceCamera; ///< handle to world camera
@@ -128,6 +127,7 @@ private:
     bool m_voxelsActive = false;
     float m_coloredQuadAlpha = 0.0f;
     bool m_increaseQuadAlpha = false;
+    bool m_wireframe = false;
     bool m_shouldScreenshot = false;
 };
 

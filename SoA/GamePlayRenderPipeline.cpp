@@ -30,8 +30,7 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-GameplayRenderPipeline::GameplayRenderPipeline() :
-    m_drawMode(GL_FILL) {
+GameplayRenderPipeline::GameplayRenderPipeline() {
     // Empty
 }
 
@@ -123,7 +122,7 @@ void GameplayRenderPipeline::render() {
     // worldCamera passes
     m_skyboxRenderStage->render();
 
-    glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+    if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_spaceSystemRenderStage->setShowAR(false);
     m_spaceSystemRenderStage->setRenderState(m_renderState);
     m_spaceSystemRenderStage->render();
@@ -142,9 +141,7 @@ void GameplayRenderPipeline::render() {
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
     }
-
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Check for face transition animation state
     if (m_spaceSystemRenderStage->needsFaceTransitionAnimation) {
@@ -266,21 +263,6 @@ void GameplayRenderPipeline::loadNightVision() {
 
 void GameplayRenderPipeline::toggleChunkGrid() {
     m_chunkGridRenderStage->setIsVisible(!m_chunkGridRenderStage->isVisible());
-}
-
-void GameplayRenderPipeline::cycleDrawMode() {
-    switch (m_drawMode) {
-    case GL_FILL:
-        m_drawMode = GL_LINE;
-        break;
-    case GL_LINE:
-        m_drawMode = GL_POINT;
-        break;
-    case GL_POINT:
-    default:
-        m_drawMode = GL_FILL;
-        break;
-    }
 }
 
 void GameplayRenderPipeline::updateCameras() {

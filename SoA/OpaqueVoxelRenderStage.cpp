@@ -34,9 +34,6 @@ void OpaqueVoxelRenderStage::render() {
     m_program->use();
     m_program->enableVertexAttribArrays();
 
-    // For logarithmic Z buffer
-    glUniform1f(m_program->getUniform("unZCoef"), computeZCoef(m_gameRenderParams->chunkCamera->getFarClip()));
-
     glUniform1f(m_program->getUniform("lightType"), m_gameRenderParams->lightActive);
 
     glUniform3fv(m_program->getUniform("eyeNormalWorldspace"), 1, &(m_gameRenderParams->chunkCamera->getDirection()[0]));

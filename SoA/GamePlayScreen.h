@@ -105,10 +105,16 @@ private:
     /// Updates the dynamic clipping plane for the world camera
     void updateWorldCameraClip();
 
+    // --------------- Event handlers ---------------
+    void onReloadShaders(Sender s, ui32 a);
+    void onQuit(Sender s, ui32 a);
+    void onToggleWireframe(Sender s, ui32 i);
+    // ----------------------------------------------
+
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     SoaState* m_soaState = nullptr;
 
-    InputMapper* m_inputManager = nullptr;
+    InputMapper* m_inputMapper = nullptr;
 
     PDA m_pda; ///< The PDA
 
