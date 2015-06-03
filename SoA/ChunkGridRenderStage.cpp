@@ -152,25 +152,25 @@ void ChunkGridRenderStage::render() {
         // Upload the data
         mesh.uploadAndClearLocal();
         // Lazily initialize shader
-        if (m_program == nullptr) m_program = ShaderLoader::createProgram("ChunkLine", VERT_SRC, FRAG_SRC);
+        if (!m_program.isCreated()) m_program = ShaderLoader::createProgram("ChunkLine", VERT_SRC, FRAG_SRC);
 
         // Bind the program
-        m_program->use();
+        m_program.use();
 
         // For logarithmic Z buffer
-        glUniform1f(m_program->getUniform("unZCoef"), computeZCoef(m_gameRenderParams->chunkCamera->getFarClip()));
+        glUniform1f(m_program.getUniform("unZCoef"), computeZCoef(m_gameRenderParams->chunkCamera->getFarClip()));
 
         // Set Matrix
-        glUniformMatrix4fv(m_program->getUniform("MVP"), 1,
+        glUniformMatrix4fv(m_program.getUniform("MVP"), 1,
                            GL_FALSE,
                            &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
         // Set Texture
-        glUniform1i(m_program->getUniform("tex"), 0);
+        glUniform1i(m_program.getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, BlankTextureID.id);
         // Draw the grid
         mesh.draw();
         // Unuse the program
-        m_program->unuse();
+        m_program.unuse();
     }
 }

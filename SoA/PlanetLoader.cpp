@@ -75,10 +75,9 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     context.reader.dispose();
     
     // Generate the program
-    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
+    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
 
-    if (program != nullptr) {
-        genData->program = program;
+    if (genData->program.isLinked()) {
         return genData;
     } 
     delete genData;
@@ -121,17 +120,13 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
     }
 
     // Generate the program
-    vg::GLProgram* program = m_shaderGenerator.generateProgram(genData, glrpc);
+    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
 
-    if (program != nullptr) {
-        genData->program = program;
+    if (genData->program.isLinked()) {
         return genData;
     }
     delete genData;
     return nullptr;
-
-    
-    return m_defaultGenData;
 }
 
 AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {

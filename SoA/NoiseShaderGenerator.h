@@ -32,12 +32,12 @@ public:
     /// @param genData; The planet generation data
     /// @param glrpc: Optional RPC for loading in non-render thread
     /// @return glProgram. Caller should handle resource destruction
-    CALLER_DELETE vg::GLProgram* generateProgram(PlanetGenData* genData,
+    vg::GLProgram generateProgram(PlanetGenData* genData,
                                    vcore::RPCManager* glrpc = nullptr);
     /// Generates a default shader program for generation
     /// @param glrpc: Optional RPC for loading in non-render thread
     /// @return glProgram. Caller should handle resource destruction
-    CALLER_DELETE vg::GLProgram* getDefaultProgram(vcore::RPCManager* glrpc = nullptr);
+    vg::GLProgram getDefaultProgram(vcore::RPCManager* glrpc = nullptr);
 private:
     /// Adds noise functions to the shader code
     /// @param fSource: Source to be modified

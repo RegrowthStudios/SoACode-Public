@@ -20,8 +20,9 @@
 
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   const Camera* camera,
-                                                  const f64q& orientation, vg::GLProgram* program,
-                                                  vg::GLProgram* waterProgram,
+                                                  const f64q& orientation,
+                                                  vg::GLProgram& program,
+                                                  vg::GLProgram& waterProgram,
                                                   const f32v3& lightDir,
                                                   f32 alpha,
                                                   const f32 zCoef,
@@ -52,16 +53,16 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidColorMap.id);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidTexture.id);
-        waterProgram->use();
-        waterProgram->enableVertexAttribArrays();
+        waterProgram.use();
+        waterProgram.enableVertexAttribArrays();
         // Set uniforms
-        glUniform1f(waterProgram->getUniform("unDt"), dt);
-        glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
-        glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
-        glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
-        glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
+        glUniform1f(waterProgram.getUniform("unDt"), dt);
+        glUniform1f(waterProgram.getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
+        glUniform1f(waterProgram.getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
+        glUniform3fv(waterProgram.getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
+        glUniform1f(waterProgram.getUniform("unAlpha"), alpha);
         // For logarithmic Z buffer
-        glUniform1f(waterProgram->getUniform("unZCoef"), zCoef);
+        glUniform1f(waterProgram.getUniform("unZCoef"), zCoef);
         // Set up scattering uniforms
         setScatterUniforms(waterProgram, rotpos, aCmp);
 
@@ -84,8 +85,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                 i++;
             }
         }
-        waterProgram->disableVertexAttribArrays();
-        waterProgram->unuse();
+        waterProgram.disableVertexAttribArrays();
+        waterProgram.unuse();
     }
 
     if (m_meshes.size()) {
@@ -95,12 +96,12 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainTexture.id);
         glActiveTexture(GL_TEXTURE0);
-        program->use();
-        program->enableVertexAttribArrays();
+        program.use();
+        program.enableVertexAttribArrays();
         // For logarithmic Z buffer
-        glUniform1f(program->getUniform("unZCoef"), zCoef);
-        glUniform3fv(program->getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
-        glUniform1f(program->getUniform("unAlpha"), alpha);
+        glUniform1f(program.getUniform("unZCoef"), zCoef);
+        glUniform3fv(program.getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
+        glUniform1f(program.getUniform("unAlpha"), alpha);
         // Set up scattering uniforms
         setScatterUniforms(program, rotpos, aCmp);
 
@@ -140,8 +141,8 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                 i++;
             }
         }
-        program->disableVertexAttribArrays();
-        program->unuse();
+        program.disableVertexAttribArrays();
+        program.unuse();
     }
 }
 
@@ -208,7 +209,8 @@ void TerrainPatchMeshManager::sortFarMeshes(const f64v3& relPos) {
 
 void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                                             const Camera* camera,
-                                            vg::GLProgram* program, vg::GLProgram* waterProgram,
+                                            vg::GLProgram& program,
+                                            vg::GLProgram& waterProgram,
                                             const f32v3& lightDir,
                                             f32 alpha, f32 radius,
                                             const f32 zCoef,
@@ -224,17 +226,17 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidColorMap.id);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->liquidTexture.id);
-        waterProgram->use();
-        waterProgram->enableVertexAttribArrays();
+        waterProgram.use();
+        waterProgram.enableVertexAttribArrays();
         // Set uniforms
-        glUniform1f(waterProgram->getUniform("unDt"), dt);
-        glUniform1f(waterProgram->getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
-        glUniform1f(waterProgram->getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
-        glUniform1f(waterProgram->getUniform("unRadius"), radius);
-        glUniform3fv(waterProgram->getUniform("unLightDirWorld"), 1, &lightDir[0]);
-        glUniform1f(waterProgram->getUniform("unAlpha"), alpha);
+        glUniform1f(waterProgram.getUniform("unDt"), dt);
+        glUniform1f(waterProgram.getUniform("unDepthScale"), m_planetGenData->liquidDepthScale);
+        glUniform1f(waterProgram.getUniform("unFreezeTemp"), m_planetGenData->liquidFreezeTemp / 255.0f);
+        glUniform1f(waterProgram.getUniform("unRadius"), radius);
+        glUniform3fv(waterProgram.getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform1f(waterProgram.getUniform("unAlpha"), alpha);
         // For logarithmic Z buffer
-        glUniform1f(waterProgram->getUniform("unZCoef"), zCoef);
+        glUniform1f(waterProgram.getUniform("unZCoef"), zCoef);
         // Set up scattering uniforms
         setScatterUniforms(waterProgram, f64v3(0, relativePos.y + radius, 0), aCmp);
 
@@ -256,8 +258,8 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                 i++;
             }
         }
-        waterProgram->disableVertexAttribArrays();
-        waterProgram->unuse();
+        waterProgram.disableVertexAttribArrays();
+        waterProgram.unuse();
     }
 
     if (m_farMeshes.size()) {
@@ -267,13 +269,13 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainTexture.id);
         glActiveTexture(GL_TEXTURE0);
-        program->use();
-        program->enableVertexAttribArrays();
-        glUniform1f(program->getUniform("unRadius"), radius); // TODO(Ben): Use real radius
-        glUniform3fv(program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
-        glUniform1f(program->getUniform("unAlpha"), alpha);
+        program.use();
+        program.enableVertexAttribArrays();
+        glUniform1f(program.getUniform("unRadius"), radius); // TODO(Ben): Use real radius
+        glUniform3fv(program.getUniform("unLightDirWorld"), 1, &lightDir[0]);
+        glUniform1f(program.getUniform("unAlpha"), alpha);
         // For logarithmic Z buffer
-        glUniform1f(program->getUniform("unZCoef"), zCoef);
+        glUniform1f(program.getUniform("unZCoef"), zCoef);
         // Set up scattering uniforms
         setScatterUniforms(program, f64v3(0, relativePos.y + radius, 0), aCmp);
 
@@ -310,33 +312,33 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
                 i++;
             }
         }
-        program->disableVertexAttribArrays();
-        program->unuse();
+        program.disableVertexAttribArrays();
+        program.unuse();
     }
 }
 
-void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram* program, const f64v3& relPos, const AtmosphereComponent* aCmp) {
+void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram& program, const f64v3& relPos, const AtmosphereComponent* aCmp) {
     // Set up scattering uniforms
     if (aCmp) {
         f32v3 relPosF(relPos);
         f32 camHeight = glm::length(relPosF);
-        glUniform3fv(program->getUniform("unCameraPos"), 1, &relPosF[0]);
-        glUniform3fv(program->getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
-        glUniform1f(program->getUniform("unCameraHeight2"), camHeight * camHeight);
-        glUniform1f(program->getUniform("unInnerRadius"), aCmp->planetRadius);
-        glUniform1f(program->getUniform("unOuterRadius"), aCmp->radius);
-        glUniform1f(program->getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
-        glUniform1f(program->getUniform("unKrESun"), aCmp->kr * aCmp->esun);
-        glUniform1f(program->getUniform("unKmESun"), aCmp->km * aCmp->esun);
-        glUniform1f(program->getUniform("unKr4PI"), aCmp->kr * M_4_PI);
-        glUniform1f(program->getUniform("unKm4PI"), aCmp->km * M_4_PI);
+        glUniform3fv(program.getUniform("unCameraPos"), 1, &relPosF[0]);
+        glUniform3fv(program.getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
+        glUniform1f(program.getUniform("unCameraHeight2"), camHeight * camHeight);
+        glUniform1f(program.getUniform("unInnerRadius"), aCmp->planetRadius);
+        glUniform1f(program.getUniform("unOuterRadius"), aCmp->radius);
+        glUniform1f(program.getUniform("unOuterRadius2"), aCmp->radius * aCmp->radius);
+        glUniform1f(program.getUniform("unKrESun"), aCmp->kr * aCmp->esun);
+        glUniform1f(program.getUniform("unKmESun"), aCmp->km * aCmp->esun);
+        glUniform1f(program.getUniform("unKr4PI"), aCmp->kr * M_4_PI);
+        glUniform1f(program.getUniform("unKm4PI"), aCmp->km * M_4_PI);
         f32 scale = 1.0f / (aCmp->radius - aCmp->planetRadius);
-        glUniform1f(program->getUniform("unScale"), scale);
-        glUniform1f(program->getUniform("unScaleDepth"), aCmp->scaleDepth);
-        glUniform1f(program->getUniform("unScaleOverScaleDepth"), scale / aCmp->scaleDepth);
-        glUniform1i(program->getUniform("unNumSamples"), 3);
-        glUniform1f(program->getUniform("unNumSamplesF"), 3.0f);
-        glUniform1f(program->getUniform("unG"), aCmp->g);
-        glUniform1f(program->getUniform("unG2"), aCmp->g * aCmp->g);
+        glUniform1f(program.getUniform("unScale"), scale);
+        glUniform1f(program.getUniform("unScaleDepth"), aCmp->scaleDepth);
+        glUniform1f(program.getUniform("unScaleOverScaleDepth"), scale / aCmp->scaleDepth);
+        glUniform1i(program.getUniform("unNumSamples"), 3);
+        glUniform1f(program.getUniform("unNumSamplesF"), 3.0f);
+        glUniform1f(program.getUniform("unG"), aCmp->g);
+        glUniform1f(program.getUniform("unG2"), aCmp->g * aCmp->g);
     }
 }

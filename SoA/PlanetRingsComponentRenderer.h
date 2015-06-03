@@ -15,16 +15,15 @@
 #ifndef PlanetRingsComponentRenderer_h__
 #define PlanetRingsComponentRenderer_h__
 
-#include <Vorb/ecs/ECS.h>
-#include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/VorbPreDecl.inl>
-#include <Vorb/graphics/gtypes.h>
+#include <Vorb/ecs/ComponentTable.hpp>
+#include <Vorb/ecs/ECS.h>
 #include <Vorb/graphics/FullQuadVBO.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/gtypes.h>
 
 struct SpaceLightComponent;
 struct PlanetRingsComponent;
-
-DECL_VG(class GLProgram)
 
 class PlanetRingsComponentRenderer {
 public:
@@ -41,7 +40,7 @@ public:
     void disposeShader();
 private:
 
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program;
     vg::FullQuadVBO m_quad;
     bool m_isInitialized = false;
 };

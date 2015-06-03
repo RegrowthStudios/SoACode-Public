@@ -19,8 +19,7 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/gtypes.h>
-
-DECL_VG(class GLProgram)
+#include <Vorb/graphics/GLProgram.h>
 
 struct GasGiantComponent;
 struct SpaceLightComponent;
@@ -49,7 +48,7 @@ private:
     void buildShader();
     void buildMesh();
 
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program;
     VGBuffer m_vbo = 0;
     VGIndexBuffer m_ibo = 0;
     VGVertexArray m_vao = 0;

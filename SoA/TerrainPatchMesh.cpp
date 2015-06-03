@@ -39,9 +39,9 @@ void TerrainPatchMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
     }
 }
 
-void TerrainPatchMesh::draw(const f32m4& WVP, vg::GLProgram* program,
+void TerrainPatchMesh::draw(const f32m4& WVP, const vg::GLProgram& program,
                             bool drawSkirts) const {
-    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
+    glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
     glBindVertexArray(m_vao);
 
@@ -55,8 +55,8 @@ void TerrainPatchMesh::draw(const f32m4& WVP, vg::GLProgram* program,
     glBindVertexArray(0);
 }
 
-void TerrainPatchMesh::drawWater(const f32m4& WVP, vg::GLProgram* program) const {
-    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
+void TerrainPatchMesh::drawWater(const f32m4& WVP, const vg::GLProgram& program) const {
+    glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
     glBindVertexArray(m_wvao);
 
@@ -66,14 +66,14 @@ void TerrainPatchMesh::drawWater(const f32m4& WVP, vg::GLProgram* program) const
 }
 
 void TerrainPatchMesh::drawAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
-                                        vg::GLProgram* program,
+                                        const vg::GLProgram& program,
                                         bool drawSkirts) const {
     // No need for matrix with simple translation
     f32v3 translation = f32v3(f64v3(m_aabbPos) - relativePos);
 
-    glUniformMatrix4fv(program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
-    glUniform3fv(program->getUniform("unTranslation"), 1, &translation[0]);
-    glUniform3fv(program->getUniform("unPosition"), 1, &m_aabbPos[0]);
+    glUniformMatrix4fv(program.getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniform3fv(program.getUniform("unTranslation"), 1, &translation[0]);
+    glUniform3fv(program.getUniform("unPosition"), 1, &m_aabbPos[0]);
 
     glBindVertexArray(m_vao);
 
@@ -90,13 +90,13 @@ void TerrainPatchMesh::drawAsFarTerrain(const f64v3& relativePos, const f32m4& V
 
 /// Draws the water mesh as a far terrain mesh
 void TerrainPatchMesh::drawWaterAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
-                                             vg::GLProgram* program) const {
+                                             const vg::GLProgram& program) const {
     // No need for matrix with simple translation
     f32v3 translation = f32v3(f64v3(m_aabbPos) - relativePos);
 
-    glUniformMatrix4fv(program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
-    glUniform3fv(program->getUniform("unTranslation"), 1, &translation[0]);
-    glUniform3fv(program->getUniform("unPosition"), 1, &m_aabbPos[0]);
+    glUniformMatrix4fv(program.getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniform3fv(program.getUniform("unTranslation"), 1, &translation[0]);
+    glUniform3fv(program.getUniform("unPosition"), 1, &m_aabbPos[0]);
 
     glBindVertexArray(m_wvao);
 

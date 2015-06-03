@@ -49,7 +49,7 @@ public:
     void drawSphericalMeshes(const f64v3& relativePos,
                              const Camera* camera,
                              const f64q& orientation,
-                             vg::GLProgram* program, vg::GLProgram* waterProgram,
+                             vg::GLProgram& program, vg::GLProgram& waterProgram,
                              const f32v3& lightDir,
                              f32 alpha,
                              const f32 zCoef,
@@ -67,7 +67,7 @@ public:
     /// @param drawSkirts: True when you want to also draw skirts
     void drawFarMeshes(const f64v3& relativePos,
                        const Camera* camera,
-                       vg::GLProgram* program, vg::GLProgram* waterProgram,
+                       vg::GLProgram& program, vg::GLProgram& waterProgram,
                        const f32v3& lightDir,
                        f32 alpha, f32 radius,
                        const f32 zCoef,
@@ -90,7 +90,7 @@ public:
     f64 getClosestSphericalDistance2() const { return m_meshes.empty() ? DOUBLE_SENTINEL : m_closestSphericalDistance2; }
     f64 getClosestFarDistance2() const { return m_farMeshes.empty() ? DOUBLE_SENTINEL : m_closestFarDistance2; }
 private:
-    void setScatterUniforms(vg::GLProgram* program, const f64v3& relPos, const AtmosphereComponent* aCmp);
+    void setScatterUniforms(vg::GLProgram& program, const f64v3& relPos, const AtmosphereComponent* aCmp);
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps

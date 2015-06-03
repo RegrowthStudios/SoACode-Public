@@ -29,9 +29,7 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const AtmosphereComponent* aComponent) {
     if (cmp.patches) {
         // Lazy shader init
-        if (!m_terrainProgram) {
-            buildShaders();
-        }
+        if (!m_terrainProgram.isCreated()) buildShaders();
         
         f64v3 relativeCameraPos = camera->getPosition() - position;
 
@@ -52,12 +50,8 @@ void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
 }
 
 void SphericalTerrainComponentRenderer::disposeShaders() {
-    if (m_terrainProgram) {
-        vg::ShaderManager::destroyProgram(&m_terrainProgram);
-    }
-    if (m_waterProgram) {
-        vg::ShaderManager::destroyProgram(&m_waterProgram);
-    }
+    if (m_terrainProgram.isCreated()) m_terrainProgram.dispose();
+    if (m_waterProgram.isCreated()) m_waterProgram.dispose();
 }
 
 void SphericalTerrainComponentRenderer::buildShaders() {
@@ -65,19 +59,19 @@ void SphericalTerrainComponentRenderer::buildShaders() {
     m_terrainProgram = ShaderLoader::createProgramFromFile("Shaders/SphericalTerrain/SphericalTerrain.vert",
                                                            "Shaders/SphericalTerrain/SphericalTerrain.frag");
     // Set constant uniforms
-    m_terrainProgram->use();
-    glUniform1i(m_terrainProgram->getUniform("unNormalMap"), 0);
-    glUniform1i(m_terrainProgram->getUniform("unColorMap"), 1);
-    glUniform1i(m_terrainProgram->getUniform("unTexture"), 2);
-    glUniform1f(m_terrainProgram->getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
-    glUniform1f(m_terrainProgram->getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
-    m_terrainProgram->unuse();
+    m_terrainProgram.use();
+    glUniform1i(m_terrainProgram.getUniform("unNormalMap"), 0);
+    glUniform1i(m_terrainProgram.getUniform("unColorMap"), 1);
+    glUniform1i(m_terrainProgram.getUniform("unTexture"), 2);
+    glUniform1f(m_terrainProgram.getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
+    glUniform1f(m_terrainProgram.getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
+    m_terrainProgram.unuse();
 
     m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/SphericalTerrain/SphericalWater.vert",
                                                          "Shaders/SphericalTerrain/SphericalWater.frag");
     // Set constant uniforms
-    m_waterProgram->use();
-    glUniform1i(m_waterProgram->getUniform("unNormalMap"), 0);
-    glUniform1i(m_waterProgram->getUniform("unColorMap"), 1);
-    m_waterProgram->unuse();
+    m_waterProgram.use();
+    glUniform1i(m_waterProgram.getUniform("unNormalMap"), 0);
+    glUniform1i(m_waterProgram.getUniform("unColorMap"), 1);
+    m_waterProgram.unuse();
 }

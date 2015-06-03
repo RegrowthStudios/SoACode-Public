@@ -27,12 +27,12 @@ void SonarRenderStage::render() {
     const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;
 
-    if (!m_program) {
+    if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
                                                              "Shaders/BlockShading/sonarShading.frag");
     }
-    m_program->use();
-    m_program->enableVertexAttribArrays();
+    m_program.use();
+    m_program.enableVertexAttribArrays();
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
@@ -40,11 +40,11 @@ void SonarRenderStage::render() {
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
-    glUniform1f(m_program->getUniform("sonarDistance"), SONAR_DISTANCE);
-    glUniform1f(m_program->getUniform("waveWidth"), SONAR_WIDTH);
-    glUniform1f(m_program->getUniform("dt"), sonarDt);
+    glUniform1f(m_program.getUniform("sonarDistance"), SONAR_DISTANCE);
+    glUniform1f(m_program.getUniform("waveWidth"), SONAR_WIDTH);
+    glUniform1f(m_program.getUniform("dt"), sonarDt);
 
-    glUniform1f(m_program->getUniform("fadeDistance"), ChunkRenderer::fadeDist);
+    glUniform1f(m_program.getUniform("fadeDistance"), ChunkRenderer::fadeDist);
 
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
@@ -58,6 +58,6 @@ void SonarRenderStage::render() {
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);
 
-    m_program->unuse();
+    m_program.unuse();
     glEnable(GL_DEPTH_TEST);
 }

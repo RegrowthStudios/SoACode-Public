@@ -161,7 +161,7 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
 
 void TestDisplacementMappingScreen::onExit(const vui::GameTime& gameTime)
 {
-    delete m_program;
+    m_program.dispose();
     glDeleteTextures(1, &m_diffuseTexture);
     glDeleteTextures(1, &m_normalTexture);
     glDeleteTextures(1, &m_displacementTexture);
@@ -176,20 +176,20 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_program->use();
+    m_program.use();
     //m_displacementScale = (sinf(gameTime.total * 4.0) * 0.5f + 0.5f) * 0.1f;
 
     f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f - m_view.z) * glm::rotate(m_view.x, f32v3(1.0f, 0.0f, 0.0f)) * glm::rotate(m_view.y, f32v3(0.0f, 1.0f, 0.0f));
-    glUniformMatrix4fv(m_program->getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
     f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
-    glUniformMatrix4fv(m_program->getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);
 
-    glUniform3f(m_program->getUniform("unEyePosition"), m_camera.getPosition().x, m_camera.getPosition().y, m_camera.getPosition().z);
-    glUniform1i(m_program->getUniform("unDiffuseTexture"), 0);
-    glUniform1i(m_program->getUniform("unNormalTexture"), 1);
-    glUniform1i(m_program->getUniform("unDispTexture"), 2);
+    glUniform3f(m_program.getUniform("unEyePosition"), m_camera.getPosition().x, m_camera.getPosition().y, m_camera.getPosition().z);
+    glUniform1i(m_program.getUniform("unDiffuseTexture"), 0);
+    glUniform1i(m_program.getUniform("unNormalTexture"), 1);
+    glUniform1i(m_program.getUniform("unDispTexture"), 2);
 
-    glUniform1f(m_program->getUniform("unDispScale"), m_displacementScale);
+    glUniform1f(m_program.getUniform("unDispScale"), m_displacementScale);
 
     glBegin(GL_QUADS);
     float tangentDir = 1.0f;
@@ -215,6 +215,6 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
 
     glEnd();
     
-    m_program->unuse();
+    m_program.unuse();
     checkGlError("TestDisplacementMappingScreen::draw");
 }

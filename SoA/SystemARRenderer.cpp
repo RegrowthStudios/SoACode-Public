@@ -12,7 +12,6 @@
 
 #include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
 #include <Vorb/graphics/SpriteBatch.h>
@@ -57,7 +56,7 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
                             OPT const MainMenuSystemViewer* systemViewer,
                             const f32v2& viewport) {
     // Lazy init
-    if (!m_colorProgram) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
+    if (!m_colorProgram.isCreated()) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
     if (m_selectorTexture == 0) loadTextures();
 
     // Get handles so we don't have huge parameter lists
@@ -79,10 +78,8 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
 }
 
 void SystemARRenderer::dispose() {
-    if (m_colorProgram) {
-        m_colorProgram->dispose();
-        delete m_colorProgram;
-        m_colorProgram = nullptr;
+    if (m_colorProgram.isCreated()) {
+        m_colorProgram.dispose();
     }
   
     if (m_spriteBatch) {
@@ -123,11 +120,11 @@ void SystemARRenderer::drawPaths() {
     float blendFactor;
 
     // Draw paths
-    m_colorProgram->use();
-    m_colorProgram->enableVertexAttribArrays();
+    m_colorProgram.use();
+    m_colorProgram.enableVertexAttribArrays();
 
     // For logarithmic Z buffer
-    glUniform1f(m_colorProgram->getUniform("unZCoef"), m_zCoef);
+    glUniform1f(m_colorProgram.getUniform("unZCoef"), m_zCoef);
     glLineWidth(3.0f);
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
@@ -168,8 +165,8 @@ void SystemARRenderer::drawPaths() {
         // Restore path color
         if (isSelected) cmp.pathColor[0] = oldPathColor;
     }
-    m_colorProgram->disableVertexAttribArrays();
-    m_colorProgram->unuse();
+    m_colorProgram.disableVertexAttribArrays();
+    m_colorProgram.unuse();
 }
 
 void SystemARRenderer::drawHUD() {

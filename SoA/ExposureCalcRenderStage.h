@@ -48,7 +48,7 @@ public:
     const f32& getExposure() const { return m_exposure; }
 
 private:
-    vg::GLProgram* m_downsampleProgram = nullptr;
+    vg::GLProgram m_downsampleProgram;
     std::vector<vg::GLRenderTarget> m_renderTargets; ///< All render targets
     vg::FullQuadVBO* m_quad = nullptr;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;

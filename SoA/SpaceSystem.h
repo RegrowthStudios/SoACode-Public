@@ -22,6 +22,7 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
@@ -52,7 +53,6 @@ class SystemBodyKegProperties;
 struct SystemBody;
 
 DECL_VG(class TextureRecycler)
-DECL_VG(class GLProgram)
 
 //TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vecs::ECS {
@@ -79,7 +79,7 @@ public:
     f32 age = 0.0f; ///< age of the system
     nString systemDescription = "No description"; ///< textual description of the system
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
-    std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
+    vg::GLProgram normalMapGenProgram; ///< For generating normal maps
     
     std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors
 };

@@ -12,7 +12,7 @@
 #include "SpaceSystemComponents.h"
 #include "OrbitComponentUpdater.h"
 
-void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
+void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram& colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
 
     // Lazily generate mesh
     if (cmp.vbo == 0) generateOrbitEllipse(cmp, colorProgram);
@@ -29,12 +29,12 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
 
     f32v4 newColor = lerp(cmp.pathColor[0], cmp.pathColor[1], blendFactor);
     if (newColor.a <= 0.0f) return;
-    glUniform4f(colorProgram->getUniform("unColor"), newColor.r, newColor.g, newColor.b, newColor.a);
+    glUniform4f(colorProgram.getUniform("unColor"), newColor.r, newColor.g, newColor.b, newColor.a);
 
-    glUniformMatrix4fv(colorProgram->getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
+    glUniformMatrix4fv(colorProgram.getUniform("unWVP"), 1, GL_FALSE, &pathMatrix[0][0]);
 
     float currentAngle = cmp.currentMeanAnomaly - cmp.startMeanAnomaly;
-    glUniform1f(colorProgram->getUniform("currentAngle"), currentAngle / (float)M_2_PI);
+    glUniform1f(colorProgram.getUniform("currentAngle"), currentAngle / (float)M_2_PI);
 
     // Draw the ellipse
     glDepthMask(false);
@@ -44,14 +44,14 @@ void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram* colorP
     glDepthMask(true);
 }
 
-void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLProgram* colorProgram) {
+void OrbitComponentRenderer::generateOrbitEllipse(OrbitComponent& cmp, vg::GLProgram& colorProgram) {
 
     if (cmp.verts.empty()) return;
 
     glGenVertexArrays(1, &cmp.vao);
     glBindVertexArray(cmp.vao);
 
-    colorProgram->enableVertexAttribArrays();
+    colorProgram.enableVertexAttribArrays();
 
     // Upload the buffer data
     vg::GpuMemory::createBuffer(cmp.vbo);

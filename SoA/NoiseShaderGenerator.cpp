@@ -8,8 +8,8 @@
 #include <Vorb/RPC.h>
 #include <Vorb/graphics/GLProgram.h>
 
-vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
-                                                     vcore::RPCManager* glrpc /* = nullptr */) {
+vg::GLProgram NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
+                                                    vcore::RPCManager* glrpc /* = nullptr */) {
     // Build initial string
     nString fSource = NOISE_SRC_FRAG;
     fSource.reserve(fSource.size() + 8192);
@@ -47,7 +47,7 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
     }
 
     // Check if we should use an RPC
-    if (gen.program == nullptr) {
+    if (!gen.program.isLinked()) {
         dumpShaderCode(std::cout, fSource, true);
         std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
     }
@@ -56,7 +56,7 @@ vg::GLProgram* NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
     return gen.program;
 }
 
-vg::GLProgram* NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc /* = nullptr */) {
+vg::GLProgram NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc /* = nullptr */) {
     // Build string
     nString fSource = NOISE_SRC_FRAG;
     fSource.reserve(fSource.size() + 128);
@@ -76,7 +76,7 @@ vg::GLProgram* NoiseShaderGenerator::getDefaultProgram(vcore::RPCManager* glrpc 
         gen.invoke(nullptr, nullptr);
     }
 
-    if (gen.program == nullptr) {
+    if (!gen.program.isLinked()) {
         dumpShaderCode(std::cout, fSource, true);
         std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
     }

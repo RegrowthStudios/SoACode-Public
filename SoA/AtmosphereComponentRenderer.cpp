@@ -7,7 +7,6 @@
 #include "ShaderLoader.h"
 
 #include <Vorb/MeshGenerators.h>
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
@@ -32,13 +31,13 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
                                        const f32 zCoef,
                                        const SpaceLightComponent* spComponent) {
     // Lazily construct buffer and shaders
-    if (!m_program) {
+    if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/AtmosphereShading/Sky.vert",
                                                         "Shaders/AtmosphereShading/Sky.frag");
     }
     if (!m_icoVbo) buildMesh();
 
-    m_program->use();
+    m_program.use();
 
     // Set up matrix
     f32m4 WVP(1.0);
@@ -50,28 +49,28 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     f32 camHeight2 = camHeight * camHeight;
 
     // Upload uniforms
-    glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
-    glUniform3fv(m_program->getUniform("unCameraPos"), 1, &relCamPos[0]);
-    glUniform3fv(m_program->getUniform("unLightDirWorld"), 1, &lightDir[0]);
-    glUniform3fv(m_program->getUniform("unInvWavelength"), 1, &aCmp.invWavelength4[0]);
-    glUniform1f(m_program->getUniform("unCameraHeight2"), camHeight2);
-    glUniform1f(m_program->getUniform("unOuterRadius"), aCmp.radius);
-    glUniform1f(m_program->getUniform("unOuterRadius2"), aCmp.radius * aCmp.radius);
-    glUniform1f(m_program->getUniform("unInnerRadius"), aCmp.planetRadius);
-    glUniform1f(m_program->getUniform("unKrESun"), aCmp.kr * aCmp.esun);
-    glUniform1f(m_program->getUniform("unKmESun"), aCmp.km * aCmp.esun);
-    glUniform1f(m_program->getUniform("unKr4PI"), aCmp.kr * M_4_PI);
-    glUniform1f(m_program->getUniform("unKm4PI"), aCmp.km * M_4_PI);
+    glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
+    glUniform3fv(m_program.getUniform("unCameraPos"), 1, &relCamPos[0]);
+    glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &lightDir[0]);
+    glUniform3fv(m_program.getUniform("unInvWavelength"), 1, &aCmp.invWavelength4[0]);
+    glUniform1f(m_program.getUniform("unCameraHeight2"), camHeight2);
+    glUniform1f(m_program.getUniform("unOuterRadius"), aCmp.radius);
+    glUniform1f(m_program.getUniform("unOuterRadius2"), aCmp.radius * aCmp.radius);
+    glUniform1f(m_program.getUniform("unInnerRadius"), aCmp.planetRadius);
+    glUniform1f(m_program.getUniform("unKrESun"), aCmp.kr * aCmp.esun);
+    glUniform1f(m_program.getUniform("unKmESun"), aCmp.km * aCmp.esun);
+    glUniform1f(m_program.getUniform("unKr4PI"), aCmp.kr * M_4_PI);
+    glUniform1f(m_program.getUniform("unKm4PI"), aCmp.km * M_4_PI);
     float scale = 1.0f / (aCmp.radius - aCmp.planetRadius);
-    glUniform1f(m_program->getUniform("unScale"), scale);
-    glUniform1f(m_program->getUniform("unScaleDepth"), aCmp.scaleDepth);
-    glUniform1f(m_program->getUniform("unScaleOverScaleDepth"), scale / aCmp.scaleDepth);
-    glUniform1i(m_program->getUniform("unNumSamples"), 3);
-    glUniform1f(m_program->getUniform("unNumSamplesF"), 3.0f);
-    glUniform1f(m_program->getUniform("unG"), aCmp.g);
-    glUniform1f(m_program->getUniform("unG2"), aCmp.g * aCmp.g);
+    glUniform1f(m_program.getUniform("unScale"), scale);
+    glUniform1f(m_program.getUniform("unScaleDepth"), aCmp.scaleDepth);
+    glUniform1f(m_program.getUniform("unScaleOverScaleDepth"), scale / aCmp.scaleDepth);
+    glUniform1i(m_program.getUniform("unNumSamples"), 3);
+    glUniform1f(m_program.getUniform("unNumSamplesF"), 3.0f);
+    glUniform1f(m_program.getUniform("unG"), aCmp.g);
+    glUniform1f(m_program.getUniform("unG2"), aCmp.g * aCmp.g);
     // For logarithmic Z buffer
-    glUniform1f(m_program->getUniform("unZCoef"), zCoef);
+    glUniform1f(m_program.getUniform("unZCoef"), zCoef);
 
     // Bind VAO
     glBindVertexArray(m_vao);
@@ -84,13 +83,11 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
     glBindVertexArray(0);
-    m_program->unuse(); 
+    m_program.unuse(); 
 }
 
 void AtmosphereComponentRenderer::disposeShader() {
-    if (m_program) {
-        vg::ShaderManager::destroyProgram(&m_program);
-    }
+    if (m_program.isCreated()) m_program.dispose();
 }
 
 void AtmosphereComponentRenderer::buildMesh() {
@@ -116,7 +113,7 @@ void AtmosphereComponentRenderer::buildMesh() {
                                     indices.data(), vg::BufferUsageHint::STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    m_program->enableVertexAttribArrays();
+    m_program.enableVertexAttribArrays();
 
     glBindVertexArray(0);
 }

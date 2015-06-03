@@ -18,6 +18,7 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/Texture.h>
 #include <Vorb/io/Keg.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "Biome.h"
 
@@ -110,7 +111,7 @@ struct PlanetGenData {
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;
     ui32 surfaceBlock = 0;
-    vg::GLProgram* program = nullptr;
+    vg::GLProgram program;
     f64 radius = 0.0;
 
     NoiseBase baseTerrainFuncs;

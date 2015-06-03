@@ -72,7 +72,7 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
                                                             spaceSystem->normalMapRecycler.get());
             stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                                                   data,
-                                                                  spaceSystem->normalMapGenProgram.get(),
+                                                                  &spaceSystem->normalMapGenProgram,
                                                                   spaceSystem->normalMapRecycler.get());
             stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
                                                                   data);

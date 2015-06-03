@@ -16,6 +16,7 @@
 #define FarTerrainComponentRenderer_h__
 
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
 
 class Camera;
 struct AtmosphereComponent;
@@ -24,8 +25,6 @@ struct FarTerrainComponent;
 struct NamePositionComponent;
 struct SpaceLightComponent;
 struct SphericalTerrainComponent;
-
-DECL_VG(class GLProgram);
 
 class FarTerrainComponentRenderer {
 public:
@@ -41,8 +40,8 @@ public:
 private:
     void buildShaders();
 
-    vg::GLProgram* m_farTerrainProgram = nullptr;
-    vg::GLProgram* m_farWaterProgram = nullptr;
+    vg::GLProgram m_farTerrainProgram;
+    vg::GLProgram m_farWaterProgram;
 };
 
 #endif // FarTerrainComponentRenderer_h__

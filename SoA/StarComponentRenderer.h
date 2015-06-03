@@ -15,15 +15,15 @@
 #ifndef StarComponentRenderer_h__
 #define StarComponentRenderer_h__
 
-#include <Vorb/ecs/ECS.h>
-#include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/VorbPreDecl.inl>
-#include <Vorb/graphics/gtypes.h>
+#include <Vorb/ecs/ComponentTable.hpp>
+#include <Vorb/ecs/ECS.h>
+#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ImageIO.h>
-#include <Vorb/script/Function.h>
+#include <Vorb/graphics/gtypes.h>
 #include <Vorb/script/Environment.h>
+#include <Vorb/script/Function.h>
 
-DECL_VG(class GLProgram)
 class ModPathResolver;
 
 struct StarComponent;
@@ -70,10 +70,10 @@ private:
     f32v3 getColor(int index);
     f32v3 getTempColorShift(const StarComponent& sCmp);
 
-    vg::GLProgram* m_starProgram = nullptr;
-    vg::GLProgram* m_coronaProgram = nullptr;
-    vg::GLProgram* m_glowProgram = nullptr;
-    vg::GLProgram* m_occlusionProgram = nullptr;
+    vg::GLProgram m_starProgram;
+    vg::GLProgram m_coronaProgram;
+    vg::GLProgram m_glowProgram;
+    vg::GLProgram m_occlusionProgram;
     // Star
     VGBuffer m_sVbo = 0;
     VGIndexBuffer m_sIbo = 0;

@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "HdrRenderStage.h"
 
-#include <Vorb/graphics/GLProgram.h>
-
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
 #include "Chunk.h"
@@ -23,19 +20,14 @@ HdrRenderStage::HdrRenderStage(vg::FullQuadVBO* quad, const Camera* camera) : IR
 
 void HdrRenderStage::reloadShader() {
     IRenderStage::reloadShader();
-    if (m_glProgramBlur) {
-        vg::ShaderManager::destroyProgram(&m_glProgramBlur);
-    }
-    if (m_glProgramDoFBlur) {
-        vg::ShaderManager::destroyProgram(&m_glProgramDoFBlur);
-    }
+    if (m_glProgramBlur.isCreated()) m_glProgramBlur.dispose();
+    if (m_glProgramDoFBlur.isCreated()) m_glProgramDoFBlur.dispose();
 }
 
 void HdrRenderStage::dispose() {
     IRenderStage::dispose();
-    if (m_glProgramBlur) {
-        vg::ShaderManager::destroyProgram(&m_glProgramBlur);
-    }
+    if (m_glProgramBlur.isCreated()) m_glProgramBlur.dispose();
+    if (m_glProgramDoFBlur.isCreated()) m_glProgramDoFBlur.dispose();
 }
 
 void HdrRenderStage::render() {
@@ -46,18 +38,18 @@ void HdrRenderStage::render() {
     vg::GLProgram* program;
     
     if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {
-        if (!m_glProgramBlur) {
+        if (!m_glProgramBlur.isCreated()) {
             m_glProgramBlur = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                        "Shaders/PostProcessing/MotionBlur.frag",
                                                                        nullptr, "#define MOTION_BLUR\n");
         }
-        program = m_glProgramBlur;
+        program = &m_glProgramBlur;
     } else {
-        if (!m_program) {
+        if (!m_program.isCreated()) {
             m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                  "Shaders/PostProcessing/MotionBlur.frag");
         }
-        program = m_program;
+        program = &m_program;
     }
 
     // TODO(Ben): DOF shader?
@@ -78,8 +70,8 @@ void HdrRenderStage::render() {
         glUniform1f(program->getUniform("unBlurIntensity"), 0.5f);
     }
     //if (graphicsOptions.depthOfField > 0) {
-    //    glUniform1f(_glProgram->getUniform("unFocalLen"), 70.0f);
-    //    glUniform1f(_glProgram->getUniform("unZfocus"), 0.96f); // [0, 1]
+    //    glUniform1f(_glprogram->getUniform("unFocalLen"), 70.0f);
+    //    glUniform1f(_glprogram->getUniform("unZfocus"), 0.96f); // [0, 1]
     //}
 
     glDisable(GL_DEPTH_TEST);

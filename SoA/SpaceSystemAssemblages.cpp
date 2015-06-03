@@ -63,7 +63,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
                                  properties->diameter * 0.5,
                                  properties->planetGenData,
-                                 spaceSystem->normalMapGenProgram.get(),
+                                 &spaceSystem->normalMapGenProgram,
                                  spaceSystem->normalMapRecycler.get());
 
     f64 planetRadius = properties->diameter / 2.0;

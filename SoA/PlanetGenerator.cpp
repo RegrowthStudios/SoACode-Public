@@ -4,20 +4,18 @@
 #include "ShaderLoader.h"
 #include "SoaOptions.h"
 
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
 
+#define BLUR_PASSES 4
+
 PlanetGenerator::PlanetGenerator() {
-    m_blurPrograms[0] = nullptr;
-    m_blurPrograms[1] = nullptr;
+    // Empty
 }
 
 void PlanetGenerator::dispose(vcore::RPCManager* glrpc) {
     // TODO(Ben): Implement
 }
-
-#define BLUR_PASSES 4
 
 CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc /* = nullptr */) {
     switch (type) {
@@ -159,7 +157,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
 
     // Handle Gaussian blur
     auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-        if (!m_blurPrograms[0]) {
+        if (!m_blurPrograms[0].isCreated()) {
             m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                     "Shaders/PostProcessing/Blur.frag", nullptr,
                                                                     "#define HORIZONTAL_BLUR_9\n");
@@ -179,19 +177,19 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
         for (int p = 0; p < BLUR_PASSES; p++) {
             // Two pass Gaussian blur
             for (int i = 0; i < 2; i++) {
-                m_blurPrograms[i]->use();
-                m_blurPrograms[i]->enableVertexAttribArrays();
+                m_blurPrograms[i].use();
+                m_blurPrograms[i].enableVertexAttribArrays();
 
-                glUniform1i(m_blurPrograms[i]->getUniform("unTex"), 0);
-                glUniform1f(m_blurPrograms[i]->getUniform("unSigma"), 5.0f);
-                glUniform1f(m_blurPrograms[i]->getUniform("unBlurSize"), 1.0f / (f32)WIDTH);
+                glUniform1i(m_blurPrograms[i].getUniform("unTex"), 0);
+                glUniform1f(m_blurPrograms[i].getUniform("unSigma"), 5.0f);
+                glUniform1f(m_blurPrograms[i].getUniform("unBlurSize"), 1.0f / (f32)WIDTH);
                 m_targets[i].use();
 
                 m_quad.draw();
 
                 m_targets[i].unuse(soaOptions.get(OPT_SCREEN_WIDTH).value.f, soaOptions.get(OPT_SCREEN_HEIGHT).value.f);
-                m_blurPrograms[i]->disableVertexAttribArrays();
-                m_blurPrograms[i]->unuse();
+                m_blurPrograms[i].disableVertexAttribArrays();
+                m_blurPrograms[i].unuse();
                 m_targets[i].bindTexture();
             }
         }

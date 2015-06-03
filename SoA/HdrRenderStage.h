@@ -18,8 +18,7 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/VorbPreDecl.inl>
-
-DECL_VG(class GLProgram);
+#include <Vorb/graphics/GLProgram.h>
 
 class Camera;
 
@@ -41,8 +40,8 @@ public:
     /// Draws the render stage
     virtual void render() override;
 private:
-    vg::GLProgram* m_glProgramBlur = nullptr; ///< Motion blur enabled
-    vg::GLProgram* m_glProgramDoFBlur = nullptr; ///< Motion blur and DoF enabled
+    vg::GLProgram m_glProgramBlur; ///< Motion blur enabled
+    vg::GLProgram m_glProgramDoFBlur; ///< Motion blur and DoF enabled
     vg::FullQuadVBO* m_quad = nullptr; ///< For use in processing through data
     f32m4 m_oldVP; ///< ViewProjection of previous frame
 };

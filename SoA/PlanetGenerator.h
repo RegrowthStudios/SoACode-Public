@@ -23,11 +23,10 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/gtypes.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include <random>
 #include <vector>
-
-DECL_VG(class GLProgram);
 
 struct PlanetGenData;
 
@@ -52,7 +51,7 @@ private:
 
     vg::FullQuadVBO m_quad;
     vg::GLRenderTarget m_targets[2];
-    vg::GLProgram* m_blurPrograms[2];
+    vg::GLProgram m_blurPrograms[2];
     std::mt19937 m_generator = std::mt19937(36526);
 };
 

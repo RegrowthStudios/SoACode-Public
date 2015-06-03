@@ -21,7 +21,7 @@ public:
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
     Camera m_camera;
-    vg::GLProgram* m_program;
+    vg::GLProgram m_program;
     VGTexture m_diffuseTexture;
     VGTexture m_normalTexture;
     VGTexture m_displacementTexture;

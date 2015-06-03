@@ -29,7 +29,7 @@ CALLER_DELETE vg::GLProgram ShaderLoader::createProgramFromFile(const vio::Path&
     while (true) {
         program = vg::ShaderManager::createProgramFromFile(vertPath, fragPath, iom, defines);
         if (program.isLinked()) break;
-
+        program.dispose();
         printf("Enter any key to try recompiling with Vertex Shader: %s and Fragment Shader %s\nEnter Z to abort.\n", vertPath.getCString(), fragPath.getCString());
         char tmp;
         std::cin >> tmp;
@@ -51,7 +51,7 @@ CALLER_DELETE vg::GLProgram ShaderLoader::createProgram(const cString displayNam
     while (true) {
         program = vg::ShaderManager::createProgram(vertSrc, fragSrc, iom, iom, defines);
         if (program.isLinked()) break;
-
+        program.dispose();
         printf("Enter any key to try recompiling with %s shader.\nEnter Z to abort.\n", displayName);
         char tmp;
         std::cin >> tmp;

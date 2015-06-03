@@ -122,12 +122,12 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
         gen.invoke(nullptr, nullptr);
     }
 
-    if (gen.program == nullptr) {
+    if (!gen.program.isLinked()) {
         std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
         return false;
     }
-    /// Manage the program with a unique ptr
-    state->spaceSystem->normalMapGenProgram = std::unique_ptr<vg::GLProgram>(gen.program);
+
+    state->spaceSystem->normalMapGenProgram = gen.program;
 
     // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;

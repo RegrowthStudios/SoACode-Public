@@ -17,8 +17,8 @@
 
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/gtypes.h>
+#include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgram);
 class ModPathResolver;
 struct FlareKegProperties;
 
@@ -39,7 +39,7 @@ private:
     void initMesh();
 
     const ModPathResolver* m_textureResolver = nullptr;
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program;
     VGTexture m_texture = 0;
     ui32 m_texWidth = 0;
     ui32 m_texHeight = 0;

@@ -31,17 +31,17 @@ ColorFilterRenderStage::~ColorFilterRenderStage() {
 
 void ColorFilterRenderStage::render() {
 
-    if (!m_program) {
+    if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgram("ColorFilterShader", VERT_SRC, FRAG_SRC);
     }
 
-    m_program->use();
+    m_program.use();
 
-    glUniform4fv(m_program->getUniform("unColor"), 1, &m_color[0]);
+    glUniform4fv(m_program.getUniform("unColor"), 1, &m_color[0]);
 
     glDisable(GL_DEPTH_TEST);
     m_quad->draw();
     glEnable(GL_DEPTH_TEST);
 
-    m_program->unuse();
+    m_program.unuse();
 }

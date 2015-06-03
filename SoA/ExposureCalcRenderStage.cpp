@@ -32,8 +32,8 @@ void ExposureCalcRenderStage::reloadShader() {
 
 void ExposureCalcRenderStage::dispose() {
     m_mipStep = 0;
-    if (m_program) vg::ShaderManager::destroyProgram(&m_program);
-    if (m_downsampleProgram) vg::ShaderManager::destroyProgram(&m_downsampleProgram);
+    if (m_program.isCreated()) m_program.dispose();
+    if (m_downsampleProgram.isCreated()) m_downsampleProgram.dispose();
     for (int i = 0; i < m_renderTargets.size(); i++) {
         m_renderTargets[i].dispose();
     }
@@ -51,19 +51,19 @@ void ExposureCalcRenderStage::render() {
         }    
     }
     // Lazy shader load
-    if (!m_program) {
+    if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                         "Shaders/PostProcessing/LogLuminance.frag");
-        m_program->use();
-        glUniform1i(m_program->getUniform("unTex"), 0);
-        m_program->unuse();
+        m_program.use();
+        glUniform1i(m_program.getUniform("unTex"), 0);
+        m_program.unuse();
     }
-    if (!m_downsampleProgram) {
+    if (!m_downsampleProgram.isCreated()) {
         m_downsampleProgram = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                         "Shaders/PostProcessing/LumDownsample.frag");
-        m_downsampleProgram->use();
-        glUniform1i(m_downsampleProgram->getUniform("unTex"), 0);
-        m_downsampleProgram->unuse();
+        m_downsampleProgram.use();
+        glUniform1i(m_downsampleProgram.getUniform("unTex"), 0);
+        m_downsampleProgram.unuse();
     }
     // Lazy script load
     if (m_needsScriptLoad) {
@@ -83,14 +83,14 @@ void ExposureCalcRenderStage::render() {
         // LUA SCRIPT
         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
 
-        prog = m_program;
+        prog = &m_program;
         m_hdrFrameBuffer->bindTexture();
     } else if (m_mipStep > 0) {
-        prog = m_downsampleProgram;
+        prog = &m_downsampleProgram;
         m_renderTargets[m_mipStep].bindTexture();
         m_mipStep++;
     } else {
-        prog = m_program;
+        prog = &m_program;
         m_hdrFrameBuffer->bindTexture();
         m_mipStep++;
     }

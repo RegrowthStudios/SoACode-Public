@@ -18,14 +18,14 @@
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/VorbPreDecl.inl>
 #include "OrbitComponentRenderer.h"
+#include <Vorb/graphics/GLProgram.h>
 
 class Camera;
 class MainMenuSystemViewer;
 class SpaceSystem;
 class ModPathResolver;
 
-DECL_VG(class GLProgram;
-        class SpriteBatch;
+DECL_VG(class SpriteBatch;
         class SpriteFont)
 
 class SystemARRenderer {
@@ -45,7 +45,7 @@ private:
     // Renders heads up display
     void drawHUD();
 
-    vg::GLProgram* m_colorProgram = nullptr;
+    vg::GLProgram m_colorProgram;
     vg::SpriteBatch* m_spriteBatch = nullptr;
     vg::SpriteFont* m_spriteFont = nullptr;
 

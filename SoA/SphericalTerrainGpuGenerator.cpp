@@ -79,11 +79,11 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManag
     m_genProgram(planetGenData->program),
     m_normalProgram(normalProgram),
     m_normalMapRecycler(normalMapRecycler),
-    unCornerPos(m_genProgram->getUniform("unCornerPos")),
-    unCoordMults(m_genProgram->getUniform("unCoordMults")),
-    unCoordMapping(m_genProgram->getUniform("unCoordMapping")),
-    unPatchWidth(m_genProgram->getUniform("unPatchWidth")),
-    unRadius(m_genProgram->getUniform("unRadius")),
+    unCornerPos(m_genProgram.getUniform("unCornerPos")),
+    unCoordMults(m_genProgram.getUniform("unCoordMults")),
+    unCoordMapping(m_genProgram.getUniform("unCoordMapping")),
+    unPatchWidth(m_genProgram.getUniform("unPatchWidth")),
+    unRadius(m_genProgram.getUniform("unRadius")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
     unWidth(m_normalProgram->getUniform("unWidth")),
     heightmapGenRpcDispatcher(this) {
@@ -100,6 +100,7 @@ SphericalTerrainGpuGenerator::~SphericalTerrainGpuGenerator() {
         vg::GpuMemory::freeBuffer(m_rawPbos[1][i]);
     }
     glDeleteFramebuffers(1, &m_normalFbo);
+    m_genProgram.dispose();
 }
 
 void SphericalTerrainGpuGenerator::update() {
@@ -120,17 +121,17 @@ void SphericalTerrainGpuGenerator::update() {
     }
     
     // Heightmap Generation
-    m_genProgram->use();
-    m_genProgram->enableVertexAttribArrays();
+    m_genProgram.use();
+    m_genProgram.enableVertexAttribArrays();
 
     if (m_planetGenData->baseBiomeLookupTexture) {
         glActiveTexture(GL_TEXTURE0);
-        glUniform1i(m_genProgram->getUniform("unBaseBiomes"), 0);
+        glUniform1i(m_genProgram.getUniform("unBaseBiomes"), 0);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->baseBiomeLookupTexture);
         nString glVendor = vg::GraphicsDevice::getCurrent()->getProperties().glVendor;
         if (glVendor.find("Intel") != nString::npos) {
             glActiveTexture(GL_TEXTURE1);
-            glUniform1i(m_genProgram->getUniform("unBiomes"), 1);
+            glUniform1i(m_genProgram.getUniform("unBiomes"), 1);
             glBindTexture(GL_TEXTURE_2D_ARRAY, m_planetGenData->biomeArrayTexture);
         }
     }
@@ -140,8 +141,8 @@ void SphericalTerrainGpuGenerator::update() {
     m_patchRpcManager.processRequests(PATCHES_PER_FRAME);
     TerrainGenTextures::unuse();
 
-    m_genProgram->disableVertexAttribArrays();
-    m_genProgram->unuse();
+    m_genProgram.disableVertexAttribArrays();
+    m_genProgram.unuse();
 
     // Restore state
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
