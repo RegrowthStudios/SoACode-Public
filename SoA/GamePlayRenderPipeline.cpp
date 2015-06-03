@@ -112,8 +112,16 @@ void GameplayRenderPipeline::render() {
 
     updateCameras();
     // Set up the gameRenderParams
+    const GameSystem* gs = m_soaState->gameSystem.get();
+
+    // Get the physics component
+    auto& phycmp = gs->physics.getFromEntity(m_soaState->playerEntity);
+    VoxelPosition3D pos;
+    if (phycmp.voxelPositionComponent) {
+        pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
+    }
     m_gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_localCamera,
-                                      m_meshManager, false);
+                                       pos, 100, m_meshManager, false);
     // Bind the FBO
     m_hdrFrameBuffer->use();
   

@@ -194,19 +194,19 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 1, 0));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     mW = glm::translate(f32m4(1.0f), f32v3(0, 0, -2));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -269,34 +269,32 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
         /*vg::GLProgram& progLight = m_deferredPrograms.light["Point"];
         progLight.use();
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getGeometryTexture(1));
         glUniform1i(progLight.getUniform("unTexNormal"), 0);
 
         const size_t NUM_LIGHTS = 5;
         f32v3 lightDirs[NUM_LIGHTS] = {
-        f32v3(0, -2, -1),
-        f32v3(2, -1, 0),
-        f32v3(-1, 1, -1),
-        f32v3(-4, -3, 0),
-        f32v3(6, 3, 2)
+            f32v3(0, -2, -1),
+            f32v3(2, -1, 0),
+            f32v3(-1, 1, -1),
+            f32v3(-4, -3, 0),
+            f32v3(6, 3, 2)
         };
         f32v3 lightColors[NUM_LIGHTS] = {
-        f32v3(0.6, 0.6, 0.3),
-        f32v3(1.0, 0.0, 0.0),
-        f32v3(0.0, 1.0, 0.0),
-        f32v3(0.0, 1.0, 1.0),
-        f32v3(1.0, 0.0, 1.0)
+            f32v3(0.6, 0.6, 0.3),
+            f32v3(1.0, 0.0, 0.0),
+            f32v3(0.0, 1.0, 0.0),
+            f32v3(0.0, 1.0, 1.0),
+            f32v3(1.0, 0.0, 1.0)
         };
         for (size_t i = 0; i < NUM_LIGHTS; i++) {
-        f32v3 lightDir = glm::normalize(lightDirs[i]);
-        glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
-        f32v3 lightColor = lightColors[i];
-        glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
-        m_quad.draw();
+            f32v3 lightDir = glm::normalize(lightDirs[i]);
+            glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
+            f32v3 lightColor = lightColors[i];
+            glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
+            m_quad.draw();
         }*/
     }
-
-
 
     /************************************************************************/
     /* Compose deferred and lighting                                        */
@@ -325,9 +323,9 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     /************************************************************************/
     m_sb.begin();
     m_sb.draw(m_gbuffer.getGeometryTexture(0), f32v2(0, 0), f32v2(200, 150), color::White);
-    m_sb.draw(m_gbuffer.getGeometryTexture(1), f32v2(200, 0), f32v2(200, 150), color::White);
-    m_sb.draw(m_gbuffer.getGeometryTexture(2), f32v2(400, 0), f32v2(200, 150), color::White);
-    m_sb.draw(m_gbuffer.getLightTexture(), f32v2(600, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getGeometryTexture(0), f32v2(200, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getGeometryTexture(0), f32v2(400, 0), f32v2(200, 150), color::White);
+    m_sb.draw(m_gbuffer.getGeometryTexture(0), f32v2(600, 0), f32v2(200, 150), color::White);
     m_sb.end();
     m_sb.render(f32v2(m_game->getWindow().getWidth(), m_game->getWindow().getHeight()));
 }
@@ -410,38 +408,28 @@ void TestDeferredScreen::buildLightMaps() {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glGenTextures(1, &m_envMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
-
-    std::vector<ui8> pixels;
-    ui32v2 size;
     
-    // TODO(Ben): Cristian you can update this :P
-    /*vg::ImageIO imageLoader;
-    imageLoader.loadPng("Textures/Test/nx.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/px.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/ny.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/py.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/nz.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/pz.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
+    vg::ImageIO imageLoader;
+    vg::ScopedBitmapResource rs0 = imageLoader.load("Textures/Test/nx.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, rs0.width, rs0.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs0.data);
+    vg::ScopedBitmapResource rs1 = imageLoader.load("Textures/Test/px.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, rs1.width, rs1.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs1.data);
+    vg::ScopedBitmapResource rs2 = imageLoader.load("Textures/Test/ny.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, rs2.width, rs2.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs2.data);
+    vg::ScopedBitmapResource rs3 = imageLoader.load("Textures/Test/py.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, rs3.width, rs3.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs3.data);
+    vg::ScopedBitmapResource rs4 = imageLoader.load("Textures/Test/nz.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, rs4.width, rs4.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs4.data);
+    vg::ScopedBitmapResource rs5 = imageLoader.load("Textures/Test/pz.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, rs5.width, rs5.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs5.data);
 
-    SamplerState ss(
+    vg::SamplerState ss(
         (VGEnum)vg::TextureMinFilter::LINEAR_MIPMAP_LINEAR,
         (VGEnum)vg::TextureMagFilter::LINEAR,
         (VGEnum)vg::TextureWrapMode::REPEAT,
         (VGEnum)vg::TextureWrapMode::REPEAT,
         (VGEnum)vg::TextureWrapMode::REPEAT
         );
-    ss.set(GL_TEXTURE_CUBE_MAP); 
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP); */
+    ss.set(GL_TEXTURE_CUBE_MAP);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }

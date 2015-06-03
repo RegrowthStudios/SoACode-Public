@@ -4,6 +4,7 @@
 #define GameRenderParams_h__
 
 #include <Vorb/VorbPreDecl.inl>
+#include "VoxelSpaceConversions.h"
 
 class ChunkMesh;
 class Camera;
@@ -13,6 +14,8 @@ class GameRenderParams {
 public:
     void calculateParams(const f64v3& worldCameraPos,
                          const Camera* ChunkCamera,
+                         const VoxelPosition3D& voxPosition,
+                         f64 voxelWorldRadius,
                          ChunkMeshManager* ChunkMeshmanager,
                          bool IsUnderwater);
 
