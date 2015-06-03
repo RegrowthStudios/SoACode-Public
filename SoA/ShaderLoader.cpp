@@ -19,16 +19,16 @@ namespace {
     }
 }
 
-CALLER_DELETE vg::GLProgram* ShaderLoader::createProgramFromFile(const vio::Path& vertPath, const vio::Path& fragPath,
-                                                                 vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
+CALLER_DELETE vg::GLProgram ShaderLoader::createProgramFromFile(const vio::Path& vertPath, const vio::Path& fragPath,
+                                                                vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
     vg::ShaderManager::onFileIOFailure += makeDelegate(printFileIOError);
     vg::ShaderManager::onShaderCompilationError += makeDelegate(printShaderError);
     vg::ShaderManager::onProgramLinkError += makeDelegate(printLinkError);
 
-    vg::GLProgram* program = nullptr;
+    vg::GLProgram program;
     while (true) {
         program = vg::ShaderManager::createProgramFromFile(vertPath, fragPath, iom, defines);
-        if (program) break;
+        if (program.isLinked()) break;
 
         printf("Enter any key to try recompiling with Vertex Shader: %s and Fragment Shader %s\nEnter Z to abort.\n", vertPath.getCString(), fragPath.getCString());
         char tmp;
@@ -42,15 +42,15 @@ CALLER_DELETE vg::GLProgram* ShaderLoader::createProgramFromFile(const vio::Path
     return program;
 }
 
-CALLER_DELETE vg::GLProgram* ShaderLoader::createProgram(const cString displayName, const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
+CALLER_DELETE vg::GLProgram ShaderLoader::createProgram(const cString displayName, const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
     vg::ShaderManager::onFileIOFailure += makeDelegate(printFileIOError);
     vg::ShaderManager::onShaderCompilationError += makeDelegate(printShaderError);
     vg::ShaderManager::onProgramLinkError += makeDelegate(printLinkError);
 
-    vg::GLProgram* program = nullptr;
+    vg::GLProgram program;
     while (true) {
         program = vg::ShaderManager::createProgram(vertSrc, fragSrc, iom, iom, defines);
-        if (program) break;
+        if (program.isLinked()) break;
 
         printf("Enter any key to try recompiling with %s shader.\nEnter Z to abort.\n", displayName);
         char tmp;

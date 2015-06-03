@@ -17,8 +17,8 @@
 
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/io/Path.h>
+#include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgram);
 DECL_VIO(class IOManager);
 
 #pragma once
@@ -26,13 +26,13 @@ class ShaderLoader {
 public:
     /// Creates a program using code loaded from files, and does error checking
     /// Does not register with global cache
-    static CALLER_DELETE vg::GLProgram* createProgramFromFile(const vio::Path& vertPath, const vio::Path& fragPath,
-                                                              vio::IOManager* iom = nullptr, cString defines = nullptr);
+    static CALLER_DELETE vg::GLProgram createProgramFromFile(const vio::Path& vertPath, const vio::Path& fragPath,
+                                                             vio::IOManager* iom = nullptr, cString defines = nullptr);
 
     /// Creates a program using passed code, and does error checking
     /// Does not register with global cache
-    static CALLER_DELETE vg::GLProgram* createProgram(const cString displayName, const cString vertSrc, const cString fragSrc,
-                                                      vio::IOManager* iom = nullptr, cString defines = nullptr);
+    static CALLER_DELETE vg::GLProgram createProgram(const cString displayName, const cString vertSrc, const cString fragSrc,
+                                                     vio::IOManager* iom = nullptr, cString defines = nullptr);
 };
 
 #endif // ShaderLoader_h__
