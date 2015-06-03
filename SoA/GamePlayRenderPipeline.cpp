@@ -124,11 +124,14 @@ void GameplayRenderPipeline::render() {
     m_skyboxRenderStage->render();
 
     glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
+    m_spaceSystemRenderStage->setShowAR(false);
+    m_spaceSystemRenderStage->setRenderState(m_renderState);
+    m_spaceSystemRenderStage->render();
 
     if (m_voxelsActive) {
+        glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glPolygonMode(GL_FRONT_AND_BACK, m_drawMode);
         m_opaqueVoxelRenderStage->render();
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
@@ -138,13 +141,9 @@ void GameplayRenderPipeline::render() {
         m_chunkGridRenderStage->render();
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
 
-    m_spaceSystemRenderStage->setShowAR(false);
-    m_spaceSystemRenderStage->setRenderState(m_renderState);
-    m_spaceSystemRenderStage->render();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Check for face transition animation state
