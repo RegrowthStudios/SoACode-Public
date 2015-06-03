@@ -4,7 +4,6 @@
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/io/Keg.h>
 
-#include "FileSystem.h"
 #include "SoaOptions.h"
 #include "PlanetData.h"
 

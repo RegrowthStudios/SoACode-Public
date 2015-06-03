@@ -700,7 +700,6 @@ EXIT 0</Command>
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Errors.h" />
-    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="global.h" />
@@ -885,7 +884,6 @@ EXIT 0</Command>
     <ClCompile Include="ChunkMesher.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="global.cpp" />

@@ -12,7 +12,6 @@
 
 #include "DebugRenderer.h"
 #include "Errors.h"
-#include "FileSystem.h"
 #include "Frustum.h"
 #include "GameManager.h"
 #include "GameplayScreen.h"
@@ -212,18 +211,18 @@ void MainMenuScreen::initUI() {
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
-    std::cout << "Loading Game: " << fileName << std::endl;
+    //std::cout << "Loading Game: " << fileName << std::endl;
 
-    initSaveIomanager(fileName);
+    //initSaveIomanager(fileName);
 
-    // Check the planet string
-    nString planetName = fileManager.getWorldString(fileName + "/World/");
-    if (planetName == "") {
-        std::cout << "NO PLANET NAME";
-        return;
-    }
+    //// Check the planet string
+    //nString planetName = fileManager.getWorldString(fileName + "/World/");
+    //if (planetName == "") {
+    //    std::cout << "NO PLANET NAME";
+    //    return;
+    //}
 
-    m_state = vui::ScreenState::CHANGE_NEXT;
+    //m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void MainMenuScreen::newGame(const nString& fileName) {

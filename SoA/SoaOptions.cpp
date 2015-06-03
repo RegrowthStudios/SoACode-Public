@@ -4,7 +4,6 @@
 #include <SDL/SDL.h>
 #include <Vorb/io/IOManager.h>
 
-#include "FileSystem.h"
 #include "GameManager.h"
 #include "InputMapper.h"
 

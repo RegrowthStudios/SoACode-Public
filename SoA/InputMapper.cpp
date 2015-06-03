@@ -5,7 +5,6 @@
 #include <Vorb/io/IOManager.h>
 
 #include "global.h"
-#include "FileSystem.h"
 #include "GameManager.h"
 #include "Inputs.h"
 

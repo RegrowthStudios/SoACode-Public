@@ -221,9 +221,6 @@
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystem.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
     <ClInclude Include="FloraGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
@@ -800,9 +797,6 @@
     </ClCompile>
     <ClCompile Include="Errors.cpp">
       <Filter>SOA Files\Ext</Filter>
-    </ClCompile>
-    <ClCompile Include="FileSystem.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
     </ClCompile>
     <ClCompile Include="FloraGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>

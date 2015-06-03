@@ -12,7 +12,6 @@
 #include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "DebugRenderer.h"
-#include "FileSystem.h"
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "SoaOptions.h"
