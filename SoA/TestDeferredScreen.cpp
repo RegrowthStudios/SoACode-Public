@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TestDeferredScreen.h"
 
-
+#include "ShaderLoader.h"
 #include <Vorb/colors.h>
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/graphics/GLRenderTarget.h>
@@ -65,61 +65,18 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     vio::IOManager iom;
     const cString src;
 
-    m_deferredPrograms.clear.init();
-    src = iom.readFileToString("Shaders/Deferred/Clear.vert");
-    m_deferredPrograms.clear.addShader(vg::ShaderType::VERTEX_SHADER, src);
-    delete[] src;
-    src = iom.readFileToString("Shaders/Deferred/Clear.frag");
-    m_deferredPrograms.clear.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-    delete[] src;
-    m_deferredPrograms.clear.setAttribute("vPosition", 0);
-    m_deferredPrograms.clear.link();
-    m_deferredPrograms.clear.initAttributes();
-    m_deferredPrograms.clear.initUniforms();
+    { // Init Shaders
+        m_deferredPrograms.clear = ShaderLoader::createProgramFromFile("Shaders/Deferred/Clear.vert",
+                                                                       "Shaders/Deferred/Clear.frag");
 
-    m_deferredPrograms.composition.init();
-    src = iom.readFileToString("Shaders/Deferred/Composition.vert");
-    m_deferredPrograms.composition.addShader(vg::ShaderType::VERTEX_SHADER, src);
-    delete[] src;
-    src = iom.readFileToString("Shaders/Deferred/Composition.frag");
-    m_deferredPrograms.composition.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-    delete[] src;
-    m_deferredPrograms.composition.setAttribute("vPosition", 0);
-    m_deferredPrograms.composition.link();
-    m_deferredPrograms.composition.initAttributes();
-    m_deferredPrograms.composition.initUniforms();
+        m_deferredPrograms.composition = ShaderLoader::createProgramFromFile("Shaders/Deferred/Composition.vert",
+                                                                             "Shaders/Deferred/Composition.frag");
 
-    {
-        m_deferredPrograms.geometry["Basic"] = vg::GLProgram(false);
-        vg::GLProgram& p = m_deferredPrograms.geometry["Basic"];
-        p.init();
-        src = iom.readFileToString("Shaders/Deferred/Geometry.vert");
-        p.addShader(vg::ShaderType::VERTEX_SHADER, src);
-        delete[] src;
-        src = iom.readFileToString("Shaders/Deferred/Geometry.frag");
-        p.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-        delete[] src;
-        p.link();
-        p.initAttributes();
-        p.initUniforms();
-    }
-    {
-        m_deferredPrograms.light["Directional"] = vg::GLProgram(false);
-        vg::GLProgram& p = m_deferredPrograms.light["Directional"];
-        p.init();
-        src = iom.readFileToString("Shaders/Deferred/LightDirectional.vert");
-        p.addShader(vg::ShaderType::VERTEX_SHADER, src);
-        delete[] src;
-        vg::ShaderSource srcFrag;
-        srcFrag.stage = vg::ShaderType::FRAGMENT_SHADER;
-        srcFrag.sources.push_back(iom.readFileToString("Shaders/Deferred/LightModels.glsl"));
-        srcFrag.sources.push_back(iom.readFileToString("Shaders/Deferred/LightDirectional.frag"));
-        p.addShader(srcFrag);
-        delete[] srcFrag.sources[0];
-        delete[] srcFrag.sources[1];
-        p.link();
-        p.initAttributes();
-        p.initUniforms();
+        m_deferredPrograms.geometry["Basic"] = ShaderLoader::createProgramFromFile("Shaders/Deferred/Geometry.vert",
+                                                                                   "Shaders/Deferred/Geometry.frag");
+
+        m_deferredPrograms.light["Directional"] = ShaderLoader::createProgramFromFile("Shaders/Deferred/LightDirectional.vert",
+                                                                                      "Shaders/Deferred/LightDirectional.frag");
     }
     m_quad.init(0);
 
