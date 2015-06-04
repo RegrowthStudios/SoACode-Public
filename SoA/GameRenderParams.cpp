@@ -19,9 +19,10 @@ void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
     chunkMeshmanager = ChunkMeshmanager;
 
     // Calculate fog
-    glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
-    float theta = (f32)glm::dot(VoxelSpaceConversions::voxelToWorld(voxPosition, voxelWorldRadius), f64v3(lightPos));
-
+    f32v3 lightPos = f32v3(1.0, 0.0, 0.0);
+  
+   // float theta = (f32)glm::dot(VoxelSpaceConversions::voxelToWorld(voxPosition, voxelWorldRadius), f64v3(lightPos));
+    f32 theta = 1.0f;
     calculateFog(theta, isUnderwater);
     calculateSunlight(theta);
 }

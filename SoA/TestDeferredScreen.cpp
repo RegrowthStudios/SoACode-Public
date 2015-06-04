@@ -62,9 +62,6 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_sb.init();
 
-    vio::IOManager iom;
-    const cString src;
-
     { // Init Shaders
         m_deferredPrograms.clear = ShaderLoader::createProgramFromFile("Shaders/Deferred/Clear.vert",
                                                                        "Shaders/Deferred/Clear.frag");
@@ -78,6 +75,7 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
         m_deferredPrograms.light["Directional"] = ShaderLoader::createProgramFromFile("Shaders/Deferred/LightDirectional.vert",
                                                                                       "Shaders/Deferred/LightDirectional.frag");
     }
+
     m_quad.init(0);
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
