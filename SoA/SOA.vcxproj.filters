@@ -766,6 +766,9 @@
     <ClInclude Include="ImageAssetLoader.h">
       <Filter>SOA Files\Client\Asset</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderAssetLoader.h">
+      <Filter>SOA Files\Client\Asset</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1245,6 +1248,9 @@
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
     <ClCompile Include="ImageAssetLoader.cpp">
+      <Filter>SOA Files\Client\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderAssetLoader.cpp">
       <Filter>SOA Files\Client\Asset</Filter>
     </ClCompile>
   </ItemGroup>
