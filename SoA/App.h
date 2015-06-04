@@ -5,6 +5,7 @@
 
 #include <Vorb/ui/MainGame.h>
 #include "SoaOptions.h"
+#include "CommonState.h"
 
 class DevScreen;
 class InitScreen;
@@ -29,6 +30,8 @@ public:
 
     DevScreen* scrDev = nullptr;
     std::vector<vui::IGameScreen*> scrTests;
+
+    CommonState state;
 };
 
 #endif // App_h_

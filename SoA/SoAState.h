@@ -34,7 +34,7 @@ class PlanetLoader;
 class SoaOptions;
 DECL_VIO(class IOManager);
 
-class SoaState {
+struct SoaState {
 public:
     ~SoaState();
 

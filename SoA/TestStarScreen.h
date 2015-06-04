@@ -29,7 +29,7 @@
 #include <Vorb/ui/IGameScreen.h>
 
 class HdrRenderStage;
-class SoaState;
+struct SoaState;
 class App;
 
 class TestStarScreen : public vui::IAppScreen<App> {

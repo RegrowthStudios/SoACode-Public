@@ -4,7 +4,9 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/ui/ScreenList.h>
 #include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/sound/SoundEngine.h>
 
+#include "CommonState.h"
 #include "DevScreen.h"
 #include "GameManager.h"
 #include "GameplayScreen.h"
@@ -19,10 +21,10 @@
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
+#include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
 #include "TestMappingScreen.h"
 #include "TestStarScreen.h"
-#include "TestDisplacementMappingScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);
@@ -74,6 +76,9 @@ void App::addScreens() {
 
 void App::onInit() {
     
+    state.soundEngine = new vsound::Engine;
+    state.soundEngine->init();
+
     // Load the game options
     SoaEngine::initOptions(soaOptions);
 

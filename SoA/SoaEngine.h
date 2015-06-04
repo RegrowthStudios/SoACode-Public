@@ -21,7 +21,7 @@
 #include "SpaceSystemLoader.h"
 
 class GameSystem;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 
 DECL_VCORE(class RPCManager)

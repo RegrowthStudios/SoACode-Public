@@ -30,7 +30,7 @@
 /// Forward declarations
 class Camera;
 class MainMenuSystemViewer;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 class MainMenuScriptedUI;
 DECL_VUI(struct WindowResizeEvent; class GameWindow);

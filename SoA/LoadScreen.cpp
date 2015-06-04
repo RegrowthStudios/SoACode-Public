@@ -30,7 +30,9 @@ const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
 const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 
-CTOR_APP_SCREEN_DEF(LoadScreen, App),
+LoadScreen::LoadScreen(const App* app, CommonState* state) :
+IAppScreen<App>(app),
+m_commonState(state),
 m_sf(nullptr),
 m_sb(nullptr),
 m_monitor(),
@@ -62,8 +64,7 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     MusicPlayer mp;
     mp.refreshLists(fs);
 
-    m_soaState = std::make_unique<SoaState>();
-    SoaEngine::initState(m_soaState.get());
+    SoaEngine::initState(m_commonState->state);
 
     // Make LoadBar Resources
     m_sb = new vg::SpriteBatch(true, true);
@@ -162,7 +163,7 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
         for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
 
         // Post process the planets
-        SoaEngine::setPlanetBlocks(m_soaState.get());
+        SoaEngine::setPlanetBlocks(m_commonState->state);
         m_state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
     

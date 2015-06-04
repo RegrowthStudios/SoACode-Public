@@ -34,7 +34,7 @@
 class App;
 class GameSystem;
 class MainMenuSystemViewer;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 class SpriteBatch;
 class SpriteFont;

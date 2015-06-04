@@ -24,7 +24,7 @@ class SpaceSystem;
 #include <Vorb/graphics/gtypes.h>
 
 struct PlanetGenData;
-class SoaState;
+struct SoaState;
 struct GasGiantKegProperties;
 struct PlanetKegProperties;
 struct StarKegProperties;

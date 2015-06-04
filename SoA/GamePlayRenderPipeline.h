@@ -57,7 +57,7 @@ class PdaRenderStage;
 class PhysicsBlockRenderStage;
 class Player;
 class SkyboxRenderStage;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;

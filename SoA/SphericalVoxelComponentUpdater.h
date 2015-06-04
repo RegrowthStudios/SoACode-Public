@@ -23,7 +23,7 @@ class GameSystem;
 class GenerateTask;
 class GeneratedTreeNodes;
 class RenderTask;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 struct AxisRotationComponent;
 struct NamePositionComponent;

@@ -33,8 +33,9 @@ class App;
 class InputMapper;
 class LoadScreen;
 class MainMenuSystemViewer;
-class SoaState;
 class SpaceSystemUpdater;
+struct CommonState;
+struct SoaState;
 
 DECL_VSOUND(class Engine)
 DECL_VUI(struct WindowResizeEvent);
@@ -44,7 +45,7 @@ class AmbiencePlayer;
 class MainMenuScreen : public vui::IAppScreen<App> {
     friend class MainMenuScriptedUI;
 public:
-    MainMenuScreen(const App* app, vui::GameWindow* window, const LoadScreen* loadScreen);
+    MainMenuScreen(const App* app, CommonState* state);
     ~MainMenuScreen();
 
     virtual i32 getNextScreen() const;
@@ -101,7 +102,7 @@ private:
     void onToggleWireframe(Sender s, ui32 i);
     // ----------------------------------------------
 
-    const LoadScreen* m_loadScreen = nullptr;
+    CommonState* m_commonState = nullptr;
     SoaState* m_soaState = nullptr;
 
     vio::IOManager m_ioManager; ///< Helper class for IO operations
@@ -119,8 +120,6 @@ private:
 
     MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
 
-    // TODO: Remove to a client state
-    vsound::Engine* m_engine = nullptr;
     AmbienceLibrary* m_ambLibrary = nullptr;
     AmbiencePlayer* m_ambPlayer = nullptr;
     vui::GameWindow* m_window = nullptr;

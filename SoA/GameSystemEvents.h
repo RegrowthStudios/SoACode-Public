@@ -20,7 +20,7 @@
 #include "InputMapper.h"
 
 class GameSystemUpdater;
-class SoaState;
+struct SoaState;
 
 class GameSystemEvents {
 public:

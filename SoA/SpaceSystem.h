@@ -43,7 +43,7 @@ class Binary;
 class Camera;
 class GameSystem;
 class PlanetLoader;
-class SoaState;
+struct SoaState;
 class SpriteBatch;
 class SpriteFont;
 struct GasGiantKegProperties;

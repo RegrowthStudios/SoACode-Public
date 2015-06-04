@@ -23,7 +23,7 @@
 
 class SpaceSystem;
 class GameSystem;
-class SoaState;
+struct SoaState;
 
 class SpaceSystemUpdater {
 public:

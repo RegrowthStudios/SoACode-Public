@@ -32,7 +32,7 @@ class GameSystem;
 class GameSystemUpdater;
 class InputMapper;
 class MainMenuScreen;
-class SoaState;
+struct SoaState;
 class SpaceSystemUpdater;
 class SpriteBatch;
 class SpriteFont;

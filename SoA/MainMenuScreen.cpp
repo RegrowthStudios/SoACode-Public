@@ -30,12 +30,13 @@
 #include "TerrainPatch.h"
 #include "VoxelEditor.h"
 
-MainMenuScreen::MainMenuScreen(const App* app, vui::GameWindow* window, const LoadScreen* loadScreen) :
+MainMenuScreen::MainMenuScreen(const App* app, CommonState* state) :
     IAppScreen<App>(app),
-    m_loadScreen(loadScreen),
     m_updateThread(nullptr),
     m_threadRunning(false),
-    m_window(window) {
+    m_commonState(state),
+    m_soaState(state->state),
+    m_window(state->window) {
     // Empty
 }
 
@@ -62,8 +63,7 @@ void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
 void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Get the state handle
-    m_soaState = m_loadScreen->getSoAState();
-    m_mainMenuSystemViewer = &m_soaState->systemViewer;
+    m_mainMenuSystemViewer = m_soaState->systemViewer.get();
 
     m_soaState->spaceCamera.init(m_window->getAspectRatio());
     
@@ -73,8 +73,6 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                       &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
 
-    m_engine = new vsound::Engine;
-    m_engine->init();
     m_ambLibrary = new AmbienceLibrary;
     m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
     m_ambLibrary->addTrack("Menu", "Brethren", "Data/Sound/Music/Brethren.mp3");
@@ -123,10 +121,8 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     delete m_inputMapper;
 
     m_ambPlayer->dispose();
-    m_engine->dispose();
     delete m_ambLibrary;
     delete m_ambPlayer;
-    delete m_engine;
 }
 
 void MainMenuScreen::update(const vui::GameTime& gameTime) {
@@ -166,7 +162,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     bdt += glSpeedFactor * 0.01f;
 
     m_ambPlayer->update((f32)gameTime.elapsed);
-    m_engine->update(vsound::Listener());
+    m_commonState->soundEngine->update(vsound::Listener());
 }
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
@@ -274,7 +270,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     loadData.filePath = "StarSystems/Trinity";
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_soaState->spaceCamera; // Store camera so the view doesn't change
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
+    m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_soaState->spaceCamera = tmp; // Restore old camera
     m_renderPipeline.dispose();
