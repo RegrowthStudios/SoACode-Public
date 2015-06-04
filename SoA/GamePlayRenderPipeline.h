@@ -81,10 +81,10 @@ public:
 
     /// Renders the pipeline.
     /// Make sure to call setRenderState first.
-    virtual void render() override;
+    virtual void render();
 
     /// Frees all resources
-    virtual void destroy(bool shouldDisposeStages) override;
+    virtual void destroy(bool shouldDisposeStages);
 
     /// Cycles the dev hud
     /// @param offset: How much to offset the current mode

@@ -9,7 +9,7 @@
 #include "LoadBar.h"
 
 class App;
-struct SoaState;
+struct CommonState;
 DECL_VG(class SpriteBatch; class SpriteFont);
 
 class LoadScreen : public vui::IAppScreen<App> {

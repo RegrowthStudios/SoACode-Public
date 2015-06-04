@@ -77,7 +77,7 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
     m_monitor.setDep("BlockData", "GameManager");
 
-    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_soaState.get()));
+    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_commonState->state));
     m_monitor.setDep("SpaceSystem", "GameManager");
 
     // TODO(Ben): Uncomment after demo build!

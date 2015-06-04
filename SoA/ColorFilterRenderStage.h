@@ -24,7 +24,7 @@ public:
     void hook(vg::FullQuadVBO* quad);
 
     /// Draws the render stage
-    virtual void render(const Camera* camera) override;
+    virtual void render(const Camera* camera = nullptr) override;
 
     void setColor(const f32v4 color) { m_color = color; }
 private:

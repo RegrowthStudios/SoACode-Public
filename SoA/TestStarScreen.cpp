@@ -103,7 +103,8 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, 0).initDepth();
 
     m_quad.init();
-    m_hdr.init(&m_quad, &m_camera);
+    // TODO(Ben): BROKEN
+    //m_hdr.init(&m_quad, &m_camera);
 
     m_camera.setFieldOfView(90.0f);
     f32 width = (f32)m_game->getWindow().getWidth();

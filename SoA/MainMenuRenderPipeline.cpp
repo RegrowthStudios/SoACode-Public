@@ -103,7 +103,7 @@ void MainMenuRenderPipeline::hook(SoaState* state) {
     stages.skybox.hook(state);
     stages.spaceSystem.hook(state, &state->spaceCamera);
     stages.colorFilter.hook(&m_quad);
-    stages.exposureCalc.hook(&m_quad, &m_hdrTarget, &m_viewport);
+    stages.exposureCalc.hook(&m_quad, &m_hdrTarget, &m_viewport, 1024);
     stages.hdr.hook(&m_quad);
 }
 

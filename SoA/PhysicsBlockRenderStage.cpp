@@ -16,7 +16,7 @@ PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderPar
     // Empty
 }
 
-void PhysicsBlockRenderStage::render() {
+void PhysicsBlockRenderStage::render(const Camera* camera) {
 
     _glProgram->use();
 

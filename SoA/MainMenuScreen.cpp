@@ -81,7 +81,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Sound/Music/Toxic Haze.mp3");
     m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Sound/Music/BGM Unknown.mp3");
     m_ambPlayer = new AmbiencePlayer;
-    m_ambPlayer->init(m_engine, m_ambLibrary);
+    m_ambPlayer->init(m_commonState->soundEngine, m_ambLibrary);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_spaceSystemUpdater->init(m_soaState);
@@ -116,7 +116,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_threadRunning = false;
     //m_updateThread->join();
     //delete m_updateThread;
-    m_renderPipeline.dispose();
+    m_renderPipeline.dispose(m_commonState->loadContext);
 
     delete m_inputMapper;
 
@@ -196,10 +196,7 @@ void MainMenuScreen::initInput() {
 }
 
 void MainMenuScreen::initRenderPipeline() {
-    // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, m_window->getViewportDims());
-    m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_soaState->spaceCamera,
-                          m_mainMenuSystemViewer.get());
+    m_renderPipeline.init(m_window, m_commonState->loadContext);
 }
 
 void MainMenuScreen::initUI() {
@@ -273,8 +270,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_soaState->spaceCamera = tmp; // Restore old camera
-    m_renderPipeline.dispose();
-    m_renderPipeline = MainMenuRenderPipeline();
+    m_renderPipeline.dispose(m_commonState->loadContext);
     initRenderPipeline();
 }
 

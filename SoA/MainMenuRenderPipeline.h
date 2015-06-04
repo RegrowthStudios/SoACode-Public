@@ -36,7 +36,7 @@ class MainMenuScriptedUI;
 DECL_VUI(struct WindowResizeEvent; class GameWindow);
 
 class MainMenuRenderPipeline {
-
+public:
     /// Initializes the pipeline and passes dependencies
     void init(vui::GameWindow* window, LoadContext& context);
 
