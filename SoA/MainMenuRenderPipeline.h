@@ -21,16 +21,16 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/Events.hpp>
 
+#include "ExposureCalcRenderStage.h"
+#include "SpaceSystemRenderStage.h"
+#include "ColorFilterRenderStage.h"
+#include "SkyboxRenderStage.h"
+
 /// Forward declarations
 class Camera;
-class ColorFilterRenderStage;
-class HdrRenderStage;
-class ExposureCalcRenderStage;
 class MainMenuSystemViewer;
-class SkyboxRenderStage;
 class SoaState;
 class SpaceSystem;
-class SpaceSystemRenderStage;
 class MainMenuScriptedUI;
 DECL_VUI(struct WindowResizeEvent);
 
@@ -61,16 +61,19 @@ public:
     void toggleAR() { m_showAR = !m_showAR; }
     void toggleWireframe() { m_wireframe = !m_wireframe; }
     void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
+
+    struct {
+        ColorFilterRenderStage colorFilter;
+        SkyboxRenderStage skybox;
+        HdrRenderStage hdr;
+        SpaceSystemRenderStage spaceSystem;
+        ExposureCalcRenderStage exposureCalc;
+    } stages;
+
 private:
     void initFramebuffer();
     void resize();
     void dumpScreenshot();
-
-    ColorFilterRenderStage* m_colorFilterRenderStage = nullptr; ///< Renders a color filter
-    SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
-    HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
-    SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Renders space system
-    ExposureCalcRenderStage* m_logLuminanceRenderStage = nullptr; ///< Renders log luminance for tonemapping
 
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2>* m_swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing

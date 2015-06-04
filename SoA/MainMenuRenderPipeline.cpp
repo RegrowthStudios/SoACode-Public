@@ -7,23 +7,18 @@
 #include <Vorb/utils.h>
 #include <Vorb/ui/InputDispatcher.h>
 
-#include "ColorFilterRenderStage.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "HdrRenderStage.h"
-#include "ExposureCalcRenderStage.h"
+
 #include "SoaOptions.h"
-#include "SkyboxRenderStage.h"
 #include "SoaState.h"
-#include "SpaceSystemRenderStage.h"
 #include "soaUtils.h"
 #include "MainMenuScriptedUI.h"
-
 
 MainMenuRenderPipeline::MainMenuRenderPipeline() {
     // Empty
 }
-
 
 MainMenuRenderPipeline::~MainMenuRenderPipeline() {
     destroy(true);
@@ -75,13 +70,13 @@ void MainMenuRenderPipeline::render() {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    m_skyboxRenderStage->render();
+    stages.skybox.render();
 
     // Check fore wireframe mode
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    m_spaceSystemRenderStage->setShowAR(m_showAR);
-    m_spaceSystemRenderStage->render();
+    stages.spaceSystem.setShowAR(m_showAR);
+    stages.spaceSystem.render();
 
     // Restore fill
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -92,20 +87,20 @@ void MainMenuRenderPipeline::render() {
         switch (m_colorFilter) {
             case 1:
                 colorFilter = f32v3(0.66f);
-                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
+                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
             case 2:
                 colorFilter = f32v3(0.3f);
-                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
+                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
             case 3:
                 colorFilter = f32v3(0.0f);
-                m_colorFilterRenderStage->setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
+                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
         }
-        m_colorFilterRenderStage->render();
+        stages.colorFilter.render();
     }
 
     // Render last
     glBlendFunc(GL_ONE, GL_ONE);
-    m_spaceSystemRenderStage->renderStarGlows(colorFilter);
+    stages.spaceSystem.renderStarGlows(colorFilter);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
@@ -118,16 +113,16 @@ void MainMenuRenderPipeline::render() {
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    m_logLuminanceRenderStage->render();
+    stages.exposureCalc.render();
     // Move exposure towards target
     static const f32 EXPOSURE_STEP = 0.005f;
-    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, m_logLuminanceRenderStage->getExposure(), EXPOSURE_STEP);
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
-    m_hdrRenderStage->render();
+    stages.hdr.render();
 
     if (m_showUI) m_mainMenuUI->draw();
 
@@ -184,8 +179,8 @@ void MainMenuRenderPipeline::resize() {
     delete m_swapChain;
     initFramebuffer();
 
-    m_spaceSystemRenderStage->setViewport(m_newDims);
-    m_logLuminanceRenderStage->setFrameBuffer(m_hdrFrameBuffer);
+    stages.spaceSystem.setViewport(m_newDims);
+    stages.exposureCalc.setFrameBuffer(m_hdrFrameBuffer);
 
     m_mainMenuUI->setDimensions(f32v2(m_newDims));
 
