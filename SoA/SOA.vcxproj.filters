@@ -416,9 +416,6 @@
     <ClInclude Include="GameRenderParams.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
     <ClInclude Include="HdrRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
@@ -689,9 +686,6 @@
     <ClInclude Include="ColoredFullQuadRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameplayRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
     <ClInclude Include="InputMapper.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
@@ -774,6 +768,12 @@
     </ClInclude>
     <ClInclude Include="CommonState.h">
       <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuRenderer.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayRenderer.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -968,9 +968,6 @@
     </ClCompile>
     <ClCompile Include="TransparentVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClCompile>
     <ClCompile Include="HdrRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -1198,9 +1195,6 @@
     <ClCompile Include="ColoredFullQuadRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="GameplayRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
     <ClCompile Include="InputMapper.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
@@ -1262,6 +1256,12 @@
     </ClCompile>
     <ClCompile Include="ExposureCalcRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuRenderer.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayRenderer.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

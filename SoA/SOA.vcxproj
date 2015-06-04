@@ -562,7 +562,7 @@ EXIT 0</Command>
     <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
-    <ClInclude Include="GameplayRenderPipeline.h" />
+    <ClInclude Include="GameplayRenderer.h" />
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GameSystem.h" />
@@ -582,7 +582,7 @@ EXIT 0</Command>
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="ExposureCalcRenderStage.h" />
-    <ClInclude Include="MainMenuRenderPipeline.h" />
+    <ClInclude Include="MainMenuRenderer.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
@@ -762,7 +762,7 @@ EXIT 0</Command>
     <ClCompile Include="FarTerrainPatch.cpp" />
     <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FrustumComponentUpdater.cpp" />
-    <ClCompile Include="GameplayRenderPipeline.cpp" />
+    <ClCompile Include="GameplayRenderer.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GameSystem.cpp" />
@@ -778,7 +778,7 @@ EXIT 0</Command>
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="ExposureCalcRenderStage.cpp" />
-    <ClCompile Include="MainMenuRenderPipeline.cpp" />
+    <ClCompile Include="MainMenuRenderer.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />

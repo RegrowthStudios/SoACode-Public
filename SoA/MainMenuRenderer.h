@@ -1,5 +1,5 @@
 /// 
-///  MainMenuRenderPipeline.h
+///  MainMenuRenderer.h
 ///  Seed of Andromeda
 ///
 ///  Created by Benjamin Arnold on 1 Nov 2014
@@ -11,8 +11,8 @@
 
 #pragma once
 
-#ifndef MainMenuRenderPipeline_h__
-#define MainMenuRenderPipeline_h__
+#ifndef MainMenuRenderer_h__
+#define MainMenuRenderer_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
@@ -35,7 +35,7 @@ class SpaceSystem;
 class MainMenuScriptedUI;
 DECL_VUI(struct WindowResizeEvent; class GameWindow);
 
-class MainMenuRenderPipeline {
+class MainMenuRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
     void init(vui::GameWindow* window, LoadContext& context);
@@ -95,4 +95,4 @@ private:
     int m_colorFilter = 0;
 };
 
-#endif // MainMenuRenderPipeline_h__
+#endif // MainMenuRenderer_h__

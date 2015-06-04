@@ -1,5 +1,5 @@
 /// 
-///  GamePlayRenderPipeline.h
+///  GameplayRenderer.h
 ///  Seed of Andromeda
 ///
 ///  Created by Benjamin Arnold on 1 Nov 2014
@@ -11,8 +11,8 @@
 ///
 #pragma once
 
-#ifndef GamePlayRenderPipeline_h__
-#define GamePlayRenderPipeline_h__
+#ifndef GamePlayRenderer_h__
+#define GamePlayRenderer_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
@@ -62,10 +62,10 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
-class GameplayRenderPipeline{
+class GameplayRenderer {
 public:
-    GameplayRenderPipeline();
-    ~GameplayRenderPipeline();
+    GameplayRenderer();
+    ~GameplayRenderer();
 
     /// Initializes the pipeline and passes dependencies
     /// @param viewport: The viewport to draw to.
@@ -144,4 +144,4 @@ private:
     bool m_shouldScreenshot = false;
 };
 
-#endif // GamePlayRenderPipeline_h__
+#endif // GamePlayRenderer_h__

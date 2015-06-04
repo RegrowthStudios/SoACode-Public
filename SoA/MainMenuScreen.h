@@ -23,7 +23,7 @@
 #include <Vorb/ui/IGameScreen.h>
 
 #include "LoadMonitor.h"
-#include "MainMenuRenderPipeline.h"
+#include "MainMenuRenderer.h"
 #include "MainMenuScriptedUI.h"
 #include "Camera.h"
 #include <Vorb/ui/FormScriptEnvironment.h>
@@ -114,7 +114,7 @@ private:
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
-    MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
+    MainMenuRenderer m_renderPipeline; ///< This handles all rendering for the main menu
     MainMenuScriptedUI m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
 

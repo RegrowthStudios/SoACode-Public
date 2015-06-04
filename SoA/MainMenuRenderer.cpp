@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "MainMenuRenderPipeline.h"
+#include "MainMenuRenderer.h"
 
 #include <Vorb/graphics/TextureCache.h>
 #include <Vorb/io/IOManager.h>
@@ -17,9 +17,9 @@
 #include "soaUtils.h"
 #include "MainMenuScriptedUI.h"
 
-void MainMenuRenderPipeline::init(vui::GameWindow* window, LoadContext& context) {
+void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context) {
     m_window = window;
-    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
+    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
     // Init render stages
     stages.skybox.init(window, context);
@@ -29,8 +29,8 @@ void MainMenuRenderPipeline::init(vui::GameWindow* window, LoadContext& context)
     stages.hdr.init(window, context);
 }
 
-void MainMenuRenderPipeline::dispose(LoadContext& context) {
-    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
+void MainMenuRenderer::dispose(LoadContext& context) {
+    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
     // Kill the builder
     if (loadThread) {
@@ -52,7 +52,7 @@ void MainMenuRenderPipeline::dispose(LoadContext& context) {
     m_isInitialized = false;
 }
 
-void MainMenuRenderPipeline::load(LoadContext& context) {
+void MainMenuRenderer::load(LoadContext& context) {
     loaded = false;
 
     loadThread = new std::thread([&]() {
@@ -98,7 +98,7 @@ void MainMenuRenderPipeline::load(LoadContext& context) {
     loadThread->detach();
 }
 
-void MainMenuRenderPipeline::hook(SoaState* state) {
+void MainMenuRenderer::hook(SoaState* state) {
     m_state = state;
     stages.skybox.hook(state);
     stages.spaceSystem.hook(state, &state->spaceCamera);
@@ -107,12 +107,12 @@ void MainMenuRenderPipeline::hook(SoaState* state) {
     stages.hdr.hook(&m_quad);
 }
 
-void MainMenuRenderPipeline::updateGL() {
+void MainMenuRenderer::updateGL() {
     // TODO(Ben): Experiment with more requests
     m_glrpc.processRequests(1);
 }
 
-void MainMenuRenderPipeline::render() {
+void MainMenuRenderer::render() {
     
     // Check for window resize
     if (m_shouldResize) resize();
@@ -185,12 +185,12 @@ void MainMenuRenderPipeline::render() {
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
-void MainMenuRenderPipeline::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+void MainMenuRenderer::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     m_newDims = ui32v2(e.w, e.h);
     m_shouldResize = true;
 }
 
-void MainMenuRenderPipeline::resize() {
+void MainMenuRenderer::resize() {
     m_viewport.z = m_newDims.x;
     m_viewport.w = m_newDims.y;
 
@@ -209,7 +209,7 @@ void MainMenuRenderPipeline::resize() {
     m_shouldResize = false;
 }
 
-void MainMenuRenderPipeline::dumpScreenshot() {
+void MainMenuRenderer::dumpScreenshot() {
     // Make screenshots directory
     vio::buildDirectoryTree("Screenshots");
     // Take screenshot

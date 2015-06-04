@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GameplayRenderPipeline.h"
+#include "GameplayRenderer.h"
 
 #include <Vorb/graphics/GLStates.h>
 
@@ -17,11 +17,11 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-GameplayRenderPipeline::GameplayRenderPipeline() {
+GameplayRenderer::GameplayRenderer() {
     // Empty
 }
 
-void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
+void GameplayRenderer::init(const ui32v4& viewport, const SoaState* soaState, const App* app,
                                   const PDA* pda,
                                   SpaceSystem* spaceSystem,
                                   GameSystem* gameSystem,
@@ -91,15 +91,15 @@ void GameplayRenderPipeline::init(const ui32v4& viewport, const SoaState* soaSta
     //stages.chunkGrid.setActive(false);
 }
 
-void GameplayRenderPipeline::setRenderState(const MTRenderState* renderState) {
+void GameplayRenderer::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-GameplayRenderPipeline::~GameplayRenderPipeline() {
+GameplayRenderer::~GameplayRenderer() {
     destroy(true);
 }
 
-void GameplayRenderPipeline::render() {
+void GameplayRenderer::render() {
     //const GameSystem* gameSystem = m_soaState->gameSystem.get();
     //const SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
 
@@ -200,7 +200,7 @@ void GameplayRenderPipeline::render() {
     //checkGlError("GamePlayRenderPipeline::render()");
 }
 
-void GameplayRenderPipeline::destroy(bool shouldDisposeStages) {
+void GameplayRenderer::destroy(bool shouldDisposeStages) {
     //
     //// Call base destroy
     //RenderPipeline::destroy(shouldDisposeStages);
@@ -216,11 +216,11 @@ void GameplayRenderPipeline::destroy(bool shouldDisposeStages) {
     //m_quad.dispose();
 }
 
-void GameplayRenderPipeline::cycleDevHud(int offset /* = 1 */) {
+void GameplayRenderer::cycleDevHud(int offset /* = 1 */) {
     stages.devHud.cycleMode(offset);
 }
 
-void GameplayRenderPipeline::toggleNightVision() {
+void GameplayRenderer::toggleNightVision() {
     if (!stages.nightVision.isActive()) {
         stages.nightVision.setActive(true);
         m_nvIndex = 0;
@@ -235,7 +235,7 @@ void GameplayRenderPipeline::toggleNightVision() {
     }
 }
 
-void GameplayRenderPipeline::loadNightVision() {
+void GameplayRenderer::loadNightVision() {
     stages.nightVision.setActive(false);
 
     m_nvIndex = 0;
@@ -262,11 +262,11 @@ void GameplayRenderPipeline::loadNightVision() {
     }
 }
 
-void GameplayRenderPipeline::toggleChunkGrid() {
+void GameplayRenderer::toggleChunkGrid() {
     stages.chunkGrid.toggleActive();
 }
 
-void GameplayRenderPipeline::updateCameras() {
+void GameplayRenderer::updateCameras() {
     const GameSystem* gs = m_soaState->gameSystem.get();
     const SpaceSystem* ss = m_soaState->spaceSystem.get();
 
@@ -304,7 +304,7 @@ void GameplayRenderPipeline::updateCameras() {
     m_spaceCamera.update();
 }
 
-void GameplayRenderPipeline::dumpScreenshot() {
+void GameplayRenderer::dumpScreenshot() {
     // Make screenshots directory
     vio::IOManager().makeDirectory("Screenshots");
     // Take screenshot
