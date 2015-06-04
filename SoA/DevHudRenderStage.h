@@ -15,7 +15,7 @@
 #ifndef DevHudRenderStage_h__
 #define DevHudRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 #include <Vorb/VorbPreDecl.inl>
 
 DECL_VG(class SpriteBatch;
@@ -23,7 +23,7 @@ DECL_VG(class SpriteBatch;
 
 class App;
 
-class DevHudRenderStage : public vg::IRenderStage{
+class DevHudRenderStage : public IRenderStage{
 public:
     DevHudRenderStage();
     ~DevHudRenderStage();

@@ -17,13 +17,13 @@
 #ifndef CutoutVoxelRenderStage_h__
 #define CutoutVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class GameRenderParams;
 class Camera;
 class MeshManager;
 
-class CutoutVoxelRenderStage : public vg::IRenderStage {
+class CutoutVoxelRenderStage : public IRenderStage {
 public:
     CutoutVoxelRenderStage();
 

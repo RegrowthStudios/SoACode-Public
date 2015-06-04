@@ -15,13 +15,13 @@
 #define SkyboxRenderStage_h__
 
 #include "SkyboxRenderer.h"
+#include "IRenderStage.h"
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/IRenderStage.h>
 
 class Camera;
 class ModPathResolver;
 
-class SkyboxRenderStage : public vg::IRenderStage
+class SkyboxRenderStage : public IRenderStage
 {
 public:
     /// Constructor which injects dependencies

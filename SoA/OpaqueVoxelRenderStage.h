@@ -15,13 +15,13 @@
 #ifndef OpaqueVoxelRenderStage_h__
 #define OpaqueVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class GameRenderParams;
 class Camera;
 class MeshManager;
 
-class OpaqueVoxelRenderStage : public vg::IRenderStage
+class OpaqueVoxelRenderStage : public IRenderStage
 {
 public:
     /// Constructor which injects dependencies

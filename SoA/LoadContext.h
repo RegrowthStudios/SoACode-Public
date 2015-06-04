@@ -16,7 +16,6 @@
 #ifndef LoadContext_h__
 #define LoadContext_h__
 
-#include "GameMeshLoader.h"
 #include "ImageAssetLoader.h"
 #include "ShaderAssetLoader.h"
 
@@ -42,7 +41,6 @@ public:
 
     struct {
         ImageAssetLoader image;
-        GameMeshLoader mesh;
         ShaderAssetLoader shader;
     } loaders;
 

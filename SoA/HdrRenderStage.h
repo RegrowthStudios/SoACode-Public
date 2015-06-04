@@ -16,13 +16,14 @@
 #define HdrRenderStage_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/GLProgram.h>
 
+#include "IRenderStage.h"
+
 class Camera;
 
-class HdrRenderStage : public vg::IRenderStage {
+class HdrRenderStage : public IRenderStage {
 public:
     HdrRenderStage();
 

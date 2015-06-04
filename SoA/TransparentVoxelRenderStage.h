@@ -16,13 +16,13 @@
 #ifndef TransparentVoxelRenderStage_h__
 #define TransparentVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class GameRenderParams;
 class Camera;
 class MeshManager;
 
-class TransparentVoxelRenderStage : public vg::IRenderStage {
+class TransparentVoxelRenderStage : public IRenderStage {
 public:
     TransparentVoxelRenderStage();
 

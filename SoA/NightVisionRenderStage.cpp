@@ -68,14 +68,6 @@ void NightVisionRenderStage::setParams(NightVisionRenderParams& params) {
     glUniform3f(m_program.getUniform("unVisionColor"), params.color.r, params.color.g, params.color.b);
 }
 
-void NightVisionRenderStage::reloadShader() {
-    IRenderStage::reloadShader();
-    if (m_texNoise.id) {
-        glDeleteTextures(1, &m_texNoise.id);
-        m_texNoise.id = 0;
-    }
-}
-
 void NightVisionRenderStage::dispose() {
     IRenderStage::dispose();
     if (m_texNoise.id) {

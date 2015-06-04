@@ -16,15 +16,16 @@
 #define ExposureCalcRenderStage_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/script/Function.h>
 #include <Vorb/script/Environment.h>
 
+#include "IRenderStage.h"
+
 DECL_VG(class GLProgram);
 DECL_VG(class GLRenderTarget);
 
-class ExposureCalcRenderStage : public vg::IRenderStage {
+class ExposureCalcRenderStage : public IRenderStage {
 public:
     ExposureCalcRenderStage();
     ~ExposureCalcRenderStage();

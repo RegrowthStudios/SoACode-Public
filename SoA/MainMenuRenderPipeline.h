@@ -16,7 +16,6 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
-#include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/Events.hpp>
@@ -35,8 +34,7 @@ class SpaceSystem;
 class MainMenuScriptedUI;
 DECL_VUI(struct WindowResizeEvent);
 
-class MainMenuRenderPipeline : public vg::RenderPipeline 
-{
+class MainMenuRenderPipeline {
 public:
     MainMenuRenderPipeline();
     ~MainMenuRenderPipeline();

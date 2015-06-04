@@ -29,8 +29,9 @@
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/graphics/Texture.h>
+
+#include "IRenderStage.h"
 
 class NightVisionRenderParams {
 public:
@@ -46,17 +47,13 @@ public:
 KEG_TYPE_DECL(NightVisionRenderParams);
 
 /// Renders a night vision post-process effect
-class NightVisionRenderStage : public vg::IRenderStage {
+class NightVisionRenderStage : public IRenderStage {
 public:
     NightVisionRenderStage();
 
     void init(vg::FullQuadVBO* quad);
 
     void setParams(NightVisionRenderParams& params);
-
-    /// Reloads the shader. By default, it simply
-    /// disposes the shader and allows a lazy init at next draw
-    virtual void reloadShader() override;
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw

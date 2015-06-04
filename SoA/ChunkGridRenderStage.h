@@ -16,12 +16,12 @@
 #ifndef ChunkGridRenderStage_h__
 #define ChunkGridRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class GameRenderParams;
 class ChunkMemoryManager;
 
-class ChunkGridRenderStage : public vg::IRenderStage {
+class ChunkGridRenderStage : public IRenderStage {
 public:
     ChunkGridRenderStage();
     ~ChunkGridRenderStage();

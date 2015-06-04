@@ -17,9 +17,9 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
-class ColorFilterRenderStage : public vg::IRenderStage {
+class ColorFilterRenderStage : public IRenderStage {
 public:
     ColorFilterRenderStage();
     ~ColorFilterRenderStage();

@@ -16,7 +16,6 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
-#include <Vorb/graphics/RenderPipeline.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "Camera.h"
@@ -63,7 +62,7 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 
-class GameplayRenderPipeline : public vg::RenderPipeline {
+class GameplayRenderPipeline{
 public:
     GameplayRenderPipeline();
     ~GameplayRenderPipeline();

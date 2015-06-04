@@ -14,11 +14,11 @@
 #ifndef PdaRenderStage_h__
 #define PdaRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class PDA;
 
-class PdaRenderStage : public vg::IRenderStage {
+class PdaRenderStage : public IRenderStage {
 public:
     PdaRenderStage();
 

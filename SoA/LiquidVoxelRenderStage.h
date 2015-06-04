@@ -15,13 +15,12 @@
 #ifndef LiquidVoxelRenderStage_h__
 #define LiquidVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class MeshManager;
 class GameRenderParams;
 
-class LiquidVoxelRenderStage : public vg::IRenderStage
-{
+class LiquidVoxelRenderStage : public IRenderStage {
 public:
     LiquidVoxelRenderStage();
 

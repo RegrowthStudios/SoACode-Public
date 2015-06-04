@@ -15,13 +15,13 @@
 #ifndef SonarRenderStage_h__
 #define SonarRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class Camera;
 class GameRenderParams;
 class MeshManager;
 
-class SonarRenderStage : public vg::IRenderStage
+class SonarRenderStage : public IRenderStage
 {
 public:
     /// Constructor which injects dependencies

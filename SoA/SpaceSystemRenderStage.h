@@ -15,7 +15,6 @@
 #ifndef SpaceSystemRenderStage_h__
 #define SpaceSystemRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
 
@@ -30,6 +29,7 @@
 #include "SphericalTerrainComponentRenderer.h"
 #include "StarComponentRenderer.h"
 #include "SystemARRenderer.h"
+#include "IRenderStage.h"
 
 class App;
 class GameSystem;
@@ -40,7 +40,7 @@ class SpriteBatch;
 class SpriteFont;
 struct MTRenderState;
 
-class SpaceSystemRenderStage : public vg::IRenderStage {
+class SpaceSystemRenderStage : public IRenderStage {
 public:
     SpaceSystemRenderStage();
     ~SpaceSystemRenderStage();

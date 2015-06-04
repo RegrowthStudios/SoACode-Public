@@ -15,13 +15,14 @@
 #ifndef PhysicsBlockRenderStage_h__
 #define PhysicsBlockRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/graphics/GLProgram.h>
+
+#include "IRenderStage.h"
 
 class GameRenderParams;
 class PhysicsBlockMesh;
 
-class PhysicsBlockRenderStage : public vg::IRenderStage {
+class PhysicsBlockRenderStage : public IRenderStage {
 public:
     /// Construcst the stage and injects dependencies
     /// @param gameRenderParams: Some shared parameters

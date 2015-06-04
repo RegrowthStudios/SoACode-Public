@@ -15,11 +15,11 @@
 #ifndef PauseMenuRenderStage_h__
 #define PauseMenuRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class PauseMenu;
 
-class PauseMenuRenderStage : public vg::IRenderStage {
+class PauseMenuRenderStage : public IRenderStage {
 public:
     PauseMenuRenderStage();
 
