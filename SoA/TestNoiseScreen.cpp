@@ -2,16 +2,16 @@
 #include "TestNoiseScreen.h"
 
 #include <Vorb/ui/InputDispatcher.h>
+#include <SDL/SDL.h>
 
 #include "Errors.h"
 #include "ShaderLoader.h"
 
-#define MS_AVARAGE_FRAMES 32
+#define MS_AVARAGE_FRAMES 60
 
-std::chrono::system_clock::time_point lastTime;
-double delta;
+f32 delta = 0.004f;
 
-double ms = 0;
+f64 ms = 0;
 unsigned int frameCount = 0;
 
 i32 TestNoiseScreen::getNextScreen() const
@@ -34,9 +34,10 @@ void TestNoiseScreen::destroy(const vui::GameTime& gameTime)
 }
 
 void TestNoiseScreen::onEntry(const vui::GameTime& gameTime)
-{
-    lastTime = std::chrono::high_resolution_clock::now();
-    
+{ 
+    // NO VSYNC!
+    SDL_GL_SetSwapInterval(0);
+
     m_noiseTypes.emplace_back();
     m_noiseTypes.back().vertexShader = R"(
     out vec2 fPosition;
@@ -88,33 +89,42 @@ void TestNoiseScreen::onExit(const vui::GameTime& gameTime)
 
 void TestNoiseScreen::update(const vui::GameTime& gameTime)
 {
-    std::chrono::system_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-    delta = (double)std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - lastTime).count() / 1000000.0;
-    ms += delta;
-    lastTime = currentTime;
-
-    frameCount++;
-    if (frameCount >= MS_AVARAGE_FRAMES) {
-        printf("%fms\n", ms / (double)frameCount);
-        frameCount = 0;
-        ms = 0.0;
-    }
 }
 
 void TestNoiseScreen::draw(const vui::GameTime& gameTime)
 {
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    static float time = 0.0f;
-    time += (float)delta * 0.0002f;
+    static f32 time = 0.0f;
+    time += delta;
     m_program->use();
     glUniform1f(m_program->getUniform("unTime"), time);
     glUniform1f(m_program->getUniform("unAspectRatio"), m_game->getWindow().getAspectRatio());
 
+    // Do the timing
+    timeBeginPeriod(1);
+    PreciseTimer timer;
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glFinish();
+    f64 t = timer.stop();
+    timeEndPeriod(1);
 
+    ms += t;
     m_program->unuse();
     checkGlError("TestNoiseScreen::draw");
+
+    frameCount++;
+    if (frameCount >= MS_AVARAGE_FRAMES) {
+        printf("%fms\n", ms / (f64)frameCount);
+        frameCount = 0;
+        ms = 0.0;
+    }
+    // Rest so we don't melt the GPU
+    if (t < 15.0f) {
+        Sleep(16 - (int)t);
+    }
+   
 }
 
 void TestNoiseScreen::onNoiseChange()
