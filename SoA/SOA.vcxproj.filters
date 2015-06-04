@@ -754,6 +754,9 @@
     <ClInclude Include="CloudsComponentRenderer.h">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClInclude>
+    <ClInclude Include="TestNoiseScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1231,6 +1234,9 @@
     </ClCompile>
     <ClCompile Include="CloudsComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNoiseScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
