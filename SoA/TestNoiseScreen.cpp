@@ -9,7 +9,7 @@
 
 #define MS_AVARAGE_FRAMES 60
 
-f32 delta = 0.004f;
+auto startTime = std::chrono::high_resolution_clock::now();
 
 f64 ms = 0;
 unsigned int frameCount = 0;
@@ -64,7 +64,7 @@ void TestNoiseScreen::onEntry(const vui::GameTime& gameTime)
 
     void main()
     {
-        vec3 noisePosition = vec3(fPosition * 4.0, unTime);
+        vec3 noisePosition = vec3(fPosition * 4.0, unTime * 0.0002);
         noisePosition.x *= unAspectRatio;
         pColor = vec4(snoise(noisePosition) * 0.5 + 0.5);
     }
@@ -96,10 +96,8 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    static f32 time = 0.0f;
-    time += delta;
     m_program->use();
-    glUniform1f(m_program->getUniform("unTime"), time);
+    glUniform1f(m_program->getUniform("unTime"), (float)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count());
     glUniform1f(m_program->getUniform("unAspectRatio"), m_game->getWindow().getAspectRatio());
 
     // Do the timing
