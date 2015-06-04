@@ -31,27 +31,27 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
-SpaceSystemRenderStage::SpaceSystemRenderStage(const SoaState* soaState,
-                                               ui32v2 viewport,
-                                               SpaceSystem* spaceSystem,
-                                               GameSystem* gameSystem,
-                                               const MainMenuSystemViewer* systemViewer,
-                                               const Camera* spaceCamera,
-                                               const Camera* farTerrainCamera) :
-    m_viewport(viewport),
-    m_spaceSystem(spaceSystem),
-    m_gameSystem(gameSystem),
-    m_mainMenuSystemViewer(systemViewer),
-    m_spaceCamera(spaceCamera),
-    m_farTerrainCamera(farTerrainCamera),
-    m_lensFlareRenderer(&soaState->texturePathResolver),
-    m_starRenderer(&soaState->texturePathResolver),
-    m_systemARRenderer(&soaState->texturePathResolver) {
+SpaceSystemRenderStage::SpaceSystemRenderStage() {
     // Empty
 }
 
 SpaceSystemRenderStage::~SpaceSystemRenderStage() {
     // Empty
+}
+
+void SpaceSystemRenderStage::init(const SoaState* soaState,
+                                  ui32v2 viewport,
+                                  OPT const MainMenuSystemViewer* systemViewer,
+                                  const Camera* spaceCamera,
+                                  const Camera* farTerrainCamera) {
+    m_viewport = viewport;
+    m_spaceSystem = soaState->spaceSystem.get();
+    m_mainMenuSystemViewer = systemViewer;
+    m_spaceCamera = spaceCamera;
+    m_farTerrainCamera = farTerrainCamera;
+    m_lensFlareRenderer.init(&soaState->texturePathResolver);
+    m_starRenderer.init(&soaState->texturePathResolver);
+    m_systemARRenderer.init(&soaState->texturePathResolver);
 }
 
 void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {

@@ -45,13 +45,16 @@ KEG_TYPE_DEF_SAME_NAME(FlareKegProperties, kt) {
 const int VERTS_PER_QUAD = 4;
 const int INDICES_PER_QUAD = 6;
 
-LenseFlareRenderer::LenseFlareRenderer(const ModPathResolver* textureResolver) :
-m_textureResolver(textureResolver) {
+LenseFlareRenderer::LenseFlareRenderer() {
     // Empty
 }
 
 LenseFlareRenderer::~LenseFlareRenderer() {
     dispose();
+}
+
+void LenseFlareRenderer::init(const ModPathResolver* textureResolver) {
+    m_textureResolver = textureResolver;
 }
 
 void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,

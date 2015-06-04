@@ -52,14 +52,17 @@ void main() {
 )";
 }
 
-ChunkGridRenderStage::ChunkGridRenderStage(const GameRenderParams* gameRenderParams) :
-    m_gameRenderParams(gameRenderParams) {
+ChunkGridRenderStage::ChunkGridRenderStage() {
     // Empty
 }
 
 
 ChunkGridRenderStage::~ChunkGridRenderStage() {
     // Empty
+}
+
+void ChunkGridRenderStage::init(const GameRenderParams* gameRenderParams) {
+    m_gameRenderParams = gameRenderParams;
 }
 
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,

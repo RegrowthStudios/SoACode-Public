@@ -618,6 +618,7 @@ EXIT 0</Command>
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="SpaceSystemComponents.h" />
     <ClInclude Include="SpaceSystemAssemblages.h" />
+    <ClInclude Include="SpaceSystemLoader.h" />
     <ClInclude Include="SpaceSystemLoadStructs.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SpaceSystemUpdater.h" />
@@ -809,6 +810,7 @@ EXIT 0</Command>
     <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemAssemblages.cpp" />
+    <ClCompile Include="SpaceSystemLoader.cpp" />
     <ClCompile Include="SpaceSystemLoadStructs.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SpaceSystemUpdater.cpp" />

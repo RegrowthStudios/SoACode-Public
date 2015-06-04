@@ -12,9 +12,12 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-LiquidVoxelRenderStage::LiquidVoxelRenderStage(const GameRenderParams* gameRenderParams) :
-    m_gameRenderParams(gameRenderParams) {
+LiquidVoxelRenderStage::LiquidVoxelRenderStage() {
     // Empty
+}
+
+void LiquidVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+    m_gameRenderParams = gameRenderParams;
 }
 
 void LiquidVoxelRenderStage::render() {

@@ -43,13 +43,16 @@ void main() {
 )";
 }
 
-SystemARRenderer::SystemARRenderer(const ModPathResolver* textureResolver) :
-    m_textureResolver(textureResolver) {
+SystemARRenderer::SystemARRenderer() {
     // Empty
 }
 
 SystemARRenderer::~SystemARRenderer() {
     dispose();
+}
+
+void SystemARRenderer::init(const ModPathResolver* textureResolver) {
+    m_textureResolver = textureResolver;
 }
 
 void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,

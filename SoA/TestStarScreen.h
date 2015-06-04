@@ -18,6 +18,7 @@
 #include "StarComponentRenderer.h"
 #include "SpaceSystemComponents.h"
 #include "Camera.h"
+#include "HdrRenderStage.h"
 #include "ModPathResolver.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/FullQuadVBO.h>
@@ -50,7 +51,7 @@ public:
 private:
     const f64 STAR_RADIUS = 696000;
 
-    StarComponentRenderer* m_starRenderer = nullptr;
+    StarComponentRenderer m_starRenderer;
     f64v3 m_eyePos;
     f64 m_eyeDist = STAR_RADIUS;
     StarComponent m_sCmp;
@@ -59,7 +60,7 @@ private:
     AutoDelegatePool m_hooks;
     vg::SpriteBatch m_spriteBatch;
     vg::SpriteFont m_spriteFont;
-    HdrRenderStage* m_hdr = nullptr;
+    HdrRenderStage m_hdr;
     vg::FullQuadVBO m_quad;
     Camera m_camera;
     vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;

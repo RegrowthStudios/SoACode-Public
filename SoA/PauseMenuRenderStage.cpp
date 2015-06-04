@@ -3,9 +3,12 @@
 
 #include "PauseMenu.h"
 
-PauseMenuRenderStage::PauseMenuRenderStage(const PauseMenu* pauseMenu) :
-    _pauseMenu(pauseMenu) {
+PauseMenuRenderStage::PauseMenuRenderStage() {
      // Empty
+}
+
+void PauseMenuRenderStage::init(const PauseMenu* pauseMenu) {
+    _pauseMenu = pauseMenu;
 }
 
 void PauseMenuRenderStage::render() {

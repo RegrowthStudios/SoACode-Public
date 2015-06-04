@@ -48,8 +48,9 @@ KEG_TYPE_DECL(NightVisionRenderParams);
 /// Renders a night vision post-process effect
 class NightVisionRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    NightVisionRenderStage(vg::FullQuadVBO* quad);
+    NightVisionRenderStage();
+
+    void init(vg::FullQuadVBO* quad);
 
     void setParams(NightVisionRenderParams& params);
 

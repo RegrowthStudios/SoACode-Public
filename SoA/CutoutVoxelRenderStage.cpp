@@ -12,9 +12,12 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-CutoutVoxelRenderStage::CutoutVoxelRenderStage(const GameRenderParams* gameRenderParams) :
-    m_gameRenderParams(gameRenderParams) {
+CutoutVoxelRenderStage::CutoutVoxelRenderStage() {
     // Empty
+}
+
+void CutoutVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+    m_gameRenderParams = gameRenderParams;
 }
 
 void CutoutVoxelRenderStage::render() {

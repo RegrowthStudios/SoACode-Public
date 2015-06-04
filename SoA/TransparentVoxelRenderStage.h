@@ -24,16 +24,14 @@ class MeshManager;
 
 class TransparentVoxelRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param camera: The camera handle
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param meshManager: Handle to the class that holds meshes
-    TransparentVoxelRenderStage(const GameRenderParams* gameRenderParams);
+    TransparentVoxelRenderStage();
+
+    void init(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
     virtual void render() override;
 private:
-    const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
+    const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
 };
 
 #endif // TransparentVoxelRenderStage_h__

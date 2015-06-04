@@ -26,7 +26,9 @@ class OpaqueVoxelRenderStage : public vg::IRenderStage
 public:
     /// Constructor which injects dependencies
     /// @param gameRenderParams: Shared parameters for rendering voxels
-    OpaqueVoxelRenderStage(const GameRenderParams* gameRenderParams);
+    OpaqueVoxelRenderStage();
+
+    void init(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
     virtual void render() override;

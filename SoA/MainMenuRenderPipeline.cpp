@@ -27,7 +27,6 @@ MainMenuRenderPipeline::~MainMenuRenderPipeline() {
 void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewport,
                                   MainMenuScriptedUI* mainMenuUI,
                                   Camera* camera,
-                                  SpaceSystem* spaceSystem,
                                   const MainMenuSystemViewer* systemViewer) {
     // Set the viewport
     m_viewport = viewport;
@@ -47,16 +46,19 @@ void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewpo
 
     m_quad.init();
 
-    // Helpful macro to reduce code size
-#define ADD_STAGE(type, ...) static_cast<type*>(addStage(std::make_shared<type>(__VA_ARGS__)))
+    // Register render stages
+    registerStage(&stages.colorFilter);
+    registerStage(&stages.skybox);
+    registerStage(&stages.hdr);
+    registerStage(&stages.spaceSystem);
+    registerStage(&stages.exposureCalc);
 
     // Init render stages
-    m_colorFilterRenderStage = ADD_STAGE(ColorFilterRenderStage, &m_quad);
-    m_skyboxRenderStage = ADD_STAGE(SkyboxRenderStage, camera, &soaState->texturePathResolver);
-    m_hdrRenderStage = ADD_STAGE(HdrRenderStage, &m_quad, camera);
-    m_spaceSystemRenderStage = ADD_STAGE(SpaceSystemRenderStage, soaState, ui32v2(m_viewport.z, m_viewport.w),
-                                                          spaceSystem, nullptr, systemViewer, camera, nullptr);
-    m_logLuminanceRenderStage = ADD_STAGE(ExposureCalcRenderStage, &m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
+    stages.colorFilter.init(&m_quad);
+    stages.skybox.init(camera, &soaState->texturePathResolver);
+    stages.hdr.init(&m_quad, camera);
+    stages.spaceSystem.init(soaState, ui32v2(m_viewport.z, m_viewport.w), systemViewer, camera, nullptr);
+    stages.exposureCalc.init(&m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
 }
 
 void MainMenuRenderPipeline::render() {

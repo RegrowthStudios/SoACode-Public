@@ -24,8 +24,11 @@ struct FlareKegProperties;
 
 class LenseFlareRenderer {
 public:
-    LenseFlareRenderer(const ModPathResolver* textureResolver);
+    LenseFlareRenderer();
     ~LenseFlareRenderer();
+
+    void init(const ModPathResolver* textureResolver);
+
     void render(const f32m4& VP, const f64v3& relCamPos,
                 const f32v3& color,
                 float aspectRatio,

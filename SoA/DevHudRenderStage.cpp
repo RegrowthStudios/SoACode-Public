@@ -8,21 +8,23 @@
 #include "App.h"
 #include "global.h"
 
-DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize,
-                                     const App* app, const f32v2& windowDims) :
-                                     _spriteBatch(new vg::SpriteBatch(true, true)),
-                                     _spriteFont(new vg::SpriteFont()),
-    _mode(DevUiModes::HANDS),
-    _app(app),
-    _windowDims(windowDims),
-    _fontHeight(_spriteFont->getFontHeight()) {
-    _spriteFont->init(fontPath, fontSize);
+DevHudRenderStage::DevHudRenderStage() {
     // Empty
 }
 
 DevHudRenderStage::~DevHudRenderStage() {
     delete _spriteBatch;
     delete _spriteFont;
+}
+
+void DevHudRenderStage::init(const cString fontPath, i32 fontSize,
+          const App* app, const f32v2& windowDims) {
+    _spriteBatch = new vg::SpriteBatch(true, true);
+    _spriteFont = new vg::SpriteFont();
+    _app = app;
+    _windowDims = windowDims;
+    _spriteFont->init(fontPath, fontSize);
+    _fontHeight = _spriteFont->getFontHeight();
 }
 
 void DevHudRenderStage::render() {

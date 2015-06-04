@@ -21,13 +21,15 @@ class PauseMenu;
 
 class PauseMenuRenderStage : public vg::IRenderStage {
 public:
-    PauseMenuRenderStage(const PauseMenu* pauseMenu);
+    PauseMenuRenderStage();
+
+    void init(const PauseMenu* pauseMenu);
 
     // Draws the render stage
     virtual void render() override;
 
 private:
-    const PauseMenu* _pauseMenu; ///< Handle to pause menu for rendering
+    const PauseMenu* _pauseMenu = nullptr; ///< Handle to pause menu for rendering
 };
 
 #endif // PauseMenuRenderStage_h__

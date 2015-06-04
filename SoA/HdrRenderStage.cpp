@@ -12,10 +12,13 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-HdrRenderStage::HdrRenderStage(vg::FullQuadVBO* quad, const Camera* camera) : IRenderStage("HDR", camera),
-    m_quad(quad),
-    m_oldVP(1.0f) {
+HdrRenderStage::HdrRenderStage() : IRenderStage("HDR", nullptr) {
     // Empty
+}
+
+void HdrRenderStage::init(vg::FullQuadVBO* quad, const Camera* camera) {
+    m_camera = camera;
+    m_quad = quad;
 }
 
 void HdrRenderStage::reloadShader() {

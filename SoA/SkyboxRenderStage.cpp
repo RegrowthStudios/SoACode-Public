@@ -12,16 +12,19 @@
 #include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
 
-SkyboxRenderStage::SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver) :
-                                     IRenderStage("Skybox", camera),
-                                     m_textureResolver(textureResolver) {
-
-   updateProjectionMatrix();
+SkyboxRenderStage::SkyboxRenderStage() : IRenderStage("Skybox", nullptr) {
+   // Empty
 }
 
 
 SkyboxRenderStage::~SkyboxRenderStage() {
     // Empty
+}
+
+void SkyboxRenderStage::init(const Camera* camera, const ModPathResolver* textureResolver) {
+    m_camera = camera;
+    m_textureResolver = textureResolver;
+    updateProjectionMatrix();
 }
 
 void SkyboxRenderStage::render() {

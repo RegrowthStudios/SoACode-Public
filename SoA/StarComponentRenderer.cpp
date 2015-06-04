@@ -42,13 +42,17 @@ void main() {
 )";
 }
 
-StarComponentRenderer::StarComponentRenderer(const ModPathResolver* textureResolver) :
-    m_textureResolver(textureResolver) {
-    m_tempColorMap.width = -1;
+StarComponentRenderer::StarComponentRenderer() {
+    // Empty
 }
 
 StarComponentRenderer::~StarComponentRenderer() {
     dispose();
+}
+
+void StarComponentRenderer::init(const ModPathResolver* textureResolver) {
+    m_textureResolver = textureResolver;
+    m_tempColorMap.width = -1;
 }
 
 void StarComponentRenderer::drawStar(const StarComponent& sCmp,

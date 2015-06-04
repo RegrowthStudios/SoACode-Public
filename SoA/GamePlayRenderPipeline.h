@@ -20,9 +20,22 @@
 #include <Vorb/graphics/RTSwapChain.hpp>
 
 #include "Camera.h"
-#include "GameRenderParams.h"
-#include "NightVisionRenderStage.h"
+#include "ChunkGridRenderStage.h"
 #include "ColoredFullQuadRenderer.h"
+#include "CutoutVoxelRenderStage.h"
+#include "DevHudRenderStage.h"
+#include "GameRenderParams.h"
+#include "HdrRenderStage.h"
+#include "LiquidVoxelRenderStage.h"
+#include "NightVisionRenderStage.h"
+#include "NightVisionRenderStage.h"
+#include "OpaqueVoxelRenderStage.h"
+#include "PauseMenuRenderStage.h"
+#include "PdaRenderStage.h"
+#include "PhysicsBlockRenderStage.h"
+#include "SkyboxRenderStage.h"
+#include "SpaceSystemRenderStage.h"
+#include "TransparentVoxelRenderStage.h"
 
 /// Forward declarations
 class App;
@@ -91,19 +104,20 @@ private:
     void updateCameras();
     void dumpScreenshot();
 
-    SkyboxRenderStage* m_skyboxRenderStage = nullptr; ///< Renders the skybox
-    PhysicsBlockRenderStage* m_physicsBlockRenderStage = nullptr; ///< Renders the physics blocks
-    OpaqueVoxelRenderStage* m_opaqueVoxelRenderStage = nullptr; ///< Renders opaque voxels
-    CutoutVoxelRenderStage* m_cutoutVoxelRenderStage = nullptr; ///< Renders cutout voxels
-    ChunkGridRenderStage* m_chunkGridRenderStage = nullptr;
-    TransparentVoxelRenderStage* m_transparentVoxelRenderStage = nullptr; ///< Renders transparent voxels
-    LiquidVoxelRenderStage* m_liquidVoxelRenderStage = nullptr; ///< Renders liquid voxels
-    DevHudRenderStage* m_devHudRenderStage = nullptr; ///< Renders the dev/debug HUD
-    PdaRenderStage* m_pdaRenderStage = nullptr; ///< Renders the PDA
-    PauseMenuRenderStage* m_pauseMenuRenderStage = nullptr; ///< Renders the pause menu
-    NightVisionRenderStage* m_nightVisionRenderStage = nullptr; ///< Renders night vision
-    HdrRenderStage* m_hdrRenderStage = nullptr; ///< Renders HDR post-processing
-    SpaceSystemRenderStage* m_spaceSystemRenderStage = nullptr; ///< Render space and planets
+    struct {
+        SkyboxRenderStage skybox; ///< Renders the skybox
+        OpaqueVoxelRenderStage opaqueVoxel; ///< Renders opaque voxels
+        CutoutVoxelRenderStage cutoutVoxel; ///< Renders cutout voxels
+        ChunkGridRenderStage chunkGrid;
+        TransparentVoxelRenderStage transparentVoxel; ///< Renders transparent voxels
+        LiquidVoxelRenderStage liquidVoxel; ///< Renders liquid voxels
+        DevHudRenderStage devHud; ///< Renders the dev/debug HUD
+        PdaRenderStage pda; ///< Renders the PDA
+        PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
+        NightVisionRenderStage nightVision; ///< Renders night vision
+        HdrRenderStage hdr; ///< Renders HDR post-processing
+        SpaceSystemRenderStage spaceSystem; ///< Render space and planets
+    } stages;
 
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
 

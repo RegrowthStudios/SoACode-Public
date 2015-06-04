@@ -30,8 +30,10 @@ struct StarComponent;
 
 class StarComponentRenderer {
 public:
-    StarComponentRenderer(const ModPathResolver* textureResolver);
+    StarComponentRenderer();
     ~StarComponentRenderer();
+
+    void init(const ModPathResolver* textureResolver);
 
     void drawStar(const StarComponent& sCmp,
                   const f32m4& VP,

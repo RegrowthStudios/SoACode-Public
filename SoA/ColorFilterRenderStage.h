@@ -19,11 +19,12 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/IRenderStage.h>
 
-
 class ColorFilterRenderStage : public vg::IRenderStage {
 public:
-    ColorFilterRenderStage(vg::FullQuadVBO* quad);
+    ColorFilterRenderStage();
     ~ColorFilterRenderStage();
+
+    void init(vg::FullQuadVBO* quad);
 
     /// Draws the render stage
     virtual void render() override;
@@ -35,4 +36,3 @@ private:
 };
 
 #endif // ColorFilterRenderStage_h__
-

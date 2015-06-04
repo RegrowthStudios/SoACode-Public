@@ -20,13 +20,16 @@ void main() {
 )";
 }
 
-ColorFilterRenderStage::ColorFilterRenderStage(vg::FullQuadVBO* quad) :
-    m_quad(quad) {
+ColorFilterRenderStage::ColorFilterRenderStage() {
     // Empty
 }
 
 ColorFilterRenderStage::~ColorFilterRenderStage() {
     dispose();
+}
+
+void ColorFilterRenderStage::init(vg::FullQuadVBO* quad) {
+    m_quad = quad;
 }
 
 void ColorFilterRenderStage::render() {

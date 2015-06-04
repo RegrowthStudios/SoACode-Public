@@ -23,17 +23,16 @@ class ChunkMemoryManager;
 
 class ChunkGridRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param chunkSlots: The chunk slots that we need to render boxes for
-    ChunkGridRenderStage(const GameRenderParams* gameRenderParams);
+    ChunkGridRenderStage();
     ~ChunkGridRenderStage();
+
+    void init(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
     void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
     virtual void render() override;
 private:
-    const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
+    const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
     const ChunkMemoryManager* m_chunkMemoryManager = nullptr;
 };
 

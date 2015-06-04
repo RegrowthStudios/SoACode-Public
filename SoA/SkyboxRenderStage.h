@@ -25,8 +25,10 @@ class SkyboxRenderStage : public vg::IRenderStage
 {
 public:
     /// Constructor which injects dependencies
-    SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver);
+    SkyboxRenderStage();
     ~SkyboxRenderStage();
+
+    void init(const Camera* camera, const ModPathResolver* textureResolver);
 
     // Draws the render stage
     virtual void render() override;

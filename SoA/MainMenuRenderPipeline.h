@@ -25,6 +25,7 @@
 #include "SpaceSystemRenderStage.h"
 #include "ColorFilterRenderStage.h"
 #include "SkyboxRenderStage.h"
+#include "HdrRenderStage.h"
 
 /// Forward declarations
 class Camera;
@@ -44,7 +45,6 @@ public:
     void init(const SoaState* soaState, const ui32v4& viewport,
               MainMenuScriptedUI* mainMenuUI,
               Camera* camera,
-              SpaceSystem* spaceSystem,
               const MainMenuSystemViewer* systemViewer);
 
     /// Renders the pipeline

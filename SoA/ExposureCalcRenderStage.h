@@ -26,10 +26,12 @@ DECL_VG(class GLRenderTarget);
 
 class ExposureCalcRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor
+    ExposureCalcRenderStage();
+    ~ExposureCalcRenderStage();
+
     /// resolution should be power of 2
-    ExposureCalcRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
-                            const ui32v4* viewPort, ui32 resolution);
+    void init(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+              const ui32v4* viewPort, ui32 resolution);
 
     /// Reloads the shader. By default, it simply
     /// disposes the shader and allows a lazy init at next draw
@@ -60,7 +62,7 @@ private:
 
     // Script for exposure calc
     bool m_needsScriptLoad = true;
-    vscript::Environment m_scripts;
+    vscript::Environment* m_scripts = nullptr;
     vscript::RFunction<f32> m_calculateExposure;
 };
 

@@ -42,14 +42,14 @@ struct MTRenderState;
 
 class SpaceSystemRenderStage : public vg::IRenderStage {
 public:
-    SpaceSystemRenderStage(const SoaState* soaState,
-                           ui32v2 viewport,
-                           SpaceSystem* spaceSystem,
-                           GameSystem* gameSystem,
-                           const MainMenuSystemViewer* systemViewer,
-                           const Camera* spaceCamera,
-                           const Camera* farTerrainCamera);
+    SpaceSystemRenderStage();
     ~SpaceSystemRenderStage();
+
+    void init(const SoaState* soaState,
+              ui32v2 viewport,
+              OPT const MainMenuSystemViewer* systemViewer,
+              const Camera* spaceCamera,
+              const Camera* farTerrainCamera);
 
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
 
@@ -85,7 +85,6 @@ private:
 
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
-    GameSystem* m_gameSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_spaceCamera = nullptr;
     const Camera* m_farTerrainCamera = nullptr;

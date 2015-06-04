@@ -201,7 +201,6 @@ void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, m_window->getViewportDims());
     m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_camera,
-                          m_soaState->spaceSystem.get(),
                           m_mainMenuSystemViewer.get());
 }
 

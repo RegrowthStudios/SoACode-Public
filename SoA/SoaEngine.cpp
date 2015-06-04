@@ -80,15 +80,6 @@ void SoaEngine::initState(SoaState* state) {
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
    
 }
-// TODO: A vorb helper would be nice.
-vg::ShaderSource createShaderSource(const vg::ShaderType& stage, const vio::IOManager& iom, const cString path, const cString defines = nullptr) {
-    vg::ShaderSource src;
-    src.stage = stage;
-    if (defines) src.sources.push_back(defines);
-    const cString code = iom.readFileToString(path);
-    src.sources.push_back(code);
-    return src;
-}
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
 

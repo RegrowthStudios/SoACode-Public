@@ -30,8 +30,11 @@ DECL_VG(class SpriteBatch;
 
 class SystemARRenderer {
 public:
-    SystemARRenderer(const ModPathResolver* textureResolver);
+    SystemARRenderer();
     ~SystemARRenderer();
+
+    void init(const ModPathResolver* textureResolver);
+
     void draw(SpaceSystem* spaceSystem, const Camera* camera,
               OPT const MainMenuSystemViewer* systemViewer,
               const f32v2& viewport);

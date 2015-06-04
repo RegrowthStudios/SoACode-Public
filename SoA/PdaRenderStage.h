@@ -20,12 +20,14 @@ class PDA;
 
 class PdaRenderStage : public vg::IRenderStage {
 public:
-    PdaRenderStage(const PDA* pda);
+    PdaRenderStage();
+
+    void init(const PDA* pda);
 
     /// Draws the render stage
     virtual void render() override;
 private:
-    const PDA* _pda; ///< Handle to the PDA
+    const PDA* _pda = nullptr; ///< Handle to the PDA
 };
 
 #endif // PdaRenderStage_h__

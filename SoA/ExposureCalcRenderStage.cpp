@@ -11,12 +11,20 @@
 #define EXPOSURE_FUNCTION_FILE "Shaders/PostProcessing/exposure.lua"
 #define EXPOSURE_FUNCTION_NAME "calculateExposure"
 
-ExposureCalcRenderStage::ExposureCalcRenderStage(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
-                                                 const ui32v4* viewPort, ui32 resolution) :
-    m_quad(quad),
-    m_hdrFrameBuffer(hdrFrameBuffer),
-    m_restoreViewport(viewPort),
-    m_resolution(resolution) {
+ExposureCalcRenderStage::ExposureCalcRenderStage() {
+    m_scripts = new vscript::Environment;
+}
+
+ExposureCalcRenderStage::~ExposureCalcRenderStage() {
+    delete m_scripts;
+}
+
+void ExposureCalcRenderStage::init(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+                                   const ui32v4* viewPort, ui32 resolution) {
+    m_quad = quad;
+    m_hdrFrameBuffer = hdrFrameBuffer;
+    m_restoreViewport = viewPort;
+    m_resolution = resolution;
     ui32 size = resolution;
     m_mipLevels = 1;
     while (size > 1) {
@@ -67,8 +75,8 @@ void ExposureCalcRenderStage::render() {
     }
     // Lazy script load
     if (m_needsScriptLoad) {
-        m_scripts.load(EXPOSURE_FUNCTION_FILE);
-        m_calculateExposure = m_scripts[EXPOSURE_FUNCTION_NAME].as<f32>();
+        m_scripts->load(EXPOSURE_FUNCTION_FILE);
+        m_calculateExposure = (*m_scripts)[EXPOSURE_FUNCTION_NAME].as<f32>();
         m_needsScriptLoad = false;
     }
 

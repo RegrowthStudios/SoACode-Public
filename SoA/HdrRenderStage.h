@@ -24,10 +24,11 @@ class Camera;
 
 class HdrRenderStage : public vg::IRenderStage {
 public:
-    /// Constructor which injects dependencies
+    HdrRenderStage();
+
     /// @param quad: Quad used for rendering to screen
     /// @param camera: Camera used to render the scene
-    HdrRenderStage(vg::FullQuadVBO* quad, const Camera* camera);
+    void init(vg::FullQuadVBO* quad, const Camera* camera);
 
     /// Reloads the shader. By default, it simply
     /// disposes the shader and allows a lazy init at next draw
@@ -43,7 +44,7 @@ private:
     vg::GLProgram m_glProgramBlur; ///< Motion blur enabled
     vg::GLProgram m_glProgramDoFBlur; ///< Motion blur and DoF enabled
     vg::FullQuadVBO* m_quad = nullptr; ///< For use in processing through data
-    f32m4 m_oldVP; ///< ViewProjection of previous frame
+    f32m4 m_oldVP = f32m4(1.0f); ///< ViewProjection of previous frame
 };
 
 #endif // HdrRenderStage_h__

@@ -4,9 +4,12 @@
 #include "PDA.h"
 
 
-PdaRenderStage::PdaRenderStage(const PDA* pda) :
-    _pda(pda) {
+PdaRenderStage::PdaRenderStage() {
     // Empty
+}
+
+void PdaRenderStage::init(const PDA* pda) {
+    _pda = pda;
 }
 
 void PdaRenderStage::render() {

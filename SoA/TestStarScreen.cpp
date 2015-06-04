@@ -3,7 +3,6 @@
 
 #include "soaUtils.h"
 #include "Errors.h"
-#include "HdrRenderStage.h"
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include <Vorb/Timing.h>
@@ -40,15 +39,15 @@ void TestStarScreen::build() {
 
 }
 void TestStarScreen::destroy(const vui::GameTime& gameTime) {
-    delete m_starRenderer;
+
 }
 
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
-    m_starRenderer = new StarComponentRenderer(&m_modPathResolver);
+    m_starRenderer.init(&m_modPathResolver);
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
-            m_starRenderer->disposeShaders();
-            m_hdr->reloadShader();
+            m_starRenderer.disposeShaders();
+            m_hdr.reloadShader();
         } else if (e.keyCode == VKEY_UP) {
             m_isUpDown = true;
         } else if (e.keyCode == VKEY_DOWN) {
@@ -104,7 +103,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, 0).initDepth();
 
     m_quad.init();
-    m_hdr = new HdrRenderStage(&m_quad, &m_camera);
+    m_hdr.init(&m_quad, &m_camera);
 
     m_camera.setFieldOfView(90.0f);
     f32 width = (f32)m_game->getWindow().getWidth();
@@ -115,7 +114,6 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
 }
 
 void TestStarScreen::onExit(const vui::GameTime& gameTime) {
-    delete m_hdr;
     delete m_hdrFrameBuffer;
 }
 
@@ -152,10 +150,10 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
 
     f32 zCoef = computeZCoef(m_camera.getFarClip());
     // TODO(Ben): render star first and figure out why depth testing is failing
-    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos, zCoef);
-    m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos, zCoef);
+    m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos, zCoef);
+    m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos, zCoef);
     glBlendFunc(GL_ONE, GL_ONE);
-    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
+    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
                                            m_camera.getAspectRatio(), m_camera.getDirection(),
                                            m_camera.getRight());
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -167,7 +165,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
-        m_hdr->render();
+        m_hdr.render();
     }
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {

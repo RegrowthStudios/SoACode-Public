@@ -13,9 +13,12 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-TransparentVoxelRenderStage::TransparentVoxelRenderStage(const GameRenderParams* gameRenderParams) :
-    m_gameRenderParams(gameRenderParams) {
+TransparentVoxelRenderStage::TransparentVoxelRenderStage() {
     // Empty
+}
+
+void TransparentVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+    m_gameRenderParams = gameRenderParams;
 }
 
 void TransparentVoxelRenderStage::render() {

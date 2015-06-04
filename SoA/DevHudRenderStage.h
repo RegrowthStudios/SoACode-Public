@@ -25,9 +25,11 @@ class App;
 
 class DevHudRenderStage : public vg::IRenderStage{
 public:
-    DevHudRenderStage(const cString fontPath, i32 fontSize,
-                      const App* app, const f32v2& windowDims);
+    DevHudRenderStage();
     ~DevHudRenderStage();
+
+    void init(const cString fontPath, i32 fontSize,
+              const App* app, const f32v2& windowDims);
 
     /// Draws the render stage
     virtual void render() override;
@@ -52,11 +54,11 @@ private:
     void drawFps();
     void drawPosition();
 
-    vg::SpriteBatch* _spriteBatch; ///< For rendering 2D sprites
-    vg::SpriteFont* _spriteFont; ///< Font used by spritebatch
-    DevUiModes _mode; ///< The mode for rendering
+    vg::SpriteBatch* _spriteBatch = nullptr; ///< For rendering 2D sprites
+    vg::SpriteFont* _spriteFont = nullptr; ///< Font used by spritebatch
+    DevUiModes _mode = DevUiModes::HANDS; ///< The mode for rendering
     f32v2 _windowDims; ///< Dimensions of the window
-    const App* _app; ///< Handle to the app
+    const App* _app = nullptr; ///< Handle to the app
     int _fontHeight; ///< Height of the spriteFont
     int _yOffset; ///< Y offset accumulator
 };
