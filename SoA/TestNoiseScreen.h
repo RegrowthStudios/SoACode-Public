@@ -6,6 +6,12 @@
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/graphics/GLProgram.h>
 
+struct Noise
+{
+    const char* vertexShader;
+    const char* fragmentShader;
+};
+
 class TestNoiseScreen : public vui::IGameScreen
 {
 public:
@@ -17,8 +23,14 @@ public:
     virtual void onExit(const vui::GameTime& gameTime) override;
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
+
+    virtual void onNoiseChange();
 private:
-    vg::GLProgram* m_program;
+    vg::GLProgram* m_program = nullptr;
+    std::vector<Noise> m_noiseTypes;
+    unsigned int m_currentNoise;
+
+    AutoDelegatePool m_hooks;
 };
 
 #endif
