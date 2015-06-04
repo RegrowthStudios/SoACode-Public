@@ -31,34 +31,22 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
-SpaceSystemRenderStage::SpaceSystemRenderStage() {
-    // Empty
-}
-
-SpaceSystemRenderStage::~SpaceSystemRenderStage() {
-    // Empty
-}
-
-void SpaceSystemRenderStage::init(const SoaState* soaState,
-                                  ui32v2 viewport,
-                                  OPT const MainMenuSystemViewer* systemViewer,
-                                  const Camera* spaceCamera,
-                                  const Camera* farTerrainCamera) {
-    m_viewport = viewport;
-    m_spaceSystem = soaState->spaceSystem.get();
-    m_mainMenuSystemViewer = systemViewer;
+void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera /*= nullptr*/) {
+    m_viewport = m_window->getViewportDims();
+    m_spaceSystem = state->spaceSystem.get();
+    m_mainMenuSystemViewer = state->systemViewer.get();
+    m_lensFlareRenderer.init(&state->texturePathResolver);
+    m_starRenderer.init(&state->texturePathResolver);
+    m_systemARRenderer.init(&state->texturePathResolver);
     m_spaceCamera = spaceCamera;
     m_farTerrainCamera = farTerrainCamera;
-    m_lensFlareRenderer.init(&soaState->texturePathResolver);
-    m_starRenderer.init(&soaState->texturePathResolver);
-    m_systemARRenderer.init(&soaState->texturePathResolver);
 }
 
 void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void SpaceSystemRenderStage::render() {
+void SpaceSystemRenderStage::render(const Camera* camera) {
     drawBodies();
     if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                                           m_mainMenuSystemViewer,
@@ -77,17 +65,6 @@ void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
                                    starColor * colorMult,
                                    m_spaceCamera->getAspectRatio(), 0.1f, intensity);
     }
-}
-
-void SpaceSystemRenderStage::reloadShader() {
-    m_sphericalTerrainComponentRenderer.disposeShaders();
-    m_farTerrainComponentRenderer.disposeShaders();
-    m_atmosphereComponentRenderer.disposeShader();
-    m_gasGiantComponentRenderer.disposeShader();
-    m_starRenderer.disposeShaders();
-    m_ringsRenderer.disposeShader();
-    m_lensFlareRenderer.dispose();
-    m_cloudsComponentRenderer.disposeShader();
 }
 
 void SpaceSystemRenderStage::drawBodies() {

@@ -32,7 +32,7 @@ public:
               const App* app, const f32v2& windowDims);
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 
     /// Cycles the Hud mode
     /// @param offset: How much to offset the current mode

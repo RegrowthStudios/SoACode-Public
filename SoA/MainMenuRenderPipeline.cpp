@@ -6,6 +6,7 @@
 #include <Vorb/io/FileOps.h>
 #include <Vorb/utils.h>
 #include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/ui/GameWindow.h>
 
 #include "Errors.h"
 #include "GameManager.h"
@@ -16,49 +17,99 @@
 #include "soaUtils.h"
 #include "MainMenuScriptedUI.h"
 
-MainMenuRenderPipeline::MainMenuRenderPipeline() {
-    // Empty
-}
-
-MainMenuRenderPipeline::~MainMenuRenderPipeline() {
-    destroy(true);
-}
-
-void MainMenuRenderPipeline::init(const SoaState* soaState, const ui32v4& viewport,
-                                  MainMenuScriptedUI* mainMenuUI,
-                                  Camera* camera,
-                                  const MainMenuSystemViewer* systemViewer) {
-    // Set the viewport
-    m_viewport = viewport;
-    m_mainMenuUI = mainMenuUI;
-
+void MainMenuRenderPipeline::init(vui::GameWindow* window, LoadContext& context) {
+    m_window = window;
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
 
-    // Check to make sure we don't double init
-    if (m_isInitialized) {
-        pError("Reinitializing MainMenuRenderPipeline without first calling destroy()!");
-        return;
-    } else {
-        m_isInitialized = true;
+    // Init render stages
+    stages.skybox.init(window, context);
+    stages.spaceSystem.init(window, context);
+    stages.colorFilter.init(window, context);
+    stages.exposureCalc.init(window, context);
+    stages.hdr.init(window, context);
+}
+
+void MainMenuRenderPipeline::dispose(LoadContext& context) {
+    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
+
+    // Kill the builder
+    if (loadThread) {
+        delete loadThread;
+        loadThread = nullptr;
     }
 
-    initFramebuffer();
+    stages.skybox.dispose(context);
+    stages.spaceSystem.dispose(context);
+    stages.colorFilter.dispose(context);
+    stages.exposureCalc.dispose(context);
+    stages.hdr.dispose(context);
 
-    m_quad.init();
+    // Dispose of persistent rendering resources
+    m_hdrTarget.dispose();
+    m_swapChain.dispose();
+    m_quad.dispose();
 
-    // Register render stages
-    registerStage(&stages.colorFilter);
-    registerStage(&stages.skybox);
-    registerStage(&stages.hdr);
-    registerStage(&stages.spaceSystem);
-    registerStage(&stages.exposureCalc);
+    m_isInitialized = false;
+}
 
-    // Init render stages
-    stages.colorFilter.init(&m_quad);
-    stages.skybox.init(camera, &soaState->texturePathResolver);
-    stages.hdr.init(&m_quad, camera);
-    stages.spaceSystem.init(soaState, ui32v2(m_viewport.z, m_viewport.w), systemViewer, camera, nullptr);
-    stages.exposureCalc.init(&m_quad, m_hdrFrameBuffer, &m_viewport, 1024);
+void MainMenuRenderPipeline::load(LoadContext& context) {
+    loaded = false;
+
+    loadThread = new std::thread([&]() {
+        vcore::GLRPC so[4];
+        size_t i = 0;
+
+        // Create the HDR target     
+        so[i].set([&](Sender, void*) {
+            m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
+            m_hdrTarget.init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
+            if (soaOptions.get(OPT_MSAA).value.i > 0) {
+                glEnable(GL_MULTISAMPLE);
+            } else {
+                glDisable(GL_MULTISAMPLE);
+            }
+        });
+        m_glrpc.invoke(&so[i++], false);
+
+        // Create the swap chain for post process effects (HDR-capable)
+        so[i].set([&](Sender, void*) {
+            m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
+        });
+        m_glrpc.invoke(&so[i++], false);
+
+        // Create full-screen quad
+        so[i].set([&](Sender, void*) {
+            m_quad.init();
+        });
+        m_glrpc.invoke(&so[i++], false);
+
+        // Wait for the last command to complete
+        so[i - 1].block();
+
+        // Load all the stages
+        stages.skybox.load(context, m_glrpc);
+        stages.spaceSystem.load(context, m_glrpc);
+        stages.colorFilter.load(context, m_glrpc);
+        stages.exposureCalc.load(context, m_glrpc);
+        stages.hdr.load(context, m_glrpc);
+
+        loaded = true;
+    });
+    loadThread->detach();
+}
+
+void MainMenuRenderPipeline::hook(SoaState* state) {
+    m_state = state;
+    stages.skybox.hook(state);
+    stages.spaceSystem.hook(state, &state->spaceCamera);
+    stages.colorFilter.hook(&m_quad);
+    stages.exposureCalc.hook(&m_quad, &m_hdrTarget, &m_viewport);
+    stages.hdr.hook(&m_quad);
+}
+
+void MainMenuRenderPipeline::updateGL() {
+    // TODO(Ben): Experiment with more requests
+    m_glrpc.processRequests(1);
 }
 
 void MainMenuRenderPipeline::render() {
@@ -67,18 +118,18 @@ void MainMenuRenderPipeline::render() {
     if (m_shouldResize) resize();
 
     // Bind the FBO
-    m_hdrFrameBuffer->use();
+    m_hdrTarget.use();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    stages.skybox.render();
+    stages.skybox.render(&m_state->spaceCamera);
 
     // Check fore wireframe mode
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     stages.spaceSystem.setShowAR(m_showAR);
-    stages.spaceSystem.render();
+    stages.spaceSystem.render(&m_state->spaceCamera);
 
     // Restore fill
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -106,7 +157,7 @@ void MainMenuRenderPipeline::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
-    m_swapChain->reset(0, m_hdrFrameBuffer->getID(), m_hdrFrameBuffer->getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
+    m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     // TODO: More Effects?
 
@@ -121,9 +172,9 @@ void MainMenuRenderPipeline::render() {
     stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
+    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureID());
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureDepthID());
+    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
     stages.hdr.render();
 
     if (m_showUI) m_mainMenuUI->draw();
@@ -134,55 +185,24 @@ void MainMenuRenderPipeline::render() {
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
-void MainMenuRenderPipeline::destroy(bool shouldDisposeStages) {
-    if (!m_isInitialized) return;
-    RenderPipeline::destroy(shouldDisposeStages);
-
-    if (m_swapChain) {
-        m_swapChain->dispose();
-        delete m_swapChain;
-        m_swapChain = nullptr;
-    }
-
-    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderPipeline::onWindowResize);
-
-    m_quad.dispose();
-
-    m_isInitialized = false;
-}
-
 void MainMenuRenderPipeline::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     m_newDims = ui32v2(e.w, e.h);
     m_shouldResize = true;
-}
-
-void MainMenuRenderPipeline::initFramebuffer() {
-    // Construct framebuffer
-    m_hdrFrameBuffer = new vg::GLRenderTarget(m_viewport.z, m_viewport.w);
-    m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
-    if (soaOptions.get(OPT_MSAA).value.i > 0) {
-        glEnable(GL_MULTISAMPLE);
-    } else {
-        glDisable(GL_MULTISAMPLE);
-    }
-
-    // Make swap chain
-    m_swapChain = new vg::RTSwapChain<2>();
-    m_swapChain->init(m_viewport.z, m_viewport.w, vg::TextureInternalFormat::RGBA8);
 }
 
 void MainMenuRenderPipeline::resize() {
     m_viewport.z = m_newDims.x;
     m_viewport.w = m_newDims.y;
 
-    m_hdrFrameBuffer->dispose();
-    delete m_hdrFrameBuffer;
-    m_swapChain->dispose();
-    delete m_swapChain;
-    initFramebuffer();
+    // TODO(Ben): Fix
+    /* m_hdrFrameBuffer->dispose();
+     delete m_hdrFrameBuffer;
+     m_swapChain->dispose();
+     delete m_swapChain;
+     initFramebuffer();*/
 
     stages.spaceSystem.setViewport(m_newDims);
-    stages.exposureCalc.setFrameBuffer(m_hdrFrameBuffer);
+    stages.exposureCalc.setFrameBuffer(&m_hdrTarget);
 
     m_mainMenuUI->setDimensions(f32v2(m_newDims));
 

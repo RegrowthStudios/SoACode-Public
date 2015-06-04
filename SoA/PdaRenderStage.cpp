@@ -12,7 +12,7 @@ void PdaRenderStage::init(const PDA* pda) {
     _pda = pda;
 }
 
-void PdaRenderStage::render() {
+void PdaRenderStage::render(const Camera* camera) {
     if (_pda->isOpen()) {
         _pda->draw();
     }

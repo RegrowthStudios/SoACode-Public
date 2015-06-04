@@ -3,15 +3,11 @@
 
 #include "PauseMenu.h"
 
-PauseMenuRenderStage::PauseMenuRenderStage() {
-     // Empty
-}
-
 void PauseMenuRenderStage::init(const PauseMenu* pauseMenu) {
     _pauseMenu = pauseMenu;
 }
 
-void PauseMenuRenderStage::render() {
+void PauseMenuRenderStage::render(const Camera* camera) {
     if (_pauseMenu->isOpen()) {
         _pauseMenu->draw();
     }

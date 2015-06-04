@@ -12,30 +12,18 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-HdrRenderStage::HdrRenderStage() : IRenderStage("HDR", nullptr) {
-    // Empty
-}
-
-void HdrRenderStage::init(vg::FullQuadVBO* quad, const Camera* camera) {
-    m_camera = camera;
+void HdrRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
 }
 
-void HdrRenderStage::reloadShader() {
-    IRenderStage::reloadShader();
+void HdrRenderStage::dispose(LoadContext& context) {
     if (m_glProgramBlur.isCreated()) m_glProgramBlur.dispose();
     if (m_glProgramDoFBlur.isCreated()) m_glProgramDoFBlur.dispose();
 }
 
-void HdrRenderStage::dispose() {
-    IRenderStage::dispose();
-    if (m_glProgramBlur.isCreated()) m_glProgramBlur.dispose();
-    if (m_glProgramDoFBlur.isCreated()) m_glProgramDoFBlur.dispose();
-}
-
-void HdrRenderStage::render() {
+void HdrRenderStage::render(const Camera* camera /*= nullptr*/) {
     f32m4 oldVP = m_oldVP;
-    f32m4 vp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
+    f32m4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
     m_oldVP = vp;
 
     vg::GLProgram* program;

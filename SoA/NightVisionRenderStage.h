@@ -49,19 +49,18 @@ KEG_TYPE_DECL(NightVisionRenderParams);
 /// Renders a night vision post-process effect
 class NightVisionRenderStage : public IRenderStage {
 public:
-    NightVisionRenderStage();
-
     void init(vg::FullQuadVBO* quad);
 
     void setParams(NightVisionRenderParams& params);
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw
-    virtual void dispose() override;
+    virtual void dispose(LoadContext& context) override;
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
+    vg::GLProgram m_program;
     vg::FullQuadVBO* m_quad; ///< For use in processing through data
     vg::Texture m_texNoise; ///< A noise texture for blurry static
     f32 m_et = 0.0f; ///< Counter for elapsed total time

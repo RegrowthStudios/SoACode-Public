@@ -25,6 +25,7 @@
 #include "ColorFilterRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "HdrRenderStage.h"
+#include "LoadContext.h"
 
 /// Forward declarations
 class Camera;
@@ -32,24 +33,23 @@ class MainMenuSystemViewer;
 class SoaState;
 class SpaceSystem;
 class MainMenuScriptedUI;
-DECL_VUI(struct WindowResizeEvent);
+DECL_VUI(struct WindowResizeEvent; class GameWindow);
 
 class MainMenuRenderPipeline {
-public:
-    MainMenuRenderPipeline();
-    ~MainMenuRenderPipeline();
 
     /// Initializes the pipeline and passes dependencies
-    void init(const SoaState* soaState, const ui32v4& viewport,
-              MainMenuScriptedUI* mainMenuUI,
-              Camera* camera,
-              const MainMenuSystemViewer* systemViewer);
+    void init(vui::GameWindow* window, LoadContext& context);
+
+    void hook(SoaState* state);
+
+    void load(LoadContext& context);
+
+    void dispose(LoadContext& context);
+
+    void updateGL();
 
     /// Renders the pipeline
-    virtual void render() override;
-
-    /// Frees all resources
-    virtual void destroy(bool shouldDisposeStages) override;
+    void render();
 
     void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
 
@@ -61,22 +61,28 @@ public:
     void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
 
     struct {
-        ColorFilterRenderStage colorFilter;
         SkyboxRenderStage skybox;
-        HdrRenderStage hdr;
         SpaceSystemRenderStage spaceSystem;
+        ColorFilterRenderStage colorFilter;
         ExposureCalcRenderStage exposureCalc;
+        HdrRenderStage hdr;       
     } stages;
 
 private:
-    void initFramebuffer();
     void resize();
     void dumpScreenshot();
 
-    vg::GLRenderTarget* m_hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
-    vg::RTSwapChain<2>* m_swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
+    vui::GameWindow* m_window;
+    SoaState* m_state = nullptr;
+    vcore::RPCManager m_glrpc;
+
+    vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
     vg::FullQuadVBO m_quad; ///< Quad used for post-processing
     MainMenuScriptedUI* m_mainMenuUI; ///< The main menu UI
+
+    std::thread* loadThread;
+    volatile bool loaded = false;
 
     ui32v4 m_viewport; ///< Viewport to draw to
     bool m_isInitialized = false;

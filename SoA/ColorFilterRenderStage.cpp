@@ -20,19 +20,11 @@ void main() {
 )";
 }
 
-ColorFilterRenderStage::ColorFilterRenderStage() {
-    // Empty
-}
-
-ColorFilterRenderStage::~ColorFilterRenderStage() {
-    dispose();
-}
-
-void ColorFilterRenderStage::init(vg::FullQuadVBO* quad) {
+void ColorFilterRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
 }
 
-void ColorFilterRenderStage::render() {
+void ColorFilterRenderStage::render(const Camera* camera) {
 
     if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgram("ColorFilterShader", VERT_SRC, FRAG_SRC);

@@ -13,15 +13,11 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-TransparentVoxelRenderStage::TransparentVoxelRenderStage() {
-    // Empty
-}
-
 void TransparentVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 
-void TransparentVoxelRenderStage::render() {
+void TransparentVoxelRenderStage::render(const Camera* camera) {
     glDepthMask(GL_FALSE);
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
     const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();

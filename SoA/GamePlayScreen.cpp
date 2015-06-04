@@ -374,7 +374,7 @@ void GameplayScreen::updateWorldCameraClip() {
 
 void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Reloading Shaders\n");
-    m_renderPipeline.reloadShaders();
+    //m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
 }
 
 void GameplayScreen::onQuit(Sender s, ui32 a) {

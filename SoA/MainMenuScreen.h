@@ -60,8 +60,6 @@ public:
     virtual void draw(const vui::GameTime& gameTime);
 
     // Getters
-    CinematicCamera& getCamera() { return m_camera; }
-    vio::IOManager& getIOManager() { return m_ioManager; }
     SoaState* getSoAState() const { return m_soaState; }
 
 private:
@@ -110,10 +108,6 @@ private:
 
     InputMapper* m_inputMapper = nullptr;
 
-    CinematicCamera m_camera; ///< The camera that looks at the planet from space
-
-    std::unique_ptr<MainMenuSystemViewer> m_mainMenuSystemViewer = nullptr;
-
     std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
@@ -122,7 +116,9 @@ private:
     MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
     MainMenuScriptedUI m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
-    
+
+    MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
+
     // TODO: Remove to a client state
     vsound::Engine* m_engine = nullptr;
     AmbienceLibrary* m_ambLibrary = nullptr;

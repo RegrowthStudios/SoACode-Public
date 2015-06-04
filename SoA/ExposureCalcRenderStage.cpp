@@ -19,7 +19,7 @@ ExposureCalcRenderStage::~ExposureCalcRenderStage() {
     delete m_scripts;
 }
 
-void ExposureCalcRenderStage::init(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
                                    const ui32v4* viewPort, ui32 resolution) {
     m_quad = quad;
     m_hdrFrameBuffer = hdrFrameBuffer;
@@ -34,11 +34,7 @@ void ExposureCalcRenderStage::init(vg::FullQuadVBO* quad, vg::GLRenderTarget* hd
     m_mipStep = 0;
 }
 
-void ExposureCalcRenderStage::reloadShader() {
-    dispose();
-}
-
-void ExposureCalcRenderStage::dispose() {
+void ExposureCalcRenderStage::dispose(LoadContext& context) {
     m_mipStep = 0;
     if (m_program.isCreated()) m_program.dispose();
     if (m_downsampleProgram.isCreated()) m_downsampleProgram.dispose();
@@ -49,7 +45,7 @@ void ExposureCalcRenderStage::dispose() {
     m_needsScriptLoad = true;
 }
 
-void ExposureCalcRenderStage::render() {
+void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
     if (m_renderTargets.empty()) {
         m_renderTargets.resize(m_mipLevels);
         for (size_t i = 0; i < m_mipLevels; i++) {

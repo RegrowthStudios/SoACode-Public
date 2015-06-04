@@ -12,15 +12,11 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-CutoutVoxelRenderStage::CutoutVoxelRenderStage() {
-    // Empty
-}
-
 void CutoutVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 
-void CutoutVoxelRenderStage::render() {
+void CutoutVoxelRenderStage::render(const Camera* camera) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
     const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     if (chunkMeshes.empty()) return;

@@ -17,6 +17,8 @@
 
 #include "IRenderStage.h"
 
+#include <Vorb/graphics/GLProgram.h>
+
 class Camera;
 class GameRenderParams;
 class MeshManager;
@@ -32,6 +34,7 @@ public:
     // Draws the render stage
     virtual void render() override;
 private:
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams; ///< Handle to shared parameters
 };
 

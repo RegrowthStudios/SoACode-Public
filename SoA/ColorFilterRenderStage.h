@@ -21,18 +21,16 @@
 
 class ColorFilterRenderStage : public IRenderStage {
 public:
-    ColorFilterRenderStage();
-    ~ColorFilterRenderStage();
-
-    void init(vg::FullQuadVBO* quad);
+    void hook(vg::FullQuadVBO* quad);
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 
     void setColor(const f32v4 color) { m_color = color; }
 private:
     f32v4 m_color;
     vg::FullQuadVBO* m_quad = nullptr;
+    vg::GLProgram m_program;
 };
 
 #endif // ColorFilterRenderStage_h__

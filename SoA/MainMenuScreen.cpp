@@ -63,13 +63,15 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Get the state handle
     m_soaState = m_loadScreen->getSoAState();
-                             
-    m_camera.init(m_window->getAspectRatio());
+    m_mainMenuSystemViewer = &m_soaState->systemViewer;
+
+    m_soaState->spaceCamera.init(m_window->getAspectRatio());
+    
 
     initInput();
 
-    m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
-                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
+    m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
+                                                                      &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
 
     m_engine = new vsound::Engine;
     m_engine->init();
@@ -111,12 +113,12 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_formFont.dispose();
     m_ui.dispose();
 
-    m_mainMenuSystemViewer.reset();
+    // m_soaState->systemViewer->dispose();
 
     m_threadRunning = false;
     //m_updateThread->join();
     //delete m_updateThread;
-    m_renderPipeline.destroy(true);
+    m_renderPipeline.dispose();
 
     delete m_inputMapper;
 
@@ -150,14 +152,14 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
             m_soaState->time += TIME_WARP_SPEED;
         }
         if (isWarping) {
-            m_camera.setSpeed(1.0);
+            m_soaState->spaceCamera.setSpeed(1.0);
         } else {
-            m_camera.setSpeed(0.3);
+            m_soaState->spaceCamera.setSpeed(0.3);
         }
     }
 
     m_soaState->time += m_soaState->timeStep;
-    m_spaceSystemUpdater->update(m_soaState, m_camera.getPosition(), f64v3(0.0));
+    m_spaceSystemUpdater->update(m_soaState, m_soaState->spaceCamera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState);
     m_mainMenuSystemViewer->update();
 
@@ -168,7 +170,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
-    m_camera.updateProjection();
+    m_soaState->spaceCamera.updateProjection();
     m_renderPipeline.render();
 }
 
@@ -200,7 +202,7 @@ void MainMenuScreen::initInput() {
 void MainMenuScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, m_window->getViewportDims());
-    m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_camera,
+    m_renderPipeline.init(m_soaState, viewport, &m_ui, &m_soaState->spaceCamera,
                           m_mainMenuSystemViewer.get());
 }
 
@@ -271,18 +273,18 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::SpaceSystemLoadData loadData;
     loadData.filePath = "StarSystems/Trinity";
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
-    CinematicCamera tmp = m_camera; // Store camera so the view doesn't change
+    CinematicCamera tmp = m_soaState->spaceCamera; // Store camera so the view doesn't change
     m_mainMenuSystemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
-                                                                    &m_camera, m_soaState->spaceSystem.get(), m_inputMapper);
-    m_camera = tmp; // Restore old camera
-    m_renderPipeline.destroy(true);
+                                                                    &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
+    m_soaState->spaceCamera = tmp; // Restore old camera
+    m_renderPipeline.dispose();
     m_renderPipeline = MainMenuRenderPipeline();
     initRenderPipeline();
 }
 
 void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Reloading Shaders\n");
-    m_renderPipeline.reloadShaders();
+    // m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
 }
 
 void MainMenuScreen::onQuit(Sender s, ui32 a) {
@@ -297,7 +299,7 @@ void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
     if (m_uiEnabled) m_ui.onOptionsChanged();
-    m_camera.setAspectRatio(m_window->getAspectRatio());
+    m_soaState->spaceCamera.setAspectRatio(m_window->getAspectRatio());
     m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
 

@@ -25,7 +25,7 @@ public:
     void init(const PDA* pda);
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
     const PDA* _pda = nullptr; ///< Handle to the PDA
 };

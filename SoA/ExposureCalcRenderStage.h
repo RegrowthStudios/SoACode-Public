@@ -19,6 +19,7 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/script/Function.h>
 #include <Vorb/script/Environment.h>
+#include <Vorb/graphics/GLProgram.h>
 
 #include "IRenderStage.h"
 
@@ -31,20 +32,16 @@ public:
     ~ExposureCalcRenderStage();
 
     /// resolution should be power of 2
-    void init(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+    void hook(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
               const ui32v4* viewPort, ui32 resolution);
-
-    /// Reloads the shader. By default, it simply
-    /// disposes the shader and allows a lazy init at next draw
-    virtual void reloadShader() override;
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw
-    virtual void dispose() override;
+    virtual void dispose(LoadContext& context) override;
 
     /// Draws the render stage
     /// @pre no FBO is bound
-    virtual void render() override;
+    virtual void render(const Camera* camera = nullptr) override;
 
     void setFrameBuffer(vg::GLRenderTarget* hdrFrameBuffer) { m_hdrFrameBuffer = hdrFrameBuffer; }
 
@@ -60,6 +57,7 @@ private:
     ui32 m_mipLevels = 1;
     int m_mipStep = -1;
     f32 m_exposure = 0.0005f;
+    vg::GLProgram m_program;
 
     // Script for exposure calc
     bool m_needsScriptLoad = true;

@@ -19,19 +19,20 @@
 
 #include "IRenderStage.h"
 
+#include <Vorb/graphics/GLProgram.h>
+
 class GameRenderParams;
 class Camera;
 class MeshManager;
 
 class CutoutVoxelRenderStage : public IRenderStage {
 public:
-    CutoutVoxelRenderStage();
-
     void init(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
 };
 

@@ -15,7 +15,6 @@
 #ifndef ShaderAssetLoader_h__
 #define ShaderAssetLoader_h__
 
-
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/AssetLoader.h>
 

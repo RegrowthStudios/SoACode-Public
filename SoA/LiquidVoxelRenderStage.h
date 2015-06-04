@@ -17,18 +17,18 @@
 
 #include "IRenderStage.h"
 
+#include <Vorb/graphics/GLProgram.h>
+
 class MeshManager;
 class GameRenderParams;
 
 class LiquidVoxelRenderStage : public IRenderStage {
 public:
-    LiquidVoxelRenderStage();
-
     void init(const GameRenderParams* gameRenderParams);
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
-    
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Some shared rendering parameters
 };
 

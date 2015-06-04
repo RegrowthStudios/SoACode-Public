@@ -7,6 +7,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/Random.h>
 #include <Vorb/graphics/SamplerState.h>
+#include <Vorb/graphics/FullQuadVBO.h>
 #include "ShaderLoader.h"
 
 #include "SoaOptions.h"
@@ -30,10 +31,6 @@ NightVisionRenderParams NightVisionRenderParams::createDefault() {
     v.noiseColor = NIGHT_VISION_DEFAULT_NOISE_COLOR;
     v.color = NIGHT_VISION_DEFAULT_VISION_COLOR;
     return v;
-}
-
-NightVisionRenderStage::NightVisionRenderStage() {
-    // Empty
 }
 
 void NightVisionRenderStage::init(vg::FullQuadVBO* quad) {
@@ -68,15 +65,14 @@ void NightVisionRenderStage::setParams(NightVisionRenderParams& params) {
     glUniform3f(m_program.getUniform("unVisionColor"), params.color.r, params.color.g, params.color.b);
 }
 
-void NightVisionRenderStage::dispose() {
-    IRenderStage::dispose();
+void NightVisionRenderStage::dispose(LoadContext& context) {
     if (m_texNoise.id) {
         glDeleteTextures(1, &m_texNoise.id);
         m_texNoise.id = 0;
     }
 }
 
-void NightVisionRenderStage::render() {
+void NightVisionRenderStage::render(const Camera* camera) {
     m_et += NIGHT_VISION_DEFAULT_NOISE_TIME_STEP;
 
     //_visionColorHSL.r = fmod(_visionColorHSL.r = 0.005f, 6.28f);

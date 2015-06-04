@@ -42,26 +42,18 @@ struct MTRenderState;
 
 class SpaceSystemRenderStage : public IRenderStage {
 public:
-    SpaceSystemRenderStage();
-    ~SpaceSystemRenderStage();
+    void hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera = nullptr);
 
-    void init(const SoaState* soaState,
-              ui32v2 viewport,
-              OPT const MainMenuSystemViewer* systemViewer,
-              const Camera* spaceCamera,
-              const Camera* farTerrainCamera);
-
+    //TODO(Ben): Pointer to window viewport instead?
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
 
     /// Call this every frame before render
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 
     /// Renders star glows requested in the render call. Call after HDR
     void renderStarGlows(const f32v3& colorMult);
-
-    virtual void reloadShader() override;
 
     void setShowAR(bool showAR) { m_showAR = showAR; }
 
@@ -83,6 +75,7 @@ private:
     /// @return pointer to the position
     const f64v3* getBodyPosition(NamePositionComponent& npCmp, vecs::EntityID eid);
 
+    vui::GameWindow* m_window = nullptr;
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;

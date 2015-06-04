@@ -18,19 +18,20 @@
 
 #include "IRenderStage.h"
 
+#include <Vorb/graphics/GLProgram.h>
+
 class GameRenderParams;
 class Camera;
 class MeshManager;
 
 class TransparentVoxelRenderStage : public IRenderStage {
 public:
-    TransparentVoxelRenderStage();
-
     void init(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
 };
 

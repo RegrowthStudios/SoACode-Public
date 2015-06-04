@@ -47,7 +47,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
             m_starRenderer.disposeShaders();
-            m_hdr.reloadShader();
+            //m_hdr.reloadShader(); // dis is broked
         } else if (e.keyCode == VKEY_UP) {
             m_isUpDown = true;
         } else if (e.keyCode == VKEY_DOWN) {

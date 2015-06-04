@@ -24,21 +24,15 @@ class ModPathResolver;
 class SkyboxRenderStage : public IRenderStage
 {
 public:
-    /// Constructor which injects dependencies
-    SkyboxRenderStage();
-    ~SkyboxRenderStage();
-
-    void init(const Camera* camera, const ModPathResolver* textureResolver);
+    void hook(SoaState* state);
 
     // Draws the render stage
-    virtual void render() override;
-
-    void reloadShader() override;
+    virtual void render(const Camera* camera) override;
 private:
     void loadSkyboxTexture();
     void drawSpace(glm::mat4 &VP);
     // Update projection matrix
-    void updateProjectionMatrix();
+    void updateProjectionMatrix(const Camera* camera);
 
     SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
     vg::GLProgram* m_program = nullptr; ///< Program used for rendering

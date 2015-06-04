@@ -18,20 +18,20 @@
 
 #include "IRenderStage.h"
 
+#include <Vorb/graphics/GLProgram.h>
+
 class GameRenderParams;
 class ChunkMemoryManager;
 
 class ChunkGridRenderStage : public IRenderStage {
 public:
-    ChunkGridRenderStage();
-    ~ChunkGridRenderStage();
-
     void init(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
     void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
     const ChunkMemoryManager* m_chunkMemoryManager = nullptr;
 };

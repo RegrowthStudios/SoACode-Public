@@ -52,22 +52,13 @@ void main() {
 )";
 }
 
-ChunkGridRenderStage::ChunkGridRenderStage() {
-    // Empty
-}
-
-
-ChunkGridRenderStage::~ChunkGridRenderStage() {
-    // Empty
-}
-
 void ChunkGridRenderStage::init(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,
 /// it should not cause a crash. However data may be partially incorrect.
-void ChunkGridRenderStage::render() {
+void ChunkGridRenderStage::render(const Camera* camera) {
     if (!m_isActive) return;
     if (!m_chunkMemoryManager) return;
 
