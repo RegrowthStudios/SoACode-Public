@@ -641,6 +641,7 @@ EXIT 0</Command>
     <ClInclude Include="TestDisplacementMappingScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
+    <ClInclude Include="TestNoiseScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -832,6 +833,7 @@ EXIT 0</Command>
     <ClCompile Include="TestDisplacementMappingScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
+    <ClCompile Include="TestNoiseScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
