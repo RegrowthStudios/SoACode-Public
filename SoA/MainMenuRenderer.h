@@ -89,7 +89,6 @@ private:
     volatile bool m_loaded = false;
 
     ui32v4 m_viewport; ///< Viewport to draw to
-    bool m_isInitialized = false;
     bool m_showUI = true;
     bool m_showAR = true;
     bool m_shouldScreenshot = false;

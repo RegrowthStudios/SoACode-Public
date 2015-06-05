@@ -23,6 +23,9 @@ void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context, MainM
     m_mainMenuScreen = mainMenuScreen;
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
+    // TODO(Ben): Dis is bad mkay
+    m_viewport = f32v4(0, 0, m_window->getWidth(), m_window->getHeight());
+
     m_mainMenuUI = &m_mainMenuScreen->m_ui;
 
     // Init render stages
@@ -52,8 +55,6 @@ void MainMenuRenderer::dispose(LoadContext& context) {
     m_hdrTarget.dispose();
     m_swapChain.dispose();
     m_quad.dispose();
-
-    m_isInitialized = false;
 }
 
 void MainMenuRenderer::load(LoadContext& context) {
