@@ -75,7 +75,6 @@ private:
     /// @return pointer to the position
     const f64v3* getBodyPosition(NamePositionComponent& npCmp, vecs::EntityID eid);
 
-    vui::GameWindow* m_window = nullptr;
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;

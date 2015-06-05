@@ -35,7 +35,6 @@ class SoaOptions;
 DECL_VIO(class IOManager);
 
 struct SoaState {
-public:
     ~SoaState();
 
     std::unique_ptr<SpaceSystem> spaceSystem = nullptr;

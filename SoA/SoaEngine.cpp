@@ -46,6 +46,8 @@ void SoaEngine::initOptions(SoaOptions& options) {
 }
 
 void SoaEngine::initState(SoaState* state) {
+    state->gameSystem = std::make_unique<GameSystem>();
+    state->spaceSystem = std::make_unique<SpaceSystem>();
     state->debugRenderer = std::make_unique<DebugRenderer>();
     state->meshManager = std::make_unique<MeshManager>();
     state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
@@ -63,7 +65,6 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     vfile file;
     path.asFile(&file);
 
-    state->spaceSystem = std::make_unique<SpaceSystem>();
     state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
@@ -111,7 +112,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
 
 bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadData) {
     // TODO(Ben): Implement
-    state->gameSystem = std::make_unique<GameSystem>();
+    
     return true;
 }
 

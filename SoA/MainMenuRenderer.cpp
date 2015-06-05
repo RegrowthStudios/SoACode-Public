@@ -11,15 +11,19 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "HdrRenderStage.h"
+#include "MainMenuScreen.h"
 
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "soaUtils.h"
 #include "MainMenuScriptedUI.h"
 
-void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context) {
+void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context, MainMenuScreen* mainMenuScreen) {
     m_window = window;
+    m_mainMenuScreen = mainMenuScreen;
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderer::onWindowResize);
+
+    m_mainMenuUI = &m_mainMenuScreen->m_ui;
 
     // Init render stages
     stages.skybox.init(window, context);
@@ -33,9 +37,9 @@ void MainMenuRenderer::dispose(LoadContext& context) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
     // Kill the builder
-    if (loadThread) {
-        delete loadThread;
-        loadThread = nullptr;
+    if (m_loadThread) {
+        delete m_loadThread;
+        m_loadThread = nullptr;
     }
 
     stages.skybox.dispose(context);
@@ -53,9 +57,9 @@ void MainMenuRenderer::dispose(LoadContext& context) {
 }
 
 void MainMenuRenderer::load(LoadContext& context) {
-    loaded = false;
+    m_loaded = false;
 
-    loadThread = new std::thread([&]() {
+    m_loadThread = new std::thread([&]() {
         vcore::GLRPC so[4];
         size_t i = 0;
 
@@ -93,9 +97,9 @@ void MainMenuRenderer::load(LoadContext& context) {
         stages.exposureCalc.load(context, m_glrpc);
         stages.hdr.load(context, m_glrpc);
 
-        loaded = true;
+        m_loaded = true;
     });
-    loadThread->detach();
+    m_loadThread->detach();
 }
 
 void MainMenuRenderer::hook(SoaState* state) {
@@ -175,7 +179,7 @@ void MainMenuRenderer::render() {
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureID());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
-    stages.hdr.render();
+    stages.hdr.render(&m_state->spaceCamera);
 
     if (m_showUI) m_mainMenuUI->draw();
 

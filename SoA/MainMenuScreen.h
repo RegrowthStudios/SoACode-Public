@@ -44,6 +44,8 @@ class AmbiencePlayer;
 
 class MainMenuScreen : public vui::IAppScreen<App> {
     friend class MainMenuScriptedUI;
+    friend class MainMenuRenderer;
+    friend class LoadScreen; // So it can load our assets
 public:
     MainMenuScreen(const App* app, CommonState* state);
     ~MainMenuScreen();
@@ -114,7 +116,7 @@ private:
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
-    MainMenuRenderer m_renderPipeline; ///< This handles all rendering for the main menu
+    MainMenuRenderer m_renderer; ///< This handles all rendering for the main menu
     MainMenuScriptedUI m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
 

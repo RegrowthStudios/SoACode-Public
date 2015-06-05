@@ -29,16 +29,17 @@
 
 /// Forward declarations
 class Camera;
-class MainMenuSystemViewer;
-struct SoaState;
-class SpaceSystem;
+class MainMenuScreen;
 class MainMenuScriptedUI;
+class MainMenuSystemViewer;
+class SpaceSystem;
+struct SoaState;
 DECL_VUI(struct WindowResizeEvent; class GameWindow);
 
 class MainMenuRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context);
+    void init(vui::GameWindow* window, LoadContext& context, MainMenuScreen* mainMenuScreen);
 
     void hook(SoaState* state);
 
@@ -59,6 +60,8 @@ public:
     void toggleAR() { m_showAR = !m_showAR; }
     void toggleWireframe() { m_wireframe = !m_wireframe; }
     void cycleColorFilter() { m_colorFilter++; if (m_colorFilter > 3) m_colorFilter = 0; }
+   
+    const volatile bool& isLoaded() const { return m_loaded; }
 
     struct {
         SkyboxRenderStage skybox;
@@ -75,14 +78,15 @@ private:
     vui::GameWindow* m_window;
     SoaState* m_state = nullptr;
     vcore::RPCManager m_glrpc;
+    MainMenuScreen* m_mainMenuScreen = nullptr;
 
     vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
     vg::FullQuadVBO m_quad; ///< Quad used for post-processing
     MainMenuScriptedUI* m_mainMenuUI; ///< The main menu UI
 
-    std::thread* loadThread;
-    volatile bool loaded = false;
+    std::thread* m_loadThread = nullptr;
+    volatile bool m_loaded = false;
 
     ui32v4 m_viewport; ///< Viewport to draw to
     bool m_isInitialized = false;

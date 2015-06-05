@@ -9,13 +9,13 @@
 #include "LoadBar.h"
 
 class App;
+class MainMenuScreen;
 struct CommonState;
 DECL_VG(class SpriteBatch; class SpriteFont);
 
 class LoadScreen : public vui::IAppScreen<App> {
 public:
-    LoadScreen(const App* app, CommonState* state);
-    ~LoadScreen();
+    LoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen);
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;
@@ -34,6 +34,7 @@ private:
 
     // Game state
     CommonState* m_commonState = nullptr;
+    MainMenuScreen* m_mainMenuScreen = nullptr;
 
     // Visualization Of Loading Tasks
     std::vector<LoadBar> m_loadBars;

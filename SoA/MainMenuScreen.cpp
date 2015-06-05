@@ -72,6 +72,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                       &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
+    m_mainMenuSystemViewer = m_soaState->systemViewer.get();
 
     m_ambLibrary = new AmbienceLibrary;
     m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
@@ -116,7 +117,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_threadRunning = false;
     //m_updateThread->join();
     //delete m_updateThread;
-    m_renderPipeline.dispose(m_commonState->loadContext);
+    m_renderer.dispose(m_commonState->loadContext);
 
     delete m_inputMapper;
 
@@ -167,7 +168,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
     m_soaState->spaceCamera.updateProjection();
-    m_renderPipeline.render();
+    m_renderer.render();
 }
 
 void MainMenuScreen::initInput() {
@@ -181,11 +182,11 @@ void MainMenuScreen::initInput() {
     m_inputMapper->get(INPUT_TOGGLE_UI).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleUI);
     // TODO(Ben): addFunctor = memory leak
     m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
-        m_renderPipeline.toggleAR(); });
+        m_renderer.toggleAR(); });
     m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s, ui32 i) {
-        m_renderPipeline.cycleColorFilter(); });
+        m_renderer.cycleColorFilter(); });
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
-        m_renderPipeline.takeScreenshot(); });
+        m_renderer.takeScreenshot(); });
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleWireframe);
 
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
@@ -196,7 +197,7 @@ void MainMenuScreen::initInput() {
 }
 
 void MainMenuScreen::initRenderPipeline() {
-    m_renderPipeline.init(m_window, m_commonState->loadContext);
+    //m_renderer.init(m_window, m_commonState->loadContext, this);
 }
 
 void MainMenuScreen::initUI() {
@@ -270,7 +271,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
                                                                     &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_soaState->spaceCamera = tmp; // Restore old camera
-    m_renderPipeline.dispose(m_commonState->loadContext);
+    m_renderer.dispose(m_commonState->loadContext);
     initRenderPipeline();
 }
 
@@ -329,7 +330,7 @@ void MainMenuScreen::onOptionsChange(Sender s) {
 }
 
 void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
-    m_renderPipeline.toggleUI();
+    m_renderer.toggleUI();
     m_uiEnabled = !m_uiEnabled;
     if (m_uiEnabled) {
         initUI();
@@ -339,5 +340,5 @@ void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
 }
 
 void MainMenuScreen::onToggleWireframe(Sender s, ui32 i) {
-    m_renderPipeline.toggleWireframe();
+    m_renderer.toggleWireframe();
 }

@@ -30,19 +30,17 @@ const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
 const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 
-LoadScreen::LoadScreen(const App* app, CommonState* state) :
+LoadScreen::LoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen) :
 IAppScreen<App>(app),
 m_commonState(state),
 m_sf(nullptr),
 m_sb(nullptr),
 m_monitor(),
-m_glrpc() {
+m_glrpc(),
+m_mainMenuScreen(mainMenuScreen) {
     // Empty
 }
 
-LoadScreen::~LoadScreen() {
-    // Empty
-}
 
 i32 LoadScreen::getNextScreen() const {
     return m_app->scrMainMenu->getIndex();
@@ -84,6 +82,10 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     addLoadTask("Textures", "Textures", new LoadTaskTextures);
     m_monitor.setDep("Textures", "BlockData");
     m_monitor.setDep("Textures", "SpaceSystem");
+
+    m_mainMenuScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_mainMenuScreen);
+    m_mainMenuScreen->m_renderer.hook(m_commonState->state);
+    m_mainMenuScreen->m_renderer.load(m_commonState->loadContext);
 
     // Start the tasks
     m_monitor.start();
@@ -132,10 +134,11 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     // Perform OpenGL calls
     fCounter++;
     m_glrpc.processRequests(1);
+    m_mainMenuScreen->m_renderer.updateGL();
 
     // Defer texture loading
     static bool loadedTextures = false;
-    if (!loadedTextures && m_monitor.isTaskFinished("Textures")) {
+    if (m_mainMenuScreen->m_renderer.isLoaded() && !loadedTextures && m_monitor.isTaskFinished("Textures")) {
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
         GameManager::texturePackLoader->setBlockTextures(Blocks);

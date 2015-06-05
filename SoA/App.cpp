@@ -6,7 +6,9 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/sound/SoundEngine.h>
 
+#include "ChunkMeshManager.h"
 #include "CommonState.h"
+#include "DebugRenderer.h"
 #include "DevScreen.h"
 #include "GameManager.h"
 #include "GameplayScreen.h"
@@ -17,6 +19,7 @@
 #include "MeshManager.h"
 #include "SoaEngine.h"
 #include "SoaOptions.h"
+#include "SoaState.h"
 #include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
@@ -27,9 +30,9 @@
 #include "TestStarScreen.h"
 
 void App::addScreens() {
-    scrInit = new InitScreen(this);
-    scrLoad = new LoadScreen(this, &state);
+    scrInit = new InitScreen(this);  
     scrMainMenu = new MainMenuScreen(this, &state);
+    scrLoad = new LoadScreen(this, &state, scrMainMenu);
     scrGamePlay = new GameplayScreen(this, scrMainMenu);
 
     m_screenList.addScreen(scrInit);
@@ -75,7 +78,8 @@ void App::addScreens() {
 }
 
 void App::onInit() {
-    
+    state.state = new SoaState;
+    state.window = &m_window;
     state.soundEngine = new vsound::Engine;
     state.soundEngine->init();
 
