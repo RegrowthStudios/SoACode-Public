@@ -50,7 +50,41 @@ i32 LoadScreen::getPreviousScreen() const {
 }
 
 void LoadScreen::build() {
-    // Empty
+    m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
+    m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
+    m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
+    m_screenDuration = (m_env["Screen.MaxDuration"].as<f64>())();
+    m_fUpdatePosition = m_env["Screen.PositionAtTime"].as<f32v2>();
+    m_fUpdateColor = m_env["Screen.ColorAtTime"].as<f32v4>();
+
+    { // Load all textures
+        static cString texturePaths[VORB_NUM_TEXTURES] = {
+            "Data/Logos/Vorb/V.png",
+            "Data/Logos/Vorb/O.png",
+            "Data/Logos/Vorb/R.png",
+            "Data/Logos/Vorb/B.png",
+            "Data/Logos/Vorb/CubeLeft.png",
+            "Data/Logos/Vorb/CubeRight.png",
+            "Data/Logos/Vorb/CubeTop.png"
+        };
+        vg::ImageIO imageIO;
+        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
+            vg::Texture& tex = m_textures[i];
+
+            // Load file
+            vg::BitmapResource bmp = imageIO.load(texturePaths[i]);
+            tex.width = bmp.width;
+            tex.height = bmp.height;
+
+            // Create GPU texture
+            glGenTextures(1, &tex.id);
+            glBindTexture(GL_TEXTURE_2D, tex.id);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.data);
+            vg::SamplerState::LINEAR_CLAMP.set(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            vg::ImageIO::free(bmp);
+        }
+    }
 }
 void LoadScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
@@ -71,17 +105,9 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
-    // TODO(Ben): Uncomment after demo build!
-    /* addLoadTask("BlockData", "Block Data", new LoadTaskBlockData);
-     m_monitor.setDep("BlockData", "GameManager");*/
 
     addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_commonState->state));
     m_monitor.setDep("SpaceSystem", "GameManager");
-
-    // TODO(Ben): Uncomment after demo build!
-  /*  addLoadTask("Textures", "Textures", new LoadTaskTextures);
-    m_monitor.setDep("Textures", "BlockData");
-    m_monitor.setDep("Textures", "SpaceSystem");*/
 
     m_mainMenuScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_mainMenuScreen);
     m_mainMenuScreen->m_renderer.hook(m_commonState->state);
@@ -91,8 +117,13 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     m_monitor.start();
 
     // Clear State For The Screen
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    f32v4 clearColor = m_env["Screen.BackgroundColor"].as<f32v4>()();
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClearDepth(1.0);
+
+    m_isSkipDetected = false;
+    m_timer = 0.0;
+    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &LoadScreen::onKeyPress);
 }
 void LoadScreen::onExit(const vui::GameTime& gameTime) {
     m_sf->dispose();
@@ -115,10 +146,15 @@ void LoadScreen::onExit(const vui::GameTime& gameTime) {
 
     // Restore default rasterizer state
     vg::RasterizerState::CULL_CLOCKWISE.set();
+
+    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &LoadScreen::onKeyPress);
 }
 
 void LoadScreen::update(const vui::GameTime& gameTime) {
     static ui64 fCounter = 0;
+
+    // Increment elapsed time
+    m_timer += gameTime.elapsed;
 
     for (ui32 i = 0; i < m_loadTasks.size(); i++) {
         if (m_loadTasks[i] != nullptr && m_loadTasks[i]->isFinished()) {
@@ -138,7 +174,7 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
 
     // Defer texture loading
     static bool loadedTextures = false;
-    if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem")) {// && !loadedTextures && m_monitor.isTaskFinished("Textures")) {
+    if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || m_timer > m_screenDuration)) {// && !loadedTextures && m_monitor.isTaskFinished("Textures")) {
         //GameManager::texturePackLoader->uploadTextures();
         //GameManager::texturePackLoader->writeDebugAtlases();
         //GameManager::texturePackLoader->setBlockTextures(Blocks);
@@ -173,19 +209,42 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     }
 }
 void LoadScreen::draw(const vui::GameTime& gameTime) {
-    const vui::GameWindow* w = &m_game->getWindow();
+    static cString textureNames[VORB_NUM_TEXTURES] = {
+        "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
+    };
+    const vui::GameWindow& w = m_game->getWindow();
 
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Draw vorb logo
+    // Update the window size
+    f32v2 windowSize(w.getWidth(), w.getHeight());
+    m_env.addValue("WindowWidth", windowSize.x);
+    m_env.addValue("WindowHeight", windowSize.y);
+
+    // Render each texture
     m_sb->begin();
-    for (ui32 i = 0; i < m_loadTasks.size(); i++) {
-        m_loadBars[i].draw(m_sb, m_sf, 0, 0.8f);
+    for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
+        f32v2 pos = m_fUpdatePosition(m_timer, nString(textureNames[i]));
+        f32v4 color = m_fUpdateColor(m_timer, nString(textureNames[i]));
+        f32v4 rect(0.01f, 0.01f, 0.98f, 0.98f);
+        m_sb->draw(m_textures[i].id, &rect, nullptr, pos, f32v2(m_textures[i].width, m_textures[i].height), color4(color.r, color.g, color.b, color.a));
     }
+    m_sb->end();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_sb->render(windowSize);
 
-    m_sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
+    // Draw loading stuff
 
-    m_sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+    /*  m_sb->begin();
+      for (ui32 i = 0; i < m_loadTasks.size(); i++) {
+      m_loadBars[i].draw(m_sb, m_sf, 0, 0.8f);
+      }
+
+      m_sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
+
+      m_sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);*/
     checkGlError("LoadScreen::draw()");
     
 }
@@ -207,4 +266,16 @@ void LoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadT
     m_loadBars[i].expand();
     m_loadBars[i].setColor(color::Black, color::Maroon);
     m_loadBars[i].setText(loadText);
+}
+
+void LoadScreen::onKeyPress(Sender, const vui::KeyEvent& e) {
+    switch (e.keyCode) {
+        case VKEY_RETURN:
+        case VKEY_ESCAPE:
+        case VKEY_SPACE:
+            m_isSkipDetected = true;
+            break;
+        default:
+            break;
+    }
 }
