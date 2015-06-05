@@ -17,6 +17,7 @@ struct CommonState;
 DECL_VG(class SpriteBatch; class SpriteFont);
 
 #define VORB_NUM_TEXTURES 7
+#define REGROWTH_NUM_TEXTURES 2
 
 class LoadScreen : public vui::IAppScreen<App> {
 public:
@@ -51,13 +52,21 @@ private:
     LoadMonitor m_monitor;
     std::vector<ILoadTask*> m_loadTasks;
 
-    // Vars for vorb logo
-    f64 m_timer, m_screenDuration;
+    // Vars for logos
+    f64 m_timer, m_vorbScreenDuration, m_regrowthScreenDuration;
+    f32 m_regrowthScale;
     bool m_isSkipDetected;
-    vg::Texture m_textures[VORB_NUM_TEXTURES]; ///< 7 textures for the letters and cube
+    vg::Texture m_vorbTextures[VORB_NUM_TEXTURES]; ///< 7 textures for the letters and cube
+    vg::Texture m_regrowthTextures[REGROWTH_NUM_TEXTURES]; ///< 2 Textures for Regrowth Studios
     vscript::Environment m_env;
-    vscript::RFunction<f32v2> m_fUpdatePosition; ///< f32v2 (f64 totalTime, nString texture)
-    vscript::RFunction<f32v4> m_fUpdateColor; ///< f32v4 (f64 totalTime, nString texture)
+    vscript::RFunction<f32v2> m_fUpdateVorbPosition; ///< f32v2 (f64 totalTime, nString texture)
+    vscript::RFunction<f32v4> m_fUpdateVorbColor; ///< f32v4 (f64 totalTime, nString texture)
+    vscript::RFunction<f32v4> m_fUpdateVorbBackColor;///< f32v4 (f64 totalTime)
+    vscript::RFunction<f32v2> m_fUpdateRegrowthPosition; ///< f32v2 (f64 totalTime, nString texture)
+    vscript::RFunction<f32v4> m_fUpdateRegrowthColor; ///< f32v4 (f64 totalTime, nString texture)
+    vscript::RFunction<f32v4> m_fUpdateRegrowthBackColor;///< f32v4 (f64 totalTime)
+
+    bool m_isOnVorb = true;
 
     vcore::RPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
 };

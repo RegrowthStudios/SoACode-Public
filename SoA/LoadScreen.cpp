@@ -53,12 +53,18 @@ void LoadScreen::build() {
     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
     m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
-    m_screenDuration = (m_env["Screen.MaxDuration"].as<f64>())();
-    m_fUpdatePosition = m_env["Screen.PositionAtTime"].as<f32v2>();
-    m_fUpdateColor = m_env["Screen.ColorAtTime"].as<f32v4>();
-
+    m_vorbScreenDuration = (m_env["Vorb.MaxDuration"].as<f64>())();
+    m_fUpdateVorbPosition = m_env["Vorb.PositionAtTime"].as<f32v2>();
+    m_fUpdateVorbColor = m_env["Vorb.ColorAtTime"].as<f32v4>();
+    m_fUpdateVorbBackColor = m_env["Vorb.BackgroundColor"].as<f32v4>();
+    m_env.load("Data/Logos/Regrowth/ScreenUpdate.lua");
+    m_regrowthScreenDuration = (m_env["Regrowth.MaxDuration"].as<f64>())();
+    m_fUpdateRegrowthPosition = m_env["Regrowth.PositionAtTime"].as<f32v2>();
+    m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
+    m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
+    m_regrowthScale = (m_env["Regrowth.Scale"].as<f64>())();
     { // Load all textures
-        static cString texturePaths[VORB_NUM_TEXTURES] = {
+        const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",
             "Data/Logos/Vorb/O.png",
             "Data/Logos/Vorb/R.png",
@@ -69,10 +75,10 @@ void LoadScreen::build() {
         };
         vg::ImageIO imageIO;
         for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
-            vg::Texture& tex = m_textures[i];
+            vg::Texture& tex = m_vorbTextures[i];
 
             // Load file
-            vg::BitmapResource bmp = imageIO.load(texturePaths[i]);
+            vg::ScopedBitmapResource bmp = imageIO.load(vorbTexturePaths[i]);
             tex.width = bmp.width;
             tex.height = bmp.height;
 
@@ -80,9 +86,25 @@ void LoadScreen::build() {
             glGenTextures(1, &tex.id);
             glBindTexture(GL_TEXTURE_2D, tex.id);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.data);
-            vg::SamplerState::LINEAR_CLAMP.set(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, 0);
-            vg::ImageIO::free(bmp);
+        }
+        const cString regrowthTexturePaths[REGROWTH_NUM_TEXTURES] = {
+            "Data/Logos/Regrowth/Regrowth.png",
+            "Data/Logos/Regrowth/Studios.png"
+        };
+        for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
+            vg::Texture& tex = m_regrowthTextures[i];
+
+            // Load file
+            vg::ScopedBitmapResource bmp = imageIO.load(regrowthTexturePaths[i]);
+            tex.width = bmp.width;
+            tex.height = bmp.height;
+
+            // Create GPU texture
+            glGenTextures(1, &tex.id);
+            glBindTexture(GL_TEXTURE_2D, tex.id);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.data);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
 }
@@ -116,11 +138,6 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
     // Start the tasks
     m_monitor.start();
 
-    // Clear State For The Screen
-    f32v4 clearColor = m_env["Screen.BackgroundColor"].as<f32v4>()();
-    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    glClearDepth(1.0);
-
     m_isSkipDetected = false;
     m_timer = 0.0;
     vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &LoadScreen::onKeyPress);
@@ -147,6 +164,10 @@ void LoadScreen::onExit(const vui::GameTime& gameTime) {
     // Restore default rasterizer state
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
+    // Free textures
+    for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) glDeleteTextures(1, &m_vorbTextures[i].id);
+    for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) glDeleteTextures(1, &m_regrowthTextures[i].id);
+
     vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &LoadScreen::onKeyPress);
 }
 
@@ -155,6 +176,10 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
 
     // Increment elapsed time
     m_timer += gameTime.elapsed;
+    if (m_isOnVorb && m_timer > m_vorbScreenDuration) {
+        m_timer = 0.0f;
+        m_isOnVorb = false;
+    }
 
     for (ui32 i = 0; i < m_loadTasks.size(); i++) {
         if (m_loadTasks[i] != nullptr && m_loadTasks[i]->isFinished()) {
@@ -174,7 +199,7 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
 
     // Defer texture loading
     static bool loadedTextures = false;
-    if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || m_timer > m_screenDuration)) {// && !loadedTextures && m_monitor.isTaskFinished("Textures")) {
+    if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || (!m_isOnVorb && m_timer > m_regrowthScreenDuration))) {// && !loadedTextures && m_monitor.isTaskFinished("Textures")) {
         //GameManager::texturePackLoader->uploadTextures();
         //GameManager::texturePackLoader->writeDebugAtlases();
         //GameManager::texturePackLoader->setBlockTextures(Blocks);
@@ -209,10 +234,22 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     }
 }
 void LoadScreen::draw(const vui::GameTime& gameTime) {
-    static cString textureNames[VORB_NUM_TEXTURES] = {
+    static cString vorbTextureNames[VORB_NUM_TEXTURES] = {
         "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
     };
+    static cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
+        "Regrowth", "Studios"
+    };
     const vui::GameWindow& w = m_game->getWindow();
+
+    // Clear State For The Screen
+    f32v4 clearColor;
+    if (m_isOnVorb) {
+        clearColor = m_fUpdateVorbBackColor(m_timer);
+    } else {
+        clearColor = m_fUpdateRegrowthBackColor(m_timer);
+    }
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -225,15 +262,23 @@ void LoadScreen::draw(const vui::GameTime& gameTime) {
 
     // Render each texture
     m_sb->begin();
-    for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
-        f32v2 pos = m_fUpdatePosition(m_timer, nString(textureNames[i]));
-        f32v4 color = m_fUpdateColor(m_timer, nString(textureNames[i]));
-        f32v4 rect(0.01f, 0.01f, 0.98f, 0.98f);
-        m_sb->draw(m_textures[i].id, &rect, nullptr, pos, f32v2(m_textures[i].width, m_textures[i].height), color4(color.r, color.g, color.b, color.a));
+    f32v2 uvTile(0.999999f, 0.999999f);
+    if (m_isOnVorb) {
+        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
+            f32v2 pos = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
+            f32v4 color = m_fUpdateVorbColor(m_timer, nString(vorbTextureNames[i]));          
+            m_sb->draw(m_vorbTextures[i].id, nullptr, &uvTile, pos, f32v2(m_vorbTextures[i].width, m_vorbTextures[i].height), color4(color.r, color.g, color.b, color.a));
+        }
+    } else {
+        for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
+            f32v2 pos = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
+            f32v4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
+            m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color4(color.r, color.g, color.b, color.a));
+        }
     }
     m_sb->end();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_sb->render(windowSize);
+    m_sb->render(windowSize, &vg::SamplerState::LINEAR_CLAMP);
 
     // Draw loading stuff
 
