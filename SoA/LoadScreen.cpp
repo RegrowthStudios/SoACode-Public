@@ -270,11 +270,23 @@ void LoadScreen::draw(const vui::GameTime& gameTime) {
             m_sb->draw(m_vorbTextures[i].id, nullptr, &uvTile, pos, f32v2(m_vorbTextures[i].width, m_vorbTextures[i].height), color4(color.r, color.g, color.b, color.a));
         }
     } else {
-        for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
-            f32v2 pos = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
-            f32v4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
-            m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color4(color.r, color.g, color.b, color.a));
-        }
+        if (m_timer <= m_regrowthScreenDuration) {
+            for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
+                f32v2 pos = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
+                f32v4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
+                m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color4(color.r, color.g, color.b, color.a));
+            }
+        } else {
+            // Animated loading message. TODO(Ben): Replace with progress bar
+            int it = (int)m_timer % 3;
+            if (it == 0) {
+                m_sb->drawString(m_sf, "Loading.", f32v2(w.getWidth() - m_sf->measure("Loading").x * 0.5, w.getHeight()) / 2.0f, f32v2(1.0), color::White, vg::TextAlign::LEFT);
+            } else if (it == 1) {
+                m_sb->drawString(m_sf, "Loading..", f32v2(w.getWidth() - m_sf->measure("Loading").x * 0.5, w.getHeight()) / 2.0f, f32v2(1.0), color::White, vg::TextAlign::LEFT);
+            } else {
+                m_sb->drawString(m_sf, "Loading...", f32v2(w.getWidth() - m_sf->measure("Loading").x * 0.5, w.getHeight()) / 2.0f, f32v2(1.0), color::White, vg::TextAlign::LEFT);
+            }
+        }     
     }
     m_sb->end();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
