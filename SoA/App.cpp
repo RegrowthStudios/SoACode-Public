@@ -32,7 +32,7 @@
 void App::addScreens() {
     scrInit = new InitScreen(this);  
     scrMainMenu = new MainMenuScreen(this, &state);
-    scrLoad = new LoadScreen(this, &state, scrMainMenu);
+    scrLoad = new MainMenuLoadScreen(this, &state, scrMainMenu);
     scrGamePlay = new GameplayScreen(this, scrMainMenu);
 
     m_screenList.addScreen(scrInit);

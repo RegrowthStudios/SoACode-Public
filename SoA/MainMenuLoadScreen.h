@@ -19,9 +19,9 @@ DECL_VG(class SpriteBatch; class SpriteFont);
 #define VORB_NUM_TEXTURES 7
 #define REGROWTH_NUM_TEXTURES 2
 
-class LoadScreen : public vui::IAppScreen<App> {
+class MainMenuLoadScreen : public vui::IAppScreen<App> {
 public:
-    LoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen);
+    MainMenuLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen);
 
     virtual i32 getNextScreen() const;
     virtual i32 getPreviousScreen() const;

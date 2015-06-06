@@ -9,7 +9,7 @@
 
 class DevScreen;
 class InitScreen;
-class LoadScreen;
+class MainMenuLoadScreen;
 class MainMenuScreen;
 class GameplayScreen;
 class TexturePackLoader;
@@ -24,7 +24,7 @@ public:
 
     // Accessible Pointers To Screens
     InitScreen* scrInit = nullptr;
-    LoadScreen* scrLoad = nullptr;
+    MainMenuLoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
     GameplayScreen* scrGamePlay = nullptr;
 

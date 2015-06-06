@@ -30,7 +30,7 @@ const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
 const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 
-LoadScreen::LoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen) :
+MainMenuLoadScreen::MainMenuLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen) :
 IAppScreen<App>(app),
 m_commonState(state),
 m_sf(nullptr),
@@ -42,14 +42,14 @@ m_mainMenuScreen(mainMenuScreen) {
 }
 
 
-i32 LoadScreen::getNextScreen() const {
+i32 MainMenuLoadScreen::getNextScreen() const {
     return m_app->scrMainMenu->getIndex();
 }
-i32 LoadScreen::getPreviousScreen() const {
+i32 MainMenuLoadScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
 
-void LoadScreen::build() {
+void MainMenuLoadScreen::build() {
     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
     m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
@@ -108,11 +108,11 @@ void LoadScreen::build() {
         }
     }
 }
-void LoadScreen::destroy(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void LoadScreen::onEntry(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
     SoaFileSystem fs;
     fs.init();
     MusicPlayer mp;
@@ -140,9 +140,9 @@ void LoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_isSkipDetected = false;
     m_timer = 0.0;
-    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &LoadScreen::onKeyPress);
+    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &MainMenuLoadScreen::onKeyPress);
 }
-void LoadScreen::onExit(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime) {
     m_sf->dispose();
     delete m_sf;
     m_sf = nullptr;
@@ -168,10 +168,10 @@ void LoadScreen::onExit(const vui::GameTime& gameTime) {
     for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) glDeleteTextures(1, &m_vorbTextures[i].id);
     for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) glDeleteTextures(1, &m_regrowthTextures[i].id);
 
-    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &LoadScreen::onKeyPress);
+    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &MainMenuLoadScreen::onKeyPress);
 }
 
-void LoadScreen::update(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
     static ui64 fCounter = 0;
 
     // Increment elapsed time
@@ -233,7 +233,7 @@ void LoadScreen::update(const vui::GameTime& gameTime) {
     
     }
 }
-void LoadScreen::draw(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
     static cString vorbTextureNames[VORB_NUM_TEXTURES] = {
         "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
     };
@@ -306,7 +306,7 @@ void LoadScreen::draw(const vui::GameTime& gameTime) {
     
 }
 
-void LoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
+void MainMenuLoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
     // Add the load task to the monitor
     m_loadTasks.push_back(task);
     m_monitor.addTask(name, m_loadTasks.back());
@@ -325,7 +325,7 @@ void LoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadT
     m_loadBars[i].setText(loadText);
 }
 
-void LoadScreen::onKeyPress(Sender, const vui::KeyEvent& e) {
+void MainMenuLoadScreen::onKeyPress(Sender, const vui::KeyEvent& e) {
     switch (e.keyCode) {
         case VKEY_RETURN:
         case VKEY_ESCAPE:

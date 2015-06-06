@@ -31,7 +31,7 @@
 class App;
 
 class InputMapper;
-class LoadScreen;
+class MainMenuLoadScreen;
 class MainMenuSystemViewer;
 class SpaceSystemUpdater;
 struct CommonState;
@@ -45,7 +45,7 @@ class AmbiencePlayer;
 class MainMenuScreen : public vui::IAppScreen<App> {
     friend class MainMenuScriptedUI;
     friend class MainMenuRenderer;
-    friend class LoadScreen; // So it can load our assets
+    friend class MainMenuLoadScreen; // So it can load our assets
 public:
     MainMenuScreen(const App* app, CommonState* state);
     ~MainMenuScreen();
