@@ -197,8 +197,8 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
     m_prevRenderState = renderState;
 
     // Set renderState and draw everything
-    m_renderPipeline.setRenderState(renderState);
-    m_renderPipeline.render();
+    m_renderer.setRenderState(renderState);
+    m_renderer.render();
     globalRenderAccumulationTimer.stop();
 
     // Uncomment to time rendering
@@ -235,7 +235,7 @@ void GameplayScreen::initInput() {
         m_soaState->isInputEnabled = false;
     });
     m_inputMapper->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.toggleChunkGrid();
+        m_renderer.toggleChunkGrid();
     });
     m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
        /* if (m_pda.isOpen()) {
@@ -255,14 +255,14 @@ void GameplayScreen::initInput() {
     });
     m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (isInGame()) {
-            m_renderPipeline.toggleNightVision();
+            m_renderer.toggleNightVision();
         }
     });
     m_inputMapper->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.cycleDevHud();
+        m_renderer.cycleDevHud();
     });
     m_inputMapper->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.loadNightVision();
+        m_renderer.loadNightVision();
     });
 
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &GameplayScreen::onReloadShaders);
@@ -292,7 +292,7 @@ void GameplayScreen::initInput() {
     vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
 
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
-        m_renderPipeline.takeScreenshot(); });
+        m_renderer.takeScreenshot(); });
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
 
     m_inputMapper->startInput();
@@ -383,7 +383,7 @@ void GameplayScreen::onQuit(Sender s, ui32 a) {
 }
 
 void GameplayScreen::onToggleWireframe(Sender s, ui32 i) {
-    m_renderPipeline.toggleWireframe();
+    m_renderer.toggleWireframe();
 }
 
 void GameplayScreen::onWindowClose(Sender s) {

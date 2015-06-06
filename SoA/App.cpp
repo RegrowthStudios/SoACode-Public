@@ -12,7 +12,7 @@
 #include "DevScreen.h"
 #include "GameManager.h"
 #include "GameplayScreen.h"
-#include "GameplayScreen.h"
+#include "GameplayLoadScreen.h"
 #include "InitScreen.h"
 #include "MainMenuLoadScreen.h"
 #include "MainMenuScreen.h"
@@ -34,10 +34,12 @@ void App::addScreens() {
     scrMainMenu = new MainMenuScreen(this, &state);
     scrLoad = new MainMenuLoadScreen(this, &state, scrMainMenu);
     scrGamePlay = new GameplayScreen(this, scrMainMenu);
+    scrGameplayLoad = new GameplayLoadScreen(this, &state, scrMainMenu, scrGamePlay);
 
     m_screenList.addScreen(scrInit);
     m_screenList.addScreen(scrLoad);
     m_screenList.addScreen(scrMainMenu);
+    m_screenList.addScreen(scrGameplayLoad);
     m_screenList.addScreen(scrGamePlay);
 
     // Add development screen

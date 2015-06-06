@@ -26,6 +26,7 @@ public:
     InitScreen* scrInit = nullptr;
     MainMenuLoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
+    GameplayLoadScreen* scrGameplayLoad = nullptr;
     GameplayScreen* scrGamePlay = nullptr;
 
     DevScreen* scrDev = nullptr;

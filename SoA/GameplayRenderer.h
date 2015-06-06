@@ -98,6 +98,8 @@ public:
 
     void takeScreenshot() { m_shouldScreenshot = true; }
 
+    volatile const bool& isLoaded() const { return m_isLoaded; }
+
     struct {
         SkyboxRenderStage skybox; ///< Renders the skybox
         SpaceSystemRenderStage spaceSystem; ///< Render space and planets
@@ -131,7 +133,7 @@ private:
     vcore::RPCManager m_glrpc;
 
     std::thread* m_loadThread = nullptr;
-    volatile bool m_loaded = false;
+    volatile bool m_isLoaded = false;
 
     // TODO: This is only for visualization purposes, must remove
     std::vector<NightVisionRenderParams> m_nvParams; ///< Different night vision styles

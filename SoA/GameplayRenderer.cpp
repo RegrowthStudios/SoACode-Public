@@ -85,7 +85,7 @@ void GameplayRenderer::dispose(LoadContext& context) {
 }
 
 void GameplayRenderer::load(LoadContext& context) {
-    m_loaded = false;
+    m_isLoaded = false;
 
     m_loadThread = new std::thread([&]() {
         vcore::GLRPC so[4];
@@ -132,7 +132,7 @@ void GameplayRenderer::load(LoadContext& context) {
         stages.nightVision.load(context, m_glrpc);
         stages.hdr.load(context, m_glrpc);
 
-        m_loaded = true;
+        m_isLoaded = true;
     });
     m_loadThread->detach();
 }

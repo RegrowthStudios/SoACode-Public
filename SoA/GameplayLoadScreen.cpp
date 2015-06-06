@@ -4,16 +4,18 @@
 #include "App.h"
 #include "CommonState.h"
 #include "GameplayScreen.h"
+#include "GameplayScreen.h"
 #include "LoadTaskBlockData.h"
 #include "LoadTaskTextures.h"
 #include "SoaEngine.h"
 
-GameplayLoadScreen::GameplayLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen) :
+GameplayLoadScreen::GameplayLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen, GameplayScreen* gameplayScreen) :
 IAppScreen<App>(app),
 m_commonState(state),
 m_monitor(),
 m_glrpc(),
-m_mainMenuScreen(mainMenuScreen) {
+m_mainMenuScreen(mainMenuScreen),
+m_gameplayScreen(gameplayScreen) {
     // Empty
 }
 
@@ -42,6 +44,10 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Start the tasks
     m_monitor.start();
+
+    m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen);
+    m_gameplayScreen->m_renderer.hook(m_commonState->state);
+    m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
 }
 
 void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
@@ -55,7 +61,8 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 
     // Defer texture loading
     static bool loadedTextures = false;
-    if (!loadedTextures && m_monitor.isTaskFinished("Textures")) {
+    // End condition
+    if (!loadedTextures && m_gameplayScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("Textures")) {
         GameManager::texturePackLoader->uploadTextures();
         GameManager::texturePackLoader->writeDebugAtlases();
         GameManager::texturePackLoader->setBlockTextures(Blocks);

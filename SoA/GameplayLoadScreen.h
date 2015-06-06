@@ -26,6 +26,7 @@
 
 class App;
 class MainMenuScreen;
+class GamplayScreen;
 struct CommonState;
 
 #define VORB_NUM_TEXTURES 7
@@ -33,7 +34,7 @@ struct CommonState;
 
 class GameplayLoadScreen : public vui::IAppScreen < App > {
 public:
-    GameplayLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen);
+    GameplayLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen, GameplayScreen* gameplayScreen);
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
@@ -51,6 +52,7 @@ private:
     // Game state
     CommonState* m_commonState = nullptr;
     MainMenuScreen* m_mainMenuScreen = nullptr;
+    GameplayScreen* m_gameplayScreen = nullptr;
 
     // Loading Tasks
     LoadMonitor m_monitor;

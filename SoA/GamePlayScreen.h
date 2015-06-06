@@ -60,6 +60,7 @@ enum DevUiModes {
 
 class GameplayScreen : public vui::IAppScreen<App> {
     friend class GameplayRenderer;
+    friend class GameplayLoadScreen;
 public:
     GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
     ~GameplayScreen();
@@ -130,7 +131,7 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    GameplayRenderer m_renderPipeline; ///< This handles all rendering for the screen
+    GameplayRenderer m_renderer; ///< This handles all rendering for the screen
 
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
     const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw
