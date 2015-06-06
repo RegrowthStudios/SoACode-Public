@@ -59,6 +59,7 @@ enum DevUiModes {
 };
 
 class GameplayScreen : public vui::IAppScreen<App> {
+    friend class GameplayRenderer;
 public:
     GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
     ~GameplayScreen();

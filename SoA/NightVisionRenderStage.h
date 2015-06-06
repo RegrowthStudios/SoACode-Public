@@ -58,7 +58,7 @@ public:
     virtual void dispose(LoadContext& context) override;
 
     /// Draws the render stage
-    virtual void render(const Camera* camera) override;
+    virtual void render(const Camera* camera = nullptr) override;
 private:
     vg::GLProgram m_program;
     vg::FullQuadVBO* m_quad; ///< For use in processing through data

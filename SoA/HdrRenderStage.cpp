@@ -23,9 +23,11 @@ void HdrRenderStage::dispose(LoadContext& context) {
 
 void HdrRenderStage::render(const Camera* camera /*= nullptr*/) {
     f32m4 oldVP = m_oldVP;
-    f32m4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
-    m_oldVP = vp;
-
+    f32m4 vp;
+    if (camera) {
+        vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+        m_oldVP = vp;
+    }
     vg::GLProgram* program;
     
     if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {

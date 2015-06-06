@@ -52,7 +52,7 @@ void main() {
 )";
 }
 
-void ChunkGridRenderStage::inhookit(const GameRenderParams* gameRenderParams) {
+void ChunkGridRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 
