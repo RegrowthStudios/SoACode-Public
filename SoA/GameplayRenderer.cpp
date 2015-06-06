@@ -66,8 +66,15 @@ void GameplayRenderer::dispose(LoadContext& context) {
 
     stages.skybox.dispose(context);
     stages.spaceSystem.dispose(context);
-    stages.colorFilter.dispose(context);
-    stages.exposureCalc.dispose(context);
+    stages.opaqueVoxel.dispose(context);
+    stages.cutoutVoxel.dispose(context);
+    stages.chunkGrid.dispose(context);
+    stages.transparentVoxel.dispose(context);
+    stages.liquidVoxel.dispose(context);
+    stages.devHud.dispose(context);
+    stages.pda.dispose(context);
+    stages.pauseMenu.dispose(context);
+    stages.nightVision.dispose(context);
     stages.hdr.dispose(context);
 
     // Dispose of persistent rendering resources
