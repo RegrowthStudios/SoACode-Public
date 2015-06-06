@@ -257,9 +257,6 @@
     <ClInclude Include="LoadBar.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="LoadScreen.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
     <ClInclude Include="MaterialAtlas.h">
       <Filter>SOA Files\Game\Objects\Materials</Filter>
     </ClInclude>
@@ -775,6 +772,12 @@
     <ClInclude Include="GameplayRenderer.h">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
+    <ClInclude Include="MainMenuLoadScreen.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayLoadScreen.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -844,9 +847,6 @@
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
     <ClCompile Include="LoadBar.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -1262,6 +1262,12 @@
     </ClCompile>
     <ClCompile Include="GameplayRenderer.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuLoadScreen.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayLoadScreen.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

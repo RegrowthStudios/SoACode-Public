@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "LoadScreen.h"
+#include "MainMenuLoadScreen.h"
 
 #include <Vorb/colors.h>
 #include <Vorb/graphics/GLStates.h>
@@ -13,10 +13,8 @@
 #include "GameManager.h"
 #include "InputMapper.h"
 #include "Inputs.h"
-#include "LoadTaskBlockData.h"
 #include "LoadTaskGameManager.h"
 #include "LoadTaskStarSystem.h"
-#include "LoadTaskTextures.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "MusicPlayer.h"
@@ -33,8 +31,6 @@ const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 MainMenuLoadScreen::MainMenuLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen) :
 IAppScreen<App>(app),
 m_commonState(state),
-m_sf(nullptr),
-m_sb(nullptr),
 m_monitor(),
 m_glrpc(),
 m_mainMenuScreen(mainMenuScreen) {
@@ -172,8 +168,6 @@ void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
-    static ui64 fCounter = 0;
-
     // Increment elapsed time
     m_timer += gameTime.elapsed;
     if (m_isOnVorb && m_timer > m_vorbScreenDuration) {
@@ -193,44 +187,12 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
     }
 
     // Perform OpenGL calls
-    fCounter++;
     m_glrpc.processRequests(1);
     m_mainMenuScreen->m_renderer.updateGL();
 
-    // Defer texture loading
-    static bool loadedTextures = false;
-    if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || (!m_isOnVorb && m_timer > m_regrowthScreenDuration))) {// && !loadedTextures && m_monitor.isTaskFinished("Textures")) {
-        //GameManager::texturePackLoader->uploadTextures();
-        //GameManager::texturePackLoader->writeDebugAtlases();
-        //GameManager::texturePackLoader->setBlockTextures(Blocks);
-
-        //GameManager::getTextureHandles();
-
-        //SetBlockAvgTexColors();
-
-        ////load the emitters
-        //for (size_t i = 0; i < Blocks.size(); i++) {
-        //    if (Blocks[i].active) {
-        //        if (Blocks[i].emitterName.size()) {
-        //        //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
-        //        }
-        //        if (Blocks[i].emitterOnBreakName.size()) {
-        //       //     Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
-        //        }
-        //        if (Blocks[i].emitterRandomName.size()) {
-        //        //    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
-        //        }
-        //    }
-        //}
-
-        //// It has no texture
-        //for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
-
-        //// Post process the planets
-        //SoaEngine::setPlanetBlocks(m_commonState->state);
+    // End condition
+    if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || (!m_isOnVorb && m_timer > m_regrowthScreenDuration))) {
         m_state = vui::ScreenState::CHANGE_NEXT;
-        loadedTextures = true;
-    
     }
 }
 void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {

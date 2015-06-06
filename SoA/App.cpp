@@ -14,7 +14,7 @@
 #include "GameplayScreen.h"
 #include "GameplayScreen.h"
 #include "InitScreen.h"
-#include "LoadScreen.h"
+#include "MainMenuLoadScreen.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "SoaEngine.h"

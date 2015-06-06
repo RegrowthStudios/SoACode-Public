@@ -8,7 +8,7 @@
 #include <Vorb/graphics/SpriteFont.h>
 
 #include "App.h"
-#include "LoadScreen.h"
+#include "MainMenuLoadScreen.h"
 #include "GameManager.h"
 
 #define INIT_SCREEN_FONT "Fonts/orbitron_bold-webfont.ttf"

@@ -562,6 +562,7 @@ EXIT 0</Command>
     <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
+    <ClInclude Include="GameplayLoadScreen.h" />
     <ClInclude Include="GameplayRenderer.h" />
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
@@ -667,7 +668,7 @@ EXIT 0</Command>
     <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="LiquidData.h" />
     <ClInclude Include="LoadBar.h" />
-    <ClInclude Include="LoadScreen.h" />
+    <ClInclude Include="MainMenuLoadScreen.h" />
     <ClInclude Include="CAEngine.h" />
     <ClInclude Include="ChunkMesher.h" />
     <ClInclude Include="DebugRenderer.h" />
@@ -762,6 +763,7 @@ EXIT 0</Command>
     <ClCompile Include="FarTerrainPatch.cpp" />
     <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FrustumComponentUpdater.cpp" />
+    <ClCompile Include="GameplayLoadScreen.cpp" />
     <ClCompile Include="GameplayRenderer.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
@@ -852,7 +854,7 @@ EXIT 0</Command>
     <ClCompile Include="DevConsoleView.cpp" />
     <ClCompile Include="GeometrySorter.cpp" />
     <ClCompile Include="LoadBar.cpp" />
-    <ClCompile Include="LoadScreen.cpp" />
+    <ClCompile Include="MainMenuLoadScreen.cpp" />
     <ClCompile Include="CAEngine.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="FragFile.cpp" />
