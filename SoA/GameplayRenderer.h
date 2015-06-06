@@ -17,6 +17,7 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
+#include <Vorb/RPC.h>
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"
@@ -44,9 +45,9 @@ class ChunkSlot;
 class CutoutVoxelRenderStage;
 class DevHudRenderStage;
 class GameSystem;
+class GameplayScreen;
 class HdrRenderStage;
 class LiquidVoxelRenderStage;
-struct MTRenderState;
 class MeshManager;
 class NightVisionRenderStage;
 class OpaqueVoxelRenderStage;
@@ -57,34 +58,31 @@ class PdaRenderStage;
 class PhysicsBlockRenderStage;
 class Player;
 class SkyboxRenderStage;
-struct SoaState;
 class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
+struct MTRenderState;
+struct SoaState;
 
 class GameplayRenderer {
 public:
-    GameplayRenderer();
-    ~GameplayRenderer();
-
     /// Initializes the pipeline and passes dependencies
-    /// @param viewport: The viewport to draw to.
-
-    void init(const ui32v4& viewport, const SoaState* soaState, const App* app,
-              const PDA* pda,
-              SpaceSystem* spaceSystem,
-              GameSystem* gameSystem,
-              const PauseMenu* pauseMenu);
+    void init(vui::GameWindow* window, LoadContext& context, GameplayScreen* gameplayScreen);
 
     /// Call this every frame before render
     void setRenderState(const MTRenderState* renderState);
 
+    void hook(SoaState* state);
+
+    void load(LoadContext& context);
+
+    void dispose(LoadContext& context);
+
+    void updateGL();
+
     /// Renders the pipeline.
     /// Make sure to call setRenderState first.
     virtual void render();
-
-    /// Frees all resources
-    virtual void destroy(bool shouldDisposeStages);
 
     /// Cycles the dev hud
     /// @param offset: How much to offset the current mode
@@ -99,12 +97,10 @@ public:
     void toggleWireframe() { m_wireframe = !m_wireframe; }
 
     void takeScreenshot() { m_shouldScreenshot = true; }
-private:
-    void updateCameras();
-    void dumpScreenshot();
 
     struct {
         SkyboxRenderStage skybox; ///< Renders the skybox
+        SpaceSystemRenderStage spaceSystem; ///< Render space and planets
         OpaqueVoxelRenderStage opaqueVoxel; ///< Renders opaque voxels
         CutoutVoxelRenderStage cutoutVoxel; ///< Renders cutout voxels
         ChunkGridRenderStage chunkGrid;
@@ -115,18 +111,27 @@ private:
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
         HdrRenderStage hdr; ///< Renders HDR post-processing
-        SpaceSystemRenderStage spaceSystem; ///< Render space and planets
     } stages;
+
+private:
+    void updateCameras();
+    void dumpScreenshot();
 
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
 
-    vg::GLRenderTarget* m_hdrFrameBuffer = nullptr; ///< Framebuffer needed for the HDR rendering
-    vg::RTSwapChain<2>* m_swapChain = nullptr; ///< Swap chain of framebuffers used for post-processing
+    vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
     vg::FullQuadVBO m_quad; ///< Quad used for post-processing
 
     GameRenderParams m_gameRenderParams; ///< Shared rendering parameters for voxels
-    
-    const SoaState* m_soaState = nullptr; ///< Game State
+    GameplayScreen* m_gameplayScreen = nullptr;
+
+    vui::GameWindow* m_window;
+    const SoaState* m_state = nullptr; ///< Game State
+    vcore::RPCManager m_glrpc;
+
+    std::thread* m_loadThread = nullptr;
+    volatile bool m_loaded = false;
 
     // TODO: This is only for visualization purposes, must remove
     std::vector<NightVisionRenderParams> m_nvParams; ///< Different night vision styles
