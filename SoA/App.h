@@ -8,10 +8,11 @@
 #include "CommonState.h"
 
 class DevScreen;
+class GameplayLoadScreen;
+class GameplayScreen;
 class InitScreen;
 class MainMenuLoadScreen;
 class MainMenuScreen;
-class GameplayScreen;
 class TexturePackLoader;
 
 class App : public vui::MainGame {

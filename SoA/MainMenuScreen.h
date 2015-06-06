@@ -46,6 +46,7 @@ class MainMenuScreen : public vui::IAppScreen<App> {
     friend class MainMenuScriptedUI;
     friend class MainMenuRenderer;
     friend class MainMenuLoadScreen; // So it can load our assets
+    friend class GameplayLoadScreen; // So it can use our renderer
 public:
     MainMenuScreen(const App* app, CommonState* state);
     ~MainMenuScreen();
@@ -64,7 +65,6 @@ public:
 
     // Getters
     SoaState* getSoAState() const { return m_soaState; }
-
 private:
 
     /// Initializes event delegates and InputManager

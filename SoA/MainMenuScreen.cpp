@@ -15,7 +15,7 @@
 #include "Frustum.h"
 #include "GameManager.h"
 #include "GameplayScreen.h"
-#include "GameplayScreen.h"
+#include "GameplayLoadScreen.h"
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "MainMenuLoadScreen.h"
@@ -45,7 +45,7 @@ MainMenuScreen::~MainMenuScreen() {
 }
 
 i32 MainMenuScreen::getNextScreen() const {
-    return m_app->scrGamePlay->getIndex();
+    return m_app->scrGameplayLoad->getIndex();
 }
 
 i32 MainMenuScreen::getPreviousScreen() const {
@@ -117,7 +117,6 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_threadRunning = false;
     //m_updateThread->join();
     //delete m_updateThread;
-    m_renderer.dispose(m_commonState->loadContext);
 
     delete m_inputMapper;
 
@@ -222,7 +221,7 @@ void MainMenuScreen::loadGame(const nString& fileName) {
 
 void MainMenuScreen::newGame(const nString& fileName) {
 
-    if (m_mainMenuSystemViewer->getSelectedCubeFace() == -1) {
+    if (!m_mainMenuSystemViewer->getSelectedPlanet()) {
         m_newGameClicked = false;
         return;
     }

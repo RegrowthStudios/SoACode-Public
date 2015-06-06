@@ -31,8 +31,6 @@ const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
 MainMenuLoadScreen::MainMenuLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen) :
 IAppScreen<App>(app),
 m_commonState(state),
-m_monitor(),
-m_glrpc(),
 m_mainMenuScreen(mainMenuScreen) {
     // Empty
 }
@@ -58,7 +56,7 @@ void MainMenuLoadScreen::build() {
     m_fUpdateRegrowthPosition = m_env["Regrowth.PositionAtTime"].as<f32v2>();
     m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
     m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
-    m_regrowthScale = (m_env["Regrowth.Scale"].as<f64>())();
+    m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
     { // Load all textures
         const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",

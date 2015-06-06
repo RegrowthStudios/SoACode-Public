@@ -26,7 +26,7 @@
 
 class App;
 class MainMenuScreen;
-class GamplayScreen;
+class GameplayScreen;
 struct CommonState;
 
 #define VORB_NUM_TEXTURES 7

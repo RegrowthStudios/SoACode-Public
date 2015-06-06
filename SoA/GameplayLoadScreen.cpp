@@ -6,14 +6,14 @@
 #include "GameplayScreen.h"
 #include "GameplayScreen.h"
 #include "LoadTaskBlockData.h"
+#include "MainMenuScreen.h"
 #include "LoadTaskTextures.h"
 #include "SoaEngine.h"
+#include "SoaState.h"
 
 GameplayLoadScreen::GameplayLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen, GameplayScreen* gameplayScreen) :
 IAppScreen<App>(app),
 m_commonState(state),
-m_monitor(),
-m_glrpc(),
 m_mainMenuScreen(mainMenuScreen),
 m_gameplayScreen(gameplayScreen) {
     // Empty
@@ -42,22 +42,24 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
     addLoadTask("Textures", new LoadTaskTextures);
     m_monitor.setDep("Textures", "BlockData");
 
-    // Start the tasks
-    m_monitor.start();
-
     m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen);
     m_gameplayScreen->m_renderer.hook(m_commonState->state);
     m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
+
+    // Start the tasks
+    m_monitor.start();
 }
 
 void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
-    // Empty
+    // Dispose our borrowed renderer
+    m_gameplayScreen->m_renderer.dispose(m_commonState->loadContext);
 }
 
 void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 
     // Perform OpenGL calls
     m_glrpc.processRequests(1);
+    m_gameplayScreen->m_renderer.updateGL();
 
     // Defer texture loading
     static bool loadedTextures = false;
@@ -97,7 +99,8 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 }
 
 void GameplayLoadScreen::draw(const vui::GameTime& gameTime) {
-    throw std::logic_error("The method or operation is not implemented.");
+    m_commonState->state->spaceCamera.updateProjection();
+    m_mainMenuScreen->m_renderer.render();
 }
 
 void GameplayLoadScreen::addLoadTask(const nString& name, ILoadTask* task) {

@@ -90,7 +90,7 @@ void GameplayRenderer::load(LoadContext& context) {
     m_loadThread = new std::thread([&]() {
         vcore::GLRPC so[4];
         size_t i = 0;
-
+        std::cout << "BEGIN\n";
         // Create the HDR target     
         so[i].set([&](Sender, void*) {
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
@@ -131,7 +131,7 @@ void GameplayRenderer::load(LoadContext& context) {
         stages.pauseMenu.load(context, m_glrpc);
         stages.nightVision.load(context, m_glrpc);
         stages.hdr.load(context, m_glrpc);
-
+        std::cout << "DONE\n";
         m_isLoaded = true;
     });
     m_loadThread->detach();
