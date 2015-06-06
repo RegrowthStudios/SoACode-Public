@@ -29,8 +29,8 @@ class SpaceSystem;
 
 class MainMenuSystemViewer {
 public:
-    MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputMapper* inputManager);
-    ~MainMenuSystemViewer();
+
+    void init(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputMapper* inputManager);
 
     void setViewport(const ui32v2& viewPort) { m_viewport = viewPort; }
 

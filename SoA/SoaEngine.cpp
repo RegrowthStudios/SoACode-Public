@@ -52,6 +52,7 @@ void SoaEngine::initState(SoaState* state) {
     state->meshManager = std::make_unique<MeshManager>();
     state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
     state->systemIoManager = std::make_unique<vio::IOManager>();
+    state->systemViewer = std::make_unique<MainMenuSystemViewer>();
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");

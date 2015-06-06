@@ -70,7 +70,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
-    m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
+    m_soaState->systemViewer->init(m_window->getViewportDims(),
                                                                       &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
     m_mainMenuSystemViewer = m_soaState->systemViewer.get();
 
@@ -268,8 +268,9 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     loadData.filePath = "StarSystems/Trinity";
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_soaState->spaceCamera; // Store camera so the view doesn't change
-    m_soaState->systemViewer = std::make_unique<MainMenuSystemViewer>(m_window->getViewportDims(),
-                                                                    &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
+    m_soaState->systemViewer->init(m_window->getViewportDims(),
+                                   &m_soaState->spaceCamera, m_soaState->spaceSystem.get(),
+                                   m_inputMapper);
     m_soaState->spaceCamera = tmp; // Restore old camera
     m_renderer.dispose(m_commonState->loadContext);
     initRenderPipeline();

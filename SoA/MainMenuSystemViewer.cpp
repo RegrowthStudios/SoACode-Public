@@ -12,13 +12,13 @@
 const f32 MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
 const f32 MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
 
-MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera,
-                                           SpaceSystem* spaceSystem, InputMapper* inputManager) :
-        m_viewport(viewport),
-        m_camera(camera),
-        m_spaceSystem(spaceSystem),
-        m_inputManager(inputManager) {
-    
+void MainMenuSystemViewer::init(ui32v2 viewport, CinematicCamera* camera,
+                                SpaceSystem* spaceSystem, InputMapper* inputManager) {  
+    m_viewport = viewport;
+    m_camera = camera;
+    m_spaceSystem = spaceSystem;
+    m_inputManager = inputManager;
+
     mouseButtons[0] = false;
     mouseButtons[1] = false;
 
@@ -39,10 +39,6 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
-}
-
-MainMenuSystemViewer::~MainMenuSystemViewer() {
-    // Empty
 }
 
 void MainMenuSystemViewer::update() {
