@@ -56,7 +56,7 @@ void GameplayRenderer::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void GameplayRenderer::dispose(LoadContext& context) {
+void GameplayRenderer::load(LoadContext& context) {
 
     // Kill the builder
     if (m_loadThread) {
@@ -64,23 +64,23 @@ void GameplayRenderer::dispose(LoadContext& context) {
         m_loadThread = nullptr;
     }
 
-    stages.skybox.dispose(context);
-    stages.spaceSystem.dispose(context);
-    stages.opaqueVoxel.dispose(context);
-    stages.cutoutVoxel.dispose(context);
-    stages.chunkGrid.dispose(context);
-    stages.transparentVoxel.dispose(context);
-    stages.liquidVoxel.dispose(context);
-    stages.devHud.dispose(context);
-    stages.pda.dispose(context);
-    stages.pauseMenu.dispose(context);
-    stages.nightVision.dispose(context);
-    stages.hdr.dispose(context);
+    stages.skybox.load(context);
+    stages.spaceSystem.load(context);
+    stages.opaqueVoxel.load(context);
+    stages.cutoutVoxel.load(context);
+    stages.chunkGrid.load(context);
+    stages.transparentVoxel.load(context);
+    stages.liquidVoxel.load(context);
+    stages.devHud.load(context);
+    stages.pda.load(context);
+    stages.pauseMenu.load(context);
+    stages.nightVision.load(context);
+    stages.hdr.load(context);
 
-    // Dispose of persistent rendering resources
-    m_hdrTarget.dispose();
-    m_swapChain.dispose();
-    m_quad.dispose();
+    // load of persistent rendering resources
+    m_hdrTarget.load();
+    m_swapChain.load();
+    m_quad.load();
 }
 
 void GameplayRenderer::load(LoadContext& context) {
@@ -120,8 +120,15 @@ void GameplayRenderer::load(LoadContext& context) {
         // Load all the stages
         stages.skybox.load(context, m_glrpc);
         stages.spaceSystem.load(context, m_glrpc);
-        stages.colorFilter.load(context, m_glrpc);
-        stages.exposureCalc.load(context, m_glrpc);
+        stages.opaqueVoxel.load(context, m_glrpc);
+        stages.cutoutVoxel.load(context, m_glrpc);
+        stages.chunkGrid.load(context, m_glrpc);
+        stages.transparentVoxel.load(context, m_glrpc);
+        stages.liquidVoxel.load(context, m_glrpc);
+        stages.devHud.load(context, m_glrpc);
+        stages.pda.load(context, m_glrpc);
+        stages.pauseMenu.load(context, m_glrpc);
+        stages.nightVision.load(context, m_glrpc);
         stages.hdr.load(context, m_glrpc);
 
         m_loaded = true;
@@ -285,7 +292,7 @@ void GameplayRenderer::loadNightVision() {
         for (size_t i = 0; i < arr.size(); i++) {
             m_nvParams.push_back(arr[i]);
         }
-        context.reader.dispose();
+        context.reader.load();
         delete[] nvData;
     }
     if (m_nvParams.size() < 1) {
