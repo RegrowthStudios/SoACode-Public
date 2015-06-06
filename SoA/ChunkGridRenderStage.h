@@ -25,7 +25,7 @@ class ChunkMemoryManager;
 
 class ChunkGridRenderStage : public IRenderStage {
 public:
-    void init(const GameRenderParams* gameRenderParams);
+    void hook(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
     void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }

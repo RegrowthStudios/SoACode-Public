@@ -33,7 +33,7 @@ NightVisionRenderParams NightVisionRenderParams::createDefault() {
     return v;
 }
 
-void NightVisionRenderStage::init(vg::FullQuadVBO* quad) {
+void NightVisionRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
     m_texNoise.width = NIGHT_VISION_NOISE_QUALITY;
     m_texNoise.height = NIGHT_VISION_NOISE_QUALITY;

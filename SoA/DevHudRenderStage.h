@@ -28,7 +28,7 @@ public:
     DevHudRenderStage();
     ~DevHudRenderStage();
 
-    void init(const cString fontPath, i32 fontSize,
+    void hook(const cString fontPath, i32 fontSize,
               const App* app, const f32v2& windowDims);
 
     /// Draws the render stage

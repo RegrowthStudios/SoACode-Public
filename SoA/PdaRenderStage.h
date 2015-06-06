@@ -22,7 +22,7 @@ class PdaRenderStage : public IRenderStage {
 public:
     PdaRenderStage();
 
-    void init(const PDA* pda);
+    void hook(const PDA* pda);
 
     /// Draws the render stage
     virtual void render(const Camera* camera) override;

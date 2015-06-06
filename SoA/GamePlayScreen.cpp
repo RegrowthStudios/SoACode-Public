@@ -104,7 +104,7 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_pda.destroy();
-    m_renderPipeline.destroy(true);
+    //m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
 }
 
@@ -301,11 +301,11 @@ void GameplayScreen::initInput() {
 void GameplayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, m_app->getWindow().getViewportDims());
-    m_renderPipeline.init(viewport, m_soaState,
+   /* m_renderPipeline.init(viewport, m_soaState,
                           m_app, &m_pda,
                           m_soaState->spaceSystem.get(),
                           m_soaState->gameSystem.get(),
-                          &m_pauseMenu);
+                          &m_pauseMenu);*/
 }
 
 // TODO(Ben): Collision

@@ -3,7 +3,7 @@
 
 #include "PauseMenu.h"
 
-void PauseMenuRenderStage::init(const PauseMenu* pauseMenu) {
+void PauseMenuRenderStage::hook(const PauseMenu* pauseMenu) {
     _pauseMenu = pauseMenu;
 }
 

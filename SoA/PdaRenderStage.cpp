@@ -8,7 +8,7 @@ PdaRenderStage::PdaRenderStage() {
     // Empty
 }
 
-void PdaRenderStage::init(const PDA* pda) {
+void PdaRenderStage::hook(const PDA* pda) {
     _pda = pda;
 }
 

@@ -27,7 +27,7 @@ class MeshManager;
 
 class CutoutVoxelRenderStage : public IRenderStage {
 public:
-    void init(const GameRenderParams* gameRenderParams);
+    void hook(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
     virtual void render(const Camera* camera) override;

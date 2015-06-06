@@ -14,11 +14,7 @@
 #include "soaUtils.h"
 #include "ShaderLoader.h"
 
-OpaqueVoxelRenderStage::OpaqueVoxelRenderStage() {
-    // Empty
-}
-
-void OpaqueVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+void OpaqueVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 

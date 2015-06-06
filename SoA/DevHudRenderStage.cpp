@@ -17,7 +17,7 @@ DevHudRenderStage::~DevHudRenderStage() {
     delete _spriteFont;
 }
 
-void DevHudRenderStage::init(const cString fontPath, i32 fontSize,
+void DevHudRenderStage::hook(const cString fontPath, i32 fontSize,
           const App* app, const f32v2& windowDims) {
     _spriteBatch = new vg::SpriteBatch(true, true);
     _spriteFont = new vg::SpriteFont();

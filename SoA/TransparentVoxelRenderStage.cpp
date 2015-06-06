@@ -13,7 +13,7 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-void TransparentVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+void TransparentVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 

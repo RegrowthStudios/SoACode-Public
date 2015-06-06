@@ -12,7 +12,7 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-void LiquidVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+void LiquidVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 

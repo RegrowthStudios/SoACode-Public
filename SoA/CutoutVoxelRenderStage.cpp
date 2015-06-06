@@ -12,7 +12,7 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-void CutoutVoxelRenderStage::init(const GameRenderParams* gameRenderParams) {
+void CutoutVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 

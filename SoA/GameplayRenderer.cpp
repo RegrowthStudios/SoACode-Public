@@ -240,22 +240,6 @@ void GameplayRenderer::render() {
     checkGlError("GamePlayRenderPipeline::render()");
 }
 
-void GameplayRenderer::destroy(bool shouldDisposeStages) {
-    //
-    //// Call base destroy
-    //RenderPipeline::destroy(shouldDisposeStages);
-
-    //m_hdrFrameBuffer->dispose();
-    //delete m_hdrFrameBuffer;
-    //m_hdrFrameBuffer = nullptr;
-
-    //m_swapChain->dispose();
-    //delete m_swapChain;
-    //m_swapChain = nullptr;
-
-    //m_quad.dispose();
-}
-
 void GameplayRenderer::cycleDevHud(int offset /* = 1 */) {
     stages.devHud.cycleMode(offset);
 }

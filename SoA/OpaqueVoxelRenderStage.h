@@ -26,11 +26,7 @@ class MeshManager;
 class OpaqueVoxelRenderStage : public IRenderStage
 {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    OpaqueVoxelRenderStage();
-
-    void init(const GameRenderParams* gameRenderParams);
+    void hook(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
     virtual void render(const Camera* camera) override;

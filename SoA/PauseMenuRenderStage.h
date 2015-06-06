@@ -21,7 +21,7 @@ class PauseMenu;
 
 class PauseMenuRenderStage : public IRenderStage {
 public:
-    void init(const PauseMenu* pauseMenu);
+    void hook(const PauseMenu* pauseMenu);
 
     // Draws the render stage
     virtual void render(const Camera* camera) override;
