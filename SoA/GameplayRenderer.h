@@ -62,17 +62,19 @@ class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
 struct MTRenderState;
+struct CommonState;
 struct SoaState;
 
 class GameplayRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context, GameplayScreen* gameplayScreen);
+    void init(vui::GameWindow* window, LoadContext& context,
+              GameplayScreen* gameplayScreen, CommonState* commonState);
 
     /// Call this every frame before render
     void setRenderState(const MTRenderState* renderState);
 
-    void hook(SoaState* state);
+    void hook();
 
     void load(LoadContext& context);
 
@@ -101,8 +103,6 @@ public:
     volatile const bool& isLoaded() const { return m_isLoaded; }
 
     struct {
-        SkyboxRenderStage skybox; ///< Renders the skybox
-        SpaceSystemRenderStage spaceSystem; ///< Render space and planets
         OpaqueVoxelRenderStage opaqueVoxel; ///< Renders opaque voxels
         CutoutVoxelRenderStage cutoutVoxel; ///< Renders cutout voxels
         ChunkGridRenderStage chunkGrid;
@@ -112,7 +112,6 @@ public:
         PdaRenderStage pda; ///< Renders the PDA
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
-        HdrRenderStage hdr; ///< Renders HDR post-processing
     } stages;
 
 private:
@@ -129,7 +128,8 @@ private:
     GameplayScreen* m_gameplayScreen = nullptr;
 
     vui::GameWindow* m_window;
-    const SoaState* m_state = nullptr; ///< Game State
+    CommonState* m_commonState = nullptr;
+    SoaState* m_state = nullptr; ///< Game State
     vcore::RPCManager m_glrpc;
 
     std::thread* m_loadThread = nullptr;

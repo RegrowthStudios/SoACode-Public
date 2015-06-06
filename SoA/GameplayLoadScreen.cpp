@@ -42,8 +42,8 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
     addLoadTask("Textures", new LoadTaskTextures);
     m_monitor.setDep("Textures", "BlockData");
 
-    m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen);
-    m_gameplayScreen->m_renderer.hook(m_commonState->state);
+    m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen, m_commonState);
+    m_gameplayScreen->m_renderer.hook();
     m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
 
     // Start the tasks

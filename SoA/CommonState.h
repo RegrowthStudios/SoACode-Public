@@ -18,6 +18,10 @@
 #include "LoadContext.h"
 #include <Vorb/VorbPreDecl.inl>
 
+#include "SpaceSystemRenderStage.h"
+#include "SkyboxRenderStage.h"
+#include "HdrRenderStage.h"
+
 struct SoaState;
 DECL_VSOUND(class Engine)
 DECL_VUI(class GameWindow)
@@ -28,6 +32,12 @@ public:
     vsound::Engine* soundEngine = nullptr;
     vui::GameWindow* window = nullptr;
     LoadContext loadContext;
+
+    struct {
+        SkyboxRenderStage skybox;
+        SpaceSystemRenderStage spaceSystem;
+        HdrRenderStage hdr;
+    } stages; // Shared render stages
 };
 
 #endif // CommonState_h__

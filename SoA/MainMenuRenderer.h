@@ -33,15 +33,17 @@ class MainMenuScreen;
 class MainMenuScriptedUI;
 class MainMenuSystemViewer;
 class SpaceSystem;
+struct CommonState;
 struct SoaState;
 DECL_VUI(struct WindowResizeEvent; class GameWindow);
 
 class MainMenuRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context, MainMenuScreen* mainMenuScreen);
+    void init(vui::GameWindow* window, LoadContext& context,
+              MainMenuScreen* mainMenuScreen, CommonState* commonState);
 
-    void hook(SoaState* state);
+    void hook();
 
     void load(LoadContext& context);
 
@@ -63,12 +65,9 @@ public:
    
     const volatile bool& isLoaded() const { return m_isLoaded; }
 
-    struct {
-        SkyboxRenderStage skybox;
-        SpaceSystemRenderStage spaceSystem;
+    struct {    
         ColorFilterRenderStage colorFilter;
-        ExposureCalcRenderStage exposureCalc;
-        HdrRenderStage hdr;       
+        ExposureCalcRenderStage exposureCalc;    
     } stages;
 
 private:
@@ -76,6 +75,7 @@ private:
     void dumpScreenshot();
 
     vui::GameWindow* m_window;
+    CommonState* m_commonState = nullptr;
     SoaState* m_state = nullptr;
     vcore::RPCManager m_glrpc;
     MainMenuScreen* m_mainMenuScreen = nullptr;

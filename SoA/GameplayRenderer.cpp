@@ -7,6 +7,7 @@
 
 #include "ChunkMemoryManager.h"
 #include "ChunkMeshManager.h"
+#include "CommonState.h"
 #include "Errors.h"
 #include "GameSystem.h"
 #include "GameplayScreen.h"
@@ -20,9 +21,12 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context, GameplayScreen* gameplayScreen) {
+void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context,
+                            GameplayScreen* gameplayScreen, CommonState* commonState) {
     m_window = window;
     m_gameplayScreen = gameplayScreen;
+    m_commonState = commonState;
+    m_state = m_commonState->state;
 
     // TODO(Ben): Dis is bad mkay
     m_viewport = f32v4(0, 0, m_window->getWidth(), m_window->getHeight());
@@ -33,8 +37,6 @@ void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context, Gamep
     m_localCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Init Stages
-    stages.skybox.init(window, context);
-    stages.spaceSystem.init(window, context);
     stages.opaqueVoxel.init(window, context);
     stages.cutoutVoxel.init(window, context);
     stages.chunkGrid.init(window, context);
@@ -44,7 +46,6 @@ void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context, Gamep
     stages.pda.init(window, context);
     stages.pauseMenu.init(window, context);
     stages.nightVision.init(window, context);
-    stages.hdr.init(window, context);
 
     loadNightVision();
 
@@ -65,8 +66,6 @@ void GameplayRenderer::dispose(LoadContext& context) {
         m_loadThread = nullptr;
     }
 
-    stages.skybox.dispose(context);
-    stages.spaceSystem.dispose(context);
     stages.opaqueVoxel.dispose(context);
     stages.cutoutVoxel.dispose(context);
     stages.chunkGrid.dispose(context);
@@ -76,7 +75,6 @@ void GameplayRenderer::dispose(LoadContext& context) {
     stages.pda.dispose(context);
     stages.pauseMenu.dispose(context);
     stages.nightVision.dispose(context);
-    stages.hdr.dispose(context);
 
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -119,8 +117,6 @@ void GameplayRenderer::load(LoadContext& context) {
         so[i - 1].block();
 
         // Load all the stages
-        stages.skybox.load(context, m_glrpc);
-        stages.spaceSystem.load(context, m_glrpc);
         stages.opaqueVoxel.load(context, m_glrpc);
         stages.cutoutVoxel.load(context, m_glrpc);
         stages.chunkGrid.load(context, m_glrpc);
@@ -130,19 +126,18 @@ void GameplayRenderer::load(LoadContext& context) {
         stages.pda.load(context, m_glrpc);
         stages.pauseMenu.load(context, m_glrpc);
         stages.nightVision.load(context, m_glrpc);
-        stages.hdr.load(context, m_glrpc);
         std::cout << "DONE\n";
         m_isLoaded = true;
     });
     m_loadThread->detach();
 }
 
-void GameplayRenderer::hook(SoaState* state) {
-    m_state = state;
+void GameplayRenderer::hook() {
     // Grab mesh manager handle
-    m_meshManager = state->chunkMeshManager.get();
-    stages.skybox.hook(state);
-    stages.spaceSystem.hook(state, &state->spaceCamera);
+    m_meshManager = m_state->chunkMeshManager.get();
+    m_commonState->stages.skybox.hook(m_state);
+    m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera);
+    m_commonState->stages.hdr.hook(&m_quad);
     stages.opaqueVoxel.hook(&m_gameRenderParams);
     stages.cutoutVoxel.hook(&m_gameRenderParams);
     stages.chunkGrid.hook(&m_gameRenderParams);
@@ -152,7 +147,6 @@ void GameplayRenderer::hook(SoaState* state) {
     //stages.pda.hook();
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
     stages.nightVision.hook(&m_quad);
-    stages.hdr.hook(&m_quad);
 }
 
 void GameplayRenderer::updateGL() {
@@ -183,12 +177,12 @@ void GameplayRenderer::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
-    stages.skybox.render(&m_spaceCamera);
+    m_commonState->stages.skybox.render(&m_spaceCamera);
 
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    stages.spaceSystem.setShowAR(false);
-    stages.spaceSystem.setRenderState(m_renderState);
-    stages.spaceSystem.render(&m_spaceCamera);
+    m_commonState->stages.spaceSystem.setShowAR(false);
+    m_commonState->stages.spaceSystem.setRenderState(m_renderState);
+    m_commonState->stages.spaceSystem.render(&m_spaceCamera);
 
     if (m_voxelsActive) {
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -207,15 +201,15 @@ void GameplayRenderer::render() {
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Check for face transition animation state
-    if (stages.spaceSystem.needsFaceTransitionAnimation) {
-        stages.spaceSystem.needsFaceTransitionAnimation = false;
+    if (m_commonState->stages.spaceSystem.needsFaceTransitionAnimation) {
+        m_commonState->stages.spaceSystem.needsFaceTransitionAnimation = false;
         m_increaseQuadAlpha = true;
         m_coloredQuadAlpha = 0.0f;
     }
 
     // Render last
     glBlendFunc(GL_ONE, GL_ONE);
-    stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
@@ -234,7 +228,7 @@ void GameplayRenderer::render() {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
-    stages.hdr.render();
+    m_commonState->stages.hdr.render();
 
     // UI
    // stages.devHud.render();

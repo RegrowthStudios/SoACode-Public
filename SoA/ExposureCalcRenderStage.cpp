@@ -12,7 +12,7 @@
 #define EXPOSURE_FUNCTION_NAME "calculateExposure"
 
 ExposureCalcRenderStage::ExposureCalcRenderStage() {
-    m_scripts = new vscript::Environment;
+    
 }
 
 ExposureCalcRenderStage::~ExposureCalcRenderStage() {
@@ -21,6 +21,7 @@ ExposureCalcRenderStage::~ExposureCalcRenderStage() {
 
 void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
                                    const ui32v4* viewPort, ui32 resolution) {
+    if (!m_scripts) m_scripts = new vscript::Environment;
     m_quad = quad;
     m_hdrFrameBuffer = hdrFrameBuffer;
     m_restoreViewport = viewPort;

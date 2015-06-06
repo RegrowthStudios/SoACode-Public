@@ -8,19 +8,22 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/ui/GameWindow.h>
 
+#include "CommonState.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "HdrRenderStage.h"
 #include "MainMenuScreen.h"
-
+#include "MainMenuScriptedUI.h"
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "soaUtils.h"
-#include "MainMenuScriptedUI.h"
 
-void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context, MainMenuScreen* mainMenuScreen) {
+void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
+                            MainMenuScreen* mainMenuScreen, CommonState* commonState) {
     m_window = window;
     m_mainMenuScreen = mainMenuScreen;
+    m_commonState = commonState;
+    m_state = m_commonState->state;
     vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
     // TODO(Ben): Dis is bad mkay
@@ -29,11 +32,11 @@ void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context, MainM
     m_mainMenuUI = &m_mainMenuScreen->m_ui;
 
     // Init render stages
-    stages.skybox.init(window, context);
-    stages.spaceSystem.init(window, context);
+    m_commonState->stages.skybox.init(window, context);
+    m_commonState->stages.spaceSystem.init(window, context);
+    m_commonState->stages.hdr.init(window, context);
     stages.colorFilter.init(window, context);
     stages.exposureCalc.init(window, context);
-    stages.hdr.init(window, context);
 }
 
 void MainMenuRenderer::dispose(LoadContext& context) {
@@ -44,12 +47,9 @@ void MainMenuRenderer::dispose(LoadContext& context) {
         delete m_loadThread;
         m_loadThread = nullptr;
     }
-
-    stages.skybox.dispose(context);
-    stages.spaceSystem.dispose(context);
+    // TODO(Ben): Dispose common stages
     stages.colorFilter.dispose(context);
     stages.exposureCalc.dispose(context);
-    stages.hdr.dispose(context);
 
     // Dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -92,24 +92,23 @@ void MainMenuRenderer::load(LoadContext& context) {
         so[i - 1].block();
 
         // Load all the stages
-        stages.skybox.load(context, m_glrpc);
-        stages.spaceSystem.load(context, m_glrpc);
+        m_commonState->stages.skybox.load(context, m_glrpc);
+        m_commonState->stages.spaceSystem.load(context, m_glrpc);
+        m_commonState->stages.hdr.load(context, m_glrpc);
         stages.colorFilter.load(context, m_glrpc);
         stages.exposureCalc.load(context, m_glrpc);
-        stages.hdr.load(context, m_glrpc);
 
         m_isLoaded = true;
     });
     m_loadThread->detach();
 }
 
-void MainMenuRenderer::hook(SoaState* state) {
-    m_state = state;
-    stages.skybox.hook(state);
-    stages.spaceSystem.hook(state, &state->spaceCamera);
+void MainMenuRenderer::hook() {
+    m_commonState->stages.skybox.hook(m_state);
+    m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera);
+    m_commonState->stages.hdr.hook(&m_quad);
     stages.colorFilter.hook(&m_quad);
     stages.exposureCalc.hook(&m_quad, &m_hdrTarget, &m_viewport, 1024);
-    stages.hdr.hook(&m_quad);
 }
 
 void MainMenuRenderer::updateGL() {
@@ -128,13 +127,13 @@ void MainMenuRenderer::render() {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    stages.skybox.render(&m_state->spaceCamera);
+    m_commonState->stages.skybox.render(&m_state->spaceCamera);
 
     // Check fore wireframe mode
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    stages.spaceSystem.setShowAR(m_showAR);
-    stages.spaceSystem.render(&m_state->spaceCamera);
+    m_commonState->stages.spaceSystem.setShowAR(m_showAR);
+    m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
 
     // Restore fill
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -158,7 +157,7 @@ void MainMenuRenderer::render() {
 
     // Render last
     glBlendFunc(GL_ONE, GL_ONE);
-    stages.spaceSystem.renderStarGlows(colorFilter);
+    m_commonState->stages.spaceSystem.renderStarGlows(colorFilter);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
@@ -180,7 +179,7 @@ void MainMenuRenderer::render() {
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureID());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
-    stages.hdr.render(&m_state->spaceCamera);
+    m_commonState->stages.hdr.render(&m_state->spaceCamera);
 
     if (m_showUI) m_mainMenuUI->draw();
 
@@ -206,7 +205,7 @@ void MainMenuRenderer::resize() {
      delete m_swapChain;
      initFramebuffer();*/
 
-    stages.spaceSystem.setViewport(m_newDims);
+    m_commonState->stages.spaceSystem.setViewport(m_newDims);
     stages.exposureCalc.setFrameBuffer(&m_hdrTarget);
 
     m_mainMenuUI->setDimensions(f32v2(m_newDims));
