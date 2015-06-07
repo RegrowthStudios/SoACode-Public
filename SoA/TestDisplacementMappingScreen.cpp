@@ -4,6 +4,7 @@
 #include <glm/gtx/transform.hpp>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/graphics/ImageIO.h>
 
 #include "Errors.h"
 #include "ShaderLoader.h"

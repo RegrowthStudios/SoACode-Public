@@ -116,10 +116,10 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 
     // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
     if (m_app->getFps()) {
-        glSpeedFactor = 60.0f / m_app->getFps();
-        if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
-            glSpeedFactor = 3.0f;
-        }
+        //glSpeedFactor = 60.0f / m_app->getFps();
+        //if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
+        //    glSpeedFactor = 3.0f;
+        //}
     }
     m_spaceSystemUpdater->glUpdate(m_soaState);
 
@@ -187,7 +187,6 @@ void GameplayScreen::updateMTRenderState() {
 
 void GameplayScreen::draw(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
-    updateWorldCameraClip();
 
     const MTRenderState* renderState;
     // Don't render the same state twice.
@@ -337,7 +336,8 @@ void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
 
     FpsLimiter fpsLimiter;
-    fpsLimiter.init(maxPhysicsFps);
+    fpsLimiter.init(60.0f);
+    f32 fps;
 
     static int saveStateTicks = SDL_GetTicks();
 
@@ -352,24 +352,8 @@ void GameplayScreen::updateThreadFunc() {
       //      savePlayerState();
         }
 
-        physicsFps = fpsLimiter.endFrame();
+        fps = fpsLimiter.endFrame();
     }
-}
-
-void GameplayScreen::updateWorldCameraClip() {
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-    // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(soaOptions.get(OPT_FOV).value.f / 2.0), 2.0) * (pow((double)m_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
-
-    double clip = MAX(nearClip / planetScale * 0.5, a);
-    // The world camera has a dynamic clipping plane
-    //m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    //m_player->getWorldCamera().updateProjection();
 }
 
 void GameplayScreen::onReloadShaders(Sender s, ui32 a) {

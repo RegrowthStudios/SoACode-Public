@@ -10,7 +10,6 @@
 #include "OpenGLStructs.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
-#include "Texture2d.h"
 
 #include "VoxelMesher.h"
 

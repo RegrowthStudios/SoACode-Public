@@ -36,11 +36,7 @@ void LiquidVoxelRenderStage::render(const Camera* camera) {
 
     glUniform3fv(m_program.getUniform("LightPosition_worldspace"), 1, &(m_gameRenderParams->sunlightDirection[0]));
 
-    if (NoChunkFade) {
-        glUniform1f(m_program.getUniform("FadeDistance"), (GLfloat)10000.0f);
-    } else {
-        glUniform1f(m_program.getUniform("FadeDistance"), (GLfloat)soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f - 12.5f);
-    }
+    glUniform1f(m_program.getUniform("FadeDistance"), (GLfloat)soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f - 12.5f);
 
     float blockAmbient = 0.000f;
     glUniform3f(m_program.getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
@@ -49,7 +45,7 @@ void LiquidVoxelRenderStage::render(const Camera* camera) {
     glUniform1f(m_program.getUniform("dt"), (GLfloat)bdt);
 
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
+    //glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
     glUniform1i(m_program.getUniform("normalMap"), 6);
 
     if (m_gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);

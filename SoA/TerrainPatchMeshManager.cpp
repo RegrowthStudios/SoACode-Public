@@ -176,13 +176,10 @@ bool meshComparator(TerrainPatchMesh* m1, TerrainPatchMesh* m2) {
 }
 
 void TerrainPatchMeshManager::sortSpericalMeshes(const f64v3& relPos) {
-    m_closestSphericalDistance2 = DOUBLE_SENTINEL;
     // Calculate squared distances
     for (auto& mesh : m_meshes) {
         f64v3 distVec = mesh->getClosestPoint(relPos) - relPos;
         mesh->distance2 = selfDot(distVec);
-        // Useful for dynamic clipping plane
-        if (mesh->distance2 < m_closestSphericalDistance2) m_closestSphericalDistance2 = mesh->distance2;
     }
 
     // Not sorting water since it would be of minimal benifit
@@ -192,13 +189,10 @@ void TerrainPatchMeshManager::sortSpericalMeshes(const f64v3& relPos) {
 }
 
 void TerrainPatchMeshManager::sortFarMeshes(const f64v3& relPos) {
-    m_closestFarDistance2 = DOUBLE_SENTINEL;
     // Calculate squared distances
     for (auto& mesh : m_farMeshes) {
         f64v3 distVec = mesh->getClosestPoint(relPos) - relPos;
         mesh->distance2 = selfDot(distVec);
-        // Useful for dynamic clipping plane
-        if (mesh->distance2 < m_closestFarDistance2) m_closestFarDistance2 = mesh->distance2;
     }
 
     // Not sorting water since it would be of minimal benifit

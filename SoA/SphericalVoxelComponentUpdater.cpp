@@ -59,20 +59,6 @@ void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
 
 void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, const Frustum* frustum) {
 
-
-    //TODO(Ben): Maybe do this?
-    //// Check for face transition
-    //if (m_cmp->transitionFace != FACE_NONE) {
-    //    // Free all chunks
-
-    //    // Set new grid face
-    //    m_cmp->chunkGrid->m_face = m_cmp->transitionFace;
-    //    m_cmp->transitionFace = FACE_NONE;
-    //}
-
-    sonarDt += 0.003f*physSpeedFactor;
-    if (sonarDt > 1.0f) sonarDt = 0.0f;
-
     // Always make a chunk at camera location
     i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(position);
     if (m_cmp->chunkGrid->getChunk(chunkPosition) == nullptr) {
@@ -87,7 +73,7 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
     updateLoadList(4);
 
     // TODO(Ben): There are better ways to do this
-    if (m_cmp->updateCount >= 8 || (m_cmp->updateCount >= 4 && physSpeedFactor >= 2.0)) {
+    if (m_cmp->updateCount >= 8) {
         m_cmp->chunkListManager->sortLists();
         m_cmp->updateCount = 0;
     }
@@ -198,8 +184,7 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
                 chunk->changeState(ChunkStates::MESH);
             }
 
-            if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine,
-                                                                                           chunk);
+            if (chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine, chunk);
             // Check to see if it needs to be added to the mesh list
             if (!chunk->_chunkListPtr && !chunk->lastOwnerTask) {
                 switch (chunk->_state) {

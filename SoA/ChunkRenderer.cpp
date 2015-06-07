@@ -11,7 +11,6 @@
 #include "SoaOptions.h"
 #include "PhysicsBlocks.h"
 #include "RenderUtils.h"
-#include "global.h"
 #include "soaUtils.h"
 
 volatile f32 ChunkRenderer::fadeDist = 1.0f;

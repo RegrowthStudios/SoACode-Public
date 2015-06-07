@@ -38,13 +38,9 @@ void PhysicsBlockRenderStage::render(const Camera* camera) {
     glUniform3f(_glProgram->getUniform("ambientLight"), blockAmbient, blockAmbient, blockAmbient);
     glUniform3fv(_glProgram->getUniform("lightColor"), 1, &(_gameRenderParams->sunlightColor[0]));
 
-    if (NoChunkFade) {
-        glUniform1f(_glProgram->getUniform("fadeDistance"), (GLfloat)10000.0f);
-    } else {
-        glUniform1f(_glProgram->getUniform("fadeDistance"), (GLfloat)soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f - 12.5f);
-    }
+    glUniform1f(_glProgram->getUniform("fadeDistance"), (GLfloat)soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f - 12.5f);
 
-    for (Uint32 i = 0; i < _physicsBlockMeshes.size(); i++) {
+    for (size_t i = 0; i < _physicsBlockMeshes.size(); i++) {
         PhysicsBlockBatch::draw(_physicsBlockMeshes[i], _glProgram, _gameRenderParams->chunkCamera->getPosition(),
                                 _gameRenderParams->chunkCamera->getViewProjectionMatrix());
     }

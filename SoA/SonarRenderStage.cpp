@@ -42,7 +42,7 @@ void SonarRenderStage::render(const Camera* camera) {
 
     glUniform1f(m_program.getUniform("sonarDistance"), SONAR_DISTANCE);
     glUniform1f(m_program.getUniform("waveWidth"), SONAR_WIDTH);
-    glUniform1f(m_program.getUniform("dt"), sonarDt);
+    glUniform1f(m_program.getUniform("dt"), 1.0f);
 
     glUniform1f(m_program.getUniform("fadeDistance"), ChunkRenderer::fadeDist);
 

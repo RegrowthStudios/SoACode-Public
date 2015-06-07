@@ -6,7 +6,6 @@
 #include <Vorb/graphics/SpriteFont.h>
 
 #include "App.h"
-#include "global.h"
 
 DevHudRenderStage::DevHudRenderStage() {
     // Empty
@@ -122,13 +121,13 @@ void DevHudRenderStage::drawFps() {
                              color::White);
     _yOffset += _fontHeight;
 
-    std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
+   /* std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
     _spriteBatch->drawString(_spriteFont,
                              buffer,
                              f32v2(0.0f, _yOffset),
                              f32v2(1.0f),
                              color::White);
-    _yOffset += _fontHeight;
+    _yOffset += _fontHeight;*/
 }
 
 void DevHudRenderStage::drawPosition() {

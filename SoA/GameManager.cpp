@@ -31,7 +31,6 @@
 bool GameManager::gameInitialized = false;
 bool GameManager::_systemsInitialized = false;
 float GameManager::fogStart, GameManager::fogEnd;
-Uint32 GameManager::maxLodTicks = 8;
 
 VoxelEditor* GameManager::voxelEditor = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
@@ -77,25 +76,6 @@ void GameManager::registerTexturesForLoad() {
 
 void GameManager::getTextureHandles() {
 
-    markerTexture = textureCache->findTexture("FarTerrain/location_marker.png");
-    terrainTexture = textureCache->findTexture("FarTerrain/terrain_texture.png");
-
-    normalLeavesTexture = textureCache->findTexture("FarTerrain/normal_leaves_billboard.png");
-    pineLeavesTexture = textureCache->findTexture("FarTerrain/pine_leaves_billboard.png");
-    mushroomCapTexture = textureCache->findTexture("FarTerrain/mushroom_cap_billboard.png");
-    treeTrunkTexture1 = textureCache->findTexture("FarTerrain/tree_trunk_1.png");
-    waterNormalTexture = textureCache->findTexture("Blocks/Liquids/water_normal_map.png");
-
-    waterNoiseTexture = textureCache->findTexture("FarTerrain/water_noise.png");
-    ballMaskTexture = textureCache->findTexture("Particle/ball_mask.png");
-    crosshairTexture = textureCache->findTexture("GUI/crosshair.png");
-
-    // TODO(Ben): Parallelize this
-    logoTexture = textureCache->addTexture("Textures/logo.png");
-    sunTexture = textureCache->addTexture("Textures/sun_texture.png");
-    BlankTextureID = textureCache->addTexture("Textures/blank.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::POINT_CLAMP);
-    explosionTexture = textureCache->addTexture("Textures/explosion.png");
-    fireTexture = textureCache->addTexture("Textures/fire.png");
 }
 
 void GameManager::saveState() {

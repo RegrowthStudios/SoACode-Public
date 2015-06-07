@@ -8,7 +8,6 @@
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
-#include "Texture2d.h"
 #include "ZipFile.h"
 
 KEG_ENUM_DEF(MeshType, MeshType, e) {

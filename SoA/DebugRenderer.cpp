@@ -11,8 +11,6 @@
 #include "GameManager.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
-#include "global.h"
-
 f32m4 DebugRenderer::_modelMatrix(1.0);
 
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);

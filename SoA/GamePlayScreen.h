@@ -104,9 +104,6 @@ private:
     /// Updates multi-threaded render state
     void updateMTRenderState();
 
-    /// Updates the dynamic clipping plane for the world camera
-    void updateWorldCameraClip();
-
     // --------------- Event handlers ---------------
     void onReloadShaders(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);

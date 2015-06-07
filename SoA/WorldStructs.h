@@ -2,6 +2,7 @@
 #include <queue>
 
 #include <Vorb/Timing.h>
+#include <Vorb/graphics/Texture.h>
 
 #include "Constants.h"
 #include "OpenGLStructs.h"
@@ -11,6 +12,8 @@ extern AccumulationTimer globalAccumulationTimer;
 extern AccumulationTimer globalRenderAccumulationTimer; ///< for easy global benchmarking
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
+
+const int maxParticles = 10000;
 
 struct PlanetGenData;
 

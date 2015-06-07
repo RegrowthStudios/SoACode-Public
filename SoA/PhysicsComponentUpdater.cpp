@@ -7,7 +7,6 @@
 #include "TerrainPatch.h"
 #include "VoxelSpaceConversions.h"
 #include "VoxelSpaceUtils.h"
-#include "global.h"
 #include "soaUtils.h"
 
 #include <Vorb/utils.h>

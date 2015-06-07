@@ -159,7 +159,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     m_spaceSystemUpdater->glUpdate(m_soaState);
     m_mainMenuSystemViewer->update();
 
-    bdt += glSpeedFactor * 0.01f;
+    bdt += 0.01f;
 
     m_ambPlayer->update((f32)gameTime.elapsed);
     m_commonState->soundEngine->update(vsound::Listener());

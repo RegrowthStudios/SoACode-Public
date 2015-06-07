@@ -13,7 +13,6 @@
 #include "PhysicsEngine.h"
 #include "RenderUtils.h"
 #include "TerrainGenerator.h"
-#include "Texture2d.h"
 #include "VoxelMesher.h"
 
 f32m4 PhysicsBlockBatch::worldMatrix(1.0);
@@ -113,7 +112,7 @@ PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 Block
     velocity += extraForce;
 
     light[LIGHT] = 0;
-    light[SUNLIGHT] = (GLubyte)(255.0f*(LIGHT_OFFSET + LIGHT_MULT));
+    light[SUNLIGHT] = (GLubyte)(255.0f);
 }
 
 int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0, 3, 1, 2,

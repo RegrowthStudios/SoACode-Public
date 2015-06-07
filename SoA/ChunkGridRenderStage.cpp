@@ -161,7 +161,7 @@ void ChunkGridRenderStage::render(const Camera* camera) {
         // Set Texture
         glUniform1i(m_program.getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, BlankTextureID.id);
+        glBindTexture(GL_TEXTURE_2D, 0);
         // Draw the grid
         mesh.draw();
         // Unuse the program

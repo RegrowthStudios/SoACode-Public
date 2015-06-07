@@ -46,7 +46,7 @@ void TransparentVoxelRenderStage::render(const Camera* camera) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
 
-    glUniform1f(m_program.getUniform("dt"), (GLfloat)bdt);
+    glUniform1f(m_program.getUniform("dt"), (GLfloat)1.0f);
 
     glUniform1f(m_program.getUniform("sunVal"), m_gameRenderParams->sunlightIntensity);
 

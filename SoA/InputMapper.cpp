@@ -4,7 +4,6 @@
 #include <Vorb/io/Keg.h>
 #include <Vorb/io/IOManager.h>
 
-#include "global.h"
 #include "GameManager.h"
 #include "Inputs.h"
 

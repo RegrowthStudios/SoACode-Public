@@ -21,6 +21,8 @@
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
 
+const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
+
 ChunkMesher::ChunkMesher()
 {
 

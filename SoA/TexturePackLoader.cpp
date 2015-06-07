@@ -389,8 +389,6 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(vg::BitmapResource& bitma
 
 void TexturePackLoader::mapTexturesToAtlases() {
 
-    PreciseTimer timerb;
-    timerb.start();
     BlockTextureLayer* layer;
     // Iterate through all the unique texture layers we need to map
     for (auto& it = _blockTextureLayers.begin(); it != _blockTextureLayers.end(); ++it) {

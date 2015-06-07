@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Inputs.h"
 
+#include <SDL/SDL_mouse.h>
+
 #include "GameManager.h"
 
 // Input Commands Sorted Alphabetically

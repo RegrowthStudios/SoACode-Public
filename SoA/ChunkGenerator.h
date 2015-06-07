@@ -1,6 +1,11 @@
 #pragma once
 
 class Chunk;
+class Chunk;
+class LoadData;
+struct BlockLayer;
+struct MineralData;
+struct PlanetGenData;
 
 class ChunkGenerator {
 public:
