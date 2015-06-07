@@ -724,7 +724,6 @@ EXIT 0</Command>
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="TerrainGenerator.h" />
-    <ClInclude Include="Texture2d.h" />
     <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
@@ -905,7 +904,6 @@ EXIT 0</Command>
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />
-    <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />

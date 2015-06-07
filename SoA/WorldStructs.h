@@ -5,7 +5,6 @@
 
 #include "Constants.h"
 #include "OpenGLStructs.h"
-#include "Texture2d.h"
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 extern AccumulationTimer globalAccumulationTimer;
