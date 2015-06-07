@@ -242,9 +242,6 @@
     <ClInclude Include="GeometrySorter.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="global.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="Inputs.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
@@ -836,9 +833,6 @@
     </ClCompile>
     <ClCompile Include="GeometrySorter.cpp">
       <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="global.cpp">
-      <Filter>SOA Files</Filter>
     </ClCompile>
     <ClCompile Include="Inputs.cpp">
       <Filter>SOA Files\Ext\Input</Filter>

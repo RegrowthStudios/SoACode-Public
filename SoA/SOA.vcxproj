@@ -709,7 +709,6 @@ EXIT 0</Command>
     <ClInclude Include="Errors.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="global.h" />
     <ClInclude Include="GenerateTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
@@ -896,7 +895,6 @@ EXIT 0</Command>
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="global.cpp" />
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />

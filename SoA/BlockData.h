@@ -8,7 +8,6 @@
 #include "CAEngine.h"
 #include "ChunkMesh.h"
 #include "Constants.h"
-#include "global.h"
 #include "HardCodedIDs.h"
 #include "Rendering.h"
 

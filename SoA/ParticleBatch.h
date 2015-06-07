@@ -1,5 +1,4 @@
 #pragma once
-#include "global.h"
 #include "Particle.h"
 
 #include <Vorb/VorbPreDecl.inl>

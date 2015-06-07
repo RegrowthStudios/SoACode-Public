@@ -3,8 +3,6 @@
 
 #include "Biome.h"
 
-#include "global.h"
-
 const int FREEZETEMP = 50;
 
 class HeightData {

@@ -1,5 +1,4 @@
 #pragma once
-#include "global.h"
 #include "Frustum.h"
 
 class Camera

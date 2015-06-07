@@ -10,7 +10,6 @@
 #include <Vorb/utils.h>
 #include <ZLIB/zlib.h>
 
-#include "global.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"

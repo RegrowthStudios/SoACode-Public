@@ -16,8 +16,6 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-#include "Texture2d.h"
-
 class SkyboxVertex {
 public:
     f32v3 position;
