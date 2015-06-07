@@ -44,9 +44,9 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, Blocks.texture.id);
 
-    glUniform1f(m_program.getUniform("dt"), (GLfloat)bdt);
+    glUniform1f(m_program.getUniform("dt"), 1.0f);
     glUniform1f(m_program.getUniform("sunVal"), m_gameRenderParams->sunlightIntensity);
     glUniform1f(m_program.getUniform("alphaMult"), 1.0f);
 

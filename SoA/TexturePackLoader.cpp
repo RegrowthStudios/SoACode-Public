@@ -91,12 +91,8 @@ void TexturePackLoader::uploadTextures() {
 
     // TODO(Ben): This could be done better
     // Upload all the block textures
-    vg::Texture atlasTex;
-    atlasTex.width = atlasTex.height = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
-
-    atlasTex.id = _textureAtlasStitcher.buildTextureArray();
-
-    blockPack.initialize(atlasTex);
+    Blocks.texture.width = Blocks.texture.height = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
+    Blocks.texture.id = _textureAtlasStitcher.buildTextureArray();
 
     // Get the number of atlas pages before freeing atlas
     _numAtlasPages = _textureAtlasStitcher.getNumPages();
@@ -193,7 +189,7 @@ void TexturePackLoader::writeDebugAtlases() {
     int pixelsPerPage = width * height * 4;
     ui8 *pixels = new ui8[width * height * 4 * _numAtlasPages];
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, Blocks.texture.id);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     for (int i = 0; i < _numAtlasPages; i++) {

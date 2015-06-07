@@ -44,7 +44,7 @@ void TransparentVoxelRenderStage::render(const Camera* camera) {
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, Blocks.texture.id);
 
     glUniform1f(m_program.getUniform("dt"), (GLfloat)1.0f);
 

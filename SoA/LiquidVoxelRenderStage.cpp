@@ -42,7 +42,7 @@ void LiquidVoxelRenderStage::render(const Camera* camera) {
     glUniform3f(m_program.getUniform("AmbientLight"), blockAmbient, blockAmbient, blockAmbient);
     glUniform3fv(m_program.getUniform("LightColor"), 1, &(m_gameRenderParams->sunlightColor[0]));
 
-    glUniform1f(m_program.getUniform("dt"), (GLfloat)bdt);
+    glUniform1f(m_program.getUniform("dt"), 1.0f);
 
     glActiveTexture(GL_TEXTURE6);
     //glBindTexture(GL_TEXTURE_2D, waterNormalTexture.id);
