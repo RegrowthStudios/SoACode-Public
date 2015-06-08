@@ -33,8 +33,8 @@ void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context,
     // Get window dimensions
     f32v2 windowDims(m_viewport.z, m_viewport.w);
 
-    m_spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
-    m_localCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_state->spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_state->localCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Init Stages
     stages.opaqueVoxel.init(window, context);
@@ -79,14 +79,14 @@ void GameplayRenderer::dispose(LoadContext& context) {
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
     m_swapChain.dispose();
-    m_quad.dispose();
 }
 
 void GameplayRenderer::load(LoadContext& context) {
     m_isLoaded = false;
 
     m_loadThread = new std::thread([&]() {
-        vcore::GLRPC so[4];
+        
+        vcore::GLRPC so[3];
         size_t i = 0;
         std::cout << "BEGIN\n";
         // Create the HDR target     
@@ -106,13 +106,6 @@ void GameplayRenderer::load(LoadContext& context) {
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
         });
         m_glrpc.invoke(&so[i++], false);
-
-        // Create full-screen quad
-        so[i].set([&](Sender, void*) {
-            m_quad.init();
-        });
-        m_glrpc.invoke(&so[i++], false);
-
         // Wait for the last command to complete
         so[i - 1].block();
 
@@ -128,12 +121,12 @@ void GameplayRenderer::load(LoadContext& context) {
         stages.nightVision.load(context, m_glrpc);
         std::cout << "DONE\n";
         m_isLoaded = true;
-        checkGlError("GamePlayRenderer::Load()");
     });
     m_loadThread->detach();
 }
 
 void GameplayRenderer::hook() {
+    // Note: Common stages are hooked in MainMenuRenderer, no need to re-hook
     // Grab mesh manager handle
     m_meshManager = m_state->chunkMeshManager.get();
     stages.opaqueVoxel.hook(&m_gameRenderParams);
@@ -144,7 +137,7 @@ void GameplayRenderer::hook() {
     //stages.devHud.hook();
     //stages.pda.hook();
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
-    stages.nightVision.hook(&m_quad);
+    stages.nightVision.hook(&m_commonState->quad);
 }
 
 void GameplayRenderer::updateGL() {
@@ -167,7 +160,7 @@ void GameplayRenderer::render() {
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
-    m_gameRenderParams.calculateParams(m_spaceCamera.getPosition(), &m_localCamera,
+    m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
                                        pos, 100, m_meshManager, false);
     // Bind the FBO
     m_hdrTarget.use();
@@ -175,24 +168,24 @@ void GameplayRenderer::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
-    m_commonState->stages.skybox.render(&m_spaceCamera);
+    m_commonState->stages.skybox.render(&m_state->spaceCamera);
 
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_commonState->stages.spaceSystem.setShowAR(false);
     m_commonState->stages.spaceSystem.setRenderState(m_renderState);
-    m_commonState->stages.spaceSystem.render(&m_spaceCamera);
+    m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
 
     if (m_voxelsActive) {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        stages.opaqueVoxel.render(&m_localCamera);
+        stages.opaqueVoxel.render(&m_state->localCamera);
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->playerEntity).parentVoxelComponent;
         stages.chunkGrid.setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
-        stages.chunkGrid.render(&m_localCamera);
+        stages.chunkGrid.render(&m_state->localCamera);
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
     }
@@ -241,10 +234,10 @@ void GameplayRenderer::render() {
             m_coloredQuadAlpha = 3.5f;
             m_increaseQuadAlpha = false;
         }
-        m_coloredQuadRenderer.draw(m_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+        m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
     } else if (m_coloredQuadAlpha > 0.0f) {
         static const float FADE_DEC = 0.01f;  
-        m_coloredQuadRenderer.draw(m_quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+        m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
         m_coloredQuadAlpha -= FADE_DEC;
     }
 
@@ -313,10 +306,11 @@ void GameplayRenderer::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_localCamera.setClippingPlane(0.1f, 10000.0f);
-        m_localCamera.setPosition(vpcmp.gridPosition.pos);
-        m_localCamera.setOrientation(vpcmp.orientation);
-        m_localCamera.update();
+        m_state->localCamera.setFocalLength(0.0f);
+        m_state->localCamera.setClippingPlane(0.1f, 10000.0f);
+        m_state->localCamera.setPosition(vpcmp.gridPosition.pos);
+        m_state->localCamera.setOrientation(vpcmp.orientation);
+        m_state->localCamera.update();
 
         m_voxelsActive = true;
     } else {
@@ -327,20 +321,20 @@ void GameplayRenderer::updateCameras() {
     if (spcmp.parentGravityID) {
         auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntityID);
         if (it != m_renderState->spaceBodyPositions.end()) {
-            m_spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
+            m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {
             auto& gcmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityID);
             auto& npcmp = ss->m_namePositionCT.get(gcmp.namePositionComponent);
-            m_spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
+            m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
         }
     } else {
-        m_spaceCamera.setPosition(m_renderState->spaceCameraPos);
+        m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
-
-    m_spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
+    m_state->spaceCamera.setFocalLength(0.0f);
+    m_state->spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
    
-    m_spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
-    m_spaceCamera.update();
+    m_state->spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
+    m_state->spaceCamera.update();
 }
 
 void GameplayRenderer::dumpScreenshot() {

@@ -54,7 +54,6 @@ void MainMenuRenderer::dispose(LoadContext& context) {
     // Dispose of persistent rendering resources
     m_hdrTarget.dispose();
     m_swapChain.dispose();
-    m_quad.dispose();
 }
 
 void MainMenuRenderer::load(LoadContext& context) {
@@ -84,7 +83,7 @@ void MainMenuRenderer::load(LoadContext& context) {
 
         // Create full-screen quad
         so[i].set([&](Sender, void*) {
-            m_quad.init();
+            m_commonState->quad.init();
         });
         m_glrpc.invoke(&so[i++], false);
 
@@ -106,9 +105,9 @@ void MainMenuRenderer::load(LoadContext& context) {
 void MainMenuRenderer::hook() {
     m_commonState->stages.skybox.hook(m_state);
     m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera);
-    m_commonState->stages.hdr.hook(&m_quad);
-    stages.colorFilter.hook(&m_quad);
-    stages.exposureCalc.hook(&m_quad, &m_hdrTarget, &m_viewport, 1024);
+    m_commonState->stages.hdr.hook(&m_commonState->quad);
+    stages.colorFilter.hook(&m_commonState->quad);
+    stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
 }
 
 void MainMenuRenderer::updateGL() {

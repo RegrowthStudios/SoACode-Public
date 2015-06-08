@@ -17,6 +17,7 @@
 
 #include "LoadContext.h"
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/FullQuadVBO.h>
 
 #include "SpaceSystemRenderStage.h"
 #include "SkyboxRenderStage.h"
@@ -38,6 +39,7 @@ public:
         SpaceSystemRenderStage spaceSystem;
         HdrRenderStage hdr;
     } stages; // Shared render stages
+    vg::FullQuadVBO quad; ///< Quad used for post-processing
 };
 
 #endif // CommonState_h__

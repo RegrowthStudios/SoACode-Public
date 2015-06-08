@@ -122,7 +122,6 @@ private:
 
     vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
-    vg::FullQuadVBO m_quad; ///< Quad used for post-processing
 
     GameRenderParams m_gameRenderParams; ///< Shared rendering parameters for voxels
     GameplayScreen* m_gameplayScreen = nullptr;
@@ -140,8 +139,6 @@ private:
     ui32 m_nvIndex = 0;
 
     ui32v4 m_viewport; ///< Viewport to draw to
-    Camera m_spaceCamera; ///< handle to world camera
-    Camera m_localCamera; ///< handle to voxel camera
     ChunkMeshManager* m_meshManager; ///< Handle to the meshes
     const MTRenderState* m_renderState = nullptr; ///< The current MT render state
     bool m_voxelsActive = false;

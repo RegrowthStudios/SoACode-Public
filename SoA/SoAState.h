@@ -53,7 +53,7 @@ struct SoaState {
 
     SoaOptions* options = nullptr; // Lives in App
 
-    // TODO(Ben): This is temporary
+    // TODO(Ben): This is temporary?
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
     CinematicCamera localCamera; ///< Camera for voxels and far terrain
 
