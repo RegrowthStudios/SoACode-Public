@@ -17,6 +17,7 @@
 #include "SkyboxRenderer.h"
 #include "IRenderStage.h"
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/AssetLoader.h>
 
 class Camera;
 class ModPathResolver;
@@ -25,6 +26,8 @@ class SkyboxRenderStage : public IRenderStage
 {
 public:
     void hook(SoaState* state);
+
+    void load(LoadContext& context, vcore::RPCManager& glRPCM) override;
 
     // Draws the render stage
     virtual void render(const Camera* camera) override;
@@ -43,6 +46,8 @@ private:
 
     VGTexture m_skyboxTextureArray = 0; ///< Texture array for skybox
     const ModPathResolver* m_textureResolver = nullptr;
+    vcore::GLRPC m_rpc;
+
 };
 
 #endif // SkyboxRenderStage_h__

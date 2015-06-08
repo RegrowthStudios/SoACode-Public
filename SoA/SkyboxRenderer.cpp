@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SkyboxRenderer.h"
+#include "LoadContext.h"
 
 #include <Vorb/graphics/GLEnums.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -62,14 +63,17 @@ SkyboxRenderer::SkyboxRenderer() {
     // Empty
 }
 
-
 SkyboxRenderer::~SkyboxRenderer() {
     destroy();
 }
 
+void SkyboxRenderer::init() {
+    initShader();
+    initBuffers();
+}
+
 void SkyboxRenderer::drawSkybox(const f32m4& VP, VGTexture textureArray) {
 
-    if (!m_program.isCreated()) initShader();
     // Bind shader
     m_program.use();
 

@@ -17,12 +17,17 @@ void SkyboxRenderStage::hook(SoaState* state) {
     m_textureResolver = &state->texturePathResolver;
 }
 
-void SkyboxRenderStage::render(const Camera* camera) {
+void SkyboxRenderStage::load(LoadContext& context, vcore::RPCManager& glRPCM) {
+    m_rpc.set([&](Sender, void*) {
+        if (m_skyboxTextureArray == 0) {
+            loadSkyboxTexture();
+        }
+        m_skyboxRenderer.init();
+    });
+    glRPCM.invoke(&m_rpc, false);
+}
 
-    // Lazy texture init
-    if (m_skyboxTextureArray == 0) {
-        loadSkyboxTexture();
-    }
+void SkyboxRenderStage::render(const Camera* camera) {
 
     // Check if FOV or Aspect Ratio changed
     if (m_fieldOfView != camera->getFieldOfView() ||
