@@ -27,9 +27,10 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
                                         const f32v3& relCamPos,
                                         const f32v3& lightPos,
                                         const f32 planetRadius,
+                                        const f32 zCoef,
                                         const SpaceLightComponent* spComponent) {
     // Lazily construct buffer and shaders
-    if (!m_program) {
+    if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/PlanetRings/Rings.vert",
                                                         "Shaders/PlanetRings/Rings.frag");
     }
@@ -38,7 +39,10 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
         m_quad.init();
     }
 
-    m_program->use();
+    m_program.use();
+    // For logarithmic Z buffer
+    glUniform1f(m_program.getUniform("unZCoef"), zCoef);
+
     glDisable(GL_CULL_FACE);
     // Set up matrix
     for (auto& r : prCmp.rings) {
@@ -63,22 +67,22 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, r.colorLookup);
 
-        glUniformMatrix4fv(m_program->getUniform("unM"), 1, GL_FALSE, &W[0][0]);
-        glUniformMatrix4fv(m_program->getUniform("unMVP"), 1, GL_FALSE, &WVP[0][0]);
-        glUniform1f(m_program->getUniform("unInnerRadius"), r.innerRadius);
-        glUniform1f(m_program->getUniform("unOuterRadius"), r.outerRadius);
-        glUniform1i(m_program->getUniform("unColorLookup"), 0);
-        glUniform3fv(m_program->getUniform("unLightPos"), 1, &lightPos[0]);
+        glUniformMatrix4fv(m_program.getUniform("unM"), 1, GL_FALSE, &W[0][0]);
+        glUniformMatrix4fv(m_program.getUniform("unMVP"), 1, GL_FALSE, &WVP[0][0]);
+        glUniform1f(m_program.getUniform("unInnerRadius"), r.innerRadius);
+        glUniform1f(m_program.getUniform("unOuterRadius"), r.outerRadius);
+        glUniform1i(m_program.getUniform("unColorLookup"), 0);
+        glUniform3fv(m_program.getUniform("unLightPos"), 1, &lightPos[0]);
         f32v3 planetPos = -relCamPos;
-        glUniform3fv(m_program->getUniform("unPlanetPos"), 1, &planetPos[0]);
-        glUniform1f(m_program->getUniform("unPlanetRadius"), planetRadius);
+        glUniform3fv(m_program.getUniform("unPlanetPos"), 1, &planetPos[0]);
+        glUniform1f(m_program.getUniform("unPlanetRadius"), planetRadius);
 
         m_quad.draw();
     }
     glEnable(GL_CULL_FACE);
-    m_program->unuse();
+    m_program.unuse();
 }
 
 void PlanetRingsComponentRenderer::disposeShader() {
-    if (m_program) vg::ShaderManager::destroyProgram(&m_program);
+    if (m_program.isCreated()) m_program.dispose();
 }

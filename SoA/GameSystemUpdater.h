@@ -24,10 +24,10 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 struct VoxelPositionComponent;
-class SoaState;
+struct SoaState;
 DECL_VVOX(class VoxelPlanetMapData);
 
 class GameSystemUpdater {

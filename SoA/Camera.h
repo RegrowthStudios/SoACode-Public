@@ -1,5 +1,4 @@
 #pragma once
-#include "global.h"
 #include "Frustum.h"
 
 class Camera
@@ -33,7 +32,9 @@ public:
 
     // Gets the position of a 3D point on the screen plane
     f32v3 worldToScreenPoint(const f32v3& worldPoint) const;
+    f32v3 worldToScreenPointLogZ(const f32v3& worldPoint, f32 zFar) const;
     f32v3 worldToScreenPoint(const f64v3& worldPoint) const;
+    f32v3 worldToScreenPointLogZ(const f64v3& worldPoint, f64 zFar) const;
     f32v3 getPickRay(const f32v2& ndcScreenPos) const;
 
     //getters
@@ -46,11 +47,11 @@ public:
     const f32m4& getViewMatrix() const { return m_viewMatrix; }
     const f32m4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; }
 
-    const float& getNearClip() const { return m_zNear; }
-    const float& getFarClip() const { return m_zFar; }
-    const float& getFieldOfView() const { return m_fieldOfView; }
-    const float& getAspectRatio() const { return m_aspectRatio; }
-    const float& getFocalLength() const { return m_focalLength; }
+    const f32& getNearClip() const { return m_zNear; }
+    const f32& getFarClip() const { return m_zFar; }
+    const f32& getFieldOfView() const { return m_fieldOfView; }
+    const f32& getAspectRatio() const { return m_aspectRatio; }
+    const f64& getFocalLength() const { return m_focalLength; }
 
     const Frustum& getFrustum() const { return m_frustum; }
 
@@ -58,10 +59,10 @@ protected:
     void normalizeAngles();
     void updateView();
 
-    float m_zNear = 0.1f;
-    float m_zFar = 100000.0f;
-    float m_fieldOfView = 75.0f;
-    float m_aspectRatio = 4.0f / 3.0f;
+    f32 m_zNear = 0.1f;
+    f32 m_zFar = 100000.0f;
+    f32 m_fieldOfView = 75.0f;
+    f32 m_aspectRatio = 4.0f / 3.0f;
     f64 m_focalLength = 0.0;
     f64 m_maxFocalLength = 10000000000000000000000.0;
     bool m_viewChanged = true;
@@ -96,6 +97,7 @@ public:
     const f64& getSpeed() const { return m_speed; }
 
     // Setters
+    void setIsDynamic(bool isDynamic) { m_isDynamic = isDynamic; }
     void setSpeed(f64 speed) { m_speed = speed; }
     void setTarget(const f64v3& targetFocalPoint, const f32v3& targetDirection,
                    const f32v3& targetRight, f64 targetFocalLength);
@@ -105,6 +107,7 @@ public:
     void setTargetFocalLength(const float& targetFocalLength) { m_targetFocalLength = targetFocalLength; }
 
 private:
+    bool m_isDynamic = true;
     f32v3 m_targetDirection = m_direction; ///< Desired direction
     f32v3 m_targetRight = m_right; ///< Desired right
     f64v3 m_targetFocalPoint = m_focalPoint; ///< Target focal position

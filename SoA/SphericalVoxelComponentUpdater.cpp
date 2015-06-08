@@ -17,6 +17,8 @@
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainGpuGenerator.h"
 #include "soaUtils.h"
+#include "ParticleEngine.h"
+#include "PhysicsEngine.h"
 
 void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
@@ -57,20 +59,6 @@ void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
 
 void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, const Frustum* frustum) {
 
-
-    //TODO(Ben): Maybe do this?
-    //// Check for face transition
-    //if (m_cmp->transitionFace != FACE_NONE) {
-    //    // Free all chunks
-
-    //    // Set new grid face
-    //    m_cmp->chunkGrid->m_face = m_cmp->transitionFace;
-    //    m_cmp->transitionFace = FACE_NONE;
-    //}
-
-    sonarDt += 0.003f*physSpeedFactor;
-    if (sonarDt > 1.0f) sonarDt = 0.0f;
-
     // Always make a chunk at camera location
     i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(position);
     if (m_cmp->chunkGrid->getChunk(chunkPosition) == nullptr) {
@@ -85,7 +73,7 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
     updateLoadList(4);
 
     // TODO(Ben): There are better ways to do this
-    if (m_cmp->updateCount >= 8 || (m_cmp->updateCount >= 4 && physSpeedFactor >= 2.0)) {
+    if (m_cmp->updateCount >= 8) {
         m_cmp->chunkListManager->sortLists();
         m_cmp->updateCount = 0;
     }
@@ -196,8 +184,7 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
                 chunk->changeState(ChunkStates::MESH);
             }
 
-            if (isWaterUpdating && chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine,
-                                                                                           chunk);
+            if (chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine, chunk);
             // Check to see if it needs to be added to the mesh list
             if (!chunk->_chunkListPtr && !chunk->lastOwnerTask) {
                 switch (chunk->_state) {
@@ -252,7 +239,7 @@ void SphericalVoxelComponentUpdater::updateLoadedChunks(ui32 maxTicks) {
             if (!chunkGridData->wasRequestSent) {
                 // Keep trying to send it until it succeeds
                 while (!m_cmp->generator->heightmapGenRpcDispatcher.dispatchHeightmapGen(chunkGridData,
-                    ch->gridPosition, m_cmp->planetGenData->radius * VOXELS_PER_KM));
+                    ch->gridPosition, (f32)(m_cmp->planetGenData->radius * VOXELS_PER_KM)));
             }
 
             canGenerate = false;
@@ -592,7 +579,6 @@ void SphericalVoxelComponentUpdater::processFinishedFloraTask(FloraTask* task) {
 }
 
 void SphericalVoxelComponentUpdater::addGenerateTask(Chunk* chunk) {
-
     // TODO(Ben): alternative to new?
     GenerateTask* generateTask = new GenerateTask();
 

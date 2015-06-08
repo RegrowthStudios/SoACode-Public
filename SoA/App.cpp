@@ -4,36 +4,43 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/ui/ScreenList.h>
 #include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/sound/SoundEngine.h>
 
+#include "ChunkMeshManager.h"
+#include "CommonState.h"
+#include "DebugRenderer.h"
 #include "DevScreen.h"
 #include "GameManager.h"
-#include "GameplayScreen.h"
+#include "GameplayLoadScreen.h"
 #include "GameplayScreen.h"
 #include "InitScreen.h"
-#include "LoadScreen.h"
+#include "MainMenuLoadScreen.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "SoaEngine.h"
 #include "SoaOptions.h"
+#include "SoaState.h"
 #include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
+#include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
 #include "TestMappingScreen.h"
-#include "TestStarScreen.h"
-#include "TestDisplacementMappingScreen.h"
 #include "TestNoiseScreen.h"
+#include "TestStarScreen.h"
 
 void App::addScreens() {
-    scrInit = new InitScreen(this);
-    scrLoad = new LoadScreen(this);
-    scrMainMenu = new MainMenuScreen(this, &m_window, scrLoad);
+    scrInit = new InitScreen(this);  
+    scrMainMenu = new MainMenuScreen(this, &state);
+    scrLoad = new MainMenuLoadScreen(this, &state, scrMainMenu);
     scrGamePlay = new GameplayScreen(this, scrMainMenu);
+    scrGameplayLoad = new GameplayLoadScreen(this, &state, scrMainMenu, scrGamePlay);
 
     m_screenList.addScreen(scrInit);
     m_screenList.addScreen(scrLoad);
     m_screenList.addScreen(scrMainMenu);
+    m_screenList.addScreen(scrGameplayLoad);
     m_screenList.addScreen(scrGamePlay);
 
     // Add development screen
@@ -77,7 +84,11 @@ void App::addScreens() {
 }
 
 void App::onInit() {
-    
+    state.state = new SoaState;
+    state.window = &m_window;
+    state.soundEngine = new vsound::Engine;
+    state.soundEngine->init();
+
     // Load the game options
     SoaEngine::initOptions(soaOptions);
 

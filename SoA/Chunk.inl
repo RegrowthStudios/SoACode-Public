@@ -1,5 +1,4 @@
 #pragma once
-#include "global.h"
 #include "BlockPack.h"
 #include "VoxelNavigation.inl"
 

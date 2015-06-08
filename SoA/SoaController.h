@@ -16,7 +16,7 @@
 #define SoaController_h__
 
 class App;
-class SoaState;
+struct SoaState;
 
 class SoaController {
 public:

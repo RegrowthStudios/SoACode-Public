@@ -58,10 +58,7 @@ void main() {
 })";
 }
 
-SkyboxRenderer::SkyboxRenderer() : 
-    m_vao(0),
-    m_vbo(0),
-    m_ibo(0) {
+SkyboxRenderer::SkyboxRenderer() {
     // Empty
 }
 
@@ -72,15 +69,15 @@ SkyboxRenderer::~SkyboxRenderer() {
 
 void SkyboxRenderer::drawSkybox(const f32m4& VP, VGTexture textureArray) {
 
-    if (!m_program) initShader();
+    if (!m_program.isCreated()) initShader();
     // Bind shader
-    m_program->use();
+    m_program.use();
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
     // Upload VP matrix
-    glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
     
     // Create the buffer objects if they aren't initialized
     if (m_vbo == 0) {
@@ -92,7 +89,7 @@ void SkyboxRenderer::drawSkybox(const f32m4& VP, VGTexture textureArray) {
     glBindVertexArray(0);
 
     // Unbind shader
-    m_program->unuse();  
+    m_program.unuse();  
 }
 
 void SkyboxRenderer::destroy() {
@@ -108,18 +105,16 @@ void SkyboxRenderer::destroy() {
         vg::GpuMemory::freeBuffer(m_ibo);
         m_ibo = 0;
     }
-    if (m_program) {
-        vg::ShaderManager::destroyProgram(&m_program);
-    }
+    if (m_program.isCreated()) m_program.dispose();
 }
 
 void SkyboxRenderer::initShader() {
     m_program = ShaderLoader::createProgram("Skybox", VERT_SRC, FRAG_SRC);
 
     // Constant uniforms
-    m_program->use();
-    glUniform1i(m_program->getUniform("unTex"), 0);
-    m_program->unuse();
+    m_program.use();
+    glUniform1i(m_program.getUniform("unTex"), 0);
+    m_program.unuse();
 }
 
 void SkyboxRenderer::initBuffers() {
@@ -160,8 +155,8 @@ void SkyboxRenderer::initBuffers() {
     vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), skyboxIndices, vg::BufferUsageHint::STATIC_DRAW);
 
     // Set up attribute pointers
-    m_program->enableVertexAttribArrays();
-    glVertexAttribPointer(m_program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, position));
-    glVertexAttribPointer(m_program->getAttribute("vUVW"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, texCoords));
+    m_program.enableVertexAttribArrays();
+    glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, position));
+    glVertexAttribPointer(m_program.getAttribute("vUVW"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, texCoords));
     glBindVertexArray(0);
 }

@@ -3,7 +3,6 @@
 
 #include "GameSystem.h"
 
-#include "global.h"
 void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
     f64q orientation;
     f32v3 up;

@@ -4,20 +4,18 @@
 #include "ShaderLoader.h"
 #include "SoaOptions.h"
 
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
 
+#define BLUR_PASSES 4
+
 PlanetGenerator::PlanetGenerator() {
-    m_blurPrograms[0] = nullptr;
-    m_blurPrograms[1] = nullptr;
+    // Empty
 }
 
 void PlanetGenerator::dispose(vcore::RPCManager* glrpc) {
     // TODO(Ben): Implement
 }
-
-#define BLUR_PASSES 4
 
 CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc /* = nullptr */) {
     switch (type) {
@@ -45,7 +43,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     f32 f = falloff(m_generator);
     data->tempLatitudeFalloff = f * 1.9f;
     data->tempHeightFalloff = 5.0f;
-    data->humLatitudeFalloff = f * 0.3;
+    data->humLatitudeFalloff = f * 0.3f;
     data->humHeightFalloff = 1.0f;
 
     std::vector<TerrainFuncKegProperties> funcs;
@@ -54,7 +52,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::RIDGED_NOISE,
                           std::uniform_int_distribution<int>(0, 2),
                           std::uniform_int_distribution<int>(3, 7),
-                          std::uniform_real_distribution<f32>(0.00001, 0.001f),
+                          std::uniform_real_distribution<f32>(0.00001f, 0.001f),
                           std::uniform_real_distribution<f32>(-15000.0f, 15000.0f),
                           std::uniform_real_distribution<f32>(100.0f, 30000.0f));
     // Terrain
@@ -62,7 +60,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(2, 5),
                           std::uniform_int_distribution<int>(1, 4),
-                          std::uniform_real_distribution<f32>(0.0002, 0.2f),
+                          std::uniform_real_distribution<f32>(0.0002f, 0.2f),
                           std::uniform_real_distribution<f32>(-500.0f, 500.0f),
                           std::uniform_real_distribution<f32>(10.0f, 1000.0f));
     data->baseTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
@@ -74,7 +72,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(1, 2),
                           std::uniform_int_distribution<int>(3, 8),
-                          std::uniform_real_distribution<f32>(0.00008, 0.008f),
+                          std::uniform_real_distribution<f32>(0.00008f, 0.008f),
                           std::uniform_real_distribution<f32>(-128.0f, -128.0f),
                           std::uniform_real_distribution<f32>(255.0f, 255.0f));
     data->tempTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
@@ -85,7 +83,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
                           TerrainStage::NOISE,
                           std::uniform_int_distribution<int>(1, 2),
                           std::uniform_int_distribution<int>(3, 8),
-                          std::uniform_real_distribution<f32>(0.00008, 0.008f),
+                          std::uniform_real_distribution<f32>(0.00008f, 0.008f),
                           std::uniform_real_distribution<f32>(-128.0f, -128.0f),
                           std::uniform_real_distribution<f32>(255.0f, 255.0f));
     data->humTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
@@ -159,7 +157,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
 
     // Handle Gaussian blur
     auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-        if (!m_blurPrograms[0]) {
+        if (!m_blurPrograms[0].isCreated()) {
             m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                     "Shaders/PostProcessing/Blur.frag", nullptr,
                                                                     "#define HORIZONTAL_BLUR_9\n");
@@ -179,19 +177,19 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
         for (int p = 0; p < BLUR_PASSES; p++) {
             // Two pass Gaussian blur
             for (int i = 0; i < 2; i++) {
-                m_blurPrograms[i]->use();
-                m_blurPrograms[i]->enableVertexAttribArrays();
+                m_blurPrograms[i].use();
+                m_blurPrograms[i].enableVertexAttribArrays();
 
-                glUniform1i(m_blurPrograms[i]->getUniform("unTex"), 0);
-                glUniform1f(m_blurPrograms[i]->getUniform("unSigma"), 5.0f);
-                glUniform1f(m_blurPrograms[i]->getUniform("unBlurSize"), 1.0f / (f32)WIDTH);
+                glUniform1i(m_blurPrograms[i].getUniform("unTex"), 0);
+                glUniform1f(m_blurPrograms[i].getUniform("unSigma"), 5.0f);
+                glUniform1f(m_blurPrograms[i].getUniform("unBlurSize"), 1.0f / (f32)WIDTH);
                 m_targets[i].use();
 
                 m_quad.draw();
 
-                m_targets[i].unuse(soaOptions.get(OPT_SCREEN_WIDTH).value.f, soaOptions.get(OPT_SCREEN_HEIGHT).value.f);
-                m_blurPrograms[i]->disableVertexAttribArrays();
-                m_blurPrograms[i]->unuse();
+                m_targets[i].unuse((ui32)soaOptions.get(OPT_SCREEN_WIDTH).value.i, (ui32)soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
+                m_blurPrograms[i].disableVertexAttribArrays();
+                m_blurPrograms[i].unuse();
                 m_targets[i].bindTexture();
             }
         }
@@ -236,6 +234,6 @@ void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProper
         f.high = f.low + heightWidthRange(m_generator);
         f.octaves = octavesRange(m_generator);
         f.frequency = freqRange(m_generator);
-        f.persistence = 0.8;
+        f.persistence = 0.8f;
     }
 }

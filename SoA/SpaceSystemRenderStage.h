@@ -15,7 +15,6 @@
 #ifndef SpaceSystemRenderStage_h__
 #define SpaceSystemRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
 
@@ -30,45 +29,33 @@
 #include "SphericalTerrainComponentRenderer.h"
 #include "StarComponentRenderer.h"
 #include "SystemARRenderer.h"
+#include "IRenderStage.h"
 
 class App;
 class GameSystem;
 class MainMenuSystemViewer;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
 class SpriteBatch;
 class SpriteFont;
 struct MTRenderState;
 
-class SpaceSystemRenderStage : public vg::IRenderStage {
+class SpaceSystemRenderStage : public IRenderStage {
 public:
-    SpaceSystemRenderStage(const SoaState* soaState,
-                           ui32v2 viewport,
-                           SpaceSystem* spaceSystem,
-                           GameSystem* gameSystem,
-                           const MainMenuSystemViewer* systemViewer,
-                           const Camera* spaceCamera,
-                           const Camera* farTerrainCamera);
-    ~SpaceSystemRenderStage();
+    void hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera = nullptr);
 
+    //TODO(Ben): Pointer to window viewport instead?
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
 
     /// Call this every frame before render
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 
     /// Renders star glows requested in the render call. Call after HDR
     void renderStarGlows(const f32v3& colorMult);
 
-    virtual void reloadShader() override;
-
-    /// Gets the desired near clipping plane based on distances of planets
-    /// Returns 0 when it cannot be calculated
-    /// @param verticalFOV: vertical fov of camera in degrees
-    /// @param aspectRatio: camera aspect ratio
-    f32 getDynamicNearPlane(float verticalFOV, float aspectRatio);
-
+    void setSystemViewer(const MainMenuSystemViewer* viewer) { m_mainMenuSystemViewer = viewer; }
     void setShowAR(bool showAR) { m_showAR = showAR; }
 
     bool needsFaceTransitionAnimation = false; ///< true when we need to fade out camera for transition between faces
@@ -91,7 +78,6 @@ private:
 
     f32v2 m_viewport;
     SpaceSystem* m_spaceSystem = nullptr;
-    GameSystem* m_gameSystem = nullptr;
     const MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
     const Camera* m_spaceCamera = nullptr;
     const Camera* m_farTerrainCamera = nullptr;
@@ -106,8 +92,7 @@ private:
     SphericalTerrainComponentRenderer m_sphericalTerrainComponentRenderer;
     StarComponentRenderer m_starRenderer;
     SystemARRenderer m_systemARRenderer;
-    f64 m_closestPatchDistance2 = 500.0; ///< Used for determining dynamic near clipping plane
-
+  
     std::vector<std::pair<StarComponent, f64v3> > m_starGlowsToRender;
     bool m_showAR = true;
 };

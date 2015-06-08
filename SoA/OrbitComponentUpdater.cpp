@@ -28,7 +28,7 @@ void OrbitComponentUpdater::updatePosition(OrbitComponent& cmp, f64 time, NamePo
 
     // 1. Calculate the mean anomaly
     f64 meanAnomaly = (M_2_PI / cmp.t) * time + cmp.startMeanAnomaly;
-    cmp.currentMeanAnomaly = meanAnomaly;
+    cmp.currentMeanAnomaly = (f32)meanAnomaly;
 
     f64 v = calculateTrueAnomaly(meanAnomaly, cmp.e);
   

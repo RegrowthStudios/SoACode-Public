@@ -3,18 +3,16 @@
 
 #include "Biome.h"
 
-#include "global.h"
-
 const int FREEZETEMP = 50;
 
 class HeightData {
 public:
-    GLint height;
-    GLint temperature;
-    GLint rainfall;
-    GLint snowDepth; // TODO(Ben): THESE AREN'T NEEDED
-    GLint sandDepth;
-    GLint flags;
+    int height;
+    int temperature;
+    int rainfall;
+    int snowDepth; // TODO(Ben): THESE AREN'T NEEDED
+    int sandDepth;
+    int flags;
     GLubyte depth;
     Biome *biome = nullptr;
     GLushort surfaceBlock;

@@ -12,13 +12,13 @@
 const f32 MainMenuSystemViewer::MIN_SELECTOR_SIZE = 12.0f;
 const f32 MainMenuSystemViewer::MAX_SELECTOR_SIZE = 160.0f;
 
-MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera,
-                                           SpaceSystem* spaceSystem, InputMapper* inputManager) :
-        m_viewport(viewport),
-        m_camera(camera),
-        m_spaceSystem(spaceSystem),
-        m_inputManager(inputManager) {
-    
+void MainMenuSystemViewer::init(ui32v2 viewport, CinematicCamera* camera,
+                                SpaceSystem* spaceSystem, InputMapper* inputManager) {  
+    m_viewport = viewport;
+    m_camera = camera;
+    m_spaceSystem = spaceSystem;
+    m_inputManager = inputManager;
+
     mouseButtons[0] = false;
     mouseButtons[1] = false;
 
@@ -35,14 +35,11 @@ MainMenuSystemViewer::MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* cam
                             f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
     // Register events
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
+    startInput();
 }
 
-MainMenuSystemViewer::~MainMenuSystemViewer() {
-    // Empty
+void MainMenuSystemViewer::dispose() {
+    stopInput();
 }
 
 void MainMenuSystemViewer::update() {
@@ -50,10 +47,7 @@ void MainMenuSystemViewer::update() {
     const f32 HOVER_SPEED = 0.08f;
     const f32 HOVER_SIZE_INC = 7.0f;
 
-    // Connect camera to target planet
-    f32 length = m_camera->getFocalLength() / 10.0f;
-    if (length == 0) length = 0.1f;
-    m_camera->setClippingPlane(length, m_camera->getFarClip());
+    m_camera->setClippingPlane((f32)(0.1 * KM_PER_M), m_camera->getFarClip());
     // Target closest point on sphere
     m_camera->setTargetFocalPoint(getTargetPosition() -
                                   f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
@@ -65,8 +59,8 @@ void MainMenuSystemViewer::update() {
 
         f64v3 relativePos = it.second.position - m_camera->getPosition();
         f64 distance = glm::length(relativePos);
-        f32 radiusPixels;
-        f32 radius;
+        f64 radiusPixels;
+        f64 radius;
 
         BodyArData& data = bodyArData[it.first];
         f32 hoverTime = data.hoverTime;
@@ -86,16 +80,16 @@ void MainMenuSystemViewer::update() {
                 // Get radius of projected sphere
                 radius = m_spaceSystem->m_sphericalGravityCT.get(componentID).radius;
                 radiusPixels = (radius /
-                                (tan(m_camera->getFieldOfView() / 2) * distance)) *
-                                (m_viewport.y / 2.0f);
+                                (tan((f64)m_camera->getFieldOfView() / 2.0) * distance)) *
+                                ((f64)m_viewport.y / 2.0);
             } else {
-                radius = 1000.0f;
+                radius = 1000.0;
                 radiusPixels = (radius /
-                                (tan(m_camera->getFieldOfView() / 2) * distance)) *
-                                (m_viewport.y / 2.0f);
+                                (tan((f64)m_camera->getFieldOfView() / 2.0) * distance)) *
+                                ((f64)m_viewport.y / 2.0);
             }
 
-            f32 selectorSize = radiusPixels * 2.0f + 3.0f;
+            f32 selectorSize = (f32)(radiusPixels * 2.0 + 3.0);
             if (selectorSize < MIN_SELECTOR_SIZE) selectorSize = MIN_SELECTOR_SIZE;
 
             // Interpolate size
@@ -120,7 +114,18 @@ void MainMenuSystemViewer::update() {
             data.inFrustum = false;
         }
     }
+}
 
+void MainMenuSystemViewer::startInput() {
+    stopInput();
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
+}
+
+void MainMenuSystemViewer::stopInput() {
+    m_hooks.dispose();
 }
 
 void MainMenuSystemViewer::targetBody(const nString& name) {
@@ -153,8 +158,8 @@ nString MainMenuSystemViewer::getTargetName() {
 }
 
 void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButtonEvent& e) {
-    m_mouseCoords.x = e.x;
-    m_mouseCoords.y = e.y;
+    m_mouseCoords.x = (f32)e.x;
+    m_mouseCoords.y = (f32)e.y;
     if (e.button == vui::MouseButton::LEFT) {
         mouseButtons[0] = true;
         // Target a body if we clicked on one
@@ -186,8 +191,8 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
 }
 
 void MainMenuSystemViewer::onMouseButtonUp(Sender sender, const vui::MouseButtonEvent& e) {
-    m_mouseCoords.x = e.x;
-    m_mouseCoords.y = e.y;
+    m_mouseCoords.x = (f32)e.x;
+    m_mouseCoords.y = (f32)e.y;
     if (e.button == vui::MouseButton::LEFT) {
         mouseButtons[0] = false;
     } else {
@@ -197,15 +202,15 @@ void MainMenuSystemViewer::onMouseButtonUp(Sender sender, const vui::MouseButton
 
 void MainMenuSystemViewer::onMouseWheel(Sender sender, const vui::MouseWheelEvent& e) {
 #define SCROLL_SPEED 0.1f
-    m_camera->offsetTargetFocalLength(m_camera->getTargetFocalLength() * SCROLL_SPEED * -e.dy);
+    m_camera->offsetTargetFocalLength((f32)m_camera->getTargetFocalLength() * SCROLL_SPEED * -e.dy);
     if (m_camera->getTargetFocalLength() < 0.1f) {
         m_camera->setTargetFocalLength(0.1f);
     }
 }
 
 void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEvent& e) {
-    m_mouseCoords.x = e.x;
-    m_mouseCoords.y = e.y;
+    m_mouseCoords.x = (f32)e.x;
+    m_mouseCoords.y = (f32)e.y;
 
 #define MOUSE_SPEED 0.1f
     if (mouseButtons[0]) {
@@ -233,7 +238,7 @@ void MainMenuSystemViewer::pickStartLocation(vecs::EntityID eid) {
 
     cid = m_spaceSystem->m_sphericalGravityCT.getComponentID(eid);
     if (!cid) return;
-    f32 radius = m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
+    f32 radius = (f32)m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
 
     // Compute the intersection
     f32v3 normal, hitpoint;
@@ -303,6 +308,6 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius
     VoxelPosition2D facePos;
     facePos.pos = f64v2(gridHit);
     facePos.face = m_selectedCubeFace;
-    height = m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->getTerrainHeight(facePos) * KM_PER_VOXEL;
+    height = (f32)(m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->getTerrainHeight(facePos) * KM_PER_VOXEL);
     m_selectedGridPos.y = height;
 }

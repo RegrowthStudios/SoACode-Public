@@ -34,7 +34,6 @@ public:
 
     static bool gameInitialized;
     static float fogStart, fogEnd;
-    static Uint32 maxLodTicks;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
     static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs

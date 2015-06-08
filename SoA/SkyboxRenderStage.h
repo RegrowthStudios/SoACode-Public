@@ -15,28 +15,24 @@
 #define SkyboxRenderStage_h__
 
 #include "SkyboxRenderer.h"
+#include "IRenderStage.h"
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/IRenderStage.h>
 
 class Camera;
 class ModPathResolver;
 
-class SkyboxRenderStage : public vg::IRenderStage
+class SkyboxRenderStage : public IRenderStage
 {
 public:
-    /// Constructor which injects dependencies
-    SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver);
-    ~SkyboxRenderStage();
+    void hook(SoaState* state);
 
     // Draws the render stage
-    virtual void render() override;
-
-    void reloadShader() override;
+    virtual void render(const Camera* camera) override;
 private:
     void loadSkyboxTexture();
     void drawSpace(glm::mat4 &VP);
     // Update projection matrix
-    void updateProjectionMatrix();
+    void updateProjectionMatrix(const Camera* camera);
 
     SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
     vg::GLProgram* m_program = nullptr; ///< Program used for rendering

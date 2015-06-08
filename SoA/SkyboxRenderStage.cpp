@@ -11,20 +11,13 @@
 #include "ModPathResolver.h"
 #include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
+#include "SoAState.h"
 
-SkyboxRenderStage::SkyboxRenderStage(const Camera* camera, const ModPathResolver* textureResolver) :
-                                     IRenderStage("Skybox", camera),
-                                     m_textureResolver(textureResolver) {
-
-   updateProjectionMatrix();
+void SkyboxRenderStage::hook(SoaState* state) {
+    m_textureResolver = &state->texturePathResolver;
 }
 
-
-SkyboxRenderStage::~SkyboxRenderStage() {
-    // Empty
-}
-
-void SkyboxRenderStage::render() {
+void SkyboxRenderStage::render(const Camera* camera) {
 
     // Lazy texture init
     if (m_skyboxTextureArray == 0) {
@@ -32,16 +25,12 @@ void SkyboxRenderStage::render() {
     }
 
     // Check if FOV or Aspect Ratio changed
-    if (m_fieldOfView != m_camera->getFieldOfView() ||
-        m_aspectRatio != m_camera->getAspectRatio()) {
-        updateProjectionMatrix();
+    if (m_fieldOfView != camera->getFieldOfView() ||
+        m_aspectRatio != camera->getAspectRatio()) {
+        updateProjectionMatrix(camera);
     }
     // Draw using custom proj and camera view
-    drawSpace(m_projectionMatrix * m_camera->getViewMatrix());
-}
-
-void SkyboxRenderStage::reloadShader() {
-    m_skyboxRenderer.destroy();
+    drawSpace(m_projectionMatrix * camera->getViewMatrix());
 }
 
 void SkyboxRenderStage::loadSkyboxTexture() {
@@ -121,14 +110,14 @@ void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
     vg::DepthState::FULL.set();
 }
 
-void SkyboxRenderStage::updateProjectionMatrix() {
+void SkyboxRenderStage::updateProjectionMatrix(const Camera* camera) {
     // Set the camera clipping plane for rendering the skybox and set the projection matrix
     // The clipping dimensions don't matter so long as the skybox fits inside them
     #define SKYBOX_ZNEAR 0.01f
     #define SKYBOX_ZFAR 300.0f
 
-    m_fieldOfView = m_camera->getFieldOfView();
-    m_aspectRatio = m_camera->getAspectRatio();
+    m_fieldOfView = camera->getFieldOfView();
+    m_aspectRatio = camera->getAspectRatio();
 
     // Set up projection matrix
     m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);

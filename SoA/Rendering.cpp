@@ -10,7 +10,6 @@
 #include "OpenGLStructs.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
-#include "Texture2d.h"
 
 #include "VoxelMesher.h"
 
@@ -25,9 +24,9 @@ int sunColor[64][3];
 GLfloat colorVertices[1024];
 GLfloat cubeSpriteVerts[24];
 GLfloat cubeSpriteUVs[24];
-GLfloat cubeSpriteColorVertices[48] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                                        0.8, 0.8, 0.8, 1.0, 0.8, 0.8, 0.8, 1.0, 0.8, 0.8, 0.8, 1.0, 0.8, 0.8, 0.8, 1.0,
-                                        0.6, 0.6, 0.6, 1.0, 0.6, 0.6, 0.6, 1.0, 0.6, 0.6, 0.6, 1.0, 0.6, 0.6, 0.6, 1.0 };
+GLfloat cubeSpriteColorVertices[48] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                                        0.8f, 0.8f, 0.8f, 1.0f, 0.8f, 0.8f, 0.8f, 1.0f, 0.8f, 0.8f, 0.8f, 1.0f, 0.8f, 0.8f, 0.8f, 1.0f,
+                                        0.6f, 0.6f, 0.6f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f, 0.6f, 0.6f, 0.6f, 1.0f };
 
 static GLfloat physicsBlockVertices[72] = { -0.499f, 0.499f, 0.499f, -0.499f, -0.499f, 0.499f, 0.499f, -0.499f, 0.499f, 0.499f, 0.499f, 0.499f,  // v1-v2-v3-v0 (front)
 
@@ -92,7 +91,7 @@ void DrawWireBox(vg::GLProgram* program, double x, double y, double z, double xw
     #define TOP_FRONT_RIGHT 7
     f32m4 worldMatrix(1.0);
     setMatrixTranslation(worldMatrix, xw, yh, zw);
-    setMatrixScale(worldMatrix, x - playerPos.x, y - playerPos.y, z - playerPos.z);
+    setMatrixScale(worldMatrix, (f32)(x - playerPos.x), (f32)(y - playerPos.y), (f32)(z - playerPos.z));
 
     glm::mat4 MVP = VP * worldMatrix;
 
@@ -123,8 +122,8 @@ void DrawWireBox(vg::GLProgram* program, double x, double y, double z, double xw
             BOT_FRONT_LEFT, TOP_FRONT_LEFT,
             BOT_FRONT_RIGHT, TOP_FRONT_RIGHT };
 
-        const float gmin = 0.00001;
-        const float gmax = 0.9999;
+        const f32 gmin = 0.00001f;
+        const f32 gmax = 0.9999f;
 
         // Set up vertex positions
         lineVertices[BOT_BACK_LEFT] = f32v3(gmin, gmin, gmin);

@@ -74,7 +74,7 @@ void DevScreen::draw(const vui::GameTime& gameTime) {
                      f32v2(1.5f), FONT_COLOR);
     // Draw strings
     m_sb->drawString(m_font, "* Press one of the following keys to enter a screen:", pos, f32v2(1.0f), FONT_COLOR);
-    pos.y += posInc * 2.0;
+    pos.y += posInc * 2.0f;
     for (auto& it : m_screenMapping) {
         m_sb->drawString(m_font, m_screenNames[it.first].c_str(), pos, f32v2(1.0f), FONT_COLOR);
         pos.y += posInc;

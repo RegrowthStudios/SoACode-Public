@@ -63,7 +63,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
                                  properties->diameter * 0.5,
                                  properties->planetGenData,
-                                 spaceSystem->normalMapGenProgram.get(),
+                                 &spaceSystem->normalMapGenProgram,
                                  spaceSystem->normalMapRecycler.get());
 
     f64 planetRadius = properties->diameter / 2.0;
@@ -211,6 +211,7 @@ vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* s
         r1.colorLookup = r2.texture;
         r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
     }
+    return prCmpId;
 }
 
 void  SpaceSystemAssemblages::removePlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {

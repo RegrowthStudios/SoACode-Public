@@ -45,11 +45,12 @@ void MainMenuScriptedUI::registerScriptValues(vui::FormScriptEnvironment* newFor
     env->addCRDelegate("getKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getKeyString));
     env->addCRDelegate("getDefaultKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getDefaultKeyString));
     env->addCRDelegate("getName", makeRDelegate(*this, &MainMenuScriptedUI::getName));
+
     env->setNamespaces();
+    env->addCDelegate("newGame", makeDelegate(*this, &MainMenuScriptedUI::newGame));
 
     env->setNamespaces("Game");
     env->addCDelegate("exit", makeDelegate(*this, &MainMenuScriptedUI::onExit));
-    env->setNamespaces();
 
     // TODO(Ben): Expose and use ECS instead???
     env->setNamespaces("Space");
@@ -115,6 +116,10 @@ void MainMenuScriptedUI::onTargetChange(Sender s, vecs::EntityID id) {
             if (!f.isNil()) f(id);
         }
     }
+}
+
+void MainMenuScriptedUI::newGame() {
+    ((MainMenuScreen*)m_ownerScreen)->m_newGameClicked = true;
 }
 
 vecs::EntityID MainMenuScriptedUI::getTargetBody() {
@@ -204,7 +209,7 @@ f32 MainMenuScriptedUI::getBodySemiMajor(vecs::EntityID entity) {
 f32 MainMenuScriptedUI::getGravityAccel(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     auto& sgCmp = state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
-    f32 rad = sgCmp.radius * M_PER_KM;
+    f32 rad = (f32)(sgCmp.radius * M_PER_KM);
     return (f32)(M_G * sgCmp.mass / (rad * rad));
 }
 
@@ -212,7 +217,7 @@ f32 MainMenuScriptedUI::getVolume(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     // TODO(Ben): Handle oblateness
     auto& sgCmp = state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
-    f32 rad = sgCmp.radius * M_PER_KM;
+    f32 rad = (f32)(sgCmp.radius * M_PER_KM);
     return (f32)(4.0 / 3.0 * M_PI * rad * rad * rad);
 }
 

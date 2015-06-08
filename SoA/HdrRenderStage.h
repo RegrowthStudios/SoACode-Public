@@ -16,35 +16,30 @@
 #define HdrRenderStage_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgram);
+#include "IRenderStage.h"
 
 class Camera;
 
-class HdrRenderStage : public vg::IRenderStage {
+class HdrRenderStage : public IRenderStage {
 public:
-    /// Constructor which injects dependencies
     /// @param quad: Quad used for rendering to screen
-    /// @param camera: Camera used to render the scene
-    HdrRenderStage(vg::FullQuadVBO* quad, const Camera* camera);
-
-    /// Reloads the shader. By default, it simply
-    /// disposes the shader and allows a lazy init at next draw
-    virtual void reloadShader() override;
+    void hook(vg::FullQuadVBO* quad);
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw
-    virtual void dispose() override;
+    virtual void dispose(LoadContext& context) override;
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera = nullptr) override;
 private:
-    vg::GLProgram* m_glProgramBlur = nullptr; ///< Motion blur enabled
-    vg::GLProgram* m_glProgramDoFBlur = nullptr; ///< Motion blur and DoF enabled
+    vg::GLProgram m_program;
+    vg::GLProgram m_glProgramBlur; ///< Motion blur enabled
+    vg::GLProgram m_glProgramDoFBlur; ///< Motion blur and DoF enabled
     vg::FullQuadVBO* m_quad = nullptr; ///< For use in processing through data
-    f32m4 m_oldVP; ///< ViewProjection of previous frame
+    f32m4 m_oldVP = f32m4(1.0f); ///< ViewProjection of previous frame
 };
 
 #endif // HdrRenderStage_h__

@@ -23,7 +23,7 @@
 class ProgramGenDelegate {
 public:
     virtual void invoke(Sender sender, void* userData) {
-        std::cout << "Building shader: " << name << std::endl;
+        printf("Building shader: %s\n", name);
         if (isFromFile) {
             program = ShaderLoader::createProgramFromFile(vs, fs, iom);
         } else {
@@ -62,7 +62,7 @@ public:
     Delegate<Sender, void*> del;
     vio::IOManager* iom = nullptr;
 
-    vg::GLProgram* program = nullptr;
+    vg::GLProgram program;
     nString errorMessage;
 };
 

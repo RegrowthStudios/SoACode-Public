@@ -6,10 +6,12 @@
 #include "ModPathResolver.h"
 #include "ShaderLoader.h"
 #include "SpaceSystem.h"
+#include "soaUtils.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SamplerState.h>
 #include <Vorb/graphics/SpriteBatch.h>
@@ -22,9 +24,11 @@ uniform mat4 unWVP;
 in vec4 vPosition;
 in float vAngle;
 out float fAngle;
+#include "Shaders/Utils/logz.glsl"
 void main() {
     fAngle = vAngle;
     gl_Position = unWVP * vPosition;
+    applyLogZ();
 }
 )";
 
@@ -39,8 +43,7 @@ void main() {
 )";
 }
 
-SystemARRenderer::SystemARRenderer(const ModPathResolver* textureResolver) :
-    m_textureResolver(textureResolver) {
+SystemARRenderer::SystemARRenderer() {
     // Empty
 }
 
@@ -48,11 +51,15 @@ SystemARRenderer::~SystemARRenderer() {
     dispose();
 }
 
+void SystemARRenderer::init(const ModPathResolver* textureResolver) {
+    m_textureResolver = textureResolver;
+}
+
 void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
                             OPT const MainMenuSystemViewer* systemViewer,
                             const f32v2& viewport) {
     // Lazy init
-    if (!m_colorProgram) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
+    if (!m_colorProgram.isCreated()) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
     if (m_selectorTexture == 0) loadTextures();
 
     // Get handles so we don't have huge parameter lists
@@ -60,6 +67,7 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
     m_camera = camera;
     m_systemViewer = systemViewer;
     m_viewport = viewport;
+    m_zCoef = computeZCoef(camera->getFarClip());
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_LEQUAL);
@@ -73,11 +81,10 @@ void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
 }
 
 void SystemARRenderer::dispose() {
-    if (m_colorProgram) {
-        m_colorProgram->dispose();
-        delete m_colorProgram;
-        m_colorProgram = nullptr;
+    if (m_colorProgram.isCreated()) {
+        m_colorProgram.dispose();
     }
+  
     if (m_spriteBatch) {
         m_spriteBatch->dispose();
         m_spriteFont->dispose();
@@ -113,12 +120,14 @@ void SystemARRenderer::loadTextures() {
 
 void SystemARRenderer::drawPaths() {
 
-    //vg::DepthState::READ.set();
     float blendFactor;
 
     // Draw paths
-    m_colorProgram->use();
-    m_colorProgram->enableVertexAttribArrays();
+    m_colorProgram.use();
+    m_colorProgram.enableVertexAttribArrays();
+
+    // For logarithmic Z buffer
+    glUniform1f(m_colorProgram.getUniform("unZCoef"), m_zCoef);
     glLineWidth(3.0f);
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
@@ -159,17 +168,14 @@ void SystemARRenderer::drawPaths() {
         // Restore path color
         if (isSelected) cmp.pathColor[0] = oldPathColor;
     }
-    m_colorProgram->disableVertexAttribArrays();
-    m_colorProgram->unuse();
+    m_colorProgram.disableVertexAttribArrays();
+    m_colorProgram.unuse();
 }
 
 void SystemARRenderer::drawHUD() {
-    // Currently we need a viewer for this
-    if (!m_systemViewer) return;
-
     const f32 ROTATION_FACTOR = (f32)(M_PI + M_PI / 4.0);
     static f32 dt = 0.0;
-    dt += 0.01;
+    dt += 0.01f;
 
     // Lazily load spritebatch
     if (!m_spriteBatch) {
@@ -200,7 +206,7 @@ void SystemARRenderer::drawHUD() {
             f32 hoverTime = bodyArData->hoverTime;
 
             // Get screen position 
-            f32v3 screenCoords = m_camera->worldToScreenPoint(relativePos);
+            f32v3 screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
             f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
             // Get a smooth interpolator with hermite
@@ -253,7 +259,7 @@ void SystemARRenderer::drawHUD() {
                 VGTexture tx;
                 if (oCmp.type == SpaceObjectType::BARYCENTER) {
                     tx = m_baryTexture;
-                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.5f - distance * 0.00000000001;
+                    selectorSize = MainMenuSystemViewer::MIN_SELECTOR_SIZE * 2.5f - (f32)(distance * 0.00000000001);
                     if (selectorSize < 0.0) continue;        
                     interpolator = 0.0f; // Don't rotate barycenters
                 } else {
@@ -296,7 +302,9 @@ void SystemARRenderer::drawHUD() {
                 }
 
                 relativePos = (position + f64v3(selectedPos)) - m_camera->getPosition();
-                screenCoords = m_camera->worldToScreenPoint(relativePos);
+                // Bring it close to the camera so it doesn't get occluded by anything
+                relativePos = glm::normalize(relativePos) * ((f64)m_camera->getNearClip() + 0.0001);
+                screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
                 xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
                 color4 sColor = color::Red;
@@ -306,14 +314,11 @@ void SystemARRenderer::drawHUD() {
                                     f32v2(0.5f, 0.5f),
                                     f32v2(22.0f) + cos(dt * 8.0f) * 4.0f,
                                     dt * ROTATION_FACTOR,
-                                    sColor, 0.0f);
+                                    sColor, screenCoords.z);
             }
         }
     }
 
     m_spriteBatch->end();
-    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ);
-
-    // Restore depth state
-    vg::DepthState::FULL.set();
+    m_spriteBatch->render(m_viewport, nullptr, &vg::DepthState::READ, nullptr);
 }

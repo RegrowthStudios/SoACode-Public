@@ -99,8 +99,8 @@ void ParticleBatch::addParticles(int num, glm::dvec3 pos, ParticleEmitter *emitt
     int j;
 
     float interpolater = (emitter->dt / (float)emitter->maxDuration);
-    currMaxSize = interpolater * (emitter->maxSizeE - emitter->maxSizeS) + emitter->maxSizeS;
-    currMinSize = interpolater * (emitter->minSizeE - emitter->minSizeS) + emitter->minSizeS;
+    currMaxSize = (int)(interpolater * (emitter->maxSizeE - emitter->maxSizeS) + emitter->maxSizeS);
+    currMinSize = (int)(interpolater * (emitter->minSizeE - emitter->minSizeS) + emitter->minSizeS);
 
     switch(emitter->type) {
     case EMITTER_STATIC:
@@ -328,96 +328,96 @@ int ParticleBatch::updateAnimated() {
 
 void ParticleBatch::draw(vg::GLProgram* program, ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
  
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
+    //glActiveTexture(GL_TEXTURE6);
+    //glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
-    //vg::GLProgram* program = m_glProgramManager->getProgram("Billboard");
+    ////vg::GLProgram* program = m_glProgramManager->getProgram("Billboard");
 
-    glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
+    //glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
-    if(pm->size > 0 && pm->uvBufferID != 0) {
+    //if(pm->size > 0 && pm->uvBufferID != 0) {
 
-        setMatrixTranslation(worldMatrix, pm->X - PlayerPos.x,
-                             pm->Y + 0.175 - PlayerPos.y,
-                             pm->Z - PlayerPos.z);
+    //    setMatrixTranslation(worldMatrix, pm->X - PlayerPos.x,
+    //                         pm->Y + 0.175 - PlayerPos.y,
+    //                         pm->Z - PlayerPos.z);
 
-        glm::mat4 MVP = VP * worldMatrix;
+    //    glm::mat4 MVP = VP * worldMatrix;
 
-        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &worldMatrix[0][0]);
-        glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    //    glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &worldMatrix[0][0]);
+    //    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
-        glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
-        glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+    //    glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
+    //    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, pm->billboardVertexBufferID);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), 0); //position
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), (void *)12); //uvMult
-        glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)20); //texUnit texID light
-        glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)24); //color
-        glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BillboardVertex), (void *)28); //size, xmod
+    //    glBindBuffer(GL_ARRAY_BUFFER, pm->billboardVertexBufferID);
+    //    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), 0); //position
+    //    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), (void *)12); //uvMult
+    //    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)20); //texUnit texID light
+    //    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)24); //color
+    //    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BillboardVertex), (void *)28); //size, xmod
 
-        glVertexAttribDivisor(0, 1);
-        glVertexAttribDivisor(1, 0);
-        glVertexAttribDivisor(2, 1);
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
+    //    glVertexAttribDivisor(0, 1);
+    //    glVertexAttribDivisor(1, 0);
+    //    glVertexAttribDivisor(2, 1);
+    //    glVertexAttribDivisor(3, 1);
+    //    glVertexAttribDivisor(4, 1);
+    //    glVertexAttribDivisor(5, 1);
 
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, pm->size);
-    }
+    //    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, pm->size);
+    //}
 
 }
 
 void ParticleBatch::drawAnimated(vg::GLProgram* program, ParticleMesh *pm, glm::dvec3 &PlayerPos, glm::mat4 &VP) {
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
+    //glActiveTexture(GL_TEXTURE6);
+    //glBindTexture(GL_TEXTURE_2D, ballMaskTexture.id);
 
-    glDepthMask(GL_FALSE);
+    //glDepthMask(GL_FALSE);
 
-    for(size_t i = 0; i < pm->usedParticles.size(); i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
-        if(particleTypes[pm->usedParticles[i]].animation) {
-            glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.id);
-        }
-    }
+    //for(size_t i = 0; i < pm->usedParticles.size(); i++) {
+    //    glActiveTexture(GL_TEXTURE0 + i);
+    //    if(particleTypes[pm->usedParticles[i]].animation) {
+    //        glBindTexture(GL_TEXTURE_2D, particleTypes[pm->usedParticles[i]].animation->texture.id);
+    //    }
+    //}
 
-    //vg::GLProgram* program = m_glProgramManager->getProgram("Billboard");
+    ////vg::GLProgram* program = m_glProgramManager->getProgram("Billboard");
 
-    glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
+    //glUniform1f(program->getUniform("unAlphaThreshold"), 0.01f);
 
-    if(pm->size > 0 && pm->uvBufferID != 0) {
+    //if(pm->size > 0 && pm->uvBufferID != 0) {
 
-        setMatrixTranslation(worldMatrix, pm->X - PlayerPos.x,
-                             pm->Y + 0.175 - PlayerPos.y,
-                             pm->Z - PlayerPos.z);
-        worldMatrix[3][0] = (float)((double)(pm->X - PlayerPos.x));
-        worldMatrix[3][1] = (float)((double)(pm->Y + 0.175 - PlayerPos.y));
-        worldMatrix[3][2] = (float)((double)(pm->Z - PlayerPos.z));
+    //    setMatrixTranslation(worldMatrix, pm->X - PlayerPos.x,
+    //                         pm->Y + 0.175 - PlayerPos.y,
+    //                         pm->Z - PlayerPos.z);
+    //    worldMatrix[3][0] = (float)((double)(pm->X - PlayerPos.x));
+    //    worldMatrix[3][1] = (float)((double)(pm->Y + 0.175 - PlayerPos.y));
+    //    worldMatrix[3][2] = (float)((double)(pm->Z - PlayerPos.z));
 
-        glm::mat4 MVP = VP * worldMatrix;
+    //    glm::mat4 MVP = VP * worldMatrix;
 
-        glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &worldMatrix[0][0]);
-        glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    //    glUniformMatrix4fv(program->getUniform("unWorld"), 1, GL_FALSE, &worldMatrix[0][0]);
+    //    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
 
-        glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
-        glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+    //    glBindBuffer(GL_ARRAY_BUFFER, pm->uvBufferID);
+    //    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, pm->billboardVertexBufferID);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), 0); //position
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), (void *)12); //uvMult
-        glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)20); //texUnit texID light
-        glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)24); //color
-        glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BillboardVertex), (void *)28); //size, xmod
+    //    glBindBuffer(GL_ARRAY_BUFFER, pm->billboardVertexBufferID);
+    //    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), 0); //position
+    //    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BillboardVertex), (void *)12); //uvMult
+    //    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)20); //texUnit texID light
+    //    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BillboardVertex), (void *)24); //color
+    //    glVertexAttribPointer(5, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BillboardVertex), (void *)28); //size, xmod
 
-        glVertexAttribDivisor(0, 1);
-        glVertexAttribDivisor(1, 0);
-        glVertexAttribDivisor(2, 1);
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
+    //    glVertexAttribDivisor(0, 1);
+    //    glVertexAttribDivisor(1, 0);
+    //    glVertexAttribDivisor(2, 1);
+    //    glVertexAttribDivisor(3, 1);
+    //    glVertexAttribDivisor(4, 1);
+    //    glVertexAttribDivisor(5, 1);
 
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, pm->size);
-    }
+    //    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, pm->size);
+    //}
 
     glDepthMask(GL_TRUE);
 }

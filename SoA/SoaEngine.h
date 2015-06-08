@@ -18,14 +18,11 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 #include "OptionsController.h"
+#include "SpaceSystemLoader.h"
 
 class GameSystem;
-class SoaState;
+struct SoaState;
 class SpaceSystem;
-struct GasGiantKegProperties;
-struct SpaceSystemLoadParams;
-struct SystemBody;
-struct SystemBodyKegProperties;
 
 DECL_VCORE(class RPCManager)
 
@@ -71,45 +68,7 @@ public:
 
     static OptionsController optionsController;
 private:
-    /// Loads and adds a star system to the SpaceSystem
-    /// @param pr: params
-    static void addStarSystem(SpaceSystemLoadParams& pr);
-
-    /// Loads path color scheme
-    /// @param pr: params
-    /// @return true on success
-    static bool loadPathColors(SpaceSystemLoadParams& pr);
-
-    /// Loads and adds system properties to the params
-    /// @param pr: params
-    /// @return true on success
-    static bool loadSystemProperties(SpaceSystemLoadParams& pr);
-
-    /// Loads and adds body properties to the params
-    /// @param pr: params
-    /// @param filePath: Path to body
-    /// @param sysProps: Keg properties for the system
-    /// @param body: The body to fill
-    /// @return true on success
-    static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
-
-    // Sets up mass parameters for binaries
-    static void initBinaries(SpaceSystemLoadParams& pr);
-    // Recursive function for binary creation
-    static void initBinary(SpaceSystemLoadParams& pr, SystemBody* bary);
-
-    // Initializes orbits and parent connections
-    static void initOrbits(SpaceSystemLoadParams& pr);
-
-    static void createGasGiant(SpaceSystemLoadParams& pr,
-                               const SystemBodyKegProperties* sysProps,
-                               GasGiantKegProperties* properties,
-                               SystemBody* body);
-
-    static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               SystemBody* body, f64 binaryMassRatio = 0.0);
-
+    static SpaceSystemLoader m_spaceSystemLoader;
 };
 
 #endif // SoAEngine_h__

@@ -10,7 +10,6 @@
 #include <Vorb/utils.h>
 #include <ZLIB/zlib.h>
 
-#include "global.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
@@ -25,7 +24,7 @@ const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
 inline i32 fileTruncate(i32 fd, i64 size)
 {
 #if defined(_WIN32) || defined(_WIN64) 
-    return _chsize(fd, size);
+    return _chsize(fd, (long)size);
 #else
 #ifdef POSIX
     return ftruncate(fd, size);
@@ -36,7 +35,8 @@ inline i32 fileTruncate(i32 fd, i64 size)
 }
 
 inline i32 sectorsFromBytes(ui32 bytes) {
-    return ceil(bytes / (float)SECTOR_SIZE);
+    // Adding 0.1f to be damn sure the cast is right
+    return (i32)(ceil(bytes / (float)SECTOR_SIZE) + 0.1f);
 }
 
 //returns true on error
@@ -84,7 +84,7 @@ RegionFileManager::~RegionFileManager() {
 }
 
 void RegionFileManager::clear() {
-    for (int i = 0; i < _regionFileCacheQueue.size(); i++) {
+    for (size_t i = 0; i < _regionFileCacheQueue.size(); i++) {
         closeRegionFile(_regionFileCacheQueue[i]);
     }
 
@@ -101,7 +101,7 @@ void RegionFileManager::clear() {
 bool RegionFileManager::openRegionFile(nString region, const ChunkPosition3D& gridPosition, bool create) {
 
     nString filePath;
-    class stat statbuf;
+    struct stat statbuf;
     RegionFile* rf;
 
     if (_regionFile && _regionFile->file && region == _regionFile->region) {
@@ -681,7 +681,7 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
                     if (data[index] != curr){
                         _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
                         _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-                        _chunkBuffer[_bufferSize++] = curr;
+                        _chunkBuffer[_bufferSize++] = (ui8)curr;
                         tot += count;
 
                         curr = data[index];
@@ -698,7 +698,7 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
     _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
     _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     tot += count;
-    _chunkBuffer[_bufferSize++] = curr;
+    _chunkBuffer[_bufferSize++] = (ui8)curr;
 }
 
 void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {

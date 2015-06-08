@@ -17,7 +17,7 @@
 
 class GameSystem;
 class SpaceSystem;
-class FreeMoveInputComponent;
+struct FreeMoveInputComponent;
 
 class FreeMoveComponentUpdater {
 public:

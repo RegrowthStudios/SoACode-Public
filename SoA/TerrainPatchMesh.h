@@ -61,20 +61,20 @@ public:
     void recycleNormalMap(vg::TextureRecycler* recycler);
 
     /// Draws the terrain mesh
-    void draw(const f32m4& WVP, vg::GLProgram* program,
+    void draw(const f32m4& WVP, const vg::GLProgram& program,
               bool drawSkirts) const;
 
     /// Draws the water mesh
-    void drawWater(const f32m4& WVP, vg::GLProgram* program) const;
+    void drawWater(const f32m4& WVP, const vg::GLProgram& program) const;
 
     /// Draws the terrain mesh as a far terrain mesh
     void drawAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
-                          vg::GLProgram* program,
+                          const vg::GLProgram& program,
                           bool drawSkirts) const;
 
     /// Draws the water mesh as a far terrain mesh
     void drawWaterAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
-                               vg::GLProgram* program) const;
+                               const vg::GLProgram& program) const;
 
 
     /// Gets the point closest to the observer

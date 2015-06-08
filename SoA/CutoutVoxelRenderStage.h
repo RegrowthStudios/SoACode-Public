@@ -17,22 +17,22 @@
 #ifndef CutoutVoxelRenderStage_h__
 #define CutoutVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
+
+#include <Vorb/graphics/GLProgram.h>
 
 class GameRenderParams;
 class Camera;
 class MeshManager;
 
-class CutoutVoxelRenderStage : public vg::IRenderStage {
+class CutoutVoxelRenderStage : public IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param meshManager: Handle to the class that holds meshes
-    CutoutVoxelRenderStage(const GameRenderParams* gameRenderParams);
+    void hook(const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
 };
 

@@ -16,7 +16,7 @@
 #define SphericalTerrainComponentUpdater_h__
 
 class SpaceSystem;
-class SoaState;
+struct SoaState;
 struct SphericalTerrainComponent;
 
 #include "TerrainPatch.h"

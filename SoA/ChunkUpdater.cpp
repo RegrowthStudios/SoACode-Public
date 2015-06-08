@@ -62,7 +62,7 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
             needsSetup = true;
             newState = ChunkStates::MESH;
         } else if (blockID == DIRTGRASS){
-            int bt = GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner));
+            ui32 bt = GETBLOCKID(vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner));
             // Tmp debugging           
             if (bt > Blocks.size()) {
                 pError("Invalid block in update!: " + std::to_string(bt));
@@ -272,8 +272,8 @@ void ChunkUpdater::removeBlock(ChunkManager* chunkManager, PhysicsEngine* physic
             particleEngine.addEmitter(block.emitterOnBreak, glm::dvec3(chunk->voxelPosition.x + blockIndex%CHUNK_WIDTH, chunk->voxelPosition.y + blockIndex / CHUNK_LAYER, chunk->voxelPosition.z + (blockIndex%CHUNK_LAYER) / CHUNK_WIDTH), blockID);
         }
         if (explodeDist){
-            float expForce = glm::length(explodeDir);
-            expForce = pow(0.89, expForce)*0.6;
+            f32 expForce = glm::length(explodeDir);
+            expForce = pow(0.89f, expForce)*0.6f;
             if (expForce < 0.0f) expForce = 0.0f;
             breakBlock(chunk, pos.x, pos.y, pos.z, blockID, force, -glm::normalize(explodeDir)*expForce);
         } else{
@@ -725,10 +725,10 @@ void ChunkUpdater::updateFireBlock(ChunkManager* chunkManager, PhysicsEngine* ph
 
     const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
-    const float sideTopMult = 1.5;
-    const float topMult = 2.0;
-    const float sideBotMult = 0.5;
-    const float botMult = 0.8;
+    const f32 sideTopMult = 1.5f;
+    const f32 topMult = 2.0f;
+    const f32 sideBotMult = 0.5f;
+    const f32 botMult = 0.8f;
 
     Chunk* lockedChunk = nullptr;
 

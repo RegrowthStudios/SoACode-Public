@@ -5,8 +5,7 @@
 
 #include <Vorb/graphics/Texture.h>
 
-class Animation {
-public:
+struct Animation {
     Animation() : fadeOutBegin(INT_MAX) {}
     int duration;
     int fadeOutBegin;

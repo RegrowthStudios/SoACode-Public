@@ -6,7 +6,6 @@
 #include "SoaOptions.h"
 #include "GameManager.h"
 #include "RenderTask.h"
-#include "Texture2d.h"
 
 MultiplePreciseTimer globalMultiplePreciseTimer; ///< for easy global benchmarking
 AccumulationTimer globalAccumulationTimer; ///< for easy global benchmarking

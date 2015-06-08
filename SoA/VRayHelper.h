@@ -13,7 +13,7 @@ public:
 
     // Location Of The Picked Block
     i32v3 location;
-    f32 distance;
+    f64 distance;
 
     // Address Information
     Chunk* chunk;

@@ -84,7 +84,7 @@ void TestNoiseScreen::onEntry(const vui::GameTime& gameTime)
 
 void TestNoiseScreen::onExit(const vui::GameTime& gameTime)
 {
-    delete m_program;
+    if (m_program.isCreated()) m_program.dispose();
 }
 
 void TestNoiseScreen::update(const vui::GameTime& gameTime)
@@ -96,9 +96,9 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_program->use();
-    glUniform1f(m_program->getUniform("unTime"), (float)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count());
-    glUniform1f(m_program->getUniform("unAspectRatio"), m_game->getWindow().getAspectRatio());
+    m_program.use();
+    glUniform1f(m_program.getUniform("unTime"), (float)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count());
+    glUniform1f(m_program.getUniform("unAspectRatio"), m_game->getWindow().getAspectRatio());
 
     // Do the timing
     timeBeginPeriod(1);
@@ -109,7 +109,7 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
     timeEndPeriod(1);
 
     ms += t;
-    m_program->unuse();
+    m_program.unuse();
     checkGlError("TestNoiseScreen::draw");
 
     frameCount++;
@@ -127,6 +127,6 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
 
 void TestNoiseScreen::onNoiseChange()
 {
-    if (m_program != nullptr) delete m_program;
+    if (m_program.isCreated()) m_program.dispose();
     m_program = ShaderLoader::createProgram("Noise", m_noiseTypes[m_currentNoise].vertexShader, m_noiseTypes[m_currentNoise].fragmentShader);
 }

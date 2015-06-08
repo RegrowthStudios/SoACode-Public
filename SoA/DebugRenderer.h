@@ -106,7 +106,7 @@ private:
     SimpleMesh* _lineMesh;
 
     // Program that is currently in use
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program;
 
     static f32m4 _modelMatrix; ///< Reusable model matrix
 

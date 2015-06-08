@@ -547,6 +547,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkListManager.h" />
     <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="CommonState.h" />
     <ClInclude Include="CloudsComponentRenderer.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
     <ClInclude Include="ColoredFullQuadRenderer.h" />
@@ -561,7 +562,8 @@ EXIT 0</Command>
     <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
-    <ClInclude Include="GameplayRenderPipeline.h" />
+    <ClInclude Include="GameplayLoadScreen.h" />
+    <ClInclude Include="GameplayRenderer.h" />
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GameSystem.h" />
@@ -573,12 +575,15 @@ EXIT 0</Command>
     <ClInclude Include="HardCodedIDs.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
+    <ClInclude Include="ImageAssetLoader.h" />
+    <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="LenseFlareRenderer.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
+    <ClInclude Include="LoadContext.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="ExposureCalcRenderStage.h" />
-    <ClInclude Include="MainMenuRenderPipeline.h" />
+    <ClInclude Include="MainMenuRenderer.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
@@ -606,6 +611,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="ShaderAssetLoader.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
     <ClInclude Include="SoaController.h" />
@@ -618,6 +624,7 @@ EXIT 0</Command>
     <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="SpaceSystemComponents.h" />
     <ClInclude Include="SpaceSystemAssemblages.h" />
+    <ClInclude Include="SpaceSystemLoader.h" />
     <ClInclude Include="SpaceSystemLoadStructs.h" />
     <ClInclude Include="SpaceSystemRenderStage.h" />
     <ClInclude Include="SpaceSystemUpdater.h" />
@@ -662,7 +669,7 @@ EXIT 0</Command>
     <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="LiquidData.h" />
     <ClInclude Include="LoadBar.h" />
-    <ClInclude Include="LoadScreen.h" />
+    <ClInclude Include="MainMenuLoadScreen.h" />
     <ClInclude Include="CAEngine.h" />
     <ClInclude Include="ChunkMesher.h" />
     <ClInclude Include="DebugRenderer.h" />
@@ -701,10 +708,8 @@ EXIT 0</Command>
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Errors.h" />
-    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="global.h" />
     <ClInclude Include="GenerateTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
@@ -719,7 +724,6 @@ EXIT 0</Command>
     <ClInclude Include="Rendering.h" />
     <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="TerrainGenerator.h" />
-    <ClInclude Include="Texture2d.h" />
     <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
@@ -758,7 +762,8 @@ EXIT 0</Command>
     <ClCompile Include="FarTerrainPatch.cpp" />
     <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FrustumComponentUpdater.cpp" />
-    <ClCompile Include="GameplayRenderPipeline.cpp" />
+    <ClCompile Include="GameplayLoadScreen.cpp" />
+    <ClCompile Include="GameplayRenderer.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GameSystem.cpp" />
@@ -770,10 +775,11 @@ EXIT 0</Command>
     <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
+    <ClCompile Include="ImageAssetLoader.cpp" />
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="ExposureCalcRenderStage.cpp" />
-    <ClCompile Include="MainMenuRenderPipeline.cpp" />
+    <ClCompile Include="MainMenuRenderer.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
@@ -800,6 +806,7 @@ EXIT 0</Command>
     <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
+    <ClCompile Include="ShaderAssetLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
     <ClCompile Include="SoaController.cpp" />
@@ -811,6 +818,7 @@ EXIT 0</Command>
     <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemAssemblages.cpp" />
+    <ClCompile Include="SpaceSystemLoader.cpp" />
     <ClCompile Include="SpaceSystemLoadStructs.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />
     <ClCompile Include="SpaceSystemUpdater.cpp" />
@@ -846,7 +854,7 @@ EXIT 0</Command>
     <ClCompile Include="DevConsoleView.cpp" />
     <ClCompile Include="GeometrySorter.cpp" />
     <ClCompile Include="LoadBar.cpp" />
-    <ClCompile Include="LoadScreen.cpp" />
+    <ClCompile Include="MainMenuLoadScreen.cpp" />
     <ClCompile Include="CAEngine.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="FragFile.cpp" />
@@ -887,10 +895,8 @@ EXIT 0</Command>
     <ClCompile Include="ChunkMesher.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="global.cpp" />
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLoader.cpp" />
@@ -898,7 +904,6 @@ EXIT 0</Command>
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="TerrainGenerator.cpp" />
-    <ClCompile Include="Texture2d.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />

@@ -16,8 +16,6 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-#include "Texture2d.h"
-
 class SkyboxVertex {
 public:
     f32v3 position;
@@ -41,11 +39,11 @@ private:
     void initShader();
     void initBuffers();
 
-    ui32 m_vao;
-    ui32 m_vbo;
-    ui32 m_ibo;
+    ui32 m_vao = 0;
+    ui32 m_vbo = 0;
+    ui32 m_ibo = 0;
 
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program;
 };
 
 #endif // SkyboxRenderer_h__

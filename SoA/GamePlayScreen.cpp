@@ -76,7 +76,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     controller.startGame(m_soaState);
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
-    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputManager);
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputMapper);
 
     // Initialize the PDA
     m_pda.init(this);
@@ -95,7 +95,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
 void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 
-    m_inputManager->stopInput();
+    m_inputMapper->stopInput();
     m_hooks.dispose();
 
     SoaEngine::destroyGameSystem(m_soaState);
@@ -104,7 +104,7 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_updateThread->join();
     delete m_updateThread;
     m_pda.destroy();
-    m_renderPipeline.destroy(true);
+    //m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
 }
 
@@ -116,10 +116,10 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 
     // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
     if (m_app->getFps()) {
-        glSpeedFactor = 60.0f / m_app->getFps();
-        if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
-            glSpeedFactor = 3.0f;
-        }
+        //glSpeedFactor = 60.0f / m_app->getFps();
+        //if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
+        //    glSpeedFactor = 3.0f;
+        //}
     }
     m_spaceSystemUpdater->glUpdate(m_soaState);
 
@@ -144,6 +144,15 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 void GameplayScreen::updateECS() {
     SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
     GameSystem* gameSystem = m_soaState->gameSystem.get();
+
+    // Time warp
+    const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 1000.0;
+    if (m_inputMapper->getInputState(INPUT_TIME_BACK)) {
+        m_soaState->time -= TIME_WARP_SPEED;
+    }
+    if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) {
+        m_soaState->time += TIME_WARP_SPEED;
+    }
 
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
@@ -178,7 +187,6 @@ void GameplayScreen::updateMTRenderState() {
 
 void GameplayScreen::draw(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
-    updateWorldCameraClip();
 
     const MTRenderState* renderState;
     // Don't render the same state twice.
@@ -188,8 +196,8 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
     m_prevRenderState = renderState;
 
     // Set renderState and draw everything
-    m_renderPipeline.setRenderState(renderState);
-    m_renderPipeline.render();
+    m_renderer.setRenderState(renderState);
+    m_renderer.render();
     globalRenderAccumulationTimer.stop();
 
     // Uncomment to time rendering
@@ -218,18 +226,18 @@ i32 GameplayScreen::getWindowHeight() const {
 
 void GameplayScreen::initInput() {
 
-    m_inputManager = new InputMapper;
-    initInputs(m_inputManager);
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
 
-    m_inputManager->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
     });
-    m_inputManager->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.toggleChunkGrid();
+    m_inputMapper->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderer.toggleChunkGrid();
     });
-    m_inputManager->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        if (m_pda.isOpen()) {
+    m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+       /* if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
             m_soaState->isInputEnabled = true;
@@ -239,25 +247,24 @@ void GameplayScreen::initInput() {
             SDL_SetRelativeMouseMode(SDL_FALSE);
             m_soaState->isInputEnabled = false;
             SDL_StopTextInput();
-        }
+        }*/
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_inputMapper->stopInput();
+        m_soaState->isInputEnabled = false;
     });
-    m_inputManager->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
         if (isInGame()) {
-            m_renderPipeline.toggleNightVision();
+            m_renderer.toggleNightVision();
         }
     });
-    m_inputManager->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.cycleDevHud();
+    m_inputMapper->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderer.cycleDevHud();
     });
-    m_inputManager->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.loadNightVision();
+    m_inputMapper->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderer.loadNightVision();
     });
-    m_inputManager->get(INPUT_DRAW_MODE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.cycleDrawMode();
-    });
-    m_inputManager->get(INPUT_RELOAD_SHADERS).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
-        m_renderPipeline.reloadShaders();
-    });
+
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &GameplayScreen::onReloadShaders);
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -270,34 +277,34 @@ void GameplayScreen::initInput() {
             //TODO(Ben): Edit voxels
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusGained, [&](Sender s, const vui::MouseEvent& e) {
-        m_soaState->isInputEnabled = true;
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        m_inputMapper->startInput();
+        m_soaState->isInputEnabled = true;     
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
     });
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
-        if (e.keyCode == VKEY_ESCAPE) {
-            SoaEngine::destroyAll(m_soaState);
-            exit(0);
-        } else if (e.keyCode == VKEY_F2) {
-            m_renderPipeline.takeScreenshot();
-        }
-    });
+    vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
 
-    m_inputManager->startInput();
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderer.takeScreenshot(); });
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
+
+    m_inputMapper->startInput();
 }
 
 void GameplayScreen::initRenderPipeline() {
     // Set up the rendering pipeline and pass in dependencies
     ui32v4 viewport(0, 0, m_app->getWindow().getViewportDims());
-    m_renderPipeline.init(viewport, m_soaState,
+   /* m_renderPipeline.init(viewport, m_soaState,
                           m_app, &m_pda,
                           m_soaState->spaceSystem.get(),
                           m_soaState->gameSystem.get(),
-                          &m_pauseMenu);
+                          &m_pauseMenu);*/
 }
 
 // TODO(Ben): Collision
@@ -329,7 +336,8 @@ void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
 
     FpsLimiter fpsLimiter;
-    fpsLimiter.init(maxPhysicsFps);
+    fpsLimiter.init(60.0f);
+    f32 fps;
 
     static int saveStateTicks = SDL_GetTicks();
 
@@ -344,22 +352,24 @@ void GameplayScreen::updateThreadFunc() {
       //      savePlayerState();
         }
 
-        physicsFps = fpsLimiter.endFrame();
+        fps = fpsLimiter.endFrame();
     }
 }
 
-void GameplayScreen::updateWorldCameraClip() {
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-    // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(soaOptions.get(OPT_FOV).value.f / 2.0), 2.0) * (pow((double)m_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
+void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
+    printf("Reloading Shaders\n");
+    //m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
+}
 
-    double clip = MAX(nearClip / planetScale * 0.5, a);
-    // The world camera has a dynamic clipping plane
-    //m_player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    //m_player->getWorldCamera().updateProjection();
+void GameplayScreen::onQuit(Sender s, ui32 a) {
+    SoaEngine::destroyAll(m_soaState);
+    exit(0);
+}
+
+void GameplayScreen::onToggleWireframe(Sender s, ui32 i) {
+    m_renderer.toggleWireframe();
+}
+
+void GameplayScreen::onWindowClose(Sender s) {
+    onQuit(s, 0);
 }

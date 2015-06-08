@@ -27,7 +27,7 @@ public:
 
     virtual void onNoiseChange();
 private:
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program = nullptr;
     std::vector<Noise> m_noiseTypes;
     unsigned int m_currentNoise;
     FpsLimiter m_limiter;

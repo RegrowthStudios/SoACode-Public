@@ -6,17 +6,8 @@
 #include <Vorb/graphics/SpriteFont.h>
 
 #include "App.h"
-#include "global.h"
 
-DevHudRenderStage::DevHudRenderStage(const cString fontPath, i32 fontSize,
-                                     const App* app, const f32v2& windowDims) :
-                                     _spriteBatch(new vg::SpriteBatch(true, true)),
-                                     _spriteFont(new vg::SpriteFont()),
-    _mode(DevUiModes::HANDS),
-    _app(app),
-    _windowDims(windowDims),
-    _fontHeight(_spriteFont->getFontHeight()) {
-    _spriteFont->init(fontPath, fontSize);
+DevHudRenderStage::DevHudRenderStage() {
     // Empty
 }
 
@@ -25,7 +16,17 @@ DevHudRenderStage::~DevHudRenderStage() {
     delete _spriteFont;
 }
 
-void DevHudRenderStage::render() {
+void DevHudRenderStage::hook(const cString fontPath, i32 fontSize,
+          const App* app, const f32v2& windowDims) {
+    _spriteBatch = new vg::SpriteBatch(true, true);
+    _spriteFont = new vg::SpriteFont();
+    _app = app;
+    _windowDims = windowDims;
+    _spriteFont->init(fontPath, fontSize);
+    _fontHeight = _spriteFont->getFontHeight();
+}
+
+void DevHudRenderStage::render(const Camera* camera) {
     // Reset the yOffset
     _yOffset = 0;
 
@@ -82,8 +83,8 @@ void DevHudRenderStage::drawCrosshair() {
 }
 
 void DevHudRenderStage::drawHands() {
-    const f32v2 SCALE(0.75f);
-    char buffer[256];
+   // const f32v2 SCALE(0.75f);
+   // char buffer[256];
     // Left Hand
     //if (_player->leftEquippedItem) {
     //    std::sprintf(buffer, "Left Hand: %s (%d)",
@@ -120,18 +121,18 @@ void DevHudRenderStage::drawFps() {
                              color::White);
     _yOffset += _fontHeight;
 
-    std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
+   /* std::sprintf(buffer, "Physics FPS: %.0f", physicsFps);
     _spriteBatch->drawString(_spriteFont,
                              buffer,
                              f32v2(0.0f, _yOffset),
                              f32v2(1.0f),
                              color::White);
-    _yOffset += _fontHeight;
+    _yOffset += _fontHeight;*/
 }
 
 void DevHudRenderStage::drawPosition() {
     const f32v2 NUMBER_SCALE(0.75f);
-    char buffer[256];
+   // char buffer[256];
     // Grid position
     _yOffset += _fontHeight;
 

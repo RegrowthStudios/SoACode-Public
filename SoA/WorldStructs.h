@@ -2,16 +2,18 @@
 #include <queue>
 
 #include <Vorb/Timing.h>
+#include <Vorb/graphics/Texture.h>
 
 #include "Constants.h"
 #include "OpenGLStructs.h"
-#include "Texture2d.h"
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 extern AccumulationTimer globalAccumulationTimer;
 extern AccumulationTimer globalRenderAccumulationTimer; ///< for easy global benchmarking
 
 extern class Item *ObjectList[OBJECT_LIST_SIZE];
+
+const int maxParticles = 10000;
 
 struct PlanetGenData;
 
@@ -64,9 +66,8 @@ public:
     const PlanetGenData* genData;
 };
 
-class MineralData
+struct MineralData
 {
-public:
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)
     {
         blockType = btype;

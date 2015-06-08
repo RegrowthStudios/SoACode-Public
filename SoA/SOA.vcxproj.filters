@@ -165,6 +165,12 @@
     <Filter Include="SOA Files\Rendering\Components">
       <UniqueIdentifier>{452e9a89-0e3d-42af-827a-14a1b726bc20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Client">
+      <UniqueIdentifier>{05a33879-3c8f-4d59-a153-cc3c410fcc98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Client\Asset">
+      <UniqueIdentifier>{c4cbe6c3-81db-48d5-9680-8b949bc631a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -221,9 +227,6 @@
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystem.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
     <ClInclude Include="FloraGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
@@ -239,9 +242,6 @@
     <ClInclude Include="GeometrySorter.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="global.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="Inputs.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
@@ -252,9 +252,6 @@
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="LoadBar.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
     <ClInclude Include="MaterialAtlas.h">
@@ -319,9 +316,6 @@
     </ClInclude>
     <ClInclude Include="TerrainGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2d.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
     <ClInclude Include="TextureAtlasStitcher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -412,9 +406,6 @@
     </ClInclude>
     <ClInclude Include="GameRenderParams.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClInclude>
     <ClInclude Include="HdrRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -686,9 +677,6 @@
     <ClInclude Include="ColoredFullQuadRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameplayRenderPipeline.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
     <ClInclude Include="InputMapper.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
@@ -728,12 +716,6 @@
     <ClInclude Include="LenseFlareRenderer.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="ColorFilterRenderStage.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExposureCalcRenderStage.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuScriptedUI.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
@@ -754,6 +736,42 @@
     <ClInclude Include="CloudsComponentRenderer.h">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClInclude>
+    <ClInclude Include="SpaceSystemLoader.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadContext.h">
+      <Filter>SOA Files\Screens</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageAssetLoader.h">
+      <Filter>SOA Files\Client\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderAssetLoader.h">
+      <Filter>SOA Files\Client\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderStage.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ExposureCalcRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorFilterRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonState.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuRenderer.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayRenderer.h">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuLoadScreen.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClInclude>
+    <ClInclude Include="GameplayLoadScreen.h">
+      <Filter>SOA Files\Screens\Load</Filter>
+	</ClInclude>
     <ClInclude Include="TestNoiseScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -804,9 +822,6 @@
     <ClCompile Include="Errors.cpp">
       <Filter>SOA Files\Ext</Filter>
     </ClCompile>
-    <ClCompile Include="FileSystem.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
     <ClCompile Include="FloraGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
@@ -822,16 +837,10 @@
     <ClCompile Include="GeometrySorter.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="global.cpp">
-      <Filter>SOA Files</Filter>
-    </ClCompile>
     <ClCompile Include="Inputs.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
     <ClCompile Include="LoadBar.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -872,9 +881,6 @@
     </ClCompile>
     <ClCompile Include="TerrainGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture2d.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
     <ClCompile Include="TextureAtlasStitcher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -953,9 +959,6 @@
     </ClCompile>
     <ClCompile Include="TransparentVoxelRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
     </ClCompile>
     <ClCompile Include="HdrRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
@@ -1183,9 +1186,6 @@
     <ClCompile Include="ColoredFullQuadRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="GameplayRenderPipeline.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
     <ClCompile Include="InputMapper.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
@@ -1217,8 +1217,6 @@
     <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="LenseFlareRenderer.cpp" />
-    <ClCompile Include="ColorFilterRenderStage.cpp" />
-    <ClCompile Include="ExposureCalcRenderStage.cpp" />
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="SoaOptions.cpp">
@@ -1235,6 +1233,33 @@
     <ClCompile Include="CloudsComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClCompile>
+    <ClCompile Include="SpaceSystemLoader.cpp">
+      <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageAssetLoader.cpp">
+      <Filter>SOA Files\Client\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderAssetLoader.cpp">
+      <Filter>SOA Files\Client\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorFilterRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="ExposureCalcRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuRenderer.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayRenderer.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuLoadScreen.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayLoadScreen.cpp">
+      <Filter>SOA Files\Screens\Load</Filter>
+	</ClCompile>
     <ClCompile Include="TestNoiseScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>

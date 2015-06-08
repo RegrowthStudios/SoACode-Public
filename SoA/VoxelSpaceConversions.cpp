@@ -172,10 +172,10 @@ VoxelPosition3D VoxelSpaceConversions::worldToVoxel(const f64v3& worldPosition, 
     f32 distance;
 
     VoxelPosition3D gridPos;
-    if (IntersectionUtils::sphereIntersect(-f32v3(glm::normalize(wpoint)), f32v3(wpoint), f32v3(0.0f), voxelWorldRadius, hitpoint, distance, normal)) {
+    if (IntersectionUtils::sphereIntersect(-f32v3(glm::normalize(wpoint)), f32v3(wpoint), f32v3(0.0f), (f32)voxelWorldRadius, hitpoint, distance, normal)) {
      
         // Compute face and grid position
-        gridPos = computeGridPosition(hitpoint, voxelWorldRadius);
+        gridPos = computeGridPosition(hitpoint, (f32)voxelWorldRadius);
         gridPos.pos.y = glm::length(worldPosition) - voxelWorldRadius;
     }
 
