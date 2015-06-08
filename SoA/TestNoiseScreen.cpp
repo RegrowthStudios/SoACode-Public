@@ -127,6 +127,6 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
 
 void TestNoiseScreen::onNoiseChange()
 {
-    if (m_program.isCreated()) delete m_program.dispose();
+    if (m_program.isCreated()) m_program.dispose();
     m_program = ShaderLoader::createProgram("Noise", m_noiseTypes[m_currentNoise].vertexShader, m_noiseTypes[m_currentNoise].fragmentShader);
 }
