@@ -97,6 +97,7 @@ public:
     const f64& getSpeed() const { return m_speed; }
 
     // Setters
+    void setIsDynamic(bool isDynamic) { m_isDynamic = isDynamic; }
     void setSpeed(f64 speed) { m_speed = speed; }
     void setTarget(const f64v3& targetFocalPoint, const f32v3& targetDirection,
                    const f32v3& targetRight, f64 targetFocalLength);
@@ -106,6 +107,7 @@ public:
     void setTargetFocalLength(const float& targetFocalLength) { m_targetFocalLength = targetFocalLength; }
 
 private:
+    bool m_isDynamic = true;
     f32v3 m_targetDirection = m_direction; ///< Desired direction
     f32v3 m_targetRight = m_right; ///< Desired right
     f64v3 m_targetFocalPoint = m_focalPoint; ///< Target focal position

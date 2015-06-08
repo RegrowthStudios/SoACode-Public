@@ -88,7 +88,6 @@ void GameplayRenderer::load(LoadContext& context) {
         
         vcore::GLRPC so[3];
         size_t i = 0;
-        std::cout << "BEGIN\n";
         // Create the HDR target     
         so[i].set([&](Sender, void*) {
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
@@ -119,7 +118,6 @@ void GameplayRenderer::load(LoadContext& context) {
         stages.pda.load(context, m_glrpc);
         stages.pauseMenu.load(context, m_glrpc);
         stages.nightVision.load(context, m_glrpc);
-        std::cout << "DONE\n";
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -306,6 +304,7 @@ void GameplayRenderer::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
+        m_state->localCamera.setIsDynamic(false);
         m_state->localCamera.setFocalLength(0.0f);
         m_state->localCamera.setClippingPlane(0.1f, 10000.0f);
         m_state->localCamera.setPosition(vpcmp.gridPosition.pos);
@@ -330,6 +329,7 @@ void GameplayRenderer::updateCameras() {
     } else {
         m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
+    m_state->spaceCamera.setIsDynamic(false);
     m_state->spaceCamera.setFocalLength(0.0f);
     m_state->spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
    

@@ -32,9 +32,15 @@ public:
 
     void init(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputMapper* inputManager);
 
+    void dispose();
+
     void setViewport(const ui32v2& viewPort) { m_viewport = viewPort; }
 
     void update();
+
+    void startInput();
+
+    void stopInput();
 
     struct BodyArData {
         f32 hoverTime = 0.0f;

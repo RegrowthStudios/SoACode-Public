@@ -113,7 +113,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_formFont.dispose();
     m_ui.dispose();
 
-    // m_soaState->systemViewer->dispose();
+    m_soaState->systemViewer->stopInput();
 
     m_threadRunning = false;
     //m_updateThread->join();

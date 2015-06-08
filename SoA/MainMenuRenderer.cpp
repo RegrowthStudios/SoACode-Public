@@ -104,7 +104,7 @@ void MainMenuRenderer::load(LoadContext& context) {
 
 void MainMenuRenderer::hook() {
     m_commonState->stages.skybox.hook(m_state);
-    m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera);
+    m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera, &m_state->localCamera);
     m_commonState->stages.hdr.hook(&m_commonState->quad);
     stages.colorFilter.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);

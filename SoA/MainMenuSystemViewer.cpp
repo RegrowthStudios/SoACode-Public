@@ -35,10 +35,11 @@ void MainMenuSystemViewer::init(ui32v2 viewport, CinematicCamera* camera,
                             f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
     // Register events
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
+    startInput();
+}
+
+void MainMenuSystemViewer::dispose() {
+    stopInput();
 }
 
 void MainMenuSystemViewer::update() {
@@ -113,7 +114,18 @@ void MainMenuSystemViewer::update() {
             data.inFrustum = false;
         }
     }
+}
 
+void MainMenuSystemViewer::startInput() {
+    stopInput();
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonDown(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [=](Sender s, const vui::MouseButtonEvent& e) { onMouseButtonUp(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) { onMouseMotion(s, e); });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [=](Sender s, const vui::MouseWheelEvent& e) { onMouseWheel(s, e); });
+}
+
+void MainMenuSystemViewer::stopInput() {
+    m_hooks.dispose();
 }
 
 void MainMenuSystemViewer::targetBody(const nString& name) {

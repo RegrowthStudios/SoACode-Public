@@ -144,17 +144,19 @@ void CinematicCamera::update()
     m_viewChanged = true;
     /// Smooth movement towards target
 
-    if (ABS(m_focalLength - m_targetFocalLength) < 0.1) {
-        m_focalLength = m_targetFocalLength;
-    } else {
-        m_focalLength = lerp(m_focalLength, m_targetFocalLength, m_speed);
-    }
-    m_focalPoint = lerp(m_focalPoint, m_targetFocalPoint, m_speed);
-    m_direction = glm::mix(m_direction, m_targetDirection, m_speed);
-    m_right = glm::mix(m_right, m_targetRight, m_speed);
-    m_up = glm::normalize(glm::cross(m_right, m_direction));
+    if (m_isDynamic) {
+        if (ABS(m_focalLength - m_targetFocalLength) < 0.1) {
+            m_focalLength = m_targetFocalLength;
+        } else {
+            m_focalLength = lerp(m_focalLength, m_targetFocalLength, m_speed);
+        }
+        m_focalPoint = lerp(m_focalPoint, m_targetFocalPoint, m_speed);
+        m_direction = glm::mix(m_direction, m_targetDirection, m_speed);
+        m_right = glm::mix(m_right, m_targetRight, m_speed);
+        m_up = glm::normalize(glm::cross(m_right, m_direction));
 
-    m_position = m_focalPoint - f64v3(m_direction) * m_focalLength;
+        m_position = m_focalPoint - f64v3(m_direction) * m_focalLength;
+    }
 
     // Call base class update
     Camera::update();

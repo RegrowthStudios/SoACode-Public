@@ -55,6 +55,7 @@ public:
     /// Renders star glows requested in the render call. Call after HDR
     void renderStarGlows(const f32v3& colorMult);
 
+    void setSystemViewer(const MainMenuSystemViewer* viewer) { m_mainMenuSystemViewer = viewer; }
     void setShowAR(bool showAR) { m_showAR = showAR; }
 
     bool needsFaceTransitionAnimation = false; ///< true when we need to fade out camera for transition between faces

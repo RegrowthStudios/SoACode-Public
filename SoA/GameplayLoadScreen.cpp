@@ -53,6 +53,8 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
     // Dispose our borrowed renderer
     m_mainMenuScreen->m_renderer.dispose(m_commonState->loadContext);
+    // Disable main menu viewer
+    m_commonState->stages.spaceSystem.setSystemViewer(nullptr);
 }
 
 void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
