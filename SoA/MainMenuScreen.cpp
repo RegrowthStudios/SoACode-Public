@@ -109,6 +109,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
     vui::InputDispatcher::window.onClose -= makeDelegate(*this, &MainMenuScreen::onWindowClose);
     SoaEngine::optionsController.OptionsChange -= makeDelegate(*this, &MainMenuScreen::onOptionsChange);
+    m_renderer.setShowUI(false);
     m_formFont.dispose();
     m_ui.dispose();
 

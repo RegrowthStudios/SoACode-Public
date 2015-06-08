@@ -128,6 +128,7 @@ void GameplayRenderer::load(LoadContext& context) {
         stages.nightVision.load(context, m_glrpc);
         std::cout << "DONE\n";
         m_isLoaded = true;
+        checkGlError("GamePlayRenderer::Load()");
     });
     m_loadThread->detach();
 }
@@ -135,9 +136,6 @@ void GameplayRenderer::load(LoadContext& context) {
 void GameplayRenderer::hook() {
     // Grab mesh manager handle
     m_meshManager = m_state->chunkMeshManager.get();
-    m_commonState->stages.skybox.hook(m_state);
-    m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera);
-    m_commonState->stages.hdr.hook(&m_quad);
     stages.opaqueVoxel.hook(&m_gameRenderParams);
     stages.cutoutVoxel.hook(&m_gameRenderParams);
     stages.chunkGrid.hook(&m_gameRenderParams);
@@ -253,7 +251,7 @@ void GameplayRenderer::render() {
     if (m_shouldScreenshot) dumpScreenshot();
 
     // Check for errors, just in case
-    checkGlError("GamePlayRenderPipeline::render()");
+    checkGlError("GamePlayRenderer::render()");
 }
 
 void GameplayRenderer::cycleDevHud(int offset /* = 1 */) {

@@ -58,6 +58,7 @@ public:
 
     void takeScreenshot() { m_shouldScreenshot = true; }
 
+    void setShowUI(bool showUI) { m_showUI = showUI; }
     void toggleUI() { m_showUI = !m_showUI; }
     void toggleAR() { m_showAR = !m_showAR; }
     void toggleWireframe() { m_wireframe = !m_wireframe; }

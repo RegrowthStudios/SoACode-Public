@@ -44,7 +44,7 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen, m_commonState);
     m_gameplayScreen->m_renderer.hook();
-    m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
+    //m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
 
     // Start the tasks
     m_monitor.start();
@@ -52,7 +52,7 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
 void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
     // Dispose our borrowed renderer
-    m_gameplayScreen->m_renderer.dispose(m_commonState->loadContext);
+    m_mainMenuScreen->m_renderer.dispose(m_commonState->loadContext);
 }
 
 void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
