@@ -771,6 +771,9 @@
     </ClInclude>
     <ClInclude Include="GameplayLoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
+	</ClInclude>
+    <ClInclude Include="TestNoiseScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1256,6 +1259,9 @@
     </ClCompile>
     <ClCompile Include="GameplayLoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
+	</ClCompile>
+    <ClCompile Include="TestNoiseScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

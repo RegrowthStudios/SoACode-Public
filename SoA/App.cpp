@@ -11,8 +11,8 @@
 #include "DebugRenderer.h"
 #include "DevScreen.h"
 #include "GameManager.h"
-#include "GameplayScreen.h"
 #include "GameplayLoadScreen.h"
+#include "GameplayScreen.h"
 #include "InitScreen.h"
 #include "MainMenuLoadScreen.h"
 #include "MainMenuScreen.h"
@@ -27,6 +27,7 @@
 #include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
 #include "TestMappingScreen.h"
+#include "TestNoiseScreen.h"
 #include "TestStarScreen.h"
 
 void App::addScreens() {
@@ -69,9 +70,12 @@ void App::addScreens() {
     scrTests.push_back(new TestDisplacementMappingScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
+    scrTests.push_back(new TestNoiseScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_N, scrTests.back(), "TestNoiseScreen");
 
     // Uncomment to start from dev screen for testing other screens
-//#define START_AT_DEV_SCREEN
+#define START_AT_DEV_SCREEN
 #ifdef START_AT_DEV_SCREEN
     m_screenList.setScreen(scrDev->getIndex());
 #else
