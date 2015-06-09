@@ -67,6 +67,4 @@ private:
     vscript::RFunction<f32v4> m_fUpdateRegrowthBackColor;///< f32v4 (f64 totalTime)
 
     bool m_isOnVorb = true;
-
-    vcore::RPCManager m_glrpc; ///< Handles cross-thread OpenGL calls
 };

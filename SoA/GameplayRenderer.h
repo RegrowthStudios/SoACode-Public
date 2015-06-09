@@ -68,7 +68,7 @@ struct SoaState;
 class GameplayRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context,
+    void init(vui::GameWindow* window, StaticLoadContext& context,
               GameplayScreen* gameplayScreen, CommonState* commonState);
 
     /// Call this every frame before render
@@ -76,9 +76,9 @@ public:
 
     void hook();
 
-    void load(LoadContext& context);
+    void load(StaticLoadContext& context);
 
-    void dispose(LoadContext& context);
+    void dispose(StaticLoadContext& context);
 
     void updateGL();
 

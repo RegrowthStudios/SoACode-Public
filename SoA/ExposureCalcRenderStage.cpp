@@ -35,7 +35,7 @@ void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GLRenderTarget* hd
     m_mipStep = 0;
 }
 
-void ExposureCalcRenderStage::dispose(LoadContext& context) {
+void ExposureCalcRenderStage::dispose(StaticLoadContext& context) {
     m_mipStep = 0;
     if (m_program.isCreated()) m_program.dispose();
     if (m_downsampleProgram.isCreated()) m_downsampleProgram.dispose();

@@ -49,7 +49,7 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
-void SpaceSystemRenderStage::init(vui::GameWindow* window, LoadContext& context) {
+void SpaceSystemRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
     IRenderStage::init(window, context);
     context.addAnticipatedWork(TOTAL_WORK, NUM_TASKS);
 }
@@ -65,7 +65,7 @@ void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, co
     m_farTerrainCamera = farTerrainCamera;
 }
 
-void SpaceSystemRenderStage::load(LoadContext& context) {
+void SpaceSystemRenderStage::load(StaticLoadContext& context) {
     context.addTask([&](Sender, void*) {
         m_lensFlareRenderer.initGL();
         context.addWorkCompleted(LENS_WORK);
@@ -104,7 +104,7 @@ void SpaceSystemRenderStage::load(LoadContext& context) {
     }, false);
 }
 
-void SpaceSystemRenderStage::dispose(LoadContext& context) {
+void SpaceSystemRenderStage::dispose(StaticLoadContext& context) {
     m_lensFlareRenderer.dispose();
     m_starRenderer.dispose();
     m_systemARRenderer.dispose();

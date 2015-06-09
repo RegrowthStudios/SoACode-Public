@@ -21,7 +21,7 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context,
+void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
                             GameplayScreen* gameplayScreen, CommonState* commonState) {
     m_window = window;
     m_gameplayScreen = gameplayScreen;
@@ -58,7 +58,7 @@ void GameplayRenderer::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void GameplayRenderer::dispose(LoadContext& context) {
+void GameplayRenderer::dispose(StaticLoadContext& context) {
 
     // Kill the builder
     if (m_loadThread) {
@@ -81,7 +81,7 @@ void GameplayRenderer::dispose(LoadContext& context) {
     m_swapChain.dispose();
 }
 
-void GameplayRenderer::load(LoadContext& context) {
+void GameplayRenderer::load(StaticLoadContext& context) {
     m_isLoaded = false;
 
     m_loadThread = new std::thread([&]() {

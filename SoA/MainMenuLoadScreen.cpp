@@ -122,7 +122,7 @@ void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
 
-    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_glrpc, "StarSystems/Trinity", m_commonState->state));
+    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_commonState->loadContext.rpcManager, "StarSystems/Trinity", m_commonState->state));
     m_monitor.setDep("SpaceSystem", "GameManager");
 
     m_mainMenuScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_mainMenuScreen, m_commonState);
@@ -186,9 +186,11 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
     }
 
     // Perform OpenGL calls
-    m_glrpc.processRequests(1);
+    PreciseTimer timer;
     m_commonState->loadContext.processRequests(1);
-
+    printf("%lf\n", timer.stop());
+    // char a;
+    // std::cin >> a;
     // End condition
     if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || (!m_isOnVorb && m_timer > m_regrowthScreenDuration))) {
         m_commonState->loadContext.end();

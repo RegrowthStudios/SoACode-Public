@@ -40,14 +40,14 @@ DECL_VUI(struct WindowResizeEvent; class GameWindow);
 class MainMenuRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context,
+    void init(vui::GameWindow* window, StaticLoadContext& context,
               MainMenuScreen* mainMenuScreen, CommonState* commonState);
 
     void hook();
 
-    void load(LoadContext& context);
+    void load(StaticLoadContext& context);
 
-    void dispose(LoadContext& context);
+    void dispose(StaticLoadContext& context);
 
     /// Renders the pipeline
     void render();

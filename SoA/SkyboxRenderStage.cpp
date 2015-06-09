@@ -14,24 +14,107 @@
 #include "SkyboxRenderer.h"
 #include "SoAState.h"
 
-const ui32 TOTAL_WORK = 4u;
+const ui32 TASK_WORK = 4;
+const ui32 TOTAL_TASKS = 8;
+const ui32 TOTAL_WORK = TOTAL_TASKS * TASK_WORK;
 
-void SkyboxRenderStage::init(vui::GameWindow* window, LoadContext& context) {
+void SkyboxRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
     IRenderStage::init(window, context);
-    context.addAnticipatedWork(TOTAL_WORK, 1);
+    context.addAnticipatedWork(TOTAL_WORK, TOTAL_TASKS);
 }
 
 void SkyboxRenderStage::hook(SoaState* state) {
     m_textureResolver = &state->texturePathResolver;
 }
 
-void SkyboxRenderStage::load(LoadContext& context) {
+void SkyboxRenderStage::load(StaticLoadContext& context) {
+    // Create texture array
     context.addTask([&](Sender, void*) {
-        if (m_skyboxTextureArray == 0) {
-            loadSkyboxTexture();
-        }
+        glGenTextures(1, &m_skyboxTextureArray);
         m_skyboxRenderer.initGL();
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+
+    // TODO(Ben): Error check for dimensions
+    // Front
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/front.png", path);
+        vg::ScopedBitmapResource frontRes = vg::ImageIO().load(path);
+        if (frontRes.data == nullptr) pError("Failed to load Sky/Skybox/front.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, frontRes.width, frontRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, frontRes.data);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Right
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/right.png", path);
+        vg::ScopedBitmapResource rightRes = vg::ImageIO().load(path);
+        if (rightRes.data == nullptr) pError("Failed to load Sky/Skybox/right.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, rightRes.width, rightRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, rightRes.data);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Top
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/top.png", path);
+        vg::ScopedBitmapResource topRes = vg::ImageIO().load(path);
+        if (topRes.data == nullptr) pError("Failed to load Sky/Skybox/top.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, topRes.width, topRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, topRes.data);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Left
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/left.png", path);
+        vg::ScopedBitmapResource leftRes = vg::ImageIO().load(path);
+        if (leftRes.data == nullptr) pError("Failed to load Sky/Skybox/left.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 3, leftRes.width, leftRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, leftRes.data);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Bottom
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/bottom.png", path);
+        vg::ScopedBitmapResource botRes = vg::ImageIO().load(path);
+        if (botRes.data == nullptr) pError("Failed to load Sky/Skybox/bottom.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 4, botRes.width, botRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, botRes.data);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Back
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/back.png", path);
+        vg::ScopedBitmapResource backRes = vg::ImageIO().load(path);
+        if (backRes.data == nullptr) pError("Failed to load Sky/Skybox/back.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 5, backRes.width, backRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, backRes.data);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+
+    // Tex parameters and mipmaps
+    context.addTask([&](Sender, void*) {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
         context.addWorkCompleted(TOTAL_WORK);
+
+        // Set up tex parameters
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+        // Unbind
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+        // Check if we had any errors
+        checkGlError("SkyboxRenderStage::load()");
+        context.addWorkCompleted(TASK_WORK);
     }, false);
 }
 
@@ -51,26 +134,9 @@ void SkyboxRenderStage::loadSkyboxTexture() {
     glGenTextures(1, &m_skyboxTextureArray);
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
 
-    vio::Path path;
-    // TODO(Ben): Error check for dimensions
-    m_textureResolver->resolvePath("Sky/Skybox/front.png", path);
-    vg::BitmapResource frontRes = vg::ImageIO().load(path);
-    if (frontRes.data == nullptr) pError("Failed to load Sky/Skybox/front.png");
-    m_textureResolver->resolvePath("Sky/Skybox/right.png", path);
-    vg::BitmapResource rightRes = vg::ImageIO().load(path);
-    if (rightRes.data == nullptr) pError("Failed to load Sky/Skybox/right.png");
-    m_textureResolver->resolvePath("Sky/Skybox/top.png", path);
-    vg::BitmapResource topRes = vg::ImageIO().load(path);
-    if (topRes.data == nullptr) pError("Failed to load Sky/Skybox/top.png");
-    m_textureResolver->resolvePath("Sky/Skybox/left.png", path);
-    vg::BitmapResource leftRes = vg::ImageIO().load(path);
-    if (leftRes.data == nullptr) pError("Failed to load Sky/Skybox/left.png");
-    m_textureResolver->resolvePath("Sky/Skybox/bottom.png", path);
-    vg::BitmapResource botRes = vg::ImageIO().load(path);
-    if (botRes.data == nullptr) pError("Failed to load Sky/Skybox/bottom.png");
-    m_textureResolver->resolvePath("Sky/Skybox/back.png", path);
-    vg::BitmapResource backRes = vg::ImageIO().load(path);
-    if (backRes.data == nullptr) pError("Failed to load Sky/Skybox/back.png");
+   
+  
+    
 
     if (frontRes.width != frontRes.height) {
         pError("Skybox textures must have equal width and height!");
@@ -93,28 +159,8 @@ void SkyboxRenderStage::loadSkyboxTexture() {
     }
 
     // Upload the data to VRAM
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, frontRes.width, frontRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, frontRes.data);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 1, rightRes.width, rightRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, rightRes.data);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 2, topRes.width, topRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, topRes.data);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 3, leftRes.width, leftRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, leftRes.data);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 4, botRes.width, botRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, botRes.data);
-    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 5, backRes.width, backRes.width, 1, GL_RGBA, GL_UNSIGNED_BYTE, backRes.data);
-
-    // Set up tex parameters
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, maxMipLevel);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LOD, maxMipLevel);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_GENERATE_MIPMAP, GL_TRUE);
-    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-
-    // Unbind
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-    // Check if we had any errors
-    checkGlError("SkyboxRenderStage::loadSkyboxTexture()"); 
+    
+    
 }
 
 void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {

@@ -43,13 +43,13 @@ struct MTRenderState;
 
 class SpaceSystemRenderStage : public IRenderStage {
 public:
-    void init(vui::GameWindow* window, LoadContext& context) override;
+    void init(vui::GameWindow* window, StaticLoadContext& context) override;
 
     void hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera = nullptr);
 
-    void load(LoadContext& context) override;
+    void load(StaticLoadContext& context) override;
 
-    void dispose(LoadContext& context) override;
+    void dispose(StaticLoadContext& context) override;
 
     //TODO(Ben): Pointer to window viewport instead?
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }

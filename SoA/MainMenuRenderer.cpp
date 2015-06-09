@@ -18,7 +18,7 @@
 #include "SoaState.h"
 #include "soaUtils.h"
 
-void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
+void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
                             MainMenuScreen* mainMenuScreen, CommonState* commonState) {
     m_window = window;
     m_mainMenuScreen = mainMenuScreen;
@@ -41,7 +41,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
     stages.exposureCalc.init(window, context);
 }
 
-void MainMenuRenderer::dispose(LoadContext& context) {
+void MainMenuRenderer::dispose(StaticLoadContext& context) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
     // Kill the builder
@@ -58,7 +58,7 @@ void MainMenuRenderer::dispose(LoadContext& context) {
     m_swapChain.dispose();
 }
 
-void MainMenuRenderer::load(LoadContext& context) {
+void MainMenuRenderer::load(StaticLoadContext& context) {
     m_isLoaded = false;
 
     m_loadThread = new std::thread([&]() {
