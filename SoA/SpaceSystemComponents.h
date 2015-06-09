@@ -25,11 +25,11 @@
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
 
-class ChunkGrid;
 class ChunkIOManager;
 class ChunkListManager;
 class ChunkManager;
-class ChunkMemoryManager;
+class ChunkAllocator;
+class NChunkGrid;
 class ChunkMeshManager;
 class FarTerrainPatch;
 class ParticleEngine;
@@ -144,14 +144,11 @@ struct SphericalGravityComponent {
     f64 mass = 0.0; ///< Mass in KG
 };
 
-// TODO(Ben): std::unique_ptr?
 struct SphericalVoxelComponent {
-    friend class SphericalVoxelComponentUpdater;
-
     PhysicsEngine* physicsEngine = nullptr;
-    ChunkGrid* chunkGrid = nullptr;
+    NChunkGrid* chunkGrid = nullptr;
     ChunkListManager* chunkListManager = nullptr;
-    ChunkMemoryManager* chunkMemoryManager = nullptr;
+    ChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
     ParticleEngine* particleEngine = nullptr;

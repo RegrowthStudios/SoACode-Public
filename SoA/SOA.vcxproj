@@ -542,6 +542,7 @@ EXIT 0</Command>
     <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
+    <ClInclude Include="ChunkAllocator.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="ChunkHandle.h" />
@@ -750,6 +751,7 @@ EXIT 0</Command>
     <ClCompile Include="BlockPack.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkListManager.cpp" />

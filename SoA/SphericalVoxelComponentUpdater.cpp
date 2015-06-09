@@ -1,30 +1,37 @@
 #include "stdafx.h"
 #include "SphericalVoxelComponentUpdater.h"
 
-#include "ChunkGrid.h"
+#include <SDL/SDL_timer.h> // For SDL_GetTicks
+
+#include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
 #include "ChunkListManager.h"
-#include "ChunkMemoryManager.h"
+#include "ChunkRenderer.h"
 #include "ChunkUpdater.h"
 #include "FloraTask.h"
 #include "GameSystem.h"
 #include "GenerateTask.h"
-#include "SoaOptions.h"
+#include "NChunk.h"
+#include "NChunkGrid.h"
+#include "ParticleEngine.h"
+#include "PhysicsEngine.h"
 #include "PlanetData.h"
 #include "RenderTask.h"
+#include "SoaOptions.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainGpuGenerator.h"
 #include "soaUtils.h"
-#include "ParticleEngine.h"
-#include "PhysicsEngine.h"
 
-void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState) {
+#include <Vorb/voxel/VoxCommon.h>
+
+void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
+    SpaceSystem* spaceSystem = soaState->spaceSystem.get();
+    GameSystem* gameSystem = soaState->gameSystem.get();
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
 
         // TODO(Ben): This is temporary hard coded player stuff.
-
         auto& playerPosCmp = gameSystem->voxelPosition.getFromEntity(soaState->playerEntity);
         auto& playerFrustumCmp = gameSystem->frustum.getFromEntity(soaState->playerEntity);
 
@@ -35,26 +42,6 @@ void SphericalVoxelComponentUpdater::update(SpaceSystem* spaceSystem, const Game
             }
         }
     }
-}
-
-void SphericalVoxelComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
-
-}
-
-void SphericalVoxelComponentUpdater::getClosestChunks(SphericalVoxelComponent* cmp, glm::dvec3 &coord, Chunk **chunks) {
-
-}
-
-// TODO(Ben): unneeded?
-void SphericalVoxelComponentUpdater::endSession(SphericalVoxelComponent* cmp) {
-    delete cmp->physicsEngine;
-    cmp->physicsEngine = nullptr;
-
-    delete cmp->chunkIo;
-    cmp->chunkIo = nullptr;
-
-    delete cmp->particleEngine;
-    cmp->particleEngine = nullptr;
 }
 
 void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, const Frustum* frustum) {
@@ -77,6 +64,7 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
         m_cmp->chunkListManager->sortLists();
         m_cmp->updateCount = 0;
     }
+
     m_cmp->updateCount++;
     // std::cout << "TASKS " << _threadPool.getFinishedTasksSizeApprox() << std::endl;
     updateLoadedChunks(4);
@@ -88,14 +76,14 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
     //This doesn't function correctly
     //caveOcclusion(position);
 
-    Chunk* ch;
-    std::vector<Chunk*>& freeWaitingChunks = m_cmp->chunkListManager->freeWaitingChunks;
+    NChunk* ch;
+    std::vector<NChunk*>& freeWaitingChunks = m_cmp->chunkListManager->freeWaitingChunks;
     for (size_t i = 0; i < freeWaitingChunks.size();) {
         ch = freeWaitingChunks[i];
         if (ch->inSaveThread == false && ch->inLoadThread == false &&
             !ch->lastOwnerTask && !ch->_chunkListPtr && ch->chunkDependencies == 0 &&
             !(ch->mesh && ch->mesh->refCount)) {
-            Chunk* c = freeWaitingChunks[i];
+            NChunk* c = freeWaitingChunks[i];
             freeWaitingChunks[i] = freeWaitingChunks.back();
             freeWaitingChunks.pop_back();
             freeChunk(c);
@@ -105,57 +93,38 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
     }
 
     processFinishedTasks();
-    //change the parameter to true to print out the timings
-
-    static int g = 0;
-    if (++g == 10) {
-        //   globalAccumulationTimer.printAll(false);
-        //  std::cout << "\n";
-        globalAccumulationTimer.clear();
-        g = 0;
-    }
 }
 
 void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const Frustum* frustum) {
 
-    i32v3 intPosition(position);
-
-    //ui32 sticks = SDL_GetTicks();
-
-    static ui32 saveTicks = SDL_GetTicks();
-
-    bool save = 0;
-
-#define MS_PER_MINUTE 60000
+    i32v3 iPosition(position);
+    // TODO(Ben): We are iterating over empty and hidden chunks...
+    const std::vector<NChunk*>& chunks = m_cmp->chunkAllocator->getActiveChunks();
+    f32 fadeDist2 = FLT_MAX;
 
     // Reset the counter for number of container compressions
     vvox::clearContainerCompressionsCounter();
 
-    if (SDL_GetTicks() - saveTicks >= MS_PER_MINUTE) { //save once per minute
-        save = 1;
-        std::cout << "SAVING\n";
-        saveTicks = SDL_GetTicks();
-    }
-    const std::vector<Chunk*>& chunks = m_cmp->chunkMemoryManager->getActiveChunks();
-
-    static const f64 INIT_FADE = 10000000000000000.0;
-    f64 fadeDist = INIT_FADE;
     for (int i = (int)chunks.size() - 1; i >= 0; i--) { //update distances for all chunks
-        Chunk* chunk = chunks[i];
-        if (chunk->freeWaiting) continue;
+        NChunk* chunk = chunks[i];
+        //if (chunk->freeWaiting) continue;
 
-        chunk->calculateDistance2(intPosition);
+        chunk->distance2 = computeDistance2FromChunk(chunk->getPosition().pos, iPosition);
 
         // Check fade for rendering
-        if (chunk->numNeighbors != 6 && chunk->distance2 < fadeDist || chunk->_state < ChunkStates::MESH) {
-            fadeDist = chunk->distance2;
-        }
-        // Check for container update
-        if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
-            chunk->updateContainers();
+        if ((!chunk->hasAllNeighbors() && chunk->distance2 < fadeDist2)) { // TODO(Ben): Hasmesh? 
+            fadeDist2 = chunk->distance2;
         }
 
-        float vRenderDist = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + 36.0f);
+        // Check for container update
+        if (chunk->_state > ChunkStates::TREES && !chunk->lastOwnerTask) {
+            chunk->m_blocks.update(chunk->mutex);
+            chunk->m_sunlight.update(chunk->mutex);
+            chunk->m_lamp.update(chunk->mutex);
+            chunk->m_tertiary.update(chunk->mutex);
+        }
+
+        f32 vRenderDist = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + 36.0f);
         if (chunk->distance2 >  vRenderDist * vRenderDist) { //out of maximum range
 
             // Only remove it if it isn't needed by its neighbors
@@ -169,20 +138,20 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
         } else { //inside maximum range
 
             // Check if it is in the view frustum
-            chunk->inFrustum = frustum->sphereInFrustum(f32v3(f64v3(chunk->voxelPosition + (CHUNK_WIDTH / 2)) - position), 28.0f);
+            //chunk->inFrustum = frustum->sphereInFrustum(f32v3(f64v3(chunk->voxelPosition + (CHUNK_WIDTH / 2)) - position), 28.0f);
 
             // See if neighbors need to be added
-            if (chunk->numNeighbors != 6 && chunk->needsNeighbors) {
-                updateChunkNeighbors(chunk, intPosition);
+            if (!chunk->hasAllNeighbors()) {// && chunk->needsNeighbors) {
+                updateChunkNeighbors(chunk, iPosition);
             }
-            // Calculate the LOD as a power of two
-            int newLOD = (int)(sqrt(chunk->distance2) / soaOptions.get(OPT_VOXEL_LOD_THRESHOLD).value.f) + 1;
-            //  newLOD = 2;
-            if (newLOD > 6) newLOD = 6;
-            if (newLOD != chunk->getLevelOfDetail()) {
-                chunk->setLevelOfDetail(newLOD);
-                chunk->changeState(ChunkStates::MESH);
-            }
+            //// Calculate the LOD as a power of two
+            //int newLOD = (int)(sqrt(chunk->distance2) / soaOptions.get(OPT_VOXEL_LOD_THRESHOLD).value.f) + 1;
+            ////  newLOD = 2;
+            //if (newLOD > 6) newLOD = 6;
+            //if (newLOD != chunk->getLevelOfDetail()) {
+            //    chunk->setLevelOfDetail(newLOD);
+            //    chunk->changeState(ChunkStates::MESH);
+            //}
 
             if (chunk->mesh != nullptr) ChunkUpdater::randomBlockUpdates(m_cmp->physicsEngine, chunk);
             // Check to see if it needs to be added to the mesh list
@@ -196,19 +165,15 @@ void SphericalVoxelComponentUpdater::updateChunks(const f64v3& position, const F
                         break;
                 }
             }
-
-            // save if its been a minute
-            if (save && chunk->dirty) {
-                m_cmp->chunkIo->addToSaveList(chunk);
-            }
         }
     }
+
     // Fading for voxels
     static const f32 FADE_SPEED = 0.2f;
-    if (fadeDist == INIT_FADE) {
+    if (fadeDist2 == FLT_MAX) {
         ChunkRenderer::fadeDist = 0.0f;
     } else {
-        f32 target = (f32)sqrt(fadeDist) - (f32)CHUNK_WIDTH;
+        f32 target = (f32)sqrt(fadeDist2) - (f32)CHUNK_WIDTH;
         ChunkRenderer::fadeDist += (target - ChunkRenderer::fadeDist) * FADE_SPEED;
     }
 }
@@ -221,7 +186,7 @@ void SphericalVoxelComponentUpdater::updatePhysics(const Camera* camera) {
 void SphericalVoxelComponentUpdater::updateLoadedChunks(ui32 maxTicks) {
 
     ui32 startTicks = SDL_GetTicks();
-    Chunk* ch;
+    NChunk* ch;
     //IO load chunks
     while (m_cmp->chunkIo->finishedLoadChunks.try_dequeue(ch)) {
 
@@ -266,8 +231,8 @@ void SphericalVoxelComponentUpdater::updateLoadedChunks(ui32 maxTicks) {
 }
 
 void SphericalVoxelComponentUpdater::updateGenerateList() {
-    Chunk *chunk;
-    std::vector<Chunk*>& generateList = m_cmp->chunkListManager->generateList;
+    NChunk *chunk;
+    std::vector<NChunk*>& generateList = m_cmp->chunkListManager->generateList;
     for (i32 i = generateList.size() - 1; i >= 0; i--) {
         chunk = generateList[i];
         // Check if the chunk is waiting to be freed
@@ -288,7 +253,7 @@ void SphericalVoxelComponentUpdater::updateGenerateList() {
 
 void SphericalVoxelComponentUpdater::updateTreesToPlace(ui32 maxTicks) {
     ui32 startTicks = SDL_GetTicks();
-    Chunk* startChunk;
+    NChunk* startChunk;
     std::vector<GeneratedTreeNodes*>& treesToPlace = m_cmp->chunkGrid->treesToPlace;
 
     for (int i = treesToPlace.size() - 1; i >= 0; i--) {
@@ -309,7 +274,7 @@ void SphericalVoxelComponentUpdater::updateTreesToPlace(ui32 maxTicks) {
             // Check to see if all the chunks we need are available
             bool allChunksLoaded = true;
             for (auto& it : nodes->allChunkPositions) {
-                Chunk* chunk = m_cmp->chunkGrid->getChunk(it);
+                NChunk* chunk = m_cmp->chunkGrid->getChunk(it);
                 if (chunk == nullptr || chunk->isAccessible == false) {
                     allChunksLoaded = false;
                     break;
@@ -336,12 +301,12 @@ void SphericalVoxelComponentUpdater::updateTreesToPlace(ui32 maxTicks) {
 
 void SphericalVoxelComponentUpdater::updateLoadList(ui32 maxTicks) {
 
-    static std::vector<Chunk* > chunksToLoad; // Static to prevent allocation
+    static std::vector<NChunk* > chunksToLoad; // Static to prevent allocation
 
     ui32 sticks = SDL_GetTicks();
-    std::vector<Chunk*>& loadList = m_cmp->chunkListManager->loadList;
+    std::vector<NChunk*>& loadList = m_cmp->chunkListManager->loadList;
     while (!loadList.empty()) {
-        Chunk* chunk = loadList.back();
+        NChunk* chunk = loadList.back();
 
         loadList.pop_back();
         chunk->clearChunkListPtr();
@@ -361,13 +326,13 @@ void SphericalVoxelComponentUpdater::updateLoadList(ui32 maxTicks) {
 }
 
 i32 SphericalVoxelComponentUpdater::updateSetupList(ui32 maxTicks) {
-    Chunk* chunk;
+    NChunk* chunk;
     ChunkStates state;
     i32 i;
     f64v3 cpos;
 
     ui32 startTicks = SDL_GetTicks();
-    std::vector<Chunk*>& setupList = m_cmp->chunkListManager->setupList;
+    std::vector<NChunk*>& setupList = m_cmp->chunkListManager->setupList;
     for (i = setupList.size() - 1; i >= 0; i--) {
         //limit the time
         chunk = setupList[i];
@@ -411,11 +376,11 @@ i32 SphericalVoxelComponentUpdater::updateMeshList(ui32 maxTicks) {
 
     ui32 startTicks = SDL_GetTicks();
     ChunkStates state;
-    Chunk* chunk;
+    NChunk* chunk;
 
     RenderTask *newRenderTask;
 
-    std::vector<Chunk*>& meshList = m_cmp->chunkListManager->meshList;
+    std::vector<NChunk*>& meshList = m_cmp->chunkListManager->meshList;
     for (i32 i = meshList.size() - 1; i >= 0; i--) {
         state = meshList[i]->_state;
         chunk = meshList[i];
@@ -475,7 +440,7 @@ i32 SphericalVoxelComponentUpdater::updateMeshList(ui32 maxTicks) {
 void SphericalVoxelComponentUpdater::makeChunkAt(const ChunkPosition3D& chunkPosition) {
 
     // Make and initialize a chunk
-    Chunk* chunk = m_cmp->chunkMemoryManager->getNewChunk();
+    NChunk* chunk = m_cmp->chunkAllocator->getNewChunk();
     if (!chunk) return; ///< Can't make a chunk if we have no free chunks
     chunk->init(chunkPosition);
 
@@ -499,7 +464,7 @@ void SphericalVoxelComponentUpdater::processFinishedTasks() {
     size_t numTasks = m_cmp->threadPool->getFinishedTasks(taskBuffer, MAX_TASKS);
 
     vcore::IThreadPoolTask<WorkerData>* task;
-    Chunk* chunk;
+    NChunk* chunk;
     for (size_t i = 0; i < numTasks; i++) {
         task = taskBuffer[i];
 
@@ -537,7 +502,7 @@ void SphericalVoxelComponentUpdater::processFinishedTasks() {
 }
 
 void SphericalVoxelComponentUpdater::processFinishedGenerateTask(GenerateTask* task) {
-    Chunk *ch = task->chunk;
+    NChunk *ch = task->chunk;
     if (task == ch->lastOwnerTask) ch->lastOwnerTask = nullptr;
     ch->isAccessible = true;
 
@@ -558,7 +523,7 @@ void SphericalVoxelComponentUpdater::processFinishedGenerateTask(GenerateTask* t
 }
 
 void SphericalVoxelComponentUpdater::processFinishedFloraTask(FloraTask* task) {
-    Chunk* chunk = task->chunk;
+    NChunk* chunk = task->chunk;
     GeneratedTreeNodes* nodes;
     if (task == chunk->lastOwnerTask) chunk->lastOwnerTask = nullptr;
     if (task->isSuccessful) {
@@ -578,7 +543,7 @@ void SphericalVoxelComponentUpdater::processFinishedFloraTask(FloraTask* task) {
     }
 }
 
-void SphericalVoxelComponentUpdater::addGenerateTask(Chunk* chunk) {
+void SphericalVoxelComponentUpdater::addGenerateTask(NChunk* chunk) {
     // TODO(Ben): alternative to new?
     GenerateTask* generateTask = new GenerateTask();
 
@@ -594,7 +559,7 @@ void SphericalVoxelComponentUpdater::placeTreeNodes(GeneratedTreeNodes* nodes) {
     ChunkGrid* chunkGrid = m_cmp->chunkGrid;
     // Decompress all chunks to arrays for efficiency
     for (auto& it : nodes->allChunkPositions) {
-        Chunk* chunk = chunkGrid->getChunk(it);
+        NChunk* chunk = chunkGrid->getChunk(it);
         if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
             chunk->_blockIDContainer.changeState(vvox::VoxelStorageState::FLAT_ARRAY, chunk->_dataLock);
         }
@@ -604,8 +569,8 @@ void SphericalVoxelComponentUpdater::placeTreeNodes(GeneratedTreeNodes* nodes) {
     }
 
     int blockIndex;
-    Chunk* owner;
-    Chunk* lockedChunk = nullptr;
+    NChunk* owner;
+    NChunk* lockedChunk = nullptr;
     const i32v3& startPos = nodes->startChunkGridPos;
 
     int a = 0;
@@ -641,7 +606,7 @@ void SphericalVoxelComponentUpdater::placeTreeNodes(GeneratedTreeNodes* nodes) {
     if (lockedChunk) lockedChunk->unlock();
 }
 
-void SphericalVoxelComponentUpdater::freeChunk(Chunk* chunk) {
+void SphericalVoxelComponentUpdater::freeChunk(NChunk* chunk) {
     if (chunk) {
         if (chunk->dirty && chunk->_state > ChunkStates::TREES) {
             m_cmp->chunkIo->addToSaveList(chunk);
@@ -667,7 +632,7 @@ void SphericalVoxelComponentUpdater::freeChunk(Chunk* chunk) {
     }
 }
 
-void SphericalVoxelComponentUpdater::updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos) {
+void SphericalVoxelComponentUpdater::updateChunkNeighbors(NChunk* chunk, const i32v3& cameraPos) {
     if (chunk->left == nullptr) {
         tryLoadChunkNeighbor(chunk, cameraPos, i32v3(-1, 0, 0));
     }
@@ -688,27 +653,27 @@ void SphericalVoxelComponentUpdater::updateChunkNeighbors(Chunk* chunk, const i3
     }
 }
 
-void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
-    ChunkPosition3D newPosition = chunk->gridPosition;
+void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(NChunk* chunk, const i32v3& cameraPos, const i32v3& offset) {
+    ChunkPosition3D newPosition = chunk->getPosition();
     newPosition.pos += offset;
 
     // TODO(Ben): Redundant with elsewhere
     f32 vRenderDist = soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH;
-    double dist2 = Chunk::getDistance2(newPosition.pos * CHUNK_WIDTH, cameraPos);
+    double dist2 = computeDistance2FromChunk(newPosition.pos * CHUNK_WIDTH, cameraPos);
     if (dist2 <= (vRenderDist) * (vRenderDist)) {
         makeChunkAt(newPosition);
     }
 }
 
-bool SphericalVoxelComponentUpdater::trySetMeshDependencies(Chunk* chunk) {
+bool SphericalVoxelComponentUpdater::trySetMeshDependencies(NChunk* chunk) {
     // If this chunk is still in a mesh thread, don't re-add dependencies
     if (chunk->meshJobCounter) {
         chunk->meshJobCounter++;
         return true;
     }
-    if (chunk->numNeighbors != 6) return false;
+    if (!chunk->hasAllNeighbors()) return false;
 
-    Chunk* nc;
+    NChunk* nc;
 
     // Neighbors
     if (!chunk->left->isAccessible || !chunk->right->isAccessible ||
@@ -793,12 +758,12 @@ bool SphericalVoxelComponentUpdater::trySetMeshDependencies(Chunk* chunk) {
     return true;
 }
 
-void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(Chunk* chunk) {
+void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(NChunk* chunk) {
     chunk->meshJobCounter--;
     // If this chunk is still in a mesh thread, don't remove dependencies
     if (chunk->meshJobCounter) return;
 
-    Chunk* nc;
+    NChunk* nc;
     // Neighbors
     chunk->left->removeDependency();
     chunk->right->removeDependency();

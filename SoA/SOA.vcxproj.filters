@@ -174,6 +174,9 @@
     <Filter Include="SOA Files\Voxel\API">
       <UniqueIdentifier>{705cf454-4163-4629-a5a8-b8f21eceeea7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Allocation">
+      <UniqueIdentifier>{548ab1e5-861c-44a6-9081-0769265688b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -799,6 +802,9 @@
     <ClInclude Include="NChunkGrid.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkAllocator.h">
+      <Filter>SOA Files\Voxel\Allocation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1297,6 +1303,9 @@
     </ClCompile>
     <ClCompile Include="NChunkGrid.cpp">
       <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkAllocator.cpp">
+      <Filter>SOA Files\Voxel\Allocation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

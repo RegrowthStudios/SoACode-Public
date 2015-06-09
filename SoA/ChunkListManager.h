@@ -15,38 +15,28 @@
 #ifndef ChunkListManager_h__
 #define ChunkListManager_h__
 
-#include "Chunk.h"
+class NChunk;
 
 class ChunkListManager {
 public:
-    /// Adds a chunk to the setupList
-    /// @param chunk: the chunk to add
-    void addToSetupList(Chunk* chunk);
-    /// Adds a chunk to the loadList
-    /// @param chunk: the chunk to add
-    void addToLoadList(Chunk* chunk);
-    /// Adds a chunk to the meshList
-    /// @param chunk: the chunk to add
-    void addToMeshList(Chunk* chunk);
-    /// Adds a chunk to the generateList
-    /// @param chunk: the chunk to add
-    void addToGenerateList(Chunk* chunk);
-    /// Adds a chunk to the freeWait list
-    /// @param chunk: the chunk to add
-    void addToFreeWaitList(Chunk* chunk);
+    void addToSetupList(NChunk* chunk);
+    void addToLoadList(NChunk* chunk);
+    void addToMeshList(NChunk* chunk);
+    void addToGenerateList(NChunk* chunk);
+    void addToFreeWaitList(NChunk* chunk);
     /// Sorts all lists in descending order of distance
     void sortLists();
 
     /// Stack of chunks needing setup
-    std::vector<Chunk*> setupList;
+    std::vector<NChunk*> setupList;
     /// Stack of chunks that need to be meshed on the threadPool
-    std::vector<Chunk*> meshList;
+    std::vector<NChunk*> meshList;
     /// Stack of chunks that need to be sent to the IO thread
-    std::vector<Chunk*> loadList;
+    std::vector<NChunk*> loadList;
     /// Stack of chunks needing generation
-    std::vector<Chunk*> generateList;
+    std::vector<NChunk*> generateList;
     /// Chunks waiting to be freed
-    std::vector<Chunk*> freeWaitingChunks;
+    std::vector<NChunk*> freeWaitingChunks;
 };
 
 #endif // ChunkListManager_h__

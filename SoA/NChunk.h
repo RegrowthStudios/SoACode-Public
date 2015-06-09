@@ -43,23 +43,36 @@ public:
 };
 
 class NChunk {
+    friend class ChunkAllocator;
+    friend class SphericalVoxelComponentUpdater;
 public:
     void init(const ChunkPosition3D& pos);
-    void set(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
-             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler);
+    void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
+                      vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler);
 
     const ChunkPosition3D& getPosition() const { return m_position; }
+    bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
 
     NChunkGridData* gridData = nullptr;
     MetaFieldInformation meta;
-    NChunkPtr neighbors[6];
+    f32 distance2; //< Squared distance
+    union {
+        struct {
+            NChunkPtr left, right, bottom, top, back, front;
+        };
+        NChunkPtr neighbors[6];
+    };
+    std::mutex mutex;
 private:
+    ui32 m_numNeighbors = 0u;
     ChunkPosition3D m_position;
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> m_blocks;
     vvox::SmartVoxelContainer<ui8> m_sunlight;
     vvox::SmartVoxelContainer<ui16> m_lamp;
     vvox::SmartVoxelContainer<ui16> m_tertiary;
+
+    ui32 m_activeChunksIndex = -1; ///< Used by ChunkAllocator
 };
 
 #endif // NChunk_h__

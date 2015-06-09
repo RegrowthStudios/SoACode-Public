@@ -192,4 +192,16 @@ inline f32 computeZCoef(f32 zFar) {
     return 2.0f / log2(zFar + 1.0f);
 }
 
+/// Getting distance from a chunk
+f32 computeDistance2FromChunk(const i32v3& chunkPos, const i32v3& p) {
+    f32 dx = (f32)((p.x <= chunkPos.x) ? chunkPos.x : ((p.x > chunkPos.x + CHUNK_WIDTH) ? (chunkPos.x + CHUNK_WIDTH) : p.x));
+    f32 dy = (f32)((p.y <= chunkPos.y) ? chunkPos.y : ((p.y > chunkPos.y + CHUNK_WIDTH) ? (chunkPos.y + CHUNK_WIDTH) : p.y));
+    f32 dz = (f32)((p.z <= chunkPos.z) ? chunkPos.z : ((p.z > chunkPos.z + CHUNK_WIDTH) ? (chunkPos.z + CHUNK_WIDTH) : p.z));
+    dx = dx - p.x;
+    dy = dy - p.y;
+    dz = dz - p.z;
+    // We don't sqrt the distance since sqrt is slow
+    return dx*dx + dy*dy + dz*dz;
+}
+
 #endif // soaUtils_h__

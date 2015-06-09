@@ -16,7 +16,7 @@
 #define SphericalVoxelComponentUpdater_h__
 
 class Camera;
-class Chunk;
+class NChunk;
 class FloraTask;
 class Frustum;
 class GameSystem;
@@ -33,12 +33,8 @@ struct SphericalVoxelComponent;
 
 class SphericalVoxelComponentUpdater {
 public:
-    void update(SpaceSystem* spaceSystem, const GameSystem* gameSystem, const SoaState* soaState);
-    void getClosestChunks(SphericalVoxelComponent* cmp, glm::dvec3 &coord, Chunk **chunks);
-    void endSession(SphericalVoxelComponent* cmp);
+    void update(const SoaState* soaState);
 
-    /// Updates openGL specific stuff. Call on render thread
-    void glUpdate(SpaceSystem* spaceSystem);
 private:
 
     SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
@@ -88,7 +84,7 @@ private:
     void processFinishedFloraTask(FloraTask* task);
 
     /// Adds a generate task to the threadpool
-    void addGenerateTask(Chunk* chunk);
+    void addGenerateTask(NChunk* chunk);
 
     /// Places a batch of tree nodes
     /// @param nodes: the nodes to place
@@ -98,24 +94,24 @@ private:
     /// The chunk may be recycled, or it may need to wait for some threads
     /// to finish processing on it.
     /// @param chunk: the chunk to free
-    void freeChunk(Chunk* chunk);
+    void freeChunk(NChunk* chunk);
 
     /// Updates the neighbors for a chunk, possibly loading new chunks
     /// @param chunk: the chunk in question
     /// @param cameraPos: camera position
-    void updateChunkNeighbors(Chunk* chunk, const i32v3& cameraPos);
+    void updateChunkNeighbors(NChunk* chunk, const i32v3& cameraPos);
 
     /// Tries to load a chunk neighbor if it is in range
     /// @param chunk: relative chunk
     /// @param cameraPos: the camera position
     /// @param offset: the offset, must be unit length.
-    void tryLoadChunkNeighbor(Chunk* chunk, const i32v3& cameraPos, const i32v3& offset);
+    void tryLoadChunkNeighbor(NChunk* chunk, const i32v3& cameraPos, const i32v3& offset);
 
     /// True when the chunk can be sent to mesh thread. Will set neighbor dependencies
-    bool trySetMeshDependencies(Chunk* chunk);
+    bool trySetMeshDependencies(NChunk* chunk);
 
     /// Removes all mesh dependencies
-    void tryRemoveMeshDependencies(Chunk* chunk);
+    void tryRemoveMeshDependencies(NChunk* chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__
