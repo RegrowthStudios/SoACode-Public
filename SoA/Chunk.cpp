@@ -263,14 +263,15 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
 
         int s = 0;
         //block data
-        for (int i = 0; i < _blockIDContainer._dataTree.size(); i++) {
-            for (int j = 0; j < _blockIDContainer._dataTree[i].length; j++) {
-                c = _blockIDContainer._dataTree[i].getStart() + j;
+        auto& dataTree = _blockIDContainer.getTree();
+        for (int i = 0; i < dataTree.size(); i++) {
+            for (int j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
 
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-                chData[wc] = _blockIDContainer._dataTree[i].data;
+                chData[wc] = dataTree[i].data;
                 if (GETBLOCK(chData[wc]).meshType == MeshType::LIQUID) {
                     wvec[s++] = wc;
                 }
@@ -284,7 +285,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chData[wc] = _blockIDContainer._dataArray[c];
+                    chData[wc] = _blockIDContainer[c];
                     if (GETBLOCK(chData[wc]).meshType == MeshType::LIQUID) {
                         wvec[s++] = wc;
                     }
@@ -296,14 +297,15 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     if (_lampLightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //lamp data
         c = 0;
-        for (int i = 0; i < _lampLightContainer._dataTree.size(); i++) {
-            for (int j = 0; j < _lampLightContainer._dataTree[i].length; j++) {
-                c = _lampLightContainer._dataTree[i].getStart() + j;
+        auto& dataTree = _lampLightContainer.getTree();
+        for (int i = 0; i < dataTree.size(); i++) {
+            for (int j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
-                chLampData[wc] = _lampLightContainer._dataTree[i].data;
+                chLampData[wc] = dataTree[i].data;
             }
         }
     } else {
@@ -312,7 +314,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chLampData[wc] = _lampLightContainer._dataArray[c];
+                    chLampData[wc] = _lampLightContainer[c];
                 }
             }
         }
@@ -320,14 +322,15 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     if (_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //sunlight data
         c = 0;
-        for (int i = 0; i < _sunlightContainer._dataTree.size(); i++) {
-            for (int j = 0; j < _sunlightContainer._dataTree[i].length; j++) {
-                c = _sunlightContainer._dataTree[i].getStart() + j;
+        auto& dataTree = _sunlightContainer.getTree();
+        for (int i = 0; i < dataTree.size(); i++) {
+            for (int j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
-                chSunlightData[wc] = _sunlightContainer._dataTree[i].data;
+                chSunlightData[wc] = dataTree[i].data;
             }
         }
     } else {
@@ -336,7 +339,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chSunlightData[wc] = _sunlightContainer._dataArray[c];
+                    chSunlightData[wc] = _sunlightContainer[c];
                 }
             }
         }
@@ -344,14 +347,15 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
     if (_tertiaryDataContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data
         c = 0;
-        for (int i = 0; i < _tertiaryDataContainer._dataTree.size(); i++) {
-            for (int j = 0; j < _tertiaryDataContainer._dataTree[i].length; j++) {
-                c = _tertiaryDataContainer._dataTree[i].getStart() + j;
+        auto& dataTree = _tertiaryDataContainer.getTree();
+        for (int i = 0; i < dataTree.size(); i++) {
+            for (int j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
                 wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
 
-                chTertiaryData[wc] = _tertiaryDataContainer._dataTree[i].data;
+                chTertiaryData[wc] = dataTree[i].data;
             }
         }
 
@@ -361,7 +365,7 @@ void Chunk::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chTertiaryData[wc] = _tertiaryDataContainer._dataArray[c];
+                    chTertiaryData[wc] = _tertiaryDataContainer[c];
                 }
             }
         }

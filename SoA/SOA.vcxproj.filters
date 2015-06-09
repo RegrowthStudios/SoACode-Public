@@ -170,6 +170,9 @@
     </Filter>
     <Filter Include="SOA Files\Client\Asset">
       <UniqueIdentifier>{c4cbe6c3-81db-48d5-9680-8b949bc631a6}</UniqueIdentifier>
+	</Filter>
+    <Filter Include="SOA Files\Voxel\API">
+      <UniqueIdentifier>{705cf454-4163-4629-a5a8-b8f21eceeea7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -775,6 +778,18 @@
     <ClInclude Include="TestNoiseScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkHandle.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaSection.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="TestNewBlockAPIScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Positional.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1233,6 +1248,7 @@
     <ClCompile Include="CloudsComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="SpaceSystemLoader.cpp">
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
@@ -1261,6 +1277,11 @@
       <Filter>SOA Files\Screens\Load</Filter>
 	</ClCompile>
     <ClCompile Include="TestNoiseScreen.cpp">
+	</ClCompile>
+    <ClCompile Include="MetaSection.cpp">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNewBlockAPIScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>

@@ -544,6 +544,7 @@ EXIT 0</Command>
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="ChunkHandle.h" />
     <ClInclude Include="ChunkListManager.h" />
     <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
@@ -588,6 +589,7 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="MetaSection.h" />
     <ClInclude Include="ModPathResolver.h" />
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
@@ -610,6 +612,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetGenerator.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
+    <ClInclude Include="Positional.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="ShaderAssetLoader.h" />
     <ClInclude Include="ShaderLoader.h" />
@@ -649,6 +652,7 @@ EXIT 0</Command>
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TestNoiseScreen.h" />
+    <ClInclude Include="TestNewBlockAPIScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -786,6 +790,7 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="MetaSection.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
@@ -842,6 +847,7 @@ EXIT 0</Command>
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TestNoiseScreen.cpp" />
+    <ClCompile Include="TestNewBlockAPIScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

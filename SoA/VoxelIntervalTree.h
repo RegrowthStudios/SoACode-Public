@@ -122,13 +122,13 @@ public:
         _root = arrayToRedBlackTree(0, size - 1, -1, true);
     }
 
-    T getData(ui16 index) const;
+    const T& getData(size_t index) const;
     //Get the enclosing interval for a given point
-    i16 getInterval(ui16 index) const;
+    i16 getInterval(size_t index) const;
     //Begin the tree
-    Node* insertFirst(T data, ui16 length);
+    Node* insertFirst(T data, size_t length);
 
-    Node* insert(ui16 index, T data);
+    Node* insert(size_t index, T data);
 
     void uncompressTraversal(int index, int& bufferIndex, T* buffer);
     void uncompressIntoBuffer(T* buffer);

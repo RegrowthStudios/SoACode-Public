@@ -10,13 +10,13 @@ inline void VoxelIntervalTree<typename T>::clear() {
 }
 
 template <typename T>
-inline T VoxelIntervalTree<typename T>::getData(ui16 index) const {
+inline const T& VoxelIntervalTree<typename T>::getData(size_t index) const {
     return _tree[getInterval(index)].data;
 }
 
 //Get the enclosing interval for a given point
 template <typename T>
-i16 VoxelIntervalTree<typename T>::getInterval(ui16 index) const {
+i16 VoxelIntervalTree<typename T>::getInterval(size_t index) const {
     i32 interval = _root;
     while (true) {
         
@@ -284,7 +284,7 @@ inline void VoxelIntervalTree<typename T>::rotateLeft(int index) {
     }
 }
 template <typename T>
-inline typename VoxelIntervalTree<typename T>::Node* VoxelIntervalTree<typename T>::insertFirst(T data, ui16 length) {
+inline typename VoxelIntervalTree<typename T>::Node* VoxelIntervalTree<typename T>::insertFirst(T data, size_t length) {
     _root = 0;
     _tree.emplace_back(data, 0, length);
     _tree[0].paintBlack();
@@ -311,7 +311,7 @@ void VoxelIntervalTree<typename T>::uncompressIntoBuffer(T* buffer) {
 }
 
 template <typename T>
-typename VoxelIntervalTree<typename T>::Node* VoxelIntervalTree<typename T>::insert(ui16 index, T data) {
+typename VoxelIntervalTree<typename T>::Node* VoxelIntervalTree<typename T>::insert(size_t index, T data) {
 
     int nodeIndex;
     if (!treeInsert(index, data, nodeIndex)) {
