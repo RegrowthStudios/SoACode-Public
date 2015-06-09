@@ -40,8 +40,6 @@ public:
     /// @return true on success, false on failure
     static bool load(const vio::IOManager* iom, const cString filePath, BlockPack* pack);
 
-    static bool loadTextures()
-
     /// Saves blocks to a .yml file
     /// @param filePath: The .yml file path
     /// @param pack: Source of block data

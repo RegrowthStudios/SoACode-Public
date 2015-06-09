@@ -594,6 +594,7 @@ EXIT 0</Command>
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
+    <ClInclude Include="NChunk.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="NoiseShaderGenerator.h" />
@@ -610,6 +611,7 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsComponentUpdater.h" />
     <ClInclude Include="PlanetData.h" />
     <ClInclude Include="PlanetGenerator.h" />
+    <ClInclude Include="PlanetHeightData.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
     <ClInclude Include="Positional.h" />
@@ -794,6 +796,7 @@ EXIT 0</Command>
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
+    <ClCompile Include="NChunk.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
