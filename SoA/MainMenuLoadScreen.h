@@ -44,7 +44,6 @@ private:
     MainMenuScreen* m_mainMenuScreen = nullptr;
 
     // Visualization Of Loading Tasks
-    std::vector<LoadBar> m_loadBars;
     vg::SpriteBatch* m_sb = nullptr;
     vg::SpriteFont* m_sf = nullptr;
 

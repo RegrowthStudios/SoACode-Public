@@ -145,9 +145,6 @@ void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime) {
     delete m_sb;
     m_sb = nullptr;
 
-    // Free the vector memory
-    std::vector<LoadBar>().swap(m_loadBars);
-
     for (ui32 i = 0; i < m_loadTasks.size(); i++) {
         // Free memory
         delete m_loadTasks[i];
@@ -173,23 +170,9 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
         m_isOnVorb = false;
     }
 
-    for (ui32 i = 0; i < m_loadTasks.size(); i++) {
-        if (m_loadTasks[i] != nullptr && m_loadTasks[i]->isFinished()) {
-            // Make The Task Visuals Disappear
-            m_loadBars[i].setColor(color::Black, color::Teal);
-            m_loadBars[i].retract();
-        }
-
-        // Update Visual Position
-        m_loadBars[i].update((f32)gameTime.elapsed);
-    }
-
     // Perform OpenGL calls
-    PreciseTimer timer;
     m_commonState->loadContext.processRequests(1);
-    printf("%lf\n", timer.stop());
-    // char a;
-    // std::cin >> a;
+
     // End condition
     if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || (!m_isOnVorb && m_timer > m_regrowthScreenDuration))) {
         m_commonState->loadContext.end();
@@ -255,16 +238,29 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_sb->render(windowSize, &vg::SamplerState::LINEAR_CLAMP);
 
-    // Draw loading stuff
+    // Draw progress
+    f32 progress = m_commonState->loadContext.getPercentComplete();
+    static f32 maxw = 48.0f;
+    static f32 alpha = 1.0f;
+    if (alpha > 0.0f) {
+        const f32 border = 2.0f;
+        const f32v2 pos(w.getWidth() - maxw * 2.0f, w.getHeight() - maxw * 2.0f);
 
-    /*  m_sb->begin();
-      for (ui32 i = 0; i < m_loadTasks.size(); i++) {
-      m_loadBars[i].draw(m_sb, m_sf, 0, 0.8f);
-      }
-
-      m_sb->end(vg::SpriteSortMode::BACK_TO_FRONT);
-
-      m_sb->render(f32v2(w->getWidth(), w->getHeight()), &vg::SamplerState::LINEAR_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);*/
+        if (progress >= 1.0f) {
+            alpha -= 0.02f;
+            if (alpha < 0.0f) alpha = 0.0f;
+        }
+        f32 width = alpha * maxw;
+        m_sb->begin();
+        f32v2 size = f32v2(width - border * 2.0f);
+        m_sb->draw(0, pos - size / 2.0f, size, color::Transparent, 0.1f);
+        size = f32v2(width);
+        m_sb->draw(0, pos - size / 2.0f, size, color4(169u, 169u, 169u, (ui8)(alpha * 255.0f)), 0.1f);
+        size = f32v2(progress * width);
+        m_sb->draw(0, pos - size / 2.0f, size, color4(16u, 190u, 239u, ui8(alpha * 255.0f)));
+        m_sb->end(vg::SpriteSortMode::NONE);
+        m_sb->render(f32v2(w.getWidth(), w.getHeight()), nullptr, &vg::DepthState::FULL);
+    }
     checkGlError("LoadScreen::draw()");
     
 }
@@ -273,19 +269,6 @@ void MainMenuLoadScreen::addLoadTask(const nString& name, const cString loadText
     // Add the load task to the monitor
     m_loadTasks.push_back(task);
     m_monitor.addTask(name, m_loadTasks.back());
-
-    // Load bar properties
-    LoadBarCommonProperties lbcp(f32v2(500, 0), f32v2(500, 60), 800.0f, f32v2(10, 10), 40.0f);
-    // Add the new loadbar and get its index
-    int i = m_loadBars.size();
-    m_loadBars.emplace_back();
-
-    // Set the properties
-    m_loadBars[i].setCommonProperties(lbcp);
-    m_loadBars[i].setStartPosition(f32v2(-lbcp.offsetLength, 30 + i * lbcp.size.y));
-    m_loadBars[i].expand();
-    m_loadBars[i].setColor(color::Black, color::Maroon);
-    m_loadBars[i].setText(loadText);
 }
 
 void MainMenuLoadScreen::onKeyPress(Sender, const vui::KeyEvent& e) {

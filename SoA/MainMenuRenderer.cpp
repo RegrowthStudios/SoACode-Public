@@ -31,7 +31,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
 
     m_mainMenuUI = &m_mainMenuScreen->m_ui;
     // Add anticipated work
-    context.addAnticipatedWork(20, 3);
+    context.addAnticipatedWork(3, 3);
 
     // Init render stages
     m_commonState->stages.skybox.init(window, context);
@@ -73,16 +73,21 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
                 glEnable(GL_MULTISAMPLE);
             } else {
                 glDisable(GL_MULTISAMPLE);
-            } 
+            }
+            context.addWorkCompleted(1);
         }, false);
 
         // Create the swap chain for post process effects (HDR-capable)
         context.addTask([&](Sender, void*) { 
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
+            context.addWorkCompleted(1);
         }, false);
 
         // Create full-screen quad
-        context.addTask([&](Sender, void*) { m_commonState->quad.init(); }, false);
+        context.addTask([&](Sender, void*) {
+            m_commonState->quad.init();
+            context.addWorkCompleted(1);
+        }, false);
 
         // Load all the stages
         m_commonState->stages.skybox.load(context);
