@@ -796,6 +796,9 @@
     <ClInclude Include="PlanetHeightData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
+    <ClInclude Include="NChunkGrid.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1290,6 +1293,9 @@
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
     <ClCompile Include="NChunk.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="NChunkGrid.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
   </ItemGroup>

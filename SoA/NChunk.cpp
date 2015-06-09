@@ -2,7 +2,7 @@
 #include "NChunk.h"
 
 void NChunk::init(const ChunkPosition3D& pos) {
-
+    memset(neighbors, 0, sizeof(neighbors));
 }
 
 void NChunk::set(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,

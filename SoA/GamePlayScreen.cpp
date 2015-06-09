@@ -112,25 +112,12 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 /// This update function runs on the render thread
 void GameplayScreen::update(const vui::GameTime& gameTime) {
 
-    globalRenderAccumulationTimer.start("Space System");
-
-    // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
-    if (m_app->getFps()) {
-        //glSpeedFactor = 60.0f / m_app->getFps();
-        //if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
-        //    glSpeedFactor = 3.0f;
-        //}
-    }
     m_spaceSystemUpdater->glUpdate(m_soaState);
-
-    globalRenderAccumulationTimer.start("Update Meshes");
 
     // TODO(Ben): Move to glUpdate for voxel component
     // TODO(Ben): Don't hardcode for a single player
     auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
     m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, false);
-
-    globalRenderAccumulationTimer.start("Process Messages");
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();

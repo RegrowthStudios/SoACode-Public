@@ -21,7 +21,6 @@ typedef void* MetaData;
 /*! @brief A description of a field in the metadata
  */
 struct MetaFieldInformation {
-public:
     MetaID id; ///< The unique ID of the field
     
     UNIT_SPACE(BYTES) size_t offset; ///< The offset of the value in the section

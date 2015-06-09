@@ -595,6 +595,7 @@ EXIT 0</Command>
     <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="NChunk.h" />
+    <ClInclude Include="NChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="NoiseShaderGenerator.h" />
@@ -797,6 +798,7 @@ EXIT 0</Command>
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="NChunk.cpp" />
+    <ClCompile Include="NChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
