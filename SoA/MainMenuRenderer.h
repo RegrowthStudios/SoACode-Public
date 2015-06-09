@@ -49,8 +49,6 @@ public:
 
     void dispose(LoadContext& context);
 
-    void updateGL();
-
     /// Renders the pipeline
     void render();
 

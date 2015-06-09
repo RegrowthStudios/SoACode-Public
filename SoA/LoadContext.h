@@ -60,7 +60,7 @@ public:
 #endif
         vcore::GLRPC& rpc = m_glRPCs[m_freeTask++];
         rpc.set(f);
-        m_rpcManager.invoke(&rpc, blockUntilFinished)
+        m_rpcManager.invoke(&rpc, blockUntilFinished);
     }
 
     f32 getPercentComplete() const {

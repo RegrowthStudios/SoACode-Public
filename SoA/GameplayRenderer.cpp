@@ -109,15 +109,15 @@ void GameplayRenderer::load(LoadContext& context) {
         so[i - 1].block();
 
         // Load all the stages
-        stages.opaqueVoxel.load(context, m_glrpc);
-        stages.cutoutVoxel.load(context, m_glrpc);
-        stages.chunkGrid.load(context, m_glrpc);
-        stages.transparentVoxel.load(context, m_glrpc);
-        stages.liquidVoxel.load(context, m_glrpc);
-        stages.devHud.load(context, m_glrpc);
-        stages.pda.load(context, m_glrpc);
-        stages.pauseMenu.load(context, m_glrpc);
-        stages.nightVision.load(context, m_glrpc);
+        stages.opaqueVoxel.load(context);
+        stages.cutoutVoxel.load(context);
+        stages.chunkGrid.load(context);
+        stages.transparentVoxel.load(context);
+        stages.liquidVoxel.load(context);
+        stages.devHud.load(context);
+        stages.pda.load(context);
+        stages.pauseMenu.load(context);
+        stages.nightVision.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();

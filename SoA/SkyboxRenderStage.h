@@ -25,10 +25,11 @@ class ModPathResolver;
 class SkyboxRenderStage : public IRenderStage
 {
 public:
+    void init(vui::GameWindow* window, LoadContext& context) override;
 
     void hook(SoaState* state);
 
-    void load(LoadContext& context, vcore::RPCManager& glRPCM) override;
+    void load(LoadContext& context) override;
 
     // Draws the render stage
     virtual void render(const Camera* camera) override;

@@ -8,23 +8,31 @@
 
 #include "Camera.h"
 #include "Errors.h"
+#include "LoadContext.h"
 #include "ModPathResolver.h"
 #include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
 #include "SoAState.h"
+
+const ui32 TOTAL_WORK = 4u;
+
+void SkyboxRenderStage::init(vui::GameWindow* window, LoadContext& context) {
+    IRenderStage::init(window, context);
+    context.addAnticipatedWork(TOTAL_WORK, 1);
+}
 
 void SkyboxRenderStage::hook(SoaState* state) {
     m_textureResolver = &state->texturePathResolver;
 }
 
 void SkyboxRenderStage::load(LoadContext& context) {
-    m_rpc.set([&](Sender, void*) {
+    context.addTask([&](Sender, void*) {
         if (m_skyboxTextureArray == 0) {
             loadSkyboxTexture();
         }
         m_skyboxRenderer.initGL();
-    });
-    glRPCM.invoke(&m_rpc, false);
+        context.addWorkCompleted(TOTAL_WORK);
+    }, false);
 }
 
 void SkyboxRenderStage::render(const Camera* camera) {

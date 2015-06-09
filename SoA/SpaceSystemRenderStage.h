@@ -47,7 +47,7 @@ public:
 
     void hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera = nullptr);
 
-    void load(LoadContext& context, vcore::RPCManager& glRPCM) override;
+    void load(LoadContext& context) override;
 
     void dispose(LoadContext& context) override;
 

@@ -106,11 +106,6 @@ void MainMenuRenderer::hook() {
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
 }
 
-void MainMenuRenderer::updateGL() {
-    // TODO(Ben): Experiment with more requests
-    m_glrpc.processRequests(1);
-}
-
 void MainMenuRenderer::render() {
     
     // Check for window resize
