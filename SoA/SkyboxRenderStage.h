@@ -34,10 +34,10 @@ public:
     // Draws the render stage
     virtual void render(const Camera* camera) override;
 private:
-    void loadSkyboxTexture();
     void drawSpace(glm::mat4 &VP);
     // Update projection matrix
     void updateProjectionMatrix(const Camera* camera);
+    void loadTexture(const char* relPath, int index);
 
     SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
     vg::GLProgram* m_program = nullptr; ///< Program used for rendering
@@ -49,6 +49,7 @@ private:
     VGTexture m_skyboxTextureArray = 0; ///< Texture array for skybox
     const ModPathResolver* m_textureResolver = nullptr;
     vcore::GLRPC m_rpc;
+    ui32 m_resolution;
 
     // For parallel loading
 

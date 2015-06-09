@@ -35,7 +35,6 @@ m_mainMenuScreen(mainMenuScreen) {
     // Empty
 }
 
-
 i32 MainMenuLoadScreen::getNextScreen() const {
     return m_app->scrMainMenu->getIndex();
 }
