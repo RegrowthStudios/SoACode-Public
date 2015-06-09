@@ -30,6 +30,8 @@ void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
     m_viewport = f32v4(0, 0, m_window->getWidth(), m_window->getHeight());
 
     m_mainMenuUI = &m_mainMenuScreen->m_ui;
+    // Add anticipated work
+    context.addAnticipatedWork(20, 3);
 
     // Init render stages
     m_commonState->stages.skybox.init(window, context);
@@ -63,39 +65,33 @@ void MainMenuRenderer::load(LoadContext& context) {
         vcore::GLRPC so[4];
         size_t i = 0;
 
-        // Create the HDR target     
-        so[i].set([&](Sender, void*) {
+        // Create the HDR target  
+        context.addTask([&](Sender, void*) {
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
             m_hdrTarget.init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
             } else {
                 glDisable(GL_MULTISAMPLE);
-            }
-        });
-        m_glrpc.invoke(&so[i++], false);
+            } 
+        }, false);
 
         // Create the swap chain for post process effects (HDR-capable)
-        so[i].set([&](Sender, void*) {
+        context.addTask([&](Sender, void*) { 
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
-        });
-        m_glrpc.invoke(&so[i++], false);
+        }, false);
 
         // Create full-screen quad
-        so[i].set([&](Sender, void*) {
-            m_commonState->quad.init();
-        });
-        m_glrpc.invoke(&so[i++], false);
-
-        // Wait for the last command to complete
-        so[i - 1].block();
+        context.addTask([&](Sender, void*) { m_commonState->quad.init(); }, false);
 
         // Load all the stages
-        m_commonState->stages.skybox.load(context, m_glrpc);
-        m_commonState->stages.spaceSystem.load(context, m_glrpc);
-        m_commonState->stages.hdr.load(context, m_glrpc);
-        stages.colorFilter.load(context, m_glrpc);
-        stages.exposureCalc.load(context, m_glrpc);
+        m_commonState->stages.skybox.load(context);
+        m_commonState->stages.spaceSystem.load(context);
+        m_commonState->stages.hdr.load(context);
+        stages.colorFilter.load(context);
+        stages.exposureCalc.load(context);
+
+        context.blockUntilFinished();
 
         m_isLoaded = true;
     });

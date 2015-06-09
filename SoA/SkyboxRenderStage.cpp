@@ -17,7 +17,7 @@ void SkyboxRenderStage::hook(SoaState* state) {
     m_textureResolver = &state->texturePathResolver;
 }
 
-void SkyboxRenderStage::load(LoadContext& context, vcore::RPCManager& glRPCM) {
+void SkyboxRenderStage::load(LoadContext& context) {
     m_rpc.set([&](Sender, void*) {
         if (m_skyboxTextureArray == 0) {
             loadSkyboxTexture();

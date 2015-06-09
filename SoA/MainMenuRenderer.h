@@ -78,7 +78,6 @@ private:
     vui::GameWindow* m_window;
     CommonState* m_commonState = nullptr;
     SoaState* m_state = nullptr;
-    vcore::RPCManager m_glrpc;
     MainMenuScreen* m_mainMenuScreen = nullptr;
 
     vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering

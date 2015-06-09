@@ -33,7 +33,7 @@ const f64q FACE_ORIENTATIONS[6] = {
 
 void SpaceSystemRenderStage::init(vui::GameWindow* window, LoadContext& context) {
     IRenderStage::init(window, context);
-    // TODO(Ben): Set work
+    context.addAnticipatedWork(100, 9);
 }
 
 void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera /*= nullptr*/) {
@@ -48,18 +48,15 @@ void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, co
 }
 
 void SpaceSystemRenderStage::load(LoadContext& context, vcore::RPCManager& glRPCM) {
-    m_rpc.set([&](Sender, void*) {
-        m_lensFlareRenderer.initGL();
-        m_starRenderer.initGL();
-        m_systemARRenderer.initGL();
-        m_sphericalTerrainComponentRenderer.initGL();
-        m_gasGiantComponentRenderer.initGL();
-        m_cloudsComponentRenderer.initGL();
-        m_atmosphereComponentRenderer.initGL();
-        m_ringsRenderer.initGL();
-        m_farTerrainComponentRenderer.initGL();
-    });
-    glRPCM.invoke(&m_rpc, false);
+    context.addTask([&](Sender, void*) { m_lensFlareRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_starRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_systemARRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_sphericalTerrainComponentRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_gasGiantComponentRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_cloudsComponentRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_atmosphereComponentRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_ringsRenderer.initGL(); }, false);
+    context.addTask([&](Sender, void*) { m_farTerrainComponentRenderer.initGL(); }, false);
 }
 
 void SpaceSystemRenderStage::dispose(LoadContext& context) {

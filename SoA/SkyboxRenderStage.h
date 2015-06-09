@@ -25,6 +25,7 @@ class ModPathResolver;
 class SkyboxRenderStage : public IRenderStage
 {
 public:
+
     void hook(SoaState* state);
 
     void load(LoadContext& context, vcore::RPCManager& glRPCM) override;

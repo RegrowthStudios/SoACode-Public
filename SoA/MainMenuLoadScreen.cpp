@@ -127,6 +127,7 @@ void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_mainMenuScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_mainMenuScreen, m_commonState);
     m_mainMenuScreen->m_renderer.hook();
+    m_commonState->loadContext.begin();
     m_mainMenuScreen->m_renderer.load(m_commonState->loadContext);
 
     // Start the tasks
@@ -186,10 +187,11 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
 
     // Perform OpenGL calls
     m_glrpc.processRequests(1);
-    m_mainMenuScreen->m_renderer.updateGL();
+    m_commonState->loadContext.processRequests(1);
 
     // End condition
     if (m_mainMenuScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("SpaceSystem") && (m_isSkipDetected || (!m_isOnVorb && m_timer > m_regrowthScreenDuration))) {
+        m_commonState->loadContext.end();
         m_state = vui::ScreenState::CHANGE_NEXT;
     }
 }
