@@ -15,7 +15,6 @@ public:
     bool slots[BLOCK_TEXTURE_ATLAS_SIZE];
 };
 
-
 TextureAtlasStitcher::TextureAtlasStitcher() :
     _bytesPerPage(0),
     _oldestFreeSlot(1),

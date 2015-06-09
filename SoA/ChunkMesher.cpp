@@ -198,15 +198,15 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[ZPOS]){ //0 1 2 3
         //Get the color of the block
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pzTexInfo);
+        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[2]);
         
         //We will offset the texture index based on the texture method
-        textureIndex = block.pzTexInfo.base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
-        overlayTextureIndex = block.pzTexInfo.overlay.getBlockTextureIndex(mi.pzOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[2].base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
+        overlayTextureIndex = block.textures[2].overlay.getBlockTextureIndex(mi.pzOverlayMethodParams, overlayColor);
 
-        if (block.pzTexInfo.base.transparency) {
+        if (block.textures[2].base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pzTexInfo);
+            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[2]);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2 + 2));
@@ -217,7 +217,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             calculateFaceLight(&_frontVerts[mi.frontIndex], wc, PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 1, ambientOcclusion);
 
             //Set up most of the vertex data for a face
-            VoxelMesher::makeCubeFace(_frontVerts, CUBE_FACE_0_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pzTexInfo);
+            VoxelMesher::makeCubeFace(_frontVerts, CUBE_FACE_0_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[2]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeFront && mi.pbtype == btype &&
@@ -241,16 +241,16 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[ZNEG]) {
         //Get the color of the block
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nzTexInfo);
+        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[5]);
        
         //We will offset the texture index based on the texture method
 
-        textureIndex = block.nzTexInfo.base.getBlockTextureIndex(mi.nzBaseMethodParams, color);
-        overlayTextureIndex = block.nzTexInfo.overlay.getBlockTextureIndex(mi.nzOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[5].base.getBlockTextureIndex(mi.nzBaseMethodParams, color);
+        overlayTextureIndex = block.textures[5].overlay.getBlockTextureIndex(mi.nzOverlayMethodParams, overlayColor);
 
-        if (block.nzTexInfo.base.transparency) {
+        if (block.textures[5].base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nzTexInfo);
+            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[5]);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
@@ -259,7 +259,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             calculateFaceLight(&_backVerts[mi.backIndex], wc, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, -1, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_backVerts, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nzTexInfo);
+            VoxelMesher::makeCubeFace(_backVerts, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[5]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBack && mi.pbtype == btype &&
@@ -281,15 +281,15 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[YPOS]){ //0 5 6 1                        
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pyTexInfo);
+        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[1]);
 
         //We will offset the texture index based on the texture method
-        textureIndex = block.pyTexInfo.base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
-        overlayTextureIndex = block.pyTexInfo.overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[1].base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
+        overlayTextureIndex = block.textures[1].overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
 
-        if (block.pyTexInfo.base.transparency) {
+        if (block.textures[1].base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pyTexInfo);
+            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[1]);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 2, mi.z2 + 1));
@@ -298,7 +298,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         } else {
             calculateFaceLight(&_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pyTexInfo);
+            VoxelMesher::makeCubeFace(_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[1]);
             
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeUp && mi.pbtype == btype &&
@@ -320,15 +320,15 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[YNEG]) {
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nyTexInfo);
+        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[4]);
        
         //We will offset the texture index based on the texture method
-        textureIndex = block.nyTexInfo.base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
-        overlayTextureIndex = block.nyTexInfo.overlay.getBlockTextureIndex(mi.nyOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[4].base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
+        overlayTextureIndex = block.textures[4].overlay.getBlockTextureIndex(mi.nyOverlayMethodParams, overlayColor);
 
-        if (block.nyTexInfo.base.transparency) {
+        if (block.textures[4].base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nyTexInfo);
+            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[4]);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2, mi.z2 + 1));
@@ -337,7 +337,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
         } else {
             calculateFaceLight(&_bottomVerts[mi.botIndex], wc, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, -1, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_bottomVerts, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nyTexInfo);
+            VoxelMesher::makeCubeFace(_bottomVerts, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[4]);
 
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeBot && mi.pbtype == btype &&
@@ -358,38 +358,38 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[XPOS]) {
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.pxTexInfo);
+        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[0]);
       
         //We will offset the texture index based on the texture method
-        textureIndex = block.pxTexInfo.base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
-        overlayTextureIndex = block.pxTexInfo.overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[0].base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
+        overlayTextureIndex = block.textures[0].overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
 
 
-        if (block.pxTexInfo.base.transparency) {  
+        if (block.textures[0].base.transparency) {  
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
             calculateFaceLight(&_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.pxTexInfo);
+            VoxelMesher::makeCubeFace(_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[0]);
 
             mi.rightIndex += 4;
         }
     }
 
     if (faces[XNEG]) {
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.nxTexInfo);
+        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[3]);
 
         //We will offset the texture index based on the texture method
-        textureIndex = block.nxTexInfo.base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
-        overlayTextureIndex = block.nxTexInfo.overlay.getBlockTextureIndex(mi.nxOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[3].base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
+        overlayTextureIndex = block.textures[3].overlay.getBlockTextureIndex(mi.nxOverlayMethodParams, overlayColor);
 
-        if (block.nxTexInfo.base.transparency) {
+        if (block.textures[3].base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
-            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.nxTexInfo);
+            VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[3]);
             mi.transparentIndex += 4;
 
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
@@ -397,7 +397,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
            
             calculateFaceLight(&_leftVerts[mi.leftIndex], wc, -1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.nxTexInfo);
+            VoxelMesher::makeCubeFace(_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[3]);
 
             mi.leftIndex += 4;
         }
@@ -430,11 +430,11 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
     lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
-    Blocks[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.pxTexInfo);
+    Blocks[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.textures[0]);
 
     //We will offset the texture index based on the texture method
-    i32 textureIndex = block.pxTexInfo.base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
-    i32 overlayTextureIndex = block.pxTexInfo.overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
+    i32 textureIndex = block.textures[0].base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
+    i32 overlayTextureIndex = block.textures[0].overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
 
     int r;
 
@@ -447,9 +447,9 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             r = std::bind(std::uniform_int_distribution<int>(0, 1), std::mt19937(getPositionSeed(mi.nx, mi.nz)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 8);
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.cutoutIndex += 4;
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.cutoutIndex += 4;
             break;
         case MeshType::FLORA:
@@ -457,11 +457,11 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             r = std::bind(std::uniform_int_distribution<int>(0, 3), std::mt19937(getPositionSeed(mi.nx, mi.nz)))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 12);
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.cutoutIndex += 4;
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.cutoutIndex += 4;
-            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 24, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.pxTexInfo);
+            VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 24, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.cutoutIndex += 4;
             break;
     }
