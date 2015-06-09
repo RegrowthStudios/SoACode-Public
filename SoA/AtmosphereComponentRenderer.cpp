@@ -13,15 +13,16 @@
 
 #define ICOSPHERE_SUBDIVISIONS 5
 
-AtmosphereComponentRenderer::AtmosphereComponentRenderer() {
-    // Empty
+AtmosphereComponentRenderer::~AtmosphereComponentRenderer() {
+    dispose();
 }
 
-AtmosphereComponentRenderer::~AtmosphereComponentRenderer() {
-    disposeShader();
-    if (m_icoVbo) vg::GpuMemory::freeBuffer(m_icoVbo);
-    if (m_icoIbo) vg::GpuMemory::freeBuffer(m_icoIbo);
-    if (m_vao) glDeleteVertexArrays(1, &m_vao);
+void AtmosphereComponentRenderer::initGL() {
+    if (!m_program.isCreated()) {
+        m_program = ShaderLoader::createProgramFromFile("Shaders/AtmosphereShading/Sky.vert",
+                                                        "Shaders/AtmosphereShading/Sky.frag");
+    }
+    if (!m_icoVbo) buildMesh();
 }
 
 void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
@@ -30,13 +31,6 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
                                        const f32v3& lightDir,
                                        const f32 zCoef,
                                        const SpaceLightComponent* spComponent) {
-    // Lazily construct buffer and shaders
-    if (!m_program.isCreated()) {
-        m_program = ShaderLoader::createProgramFromFile("Shaders/AtmosphereShading/Sky.vert",
-                                                        "Shaders/AtmosphereShading/Sky.frag");
-    }
-    if (!m_icoVbo) buildMesh();
-
     m_program.use();
 
     // Set up matrix
@@ -86,8 +80,11 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     m_program.unuse(); 
 }
 
-void AtmosphereComponentRenderer::disposeShader() {
+void AtmosphereComponentRenderer::dispose() {
     if (m_program.isCreated()) m_program.dispose();
+    if (m_icoVbo) vg::GpuMemory::freeBuffer(m_icoVbo);
+    if (m_icoIbo) vg::GpuMemory::freeBuffer(m_icoIbo);
+    if (m_vao) glDeleteVertexArrays(1, &m_vao);
 }
 
 void AtmosphereComponentRenderer::buildMesh() {

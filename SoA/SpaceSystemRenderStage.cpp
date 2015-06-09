@@ -31,6 +31,11 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
+void SpaceSystemRenderStage::init(vui::GameWindow* window, LoadContext& context) {
+    IRenderStage::init(window, context);
+    // TODO(Ben): Set work
+}
+
 void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera /*= nullptr*/) {
     m_viewport = m_window->getViewportDims();
     m_spaceSystem = state->spaceSystem.get();
@@ -40,6 +45,33 @@ void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, co
     m_systemARRenderer.init(&state->texturePathResolver);
     m_spaceCamera = spaceCamera;
     m_farTerrainCamera = farTerrainCamera;
+}
+
+void SpaceSystemRenderStage::load(LoadContext& context, vcore::RPCManager& glRPCM) {
+    m_rpc.set([&](Sender, void*) {
+        m_lensFlareRenderer.initGL();
+        m_starRenderer.initGL();
+        m_systemARRenderer.initGL();
+        m_sphericalTerrainComponentRenderer.initGL();
+        m_gasGiantComponentRenderer.initGL();
+        m_cloudsComponentRenderer.initGL();
+        m_atmosphereComponentRenderer.initGL();
+        m_ringsRenderer.initGL();
+        m_farTerrainComponentRenderer.initGL();
+    });
+    glRPCM.invoke(&m_rpc, false);
+}
+
+void SpaceSystemRenderStage::dispose(LoadContext& context) {
+    m_lensFlareRenderer.dispose();
+    m_starRenderer.dispose();
+    m_systemARRenderer.dispose();
+    m_sphericalTerrainComponentRenderer.dispose();
+    m_gasGiantComponentRenderer.dispose();
+    m_cloudsComponentRenderer.dispose();
+    m_atmosphereComponentRenderer.dispose();
+    m_ringsRenderer.dispose();
+    m_farTerrainComponentRenderer.dispose();
 }
 
 void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {

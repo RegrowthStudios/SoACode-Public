@@ -30,7 +30,7 @@ public:
     SkyboxRenderer();
     ~SkyboxRenderer();
 
-    void init();
+    void initGL();
 
     /// Draw the skybox
     void drawSkybox(const f32m4& VP, VGTexture textureArray);

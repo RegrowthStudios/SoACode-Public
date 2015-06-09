@@ -17,21 +17,13 @@
 
 #define ICOSPHERE_SUBDIVISIONS 5
 
-GasGiantComponentRenderer::GasGiantComponentRenderer() {
-    // Empty
+GasGiantComponentRenderer::~GasGiantComponentRenderer() {
+    dispose();
 }
 
-GasGiantComponentRenderer::~GasGiantComponentRenderer() {
-    disposeShader();
-    if (m_vbo) {
-        vg::GpuMemory::freeBuffer(m_vbo);
-    }
-    if (m_ibo) {
-        vg::GpuMemory::freeBuffer(m_ibo);
-    }
-    if (m_vao) {
-        glDeleteVertexArrays(1, &m_vao);
-    }
+void GasGiantComponentRenderer::initGL() {
+    if (!m_program.isCreated()) buildShader();
+    if (!m_vbo) buildMesh();
 }
 
 void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
@@ -42,10 +34,6 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
                                      const float zCoef,
                                      const SpaceLightComponent* spCmp,
                                      const AtmosphereComponent* aCmp) {
-    // Lazily construct buffer and shaders
-    if (!m_program.isCreated()) buildShader();
-    if (!m_vbo) buildMesh();
-
     m_program.use();
     // For logarithmic Z buffer
     glUniform1f(m_program.getUniform("unZCoef"), zCoef);
@@ -111,14 +99,15 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     m_program.unuse();
 }
 
-void GasGiantComponentRenderer::disposeShader() {
+void GasGiantComponentRenderer::dispose() {
     if (m_program.isCreated()) m_program.dispose();
-    // Dispose buffers too for proper reload
     if (m_vbo) {
         vg::GpuMemory::freeBuffer(m_vbo);
+        m_vbo = 0;
     }
     if (m_ibo) {
         vg::GpuMemory::freeBuffer(m_ibo);
+        m_ibo = 0;
     }
     if (m_vao) {
         glDeleteVertexArrays(1, &m_vao);

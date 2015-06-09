@@ -26,16 +26,16 @@ struct SpaceLightComponent;
 
 class AtmosphereComponentRenderer {
 public:
-    AtmosphereComponentRenderer();
     ~AtmosphereComponentRenderer();
 
+    void initGL();
     void draw(const AtmosphereComponent& aCmp,
               const f32m4& VP,
               const f32v3& relCamPos,
               const f32v3& lightDir,
               const f32 zCoef,
               const SpaceLightComponent* spComponent);
-    void disposeShader();
+    void dispose();
 private:
     void buildMesh();
 

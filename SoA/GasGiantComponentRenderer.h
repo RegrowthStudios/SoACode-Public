@@ -32,8 +32,9 @@ struct GasGiantVertex {
 
 class GasGiantComponentRenderer {
 public:
-    GasGiantComponentRenderer();
     ~GasGiantComponentRenderer();
+
+    void initGL();
 
     void draw(const GasGiantComponent& ggCmp,
               const f32m4& VP,
@@ -43,7 +44,7 @@ public:
               const float zCoef,
               const SpaceLightComponent* spCmp,
               const AtmosphereComponent* aCmp);
-    void disposeShader();
+    void dispose();
 private:
     void buildShader();
     void buildMesh();

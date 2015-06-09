@@ -13,7 +13,13 @@
 #include <Vorb/utils.h>
 
 FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
-    disposeShaders();
+    dispose();
+}
+
+void FarTerrainComponentRenderer::initGL() {
+    if (!m_farTerrainProgram.isCreated()) {
+        buildShaders();
+    }
 }
 
 void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
@@ -28,10 +34,6 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     pos.pos = camera->getPosition();
     pos.face = cmp.face;
 
-    // Lazy shader init
-    if (!m_farTerrainProgram.isCreated()) {
-        buildShaders();
-    }
     f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
 
     // Calculate relative light position
@@ -53,7 +55,7 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     }
 }
 
-void FarTerrainComponentRenderer::disposeShaders() {
+void FarTerrainComponentRenderer::dispose() {
     if (m_farTerrainProgram.isCreated()) m_farTerrainProgram.dispose();
     if (m_farWaterProgram.isCreated()) m_farWaterProgram.dispose();
 }

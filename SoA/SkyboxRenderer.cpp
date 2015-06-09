@@ -67,7 +67,7 @@ SkyboxRenderer::~SkyboxRenderer() {
     destroy();
 }
 
-void SkyboxRenderer::init() {
+void SkyboxRenderer::initGL() {
     initShader();
     initBuffers();
 }

@@ -17,6 +17,7 @@
 
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/AssetLoader.h>
 
 #include "CloudsComponentRenderer.h"
 #include "AtmosphereComponentRenderer.h"
@@ -42,7 +43,13 @@ struct MTRenderState;
 
 class SpaceSystemRenderStage : public IRenderStage {
 public:
+    void init(vui::GameWindow* window, LoadContext& context) override;
+
     void hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera = nullptr);
+
+    void load(LoadContext& context, vcore::RPCManager& glRPCM) override;
+
+    void dispose(LoadContext& context) override;
 
     //TODO(Ben): Pointer to window viewport instead?
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
@@ -95,6 +102,8 @@ private:
   
     std::vector<std::pair<StarComponent, f64v3> > m_starGlowsToRender;
     bool m_showAR = true;
+
+    vcore::GLRPC m_rpc;
 };
 
 #endif // SpaceSystemRenderStage_h__

@@ -22,7 +22,7 @@ void SkyboxRenderStage::load(LoadContext& context, vcore::RPCManager& glRPCM) {
         if (m_skyboxTextureArray == 0) {
             loadSkyboxTexture();
         }
-        m_skyboxRenderer.init();
+        m_skyboxRenderer.initGL();
     });
     glRPCM.invoke(&m_rpc, false);
 }
