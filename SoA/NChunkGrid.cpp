@@ -4,6 +4,10 @@
 
 #include <Vorb/utils.h>
 
+void NChunkGrid::init(WorldCubeFace face, ui32 generatorsPerRow) {
+
+}
+
 void NChunkGrid::addChunk(NChunk* chunk) {
     const ChunkPosition3D& pos = chunk->getPosition();
     // Add to lookup hashmap

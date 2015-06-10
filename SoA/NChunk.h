@@ -25,6 +25,8 @@
 class NChunk;
 typedef NChunk* NChunkPtr;
 
+enum class ChunkState { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
+
 class NChunkGridData {
 public:
     NChunkGridData(const ChunkPosition2D& pos) {
@@ -43,19 +45,26 @@ public:
 };
 
 class NChunk {
-    friend class ChunkAllocator;
+    friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
 public:
     void init(const ChunkPosition3D& pos);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
                       vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler);
 
+    /************************************************************************/
+    /* Getters                                                              */
+    /************************************************************************/
     const ChunkPosition3D& getPosition() const { return m_position; }
     bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
+    const bool& isInRange() const { return m_isInRange; }
+    const f32& getDistance2() const { return m_distance2; }
 
+    /************************************************************************/
+    /* Members                                                              */
+    /************************************************************************/
     NChunkGridData* gridData = nullptr;
-    MetaFieldInformation meta;
-    f32 distance2; //< Squared distance
+    MetaFieldInformation meta;    
     union {
         struct {
             NChunkPtr left, right, bottom, top, back, front;
@@ -71,8 +80,9 @@ private:
     vvox::SmartVoxelContainer<ui8> m_sunlight;
     vvox::SmartVoxelContainer<ui16> m_lamp;
     vvox::SmartVoxelContainer<ui16> m_tertiary;
-
-    ui32 m_activeChunksIndex = -1; ///< Used by ChunkAllocator
+    bool m_isInRange;
+    f32 m_distance2; //< Squared distance
+    ChunkState m_state;
 };
 
 #endif // NChunk_h__

@@ -30,7 +30,7 @@ class NChunkGrid {
 public:
     friend class SphericalVoxelComponentUpdater;
 
-    NChunkGrid(WorldCubeFace face) : m_face(face) {}
+    void init(WorldCubeFace face, ui32 generatorsPerRow);
 
     /// Adds a chunk to the grid
     /// @param chunk: The chunk to add
@@ -63,13 +63,11 @@ public:
         return it->second;
     }
 
-    /// Queries for a list of block IDs
-    const i16* getIDQuery(const i32v3& start, const i32v3& end) const;
-
     /// Gets the world cube face for this grid
     WorldCubeFace getFace() const { return m_face; }
 
 private:
+    std::vector<ChunkGenerator> m_generators;
     std::unordered_map<i32v3, NChunk*> m_chunkMap; ///< hashmap of chunks
     std::unordered_map<i32v2, NChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
 

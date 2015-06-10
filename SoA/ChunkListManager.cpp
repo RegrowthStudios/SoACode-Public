@@ -8,7 +8,7 @@ void ChunkListManager::addToSetupList(NChunk* chunk) {
 }
 
 void ChunkListManager::addToLoadList(NChunk* chunk) {
-    chunk->_state = ChunkStates::LOAD;
+    chunk->m_state = ChunkStates::LOAD;
     chunk->addToChunkList(&loadList);
 }
 
@@ -20,7 +20,7 @@ void ChunkListManager::addToMeshList(NChunk* chunk) {
 }
 
 void ChunkListManager::addToGenerateList(NChunk* chunk) {
-    chunk->_state = ChunkStates::GENERATE;
+    chunk->m_state = ChunkStates::GENERATE;
     chunk->addToChunkList(&generateList);
 }
 
@@ -30,11 +30,11 @@ void ChunkListManager::addToFreeWaitList(NChunk* chunk) {
 }
 
 bool sortChunksAscending(const NChunk* a, const NChunk* b) {
-    return a->distance2 < b->distance2;
+    return a->m_distance2 < b->m_distance2;
 }
 
 bool sortChunksDescending(const NChunk* a, const NChunk* b) {
-    return a->distance2 > b->distance2;
+    return a->m_distance2 > b->m_distance2;
 }
 
 void ChunkListManager::sortLists() {

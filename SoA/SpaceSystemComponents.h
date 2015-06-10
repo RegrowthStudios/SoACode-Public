@@ -24,12 +24,12 @@
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
+#include "NChunkGrid.h"
 
 class ChunkIOManager;
 class ChunkListManager;
 class ChunkManager;
-class ChunkAllocator;
-class NChunkGrid;
+class PagedChunkAllocator;
 class ChunkMeshManager;
 class FarTerrainPatch;
 class ParticleEngine;
@@ -145,13 +145,11 @@ struct SphericalGravityComponent {
 };
 
 struct SphericalVoxelComponent {
-    PhysicsEngine* physicsEngine = nullptr;
-    NChunkGrid* chunkGrid = nullptr;
+    NChunkGrid chunkGrid[6]; // One for each face
     ChunkListManager* chunkListManager = nullptr;
-    ChunkAllocator* chunkAllocator = nullptr;
+    PagedChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
-    ParticleEngine* particleEngine = nullptr;
     VoxelLightEngine voxelLightEngine;
 
     SphericalTerrainGpuGenerator* generator = nullptr;

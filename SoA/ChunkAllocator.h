@@ -23,25 +23,27 @@ class NChunk;
 
 class ChunkAllocator {
 public:
+    virtual NChunk* getNewChunk() = 0;
+    virtual void freeChunk(NChunk* chunk) = 0;
+};
+
+class PagedChunkAllocator : public ChunkAllocator {
+public:
     friend class SphericalVoxelComponentUpdater;
 
-    ChunkAllocator();
-    ~ChunkAllocator();
+    PagedChunkAllocator();
+    ~PagedChunkAllocator();
 
     /// Gets a new chunk ID
-    NChunk* getNewChunk();
+    NChunk* getNewChunk() override;
     /// Frees a chunk
-    void freeChunk(NChunk* chunk);
-
-    const std::vector<NChunk*>& getActiveChunks() const { return m_activeChunks; }
-private:
+    void freeChunk(NChunk* chunk) override;
+protected:
     static const size_t CHUNK_PAGE_SIZE = 2048;
     struct ChunkPage {
         NChunk chunks[CHUNK_PAGE_SIZE];
     };
 
-    // TODO(BEN): limit number of pages that can be allocated
-    std::vector<NChunk*> m_activeChunks; ///< List of currently active chunks
     std::vector<NChunk*> m_freeChunks; ///< List of inactive chunks
     std::vector<ChunkPage*> m_chunkPages; ///< All pages
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_shortFixedSizeArrayRecycler; ///< For recycling voxel data
