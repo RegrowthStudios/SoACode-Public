@@ -29,7 +29,7 @@ void SpaceSystemUpdater::update(const SoaState* soaState, const f64v3& spacePos,
     m_sphericalTerrainComponentUpdater.update(soaState, spacePos);
 
     // Update voxels
-    m_sphericalVoxelComponentUpdater.update(spaceSystem, gameSystem, soaState);
+    m_sphericalVoxelComponentUpdater.update(soaState);
 
     // Update Orbits ( Do this last)
     m_orbitComponentUpdater.update(spaceSystem, soaState->time);

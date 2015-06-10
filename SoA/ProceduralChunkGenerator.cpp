@@ -11,7 +11,6 @@ void ProceduralChunkGenerator::init(PlanetGenData* genData) {
 }
 
 void ProceduralChunkGenerator::generate(NChunk* chunk, PlanetHeightData* heightData) const {
-    PlanetHeightData* heightData;
 
     int temperature;
     int rainfall;
@@ -27,7 +26,7 @@ void ProceduralChunkGenerator::generate(NChunk* chunk, PlanetHeightData* heightD
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightDataArray;
     std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightDataArray;
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataArray;
-
+    ui16 c = 0;
     for (size_t y = 0; y < CHUNK_WIDTH; y++) {
         for (size_t z = 0; z < CHUNK_WIDTH; z++) {
             for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {

@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "SpaceSystemAssemblages.h"
 
-#include "ChunkGrid.h"
+#include "NChunkGrid.h"
 #include "ChunkIOManager.h"
 #include "ChunkListManager.h"
-#include "ChunkMemoryManager.h"
+#include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"
 #include "OrbitComponentUpdater.h"
 #include "ParticleEngine.h"
@@ -261,13 +261,10 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.voxelRadius = ftcmp.sphericalTerrainData->radius * VOXELS_PER_KM;
 
-    svcmp.physicsEngine = new PhysicsEngine();
-
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkGrid = new ChunkGrid(worldFace);
     svcmp.chunkListManager = new ChunkListManager();
-    svcmp.chunkMemoryManager = new ChunkMemoryManager();
+    svcmp.chunkAllocator = new PagedChunkAllocator();
     svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
 
     // Set up threadpool
@@ -284,8 +281,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Give some time for the threads to spin up
     SDL_Delay(100);
 
-    svcmp.particleEngine = new ParticleEngine();
-    
+    svcmp.chunkGrids = new NChunkGrid[6];
+    for (int i = 0; i < 6; i++) {
+        svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.chunkAllocator, svcmp.threadPool, 1, ftcmp.planetGenData);
+    }
+
     svcmp.planetGenData = ftcmp.planetGenData;
     svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;

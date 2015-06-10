@@ -74,7 +74,7 @@ public:
     };
     std::mutex mutex;
     volatile int refCount = 0;
-    ChunkGenLevel genLevel = ChunkGenLevel::NONE;
+    ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
 private:
     // For generation
     ChunkQuery* m_currentGenQuery = nullptr;

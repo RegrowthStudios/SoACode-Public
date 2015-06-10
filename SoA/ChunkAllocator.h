@@ -15,11 +15,11 @@
 #ifndef ChunkAllocator_h__
 #define ChunkAllocator_h__
 
+#include "NChunk.h"
 #include "Constants.h"
 #include <vector>
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
-class NChunk;
 
 class ChunkAllocator {
 public:

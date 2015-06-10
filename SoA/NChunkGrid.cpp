@@ -6,13 +6,15 @@
 #include <Vorb/utils.h>
 
 void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
-                      OPT vcore::ThreadPool<WorkerData>* threadPool, ui32 generatorsPerRow) {
+                      OPT vcore::ThreadPool<WorkerData>* threadPool,
+                      ui32 generatorsPerRow,
+                      PlanetGenData* genData) {
     m_face = face;
     m_generatorsPerRow = generatorsPerRow;
     m_numGenerators = generatorsPerRow * generatorsPerRow;
-    m_generators.resize(m_numGenerators);
-    for (auto& g : m_generators) {
-        g.init(chunkAllocator, threadPool);
+    m_generators = new ChunkGenerator[m_numGenerators]; // TODO(Ben): delete[]
+    for (ui32 i = 0; i < m_numGenerators; i++) {
+        m_generators[i].init(chunkAllocator, threadPool, genData);
     }
 }
 

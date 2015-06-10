@@ -17,11 +17,13 @@
 
 #include "VoxelCoordinateSpaces.h"
 #include "ChunkGenerator.h"
+#include "concurrentqueue.h"
+
 #include <memory>
 #include <map>
 #include <vector>
+#include <Vorb/utils.h>
 
-#include "concurrentqueue.h"
 
 class NChunk;
 class ChunkAllocator;
@@ -30,7 +32,9 @@ struct NChunkGridData;
 class NChunkGrid {
 public:
     void init(WorldCubeFace face, ChunkAllocator* chunkAllocator, 
-              OPT vcore::ThreadPool<WorkerData>* threadPool, ui32 generatorsPerRow);
+              OPT vcore::ThreadPool<WorkerData>* threadPool,
+              ui32 generatorsPerRow,
+              PlanetGenData* genData);
 
     void addChunk(NChunk* chunk);
 
@@ -56,7 +60,7 @@ private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
     ChunkAllocator* m_allocator = nullptr;
-    std::vector<ChunkGenerator> m_generators;
+    ChunkGenerator* m_generators = nullptr;
 
     std::unordered_map<i32v3, NChunk*> m_chunkMap; ///< hashmap of chunks
     std::unordered_map<i32v2, NChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data

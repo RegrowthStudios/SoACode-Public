@@ -23,7 +23,7 @@
 
 class ChunkAllocator;
 
-enum ChunkGenLevel { NONE = 0, TERRAIN, FLORA, SCRIPT, DONE };
+enum ChunkGenLevel { GEN_NONE = 0, GEN_TERRAIN, GEN_FLORA, GEN_SCRIPT, GEN_DONE };
 
 class ChunkQuery {
     friend class ChunkGenerator;

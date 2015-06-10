@@ -36,7 +36,7 @@ void ChunkGenerator::update() {
     for (size_t i = 0; i < numQueries; i++) {
         NChunk* chunk = queries[i]->getChunk();
         chunk->m_currentGenQuery = nullptr;
-        if (chunk->genLevel == DONE) {
+        if (chunk->genLevel == GEN_DONE) {
             // If the chunk is done generating, we can signal all queries as done.
             for (auto& it : chunk->m_pendingGenQueries) {
                 it->m_isFinished = true;

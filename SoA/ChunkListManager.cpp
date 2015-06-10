@@ -4,37 +4,37 @@
 #include "NChunk.h"
 
 void ChunkListManager::addToSetupList(NChunk* chunk) {
-    chunk->addToChunkList(&setupList);
+   // chunk->addToChunkList(&setupList);
 }
 
 void ChunkListManager::addToLoadList(NChunk* chunk) {
-    chunk->m_state = ChunkStates::LOAD;
-    chunk->addToChunkList(&loadList);
+   // chunk->m_state = ChunkStates::LOAD;
+  //  chunk->addToChunkList(&loadList);
 }
 
 void ChunkListManager::addToMeshList(NChunk* chunk) {
-    if (!chunk->queuedForMesh) {
-        chunk->addToChunkList(&meshList);
-        chunk->queuedForMesh = true;
-    }
+  //  if (!chunk->queuedForMesh) {
+  //      chunk->addToChunkList(&meshList);
+  //      chunk->queuedForMesh = true;
+  //  }
 }
 
 void ChunkListManager::addToGenerateList(NChunk* chunk) {
-    chunk->m_state = ChunkStates::GENERATE;
-    chunk->addToChunkList(&generateList);
+  //  chunk->m_state = ChunkStates::GENERATE;
+  //  chunk->addToChunkList(&generateList);
 }
 
 void ChunkListManager::addToFreeWaitList(NChunk* chunk) {
-    chunk->freeWaiting = true;
-    freeWaitingChunks.push_back(chunk);
+ //   chunk->freeWaiting = true;
+ //   freeWaitingChunks.push_back(chunk);
 }
 
 bool sortChunksAscending(const NChunk* a, const NChunk* b) {
-    return a->m_distance2 < b->m_distance2;
+    return a->getDistance2() < b->getDistance2();
 }
 
 bool sortChunksDescending(const NChunk* a, const NChunk* b) {
-    return a->m_distance2 > b->m_distance2;
+    return a->getDistance2() > b->getDistance2();
 }
 
 void ChunkListManager::sortLists() {

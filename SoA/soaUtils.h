@@ -15,6 +15,8 @@
 #ifndef soaUtils_h__
 #define soaUtils_h__
 
+#include "Constants.h"
+
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/types.h>
@@ -193,7 +195,7 @@ inline f32 computeZCoef(f32 zFar) {
 }
 
 /// Getting distance from a chunk
-f32 computeDistance2FromChunk(const i32v3& chunkPos, const i32v3& p) {
+inline f32 computeDistance2FromChunk(const i32v3& chunkPos, const i32v3& p) {
     f32 dx = (f32)((p.x <= chunkPos.x) ? chunkPos.x : ((p.x > chunkPos.x + CHUNK_WIDTH) ? (chunkPos.x + CHUNK_WIDTH) : p.x));
     f32 dy = (f32)((p.y <= chunkPos.y) ? chunkPos.y : ((p.y > chunkPos.y + CHUNK_WIDTH) ? (chunkPos.y + CHUNK_WIDTH) : p.y));
     f32 dz = (f32)((p.z <= chunkPos.z) ? chunkPos.z : ((p.z > chunkPos.z + CHUNK_WIDTH) ? (chunkPos.z + CHUNK_WIDTH) : p.z));

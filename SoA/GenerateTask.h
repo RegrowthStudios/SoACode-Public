@@ -21,6 +21,7 @@
 
 class NChunk;
 class ChunkGenerator;
+class ChunkQuery;
 struct PlanetHeightData;
 
 #define GENERATE_TASK_ID 1

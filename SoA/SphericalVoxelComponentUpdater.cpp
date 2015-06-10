@@ -3,7 +3,7 @@
 
 #include <SDL/SDL_timer.h> // For SDL_GetTicks
 
-#include "PagedChunkAllocator.h"
+#include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
 #include "ChunkListManager.h"
 #include "ChunkRenderer.h"
@@ -36,7 +36,7 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
         auto& playerFrustumCmp = gameSystem->frustum.getFromEntity(soaState->playerEntity);
 
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
-            if (it.second.chunkGrid) {
+            if (it.second.chunkGrids) {
                 m_cmp = &it.second;
                 updateComponent(playerPosCmp.gridPosition.pos);
             }

@@ -4,10 +4,10 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ShaderManager.h>
 
-#include "ChunkGrid.h"
+#include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
 #include "ChunkListManager.h"
-#include "ChunkMemoryManager.h"
+#include "NChunkGrid.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "PlanetData.h"
@@ -20,12 +20,10 @@ void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs:
     SphericalVoxelComponent& cmp = _components[cID].second;
     cmp.threadPool->destroy();
     delete cmp.threadPool;
-    delete cmp.physicsEngine;
     delete cmp.chunkListManager;
-    delete cmp.chunkGrid;
-    delete cmp.chunkMemoryManager;
+    delete cmp.chunkAllocator;
     delete cmp.chunkIo;
-    delete cmp.particleEngine;
+    delete[] cmp.chunkGrids;
     cmp = _components[0].second;
 }
 

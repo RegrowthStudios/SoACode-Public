@@ -9,7 +9,7 @@ void GenerateTask::execute(WorkerData* workerData) {
    // while (true) {
         chunkGenerator->m_proceduralGenerator.generate(chunk, heightData);
    // }
-    chunk->genLevel = ChunkGenLevel::DONE;
+    chunk->genLevel = ChunkGenLevel::GEN_DONE;
     query->m_isFinished = true;
     query->m_cond.notify_one();
     chunkGenerator->onQueryFinish(query);
