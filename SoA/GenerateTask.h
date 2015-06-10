@@ -20,7 +20,7 @@
 #include "VoxPool.h"
 
 class NChunk;
-class ProceduralChunkGenerator;
+class ChunkGenerator;
 struct PlanetHeightData;
 
 #define GENERATE_TASK_ID 1

@@ -85,6 +85,9 @@ NChunkGridData* NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
 }
 
 void NChunkGrid::update() {
+    // TODO(Ben): Handle generator distribution
+    m_generators[0].update();
+
 #define MAX_QUERIES 100
     ChunkQuery* queries[MAX_QUERIES];
     size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
@@ -103,8 +106,13 @@ void NChunkGrid::update() {
             }
         } else {
             q->m_chunk = m_allocator->getNewChunk();
+            ChunkPosition3D pos;
+            pos.pos = q->chunkPos;
+            pos.face = m_face;
+            q->m_chunk->init(pos);
+            addChunk(q->m_chunk);
         }
         // TODO(Ben): Handle generator distribution
-        m_generators[0].generateChunk(q);
+        m_generators[0].submitQuery(q);
     }
 }

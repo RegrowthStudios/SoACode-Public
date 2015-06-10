@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GenerateTask.h"
 
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkGenerator.h"
 
 void GenerateTask::execute(WorkerData* workerData) {
@@ -9,6 +9,7 @@ void GenerateTask::execute(WorkerData* workerData) {
    // while (true) {
         chunkGenerator->m_proceduralGenerator.generate(chunk, heightData);
    // }
+    chunk->genLevel = ChunkGenLevel::DONE;
     query->m_isFinished = true;
     query->m_cond.notify_one();
     chunkGenerator->onQueryFinish(query);
