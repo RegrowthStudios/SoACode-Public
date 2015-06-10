@@ -1310,6 +1310,9 @@
     <ClCompile Include="ChunkAllocator.cpp">
       <Filter>SOA Files\Voxel\Allocation</Filter>
     </ClCompile>
+    <ClCompile Include="ProceduralChunkGenerator.cpp">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

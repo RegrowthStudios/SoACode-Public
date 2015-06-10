@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "NChunkGrid.h"
 #include "NChunk.h"
+#include "ChunkAllocator.h"
 
 #include <Vorb/utils.h>
 
@@ -73,8 +74,37 @@ const NChunk* NChunkGrid::getChunk(const i32v3& chunkPos) const {
     return it->second;
 }
 
-NChunkGridData* NChunkGrid::getChunkGridData(const i32v2& gridPos) {
+void NChunkGrid::submitQuery(ChunkQuery* query) {
+    m_queries.enqueue(query);
+}
+
+NChunkGridData* NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
     auto it = m_chunkGridDataMap.find(gridPos);
     if (it == m_chunkGridDataMap.end()) return nullptr;
     return it->second;
+}
+
+void NChunkGrid::update() {
+#define MAX_QUERIES 100
+    ChunkQuery* queries[MAX_QUERIES];
+    size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
+    for (size_t i = 0; i < numQueries; i++) {
+        ChunkQuery* q = queries[i];
+        NChunk* chunk = getChunk(q->chunkPos);
+        if (chunk) {
+            // Check if we don't need to do any generation
+            if (chunk->genLevel <= q->genLevel) {
+                q->m_chunk = chunk;
+                q->m_isFinished = true;
+                q->m_cond.notify_one();
+                continue;
+            } else {
+                q->m_chunk = chunk;
+            }
+        } else {
+            q->m_chunk = m_allocator->getNewChunk();
+        }
+        // TODO(Ben): Handle generator distribution
+        m_generators[0].generateChunk(q);
+    }
 }

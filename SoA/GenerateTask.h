@@ -20,30 +20,33 @@
 #include "VoxPool.h"
 
 class NChunk;
-class LoadData;
+class ProceduralChunkGenerator;
+struct PlanetHeightData;
 
 #define GENERATE_TASK_ID 1
 
 // Represents A Chunk Load Task
 
 class GenerateTask : public vcore::IThreadPoolTask<WorkerData> {
-
 public:
-    GenerateTask() : vcore::IThreadPoolTask<WorkerData>(true, GENERATE_TASK_ID) {}
+    GenerateTask() : vcore::IThreadPoolTask<WorkerData>(false, GENERATE_TASK_ID) {}
 
-    void init(NChunk *ch, LoadData *ld) {
-        chunk = ch;
-        loadData = ld;
+    void init(ChunkQuery *query,
+              PlanetHeightData* heightData,
+              ChunkGenerator* chunkGenerator) {
+        this->query = query;
+        this->heightData = heightData;
+        this->chunkGenerator = chunkGenerator;
     }
 
     void execute(WorkerData* workerData) override;
 
     // Chunk To Be Loaded
-    NChunk* chunk;
+    ChunkQuery* query;
+    ChunkGenerator* chunkGenerator; ///< send finished query here
 
     // Loading Information
-    LoadData* loadData;
-
+    PlanetHeightData* heightData;
 };
 
 #endif // LoadTask_h__

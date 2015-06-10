@@ -819,6 +819,7 @@ EXIT 0</Command>
     <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
+    <ClCompile Include="ProceduralChunkGenerator.cpp" />
     <ClCompile Include="ShaderAssetLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />

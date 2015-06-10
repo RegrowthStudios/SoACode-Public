@@ -21,6 +21,8 @@
 #include <map>
 #include <vector>
 
+#include "concurrentqueue.h"
+
 class NChunk;
 class ChunkAllocator;
 struct NChunkGridData;
@@ -41,7 +43,7 @@ public:
     const NChunk* getChunk(const i32v3& chunkPos) const;
 
     // Will generate chunk if it doesn't exist
-    void submitQuery(ChunkQuery* query) const;
+    void submitQuery(ChunkQuery* query);
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
@@ -52,6 +54,7 @@ public:
 
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
+
     ChunkAllocator* m_allocator = nullptr;
     std::vector<ChunkGenerator> m_generators;
 

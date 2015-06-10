@@ -16,12 +16,13 @@
 #define ProceduralChunkGenerator_h__
 
 struct PlanetGenData;
+struct PlanetHeightData;
 class NChunk;
 
 class ProceduralChunkGenerator {
 public:
     void init(PlanetGenData* genData);
-    void generate(NChunk& chunk);
+    void generate(NChunk* chunk, PlanetHeightData* heightData) const;
 private:
     PlanetGenData* m_genData = nullptr;
 };

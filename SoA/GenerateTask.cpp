@@ -5,6 +5,11 @@
 #include "ChunkGenerator.h"
 
 void GenerateTask::execute(WorkerData* workerData) {
-    ChunkGenerator::generateChunk(chunk, loadData);
-    delete loadData;
+    NChunk* chunk = query->getChunk();
+   // while (true) {
+        chunkGenerator->m_proceduralGenerator.generate(chunk, heightData);
+   // }
+    query->m_isFinished = true;
+    query->m_cond.notify_one();
+    chunkGenerator->onQueryFinish(query);
 }

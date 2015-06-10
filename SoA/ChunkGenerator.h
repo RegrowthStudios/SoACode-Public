@@ -22,7 +22,11 @@
 
 class ChunkAllocator;
 
+enum ChunkGenLevel { NONE = 0, TERRAIN, FLORA, LIGHT };
+
 class ChunkQuery {
+    friend class GenerateTask;
+    friend class NChunkGrid;
 public:
     /// Blocks current thread until consumption is performed
     void block() {
@@ -31,22 +35,32 @@ public:
         m_cond.wait(lck);
     }
 
-    // Returns nullptr if not completed
+    const bool& isFinished() const { return m_isFinished; }
     NChunk* getChunk() const { return m_chunk; }
 
     i32v3 chunkPos;
+    ChunkGenLevel genLevel;
 private:
+    bool m_isFinished = false;
     NChunk* m_chunk = nullptr;
     std::mutex m_lock;
     std::condition_variable m_cond;
 };
 
 class ChunkGenerator {
+    friend class GenerateTask;
 public:
-    void init(ChunkAllocator* chunkAllocator, vcore::ThreadPool<WorkerData>* threadPool, PlanetGenData* genData);
-    void generateChunk(ChunkQuery* query);
+    void init(ChunkAllocator* chunkAllocator,
+              vcore::ThreadPool<WorkerData>* threadPool,
+              PlanetGenData* genData);
+    void submitQuery(ChunkQuery* query);
+    void onQueryFinish(ChunkQuery* query);
+    // Updates finished queries
+    void update();
 private:
-    ProceduralChunkGenerator proceduralGenerator;
+    moodycamel::ConcurrentQueue<ChunkQuery*> m_finishedQueries;
+
+    ProceduralChunkGenerator m_proceduralGenerator;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
     ChunkAllocator* m_allocator = nullptr;
 };

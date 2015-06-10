@@ -20,12 +20,11 @@
 #include "VoxelCoordinateSpaces.h"
 #include "PlanetHeightData.h"
 #include "MetaSection.h"
+#include "ChunkGenerator.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
 class NChunk;
 typedef NChunk* NChunkPtr;
-
-enum class ChunkState { LOAD, GENERATE, SAVE, LIGHT, TREES, MESH, WATERMESH, DRAW, INACTIVE }; //more priority is lower
 
 class NChunkGridData {
 public:
@@ -39,12 +38,14 @@ public:
 
     ChunkPosition2D gridPosition;
     PlanetHeightData heightData[CHUNK_LAYER];
-    volatile bool wasRequestSent = false; /// True when heightmap was already sent for gen
-    volatile bool isLoaded = false;
+    volatile bool isLoading = false;
+    volatile bool isLoadingFinished = false;
     int refCount = 1;
 };
 
 class NChunk {
+    friend class ChunkGenerator;
+    friend class ProceduralChunkGenerator;
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
 public:
@@ -73,7 +74,12 @@ public:
     };
     std::mutex mutex;
     volatile int refCount = 0;
+    ChunkGenLevel genLevel = ChunkGenLevel::NONE;
 private:
+    // For generation
+    ChunkQuery* m_currentQuery = nullptr;
+    std::vector<ChunkQuery*> m_pendingQueries;
+
     ui32 m_numNeighbors = 0u;
     ChunkPosition3D m_position;
     // TODO(Ben): Think about data locality.
@@ -83,7 +89,6 @@ private:
     vvox::SmartVoxelContainer<ui16> m_tertiary;
     bool m_isInRange;
     f32 m_distance2; //< Squared distance
-    ChunkState m_state;
 };
 
 #endif // NChunk_h__
