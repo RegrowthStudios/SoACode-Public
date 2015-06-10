@@ -73,8 +73,7 @@ void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position, cons
     updateSetupList(4);
     updateGenerateList();
 
-    //This doesn't function correctly
-    //caveOcclusion(position);
+    // caveOcclusion(position);
 
     NChunk* ch;
     std::vector<NChunk*>& freeWaitingChunks = m_cmp->chunkListManager->freeWaitingChunks;
