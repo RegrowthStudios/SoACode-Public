@@ -124,8 +124,6 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 
     // Updates the Pause Menu
     if (m_pauseMenu.isOpen()) m_pauseMenu.update();
-
-    globalRenderAccumulationTimer.stop();
 }
 
 void GameplayScreen::updateECS() {

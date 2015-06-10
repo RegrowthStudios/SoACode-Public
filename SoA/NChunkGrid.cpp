@@ -10,6 +10,7 @@ void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
                       ui32 generatorsPerRow,
                       PlanetGenData* genData) {
     m_face = face;
+    m_allocator = chunkAllocator;
     m_generatorsPerRow = generatorsPerRow;
     m_numGenerators = generatorsPerRow * generatorsPerRow;
     m_generators = new ChunkGenerator[m_numGenerators]; // TODO(Ben): delete[]
@@ -115,6 +116,7 @@ void NChunkGrid::update() {
             addChunk(q->m_chunk);
         }
         // TODO(Ben): Handle generator distribution
+        q->genTask.init(q, q->m_chunk->gridData->heightData, &m_generators[0]);
         m_generators[0].submitQuery(q);
     }
 }

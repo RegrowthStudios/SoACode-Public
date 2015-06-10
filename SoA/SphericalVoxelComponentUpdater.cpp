@@ -38,13 +38,23 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
             if (it.second.chunkGrids) {
                 m_cmp = &it.second;
-                updateComponent(playerPosCmp.gridPosition.pos);
+                updateComponent(playerPosCmp.gridPosition);
             }
         }
     }
 }
 
-void SphericalVoxelComponentUpdater::updateComponent(const f64v3& position) {
+void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& position) {
+    // Always make a chunk at camera location
+    i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(position.pos);
+    if (m_cmp->chunkGrids[position.face].getChunk(chunkPosition) == nullptr) {
+        ChunkQuery* q = new ChunkQuery;
+        q->set(chunkPosition, GEN_DONE);
+        m_cmp->chunkGrids[position.face].submitQuery(q);
+        std::cout << "MAKING\n";
+    }
 
- 
+    for (int i = 0; i < 6; i++) {
+        m_cmp->chunkGrids[i].update();
+    }
 }

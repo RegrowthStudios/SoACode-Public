@@ -77,8 +77,7 @@ public:
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
 private:
     // For generation
-    ChunkQuery* m_currentGenQuery = nullptr;
-    std::vector<ChunkQuery*> m_pendingGenQueries;
+    ChunkGenQueryData m_genQueryData;
 
     ui32 m_numNeighbors = 0u;
     ChunkPosition3D m_position;

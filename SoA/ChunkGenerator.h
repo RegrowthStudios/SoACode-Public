@@ -55,6 +55,14 @@ private:
     std::condition_variable m_cond;
 };
 
+// Data stored in Chunk and used only by ChunkGenerator
+struct ChunkGenQueryData {
+    friend class ChunkGenerator;
+private:
+    ChunkQuery* current = nullptr;
+    std::vector<ChunkQuery*> pending;
+};
+
 class ChunkGenerator {
     friend class GenerateTask;
 public:

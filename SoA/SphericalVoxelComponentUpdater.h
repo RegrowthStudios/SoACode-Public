@@ -39,7 +39,7 @@ private:
 
     SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
 
-    void updateComponent(const f64v3& position);
+    void updateComponent(const VoxelPosition3D& position);
 
 };
 

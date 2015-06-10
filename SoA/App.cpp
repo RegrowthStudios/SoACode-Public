@@ -79,7 +79,7 @@ void App::addScreens() {
     scrDev->addScreen(VKEY_A, scrTests.back(), "TestNewBlockAPIScreen");
 
     // Uncomment to start from dev screen for testing other screens
-#define START_AT_DEV_SCREEN
+//#define START_AT_DEV_SCREEN
 #ifdef START_AT_DEV_SCREEN
     m_screenList.setScreen(scrDev->getIndex());
 #else
