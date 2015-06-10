@@ -617,6 +617,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
     <ClInclude Include="Positional.h" />
+    <ClInclude Include="ProceduralChunkGenerator.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="ShaderAssetLoader.h" />
     <ClInclude Include="ShaderLoader.h" />

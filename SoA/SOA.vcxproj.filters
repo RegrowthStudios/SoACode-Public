@@ -805,6 +805,9 @@
     <ClInclude Include="ChunkAllocator.h">
       <Filter>SOA Files\Voxel\Allocation</Filter>
     </ClInclude>
+    <ClInclude Include="ProceduralChunkGenerator.h">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">

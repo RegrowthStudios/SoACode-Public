@@ -72,6 +72,7 @@ public:
         NChunkPtr neighbors[6];
     };
     std::mutex mutex;
+    volatile int refCount = 0;
 private:
     ui32 m_numNeighbors = 0u;
     ChunkPosition3D m_position;

@@ -19,7 +19,7 @@
 
 #include "VoxPool.h"
 
-class Chunk;
+class NChunk;
 class LoadData;
 
 #define GENERATE_TASK_ID 1
@@ -31,7 +31,7 @@ class GenerateTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
     GenerateTask() : vcore::IThreadPoolTask<WorkerData>(true, GENERATE_TASK_ID) {}
 
-    void init(Chunk *ch = 0, LoadData *ld = 0) {
+    void init(NChunk *ch, LoadData *ld) {
         chunk = ch;
         loadData = ld;
     }
@@ -39,12 +39,10 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Chunk To Be Loaded
-    Chunk* chunk;
+    NChunk* chunk;
 
     // Loading Information
     LoadData* loadData;
-
-   
 
 };
 

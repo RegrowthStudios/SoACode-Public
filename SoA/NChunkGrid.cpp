@@ -4,8 +4,15 @@
 
 #include <Vorb/utils.h>
 
-void NChunkGrid::init(WorldCubeFace face, ui32 generatorsPerRow) {
-
+void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
+                      OPT vcore::ThreadPool<WorkerData>* threadPool, ui32 generatorsPerRow) {
+    m_face = face;
+    m_generatorsPerRow = generatorsPerRow;
+    m_numGenerators = generatorsPerRow * generatorsPerRow;
+    m_generators.resize(m_numGenerators);
+    for (auto& g : m_generators) {
+        g.init(chunkAllocator, threadPool);
+    }
 }
 
 void NChunkGrid::addChunk(NChunk* chunk) {
@@ -66,31 +73,8 @@ const NChunk* NChunkGrid::getChunk(const i32v3& chunkPos) const {
     return it->second;
 }
 
-const i16* NChunkGrid::getIDQuery(const i32v3& start, const i32v3& end) const {
-    // TODO(Ben): Implement
-    //i32v3 pIter = start;
-    //// Create The Array For The IDs
-    //const i32v3 size = end - start + i32v3(1);
-    //i32 volume = size.x * size.y * size.z;
-    //i16* q = new i16[volume];
-    //i32 i = 0;
-    //i32v3 chunkPos, voxelPos;
-    //for (; pIter.y <= end.y; pIter.y++) {
-    //    for (pIter.z = start.z; pIter.z <= end.z; pIter.z++) {
-    //        for (pIter.x = start.x; pIter.x <= end.x; pIter.x++) {
-    //            // Get The Chunk
-    //            chunkPos = pIter / CHUNK_WIDTH;
-    //            const NChunk* c = getChunk(chunkPos);
-    //            // Get The ID
-    //            voxelPos = pIter % CHUNK_WIDTH;
-    //            q[i++] = c->getBlockID(voxelPos.y * CHUNK_LAYER + voxelPos.z * CHUNK_WIDTH + voxelPos.x);
-    //        }
-    //    }
-    //}
-    //// openglManager.debugRenderer->drawCube(
-    //// f32v3(start + end) * 0.5f + f32v3(cornerPosition) + f32v3(0.5f), f32v3(size) + f32v3(0.4f),
-    //// f32v4(1.0f, 0.0f, 0.0f, 0.3f), 1.0f
-    //// );
-    //return q;
-    return nullptr;
+NChunkGridData* NChunkGrid::getChunkGridData(const i32v2& gridPos) {
+    auto it = m_chunkGridDataMap.find(gridPos);
+    if (it == m_chunkGridDataMap.end()) return nullptr;
+    return it->second;
 }
