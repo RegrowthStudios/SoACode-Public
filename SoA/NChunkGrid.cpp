@@ -103,6 +103,7 @@ void NChunkGrid::update() {
                 q->m_chunk = chunk;
                 q->m_isFinished = true;
                 q->m_cond.notify_one();
+                if (q->shouldDelete) delete q;
                 continue;
             } else {
                 q->m_chunk = chunk;

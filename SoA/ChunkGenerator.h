@@ -30,9 +30,10 @@ class ChunkQuery {
     friend class GenerateTask;
     friend class NChunkGrid;
 public:
-    void set(const i32v3& chunkPos, ChunkGenLevel genLevel) {
+    void set(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldDelete) {
         this->chunkPos = chunkPos;
         this->genLevel = genLevel;
+        this->shouldDelete = shouldDelete;
     }
 
     /// Blocks current thread until the query is finished
@@ -48,6 +49,7 @@ public:
     i32v3 chunkPos;
     ChunkGenLevel genLevel;
     GenerateTask genTask; ///< For if the query results in generation
+    bool shouldDelete = false;
 private:
     bool m_isFinished = false;
     NChunk* m_chunk = nullptr;

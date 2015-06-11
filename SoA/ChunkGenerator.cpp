@@ -36,12 +36,12 @@ void ChunkGenerator::update() {
     for (size_t i = 0; i < numQueries; i++) {
         NChunk* chunk = queries[i]->getChunk();
         chunk->m_genQueryData.current = nullptr;
-        std::cout << "YAY";
         if (chunk->genLevel == GEN_DONE) {
             // If the chunk is done generating, we can signal all queries as done.
-            for (auto& it : chunk->m_genQueryData.pending) {
-                it->m_isFinished = true;
-                it->m_cond.notify_one();
+            for (auto& q : chunk->m_genQueryData.pending) {
+                q->m_isFinished = true;
+                q->m_cond.notify_one();
+                if (q->shouldDelete) delete q;
             }
             chunk->m_genQueryData.pending.clear();
         } else {
@@ -51,6 +51,7 @@ void ChunkGenerator::update() {
                 if (q->genLevel <= chunk->genLevel) {
                     q->m_isFinished = true;
                     q->m_cond.notify_one();
+                    if (q->shouldDelete) delete q;
                     // TODO(Ben): Do we care about order?
                     chunk->m_genQueryData.pending[i] = chunk->m_genQueryData.pending.back();
                     chunk->m_genQueryData.pending.pop_back();

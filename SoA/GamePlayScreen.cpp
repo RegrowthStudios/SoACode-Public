@@ -108,7 +108,6 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_pauseMenu.destroy();
 }
 
-
 /// This update function runs on the render thread
 void GameplayScreen::update(const vui::GameTime& gameTime) {
 
