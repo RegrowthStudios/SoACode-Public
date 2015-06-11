@@ -51,7 +51,8 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
 
     // No post-process effects to begin with
     stages.nightVision.setActive(false);
-    stages.chunkGrid.setActive(false);
+    stages.chunkGrid.setActive(true); // TODO(Ben): Temporary
+    //stages.chunkGrid.setActive(false);
 }
 
 void GameplayRenderer::setRenderState(const MTRenderState* renderState) {

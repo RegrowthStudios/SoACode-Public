@@ -20,7 +20,6 @@
 #include "VoxelCoordinateSpaces.h"
 #include "PlanetHeightData.h"
 #include "MetaSection.h"
-#include "VoxelSpaceConversions.h"
 #include "ChunkGenerator.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
@@ -51,12 +50,13 @@ public:
     void init(const ChunkPosition3D& pos);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
                       vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler);
+    void updateContainers();
 
     /************************************************************************/
     /* Getters                                                              */
     /************************************************************************/
     const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
-    VoxelPosition3D getVoxelPosition() const { return VoxelSpaceConversions::chunkToVoxel(m_chunkPosition); }
+    const VoxelPosition3D& getVoxelPosition() const { return m_voxelPosition; }
     bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
     const bool& isInRange() const { return m_isInRange; }
     const f32& getDistance2() const { return m_distance2; }
@@ -75,7 +75,7 @@ public:
         NChunkPtr neighbors[6];
     };
     std::mutex mutex;
-    volatile int refCount = 0;
+    int refCount = 0;
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
 private:
     // For generation
@@ -86,6 +86,7 @@ private:
 
     ui32 m_numNeighbors = 0u;
     ChunkPosition3D m_chunkPosition;
+    VoxelPosition3D m_voxelPosition;
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> m_blocks;
     vvox::SmartVoxelContainer<ui8> m_sunlight;

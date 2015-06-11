@@ -273,6 +273,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Remove two threads for the render thread and main thread
     if (hc > 1) hc--;
     if (hc > 1) hc--;
+    hc = 1; //TEMP
 
     // Initialize the threadpool with hc threads
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 

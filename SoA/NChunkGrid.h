@@ -60,6 +60,9 @@ public:
     const ui32& getNumActiveChunks() const { return m_numActiveChunks; }
 
 private:
+    void connectNeighbors(NChunk* chunk);
+    void disconnectNeighbors(NChunk* chunk);
+
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
     ChunkAllocator* m_allocator = nullptr;

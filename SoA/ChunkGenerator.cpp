@@ -48,6 +48,7 @@ void ChunkGenerator::update() {
         ChunkQuery* q = queries[i];
         NChunk* chunk = q->getChunk();
         chunk->m_genQueryData.current = nullptr;
+        chunk->refCount--;
         // Check if it was a heightmap gen
         if (chunk->gridData->isLoading) {
             chunk->gridData->isLoaded = true;
@@ -63,6 +64,7 @@ void ChunkGenerator::update() {
             for (auto& q : chunk->m_genQueryData.pending) {
                 q->m_isFinished = true;
                 q->m_cond.notify_one();
+                q->m_chunk->refCount--;
                 if (q->shouldDelete) delete q;
             }
             chunk->m_genQueryData.pending.clear();
@@ -73,6 +75,7 @@ void ChunkGenerator::update() {
                 if (q->genLevel <= chunk->genLevel) {
                     q->m_isFinished = true;
                     q->m_cond.notify_one();
+                    q->m_chunk->refCount--;
                     if (q->shouldDelete) delete q;
                     // TODO(Ben): Do we care about order?
                     chunk->m_genQueryData.pending[i] = chunk->m_genQueryData.pending.back();
