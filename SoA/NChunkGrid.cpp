@@ -77,7 +77,7 @@ void NChunkGrid::removeChunk(NChunk* chunk) {
     { // Remove from linked list
         if (chunk != m_activeChunks) {
             chunk->m_prevActive->m_nextActive = chunk->m_nextActive;
-            chunk->m_nextActive->m_prevActive = chunk->m_prevActive;
+            if (chunk->m_nextActive) chunk->m_nextActive->m_prevActive = chunk->m_prevActive;
         } else {
             m_activeChunks = chunk->m_nextActive;
             if (m_activeChunks) m_activeChunks->m_prevActive = nullptr;
