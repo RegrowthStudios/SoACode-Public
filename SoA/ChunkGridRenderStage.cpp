@@ -88,13 +88,12 @@ void ChunkGridRenderStage::render(const Camera* camera) {
 
             switch (data.genLevel) {
                 case GEN_DONE:
-                    color = ColorRGBA8(0, 0, 255, 255);
-                    break;
-                default:
                     color = ColorRGBA8(0, 0, 0, 255);
                     break;
+                default:
+                    color = ColorRGBA8(255, 0, 0, 255);
+                    break;
             }
-            color = ColorRGBA8(0, 0, 0, 255);
             for (int i = 0; i < 8; i++) {
                 vertices[i].color = color;
                 vertices[i].uv = f32v2(0.0f, 0.0f);

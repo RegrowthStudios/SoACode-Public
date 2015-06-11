@@ -48,11 +48,12 @@ void ChunkGenerator::update() {
         ChunkQuery* q = queries[i];
         NChunk* chunk = q->getChunk();
         chunk->m_genQueryData.current = nullptr;
-        chunk->refCount--;
         // Check if it was a heightmap gen
         if (chunk->gridData->isLoading) {
             chunk->gridData->isLoaded = true;
             chunk->gridData->isLoading = false;
+            // Submit query again, this time for load
+            submitQuery(q);
             // Submit all the pending queries on this grid data
             auto& it = m_pendingQueries.find(chunk->gridData);
             for (auto& p : it->second) {
