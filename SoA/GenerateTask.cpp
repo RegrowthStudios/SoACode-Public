@@ -13,6 +13,7 @@ void GenerateTask::execute(WorkerData* workerData) {
     } else { // Its a chunk gen
 
         switch (query->genLevel) {
+            case ChunkGenLevel::GEN_DONE:
             case ChunkGenLevel::GEN_TERRAIN:
                 chunkGenerator->m_proceduralGenerator.generateChunk(chunk, heightData);
                 chunk->genLevel = ChunkGenLevel::GEN_DONE;
@@ -24,8 +25,8 @@ void GenerateTask::execute(WorkerData* workerData) {
                 chunk->genLevel = ChunkGenLevel::GEN_DONE;
                 break;
         }
+        query->m_isFinished = true;
+        query->m_cond.notify_one();
     }
-    query->m_isFinished = true;
-    query->m_cond.notify_one();
     chunkGenerator->onQueryFinish(query);
 }

@@ -60,6 +60,8 @@ public:
     bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
     const bool& isInRange() const { return m_isInRange; }
     const f32& getDistance2() const { return m_distance2; }
+    NChunkPtr getNextActive() const { return m_nextActive; }
+    NChunkPtr getPrevActive() const { return m_prevActive; }
 
     /************************************************************************/
     /* Members                                                              */

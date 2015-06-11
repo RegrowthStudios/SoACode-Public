@@ -27,7 +27,7 @@
 
 class NChunk;
 class ChunkAllocator;
-struct NChunkGridData;
+class NChunkGridData;
 
 class NChunkGrid {
 public:
@@ -56,8 +56,8 @@ public:
     // Processes chunk queries
     void update();
 
-    NChunk* getActiveChunks() { return m_activeChunks; }
-    const ui32& getNumActiveChunks() { return m_numActiveChunks; }
+    NChunk* getActiveChunks() const { return m_activeChunks; }
+    const ui32& getNumActiveChunks() const { return m_numActiveChunks; }
 
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;

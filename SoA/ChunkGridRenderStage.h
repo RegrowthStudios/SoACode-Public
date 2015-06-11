@@ -20,6 +20,7 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
+class NChunkGrid;
 class GameRenderParams;
 class ChunkMemoryManager;
 
@@ -28,12 +29,12 @@ public:
     void hook(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
-    void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
+    void setChunks(const NChunkGrid* chunkGrids) { m_chunkGrids = chunkGrids; }
     virtual void render(const Camera* camera) override;
 private:
     vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
-    const ChunkMemoryManager* m_chunkMemoryManager = nullptr;
+    const NChunkGrid* m_chunkGrids = nullptr;
 };
 
 #endif // ChunkGridRenderStage_h__
