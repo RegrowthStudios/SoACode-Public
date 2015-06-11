@@ -51,7 +51,6 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& posi
         ChunkQuery* q = new ChunkQuery;
         q->set(chunkPosition, GEN_DONE, true);
         m_cmp->chunkGrids[position.face].submitQuery(q);
-        std::cout << "MAKING " << chunkPosition.x << " " << chunkPosition.y << " " << chunkPosition.z << std::endl;
     }
 
     for (int i = 0; i < 6; i++) {

@@ -342,7 +342,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
     stCmp.radius = radius;
     stCmp.alpha = 1.0f;
 
-    f64 patchWidth = (radius * 2.000) / ST_PATCH_ROW;
+    f64 patchWidth = (radius * 2.0) / ST_PATCH_ROW;
     stCmp.sphericalTerrainData = new TerrainPatchData(radius, patchWidth);
 
     return stCmpId;

@@ -5,7 +5,7 @@ void NChunk::init(const ChunkPosition3D& pos) {
     memset(neighbors, 0, sizeof(neighbors));
     m_numNeighbors = 0u;
     m_distance2 = FLT_MAX;
-    m_position = pos;
+    m_chunkPosition = pos;
 }
 
 void NChunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,

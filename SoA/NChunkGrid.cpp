@@ -20,7 +20,7 @@ void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
 }
 
 void NChunkGrid::addChunk(NChunk* chunk) {
-    const ChunkPosition3D& pos = chunk->getPosition();
+    const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Add to lookup hashmap
     m_chunkMap[pos.pos] = chunk;
     // TODO(Ben): use the () thingy
@@ -40,7 +40,7 @@ void NChunkGrid::addChunk(NChunk* chunk) {
 }
 
 void NChunkGrid::removeChunk(NChunk* chunk) {
-    const ChunkPosition3D& pos = chunk->getPosition();
+    const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Remove from lookup hashmap
     m_chunkMap.erase(pos.pos);
 

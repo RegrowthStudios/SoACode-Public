@@ -4,6 +4,7 @@
 #include "NChunk.h"
 #include "Constants.h"
 #include "VoxelSpaceConversions.h"
+#include "HardCodedIDs.h"
 
 #include "SmartVoxelContainer.hpp"
 
@@ -16,12 +17,18 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
 
     int temperature;
     int rainfall;
+    int h;
+    int maph;
+    int hindex;
+    int dh;
 
     ui16 blockData;
     ui16 lampData;
     ui8 sunlightData;
     ui16 tertiaryData;
     //double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
+
+    VoxelPosition3D voxPosition = chunk->getVoxelPosition();
 
     // Grab the handles to the arrays
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockDataArray;
@@ -32,10 +39,57 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
     for (size_t y = 0; y < CHUNK_WIDTH; y++) {
         for (size_t z = 0; z < CHUNK_WIDTH; z++) {
             for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
+                hindex = (c%CHUNK_LAYER); // TODO(Ben): Don't need modulus
+
                 blockData = 0;
                 sunlightData = 0;
                 lampData = 0;
                 tertiaryData = 0;
+
+                //snowDepth = heightMap[hindex].snowDepth;
+                //sandDepth = heightMap[hindex].sandDepth;
+                maph = heightData[hindex].height;
+                //biome = heightMap[hindex].biome;
+                temperature = heightData[hindex].temperature;
+                rainfall = heightData[hindex].rainfall;
+               // flags = heightMap[hindex].flags;
+
+                //tooSteep = (flags & TOOSTEEP) != 0;
+
+                h = y + voxPosition.pos.y;
+                dh = maph - h; // Get depth of voxel
+
+                //if (tooSteep) dh += 3; // If steep, increase depth
+
+                // TODO: Modulate dh with noise
+
+                // Check for underground
+                if (dh >= 0) {
+                    //chunk->numBlocks++;
+                    // TODO(Ben): Optimize
+                    blockData = DIRT; // calculateBlockLayer((ui32)dh, genData).block;
+                    // Check for surface block replacement
+                    if (dh == 0) {
+                        if (blockData == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
+                            blockData = m_genData->surfaceBlock;
+                        }
+                    }
+                } else {
+                    // Above heightmap
+
+                    // Liquid
+                    if (h < 0 && m_genData->liquidBlock) {
+                        blockData = m_genData->liquidBlock;
+                        // TODO(Ben): Precalculate light here based on depth?
+                    } else {
+                        blockData = NONE;
+                        sunlightData = 31;
+                    }
+                }
+
+               // if (GETBLOCK(blockData).spawnerVal || GETBLOCK(blockData).sinkVal) {
+              //      chunk->spawnerBlocks.push_back(c);
+              //  }
 
                 // Set up the data arrays
                 if (blockDataArray.size() == 0) {
@@ -76,7 +130,7 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
 }
 
 void ProceduralChunkGenerator::generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const {
-    VoxelPosition3D cornerPos3D = VoxelSpaceConversions::chunkToVoxel(chunk->getPosition());
+    VoxelPosition3D cornerPos3D = VoxelSpaceConversions::chunkToVoxel(chunk->getChunkPosition());
     VoxelPosition2D cornerPos2D;
     cornerPos2D.pos.x = cornerPos3D.pos.x;
     cornerPos2D.pos.y = cornerPos3D.pos.z;

@@ -20,6 +20,7 @@
 #include "VoxelCoordinateSpaces.h"
 #include "PlanetHeightData.h"
 #include "MetaSection.h"
+#include "VoxelSpaceConversions.h"
 #include "ChunkGenerator.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
@@ -53,7 +54,8 @@ public:
     /************************************************************************/
     /* Getters                                                              */
     /************************************************************************/
-    const ChunkPosition3D& getPosition() const { return m_position; }
+    const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
+    VoxelPosition3D getVoxelPosition() const { return VoxelSpaceConversions::chunkToVoxel(m_chunkPosition); }
     bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
     const bool& isInRange() const { return m_isInRange; }
     const f32& getDistance2() const { return m_distance2; }
@@ -77,7 +79,7 @@ private:
     ChunkGenQueryData m_genQueryData;
 
     ui32 m_numNeighbors = 0u;
-    ChunkPosition3D m_position;
+    ChunkPosition3D m_chunkPosition;
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> m_blocks;
     vvox::SmartVoxelContainer<ui8> m_sunlight;
