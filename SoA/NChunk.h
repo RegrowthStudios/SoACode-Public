@@ -28,9 +28,6 @@ typedef NChunk* NChunkPtr;
 
 class NChunkGridData {
 public:
-    NChunkGridData(const ChunkPosition2D& pos) {
-        gridPosition = pos;
-    }
     NChunkGridData(const ChunkPosition3D& pos) {
         gridPosition.pos = i32v2(pos.pos.x, pos.pos.z);
         gridPosition.face = pos.face;
@@ -38,8 +35,8 @@ public:
 
     ChunkPosition2D gridPosition;
     PlanetHeightData heightData[CHUNK_LAYER];
-    volatile bool isLoading = false;
-    volatile bool isLoadingFinished = false;
+    bool isLoading = false;
+    bool isLoaded = false;
     int refCount = 1;
 };
 

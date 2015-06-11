@@ -6,10 +6,25 @@
 
 void GenerateTask::execute(WorkerData* workerData) {
     NChunk* chunk = query->getChunk();
-   // while (true) {
-        chunkGenerator->m_proceduralGenerator.generate(chunk, heightData);
-   // }
-    chunk->genLevel = ChunkGenLevel::GEN_DONE;
+
+    // Check if this is a heightmap gen
+    if (chunk->gridData->isLoading) {
+        chunkGenerator->m_proceduralGenerator.generateHeightmap(chunk, heightData);
+    } else { // Its a chunk gen
+
+        switch (query->genLevel) {
+            case ChunkGenLevel::GEN_TERRAIN:
+                chunkGenerator->m_proceduralGenerator.generateChunk(chunk, heightData);
+                chunk->genLevel = ChunkGenLevel::GEN_DONE;
+                break;
+            case ChunkGenLevel::GEN_FLORA:
+                chunk->genLevel = ChunkGenLevel::GEN_DONE;
+                break;
+            case ChunkGenLevel::GEN_SCRIPT:
+                chunk->genLevel = ChunkGenLevel::GEN_DONE;
+                break;
+        }
+    }
     query->m_isFinished = true;
     query->m_cond.notify_one();
     chunkGenerator->onQueryFinish(query);

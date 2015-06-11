@@ -22,6 +22,7 @@
 #include <Vorb/ThreadPool.h>
 
 class ChunkAllocator;
+class NChunkGridData;
 
 enum ChunkGenLevel { GEN_NONE = 0, GEN_TERRAIN, GEN_FLORA, GEN_SCRIPT, GEN_DONE };
 
@@ -77,6 +78,7 @@ public:
     void update();
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_finishedQueries;
+    std::map < NChunkGridData*, std::vector<ChunkQuery*> >m_pendingQueries; ///< Queries waiting on height map
 
     ProceduralChunkGenerator m_proceduralGenerator;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;

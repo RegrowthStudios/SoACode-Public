@@ -21,12 +21,11 @@
 #include "VoxelCoordinateSpaces.h"
 
 struct NoiseBase;
+struct PlanetHeightData;
 
 class SphericalTerrainCpuGenerator {
 public:
-    SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
-                                 PlanetGenData* planetGenData);
-    ~SphericalTerrainCpuGenerator();
+    void init(PlanetGenData* planetGenData);
 
     /// Generates a terrain patch: NOTE: This is only here for testing purposes. GPUgen is vastly superior
     /// @param mesh: The mesh handle
@@ -38,7 +37,7 @@ public:
     /// Gets the height at a specific face position.
     /// @param facePosition: The position to query
     /// @return height in meters.
-    float getTerrainHeight(const VoxelPosition2D& facePosition);
+    float generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition);
 
 private:
     /// Gets noise value using terrainFuncs
@@ -47,7 +46,7 @@ private:
     /// @return the noise value
     float getNoiseValue(const f32v3& pos, const NoiseBase& funcs);
 
-    TerrainPatchMesher m_mesher; ///< Creates patch meshes
+  //  TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data
 };
 

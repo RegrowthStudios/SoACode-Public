@@ -8,9 +8,10 @@
 
 void ProceduralChunkGenerator::init(PlanetGenData* genData) {
     m_genData = genData;
+    m_heightGenerator.
 }
 
-void ProceduralChunkGenerator::generate(NChunk* chunk, PlanetHeightData* heightData) const {
+void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* heightData) const {
 
     int temperature;
     int rainfall;
@@ -71,4 +72,8 @@ void ProceduralChunkGenerator::generate(NChunk* chunk, PlanetHeightData* heightD
     chunk->m_lamp.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightDataArray);
     chunk->m_sunlight.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightDataArray);
     chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray);
+}
+
+void ProceduralChunkGenerator::generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const {
+
 }

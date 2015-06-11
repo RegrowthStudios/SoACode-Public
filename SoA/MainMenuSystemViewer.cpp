@@ -308,6 +308,6 @@ void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius
     VoxelPosition2D facePos;
     facePos.pos = f64v2(gridHit);
     facePos.face = m_selectedCubeFace;
-    height = (f32)(m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->getTerrainHeight(facePos) * KM_PER_VOXEL);
+    height = (f32)(m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->generateHeight(facePos) * KM_PER_VOXEL);
     m_selectedGridPos.y = height;
 }
