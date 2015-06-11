@@ -61,7 +61,9 @@ void ChunkGridRenderStage::hook(const GameRenderParams* gameRenderParams) {
 /// it should not cause a crash. However data may be partially incorrect.
 void ChunkGridRenderStage::render(const Camera* camera) {
     if (!m_isActive) return;
-    if (!m_chunkGrids) return;
+    if (!m_state) return;
+
+    const std::vector<DebugChunkData>& chunkData = m_state->debugChunkData;
 
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
@@ -78,71 +80,49 @@ void ChunkGridRenderStage::render(const Camera* camera) {
     int numVertices = 0;
 
     f32v3 posOffset;
-    // TODO(Ben): Got a race condition here that causes rare crash
-    for (int i = 0; i < 6; i++) {
-        const NChunkGrid& grid = m_chunkGrids[i];
 
-        for (NChunkPtr chunk = grid.getActiveChunks(); chunk != nullptr; chunk = chunk->getNextActive()) {
-            posOffset = f32v3(f64v3(chunk->getVoxelPosition().pos) - m_gameRenderParams->chunkCamera->getPosition());
+    for (auto& data : chunkData) {
+        posOffset = f32v3(f64v3(data.voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
 
-            if (1 /*((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))*/) {
+        if (1 /*((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))*/) {
 
-                /*switch (chunk->getState()) {
-                    case ChunkStates::GENERATE:
-                    color = ColorRGBA8(255, 0, 255, 255);
-                    break;
-                    case ChunkStates::LOAD:
-                    color = ColorRGBA8(255, 255, 255, 255);
-                    break;
-                    case ChunkStates::LIGHT:
-                    color = ColorRGBA8(255, 255, 0, 255);
-                    break;
-                    case ChunkStates::TREES:
-                    color = ColorRGBA8(0, 128, 0, 255);
-                    break;
-                    case ChunkStates::DRAW:
+            switch (data.genLevel) {
+                case GEN_DONE:
                     color = ColorRGBA8(0, 0, 255, 255);
                     break;
-                    case ChunkStates::MESH:
-                    color = ColorRGBA8(0, 255, 0, 255);
-                    break;
-                    case ChunkStates::WATERMESH:
-                    color = ColorRGBA8(0, 255, 255, 255);
-                    break;
-                    default:
+                default:
                     color = ColorRGBA8(0, 0, 0, 255);
                     break;
-                    }*/
-                color = ColorRGBA8(0, 0, 0, 255);
-                for (int i = 0; i < 8; i++) {
-                    vertices[i].color = color;
-                    vertices[i].uv = f32v2(0.0f, 0.0f);
-                }
-                // Build the indices
-                for (int i = 0; i < 24; i++) {
-                    indices[i] = numVertices + elementBuffer[i];
-                }
-                numVertices += 8;
-                if (chunk->genLevel != ChunkGenLevel::GEN_NONE) {
-                    // Build the vertices
-                    const f32 gmin = 0.00001f;
-                    const f32 gmax = 31.9999f;
-                    vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;
-                    vertices[1].position = f32v3(gmax, gmin, gmin) + posOffset;
-                    vertices[2].position = f32v3(gmin, gmin, gmax) + posOffset;
-                    vertices[3].position = f32v3(gmax, gmin, gmax) + posOffset;
-                    vertices[4].position = f32v3(gmin, gmax, gmin) + posOffset;
-                    vertices[5].position = f32v3(gmax, gmax, gmin) + posOffset;
-                    vertices[6].position = f32v3(gmin, gmax, gmax) + posOffset;
-                    vertices[7].position = f32v3(gmax, gmax, gmax) + posOffset;
-                    for (int i = 0; i < 8; i++) {
-                        vertices[i].position *= KM_PER_VOXEL;
-                    }
-                    mesh.addVertices(vertices, indices);
-                }    
             }
+            color = ColorRGBA8(0, 0, 0, 255);
+            for (int i = 0; i < 8; i++) {
+                vertices[i].color = color;
+                vertices[i].uv = f32v2(0.0f, 0.0f);
+            }
+            // Build the indices
+            for (int i = 0; i < 24; i++) {
+                indices[i] = numVertices + elementBuffer[i];
+            }
+            numVertices += 8;
+            
+            // Build the vertices
+            const f32 gmin = 0.00001f;
+            const f32 gmax = 31.9999f;
+            vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;
+            vertices[1].position = f32v3(gmax, gmin, gmin) + posOffset;
+            vertices[2].position = f32v3(gmin, gmin, gmax) + posOffset;
+            vertices[3].position = f32v3(gmax, gmin, gmax) + posOffset;
+            vertices[4].position = f32v3(gmin, gmax, gmin) + posOffset;
+            vertices[5].position = f32v3(gmax, gmax, gmin) + posOffset;
+            vertices[6].position = f32v3(gmin, gmax, gmax) + posOffset;
+            vertices[7].position = f32v3(gmax, gmax, gmax) + posOffset;
+            for (int i = 0; i < 8; i++) {
+                vertices[i].position *= KM_PER_VOXEL;
+            }
+            mesh.addVertices(vertices, indices);       
         }
     }
+    
     // Check if a non-empty mesh was built
     if (numVertices != 0) {
         // Upload the data

@@ -166,6 +166,22 @@ void GameplayScreen::updateMTRenderState() {
     state->spaceCameraPos = spCmp.position;
     state->spaceCameraOrientation = spCmp.orientation;
 
+    // Debug chunk grid
+    if (m_renderer.stages.chunkGrid.isActive()) {
+        auto& svcmp = m_soaState->spaceSystem->m_sphericalVoxelCT.getFromEntity(m_soaState->startingPlanet);
+        auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
+        state->debugChunkData.clear();
+        if (svcmp.chunkGrids) {
+            for (NChunk* chunk = svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks(); chunk != nullptr; chunk = chunk->getNextActive()) {
+                state->debugChunkData.emplace_back();
+                state->debugChunkData.back().genLevel = chunk->genLevel;
+                state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
+            }
+        }
+    } else {
+        std::vector<DebugChunkData>().swap(state->debugChunkData);
+    }
+
     m_renderStateManager.finishUpdating();
 }
 
