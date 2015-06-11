@@ -37,6 +37,19 @@ void NChunkGrid::addChunk(NChunk* chunk) {
         gridData->refCount++;
     }
     chunk->gridData = gridData;
+
+    // Add to linked list
+    if (m_activeChunks) {
+        chunk->m_nextActive = m_activeChunks;
+        m_activeChunks->m_prevActive = chunk;
+        chunk->m_prevActive = nullptr;
+        m_activeChunks = chunk;
+    } else {
+        chunk->m_nextActive = nullptr;
+        chunk->m_prevActive = nullptr;
+        m_activeChunks = chunk;
+    }
+    m_numActiveChunks++;
 }
 
 void NChunkGrid::removeChunk(NChunk* chunk) {
@@ -52,6 +65,16 @@ void NChunkGrid::removeChunk(NChunk* chunk) {
         m_chunkGridDataMap.erase(gridPosition);
         delete chunk->gridData;
     }
+
+    // Remove from linked list
+    if (chunk != m_activeChunks) {
+        chunk->m_prevActive->m_nextActive = chunk->m_nextActive;
+        chunk->m_nextActive->m_prevActive = chunk->m_prevActive;
+    } else {
+        m_activeChunks = chunk->m_nextActive;
+        if (m_activeChunks) m_activeChunks->m_prevActive = nullptr;
+    }
+    m_numActiveChunks--;
 }
 
 NChunk* NChunkGrid::getChunk(const f64v3& position) {

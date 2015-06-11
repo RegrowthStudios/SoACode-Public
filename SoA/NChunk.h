@@ -46,6 +46,7 @@ class NChunk {
     friend class ProceduralChunkGenerator;
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
+    friend class NChunkGrid;
 public:
     void init(const ChunkPosition3D& pos);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
@@ -77,6 +78,9 @@ public:
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
+    // For ChunkGrid
+    NChunkPtr m_nextActive = nullptr;
+    NChunkPtr m_prevActive = nullptr;
 
     ui32 m_numNeighbors = 0u;
     ChunkPosition3D m_chunkPosition;

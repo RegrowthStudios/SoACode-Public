@@ -56,11 +56,17 @@ public:
     // Processes chunk queries
     void update();
 
+    NChunk* getActiveChunks() { return m_activeChunks; }
+    const ui32& getNumActiveChunks() { return m_numActiveChunks; }
+
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
     ChunkAllocator* m_allocator = nullptr;
     ChunkGenerator* m_generators = nullptr;
+
+    NChunk* m_activeChunks = nullptr; ///< Linked list of chunks
+    ui32 m_numActiveChunks = 0;
 
     std::unordered_map<i32v3, NChunk*> m_chunkMap; ///< hashmap of chunks
     std::unordered_map<i32v2, NChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
