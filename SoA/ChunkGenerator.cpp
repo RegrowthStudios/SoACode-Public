@@ -52,8 +52,7 @@ void ChunkGenerator::update() {
         if (chunk->gridData->isLoading) {
             chunk->gridData->isLoaded = true;
             chunk->gridData->isLoading = false;
-            // Submit query again, this time for load
-            submitQuery(q);
+
             // Submit all the pending queries on this grid data
             auto& it = m_pendingQueries.find(chunk->gridData);
             for (auto& p : it->second) {
@@ -61,15 +60,18 @@ void ChunkGenerator::update() {
             }
             m_pendingQueries.erase(it);
         } else if (chunk->genLevel == GEN_DONE) {
+            if (q->shouldDelete) delete q;
             // If the chunk is done generating, we can signal all queries as done.
-            for (auto& q : chunk->m_genQueryData.pending) {
-                q->m_isFinished = true;
-                q->m_cond.notify_one();
-                q->m_chunk->refCount--;
-                if (q->shouldDelete) delete q;
+            for (auto& q2 : chunk->m_genQueryData.pending) {
+                q2->m_isFinished = true;
+                q2->m_cond.notify_one();
+                q2->m_chunk->refCount--;
+                if (q2->shouldDelete) delete q;
             }
-            chunk->m_genQueryData.pending.clear();
+            std::vector<ChunkQuery*>().swap(chunk->m_genQueryData.pending);
+            chunk->refCount--;
         } else {
+            if (q->shouldDelete) delete q;
             // Otherwise possibly only some queries are done
             for (size_t i = 0; i < chunk->m_genQueryData.pending.size();) {
                 q = chunk->m_genQueryData.pending[i];
@@ -89,10 +91,11 @@ void ChunkGenerator::update() {
             if (chunk->m_genQueryData.pending.size()) {
                 // Submit for generation
                 q = chunk->m_genQueryData.pending.back();
+                chunk->m_genQueryData.pending.pop_back();
                 chunk->m_genQueryData.current = q;
                 m_threadPool->addTask(&q->genTask);
-                chunk->m_genQueryData.pending.pop_back();
             }
+            chunk->refCount--;
         }
     }
 }

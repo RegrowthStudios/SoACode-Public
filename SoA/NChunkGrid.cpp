@@ -123,7 +123,7 @@ void NChunkGrid::update() {
     // TODO(Ben): Handle generator distribution
     m_generators[0].update();
 
-#define MAX_QUERIES 100
+#define MAX_QUERIES 5000
     ChunkQuery* queries[MAX_QUERIES];
     size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {

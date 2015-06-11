@@ -61,6 +61,7 @@ private:
 // Data stored in Chunk and used only by ChunkGenerator
 struct ChunkGenQueryData {
     friend class ChunkGenerator;
+    friend class NChunk;
 private:
     ChunkQuery* current = nullptr;
     std::vector<ChunkQuery*> pending;

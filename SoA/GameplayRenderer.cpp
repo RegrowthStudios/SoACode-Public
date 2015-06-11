@@ -164,7 +164,7 @@ void GameplayRenderer::render() {
     // Bind the FBO
     m_hdrTarget.use();
   
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
     m_commonState->stages.skybox.render(&m_state->spaceCamera);

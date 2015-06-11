@@ -10,6 +10,8 @@ void NChunk::init(const ChunkPosition3D& pos) {
     m_chunkPosition = pos;
     m_voxelPosition = VoxelSpaceConversions::chunkToVoxel(m_chunkPosition);
     refCount = 0;
+    m_genQueryData.current = nullptr;
+    m_genQueryData.pending.clear();
 }
 
 void NChunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
