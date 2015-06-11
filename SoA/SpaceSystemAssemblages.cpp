@@ -334,8 +334,8 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
         stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                                               planetGenData,
                                                               normalProgram, normalMapRecycler);
-        stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
-                                                              planetGenData);
+        stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
+        stCmp.cpuGenerator->init(planetGenData);
         stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
     }
     

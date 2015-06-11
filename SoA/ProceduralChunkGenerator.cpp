@@ -3,12 +3,13 @@
 
 #include "NChunk.h"
 #include "Constants.h"
+#include "VoxelSpaceConversions.h"
 
 #include "SmartVoxelContainer.hpp"
 
 void ProceduralChunkGenerator::init(PlanetGenData* genData) {
     m_genData = genData;
-    m_heightGenerator.
+    m_heightGenerator.init(genData);
 }
 
 void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* heightData) const {
@@ -75,5 +76,17 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
 }
 
 void ProceduralChunkGenerator::generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const {
-
+    VoxelPosition3D cornerPos3D = VoxelSpaceConversions::chunkToVoxel(chunk->getPosition());
+    VoxelPosition2D cornerPos2D;
+    cornerPos2D.pos.x = cornerPos3D.pos.x;
+    cornerPos2D.pos.y = cornerPos3D.pos.z;
+    cornerPos2D.face = cornerPos3D.face;
+    for (int z = 0; z < CHUNK_WIDTH; z++) {
+        for (int x = 0; x < CHUNK_WIDTH; x++) {
+            VoxelPosition2D pos = cornerPos2D;
+            pos.pos.x += x;
+            pos.pos.y += z;
+            m_heightGenerator.generateHeight(heightData[z * CHUNK_WIDTH + x], pos);
+        }
+    }
 }

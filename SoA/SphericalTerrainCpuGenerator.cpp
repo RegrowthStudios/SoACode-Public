@@ -14,11 +14,11 @@
 //    // Empty
 //}
 
-void SphericalTerrainCpuGenerator::init(PlanetGenData* planetGenData) {
+void SphericalTerrainCpuGenerator::init(const PlanetGenData* planetGenData) {
     m_genData = planetGenData;
 }
 
-void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) {
+void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) const {
 
     //f32v3 pos;
     //const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
@@ -52,34 +52,47 @@ void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* me
     //m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData, true);
 }
 
-float SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) {
-    // Get scaled position
+void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const {
+    // Need to convert to world-space
     f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
+    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
 
-    // Set the data
-    f32v3 pos(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.x,
-              m_genData->radius * VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face],
-              facePosition.pos.y * CHUNK_WIDTH * KM_PER_VOXEL * coordMults.y);
+    f64v3 pos;
+    pos[coordMapping.x] = facePosition.pos.x * KM_PER_VOXEL * coordMults.x;
+    pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
+    pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
+
+    pos = glm::normalize(pos) * m_genData->radius;
 
     height.height = getNoiseValue(pos, m_genData->baseTerrainFuncs);
     height.temperature = getNoiseValue(pos, m_genData->tempTerrainFuncs);
     height.rainfall = getNoiseValue(pos, m_genData->humTerrainFuncs);
     height.surfaceBlock = DIRTGRASS;
-    // TODO(Ben): Biome
-    //        heightData[zIndex][xIndex][3] = ;
+}
 
+f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition) const {
+    // Need to convert to world-space
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
+    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
+
+    f64v3 pos;
+    pos[coordMapping.x] = facePosition.pos.x * KM_PER_VOXEL * coordMults.x;
+    pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
+    pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
+
+    pos = glm::normalize(pos) * m_genData->radius;
     return getNoiseValue(pos, m_genData->baseTerrainFuncs);
 }
 
-float SphericalTerrainCpuGenerator::getNoiseValue(const f32v3& pos, const NoiseBase& funcs) {
+f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos, const NoiseBase& funcs) const {
 
 #define SCALE_CODE rv += (total / maxAmplitude) * (fn.high - fn.low) * 0.5f + (fn.high + fn.low) * 0.5f
 
-    float rv = funcs.base;
-    float total;
-    float amplitude;
-    float maxAmplitude;
-    float frequency;
+    f64 rv = funcs.base;
+    f64 total;
+    f64 amplitude;
+    f64 maxAmplitude;
+    f64 frequency;
 
     // NOTE: Make sure this implementation matches NoiseShaderGenerator::addNoiseFunctions()
     for (size_t f = 0; f < funcs.funcs.size(); f++) {

@@ -74,8 +74,8 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
                                                                   data,
                                                                   &spaceSystem->normalMapGenProgram,
                                                                   spaceSystem->normalMapRecycler.get());
-            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
-                                                                  data);
+            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
+            stCmp.cpuGenerator->init(data);
             stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
             // Do this last to prevent race condition with regular update
             data->radius = stCmp.radius;
