@@ -155,6 +155,10 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                     fSource += "tmp = snoise(pos * frequency);\n";
                     fSource += "total += tmp * tmp * tmp * amplitude;\n";
                     break;
+                case TerrainStage::CELLULAR_NOISE:
+                    fSource += "vec2 ff = cellular(pos * frequency);\n";
+                    fSource += "total += (ff.y - ff.x) * amplitude;\n";
+                    break;
             }
             fSource = fSource +
                 "  frequency *= 2.0;\n" +

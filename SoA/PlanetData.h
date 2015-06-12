@@ -46,6 +46,7 @@ enum class TerrainStage {
     ABS_NOISE,
     SQUARED_NOISE,
     CUBED_NOISE,
+    CELLULAR_NOISE,
     CONSTANT,
     PASS_THROUGH
 };
