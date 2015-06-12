@@ -36,7 +36,18 @@ void SphericalTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vec
         delete cmp.rpcDispatcher;
     }
     delete cmp.sphericalTerrainData;
-    //delete[] cmp.patches;
+    if (cmp.patches) {
+        delete[] cmp.patches;
+        cmp.patches = nullptr;
+    }
+}
+
+void FarTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
+    FarTerrainComponent& cmp = _components[cID].second;
+    if (cmp.patches) {
+        delete[] cmp.patches;
+        cmp.patches = nullptr;
+    }
 }
 
 void OrbitComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
