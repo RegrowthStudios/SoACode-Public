@@ -153,22 +153,34 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     auto& npCmpID = stCmp.namePositionComponent;
     auto& arCmpID = stCmp.axisRotationComponent;
     auto& ftCmpID = stCmp.farTerrainComponent;
+    WorldCubeFace face;
     PlanetGenData* genData = stCmp.planetGenData;
     nString filePath = genData->filePath;
     if (genData->program.isLinked()) genData->program.dispose();
 
-    if (stCmp.farTerrainComponent) {
+    if (ftCmpID) {
+        face = spaceSystem->m_farTerrainCT.getFromEntity(eid).face;
         SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, eid);
     }
+    if (stCmp.sphericalVoxelComponent) {
+        SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, eid);
+    }
+
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
 
     genData = state->planetLoader->loadPlanet(filePath, glRPC);
+    genData->radius = radius;
 
     auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
                                                          radius,
                                                          genData,
                                                          &spaceSystem->normalMapGenProgram,
                                                          spaceSystem->normalMapRecycler.get());
+
+    if (ftCmpID) {
+        auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
+        stCmp.farTerrainComponent = ftCmpID;
+    }
 
     // TODO(Ben): this doesn't work too well.
     auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
