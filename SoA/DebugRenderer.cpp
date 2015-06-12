@@ -11,8 +11,6 @@
 #include "GameManager.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
-#include "global.h"
-
 f32m4 DebugRenderer::_modelMatrix(1.0);
 
 glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2);
@@ -49,9 +47,7 @@ DebugRenderer::~DebugRenderer() {
         glDeleteBuffers(1, &_lineMesh->vertexBufferID);
         delete _lineMesh;
     }
-    if (m_program) {
-        vg::ShaderManager::destroyProgram(&m_program);
-    }
+    if (m_program.isCreated()) m_program.dispose();
 }
 
 void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w /* = f32m4(1.0) */) {
@@ -62,11 +58,11 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, cons
     std::chrono::duration<double> elapsedTime = _currentTimePoint - _previousTimePoint;
     double deltaT = elapsedTime.count();
 
-    if (!m_program) m_program = ShaderLoader::createProgramFromFile("Shaders/BasicShading/BasicColorShading.vert",
+    if (!m_program.isCreated()) m_program = ShaderLoader::createProgramFromFile("Shaders/BasicShading/BasicColorShading.vert",
                                                                          "Shaders/BasicShading/BasicColorShading.frag");
 
-    m_program->use();
-    m_program->enableVertexAttribArrays();
+    m_program.use();
+    m_program.enableVertexAttribArrays();
     
     if(_icospheresToRender.size() > 0) renderIcospheres(vp, w, playerPos, deltaT);
     if(_cubesToRender.size() > 0) renderCubes(vp, w, playerPos, deltaT);
@@ -75,8 +71,8 @@ void DebugRenderer::render(const glm::mat4 &vp, const glm::vec3& playerPos, cons
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
-    m_program->disableVertexAttribArrays();
-    m_program->use();
+    m_program.disableVertexAttribArrays();
+    m_program.use();
     
 }
 
@@ -131,8 +127,8 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const f32m4& w, const 
         setMatrixScale(_modelMatrix, i->radius, i->radius, i->radius);
         glm::mat4 mvp = vp * _modelMatrix * w;
 
-        glUniform4f(m_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
-        glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
+        glUniform4f(m_program.getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
+        glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
 
         i->timeTillDeletion -= deltaT;
@@ -150,8 +146,8 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::
         setMatrixScale(_modelMatrix, i->size);
         glm::mat4 mvp = vp * _modelMatrix * w;
 
-        glUniform4f(m_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
-        glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
+        glUniform4f(m_program.getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
+        glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
 
         glDrawElements(GL_TRIANGLES, _cubeMesh->numIndices, GL_UNSIGNED_INT, 0);
 
@@ -166,11 +162,11 @@ void DebugRenderer::renderLines(const glm::mat4 &vp, const f32m4& w, const glm::
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
     setMatrixScale(_modelMatrix, 1.0f, 1.0f, 1.0f);
     for(auto i = _linesToRender.begin(); i != _linesToRender.end(); i++) {
-        glUniform4f(m_program->getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
+        glUniform4f(m_program.getUniform("unColor"), i->color.r, i->color.g, i->color.b, i->color.a);
         setMatrixTranslation(_modelMatrix, i->position1, playerPos);
         
         glm::mat4 mvp = vp * _modelMatrix * w;
-        glUniformMatrix4fv(m_program->getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &mvp[0][0]);
         glm::vec3 secondVertex = i->position2 - i->position1;
         glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec3), sizeof(glm::vec3), &secondVertex);
         glDrawElements(GL_LINES, _lineMesh->numIndices, GL_UNSIGNED_INT, 0);

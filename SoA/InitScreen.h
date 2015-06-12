@@ -29,7 +29,7 @@ private:
     // Check Requirements And Draws Results
     void checkRequirements();
 
-    vg::SpriteBatch* _sb;
-    vg::SpriteFont* _font;
-    bool _canContinue;
+    vg::SpriteBatch* m_sb;
+    vg::SpriteFont* m_font;
+    bool m_canContinue;
 };

@@ -6,7 +6,7 @@
 
 // Sample Dependency Task
 class LoadTaskStarSystem : public ILoadTask {
-    friend class LoadScreen;
+    friend class MainMenuLoadScreen;
 
     LoadTaskStarSystem(vcore::RPCManager* glrpc, const nString& filePath, SoaState* state) :
         soaState(state) {

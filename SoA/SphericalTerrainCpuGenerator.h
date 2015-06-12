@@ -20,7 +20,7 @@
 #include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
 
-class NoiseBase;
+struct NoiseBase;
 
 class SphericalTerrainCpuGenerator {
 public:

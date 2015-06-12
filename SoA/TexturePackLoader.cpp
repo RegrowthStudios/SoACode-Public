@@ -4,7 +4,6 @@
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/io/Keg.h>
 
-#include "FileSystem.h"
 #include "SoaOptions.h"
 #include "PlanetData.h"
 
@@ -43,7 +42,6 @@ void TexturePackLoader::loadAllTextures(const nString& texturePackPath) {
     // Load the pack file to get the texture pack description
     _packInfo = loadPackFile(texturePackPath + "pack.yml");
 
-    ui32 width, height;
     for (auto it = _texturesToLoad.begin(); it != _texturesToLoad.end(); ++it) {
         // TODO: Use iom to get a path
         vpath texPath; _ioManager.resolvePath(_texturePackPath + it->first, texPath);
@@ -93,12 +91,8 @@ void TexturePackLoader::uploadTextures() {
 
     // TODO(Ben): This could be done better
     // Upload all the block textures
-    vg::Texture atlasTex;
-    atlasTex.width = atlasTex.height = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
-
-    atlasTex.id = _textureAtlasStitcher.buildTextureArray();
-
-    blockPack.initialize(atlasTex);
+    Blocks.texture.width = Blocks.texture.height = _packInfo.resolution * BLOCK_TEXTURE_ATLAS_WIDTH;
+    Blocks.texture.id = _textureAtlasStitcher.buildTextureArray();
 
     // Get the number of atlas pages before freeing atlas
     _numAtlasPages = _textureAtlasStitcher.getNumPages();
@@ -195,7 +189,7 @@ void TexturePackLoader::writeDebugAtlases() {
     int pixelsPerPage = width * height * 4;
     ui8 *pixels = new ui8[width * height * 4 * _numAtlasPages];
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, blockPack.textureInfo.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, Blocks.texture.id);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     for (int i = 0; i < _numAtlasPages; i++) {
@@ -210,9 +204,6 @@ void TexturePackLoader::writeDebugAtlases() {
 }
 
 void TexturePackLoader::loadAllBlockTextures() {
-    // Used to get the texture pixel dimensions
-    ui32 width, height;
-
     vg::BitmapResource bitmap;
 
     // Free _blockTextureLayers in case a pack has been loaded before
@@ -272,13 +263,13 @@ bool TexturePackLoader::loadTexFile(nString fileName, ZipFile *zipFile, BlockTex
         if (keg::parse(rv, data.c_str(), "BlockTexture") == keg::Error::NONE) {
             if (rv->base.weights.size() > 0) {
                 rv->base.totalWeight = 0;
-                for (i32 i = 0; i < rv->base.weights.size(); i++) {
+                for (size_t i = 0; i < rv->base.weights.size(); i++) {
                     rv->base.totalWeight += rv->base.weights[i];
                 }
             }
             if (rv->overlay.weights.size() > 0) {
                 rv->overlay.totalWeight = 0;
-                for (i32 i = 0; i < rv->overlay.weights.size(); i++) {
+                for (size_t i = 0; i < rv->overlay.weights.size(); i++) {
                     rv->overlay.totalWeight += rv->overlay.weights[i];
                 }
             }
@@ -394,8 +385,6 @@ BlockTextureLayer* TexturePackLoader::postProcessLayer(vg::BitmapResource& bitma
 
 void TexturePackLoader::mapTexturesToAtlases() {
 
-    PreciseTimer timerb;
-    timerb.start();
     BlockTextureLayer* layer;
     // Iterate through all the unique texture layers we need to map
     for (auto& it = _blockTextureLayers.begin(); it != _blockTextureLayers.end(); ++it) {

@@ -5,7 +5,6 @@
 #include "ShaderLoader.h"
 #include "Errors.h"
 
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/SamplerState.h>
@@ -46,13 +45,16 @@ KEG_TYPE_DEF_SAME_NAME(FlareKegProperties, kt) {
 const int VERTS_PER_QUAD = 4;
 const int INDICES_PER_QUAD = 6;
 
-LenseFlareRenderer::LenseFlareRenderer(const ModPathResolver* textureResolver) :
-m_textureResolver(textureResolver) {
+LenseFlareRenderer::LenseFlareRenderer() {
     // Empty
 }
 
 LenseFlareRenderer::~LenseFlareRenderer() {
     dispose();
+}
+
+void LenseFlareRenderer::init(const ModPathResolver* textureResolver) {
+    m_textureResolver = textureResolver;
 }
 
 void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
@@ -61,11 +63,11 @@ void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
                                 f32 size,
                                 f32 intensity) {
     if (size <= 0.0f || intensity <= 0.0f) return;
-    if (!m_program) {
+    if (!m_program.isCreated()) {
         lazyInit();
     }
 
-    m_program->use();
+    m_program.use();
 
     f32v2 dims(size, size * aspectRatio);
 
@@ -74,11 +76,11 @@ void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
     glBindTexture(GL_TEXTURE_2D, m_texture);
     // Upload uniforms
     f32v3 center(-relCamPos);
-    glUniform1f(m_program->getUniform("unIntensity"), intensity * m_intensity);
-    glUniform3fv(m_program->getUniform("unCenter"), 1, &center[0]);
-    glUniform3fv(m_program->getUniform("unColor"), 1, &color[0]);
-    glUniform2fv(m_program->getUniform("unDims"), 1, &dims[0]);
-    glUniformMatrix4fv(m_program->getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniform1f(m_program.getUniform("unIntensity"), intensity * m_intensity);
+    glUniform3fv(m_program.getUniform("unCenter"), 1, &center[0]);
+    glUniform3fv(m_program.getUniform("unColor"), 1, &color[0]);
+    glUniform2fv(m_program.getUniform("unDims"), 1, &dims[0]);
+    glUniformMatrix4fv(m_program.getUniform("unVP"), 1, GL_FALSE, &VP[0][0]);
 
     glBindVertexArray(m_vao);
     glDisable(GL_DEPTH_TEST);
@@ -88,14 +90,13 @@ void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
     glDepthMask(GL_TRUE);
     glBindVertexArray(0);
 
-    m_program->unuse();
+    m_program.unuse();
 
 }
 
 void LenseFlareRenderer::dispose() {
-    if (m_program) {
-        vg::ShaderManager::destroyProgram(&m_program);
-    }
+    if (m_program.isCreated()) m_program.dispose();
+
     if (m_texture) {
         vg::GpuMemory::freeTexture(m_texture);
     }
@@ -118,11 +119,11 @@ void LenseFlareRenderer::lazyInit() {
     { // Load the shader
         m_program = ShaderLoader::createProgramFromFile("Shaders/LensFlare/flare.vert",
                                                         "Shaders/LensFlare/flare.frag");
-        m_unColor = m_program->getUniform("unColor");
+        m_unColor = m_program.getUniform("unColor");
         // Set constant uniforms
-        m_program->use();
-        glUniform1i(m_program->getUniform("unTexture"), 0);
-        m_program->unuse();
+        m_program.use();
+        glUniform1i(m_program.getUniform("unTexture"), 0);
+        m_program.unuse();
     }
     
     { // Load the texture
@@ -231,10 +232,10 @@ void LenseFlareRenderer::initMesh() {
     vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(FlareVertex) * vertices.size(), vertices.data());
     vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(ui16) * indices.size(), indices.data());
 
-    m_program->enableVertexAttribArrays();
-    glVertexAttribPointer(m_program->getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, position));
-    glVertexAttribPointer(m_program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, uv));
-    glVertexAttribPointer(m_program->getAttribute("vOffset"), 1, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, offset));
+    m_program.enableVertexAttribArrays();
+    glVertexAttribPointer(m_program.getAttribute("vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, position));
+    glVertexAttribPointer(m_program.getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, uv));
+    glVertexAttribPointer(m_program.getAttribute("vOffset"), 1, GL_FLOAT, GL_FALSE, sizeof(FlareVertex), offsetptr(FlareVertex, offset));
 
     glBindVertexArray(0);
 }

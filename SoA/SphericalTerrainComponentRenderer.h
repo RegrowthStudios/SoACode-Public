@@ -16,6 +16,7 @@
 #define SphericalTerrainComponentRenderer_h__
 
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
 
 class Camera;
 struct AtmosphereComponent;
@@ -24,8 +25,6 @@ struct NamePositionComponent;
 struct SpaceLightComponent;
 struct SphericalTerrainComponent;
 
-DECL_VG(class GLProgram);
-
 class SphericalTerrainComponentRenderer {
 public:
     ~SphericalTerrainComponentRenderer();
@@ -33,6 +32,7 @@ public:
               const Camera* camera,
               const f32v3& lightDir,
               const f64v3& position,
+              const f32 zCoef,
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent,
               const AtmosphereComponent* aComponent);
@@ -40,8 +40,8 @@ public:
 private:
     void buildShaders();
 
-    vg::GLProgram* m_terrainProgram = nullptr;
-    vg::GLProgram* m_waterProgram = nullptr;
+    vg::GLProgram m_terrainProgram;
+    vg::GLProgram m_waterProgram;
 };
 
 #endif // SphericalTerrainComponentRenderer_h__

@@ -84,7 +84,7 @@ void pError(const nString& message)
         fprintf(logFile, "*ERROR: %s \n", message.c_str());
         fclose(logFile);
     }
-    printf("*ERROR: %s \n", message);
+    printf("*ERROR: %s \n", message.c_str());
     fflush(stdout);
     showMessage("ERROR: " + message);
 }

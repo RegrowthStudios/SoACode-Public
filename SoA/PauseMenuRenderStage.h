@@ -15,19 +15,19 @@
 #ifndef PauseMenuRenderStage_h__
 #define PauseMenuRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class PauseMenu;
 
-class PauseMenuRenderStage : public vg::IRenderStage {
+class PauseMenuRenderStage : public IRenderStage {
 public:
-    PauseMenuRenderStage(const PauseMenu* pauseMenu);
+    void hook(const PauseMenu* pauseMenu);
 
     // Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera = nullptr) override;
 
 private:
-    const PauseMenu* _pauseMenu; ///< Handle to pause menu for rendering
+    const PauseMenu* _pauseMenu = nullptr; ///< Handle to pause menu for rendering
 };
 
 #endif // PauseMenuRenderStage_h__

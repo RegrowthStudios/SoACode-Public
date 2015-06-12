@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "HdrRenderStage.h"
 
-#include <Vorb/graphics/GLProgram.h>
-
-#include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
 #include "Chunk.h"
@@ -15,49 +12,37 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 
-HdrRenderStage::HdrRenderStage(vg::FullQuadVBO* quad, const Camera* camera) : IRenderStage("HDR", camera),
-    m_quad(quad),
-    m_oldVP(1.0f) {
-    // Empty
+void HdrRenderStage::hook(vg::FullQuadVBO* quad) {
+    m_quad = quad;
 }
 
-void HdrRenderStage::reloadShader() {
-    IRenderStage::reloadShader();
-    if (m_glProgramBlur) {
-        vg::ShaderManager::destroyProgram(&m_glProgramBlur);
-    }
-    if (m_glProgramDoFBlur) {
-        vg::ShaderManager::destroyProgram(&m_glProgramDoFBlur);
-    }
+void HdrRenderStage::dispose(LoadContext& context) {
+    if (m_glProgramBlur.isCreated()) m_glProgramBlur.dispose();
+    if (m_glProgramDoFBlur.isCreated()) m_glProgramDoFBlur.dispose();
 }
 
-void HdrRenderStage::dispose() {
-    IRenderStage::dispose();
-    if (m_glProgramBlur) {
-        vg::ShaderManager::destroyProgram(&m_glProgramBlur);
-    }
-}
-
-void HdrRenderStage::render() {
+void HdrRenderStage::render(const Camera* camera /*= nullptr*/) {
     f32m4 oldVP = m_oldVP;
-    f32m4 vp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
-    m_oldVP = vp;
-
+    f32m4 vp;
+    if (camera) {
+        vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+        m_oldVP = vp;
+    }
     vg::GLProgram* program;
     
     if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {
-        if (!m_glProgramBlur) {
+        if (!m_glProgramBlur.isCreated()) {
             m_glProgramBlur = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                        "Shaders/PostProcessing/MotionBlur.frag",
                                                                        nullptr, "#define MOTION_BLUR\n");
         }
-        program = m_glProgramBlur;
+        program = &m_glProgramBlur;
     } else {
-        if (!m_program) {
+        if (!m_program.isCreated()) {
             m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                  "Shaders/PostProcessing/MotionBlur.frag");
         }
-        program = m_program;
+        program = &m_program;
     }
 
     // TODO(Ben): DOF shader?
@@ -78,8 +63,8 @@ void HdrRenderStage::render() {
         glUniform1f(program->getUniform("unBlurIntensity"), 0.5f);
     }
     //if (graphicsOptions.depthOfField > 0) {
-    //    glUniform1f(_glProgram->getUniform("unFocalLen"), 70.0f);
-    //    glUniform1f(_glProgram->getUniform("unZfocus"), 0.96f); // [0, 1]
+    //    glUniform1f(_glprogram->getUniform("unFocalLen"), 70.0f);
+    //    glUniform1f(_glprogram->getUniform("unZfocus"), 0.96f); // [0, 1]
     //}
 
     glDisable(GL_DEPTH_TEST);

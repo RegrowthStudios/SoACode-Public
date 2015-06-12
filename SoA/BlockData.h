@@ -3,14 +3,15 @@
 
 #include <SDL/SDL.h>
 #include <Vorb/io/Keg.h>
+#include <Vorb/graphics/ImageIO.h>
 
 #include "BlockTextureMethods.h"
 #include "CAEngine.h"
 #include "ChunkMesh.h"
 #include "Constants.h"
-#include "global.h"
 #include "HardCodedIDs.h"
 #include "Rendering.h"
+#include "Item.h"
 
 ui16& getLowWaterID();
 #define LOWWATER (getLowWaterID())

@@ -15,12 +15,13 @@
 #ifndef OptionsController_h__
 #define OptionsController_h__
 
-#include <Vorb/script/Environment.h>
 #include "SoaOptions.h"
+#include <Vorb/Events.hpp>
+#include <Vorb/script/Environment.h>
 
 class OptionsController {
 public:
-    OptionsController();
+    OptionsController(const nString& filePath = "Data/options.ini");
     ~OptionsController();
 
     // Call right before loading options
@@ -30,7 +31,7 @@ public:
     /// Call this when beginning to change options.
     void beginContext();
 
-    void loadOptions();
+    bool loadOptions();
 
     void saveOptions();
 
@@ -39,18 +40,22 @@ public:
     void registerScripting(vscript::Environment* env);
 
     // These can be called from lua scripts
-    void setOptionInt(nString optionName, int val);
-    void setOptionFloat(nString optionName, f32 val);
-    void setOptionBool(nString optionName, bool val);
-    int getOptionInt(nString optionName);
-    f32 getOptionFloat(nString optionName);
-    bool getOptionBool(nString optionName);
+    void setInt(nString optionName, int val);
+    void setFloat(nString optionName, f32 val);
+    void setBool(nString optionName, bool val);
+    int getInt(nString optionName);
+    f32 getFloat(nString optionName);
+    bool getBool(nString optionName);
     
     bool needsFboReload = false;
     bool needsTextureReload = false;
     bool needsShaderReload = false;
     bool needsWindowReload = false;
+
+    Event<> OptionsChange;
+
 private:
+    nString m_filePath = "";
     SoaOptions m_tempCopy;
     SoaOptions m_default;
 };

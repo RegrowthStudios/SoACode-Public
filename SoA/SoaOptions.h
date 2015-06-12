@@ -1,8 +1,6 @@
 #pragma once
 #include "Errors.h"
 
-extern std::vector<ui32v2> SCREEN_RESOLUTIONS;
-
 struct SoaOptionFlags {
     bool needsWindowReload : 1;
     bool needsFBOReload : 1;
@@ -12,9 +10,7 @@ struct SoaOptionFlags {
 
 enum class OptionValueType {
     NONE,
-    F64,
     F32,
-    I64,
     I32,
     BOOL,
     CHAR
@@ -22,16 +18,12 @@ enum class OptionValueType {
 
 struct OptionValue {
     OptionValue() {}
-    OptionValue(f64 lf) : lf(lf), type(OptionValueType::F64) {}
     OptionValue(f32 f) : f(f), type(OptionValueType::F32) {}
-    OptionValue(i64 li) : li(li), type(OptionValueType::I64) {}
     OptionValue(i32 i) : i(i), type(OptionValueType::I32) {}
     OptionValue(bool b) : b(b), type(OptionValueType::BOOL) {}
     OptionValue(char c) : c(c), type(OptionValueType::CHAR) {}
     union {
-        f64 lf;
         f32 f;
-        i64 li;
         i32 i;
         bool b;
         char c;
@@ -68,6 +60,7 @@ enum DefaultOptions : int {
     OPT_GAMMA,
     OPT_SEC_COLOR_MULT,
     OPT_FOV,
+    OPT_VSYNC,
     OPT_MAX_FPS,
     OPT_VOXEL_LOD_THRESHOLD,
     OPT_MUSIC_VOLUME,
@@ -76,6 +69,8 @@ enum DefaultOptions : int {
     OPT_INVERT_MOUSE,
     OPT_FULLSCREEN,
     OPT_BORDERLESS,
+    OPT_SCREEN_WIDTH,
+    OPT_SCREEN_HEIGHT,
     OPT_NUM_OPTIONS // This should be last
 };
 
@@ -88,6 +83,8 @@ public:
     void addOption(const nString& name, OptionValue defaultValue, SoaOptionFlags flags = {});
     void addStringOption(const nString& name, const nString& defaultValue);
  
+    int findID(const nString& name);
+    SoaOption* find(const nString& name);
     SoaOption& get(int id);
     SoaOption& get(const nString& name);
     SoaStringOption& getStringOption(const nString& name);

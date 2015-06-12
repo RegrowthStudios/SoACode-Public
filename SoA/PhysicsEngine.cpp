@@ -20,9 +20,9 @@ PhysicsEngine::PhysicsEngine() {
     glm::vec3 dir;
     srand(55);
     for (size_t i = 0; i < _precomputedExplosionDirs.size(); i++){
-        dir.x = (rand()) / (double)RAND_MAX*2.0 - 1.0;
-        dir.y = (rand()) / (double)RAND_MAX*2.0 - 1.0;
-        dir.z = (rand()) / (double)RAND_MAX*2.0 - 1.0;
+        dir.x = (rand()) / (f32)RAND_MAX*2.0f - 1.0f;
+        dir.y = (rand()) / (f32)RAND_MAX*2.0f - 1.0f;
+        dir.z = (rand()) / (f32)RAND_MAX*2.0f - 1.0f;
         if (dir.x == 0 && dir.y == 0 && dir.z == 0) dir.x = 1.0f;
         _precomputedExplosionDirs[i] = glm::normalize(dir);
     }
@@ -71,17 +71,17 @@ void PhysicsEngine::explosion(const glm::dvec3 &pos, int numRays, double power, 
     //return; 
 
     static int k = 0;
-    if (numRays > _precomputedExplosionDirs.size()) numRays = _precomputedExplosionDirs.size();
+    if (numRays > (int)_precomputedExplosionDirs.size()) numRays = (int)_precomputedExplosionDirs.size();
 
     //particleEngine.AddAnimatedParticles(1, pos, PARTICLE_EXPLOSION, 0, 0, 0, glm::vec4(255.0, 255.0f, 255.0f, 255.0), 7, 0, 1.0f, 160, glm::vec3(0.0f, 0.05f, 0.0f)); //explosion effect
     //GameManager::soundEngine->PlayExistingSound("Explosion", 0, 0.65f, 0, glm::dvec3(pos.x, pos.y, pos.z));
 
-    if (k + numRays >= _precomputedExplosionDirs.size()){ //prevent overflow and numerous if checks
+    if (k + numRays >= (int)_precomputedExplosionDirs.size()) { //prevent overflow and numerous if checks
         k = 0;
     }
 
     for (int i = 0; i < numRays; i++){
-        explosionRay(m_chunkManager, pos, power, loss, _precomputedExplosionDirs[k++]);
+        explosionRay(m_chunkManager, pos, (f32)power, (f32)loss, _precomputedExplosionDirs[k++]);
     }
 }
 
@@ -762,7 +762,7 @@ void PhysicsEngine::addPhysicsBlock(const glm::dvec3 &pos, int blockType, int yd
     }
     float expLength = glm::length(explosionDir);
     if (expLength){
-        float force = pow(0.89, expLength)*0.6;
+        f32 force = pow(0.89f, expLength) * 0.6f;
         if (force < 0.0f) force = 0.0f;
         glm::vec3 expForce = glm::normalize(explosionDir)*force;
         glm::vec2 tmp(0.0);

@@ -25,7 +25,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     chunk->numBlocks = 0;
     int temperature;
     int rainfall;
-    double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
+    //double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
     // Grab the handles to the arrays
     std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockDataArray;
@@ -38,12 +38,10 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
     int h = 0, maph;
     int hindex;
     int snowDepth, sandDepth;
-    double r;
     int needsCave = 3;
     bool needsSurface = 1;
     int pnum;
     int dh;
-    double ti, tj;
     bool tooSteep;
 
     chunk->minh = chunk->voxelPosition.y - heightMap[CHUNK_LAYER / 2].height; //pick center height as the overall height for minerals
@@ -86,7 +84,7 @@ bool ChunkGenerator::generateChunk(Chunk* chunk, class LoadData *ld)
                 if (dh >= 0) {
                     chunk->numBlocks++;
                     // TODO(Ben): Optimize
-                    blockData = calculateBlockLayer(dh, genData).block;
+                    blockData = calculateBlockLayer((ui32)dh, genData).block;
                     // Check for surface block replacement
                     if (dh == 0) {
                         if (blockData == genData->blockLayers[0].block && genData->surfaceBlock) {
@@ -188,9 +186,9 @@ void ChunkGenerator::LoadMinerals(Chunk* chunk)
         } else{
             chance = 0;
         }
-        d = (float)(PseudoRand(chunk->voxelPosition.x + chunk->voxelPosition.y - i*i * 11, chunk->voxelPosition.z + 8 * i - 2 * chunk->voxelPosition.y) + 1.0)*50.0;
+        d = (f32)(PseudoRand(chunk->voxelPosition.x + chunk->voxelPosition.y - i*i * 11, chunk->voxelPosition.z + 8 * i - 2 * chunk->voxelPosition.y) + 1.0f)*50.0f;
 
-        if (d <= chance - 10.0){ //3 ore veins
+        if (d <= chance - 10.0f){ //3 ore veins
             MakeMineralVein(chunk, md, 32);
             MakeMineralVein(chunk, md, 6433);
             MakeMineralVein(chunk, md, 9189);
@@ -207,7 +205,7 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
 {
     int c = (int)(((PseudoRand(chunk->voxelPosition.x - seed*seed + 3 * chunk->voxelPosition.y + md->blockType * 2, chunk->voxelPosition.z + seed * 4 - chunk->voxelPosition.y + md->blockType - 44) + 1.0) / 2.0)*CHUNK_SIZE);
     int btype = md->blockType;
-    int size = ((PseudoRand(chunk->voxelPosition.x + 2 * chunk->voxelPosition.y - md->blockType * 4 + seed, chunk->voxelPosition.z + chunk->voxelPosition.y - md->blockType + 44) + 1.0) / 2.0)*(md->maxSize - md->minSize) + md->minSize;
+    int size = (int)((PseudoRand(chunk->voxelPosition.x + 2 * chunk->voxelPosition.y - md->blockType * 4 + seed, chunk->voxelPosition.z + chunk->voxelPosition.y - md->blockType + 44) + 1.0) / 2.0)*(md->maxSize - md->minSize) + md->minSize;
     int r;
     int x, y, z;
     for (int i = 0; i < size; i++){
@@ -242,12 +240,12 @@ void ChunkGenerator::MakeMineralVein(Chunk* chunk, MineralData *md, int seed)
 }
 
 // TODO(Ben): Only need to do this once per col or even once per chunk
-const BlockLayer& ChunkGenerator::calculateBlockLayer(int depth, const PlanetGenData* genData) {
+const BlockLayer& ChunkGenerator::calculateBlockLayer(ui32 depth, const PlanetGenData* genData) {
     auto& layers = genData->blockLayers;
 
     // Binary search
     int lower = 0;
-    int upper = layers.size()-1;
+    int upper = (int)(layers.size()-1u);
     int pos = (lower + upper) / 2;
 
     while (lower <= upper) {

@@ -19,9 +19,8 @@ bool comparator(const Distanceclass& i, const Distanceclass& j) {
 void GeometrySorter::sortTransparentBlocks(ChunkMesh* cm, const i32v3& cameraPos) {
 
     _distBuffer.resize(cm->transQuadPositions.size());
-    int dist;
 
-    for (int i = 0; i < cm->transQuadPositions.size(); i++) {
+    for (size_t i = 0; i < cm->transQuadPositions.size(); i++) {
         _distBuffer[i].quadIndex = i; 
         //We multiply by 2 because we need twice the precision of integers per block
         //we subtract by 1 in order to ensure that the camera position is centered on a block
@@ -33,7 +32,7 @@ void GeometrySorter::sortTransparentBlocks(ChunkMesh* cm, const i32v3& cameraPos
 
     int startIndex;
     int j = 0;
-    for (int i = 0; i < _distBuffer.size(); i++) {
+    for (size_t i = 0; i < _distBuffer.size(); i++) {
         startIndex = _distBuffer[i].quadIndex * 4;
         cm->transQuadIndices[j] = startIndex;
         cm->transQuadIndices[j + 1] = startIndex + 1;

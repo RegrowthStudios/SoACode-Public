@@ -22,6 +22,7 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
 
 #define SPACE_SYSTEM_CT_NAMEPOSITIION_NAME "NamePosition"
 #define SPACE_SYSTEM_CT_AXISROTATION_NAME "AxisRotation"
@@ -34,23 +35,24 @@
 #define SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME "SphericalVoxel"
 #define SPACE_SYSTEM_CT_SPACELIGHT_NAME "SpaceLight"
 #define SPACE_SYSTEM_CT_ATMOSPHERE_NAME "Atmosphere"
+#define SPACE_SYSTEM_CT_PLANETRINGS_NAME "PlanetRings"
+#define SPACE_SYSTEM_CT_CLOUDS_NAME "Clouds"
 
 class App;
 class Binary;
 class Camera;
 class GameSystem;
-class GasGiantKegProperties;
-class PlanetKegProperties;
 class PlanetLoader;
-class SoaState;
+struct SoaState;
 class SpriteBatch;
 class SpriteFont;
-class StarKegProperties;
-class SystemBodyKegProperties;
+struct GasGiantKegProperties;
+struct PlanetKegProperties;
+struct StarKegProperties;
 struct SystemBody;
+struct SystemBodyKegProperties;
 
 DECL_VG(class TextureRecycler)
-DECL_VG(class GLProgram)
 
 //TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vecs::ECS {
@@ -70,13 +72,16 @@ public:
     vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
     vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
+    vecs::ComponentTable<PlanetRingsComponent> m_planetRingCT;
+    vecs::ComponentTable<CloudsComponent> m_cloudsCT;
     SphericalVoxelComponentTable m_sphericalVoxelCT;
-
-    nString systemDescription; ///< textual description of the system
+    
+    f32 age = 0.0f; ///< age of the system
+    nString systemDescription = "No description"; ///< textual description of the system
     std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
-    std::unique_ptr<vg::GLProgram> normalMapGenProgram = nullptr; ///< For generating normal maps
-
-    std::map<nString, std::pair<f32v3, f32v3> > pathColorMap; ///< Map of body type to path colors
+    vg::GLProgram normalMapGenProgram; ///< For generating normal maps
+    
+    std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors
 };
 
 #endif // SpaceSystem_h__

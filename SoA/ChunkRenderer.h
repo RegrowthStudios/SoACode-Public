@@ -19,10 +19,10 @@ public:
     static void buildVao(ChunkMesh *cm);
     static void buildWaterVao(ChunkMesh *cm);
 
-    static void drawOpaque(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
-    static void drawTransparent(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawCutout(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP);
+    static void drawTransparent(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawCutout(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP);
+    static void drawWater(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP);
 
     static volatile f32 fadeDist;
 private:

@@ -133,7 +133,7 @@ bool Particle::update() {
 
     switch(type) {
     case PARTICLE_LINEAR:
-        position += velocity * (float)physSpeedFactor;
+        position += velocity;
         break;
     }
     return 0;

@@ -17,15 +17,18 @@
 
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/gtypes.h>
+#include <Vorb/graphics/GLProgram.h>
 
-DECL_VG(class GLProgram);
 class ModPathResolver;
 struct FlareKegProperties;
 
 class LenseFlareRenderer {
 public:
-    LenseFlareRenderer(const ModPathResolver* textureResolver);
+    LenseFlareRenderer();
     ~LenseFlareRenderer();
+
+    void init(const ModPathResolver* textureResolver);
+
     void render(const f32m4& VP, const f64v3& relCamPos,
                 const f32v3& color,
                 float aspectRatio,
@@ -39,7 +42,7 @@ private:
     void initMesh();
 
     const ModPathResolver* m_textureResolver = nullptr;
-    vg::GLProgram* m_program = nullptr;
+    vg::GLProgram m_program;
     VGTexture m_texture = 0;
     ui32 m_texWidth = 0;
     ui32 m_texHeight = 0;

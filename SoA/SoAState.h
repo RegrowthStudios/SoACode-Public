@@ -17,6 +17,8 @@
 
 #include "SpaceSystem.h"
 #include "GameSystem.h"
+#include "Camera.h"
+#include "MainMenuSystemViewer.h"
 
 #include "PlanetLoader.h" // TODO(Ben): Why is this needed here for unique_ptr?
 #include "ModPathResolver.h"
@@ -32,24 +34,28 @@ class PlanetLoader;
 class SoaOptions;
 DECL_VIO(class IOManager);
 
-class SoaState {
-public:
+struct SoaState {
     ~SoaState();
 
-    std::unique_ptr<SpaceSystem> spaceSystem;
-    std::unique_ptr<GameSystem> gameSystem;
+    std::unique_ptr<SpaceSystem> spaceSystem = nullptr;
+    std::unique_ptr<GameSystem> gameSystem = nullptr;
 
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
 
-    std::unique_ptr<DebugRenderer> debugRenderer;
-    std::unique_ptr<MeshManager> meshManager;
-    std::unique_ptr<ChunkMeshManager> chunkMeshManager;
+    std::unique_ptr<DebugRenderer> debugRenderer = nullptr;
+    std::unique_ptr<MeshManager> meshManager = nullptr;
+    std::unique_ptr<ChunkMeshManager> chunkMeshManager = nullptr;
+    std::unique_ptr<MainMenuSystemViewer> systemViewer = nullptr;
 
-    std::unique_ptr<vio::IOManager> systemIoManager;
-    std::unique_ptr<PlanetLoader> planetLoader;
+    std::unique_ptr<vio::IOManager> systemIoManager = nullptr;
+    std::unique_ptr<PlanetLoader> planetLoader = nullptr;
 
     SoaOptions* options = nullptr; // Lives in App
+
+    // TODO(Ben): This is temporary?
+    CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
+    CinematicCamera localCamera; ///< Camera for voxels and far terrain
 
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;

@@ -19,7 +19,7 @@
 #include <Vorb/Random.h>
 #include <Vorb/ui/IGameScreen.h>
 
-#include "GameplayRenderPipeline.h"
+#include "GameplayRenderer.h"
 #include "LoadMonitor.h"
 #include "MTRenderStateManager.h"
 #include "PDA.h"
@@ -32,7 +32,7 @@ class GameSystem;
 class GameSystemUpdater;
 class InputMapper;
 class MainMenuScreen;
-class SoaState;
+struct SoaState;
 class SpaceSystemUpdater;
 class SpriteBatch;
 class SpriteFont;
@@ -59,6 +59,8 @@ enum DevUiModes {
 };
 
 class GameplayScreen : public vui::IAppScreen<App> {
+    friend class GameplayRenderer;
+    friend class GameplayLoadScreen;
 public:
     GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
     ~GameplayScreen();
@@ -102,13 +104,17 @@ private:
     /// Updates multi-threaded render state
     void updateMTRenderState();
 
-    /// Updates the dynamic clipping plane for the world camera
-    void updateWorldCameraClip();
+    // --------------- Event handlers ---------------
+    void onReloadShaders(Sender s, ui32 a);
+    void onQuit(Sender s, ui32 a);
+    void onToggleWireframe(Sender s, ui32 i);
+    void onWindowClose(Sender s);
+    // ----------------------------------------------
 
     const MainMenuScreen* m_mainMenuScreen = nullptr;
     SoaState* m_soaState = nullptr;
 
-    InputMapper* m_inputManager = nullptr;
+    InputMapper* m_inputMapper = nullptr;
 
     PDA m_pda; ///< The PDA
 
@@ -122,7 +128,7 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    GameplayRenderPipeline m_renderPipeline; ///< This handles all rendering for the screen
+    GameplayRenderer m_renderer; ///< This handles all rendering for the screen
 
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
     const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw

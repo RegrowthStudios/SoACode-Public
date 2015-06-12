@@ -4,35 +4,44 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/ui/ScreenList.h>
 #include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/sound/SoundEngine.h>
 
+#include "ChunkMeshManager.h"
+#include "CommonState.h"
+#include "DebugRenderer.h"
 #include "DevScreen.h"
 #include "GameManager.h"
-#include "GameplayScreen.h"
+#include "GameplayLoadScreen.h"
 #include "GameplayScreen.h"
 #include "InitScreen.h"
-#include "LoadScreen.h"
+#include "MainMenuLoadScreen.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
 #include "SoaEngine.h"
 #include "SoaOptions.h"
+#include "SoaState.h"
 #include "SpaceSystem.h"
 #include "TestBlockViewScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
+#include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
 #include "TestVoxelModelScreen.h"
 #include "TestMappingScreen.h"
+#include "TestNoiseScreen.h"
 #include "TestStarScreen.h"
 
 void App::addScreens() {
-    scrInit = new InitScreen(this);
-    scrLoad = new LoadScreen(this);
-    scrMainMenu = new MainMenuScreen(this, scrLoad);
+    scrInit = new InitScreen(this);  
+    scrMainMenu = new MainMenuScreen(this, &state);
+    scrLoad = new MainMenuLoadScreen(this, &state, scrMainMenu);
     scrGamePlay = new GameplayScreen(this, scrMainMenu);
+    scrGameplayLoad = new GameplayLoadScreen(this, &state, scrMainMenu, scrGamePlay);
 
     m_screenList.addScreen(scrInit);
     m_screenList.addScreen(scrLoad);
     m_screenList.addScreen(scrMainMenu);
+    m_screenList.addScreen(scrGameplayLoad);
     m_screenList.addScreen(scrGamePlay);
 
     // Add development screen
@@ -62,6 +71,12 @@ void App::addScreens() {
     scrTests.push_back(new TestVoxelModelScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_V, scrTests.back(), "TestVoxelModelScreen");
+    scrTests.push_back(new TestDisplacementMappingScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
+    scrTests.push_back(new TestNoiseScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_N, scrTests.back(), "TestNoiseScreen");
 
     // Uncomment to start from dev screen for testing other screens
 #define START_AT_DEV_SCREEN
@@ -73,10 +88,22 @@ void App::addScreens() {
 }
 
 void App::onInit() {
-    
+    state.state = new SoaState;
+    state.window = &m_window;
+    state.soundEngine = new vsound::Engine;
+    state.soundEngine->init();
+
     // Load the game options
     SoaEngine::initOptions(soaOptions);
-    SoaEngine::optionsController.setDefault();
+
+    // Set the window options
+    soaOptions.get(OPT_FULLSCREEN).value.b = m_window.isFullscreen();
+    soaOptions.get(OPT_BORDERLESS).value.b = m_window.isBorderless();
+    soaOptions.get(OPT_SCREEN_WIDTH).value.i = m_window.getWidth();
+    soaOptions.get(OPT_SCREEN_HEIGHT).value.i = m_window.getHeight();
+    soaOptions.get(OPT_VSYNC).value.i = (m_window.getSwapInterval() == vui::GameSwapInterval::V_SYNC);
+
+    // Load the options from file
     SoaEngine::optionsController.loadOptions();
 
     vg::SamplerState::initPredefined();
@@ -89,7 +116,6 @@ void App::onExit() {
 }
 
 App::~App() {
-
     delete scrInit;
     delete scrLoad;
     delete scrMainMenu;

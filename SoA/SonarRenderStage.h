@@ -15,13 +15,15 @@
 #ifndef SonarRenderStage_h__
 #define SonarRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
+
+#include <Vorb/graphics/GLProgram.h>
 
 class Camera;
 class GameRenderParams;
 class MeshManager;
 
-class SonarRenderStage : public vg::IRenderStage
+class SonarRenderStage : public IRenderStage
 {
 public:
     /// Constructor which injects dependencies
@@ -30,8 +32,9 @@ public:
     SonarRenderStage(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
+    vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams; ///< Handle to shared parameters
 };
 

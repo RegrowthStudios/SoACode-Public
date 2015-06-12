@@ -17,6 +17,7 @@
 
 struct PlanetGenData;
 
+#include <Vorb/graphics/gtypes.h>
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/Entity.h>
 
@@ -57,6 +58,23 @@ struct AtmosphereKegProperties {
 };
 KEG_TYPE_DECL(AtmosphereKegProperties);
 
+struct PlanetRingKegProperties {
+    f32 innerRadius = 0.0f;
+    f32 outerRadius = 0.0f;
+    f32 aTilt = 0.0f;
+    f32 lNorth = 0.0f;
+    nString colorLookup = "";
+    VGTexture texture = 0;
+};
+KEG_TYPE_DECL(PlanetRingKegProperties);
+
+struct CloudsKegProperties {
+    f32v3 color = f32v3(1.0f, 1.0f, 1.0f);
+    f32v3 scale = f32v3(1.0f, 1.5f, 1.0f);
+    float density = 0.0f;
+};
+KEG_TYPE_DECL(CloudsKegProperties);
+
 struct SystemBodyKegProperties {
     SpaceObjectType type = SpaceObjectType::NONE;
     TrojanType trojan = TrojanType::NONE;
@@ -66,7 +84,7 @@ struct SystemBodyKegProperties {
     nString ref = ""; ///< Orbital period reference body
     f64 e = 0.0; ///< Shape of orbit, 0-1
     f64 t = 0.0; ///< Period of a full orbit in sec
-    f64 a = 0.0; ///< Start true anomaly in deg
+    f64 a = 0.0; ///< Start mean anomaly in deg
     f64 n = 0.0; ///< Longitude of the ascending node in deg
     f64 p = 0.0; ///< Longitude of the periapsis in deg
     f64 i = 0.0; ///< Inclination in deg
@@ -82,24 +100,27 @@ struct SystemBody {
     nString name = "";
     nString parentName = "";
     SystemBody* parent = nullptr;
+    std::vector<SystemBody*> children;
     vecs::EntityID entity = 0;
     SpaceBodyType type = SpaceBodyType::NONE;
     SystemBodyKegProperties properties;
     f64 mass = 0.0;
     bool isBaryCalculated = false; ///< Used by barycenters
+    bool hasComputedRef = false; ///< True when it has computed trojan and t with ref body
 };
 
 struct PlanetKegProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
-    f64v3 axis;
-    f64 angularSpeed = 0.0; // TODO(Ben): Remove
+    f32 aTilt = 0.0;
+    f32 lNorth = 0.0;
     f64 rotationalPeriod = 0.0;
     nString displayName = "";
     nString generation = "";
     PlanetGenData* planetGenData = nullptr;
     AtmosphereKegProperties atmosphere;
+    CloudsKegProperties clouds;
 };
 KEG_TYPE_DECL(PlanetKegProperties);
 
@@ -108,8 +129,8 @@ struct StarKegProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
-    f64v3 axis;
-    f64 angularSpeed = 0.0;
+    f32 aTilt = 0.0;
+    f32 lNorth = 0.0;
     f64 rotationalPeriod = 0.0;
     nString displayName = "";
 };
@@ -119,13 +140,14 @@ struct GasGiantKegProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
-    f64v3 axis;
-    f64 angularSpeed = 0.0;
+    f32 aTilt = 0.0;
+    f32 lNorth = 0.0;
     f64 rotationalPeriod = 0.0;
     f32 oblateness = 0.0;
     nString colorMap = "";
     nString displayName = "";
     AtmosphereKegProperties atmosphere;
+    Array<PlanetRingKegProperties> rings;
 };
 KEG_TYPE_DECL(GasGiantKegProperties);
 

@@ -135,4 +135,61 @@ inline bool dumpFramebufferImage(const nString& rootDir, const ui32v4& viewport)
     return true;
 }
 
+// Math stuff //TODO(Ben): Move this to vorb?
+// atan2 approximation for doubles for GLSL
+// using http://lolengine.net/wiki/doc/maths/remez
+inline f64 fastAtan2(f64 y, f64 x) {
+    const f64 atan_tbl[] = {
+        -3.333333333333333333333333333303396520128e-1,
+        1.999999117496509842004185053319506031014e-1,
+        -1.428514132711481940637283859690014415584e-1,
+        1.110012236849539584126568416131750076191e-1,
+        -8.993611617787817334566922323958104463948e-2,
+        7.212338962134411520637759523226823838487e-2,
+        -5.205055255952184339031830383744136009889e-2,
+        2.938542391751121307313459297120064977888e-2,
+        -1.079891788348568421355096111489189625479e-2,
+        1.858552116405489677124095112269935093498e-3
+    };
+
+    /* argument reduction:
+    arctan (-x) = -arctan(x);
+    arctan (1/x) = 1/2 * pi - arctan (x), when x > 0
+    */
+
+    f64 ax = abs(x);
+    f64 ay = abs(y);
+    f64 t0 = ax > ay ? ax : ay; // max
+    f64 t1 = ax < ay ? ax : ay; // min
+
+    f64 a = 1 / t0;
+    a *= t1;
+
+    f64 s = a * a;
+    f64 p = atan_tbl[9];
+
+    p = fma(fma(fma(fma(fma(fma(fma(fma(fma(fma(p, s,
+        atan_tbl[8]), s,
+        atan_tbl[7]), s,
+        atan_tbl[6]), s,
+        atan_tbl[5]), s,
+        atan_tbl[4]), s,
+        atan_tbl[3]), s,
+        atan_tbl[2]), s,
+        atan_tbl[1]), s,
+        atan_tbl[0]), s*a, a);
+
+    f64 r = ay > ax ? (1.57079632679489661923 - p) : p;
+
+    r = x < 0 ? 3.14159265358979323846 - r : r;
+    r = y < 0 ? -r : r;
+
+    return r;
+}
+
+/// For logarithmic z-buffer shaders
+inline f32 computeZCoef(f32 zFar) {
+    return 2.0f / log2(zFar + 1.0f);
+}
+
 #endif // soaUtils_h__

@@ -49,9 +49,10 @@ public:
     void drawSphericalMeshes(const f64v3& relativePos,
                              const Camera* camera,
                              const f64q& orientation,
-                             vg::GLProgram* program, vg::GLProgram* waterProgram,
+                             vg::GLProgram& program, vg::GLProgram& waterProgram,
                              const f32v3& lightDir,
                              f32 alpha,
+                             const f32 zCoef,
                              const AtmosphereComponent* aCmp,
                              bool drawSkirts);
     /// Draws the far meshes
@@ -66,9 +67,10 @@ public:
     /// @param drawSkirts: True when you want to also draw skirts
     void drawFarMeshes(const f64v3& relativePos,
                        const Camera* camera,
-                       vg::GLProgram* program, vg::GLProgram* waterProgram,
+                       vg::GLProgram& program, vg::GLProgram& waterProgram,
                        const f32v3& lightDir,
                        f32 alpha, f32 radius,
+                       const f32 zCoef,
                        const AtmosphereComponent* aCmp,
                        bool drawSkirts);
 
@@ -82,13 +84,8 @@ public:
     /// Updates distances and Sorts meshes
     void sortFarMeshes(const f64v3& relPos);
 
-    /// Returns the squared distance of the closest mesh determined on most recent call
-    /// to sortSphericalMeshes()
-    /// Returns 0 when there is no mesh
-    f64 getClosestSphericalDistance2() const { return m_meshes.empty() ? DOUBLE_SENTINEL : m_closestSphericalDistance2; }
-    f64 getClosestFarDistance2() const { return m_farMeshes.empty() ? DOUBLE_SENTINEL : m_closestFarDistance2; }
 private:
-    void setScatterUniforms(vg::GLProgram* program, const f64v3& relPos, const AtmosphereComponent* aCmp);
+    void setScatterUniforms(vg::GLProgram& program, const f64v3& relPos, const AtmosphereComponent* aCmp);
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps
@@ -96,8 +93,6 @@ private:
     std::vector<TerrainPatchMesh*> m_waterMeshes; ///< Meshes with water active
     std::vector<TerrainPatchMesh*> m_farMeshes; ///< All meshes
     std::vector<TerrainPatchMesh*> m_farWaterMeshes; ///< Meshes with water active
-    f64 m_closestSphericalDistance2 = DOUBLE_SENTINEL;
-    f64 m_closestFarDistance2 = DOUBLE_SENTINEL;
 };
 
 #endif // TerrainPatchMeshManager_h__

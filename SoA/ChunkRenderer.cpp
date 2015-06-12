@@ -11,13 +11,12 @@
 #include "SoaOptions.h"
 #include "PhysicsBlocks.h"
 #include "RenderUtils.h"
-#include "global.h"
 #include "soaUtils.h"
 
 volatile f32 ChunkRenderer::fadeDist = 1.0f;
 f32m4 ChunkRenderer::worldMatrix = f32m4(1.0f);
 
-void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
+void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
     if (cm->vboID == 0) {
         //printf("VBO is 0 in drawChunkBlocks\n");
@@ -27,8 +26,8 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram* program
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->vaoID);
 
@@ -68,15 +67,15 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram* program
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
+void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP) {
     if (cm->transVaoID == 0) return;
 
     setMatrixTranslation(worldMatrix, f64v3(cm->position), playerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->transVaoID);
 
@@ -86,15 +85,15 @@ void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const vg::GLProgram* pr
 
 }
 
-void ChunkRenderer::drawCutout(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &playerPos, const f32m4 &VP) {
+void ChunkRenderer::drawCutout(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP) {
     if (cm->cutoutVaoID == 0) return;
 
     setMatrixTranslation(worldMatrix, f64v3(cm->position), playerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->cutoutVaoID);
 
@@ -104,7 +103,7 @@ void ChunkRenderer::drawCutout(const ChunkMesh *cm, const vg::GLProgram* program
 
 }
 
-void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram* program, const f64v3 &PlayerPos, const f32m4 &VP)
+void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
     //use drawWater bool to avoid checking frustum twice
     if (cm->inFrustum && cm->waterVboID){
@@ -113,8 +112,8 @@ void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram* program,
 
         f32m4 MVP = VP * worldMatrix;
 
-        glUniformMatrix4fv(program->getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+        glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
         glBindVertexArray(cm->waterVaoID);
 

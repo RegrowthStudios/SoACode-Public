@@ -3,13 +3,11 @@
 
 #include "BlockPack.h"
 #include "Errors.h"
-#include "FileSystem.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
 #include "Rendering.h"
 #include "TerrainGenerator.h"
 #include "TexturePackLoader.h"
-#include "Texture2d.h"
 #include "ZipFile.h"
 
 KEG_ENUM_DEF(MeshType, MeshType, e) {
@@ -267,7 +265,7 @@ void Block::InitializeTexture() {
             // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
             // which becomes n = (sqrt(8 * y + 1) - 1) / 2
             int y = pxTexInfo.base.size.y;
-            floraHeight = (sqrt(8 * y + 1) - 1) / 2;
+            floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
         }
     }
 }

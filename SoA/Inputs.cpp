@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Inputs.h"
 
+#include <SDL/SDL_mouse.h>
+
 #include "GameManager.h"
 
 // Input Commands Sorted Alphabetically
@@ -45,7 +47,6 @@ InputMapper::InputID INPUT_SONAR = -1;
 InputMapper::InputID INPUT_SPEED_TIME = -1;
 InputMapper::InputID INPUT_SPRINT = -1;
 InputMapper::InputID INPUT_TIME_BACK = -1;
-InputMapper::InputID INPUT_TIME_BACKWARD = -1;
 InputMapper::InputID INPUT_TIME_FORWARD = -1;
 InputMapper::InputID INPUT_TOGGLE_AR = -1;
 InputMapper::InputID INPUT_TOGGLE_UI = -1;
@@ -60,7 +61,7 @@ InputMapper::InputID INPUT_ZOOM = -1;
 
 // Generate Input Handles
 void initInputs(InputMapper* inputManager) {
-    CREATE_INPUT(Random Debug, VKEY_6, INPUT_RANDOM_DEBUG);
+ //   CREATE_INPUT(Random Debug, VKEY_6, INPUT_RANDOM_DEBUG);
 
     // The Greatest Input In The Cosmos
     CREATE_INPUT(Pause, VKEY_ESCAPE, INPUT_PAUSE);
@@ -86,7 +87,7 @@ void initInputs(InputMapper* inputManager) {
 
     // Visual Debugging
     CREATE_INPUT(Grid Toggle, VKEY_G, INPUT_GRID);
-    CREATE_INPUT(Draw Mode, VKEY_M, INPUT_DRAW_MODE);
+    CREATE_INPUT(Cycle Draw Mode, VKEY_M, INPUT_DRAW_MODE);
     CREATE_INPUT(Planet Draw Mode, VKEY_J, INPUT_PLANET_DRAW_MODE);
     CREATE_INPUT(Update Frustum, VKEY_U, INPUT_UPDATE_FRUSTUM);
     CREATE_INPUT(Cycle Color Filter, VKEY_C, INPUT_CYCLE_COLOR_FILTER);
@@ -111,8 +112,6 @@ void initInputs(InputMapper* inputManager) {
     // Physics
     CREATE_INPUT(Water Update, VKEY_N, INPUT_WATER_UPDATE);
     CREATE_INPUT(Update Physics Blocks, VKEY_P, INPUT_PHYSICS_BLOCK_UPDATES);
-    CREATE_INPUT(Time Backward, VKEY_LEFTBRACKET, INPUT_TIME_BACKWARD);
-    CREATE_INPUT(Time Forward, VKEY_RIGHTBRACKET, INPUT_TIME_FORWARD);
 
     // Mouse Buttons
     CREATE_INPUT(Mouse Right, (VirtualKey)SDL_BUTTON_RIGHT, INPUT_MOUSE_RIGHT);

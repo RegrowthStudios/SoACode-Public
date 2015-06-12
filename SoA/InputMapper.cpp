@@ -4,8 +4,6 @@
 #include <Vorb/io/Keg.h>
 #include <Vorb/io/IOManager.h>
 
-#include "global.h"
-#include "FileSystem.h"
 #include "GameManager.h"
 #include "Inputs.h"
 
@@ -26,12 +24,12 @@ InputMapper::InputMapper() {
 }
 
 InputMapper::~InputMapper() {
-    // Empty
+    stopInput();
 }
 
 bool InputMapper::getInputState(const InputID id) {
     // Check Input
-    if (id < 0 || id >= m_inputs.size()) return false;
+    if (id < 0 || id >= (int)m_inputs.size()) return false;
     return m_keyStates[m_inputs.at(id).key];
 }
 
@@ -109,18 +107,22 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
 }
 
 void InputMapper::startInput() {
-    vui::InputDispatcher::mouse.onButtonDown += makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputMapper::onKeyDown);
-    vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputMapper::onKeyUp);
-    m_receivingInput = true;
+    if (!m_receivingInput) {
+        vui::InputDispatcher::mouse.onButtonDown += makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputMapper::onKeyDown);
+        vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputMapper::onKeyUp);
+        m_receivingInput = true;
+    }
 }
 void InputMapper::stopInput() {
-    vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
-    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputMapper::onKeyDown);
-    vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
-    m_receivingInput = false;
+    if (m_receivingInput) {
+        vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputMapper::onKeyDown);
+        vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
+        m_receivingInput = false;
+    }
 }
 
 void InputMapper::saveInputs(const nString &filePath /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
@@ -139,7 +141,7 @@ void InputMapper::saveInputs(const nString &filePath /* = INPUTMAPPER_DEFAULT_CO
 }
 
 VirtualKey InputMapper::getKey(const InputID id) {
-    if (id < 0 || id >= m_inputs.size()) return VKEY_HIGHEST_VALUE;
+    if (id < 0 || id >= (int)m_inputs.size()) return VKEY_HIGHEST_VALUE;
     return m_inputs.at(id).key;
 }
 
@@ -148,7 +150,7 @@ void InputMapper::setKey(const InputID id, VirtualKey key) {
     VirtualKey oldKey = m_inputs.at(id).key;
     auto& it = m_keyCodeMap.find(oldKey);
     auto& vec = it->second;
-    for (int i = 0; i < vec.size(); i++) {
+    for (size_t i = 0; i < vec.size(); i++) {
         // Remove the input from the vector keyed on VirtualKey
         if (vec[i] == id) {
             vec[i] = vec.back();
@@ -162,7 +164,7 @@ void InputMapper::setKey(const InputID id, VirtualKey key) {
 }
 
 void InputMapper::setKeyToDefault(const InputID id) {
-    if (id < 0 || id >= m_inputs.size()) return;
+    if (id < 0 || id >= (int)m_inputs.size()) return;
     setKey(id, m_inputs.at(id).defaultKey);
 }
 

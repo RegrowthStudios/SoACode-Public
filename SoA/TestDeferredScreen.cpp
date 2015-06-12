@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TestDeferredScreen.h"
 
-
+#include "ShaderLoader.h"
 #include <Vorb/colors.h>
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/graphics/GLRenderTarget.h>
@@ -45,7 +45,7 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     buildGeometry();
     buildLightMaps();
 
-    m_gbuffer = vg::GBuffer(_game->getWindow().getWidth(), _game->getWindow().getHeight());
+    m_gbuffer = vg::GBuffer(m_game->getWindow().getWidth(), m_game->getWindow().getHeight());
     Array<vg::GBufferAttachment> ga;
     ga.setData(4);
     ga[0].format = vg::TextureInternalFormat::RGBA16F;
@@ -62,65 +62,20 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_sb.init();
 
-    vio::IOManager iom;
-    const cString src;
+    { // Init Shaders
+        m_deferredPrograms.clear = ShaderLoader::createProgramFromFile("Shaders/Deferred/Clear.vert",
+                                                                       "Shaders/Deferred/Clear.frag");
 
-    m_deferredPrograms.clear.init();
-    src = iom.readFileToString("Shaders/Deferred/Clear.vert");
-    m_deferredPrograms.clear.addShader(vg::ShaderType::VERTEX_SHADER, src);
-    delete[] src;
-    src = iom.readFileToString("Shaders/Deferred/Clear.frag");
-    m_deferredPrograms.clear.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-    delete[] src;
-    m_deferredPrograms.clear.setAttribute("vPosition", 0);
-    m_deferredPrograms.clear.link();
-    m_deferredPrograms.clear.initAttributes();
-    m_deferredPrograms.clear.initUniforms();
+        m_deferredPrograms.composition = ShaderLoader::createProgramFromFile("Shaders/Deferred/Composition.vert",
+                                                                             "Shaders/Deferred/Composition.frag");
 
-    m_deferredPrograms.composition.init();
-    src = iom.readFileToString("Shaders/Deferred/Composition.vert");
-    m_deferredPrograms.composition.addShader(vg::ShaderType::VERTEX_SHADER, src);
-    delete[] src;
-    src = iom.readFileToString("Shaders/Deferred/Composition.frag");
-    m_deferredPrograms.composition.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-    delete[] src;
-    m_deferredPrograms.composition.setAttribute("vPosition", 0);
-    m_deferredPrograms.composition.link();
-    m_deferredPrograms.composition.initAttributes();
-    m_deferredPrograms.composition.initUniforms();
+        m_deferredPrograms.geometry["Basic"] = ShaderLoader::createProgramFromFile("Shaders/Deferred/Geometry.vert",
+                                                                                   "Shaders/Deferred/Geometry.frag");
 
-    {
-        m_deferredPrograms.geometry["Basic"] = vg::GLProgram(false);
-        vg::GLProgram& p = m_deferredPrograms.geometry["Basic"];
-        p.init();
-        src = iom.readFileToString("Shaders/Deferred/Geometry.vert");
-        p.addShader(vg::ShaderType::VERTEX_SHADER, src);
-        delete[] src;
-        src = iom.readFileToString("Shaders/Deferred/Geometry.frag");
-        p.addShader(vg::ShaderType::FRAGMENT_SHADER, src);
-        delete[] src;
-        p.link();
-        p.initAttributes();
-        p.initUniforms();
+        m_deferredPrograms.light["Directional"] = ShaderLoader::createProgramFromFile("Shaders/Deferred/LightDirectional.vert",
+                                                                                      "Shaders/Deferred/LightDirectional.frag");
     }
-    {
-        m_deferredPrograms.light["Directional"] = vg::GLProgram(false);
-        vg::GLProgram& p = m_deferredPrograms.light["Directional"];
-        p.init();
-        src = iom.readFileToString("Shaders/Deferred/LightDirectional.vert");
-        p.addShader(vg::ShaderType::VERTEX_SHADER, src);
-        delete[] src;
-        vg::ShaderSource srcFrag;
-        srcFrag.stage = vg::ShaderType::FRAGMENT_SHADER;
-        srcFrag.sources.push_back(iom.readFileToString("Shaders/Deferred/LightModels.glsl"));
-        srcFrag.sources.push_back(iom.readFileToString("Shaders/Deferred/LightDirectional.frag"));
-        p.addShader(srcFrag);
-        delete[] srcFrag.sources[0];
-        delete[] srcFrag.sources[1];
-        p.link();
-        p.initAttributes();
-        p.initUniforms();
-    }
+
     m_quad.init(0);
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
@@ -194,19 +149,19 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 1, 0));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     mW = glm::translate(f32m4(1.0f), f32v3(0, 0, -2));
     mWIT = f32m3(glm::transpose(glm::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
-    glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -269,39 +224,37 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
         /*vg::GLProgram& progLight = m_deferredPrograms.light["Point"];
         progLight.use();
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getTextureIDs().normal);
+        glBindTexture(GL_TEXTURE_2D, m_gbuffer.getGeometryTexture(1));
         glUniform1i(progLight.getUniform("unTexNormal"), 0);
 
         const size_t NUM_LIGHTS = 5;
         f32v3 lightDirs[NUM_LIGHTS] = {
-        f32v3(0, -2, -1),
-        f32v3(2, -1, 0),
-        f32v3(-1, 1, -1),
-        f32v3(-4, -3, 0),
-        f32v3(6, 3, 2)
+            f32v3(0, -2, -1),
+            f32v3(2, -1, 0),
+            f32v3(-1, 1, -1),
+            f32v3(-4, -3, 0),
+            f32v3(6, 3, 2)
         };
         f32v3 lightColors[NUM_LIGHTS] = {
-        f32v3(0.6, 0.6, 0.3),
-        f32v3(1.0, 0.0, 0.0),
-        f32v3(0.0, 1.0, 0.0),
-        f32v3(0.0, 1.0, 1.0),
-        f32v3(1.0, 0.0, 1.0)
+            f32v3(0.6, 0.6, 0.3),
+            f32v3(1.0, 0.0, 0.0),
+            f32v3(0.0, 1.0, 0.0),
+            f32v3(0.0, 1.0, 1.0),
+            f32v3(1.0, 0.0, 1.0)
         };
         for (size_t i = 0; i < NUM_LIGHTS; i++) {
-        f32v3 lightDir = glm::normalize(lightDirs[i]);
-        glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
-        f32v3 lightColor = lightColors[i];
-        glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
-        m_quad.draw();
+            f32v3 lightDir = glm::normalize(lightDirs[i]);
+            glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
+            f32v3 lightColor = lightColors[i];
+            glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
+            m_quad.draw();
         }*/
     }
-
-
 
     /************************************************************************/
     /* Compose deferred and lighting                                        */
     /************************************************************************/
-    vg::GLRenderTarget::unuse(_game->getWindow().getWidth(), _game->getWindow().getHeight());
+    vg::GLRenderTarget::unuse(m_game->getWindow().getWidth(), m_game->getWindow().getHeight());
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -329,7 +282,7 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     m_sb.draw(m_gbuffer.getGeometryTexture(2), f32v2(400, 0), f32v2(200, 150), color::White);
     m_sb.draw(m_gbuffer.getLightTexture(), f32v2(600, 0), f32v2(200, 150), color::White);
     m_sb.end();
-    m_sb.render(f32v2(_game->getWindow().getWidth(), _game->getWindow().getHeight()));
+    m_sb.render(f32v2(m_game->getWindow().getWidth(), m_game->getWindow().getHeight()));
 }
 
 void TestDeferredScreen::buildGeometry() {
@@ -410,38 +363,28 @@ void TestDeferredScreen::buildLightMaps() {
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glGenTextures(1, &m_envMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
-
-    std::vector<ui8> pixels;
-    ui32v2 size;
     
-    // TODO(Ben): Cristian you can update this :P
-    /*vg::ImageIO imageLoader;
-    imageLoader.loadPng("Textures/Test/nx.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/px.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/ny.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/py.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/nz.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
-    imageLoader.loadPng("Textures/Test/pz.png", pixels, size.x, size.y);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-    pixels.swap(std::vector<ui8>());
+    vg::ImageIO imageLoader;
+    vg::ScopedBitmapResource rs0 = imageLoader.load("Textures/Test/nx.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, rs0.width, rs0.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs0.data);
+    vg::ScopedBitmapResource rs1 = imageLoader.load("Textures/Test/px.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, rs1.width, rs1.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs1.data);
+    vg::ScopedBitmapResource rs2 = imageLoader.load("Textures/Test/ny.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, rs2.width, rs2.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs2.data);
+    vg::ScopedBitmapResource rs3 = imageLoader.load("Textures/Test/py.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, rs3.width, rs3.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs3.data);
+    vg::ScopedBitmapResource rs4 = imageLoader.load("Textures/Test/nz.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, rs4.width, rs4.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs4.data);
+    vg::ScopedBitmapResource rs5 = imageLoader.load("Textures/Test/pz.png");
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, rs5.width, rs5.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs5.data);
 
-    SamplerState ss(
+    vg::SamplerState ss(
         (VGEnum)vg::TextureMinFilter::LINEAR_MIPMAP_LINEAR,
         (VGEnum)vg::TextureMagFilter::LINEAR,
         (VGEnum)vg::TextureWrapMode::REPEAT,
         (VGEnum)vg::TextureWrapMode::REPEAT,
         (VGEnum)vg::TextureWrapMode::REPEAT
         );
-    ss.set(GL_TEXTURE_CUBE_MAP); 
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP); */
+    ss.set(GL_TEXTURE_CUBE_MAP);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }

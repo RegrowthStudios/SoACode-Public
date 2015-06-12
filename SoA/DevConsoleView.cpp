@@ -103,7 +103,7 @@ void DevConsoleView::redrawBatch() {
     f32 textHeight = (f32)_font->getFontHeight();
 
     // Draw Command Lines
-    for (i32 i = 0; i < _renderRing.size(); i++) {
+    for (size_t i = 0; i < _renderRing.size(); i++) {
         const cString cStr = _renderRing.at(i).c_str();
         if (cStr) {
             _batch->drawString(_font, cStr,

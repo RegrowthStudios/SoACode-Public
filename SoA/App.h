@@ -5,12 +5,14 @@
 
 #include <Vorb/ui/MainGame.h>
 #include "SoaOptions.h"
+#include "CommonState.h"
 
 class DevScreen;
-class InitScreen;
-class LoadScreen;
-class MainMenuScreen;
+class GameplayLoadScreen;
 class GameplayScreen;
+class InitScreen;
+class MainMenuLoadScreen;
+class MainMenuScreen;
 class TexturePackLoader;
 
 class App : public vui::MainGame {
@@ -23,12 +25,15 @@ public:
 
     // Accessible Pointers To Screens
     InitScreen* scrInit = nullptr;
-    LoadScreen* scrLoad = nullptr;
+    MainMenuLoadScreen* scrLoad = nullptr;
     MainMenuScreen* scrMainMenu = nullptr;
+    GameplayLoadScreen* scrGameplayLoad = nullptr;
     GameplayScreen* scrGamePlay = nullptr;
 
     DevScreen* scrDev = nullptr;
     std::vector<vui::IGameScreen*> scrTests;
+
+    CommonState state;
 };
 
 #endif // App_h_

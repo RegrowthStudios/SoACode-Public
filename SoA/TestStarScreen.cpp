@@ -3,7 +3,6 @@
 
 #include "soaUtils.h"
 #include "Errors.h"
-#include "HdrRenderStage.h"
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include <Vorb/Timing.h>
@@ -40,15 +39,15 @@ void TestStarScreen::build() {
 
 }
 void TestStarScreen::destroy(const vui::GameTime& gameTime) {
-    delete m_starRenderer;
+
 }
 
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
-    m_starRenderer = new StarComponentRenderer(&m_modPathResolver);
+    m_starRenderer.init(&m_modPathResolver);
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
-            m_starRenderer->disposeShaders();
-            m_hdr->reloadShader();
+            m_starRenderer.disposeShaders();
+            //m_hdr.reloadShader(); // dis is broked
         } else if (e.keyCode == VKEY_UP) {
             m_isUpDown = true;
         } else if (e.keyCode == VKEY_DOWN) {
@@ -100,22 +99,22 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_spriteBatch.init();
     m_spriteFont.init("Fonts/orbitron_black-webfont.ttf", 32);
 
-    m_hdrFrameBuffer = new vg::GLRenderTarget(_game->getWindow().getViewportDims());
+    m_hdrFrameBuffer = new vg::GLRenderTarget(m_game->getWindow().getViewportDims());
     m_hdrFrameBuffer->init(vg::TextureInternalFormat::RGBA16F, 0).initDepth();
 
     m_quad.init();
-    m_hdr = new HdrRenderStage(&m_quad, &m_camera);
+    // TODO(Ben): BROKEN
+    //m_hdr.init(&m_quad, &m_camera);
 
     m_camera.setFieldOfView(90.0f);
-    f32 width = _game->getWindow().getWidth();
-    f32 height = _game->getWindow().getHeight();
+    f32 width = (f32)m_game->getWindow().getWidth();
+    f32 height = (f32)m_game->getWindow().getHeight();
     m_camera.setAspectRatio(width / height);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
     m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
 }
 
 void TestStarScreen::onExit(const vui::GameTime& gameTime) {
-    delete m_hdr;
     delete m_hdrFrameBuffer;
 }
 
@@ -150,11 +149,12 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     // Render the star
     f32v3 fEyePos(m_eyePos);
 
+    f32 zCoef = computeZCoef(m_camera.getFarClip());
     // TODO(Ben): render star first and figure out why depth testing is failing
-    m_starRenderer->drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos);
-    m_starRenderer->drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos);
+    m_starRenderer.drawCorona(m_sCmp, m_camera.getViewProjectionMatrix(), m_camera.getViewMatrix(), fEyePos, zCoef);
+    m_starRenderer.drawStar(m_sCmp, m_camera.getViewProjectionMatrix(), f64q(), fEyePos, zCoef);
     glBlendFunc(GL_ONE, GL_ONE);
-    if (m_isGlow) m_starRenderer->drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
+    if (m_isGlow) m_starRenderer.drawGlow(m_sCmp, m_camera.getViewProjectionMatrix(), m_eyePos,
                                            m_camera.getAspectRatio(), m_camera.getDirection(),
                                            m_camera.getRight());
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -166,7 +166,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(m_hdrFrameBuffer->getTextureTarget(), m_hdrFrameBuffer->getTextureID());
-        m_hdr->render();
+        m_hdr.render();
     }
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
@@ -186,27 +186,27 @@ void TestStarScreen::draw(const vui::GameTime& gameTime) {
     m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 65.0f), f32v2(1.0f), color::AliceBlue);
     sprintf(buf, "Distance (AU): %.4lf", (m_eyeDist + 100.0) * 0.00000000668458712);
     m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 100.0f), f32v2(1.0f), color::AliceBlue);
-      if (m_isGlow) {
-          m_spriteBatch.drawString(&m_spriteFont, "Glow: Enabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
-      } else {
-          m_spriteBatch.drawString(&m_spriteFont, "Glow: Disabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
-      }
-      if (m_isHDR) {
-          m_spriteBatch.drawString(&m_spriteFont, "HDR: Enabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
-        // TODO(Ben): Remove
-          //   sprintf(buf, "  Exposure (1,2): %.1lf", (f64)graphicsOptions.hdrExposure);
-       //   m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 205.0f), f32v2(1.0f), color::AliceBlue);
-       //   sprintf(buf, "  Gamma (3,4): %.1lf", (f64)graphicsOptions.gamma);
-        //  m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 240.0f), f32v2(1.0f), color::AliceBlue);
-      } else {
-          m_spriteBatch.drawString(&m_spriteFont, "HDR: Disabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
-      }
+    if (m_isGlow) {
+        m_spriteBatch.drawString(&m_spriteFont, "Glow: Enabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
+    } else {
+        m_spriteBatch.drawString(&m_spriteFont, "Glow: Disabled", f32v2(30.0f, 135.0f), f32v2(1.0f), color::AliceBlue);
+    }
+    if (m_isHDR) {
+        m_spriteBatch.drawString(&m_spriteFont, "HDR: Enabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
+    // TODO(Ben): Remove
+        //   sprintf(buf, "  Exposure (1,2): %.1lf", (f64)graphicsOptions.hdrExposure);
+    //   m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 205.0f), f32v2(1.0f), color::AliceBlue);
+    //   sprintf(buf, "  Gamma (3,4): %.1lf", (f64)graphicsOptions.gamma);
+    //  m_spriteBatch.drawString(&m_spriteFont, buf, f32v2(30.0f, 240.0f), f32v2(1.0f), color::AliceBlue);
+    } else {
+        m_spriteBatch.drawString(&m_spriteFont, "HDR: Disabled", f32v2(30.0f, 170.0f), f32v2(1.0f), color::AliceBlue);
+    }
     
     m_spriteBatch.end();
 
 
-    f32 width = _game->getWindow().getWidth();
-    f32 height = _game->getWindow().getHeight();
+    f32 width = (f32)m_game->getWindow().getWidth();
+    f32 height = (f32)m_game->getWindow().getHeight();
     m_spriteBatch.render(f32v2(width, height));
 
     vg::DepthState::FULL.set();

@@ -23,7 +23,7 @@
 #include <Vorb/ui/IGameScreen.h>
 
 #include "LoadMonitor.h"
-#include "MainMenuRenderPipeline.h"
+#include "MainMenuRenderer.h"
 #include "MainMenuScriptedUI.h"
 #include "Camera.h"
 #include <Vorb/ui/FormScriptEnvironment.h>
@@ -31,21 +31,24 @@
 class App;
 
 class InputMapper;
-class LoadScreen;
+class MainMenuLoadScreen;
 class MainMenuSystemViewer;
-class SoaState;
 class SpaceSystemUpdater;
+struct CommonState;
+struct SoaState;
 
 DECL_VSOUND(class Engine)
 DECL_VUI(struct WindowResizeEvent);
 class AmbienceLibrary;
 class AmbiencePlayer;
 
-class MainMenuScreen : public vui::IAppScreen<App>
-{
-    friend class MainMenuAPI; ///< MainMenuAPI needs to talk directly to the MainMenuScreen
+class MainMenuScreen : public vui::IAppScreen<App> {
+    friend class MainMenuScriptedUI;
+    friend class MainMenuRenderer;
+    friend class MainMenuLoadScreen; // So it can load our assets
+    friend class GameplayLoadScreen; // So it can use our renderer
 public:
-    MainMenuScreen(const App* app, const LoadScreen* loadScreen);
+    MainMenuScreen(const App* app, CommonState* state);
     ~MainMenuScreen();
 
     virtual i32 getNextScreen() const;
@@ -61,10 +64,7 @@ public:
     virtual void draw(const vui::GameTime& gameTime);
 
     // Getters
-    CinematicCamera& getCamera() { return m_camera; }
-    vio::IOManager& getIOManager() { return m_ioManager; }
     SoaState* getSoAState() const { return m_soaState; }
-
 private:
 
     /// Initializes event delegates and InputManager
@@ -84,48 +84,53 @@ private:
     /// @param fileName: The name of the save file
     void newGame(const nString& fileName);
 
-    /// The function that runs on the update thread. It handles
-    /// loading the planet in the background.
-    void updateThreadFunc();
-
     /// Sets up iomanager and makes save file directories if they don't exist
     void initSaveIomanager(const vio::Path& savePath);
 
     /// Reloads the user interface
     void reloadUI();
 
+    /// Cycles the draw mode for wireframe
+    void cycleDrawMode();
+
     // --------------- Event handlers ---------------
     void onReloadSystem(Sender s, ui32 a);
     void onReloadShaders(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);
     void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
+    void onWindowClose(Sender s);
+    void onOptionsChange(Sender s);
+    void onToggleUI(Sender s, ui32 i);
+    void onToggleWireframe(Sender s, ui32 i);
     // ----------------------------------------------
 
-    const LoadScreen* m_loadScreen = nullptr;
+    CommonState* m_commonState = nullptr;
     SoaState* m_soaState = nullptr;
 
     vio::IOManager m_ioManager; ///< Helper class for IO operations
 
     InputMapper* m_inputMapper = nullptr;
 
-    CinematicCamera m_camera; ///< The camera that looks at the planet from space
-
-    std::unique_ptr<MainMenuSystemViewer> m_mainMenuSystemViewer = nullptr;
-
     std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
 
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
-    MainMenuRenderPipeline m_renderPipeline; ///< This handles all rendering for the main menu
+    MainMenuRenderer m_renderer; ///< This handles all rendering for the main menu
     MainMenuScriptedUI m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
 
-    // TODO: Remove to a client state
-    vsound::Engine* m_engine;
-    AmbienceLibrary* m_ambLibrary;
-    AmbiencePlayer* m_ambPlayer;
+    MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
 
+    AmbienceLibrary* m_ambLibrary = nullptr;
+    AmbiencePlayer* m_ambPlayer = nullptr;
+    vui::GameWindow* m_window = nullptr;
+    bool m_uiEnabled = true;
+
+    bool m_isFullscreen = false;
+    bool m_isBorderless = false;
+
+    bool m_newGameClicked = false;
     bool m_shouldReloadUI = false;
 };
 

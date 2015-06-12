@@ -4,11 +4,8 @@
 #include <SDL/SDL.h>
 #include <Vorb/io/IOManager.h>
 
-#include "FileSystem.h"
 #include "GameManager.h"
 #include "InputMapper.h"
-
-std::vector<ui32v2> SCREEN_RESOLUTIONS;
 
 SoaOptions soaOptions;
 
@@ -21,7 +18,7 @@ SoaOptions::~SoaOptions() {
 }
 
 void SoaOptions::addOption(int id, const nString& name, OptionValue defaultValue, SoaOptionFlags flags) {
-    if (id >= m_options.size()) {
+    if (id >= (int)m_options.size()) {
         m_options.resize(id + 1);
         m_options[id].id = id;
         m_options[id].name = name;
@@ -49,6 +46,18 @@ void SoaOptions::addStringOption(const nString& name, const nString& defaultValu
     option.defaultValue = defaultValue;
     option.value = defaultValue;
     m_stringOptionsLookup[name] = option;
+}
+
+int SoaOptions::findID(const nString& name) {
+    auto& it = m_optionsLookup.find(name);
+    if (it == m_optionsLookup.end()) return -1;
+    return it->second;
+}
+
+SoaOption* SoaOptions::find(const nString& name) {
+    auto& it = m_optionsLookup.find(name);
+    if (it == m_optionsLookup.end()) return nullptr;
+    return &m_options[it->second];
 }
 
 SoaOption& SoaOptions::get(int id) {

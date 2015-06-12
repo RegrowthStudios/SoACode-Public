@@ -16,24 +16,23 @@
 #ifndef ChunkGridRenderStage_h__
 #define ChunkGridRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
+
+#include <Vorb/graphics/GLProgram.h>
 
 class GameRenderParams;
 class ChunkMemoryManager;
 
-class ChunkGridRenderStage : public vg::IRenderStage {
+class ChunkGridRenderStage : public IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param chunkSlots: The chunk slots that we need to render boxes for
-    ChunkGridRenderStage(const GameRenderParams* gameRenderParams);
-    ~ChunkGridRenderStage();
+    void hook(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
     void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
-    virtual void render() override;
+    virtual void render(const Camera* camera) override;
 private:
-    const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
+    vg::GLProgram m_program;
+    const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
     const ChunkMemoryManager* m_chunkMemoryManager = nullptr;
 };
 

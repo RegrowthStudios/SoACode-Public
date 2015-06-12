@@ -30,12 +30,11 @@ class TerrainVertex {
 public:
     f32v3 position; //12
     f32v3 tangent; //24
-    f32v2 texCoords; //32
-    ColorRGB8 color; //35
-    ui8 padding; //36
-    ui8v2 normTexCoords; //38
-    ui8 temperature; //39
-    ui8 humidity; //40
+    ColorRGB8 color; //27
+    ui8 padding; //28
+    ui8v2 normTexCoords; //30
+    ui8 temperature; //31
+    ui8 humidity; //32
 };
 /// Water vertex for terrain patch
 class WaterVertex {
@@ -44,8 +43,7 @@ public:
     f32v3 tangent; //24
     ColorRGB8 color; //27
     ui8 temperature; //28
-    f32v2 texCoords; //36
-    float depth; //40
+    float depth; //32
 };
 
 class TerrainPatchMesh {
@@ -63,20 +61,20 @@ public:
     void recycleNormalMap(vg::TextureRecycler* recycler);
 
     /// Draws the terrain mesh
-    void draw(const f32m4& WVP, vg::GLProgram* program,
+    void draw(const f32m4& WVP, const vg::GLProgram& program,
               bool drawSkirts) const;
 
     /// Draws the water mesh
-    void drawWater(const f32m4& WVP, vg::GLProgram* program) const;
+    void drawWater(const f32m4& WVP, const vg::GLProgram& program) const;
 
     /// Draws the terrain mesh as a far terrain mesh
     void drawAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
-                          vg::GLProgram* program,
+                          const vg::GLProgram& program,
                           bool drawSkirts) const;
 
     /// Draws the water mesh as a far terrain mesh
     void drawWaterAsFarTerrain(const f64v3& relativePos, const f32m4& VP,
-                               vg::GLProgram* program) const;
+                               const vg::GLProgram& program) const;
 
 
     /// Gets the point closest to the observer

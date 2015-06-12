@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponentUpdater.h"
 
-#include "soaUtils.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainCpuGenerator.h"
 #include "SphericalTerrainGpuGenerator.h"
+#include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
+#include "soaUtils.h"
 
 void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3& cameraPos) {
 
@@ -20,7 +21,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
         const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
-        f64 distance = glm::length(relativeCameraPos);
+        stCmp.distance = glm::length(relativeCameraPos);
 
         // Animation for fade
         if (stCmp.needsVoxelComponent) {
@@ -28,22 +29,25 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             if (stCmp.alpha < 0.0f) {
                 stCmp.alpha = 0.0f;
                 // Force it to unload
-                distance = LOAD_DIST * 10.0;
+                stCmp.distance = LOAD_DIST * 10.0;
             }
         } else {
             stCmp.alpha += TERRAIN_ALPHA_STEP;
             if (stCmp.alpha > 1.0f) stCmp.alpha = 1.0f;
         }
 
-        if (distance <= LOAD_DIST) {
-            // In range, allocate if needed
-            if (!stCmp.patches) {
-                initPatches(stCmp);
-            }
+        if (stCmp.distance <= LOAD_DIST) {
+           
+            if (stCmp.planetGenData) {
+                // Allocate if needed
+                if (!stCmp.patches) {
+                    initPatches(stCmp);
+                }
 
-            // Update patches
-            for (int i = 0; i < ST_TOTAL_PATCHES; i++) {
-                stCmp.patches[i].update(relativeCameraPos);
+                // Update patches
+                for (int i = 0; i < ST_TOTAL_PATCHES; i++) {
+                    stCmp.patches[i].update(relativeCameraPos);
+                }
             }
         } else {
             // Out of range, delete everything
@@ -57,9 +61,27 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
     }
 }
 
-void SphericalTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
+void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
+    auto& spaceSystem = soaState->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
-        if (it.second.alpha > 0.0f) it.second.gpuGenerator->update();
+        SphericalTerrainComponent& stCmp = it.second;
+        // Lazy random planet loading
+        if(stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
+            PlanetGenData* data = soaState->planetLoader->getRandomGenData((f32)stCmp.radius);
+            stCmp.meshManager = new TerrainPatchMeshManager(data,
+                                                            spaceSystem->normalMapRecycler.get());
+            stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
+                                                                  data,
+                                                                  &spaceSystem->normalMapGenProgram,
+                                                                  spaceSystem->normalMapRecycler.get());
+            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
+                                                                  data);
+            stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
+            // Do this last to prevent race condition with regular update
+            data->radius = stCmp.radius;
+            stCmp.planetGenData = data;
+        }
+        if (stCmp.planetGenData && it.second.alpha > 0.0f) stCmp.gpuGenerator->update();
     }
 }
 

@@ -142,7 +142,7 @@ private:
 
     TerrainPatchMeshManager* m_meshManager = nullptr; ///< Handles meshes for terrain patches
     PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
-    vg::GLProgram* m_genProgram = nullptr; ///< Generation program
+    vg::GLProgram m_genProgram; ///< Generation program
     vg::GLProgram* m_normalProgram = nullptr; ///< Normal map gen program
 
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycles the normal maps

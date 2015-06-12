@@ -21,6 +21,8 @@
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
 
+const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
+
 ChunkMesher::ChunkMesher()
 {
 
@@ -605,10 +607,10 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
     if (bottom == maxLevel) {
         backRightAlpha = backLeftAlpha = frontRightAlpha = frontLeftAlpha = MAX_ALPHA;
     } else {
-        backRightAlpha = backRightHeight * ALPHA_RANGE + MIN_ALPHA;
-        backLeftAlpha = backLeftHeight * ALPHA_RANGE + MIN_ALPHA;
-        frontRightAlpha = frontRightHeight * ALPHA_RANGE + MIN_ALPHA;
-        frontLeftAlpha = frontLeftHeight * ALPHA_RANGE + MIN_ALPHA;
+        backRightAlpha = (ui8)(backRightHeight * ALPHA_RANGE + MIN_ALPHA);
+        backLeftAlpha = (ui8)(backLeftHeight * ALPHA_RANGE + MIN_ALPHA);
+        frontRightAlpha = (ui8)(frontRightHeight * ALPHA_RANGE + MIN_ALPHA);
+        frontLeftAlpha = (ui8)(frontLeftHeight * ALPHA_RANGE + MIN_ALPHA);
     }
 
     //Add vertices for the faces
@@ -1596,7 +1598,6 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
     ui16 surfaceBlockID;
     ui16 surfaceTertiaryData;
     ui16 lampLightData;
-    ui8 sunLightData;
 
     // For finding minimum bounding box
     int minX, maxX, minY, maxY, minZ, maxZ;

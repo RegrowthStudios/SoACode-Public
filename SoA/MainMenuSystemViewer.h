@@ -29,12 +29,18 @@ class SpaceSystem;
 
 class MainMenuSystemViewer {
 public:
-    MainMenuSystemViewer(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputMapper* inputManager);
-    ~MainMenuSystemViewer();
+
+    void init(ui32v2 viewport, CinematicCamera* camera, SpaceSystem* spaceSystem, InputMapper* inputManager);
+
+    void dispose();
 
     void setViewport(const ui32v2& viewPort) { m_viewport = viewPort; }
 
     void update();
+
+    void startInput();
+
+    void stopInput();
 
     struct BodyArData {
         f32 hoverTime = 0.0f;
@@ -60,8 +66,9 @@ public:
 
     /// Getters
     const f32v3& getSelectedGridPos() const { return m_selectedGridPos; }
-    const int& getSelectedCubeFace() const { return m_selectedCubeFace; }
+    const WorldCubeFace& getSelectedCubeFace() const { return m_selectedCubeFace; }
     vecs::EntityID getSelectedPlanet() const { return m_selectedPlanet; }
+    vecs::EntityID getTargetBody() const { return m_targetEntity; }
     const f64v3& getClickPos() const { return m_clickPos; }
 
     /// Gets the position of the targeted entity
@@ -78,6 +85,8 @@ public:
 
     static const f32 MIN_SELECTOR_SIZE;
     static const f32 MAX_SELECTOR_SIZE;
+
+    Event<vecs::EntityID> TargetChange;
 
 private:
     // Events

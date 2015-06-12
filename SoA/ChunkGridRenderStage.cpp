@@ -9,30 +9,63 @@
 #include "ChunkMemoryManager.h"
 #include "Frustum.h"
 #include "GameRenderParams.h"
+#include "ShaderLoader.h"
 #include "soaUtils.h"
 
-ChunkGridRenderStage::ChunkGridRenderStage(const GameRenderParams* gameRenderParams) :
-    m_gameRenderParams(gameRenderParams) {
-    // Empty
+namespace {
+    // Default shader source
+    const cString VERT_SRC = R"(
+uniform mat4 MVP;
+
+in vec3 vPosition;
+in vec4 vTint;
+in vec2 vUV;
+
+out vec2 fUV;
+out vec4 fTint;
+out float fLogZ;
+
+#include "Shaders/Utils/logz.glsl"
+
+void main() {
+    fTint = vTint;
+    fUV = vUV;
+    gl_Position = MVP * vec4(vPosition, 1.0);
+    applyLogZ();
+    fLogZ = 1.0 + gl_Position.w;
+}
+)";
+    const cString FRAG_SRC = R"(
+uniform sampler2D tex;
+uniform float unZCoef;
+
+in vec2 fUV;
+in vec4 fTint;
+in float fLogZ;
+
+out vec4 fColor;
+
+void main() {
+    gl_FragDepth = log2(fLogZ) * unZCoef * 0.5;
+    fColor = texture(tex, fUV) * fTint;
+}
+)";
 }
 
-
-ChunkGridRenderStage::~ChunkGridRenderStage() {
-    // Empty
+void ChunkGridRenderStage::hook(const GameRenderParams* gameRenderParams) {
+    m_gameRenderParams = gameRenderParams;
 }
 
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,
 /// it should not cause a crash. However data may be partially incorrect.
-void ChunkGridRenderStage::render() {
-    if (!m_isVisible) return;
+void ChunkGridRenderStage::render(const Camera* camera) {
+    if (!m_isActive) return;
     if (!m_chunkMemoryManager) return;
 
     const std::vector<Chunk*>& chunks = m_chunkMemoryManager->getActiveChunks();
 
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
-    // Shader that is lazily initialized
-    static vg::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
     vg::Mesh mesh;
     mesh.init(vg::PrimitiveType::LINES, true);
@@ -47,7 +80,7 @@ void ChunkGridRenderStage::render() {
 
     f32v3 posOffset;
     // TODO(Ben): Got a race condition here that causes rare crash
-    for (i32 i = 0; i < chunks.size(); i++) {
+    for (size_t i = 0; i < chunks.size(); i++) {
         const Chunk* chunk = chunks[i];
         posOffset = f32v3(f64v3(chunk->voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
   
@@ -100,7 +133,11 @@ void ChunkGridRenderStage::render() {
                 vertices[5].position = f32v3(gmax, gmax, gmin) + posOffset;
                 vertices[6].position = f32v3(gmin, gmax, gmax) + posOffset;
                 vertices[7].position = f32v3(gmax, gmax, gmax) + posOffset;
+                for (int i = 0; i < 8; i++) {
+                    vertices[i].position *= KM_PER_VOXEL;
+                }
             }
+           
             mesh.addVertices(vertices, indices);
         }
     }
@@ -109,27 +146,25 @@ void ChunkGridRenderStage::render() {
         // Upload the data
         mesh.uploadAndClearLocal();
         // Lazily initialize shader
-        if (chunkLineProgram == nullptr) {
-            chunkLineProgram = new vg::GLProgram(true);
-            chunkLineProgram->addShader(vg::ShaderType::VERTEX_SHADER, vg::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, vg::Mesh::defaultFragmentShaderSource);
-            chunkLineProgram->setAttributes(vg::Mesh::defaultShaderAttributes);
-            chunkLineProgram->link();
-            chunkLineProgram->initUniforms();
-        }
+        if (!m_program.isCreated()) m_program = ShaderLoader::createProgram("ChunkLine", VERT_SRC, FRAG_SRC);
+
         // Bind the program
-        chunkLineProgram->use();
+        m_program.use();
+
+        // For logarithmic Z buffer
+        glUniform1f(m_program.getUniform("unZCoef"), computeZCoef(m_gameRenderParams->chunkCamera->getFarClip()));
+
         // Set Matrix
-        glUniformMatrix4fv(chunkLineProgram->getUniform("MVP"), 1,
+        glUniformMatrix4fv(m_program.getUniform("MVP"), 1,
                            GL_FALSE,
                            &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
         // Set Texture
-        glUniform1i(chunkLineProgram->getUniform("tex"), 0);
+        glUniform1i(m_program.getUniform("tex"), 0);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, BlankTextureID.id);
+        glBindTexture(GL_TEXTURE_2D, 0);
         // Draw the grid
         mesh.draw();
         // Unuse the program
-        chunkLineProgram->unuse();
+        m_program.unuse();
     }
 }

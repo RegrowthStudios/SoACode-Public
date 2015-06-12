@@ -287,7 +287,7 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
 inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light) {
     if (chunk->getSunlight(blockIndex) < light){
         if (chunk->getBlock(blockIndex).allowLight){
-            chunk->setSunlight(blockIndex, light);
+            chunk->setSunlight(blockIndex, (ui8)light); // TODO(Ben) Wrong type?
             chunk->sunlightUpdateQueue.emplace(blockIndex, light);
         }
     }

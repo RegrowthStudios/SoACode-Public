@@ -56,13 +56,13 @@ void DevScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void DevScreen::update(const vui::GameTime& gameTime) {
-    if (m_nextScreen) _state = vui::ScreenState::CHANGE_NEXT;
+    if (m_nextScreen) m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
 void DevScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const vui::GameWindow* w = &_game->getWindow();
+    const vui::GameWindow* w = &m_game->getWindow();
 
     m_sb->begin();
 
@@ -74,7 +74,7 @@ void DevScreen::draw(const vui::GameTime& gameTime) {
                      f32v2(1.5f), FONT_COLOR);
     // Draw strings
     m_sb->drawString(m_font, "* Press one of the following keys to enter a screen:", pos, f32v2(1.0f), FONT_COLOR);
-    pos.y += posInc * 2.0;
+    pos.y += posInc * 2.0f;
     for (auto& it : m_screenMapping) {
         m_sb->drawString(m_font, m_screenNames[it.first].c_str(), pos, f32v2(1.0f), FONT_COLOR);
         pos.y += posInc;
