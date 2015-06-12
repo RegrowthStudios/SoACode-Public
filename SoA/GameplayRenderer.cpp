@@ -319,7 +319,7 @@ void GameplayRenderer::updateCameras() {
     // Player is relative to a planet, so add position if needed
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
     if (spcmp.parentGravityID) {
-        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntityID);
+        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
         if (it != m_renderState->spaceBodyPositions.end()) {
             m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {

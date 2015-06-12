@@ -151,6 +151,13 @@ void GameplayScreen::updateECS() {
                                  m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
 
     m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
+
+    // Check for target reload
+    if (m_shouldReloadTarget) {
+        printf("Reloading Target\n");
+        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, &m_glRPC);
+        m_shouldReloadTarget = false;
+    }
 }
 
 void GameplayScreen::updateMTRenderState() {
@@ -189,8 +196,11 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
 
     const MTRenderState* renderState;
+    m_glRPC.processRequests(1);
     // Don't render the same state twice.
+
     while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
+        m_glRPC.processRequests(1); // So we don't block we reloading. TODO(Ben): Temporary
         Sleep(0);
     }
     m_prevRenderState = renderState;
@@ -271,6 +281,8 @@ void GameplayScreen::initInput() {
             m_soaState->isInputEnabled = true;
         }
     });
+
+    m_inputMapper->get(INPUT_RELOAD_TARGET).downEvent += makeDelegate(*this, &GameplayScreen::onReloadTarget);
 
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
@@ -359,6 +371,9 @@ void GameplayScreen::updateThreadFunc() {
 void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Reloading Shaders\n");
     //m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
+}
+void GameplayScreen::onReloadTarget(Sender s, ui32 a) {
+    m_shouldReloadTarget = true;
 }
 
 void GameplayScreen::onQuit(Sender s, ui32 a) {

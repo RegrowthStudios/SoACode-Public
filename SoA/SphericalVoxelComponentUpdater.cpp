@@ -54,7 +54,6 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
     }
 
     updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition);
-    std::cout << m_cmp->chunkGrids[agentPosition.face].getNumActiveChunks() << std::endl;
 
     // TODO(Ben): This doesn't scale for multiple agents
     m_cmp->chunkGrids[agentPosition.face].update();

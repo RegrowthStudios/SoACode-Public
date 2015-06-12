@@ -327,7 +327,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
     stCmp.axisRotationComponent = arComp;
     stCmp.planetGenData = planetGenData;
 
-  
     if (planetGenData) {
         stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
                                                         normalMapRecycler);

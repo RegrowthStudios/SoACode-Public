@@ -59,6 +59,8 @@ public:
     /// Sets block IDs for planet data
     static void setPlanetBlocks(SoaState* state);
 
+    static void reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC);
+
     /// Destroys the SoaState completely
     static void destroyAll(SoaState* state);
 

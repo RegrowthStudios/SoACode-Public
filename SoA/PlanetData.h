@@ -119,6 +119,7 @@ struct PlanetGenData {
     NoiseBase humTerrainFuncs;
 
     static ColorMaps colorMaps;
+    nString filePath;
 };
 
 #endif // PlanetData_h__

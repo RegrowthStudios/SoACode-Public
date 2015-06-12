@@ -66,7 +66,7 @@ struct FreeMoveInputComponent {
 };
 
 struct SpacePositionComponent {
-    vecs::EntityID parentEntityID = 0;
+    vecs::EntityID parentEntity = 0;
     vecs::ComponentID parentGravityID = 0; ///< Gravity component of parent system body
     vecs::ComponentID parentSphericalTerrainID = 0; ///< ST component of parent system body
     f64v3 position = f64v3(0.0);

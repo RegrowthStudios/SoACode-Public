@@ -50,6 +50,7 @@ extern InputMapper::InputID INPUT_RANDOM_DEBUG;
 extern InputMapper::InputID INPUT_RELOAD_BLOCKS;
 extern InputMapper::InputID INPUT_RELOAD_SHADERS;
 extern InputMapper::InputID INPUT_RELOAD_SYSTEM;
+extern InputMapper::InputID INPUT_RELOAD_TARGET;
 extern InputMapper::InputID INPUT_RELOAD_TEXTURES;
 extern InputMapper::InputID INPUT_RELOAD_UI;
 extern InputMapper::InputID INPUT_RIGHT;

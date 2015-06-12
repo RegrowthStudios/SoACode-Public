@@ -78,6 +78,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
 
     if (genData->program.isLinked()) {
+        genData->filePath = filePath;
         return genData;
     } 
     delete genData;
