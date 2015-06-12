@@ -123,6 +123,15 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 
     // Updates the Pause Menu
     if (m_pauseMenu.isOpen()) m_pauseMenu.update();
+
+    // Check for target reload
+    if (m_shouldReloadTarget) {
+        m_reloadLock.lock();
+        printf("Reloading Target\n");
+        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, nullptr);
+        m_shouldReloadTarget = false;
+        m_reloadLock.unlock();
+    }
 }
 
 void GameplayScreen::updateECS() {
@@ -151,13 +160,6 @@ void GameplayScreen::updateECS() {
                                  m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
 
     m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
-
-    // Check for target reload
-    if (m_shouldReloadTarget) {
-        printf("Reloading Target\n");
-        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, &m_glRPC);
-        m_shouldReloadTarget = false;
-    }
 }
 
 void GameplayScreen::updateMTRenderState() {
@@ -196,11 +198,9 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
     globalRenderAccumulationTimer.start("Draw");
 
     const MTRenderState* renderState;
-    m_glRPC.processRequests(1);
     // Don't render the same state twice.
 
     while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
-        m_glRPC.processRequests(1); // So we don't block we reloading. TODO(Ben): Temporary
         Sleep(0);
     }
     m_prevRenderState = renderState;
@@ -356,8 +356,10 @@ void GameplayScreen::updateThreadFunc() {
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
 
-        updateECS();
+        m_reloadLock.lock();
+        updateECS(); // TODO(Ben): Entity destruction in this thread calls opengl stuff.....
         updateMTRenderState();
+        m_reloadLock.unlock();
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
             saveStateTicks = SDL_GetTicks();

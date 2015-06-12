@@ -134,7 +134,7 @@ private:
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
     const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw
 
-    vcore::RPCManager m_glRPC;
+    std::mutex m_reloadLock;
     bool m_shouldReloadTarget = false;
 };
 

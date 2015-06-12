@@ -156,7 +156,6 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     WorldCubeFace face;
     PlanetGenData* genData = stCmp.planetGenData;
     nString filePath = genData->filePath;
-    if (genData->program.isLinked()) genData->program.dispose();
 
     if (ftCmpID) {
         face = spaceSystem->m_farTerrainCT.getFromEntity(eid).face;
@@ -167,6 +166,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     }
 
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
+    
 
     genData = state->planetLoader->loadPlanet(filePath, glRPC);
     genData->radius = radius;
@@ -176,7 +176,6 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
                                                          genData,
                                                          &spaceSystem->normalMapGenProgram,
                                                          spaceSystem->normalMapRecycler.get());
-
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
         stCmp.farTerrainComponent = ftCmpID;
