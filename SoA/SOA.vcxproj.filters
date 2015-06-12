@@ -752,11 +752,20 @@
     <ClInclude Include="SoaOptions.h">
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelModel.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelMatrix.h">
       <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModel.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelMesh.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMesher.h">
+      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1237,6 +1246,15 @@
     </ClCompile>
     <ClCompile Include="VoxelModel.cpp">
       <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMesher.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelMesh.cpp">
+      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

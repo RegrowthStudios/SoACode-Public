@@ -323,6 +323,7 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="ModelMesher.h" />
     <ClInclude Include="ModPathResolver.h" />
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
@@ -423,6 +424,8 @@ EXIT 0</Command>
     <ClInclude Include="VoxelLightEngine.h" />
     <ClInclude Include="VoxelModel.h" />
     <ClInclude Include="VoxelModelLoader.h" />
+    <ClInclude Include="VoxelModelMesh.h" />
+    <ClInclude Include="VoxelModelRenderer.h" />
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelSpaceConversions.h" />
     <ClInclude Include="VoxelSpaceUtils.h" />
@@ -520,6 +523,7 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="ModelMesher.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
@@ -615,6 +619,8 @@ EXIT 0</Command>
     <ClCompile Include="VoxelLightEngine.cpp" />
     <ClCompile Include="VoxelModel.cpp" />
     <ClCompile Include="VoxelModelLoader.cpp" />
+    <ClCompile Include="VoxelModelMesh.cpp" />
+    <ClCompile Include="VoxelModelRenderer.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
     <ClCompile Include="VoxelSpaceUtils.cpp" />
