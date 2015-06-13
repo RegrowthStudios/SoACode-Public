@@ -65,7 +65,7 @@ in vec2 fPos;
 out vec4 pOutput;
 
 #include "Shaders/Noise/snoise3.glsl"
-#include "Shaders/Noise/Cellular/cellular2x2x2.glsl"
+#include "Shaders/Noise/Cellular/cellular3D.glsl"
 
 void main() {
 float total;
