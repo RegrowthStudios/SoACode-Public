@@ -2,21 +2,35 @@
 #include "VoxelModelRenderer.h"
 #include "ShaderLoader.h"
 
-#include <glm\gtx\transform.hpp>
-#include <glm\gtx\euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "VoxelMatrix.h"
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
+#include "RenderUtils.h"
 
 void VoxelModelRenderer::initGL() {
     m_program = ShaderLoader::createProgramFromFile("Shaders/Models/VoxelModel.vert",
                                                     "Shaders/Models/VoxelModel.frag");
 }
 
-void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, f32v3 translation, f32v3 eulerRotation, f32v3 scale) {
-    f32m4 mW = glm::translate(translation) * glm::eulerAngleX(eulerRotation.x) * glm::eulerAngleY(eulerRotation.y) * glm::eulerAngleZ(eulerRotation.z) * glm::scale(scale);
-    f32m4 mWVP = mVP * mW;
+void VoxelModelRenderer::dispose() {
+    if (m_program.isCreated()) m_program.dispose();
+}
+
+void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, const f64v3& relativePos, const f64q& orientation) {
+
+    // Convert f64q to f32q
+    f32q orientationF32;
+    orientationF32.x = (f32)orientation.x;
+    orientationF32.y = (f32)orientation.y;
+    orientationF32.z = (f32)orientation.z;
+    orientationF32.w = (f32)orientation.w;
+    // Convert to matrix
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
+    f32m4 mW(1.0);
+    setMatrixTranslation(mW, -relativePos);
+    f32m4 mWVP = mVP * mW * rotationMatrix;
 
     m_program.use();
     glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, false, &mWVP[0][0]);

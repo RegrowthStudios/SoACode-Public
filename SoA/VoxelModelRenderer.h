@@ -10,7 +10,8 @@ class VoxelModel;
 class VoxelModelRenderer {
 public:
     void initGL();
-    void draw(VoxelModel* model, f32m4 mVP, f32v3 translation = f32v3(0.0f, 0.0f, 0.0f), f32v3 eulerRotation = f32v3(0.0f, 0.0f, 0.0f), f32v3 scale = f32v3(1.0f, 1.0f, 1.0f));
+    void dispose();
+    void draw(VoxelModel* model, f32m4 mVP, const f64v3& relativePos, const f64q& orientation);
 private:
     vg::GLProgram m_program;
 };

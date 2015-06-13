@@ -34,7 +34,7 @@ void TestVoxelModelScreen::destroy(const vui::GameTime& gameTime) {
 void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
   
     m_camera.init(m_game->getWindow().getAspectRatio());
-    m_camera.setPosition(f64v3(0, 0, 20));
+    m_camera.setPosition(f64v3(0, 0, 0));
     m_camera.setClippingPlane(0.01f, 100000.0f);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
     m_camera.setRight(f32v3(-1.0f, 0.0f, 0.0f));
@@ -84,6 +84,11 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
             break;
         case VKEY_LSHIFT:
             m_movingFast = true;
+            break;
+        case VKEY_F1:
+            // Reload shader
+            m_renderer.dispose();
+            m_renderer.initGL();
             break;
         }
     });
@@ -166,6 +171,6 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
-    m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), -f32v3(m_camera.getPosition()));
+    m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), m_camera.getPosition(), f64q());
     checkGlError("TestVoxelModelScreen::draw");
 }
