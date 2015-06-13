@@ -10,8 +10,8 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "VoxelModelMesh.h"
+#include "VoxelMatrix.h"
 
-class VoxelMatrix;
 class VoxelModelVertex;
 
 class VoxelModel {
@@ -20,15 +20,16 @@ public:
     ~VoxelModel();
     
     void loadFromFile(const nString& path);
-    void addMatrix(VoxelMatrix* matrix);
-    void addMatrices(std::vector<VoxelMatrix*> matrices);
-    const std::vector<VoxelMatrix*>& getMatrices() const { return m_matrices; }
-
+    
+    void setMatrix(const VoxelMatrix& matrix) { m_matrix = matrix; }
     void setMesh(const VoxelModelMesh& mesh) { m_mesh = mesh; }
+    
+    VoxelMatrix& getMatrix() { return m_matrix; }
+    const VoxelMatrix& getMatrix() const { return m_matrix; }
     const VoxelModelMesh& getMesh() const { return m_mesh; }
 
 private:
-    std::vector<VoxelMatrix*> m_matrices;
+    VoxelMatrix m_matrix;
     VoxelModelMesh m_mesh;
 };
 

@@ -34,10 +34,10 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if(e.button == vui::MouseButton::MIDDLE) m_movingCamera = true;
+        if(e.button == vui::MouseButton::LEFT) m_movingCamera = true;
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if(e.button == vui::MouseButton::MIDDLE) m_movingCamera = false;
+        if(e.button == vui::MouseButton::LEFT) m_movingCamera = false;
     });
 
     m_movingForward = false;
@@ -95,7 +95,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     });
 
     m_model = new VoxelModel();
-    m_model->loadFromFile("Models\\mammoth.qb");
+    m_model->loadFromFile("Models/human_female.qb");
 
     m_renderer.initGL();
 
@@ -144,5 +144,5 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
-    m_renderer.draw(m_model, m_camera->getViewProjectionMatrix());
+    m_renderer.draw(m_model, m_camera->getViewProjectionMatrix(), -f32v3(m_camera->getPosition()));
 }

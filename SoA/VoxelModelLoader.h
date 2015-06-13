@@ -27,7 +27,7 @@ class VoxelMatrix;
 
 class VoxelModelLoader {
 public:
-    static std::vector<VoxelMatrix*> loadModel(const nString& filePath);
+    static VoxelMatrix loadModel(const nString& filePath);
 private:
     VoxelModelLoader();
 };
