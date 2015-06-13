@@ -25,11 +25,13 @@
 #include "VoxelModel.h"
 #include "VoxelModelRenderer.h"
 
+class App;
 class VoxelMatrix;
 class VoxelModelVertex;
 
-class TestVoxelModelScreen : public vui::IGameScreen {
+class TestVoxelModelScreen : public vui::IAppScreen<App> {
 public:
+    TestVoxelModelScreen(const App* app);
     /************************************************************************/
     /* IGameScreen functionality                                            */
     /************************************************************************/

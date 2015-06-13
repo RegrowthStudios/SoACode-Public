@@ -12,33 +12,28 @@ public:
         color(color),
         normal(normal) {}
     f32v3 pos;
-    color3 color;
     f32v3 normal;
+    color3 color;
+    ui8 padding;
 };
 
 class VoxelModelMesh {
+    friend class ModelMesher;
 public:
-    VoxelModelMesh():
-        m_vbo(NULL),
-        m_ibo(NULL),
-        m_indCount(0)  
-    { /* Empty */ }
-
-    VoxelModelMesh(VGVertexBuffer vbo, VGIndexBuffer ibo, ui32 indCount):
-        m_vbo(vbo),
-        m_ibo(ibo),
-        m_indCount(indCount)            
-    { /* Empty */ }
-
     void bind() const;
+    static void unbind();
+
+    void dispose();
 
     VGVertexBuffer getVBO() const { return m_vbo; }
     VGIndexBuffer getIBO() const { return m_ibo; }
+    VGVertexArray getVAO() const { return m_vao; }
     ui32 getIndexCount() const { return m_indCount; }
     
 private:
-    VGVertexBuffer m_vbo;
-    VGIndexBuffer m_ibo;
+    VGVertexBuffer m_vbo = 0;
+    VGIndexBuffer m_ibo = 0;
+    VGVertexArray m_vao = 0;
     ui32 m_indCount;
 };
 
