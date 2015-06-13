@@ -44,9 +44,9 @@ public:
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
-    Camera* m_camera;
+    Camera m_camera;
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    bool m_movingCamera;
+    bool m_mouseButtons[3];
 
     VoxelModel* m_model;
     VoxelModelRenderer m_renderer;
@@ -57,6 +57,7 @@ private:
     bool m_movingRight;
     bool m_movingUp;
     bool m_movingDown;
+    bool m_movingFast;
 };
 
 #endif

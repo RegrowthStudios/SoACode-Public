@@ -34,7 +34,7 @@ private:
     VGVertexBuffer m_vbo = 0;
     VGIndexBuffer m_ibo = 0;
     VGVertexArray m_vao = 0;
-    ui32 m_indCount;
+    ui32 m_indCount = 0;
 };
 
 #endif // VoxelModelMesh_h__

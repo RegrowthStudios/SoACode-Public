@@ -7,8 +7,10 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/io/IOManager.h>
 
+#include "DebugRenderer.h"
 #include "VoxelModelLoader.h"
 #include "Errors.h"
+#include "soaUtils.h"
 
 TestVoxelModelScreen::TestVoxelModelScreen(const App* app) :
 IAppScreen<App>(app) {
@@ -30,22 +32,27 @@ void TestVoxelModelScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
-    m_camera = new Camera();
-    m_camera->init(m_game->getWindow().getAspectRatio());
-    m_camera->setPosition(f64v3(0, 0, 20));
-    m_camera->setClippingPlane(0.01f, 100000.0f);
-    m_camera->setDirection(f32v3(0.0f, 0.0f, -1.0f));
-
+  
+    m_camera.init(m_game->getWindow().getAspectRatio());
+    m_camera.setPosition(f64v3(0, 0, 20));
+    m_camera.setClippingPlane(0.01f, 100000.0f);
+    m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
+    m_camera.setRight(f32v3(-1.0f, 0.0f, 0.0f));
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
-        if(m_movingCamera) {
-            m_camera->rotateFromMouse(e.dx, e.dy, 1.0f);
+        if (m_mouseButtons[0]) {
+            m_camera.rotateFromMouse(-e.dx, -e.dy, 0.1f);
+        }
+        if (m_mouseButtons[1]) {
+            m_camera.rollFromMouse((f32)e.dx, 0.1f);
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if(e.button == vui::MouseButton::LEFT) m_movingCamera = true;
+        if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = true;
+        if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = true;
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if(e.button == vui::MouseButton::LEFT) m_movingCamera = false;
+        if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = false;
+        if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = false;
     });
 
     m_movingForward = false;
@@ -72,9 +79,11 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         case VKEY_SPACE:
             m_movingUp = true;
             break;
-        case VKEY_LSHIFT:
-        case VKEY_RSHIFT:
+        case VKEY_LCTRL:
             m_movingDown = true;
+            break;
+        case VKEY_LSHIFT:
+            m_movingFast = true;
             break;
         }
     });
@@ -95,9 +104,11 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         case VKEY_SPACE:
             m_movingUp = false;
             break;
-        case VKEY_LSHIFT:
-        case VKEY_RSHIFT:
+        case VKEY_LCTRL:
             m_movingDown = false;
+            break;
+        case VKEY_LSHIFT:
+            m_movingFast = false;
             break;
         }
     });
@@ -107,7 +118,9 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_renderer.initGL();
 
-    m_movingCamera = false;
+    m_mouseButtons[0] = false;
+    m_mouseButtons[1] = false;
+    m_mouseButtons[2] = false;
 
     // Set clear state
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -120,38 +133,39 @@ void TestVoxelModelScreen::onExit(const vui::GameTime& gameTime) {
 
 void TestVoxelModelScreen::update(const vui::GameTime& gameTime) {
     f32 speed = 5.0f;
+    if (m_movingFast) speed *= 5.0f;
     if(m_movingForward) {
-        f32v3 offset = m_camera->getDirection() * speed * (f32)gameTime.elapsed;
-        m_camera->offsetPosition(offset);
+        f32v3 offset = m_camera.getDirection() * speed * (f32)gameTime.elapsed;
+        m_camera.offsetPosition(offset);
     }
     if(m_movingBack) {
-        f32v3 offset = m_camera->getDirection() * -speed * (f32)gameTime.elapsed;
-        m_camera->offsetPosition(offset);
+        f32v3 offset = m_camera.getDirection() * -speed * (f32)gameTime.elapsed;
+        m_camera.offsetPosition(offset);
     }
     if(m_movingLeft) {
-        f32v3 offset = m_camera->getRight() * speed * (f32)gameTime.elapsed;
-        m_camera->offsetPosition(offset);
+        f32v3 offset = m_camera.getRight() * -speed * (f32)gameTime.elapsed;
+        m_camera.offsetPosition(offset);
     }
     if(m_movingRight) {
-        f32v3 offset = m_camera->getRight() * -speed * (f32)gameTime.elapsed;
-        m_camera->offsetPosition(offset);
+        f32v3 offset = m_camera.getRight() * speed * (f32)gameTime.elapsed;
+        m_camera.offsetPosition(offset);
     }
     if(m_movingUp) {
         f32v3 offset = f32v3(0, 1, 0) * speed * (f32)gameTime.elapsed;
-        m_camera->offsetPosition(offset);
+        m_camera.offsetPosition(offset);
     }
     if(m_movingDown) {
         f32v3 offset = f32v3(0, 1, 0) *  -speed * (f32)gameTime.elapsed;
-        m_camera->offsetPosition(offset);
+        m_camera.offsetPosition(offset);
     }
-    m_camera->update();
+    m_camera.update();
 }
 void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     vg::DepthState::FULL.set();
-    vg::RasterizerState::CULL_NONE.set();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 
-    m_renderer.draw(m_model, m_camera->getViewProjectionMatrix(), -f32v3(m_camera->getPosition()));
+    m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), -f32v3(m_camera.getPosition()));
     checkGlError("TestVoxelModelScreen::draw");
 }

@@ -15,7 +15,7 @@ void VoxelModelRenderer::initGL() {
 }
 
 void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, f32v3 translation, f32v3 eulerRotation, f32v3 scale) {
-    f32m4 mW = f32m4(1.0f);
+    f32m4 mW = glm::translate(translation) * glm::eulerAngleX(eulerRotation.x) * glm::eulerAngleY(eulerRotation.y) * glm::eulerAngleZ(eulerRotation.z) * glm::scale(scale);
     f32m4 mWVP = mVP * mW;
 
     m_program.use();
@@ -27,11 +27,11 @@ void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, f32v3 translation, f
     model->getMesh().bind();
     m_program.enableVertexAttribArrays();
     glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, pos));
-    glVertexAttribPointer(m_program.getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, true, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, color));
     glVertexAttribPointer(m_program.getAttribute("vNormal"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, normal));
-
+    glVertexAttribPointer(m_program.getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, true, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, color));
+    
     glDrawElements(GL_TRIANGLES, model->getMesh().getIndexCount(), GL_UNSIGNED_INT, nullptr);
     model->getMesh().unbind();
 
-    vg::GLProgram::unuse();
+    m_program.unuse();
 }

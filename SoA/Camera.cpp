@@ -34,6 +34,8 @@ void Camera::update() {
         setFieldOfView(optFov);
     }
 
+    m_up = glm::normalize(glm::cross(m_right, m_direction));
+
     bool updateFrustum = false;
     if (m_viewChanged) {
         updateView();
@@ -53,7 +55,7 @@ void Camera::update() {
 }
 
 void Camera::updateView() {
-    m_viewMatrix = glm::lookAt(f32v3((f32)m_position.x, (f32)m_position.y, (f32)m_position.z), m_direction, m_up);
+    m_viewMatrix = glm::lookAt(f32v3(0.0f), m_direction, m_up);
 }
 
 void Camera::updateProjection() {
@@ -64,13 +66,14 @@ void Camera::updateProjection() {
 void Camera::applyRotation(const f32q& rot) {
     m_direction = rot * m_direction;
     m_right = rot * m_right;
-    m_up = glm::normalize(glm::cross(m_right, m_direction));
+
     m_viewChanged = true;
 }
 
 void Camera::rotateFromMouse(float dx, float dy, float speed) {
     f32q upQuat = glm::angleAxis(dy * speed, m_right);
-    f32q rightQuat = glm::angleAxis(dx * speed, m_up);
+    f32v3 targetUp = glm::normalize(glm::cross(m_right, m_direction));
+    f32q rightQuat = glm::angleAxis(dx * speed, targetUp);
  
     applyRotation(upQuat * rightQuat);
 }
@@ -153,7 +156,6 @@ void CinematicCamera::update()
         m_focalPoint = lerp(m_focalPoint, m_targetFocalPoint, m_speed);
         m_direction = glm::mix(m_direction, m_targetDirection, m_speed);
         m_right = glm::mix(m_right, m_targetRight, m_speed);
-        m_up = glm::normalize(glm::cross(m_right, m_direction));
 
         m_position = m_focalPoint - f64v3(m_direction) * m_focalLength;
     }
