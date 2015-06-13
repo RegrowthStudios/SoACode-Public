@@ -13,14 +13,16 @@
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
 
-CloudsComponentRenderer::CloudsComponentRenderer() {
+CloudsComponentRenderer::~CloudsComponentRenderer() {
+    dispose();
 }
 
-CloudsComponentRenderer::~CloudsComponentRenderer() {
-    disposeShader();
-    if (m_icoVbo) vg::GpuMemory::freeBuffer(m_icoVbo);
-    if (m_icoIbo) vg::GpuMemory::freeBuffer(m_icoIbo);
-    if (m_vao) glDeleteVertexArrays(1, &m_vao);
+void CloudsComponentRenderer::initGL() {
+    if (!m_program.isCreated()) {
+        m_program = ShaderLoader::createProgramFromFile("Shaders/CloudsShading/Clouds.vert",
+                                                        "Shaders/CloudsShading/Clouds.frag");
+    }
+    if (!m_icoVbo) buildMesh();
 }
 
 void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
@@ -31,12 +33,6 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const SpaceLightComponent* spComponent,
                                    const AxisRotationComponent& arComponent,
                                    const AtmosphereComponent& aCmp) {
-    if (!m_program.isCreated()) {
-        m_program = ShaderLoader::createProgramFromFile("Shaders/CloudsShading/Clouds.vert",
-            "Shaders/CloudsShading/Clouds.frag");
-    }
-    if (!m_icoVbo) buildMesh();
-
     m_program.use();
 
     f64q invOrientation = glm::inverse(arComponent.currentOrientation);
@@ -110,8 +106,20 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
     m_program.unuse();
 }
 
-void CloudsComponentRenderer::disposeShader() {
+void CloudsComponentRenderer::dispose() {
     if (m_program.isCreated()) m_program.dispose();
+    if (m_icoVbo) {
+        vg::GpuMemory::freeBuffer(m_icoVbo);
+        m_icoVbo = 0;
+    }
+    if (m_icoIbo) {
+        vg::GpuMemory::freeBuffer(m_icoIbo);
+        m_icoIbo = 0;
+    }
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+        m_vao = 0;
+    }
 }
 
 void CloudsComponentRenderer::buildMesh() {

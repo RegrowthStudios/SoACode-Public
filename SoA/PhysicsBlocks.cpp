@@ -244,26 +244,26 @@ PhysicsBlockBatch::PhysicsBlockBatch(int BlockType, GLubyte temp, GLubyte rain) 
     //const Block &block = Blocks[_blockID];
 
     ////front
-    //VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.pzTexInfo);
+    //VoxelMesher::makePhysicsBlockFace(verts, 0, index, block.textures[2]);
     //index += 6;
     ////right
-    //VoxelMesher::makePhysicsBlockFace(verts, 12, index, block.pxTexInfo);
+    //VoxelMesher::makePhysicsBlockFace(verts, 12, index, block.textures[0]);
     //index += 6;
     ////top
 
-    //VoxelMesher::makePhysicsBlockFace(verts, 24, index, block.pyTexInfo);
+    //VoxelMesher::makePhysicsBlockFace(verts, 24, index, block.textures[1]);
     //index += 6;
     ////left
 
-    //VoxelMesher::makePhysicsBlockFace(verts, 36, index, block.nxTexInfo);
+    //VoxelMesher::makePhysicsBlockFace(verts, 36, index, block.textures[3]);
     //index += 6;
     ////bottom
 
-    //VoxelMesher::makePhysicsBlockFace(verts, 48, index, block.nyTexInfo);
+    //VoxelMesher::makePhysicsBlockFace(verts, 48, index, block.textures[4]);
     //index += 6;
     ////back
 
-    //VoxelMesher::makePhysicsBlockFace(verts, 60, index, block.nzTexInfo);
+    //VoxelMesher::makePhysicsBlockFace(verts, 60, index, block.textures[5]);
     //index += 6;
 
     //_mesh = new PhysicsBlockMesh;
@@ -322,7 +322,7 @@ bool PhysicsBlockBatch::update(ChunkManager* chunkManager, PhysicsEngine* physic
     //ColorRGB8 color, overlayColor;
 
     ////need to fix this so that color is correct
-    //Blocks[blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[blockType].pzTexInfo);
+    //Blocks[blockType].GetBlockColor(color, overlayColor, 0, 128, 128, Blocks[blockType].textures[2]);
 
     //Chunk* lockedChunk = nullptr;
 

@@ -55,13 +55,14 @@ void SystemARRenderer::init(const ModPathResolver* textureResolver) {
     m_textureResolver = textureResolver;
 }
 
+void SystemARRenderer::initGL() {
+    if (!m_colorProgram.isCreated()) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
+    if (m_selectorTexture == 0) loadTextures();
+}
+
 void SystemARRenderer::draw(SpaceSystem* spaceSystem, const Camera* camera,
                             OPT const MainMenuSystemViewer* systemViewer,
                             const f32v2& viewport) {
-    // Lazy init
-    if (!m_colorProgram.isCreated()) m_colorProgram = ShaderLoader::createProgram("SystemAR", VERT_SRC, FRAG_SRC);
-    if (m_selectorTexture == 0) loadTextures();
-
     // Get handles so we don't have huge parameter lists
     m_spaceSystem = spaceSystem;
     m_camera = camera;

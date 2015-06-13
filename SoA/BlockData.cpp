@@ -231,29 +231,29 @@ void Block::InitializeTexture() {
             overlay[i] = -1;
         }
 
-        GameManager::texturePackLoader->getBlockTexture(topTexName, pyTexInfo);
-        base.py = pyTexInfo.base.textureIndex;
-        overlay.py = pyTexInfo.overlay.textureIndex;
+        GameManager::texturePackLoader->getBlockTexture(topTexName, textures[1]);
+        base.py = textures[1].base.textureIndex;
+        overlay.py = textures[1].overlay.textureIndex;
 
-        GameManager::texturePackLoader->getBlockTexture(leftTexName, nxTexInfo);
-        base.nx = nxTexInfo.base.textureIndex;
-        overlay.nx = nxTexInfo.overlay.textureIndex;
+        GameManager::texturePackLoader->getBlockTexture(leftTexName, textures[3]);
+        base.nx = textures[3].base.textureIndex;
+        overlay.nx = textures[3].overlay.textureIndex;
 
-        GameManager::texturePackLoader->getBlockTexture(rightTexName, pxTexInfo);
-        base.px = pxTexInfo.base.textureIndex;
-        overlay.px = pxTexInfo.overlay.textureIndex;
+        GameManager::texturePackLoader->getBlockTexture(rightTexName, textures[0]);
+        base.px = textures[0].base.textureIndex;
+        overlay.px = textures[0].overlay.textureIndex;
 
-        GameManager::texturePackLoader->getBlockTexture(frontTexName, pzTexInfo);
-        base.pz = pzTexInfo.base.textureIndex;
-        overlay.pz = pzTexInfo.overlay.textureIndex;
+        GameManager::texturePackLoader->getBlockTexture(frontTexName, textures[2]);
+        base.pz = textures[2].base.textureIndex;
+        overlay.pz = textures[2].overlay.textureIndex;
 
-        GameManager::texturePackLoader->getBlockTexture(backTexName, nzTexInfo);
-        base.nz = nzTexInfo.base.textureIndex;
-        overlay.nz = nzTexInfo.overlay.textureIndex;
+        GameManager::texturePackLoader->getBlockTexture(backTexName, textures[5]);
+        base.nz = textures[5].base.textureIndex;
+        overlay.nz = textures[5].overlay.textureIndex;
 
-        GameManager::texturePackLoader->getBlockTexture(bottomTexName, nyTexInfo);
-        base.ny = nyTexInfo.base.textureIndex;
-        overlay.ny = nyTexInfo.overlay.textureIndex;
+        GameManager::texturePackLoader->getBlockTexture(bottomTexName, textures[4]);
+        base.ny = textures[4].base.textureIndex;
+        overlay.ny = textures[4].overlay.textureIndex;
 
         BlockTexture particleTexture;
         GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
@@ -261,10 +261,10 @@ void Block::InitializeTexture() {
 
         // Calculate flora height
         // TODO(Ben): Not really a good place for this
-        if (pxTexInfo.base.method == ConnectedTextureMethods::FLORA) {
+        if (textures[0].base.method == ConnectedTextureMethods::FLORA) {
             // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
             // which becomes n = (sqrt(8 * y + 1) - 1) / 2
-            int y = pxTexInfo.base.size.y;
+            int y = textures[0].base.size.y;
             floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
         }
     }

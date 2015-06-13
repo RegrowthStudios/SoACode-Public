@@ -16,9 +16,9 @@ void HdrRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
 }
 
-void HdrRenderStage::dispose(LoadContext& context) {
-    if (m_glProgramBlur.isCreated()) m_glProgramBlur.dispose();
-    if (m_glProgramDoFBlur.isCreated()) m_glProgramDoFBlur.dispose();
+void HdrRenderStage::dispose(StaticLoadContext& context) {
+    if (m_programBlur.isCreated()) m_programBlur.dispose();
+    if (m_programDoFBlur.isCreated()) m_programDoFBlur.dispose();
 }
 
 void HdrRenderStage::render(const Camera* camera /*= nullptr*/) {
@@ -31,12 +31,12 @@ void HdrRenderStage::render(const Camera* camera /*= nullptr*/) {
     vg::GLProgram* program;
     
     if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {
-        if (!m_glProgramBlur.isCreated()) {
-            m_glProgramBlur = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+        if (!m_programBlur.isCreated()) {
+            m_programBlur = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                        "Shaders/PostProcessing/MotionBlur.frag",
                                                                        nullptr, "#define MOTION_BLUR\n");
         }
-        program = &m_glProgramBlur;
+        program = &m_programBlur;
     } else {
         if (!m_program.isCreated()) {
             m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",

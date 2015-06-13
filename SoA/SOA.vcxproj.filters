@@ -171,6 +171,12 @@
     <Filter Include="SOA Files\Client\Asset">
       <UniqueIdentifier>{c4cbe6c3-81db-48d5-9680-8b949bc631a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\API">
+      <UniqueIdentifier>{705cf454-4163-4629-a5a8-b8f21eceeea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Voxel\Allocation">
+      <UniqueIdentifier>{548ab1e5-861c-44a6-9081-0769265688b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -792,9 +798,36 @@
     </ClInclude>
     <ClInclude Include="GameplayLoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="TestNoiseScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkHandle.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaSection.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="TestNewBlockAPIScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Positional.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="NChunk.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetHeightData.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="NChunkGrid.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkAllocator.h">
+      <Filter>SOA Files\Voxel\Allocation</Filter>
+    </ClInclude>
+    <ClInclude Include="ProceduralChunkGenerator.h">
+      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1301,9 +1334,26 @@
     </ClCompile>
     <ClCompile Include="GameplayLoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="TestNoiseScreen.cpp">
+    </ClCompile>
+    <ClCompile Include="MetaSection.cpp">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNewBlockAPIScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="NChunk.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="NChunkGrid.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkAllocator.cpp">
+      <Filter>SOA Files\Voxel\Allocation</Filter>
+    </ClCompile>
+    <ClCompile Include="ProceduralChunkGenerator.cpp">
+      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

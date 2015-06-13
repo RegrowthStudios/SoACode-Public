@@ -57,15 +57,39 @@ void LenseFlareRenderer::init(const ModPathResolver* textureResolver) {
     m_textureResolver = textureResolver;
 }
 
+void LenseFlareRenderer::initGL() {
+    { // Load the shader
+        m_program = ShaderLoader::createProgramFromFile("Shaders/LensFlare/flare.vert",
+                                                        "Shaders/LensFlare/flare.frag");
+        m_unColor = m_program.getUniform("unColor");
+        // Set constant uniforms
+        m_program.use();
+        glUniform1i(m_program.getUniform("unTexture"), 0);
+        m_program.unuse();
+    }
+
+    { // Load the texture
+        vio::Path path;
+        m_textureResolver->resolvePath("Effects/lens_flares.png", path);
+        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        if (!res.data) {
+            fprintf(stderr, "ERROR: Failed to load Effects/lens_flares.png\n");
+        }
+        m_texWidth = res.width;
+        m_texHeight = res.height;
+        m_texture = vg::GpuMemory::uploadTexture(&res, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                 vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
+    }
+
+    initMesh();
+}
+
 void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
                                 const f32v3& color,
                                 float aspectRatio,
                                 f32 size,
                                 f32 intensity) {
     if (size <= 0.0f || intensity <= 0.0f) return;
-    if (!m_program.isCreated()) {
-        lazyInit();
-    }
 
     m_program.use();
 
@@ -112,34 +136,6 @@ void LenseFlareRenderer::dispose() {
         glDeleteVertexArrays(1, &m_vao);
         m_vao = 0;
     }
-}
-
-void LenseFlareRenderer::lazyInit() {
-   
-    { // Load the shader
-        m_program = ShaderLoader::createProgramFromFile("Shaders/LensFlare/flare.vert",
-                                                        "Shaders/LensFlare/flare.frag");
-        m_unColor = m_program.getUniform("unColor");
-        // Set constant uniforms
-        m_program.use();
-        glUniform1i(m_program.getUniform("unTexture"), 0);
-        m_program.unuse();
-    }
-    
-    { // Load the texture
-        vio::Path path;
-        m_textureResolver->resolvePath("Effects/lens_flares.png", path);
-        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
-        if (!res.data) {
-            fprintf(stderr, "ERROR: Failed to load Effects/lens_flares.png\n");
-        }
-        m_texWidth = res.width;
-        m_texHeight = res.height;
-        m_texture = vg::GpuMemory::uploadTexture(&res, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                 vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP_MIPMAP);
-    }
-
-    initMesh();
 }
 
 void LenseFlareRenderer::loadSprites(FlareKegProperties& kegProps) {

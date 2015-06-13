@@ -19,7 +19,7 @@
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;
-class LoadContext;
+class StaticLoadContext;
 struct SoaState;
 DECL_VUI(class GameWindow)
 
@@ -32,17 +32,16 @@ public:
     *
     * @param context: Common loading context.
     */
-    virtual void init(vui::GameWindow* window, LoadContext& context) { m_window = window; }
+    virtual void init(vui::GameWindow* window, StaticLoadContext& context) { m_window = window; }
 
     /*! @brief Invokes core loading logic
     *
     * The loading logic of this render stage is invoked on a separate thread. The work
     * completed should be updated on the context as it is finished.
     *
-    * @param context: Common loading context.
-    * @param glRPCM: RPCManager that runs processes requests on the OpenGL thread
+    * @param context: Common loading context that holds an RPCManager
     */
-    virtual void load(LoadContext& context, vcore::RPCManager& glRPCM) {}
+    virtual void load(StaticLoadContext& context) {}
 
     /*! @brief Destroys all resources held by this render stage.
     *
@@ -50,7 +49,7 @@ public:
     *
     * @param context: Common loading context.
     */
-    virtual void dispose(LoadContext& context) {}
+    virtual void dispose(StaticLoadContext& context) {}
 
     /*! @brief Implementation-defined rendering logic.
     *

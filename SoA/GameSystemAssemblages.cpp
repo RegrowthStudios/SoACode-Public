@@ -72,7 +72,7 @@ vecs::ComponentID GameSystemAssemblages::addSpacePosition(GameSystem* gameSystem
     auto& spCmp = gameSystem->spacePosition.get(spCmpId);
     spCmp.position = position;
     spCmp.orientation = orientation;
-    spCmp.parentEntityID = parentEntity;
+    spCmp.parentEntity = parentEntity;
     spCmp.parentGravityID = parentGravComponent;
     spCmp.parentSphericalTerrainID = parentSphericalTerrainComponent;
     return spCmpId;

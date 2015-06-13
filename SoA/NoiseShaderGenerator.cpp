@@ -138,6 +138,8 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
 
                 "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n";
             switch (fn.func) {
+                case TerrainStage::CUBED_NOISE:
+                case TerrainStage::SQUARED_NOISE:
                 case TerrainStage::NOISE:
                     fSource += "total += snoise(pos * frequency) * amplitude;\n";
                     break;
@@ -147,12 +149,18 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                 case TerrainStage::ABS_NOISE:
                     fSource += "total += abs(snoise(pos * frequency)) * amplitude;\n";
                     break;
-                case TerrainStage::SQUARED_NOISE:
-                    fSource += "tmp = snoise(pos * frequency);\n";
+                case TerrainStage::CELLULAR_NOISE:
+                    fSource += "vec2 ff = cellular(pos * frequency);\n";
+                    fSource += "total += (ff.y - ff.x) * amplitude;\n";
+                    break;
+                case TerrainStage::CELLULAR_SQUARED_NOISE:
+                    fSource += "vec2 ff = cellular(pos * frequency);\n";
+                    fSource += "tmp = ff.y - ff.x;\n";
                     fSource += "total += tmp * tmp * amplitude;\n";
                     break;
-                case TerrainStage::CUBED_NOISE:
-                    fSource += "tmp = snoise(pos * frequency);\n";
+                case TerrainStage::CELLULAR_CUBED_NOISE:
+                    fSource += "vec2 ff = cellular(pos * frequency);\n";
+                    fSource += "tmp = ff.y - ff.x;\n";
                     fSource += "total += tmp * tmp * tmp * amplitude;\n";
                     break;
             }
@@ -161,14 +169,27 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                 "  maxAmplitude += amplitude;\n" +
                 "  amplitude *= " + TS(fn.persistence) + ";\n" +
                 "}\n";
+
+            fSource = fSource + "total = (total / maxAmplitude);\n";
+            // Handle any post processes per noise
+            switch (fn.func) {
+                case TerrainStage::CUBED_NOISE:
+                    fSource = fSource + "total = total * total * total;\n";
+                    break;
+                case TerrainStage::SQUARED_NOISE:
+                    fSource = fSource + "total = total * total;\n";
+                    break;
+                default:
+                    break;
+            }
             // Conditional scaling. 
             fSource += "float " + h + " = ";
             if (fn.low != -1.0f || fn.high != 1.0f) {
                 // (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
-                fSource += "(total / maxAmplitude) * (" +
+                fSource += "total * (" +
                     TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n";
             } else {
-                fSource += "total / maxAmplitude;\n";
+                fSource += "total;\n";
             }
             // Optional clamp if both fields are not 0.0f
             if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {

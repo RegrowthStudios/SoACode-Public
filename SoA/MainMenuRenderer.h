@@ -40,16 +40,14 @@ DECL_VUI(struct WindowResizeEvent; class GameWindow);
 class MainMenuRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context,
+    void init(vui::GameWindow* window, StaticLoadContext& context,
               MainMenuScreen* mainMenuScreen, CommonState* commonState);
 
     void hook();
 
-    void load(LoadContext& context);
+    void load(StaticLoadContext& context);
 
-    void dispose(LoadContext& context);
-
-    void updateGL();
+    void dispose(StaticLoadContext& context);
 
     /// Renders the pipeline
     void render();
@@ -78,7 +76,6 @@ private:
     vui::GameWindow* m_window;
     CommonState* m_commonState = nullptr;
     SoaState* m_state = nullptr;
-    vcore::RPCManager m_glrpc;
     MainMenuScreen* m_mainMenuScreen = nullptr;
 
     vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering

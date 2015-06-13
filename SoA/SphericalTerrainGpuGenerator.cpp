@@ -91,15 +91,19 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManag
 }
 
 SphericalTerrainGpuGenerator::~SphericalTerrainGpuGenerator() {
+
     for (int i = 0; i < PATCHES_PER_FRAME; i++) {
         vg::GpuMemory::freeBuffer(m_patchPbos[0][i]);
         vg::GpuMemory::freeBuffer(m_patchPbos[1][i]);
     }
+
     for (int i = 0; i < RAW_PER_FRAME; i++) {
         vg::GpuMemory::freeBuffer(m_rawPbos[0][i]);
         vg::GpuMemory::freeBuffer(m_rawPbos[1][i]);
     }
+
     glDeleteFramebuffers(1, &m_normalFbo);
+
     m_genProgram.dispose();
 }
 

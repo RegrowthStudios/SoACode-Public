@@ -46,6 +46,9 @@ enum class TerrainStage {
     ABS_NOISE,
     SQUARED_NOISE,
     CUBED_NOISE,
+    CELLULAR_NOISE,
+    CELLULAR_SQUARED_NOISE,
+    CELLULAR_CUBED_NOISE,
     CONSTANT,
     PASS_THROUGH
 };
@@ -119,6 +122,7 @@ struct PlanetGenData {
     NoiseBase humTerrainFuncs;
 
     static ColorMaps colorMaps;
+    nString filePath;
 };
 
 #endif // PlanetData_h__

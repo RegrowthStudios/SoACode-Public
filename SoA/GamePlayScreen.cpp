@@ -108,29 +108,15 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_pauseMenu.destroy();
 }
 
-
 /// This update function runs on the render thread
 void GameplayScreen::update(const vui::GameTime& gameTime) {
 
-    globalRenderAccumulationTimer.start("Space System");
-
-    // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
-    if (m_app->getFps()) {
-        //glSpeedFactor = 60.0f / m_app->getFps();
-        //if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
-        //    glSpeedFactor = 3.0f;
-        //}
-    }
     m_spaceSystemUpdater->glUpdate(m_soaState);
-
-    globalRenderAccumulationTimer.start("Update Meshes");
 
     // TODO(Ben): Move to glUpdate for voxel component
     // TODO(Ben): Don't hardcode for a single player
     auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
     m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, false);
-
-    globalRenderAccumulationTimer.start("Process Messages");
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -138,7 +124,14 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     // Updates the Pause Menu
     if (m_pauseMenu.isOpen()) m_pauseMenu.update();
 
-    globalRenderAccumulationTimer.stop();
+    // Check for target reload
+    if (m_shouldReloadTarget) {
+        m_reloadLock.lock();
+        printf("Reloading Target\n");
+        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, nullptr);
+        m_shouldReloadTarget = false;
+        m_reloadLock.unlock();
+    }
 }
 
 void GameplayScreen::updateECS() {
@@ -182,6 +175,22 @@ void GameplayScreen::updateMTRenderState() {
     state->spaceCameraPos = spCmp.position;
     state->spaceCameraOrientation = spCmp.orientation;
 
+    // Debug chunk grid
+    if (m_renderer.stages.chunkGrid.isActive()) {
+        auto& svcmp = m_soaState->spaceSystem->m_sphericalVoxelCT.getFromEntity(m_soaState->startingPlanet);
+        auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
+        state->debugChunkData.clear();
+        if (svcmp.chunkGrids) {
+            for (NChunk* chunk = svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks(); chunk != nullptr; chunk = chunk->getNextActive()) {
+                state->debugChunkData.emplace_back();
+                state->debugChunkData.back().genLevel = chunk->genLevel;
+                state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
+            }
+        }
+    } else {
+        std::vector<DebugChunkData>().swap(state->debugChunkData);
+    }
+
     m_renderStateManager.finishUpdating();
 }
 
@@ -190,6 +199,7 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
 
     const MTRenderState* renderState;
     // Don't render the same state twice.
+
     while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
         Sleep(0);
     }
@@ -272,6 +282,8 @@ void GameplayScreen::initInput() {
         }
     });
 
+    m_inputMapper->get(INPUT_RELOAD_TARGET).downEvent += makeDelegate(*this, &GameplayScreen::onReloadTarget);
+
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
         if (GameManager::voxelEditor->isEditing()) {
             //TODO(Ben): Edit voxels
@@ -344,8 +356,10 @@ void GameplayScreen::updateThreadFunc() {
     while (m_threadRunning) {
         fpsLimiter.beginFrame();
 
-        updateECS();
+        m_reloadLock.lock();
+        updateECS(); // TODO(Ben): Entity destruction in this thread calls opengl stuff.....
         updateMTRenderState();
+        m_reloadLock.unlock();
 
         if (SDL_GetTicks() - saveStateTicks >= 20000) {
             saveStateTicks = SDL_GetTicks();
@@ -359,6 +373,9 @@ void GameplayScreen::updateThreadFunc() {
 void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Reloading Shaders\n");
     //m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
+}
+void GameplayScreen::onReloadTarget(Sender s, ui32 a) {
+    m_shouldReloadTarget = true;
 }
 
 void GameplayScreen::onQuit(Sender s, ui32 a) {

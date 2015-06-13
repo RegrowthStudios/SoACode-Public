@@ -27,9 +27,9 @@ struct PlanetRingsComponent;
 
 class PlanetRingsComponentRenderer {
 public:
-    PlanetRingsComponentRenderer();
     ~PlanetRingsComponentRenderer();
 
+    void initGL();
     void draw(const PlanetRingsComponent& prCmp,
               const f32m4& VP,
               const f32v3& relCamPos,
@@ -37,7 +37,7 @@ public:
               const f32 planetRadius,
               const f32 zCoef,
               const SpaceLightComponent* spComponent);
-    void disposeShader();
+    void dispose();
 private:
 
     vg::GLProgram m_program;

@@ -21,7 +21,7 @@
 
 #define DEVHUD_FONT_SIZE 32
 
-void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context,
+void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
                             GameplayScreen* gameplayScreen, CommonState* commonState) {
     m_window = window;
     m_gameplayScreen = gameplayScreen;
@@ -51,14 +51,15 @@ void GameplayRenderer::init(vui::GameWindow* window, LoadContext& context,
 
     // No post-process effects to begin with
     stages.nightVision.setActive(false);
-    stages.chunkGrid.setActive(false);
+    stages.chunkGrid.setActive(true); // TODO(Ben): Temporary
+    //stages.chunkGrid.setActive(false);
 }
 
 void GameplayRenderer::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void GameplayRenderer::dispose(LoadContext& context) {
+void GameplayRenderer::dispose(StaticLoadContext& context) {
 
     // Kill the builder
     if (m_loadThread) {
@@ -81,7 +82,7 @@ void GameplayRenderer::dispose(LoadContext& context) {
     m_swapChain.dispose();
 }
 
-void GameplayRenderer::load(LoadContext& context) {
+void GameplayRenderer::load(StaticLoadContext& context) {
     m_isLoaded = false;
 
     m_loadThread = new std::thread([&]() {
@@ -109,15 +110,15 @@ void GameplayRenderer::load(LoadContext& context) {
         so[i - 1].block();
 
         // Load all the stages
-        stages.opaqueVoxel.load(context, m_glrpc);
-        stages.cutoutVoxel.load(context, m_glrpc);
-        stages.chunkGrid.load(context, m_glrpc);
-        stages.transparentVoxel.load(context, m_glrpc);
-        stages.liquidVoxel.load(context, m_glrpc);
-        stages.devHud.load(context, m_glrpc);
-        stages.pda.load(context, m_glrpc);
-        stages.pauseMenu.load(context, m_glrpc);
-        stages.nightVision.load(context, m_glrpc);
+        stages.opaqueVoxel.load(context);
+        stages.cutoutVoxel.load(context);
+        stages.chunkGrid.load(context);
+        stages.transparentVoxel.load(context);
+        stages.liquidVoxel.load(context);
+        stages.devHud.load(context);
+        stages.pda.load(context);
+        stages.pauseMenu.load(context);
+        stages.nightVision.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -163,7 +164,7 @@ void GameplayRenderer::render() {
     // Bind the FBO
     m_hdrTarget.use();
   
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
     m_commonState->stages.skybox.render(&m_state->spaceCamera);
@@ -177,12 +178,12 @@ void GameplayRenderer::render() {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        stages.opaqueVoxel.render(&m_state->localCamera);
+      //  stages.opaqueVoxel.render(&m_state->localCamera);
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->playerEntity).parentVoxelComponent;
-        stages.chunkGrid.setChunks(spaceSystem->m_sphericalVoxelCT.get(voxcmp).chunkMemoryManager);
+        stages.chunkGrid.setState(m_renderState);
         stages.chunkGrid.render(&m_state->localCamera);
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
@@ -318,7 +319,7 @@ void GameplayRenderer::updateCameras() {
     // Player is relative to a planet, so add position if needed
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
     if (spcmp.parentGravityID) {
-        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntityID);
+        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
         if (it != m_renderState->spaceBodyPositions.end()) {
             m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {

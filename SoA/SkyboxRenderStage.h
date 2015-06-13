@@ -17,6 +17,7 @@
 #include "SkyboxRenderer.h"
 #include "IRenderStage.h"
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/AssetLoader.h>
 
 class Camera;
 class ModPathResolver;
@@ -24,15 +25,19 @@ class ModPathResolver;
 class SkyboxRenderStage : public IRenderStage
 {
 public:
+    void init(vui::GameWindow* window, StaticLoadContext& context) override;
+
     void hook(SoaState* state);
+
+    void load(StaticLoadContext& context) override;
 
     // Draws the render stage
     virtual void render(const Camera* camera) override;
 private:
-    void loadSkyboxTexture();
     void drawSpace(glm::mat4 &VP);
     // Update projection matrix
     void updateProjectionMatrix(const Camera* camera);
+    void loadTexture(const char* relPath, int index);
 
     SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
     vg::GLProgram* m_program = nullptr; ///< Program used for rendering
@@ -43,6 +48,11 @@ private:
 
     VGTexture m_skyboxTextureArray = 0; ///< Texture array for skybox
     const ModPathResolver* m_textureResolver = nullptr;
+    vcore::GLRPC m_rpc;
+    ui32 m_resolution;
+
+    // For parallel loading
+
 };
 
 #endif // SkyboxRenderStage_h__

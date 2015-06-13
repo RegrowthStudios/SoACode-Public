@@ -267,7 +267,8 @@ public:
     bool isSupportive;
     bool active;
 
-    BlockTexture pxTexInfo, pyTexInfo, pzTexInfo, nxTexInfo, nyTexInfo, nzTexInfo;
+    BlockTexture textures[6];
+   
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
     BlockTextureFaces base;
     BlockTextureFaces overlay;

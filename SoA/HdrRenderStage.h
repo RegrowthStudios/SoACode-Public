@@ -30,14 +30,14 @@ public:
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw
-    virtual void dispose(LoadContext& context) override;
+    virtual void dispose(StaticLoadContext& context) override;
 
     /// Draws the render stage
     virtual void render(const Camera* camera = nullptr) override;
 private:
     vg::GLProgram m_program;
-    vg::GLProgram m_glProgramBlur; ///< Motion blur enabled
-    vg::GLProgram m_glProgramDoFBlur; ///< Motion blur and DoF enabled
+    vg::GLProgram m_programBlur; ///< Motion blur enabled
+    vg::GLProgram m_programDoFBlur; ///< Motion blur and DoF enabled
     vg::FullQuadVBO* m_quad = nullptr; ///< For use in processing through data
     f32m4 m_oldVP = f32m4(1.0f); ///< ViewProjection of previous frame
 };

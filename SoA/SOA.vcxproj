@@ -542,8 +542,10 @@ EXIT 0</Command>
     <ClInclude Include="BlockPack.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="CellularAutomataTask.h" />
+    <ClInclude Include="ChunkAllocator.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="ChunkHandle.h" />
     <ClInclude Include="ChunkListManager.h" />
     <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
@@ -589,10 +591,13 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ModelMesher.h" />
+    <ClInclude Include="MetaSection.h" />
     <ClInclude Include="ModPathResolver.h" />
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
+    <ClInclude Include="NChunk.h" />
+    <ClInclude Include="NChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="NoiseShaderGenerator.h" />
@@ -609,8 +614,11 @@ EXIT 0</Command>
     <ClInclude Include="PhysicsComponentUpdater.h" />
     <ClInclude Include="PlanetData.h" />
     <ClInclude Include="PlanetGenerator.h" />
+    <ClInclude Include="PlanetHeightData.h" />
     <ClInclude Include="PlanetLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
+    <ClInclude Include="Positional.h" />
+    <ClInclude Include="ProceduralChunkGenerator.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
     <ClInclude Include="ShaderAssetLoader.h" />
     <ClInclude Include="ShaderLoader.h" />
@@ -651,6 +659,7 @@ EXIT 0</Command>
     <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TestVoxelModelScreen.h" />
     <ClInclude Include="TestNoiseScreen.h" />
+    <ClInclude Include="TestNewBlockAPIScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
     <ClInclude Include="TexturePackLoader.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
@@ -750,6 +759,7 @@ EXIT 0</Command>
     <ClCompile Include="BlockPack.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkListManager.cpp" />
@@ -794,9 +804,12 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ModelMesher.cpp" />
+    <ClCompile Include="MetaSection.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
+    <ClCompile Include="NChunk.cpp" />
+    <ClCompile Include="NChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
@@ -814,6 +827,7 @@ EXIT 0</Command>
     <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
+    <ClCompile Include="ProceduralChunkGenerator.cpp" />
     <ClCompile Include="ShaderAssetLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
@@ -851,6 +865,7 @@ EXIT 0</Command>
     <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TestVoxelModelScreen.cpp" />
     <ClCompile Include="TestNoiseScreen.cpp" />
+    <ClCompile Include="TestNewBlockAPIScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TexturePackLoader.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />

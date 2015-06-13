@@ -18,7 +18,7 @@
 #include "SoaState.h"
 #include "soaUtils.h"
 
-void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
+void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
                             MainMenuScreen* mainMenuScreen, CommonState* commonState) {
     m_window = window;
     m_mainMenuScreen = mainMenuScreen;
@@ -30,6 +30,8 @@ void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
     m_viewport = f32v4(0, 0, m_window->getWidth(), m_window->getHeight());
 
     m_mainMenuUI = &m_mainMenuScreen->m_ui;
+    // Add anticipated work
+    context.addAnticipatedWork(3, 3);
 
     // Init render stages
     m_commonState->stages.skybox.init(window, context);
@@ -39,7 +41,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, LoadContext& context,
     stages.exposureCalc.init(window, context);
 }
 
-void MainMenuRenderer::dispose(LoadContext& context) {
+void MainMenuRenderer::dispose(StaticLoadContext& context) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderer::onWindowResize);
 
     // Kill the builder
@@ -56,15 +58,15 @@ void MainMenuRenderer::dispose(LoadContext& context) {
     m_swapChain.dispose();
 }
 
-void MainMenuRenderer::load(LoadContext& context) {
+void MainMenuRenderer::load(StaticLoadContext& context) {
     m_isLoaded = false;
 
     m_loadThread = new std::thread([&]() {
         vcore::GLRPC so[4];
         size_t i = 0;
 
-        // Create the HDR target     
-        so[i].set([&](Sender, void*) {
+        // Create the HDR target  
+        context.addTask([&](Sender, void*) {
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
             m_hdrTarget.init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
@@ -72,30 +74,29 @@ void MainMenuRenderer::load(LoadContext& context) {
             } else {
                 glDisable(GL_MULTISAMPLE);
             }
-        });
-        m_glrpc.invoke(&so[i++], false);
+            context.addWorkCompleted(1);
+        }, false);
 
         // Create the swap chain for post process effects (HDR-capable)
-        so[i].set([&](Sender, void*) {
+        context.addTask([&](Sender, void*) { 
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
-        });
-        m_glrpc.invoke(&so[i++], false);
+            context.addWorkCompleted(1);
+        }, false);
 
         // Create full-screen quad
-        so[i].set([&](Sender, void*) {
+        context.addTask([&](Sender, void*) {
             m_commonState->quad.init();
-        });
-        m_glrpc.invoke(&so[i++], false);
-
-        // Wait for the last command to complete
-        so[i - 1].block();
+            context.addWorkCompleted(1);
+        }, false);
 
         // Load all the stages
-        m_commonState->stages.skybox.load(context, m_glrpc);
-        m_commonState->stages.spaceSystem.load(context, m_glrpc);
-        m_commonState->stages.hdr.load(context, m_glrpc);
-        stages.colorFilter.load(context, m_glrpc);
-        stages.exposureCalc.load(context, m_glrpc);
+        m_commonState->stages.skybox.load(context);
+        m_commonState->stages.spaceSystem.load(context);
+        m_commonState->stages.hdr.load(context);
+        stages.colorFilter.load(context);
+        stages.exposureCalc.load(context);
+
+        context.blockUntilFinished();
 
         m_isLoaded = true;
     });
@@ -108,11 +109,6 @@ void MainMenuRenderer::hook() {
     m_commonState->stages.hdr.hook(&m_commonState->quad);
     stages.colorFilter.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
-}
-
-void MainMenuRenderer::updateGL() {
-    // TODO(Ben): Experiment with more requests
-    m_glrpc.processRequests(1);
 }
 
 void MainMenuRenderer::render() {

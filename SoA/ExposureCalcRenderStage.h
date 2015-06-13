@@ -37,7 +37,7 @@ public:
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw
-    virtual void dispose(LoadContext& context) override;
+    virtual void dispose(StaticLoadContext& context) override;
 
     /// Draws the render stage
     /// @pre no FBO is bound

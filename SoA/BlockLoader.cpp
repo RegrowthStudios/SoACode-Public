@@ -10,7 +10,6 @@
 #include "GameManager.h"
 #include "TexturePackLoader.h"
 
-
 bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
     vio::IOManager iom; // TODO: Pass in a real boy
 

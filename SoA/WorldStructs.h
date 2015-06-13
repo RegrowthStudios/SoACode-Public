@@ -44,28 +44,6 @@ const int TOOSTEEP = 0x4;
 
 class HeightData;
 
-class LoadData
-{
-public:
-    LoadData()
-    {
-    }
-    LoadData(const HeightData* hmap, const PlanetGenData* gData)
-    {
-        heightMap = hmap;
-        genData = gData;
-    }
-    
-    inline void init(const HeightData* hmap, const PlanetGenData* gData)
-    {
-        heightMap = hmap;
-        genData = gData;
-    }
-
-    const HeightData* heightMap;
-    const PlanetGenData* genData;
-};
-
 struct MineralData
 {
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)

@@ -17,9 +17,11 @@
 #define ChunkGridRenderStage_h__
 
 #include "IRenderStage.h"
+#include "MTRenderState.h"
 
 #include <Vorb/graphics/GLProgram.h>
 
+class NChunkGrid;
 class GameRenderParams;
 class ChunkMemoryManager;
 
@@ -28,12 +30,12 @@ public:
     void hook(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
-    void setChunks(const ChunkMemoryManager* cmm) { m_chunkMemoryManager = cmm; }
+    void setState(const MTRenderState* state) { m_state = state; }
     virtual void render(const Camera* camera) override;
 private:
     vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
-    const ChunkMemoryManager* m_chunkMemoryManager = nullptr;
+    const MTRenderState* m_state = nullptr;
 };
 
 #endif // ChunkGridRenderStage_h__

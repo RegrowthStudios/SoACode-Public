@@ -32,7 +32,7 @@ public:
     SoaState* state = nullptr;
     vsound::Engine* soundEngine = nullptr;
     vui::GameWindow* window = nullptr;
-    LoadContext loadContext;
+    StaticLoadContext loadContext;
 
     struct {
         SkyboxRenderStage skybox;

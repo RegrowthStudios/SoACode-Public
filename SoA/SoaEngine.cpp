@@ -4,10 +4,11 @@
 #include "BlockData.h"
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
-#include "SoAState.h"
-#include "ProgramGenDelegate.h"
 #include "DebugRenderer.h"
 #include "MeshManager.h"
+#include "ProgramGenDelegate.h"
+#include "SoAState.h"
+#include "SpaceSystemAssemblages.h"
 
 #define M_PER_KM 1000.0
 
@@ -145,6 +146,48 @@ void SoaEngine::setPlanetBlocks(SoaState* state) {
     }
 }
 
+void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
+    SpaceSystem* spaceSystem = state->spaceSystem.get();
+    auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(eid);
+    f64 radius = stCmp.radius;
+    auto& npCmpID = stCmp.namePositionComponent;
+    auto& arCmpID = stCmp.axisRotationComponent;
+    auto& ftCmpID = stCmp.farTerrainComponent;
+    WorldCubeFace face;
+    PlanetGenData* genData = stCmp.planetGenData;
+    nString filePath = genData->filePath;
+
+    if (ftCmpID) {
+        face = spaceSystem->m_farTerrainCT.getFromEntity(eid).face;
+        SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, eid);
+    }
+    if (stCmp.sphericalVoxelComponent) {
+        SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, eid);
+    }
+
+    SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
+    
+
+    genData = state->planetLoader->loadPlanet(filePath, glRPC);
+    genData->radius = radius;
+
+    auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
+                                                         radius,
+                                                         genData,
+                                                         &spaceSystem->normalMapGenProgram,
+                                                         spaceSystem->normalMapRecycler.get());
+    if (ftCmpID) {
+        auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
+        stCmp.farTerrainComponent = ftCmpID;
+    }
+
+    // TODO(Ben): this doesn't work too well.
+    auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
+    pCmp.parentSphericalTerrainID = stCmpID;
+    pCmp.parentGravityID = spaceSystem->m_sphericalGravityCT.getComponentID(eid);
+    pCmp.parentEntity = eid;
+}
+
 void SoaEngine::destroyAll(SoaState* state) {
     state->debugRenderer.reset();
     state->meshManager.reset();
@@ -160,3 +203,4 @@ void SoaEngine::destroyGameSystem(SoaState* state) {
 void SoaEngine::destroySpaceSystem(SoaState* state) {
     state->spaceSystem.reset();
 }
+

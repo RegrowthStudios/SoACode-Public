@@ -219,9 +219,9 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
     if (mi->levelOfDetail > 1 || block->base[offset] == tex) {
         block = &GETBLOCK(blockIDData[wc]);
-        result = block->pyTexInfo.base.textureIndex;
-        block->pyTexInfo.base.blockTextureFunc(params, result);
-        block->GetBlockColor(*params.color, 0, mi->temperature, mi->rainfall, block->pyTexInfo);
+        result = block->textures[1].base.textureIndex;
+        block->textures[1].base.blockTextureFunc(params, result);
+        block->GetBlockColor(*params.color, 0, mi->temperature, mi->rainfall, block->textures[1]);
         return;
     }
 
