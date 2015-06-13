@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "VoxelModelRenderer.h"
+#include "ShaderLoader.h"
 
 #include <glm\gtx\transform.hpp>
 #include <glm\gtx\euler_angles.hpp>
@@ -8,16 +9,19 @@
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
 
-VoxelModelRenderer::VoxelModelRenderer() { /* Empty */ }
+void VoxelModelRenderer::initGL() {
+    m_program = ShaderLoader::createProgramFromFile("Shaders/Models/VoxelModel.vert",
+                                                    "Shaders/Models/VoxelModel.frag");
+}
 
+void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, f32v3 translation, f32v3 eulerRotation, f32v3 scale) {
+    f32m4 mW = glm::translate(translation) * glm::eulerAngleX(eulerRotation.x) * glm::eulerAngleY(eulerRotation.y) * glm::eulerAngleZ(eulerRotation.z) * glm::scale(scale);
+    f32m4 mWVP = mVP * mW;
 
-VoxelModelRenderer::~VoxelModelRenderer() { /* Empty */ }
-
-void VoxelModelRenderer::draw(VoxelModel* model, f32m4 projectionMatrix, f32v3 translation, f32v3 eulerRotation, f32v3 scale) {
-    f32m4 mWVP = projectionMatrix * glm::translate(translation) * glm::eulerAngleX(eulerRotation.x) * glm::eulerAngleY(eulerRotation.y) * glm::eulerAngleZ(eulerRotation.z) * glm::scale(scale);
-
-
-    glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, false, (f32*)&mWVP[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, false, &mWVP[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unW"), 1, false, &mW[0][0]);
+    // TODO(Ben): Temporary
+    glUniform3f(m_program.getUniform("unLightDirWorld"), 1.0f, 0.0f, 0.0f);
 
     model->getMesh().bind();
     glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, pos));

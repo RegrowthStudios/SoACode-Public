@@ -53,8 +53,6 @@ i32v3 VOXEL_SIDES[6] = {
     i32v3(0, 0, 1),
 };
 
-ModelMesher::ModelMesher() { /* Empty */ }
-
 VoxelModelMesh ModelMesher::createMesh(const VoxelModel* model) {
     std::vector<VoxelModelVertex> vertices;
     std::vector<ui32> indices;

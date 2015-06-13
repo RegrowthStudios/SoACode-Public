@@ -23,6 +23,7 @@
 
 #include "Camera.h"
 #include "VoxelModel.h"
+#include "VoxelModelRenderer.h"
 
 class VoxelMatrix;
 class VoxelModelVertex;
@@ -46,6 +47,7 @@ private:
     bool m_movingCamera;
 
     VoxelModel* m_model;
+    VoxelModelRenderer m_renderer;
 
     bool m_movingForward;
     bool m_movingBack;

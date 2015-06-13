@@ -3,16 +3,15 @@
 #define ModelMesher_h__
 
 class VoxelMatrix;
-class VoxelModelVertex;
+class VoxelModel;
 class VoxelModelMesh;
+class VoxelModelVertex;
 
 class ModelMesher {
 public:
     static VoxelModelMesh createMesh(const VoxelModel* model);
 
 private:
-    ModelMesher();
-
     static void genMatrixMesh(const VoxelMatrix* matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);
 };
 

@@ -9,33 +9,6 @@
 
 #include "VoxelModelLoader.h"
 
-#pragma region Simple voxel mesh shader code
-const cString SRC_VERT_VOXEL = R"(
-uniform mat4 unWVP;
-
-in vec4 vPosition;
-in vec3 vColor;
-
-out vec3 fColor;
-
-void main() {
-    fColor = vColor;
-    gl_Position = unWVP * vPosition;
-}
-)";
-const cString SRC_FRAG_VOXEL = R"(
-in vec3 fColor;
-
-out vec4 pColor;
-
-void main() {
-    pColor = vec4(fColor, 1);
-}
-)";
-#pragma endregion
-
-
-
 i32 TestVoxelModelScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -124,14 +97,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     m_model = new VoxelModel();
     m_model->loadFromFile("Models\\mammoth.qb");
 
-    vg::GLProgram program(false);
-    program.init();
-    program.addShader(vg::ShaderType::VERTEX_SHADER, SRC_VERT_VOXEL);
-    program.addShader(vg::ShaderType::FRAGMENT_SHADER, SRC_FRAG_VOXEL);
-    program.link();
-    program.initAttributes();
-    program.initUniforms();
-    m_model->setShaderProgram(program);
+    m_renderer.initGL();
 
     m_movingCamera = false;
 
@@ -178,5 +144,5 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
-    m_model->draw(m_camera->getViewProjectionMatrix());
+    m_renderer.draw(m_model, m_camera->getViewProjectionMatrix());
 }
