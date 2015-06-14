@@ -835,9 +835,6 @@
     <ClInclude Include="MarchingCubesTable.h">
       <Filter>SOA Files\Voxel\Meshing\MarchingCubes</Filter>
     </ClInclude>
-    <ClInclude Include="MarchingCubesCross.h">
-      <Filter>SOA Files\Voxel\Meshing\MarchingCubes</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1363,9 +1360,6 @@
     </ClCompile>
     <ClCompile Include="ProceduralChunkGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="MarchingCubesCross.cpp">
-      <Filter>SOA Files\Voxel\Meshing\MarchingCubes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

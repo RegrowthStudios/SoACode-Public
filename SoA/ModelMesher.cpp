@@ -4,7 +4,7 @@
 #include "VoxelMatrix.h"
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
-#include "MarchingCubesCross.h"
+#include "MarchingCubesTable.h"
 
 #include <vector>
 
