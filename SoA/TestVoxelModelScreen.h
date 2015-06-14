@@ -35,6 +35,7 @@ struct MeshDebugInfo {
     nString name;
     ui32 numPolygons;
     f64 buildTime;
+    f32 size;
 };
 
 class TestVoxelModelScreen : public vui::IAppScreen<App> {

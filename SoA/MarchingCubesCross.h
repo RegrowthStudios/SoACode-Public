@@ -23,9 +23,6 @@ typedef struct {
     f32v3 norm;
 } TRIANGLE;
 
-//does Linear Interpolation between points p1 and p2 (they already contain their computed values)
-f32v3 LinearInterp(f32v4 p1, f32v4 p2, float value);
-
 ////////////////////////////////////////////////////////////////////////////////////////
 //POINTERS TO FUNCTIONS																////
 //pointer to function which computes the value at a point							////

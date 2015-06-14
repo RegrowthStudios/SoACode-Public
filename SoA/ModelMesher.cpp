@@ -111,19 +111,9 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
         }
     }
 
-    int numTriangles;       
-    TRIANGLE* tris = MarchingCubesCross(matrix.size.x, matrix.size.y, matrix.size.z, 0.5f, points, numTriangles);
+    marchingCubesCross(matrix, 0.5f, points, vertices);
 
-    f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
-
-    for (int i = 0; i < numTriangles; i++) {
-
-        vertices.emplace_back(tris[i].p[0] - mainOffset, getColor(tris[i].p[0], matrix), tris[i].norm);
-        vertices.emplace_back(tris[i].p[1] - mainOffset, getColor(tris[i].p[1], matrix), tris[i].norm);
-        vertices.emplace_back(tris[i].p[2] - mainOffset, getColor(tris[i].p[2], matrix), tris[i].norm);
-    }
-
-    rv.m_triCount = numTriangles;
+    rv.m_triCount = vertices.size() / 3;
     glGenVertexArrays(1, &rv.m_vao);
     glBindVertexArray(rv.m_vao);
 
@@ -263,6 +253,106 @@ color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
     return color3(fColor.r, fColor.g, fColor.b);
 }
 
+//Linear Interpolation function
+f32v3 linearInterp(const f32v4& p1, const f32v4& p2, float value) {
+    f32v3 p;
+    if (p1.w != p2.w)
+        p = f32v3(p1) + (f32v3(p2) - f32v3(p1)) / (p2.w - p1.w)*(value - p1.w);
+    else
+        p = (f32v3)p1;
+    return p;
+}
+
+void ModelMesher::marchingCubesCross(const VoxelMatrix& matrix,
+                                     float minValue, f32v4 * points,
+                                     std::vector<VoxelModelVertex>& vertices) {
+
+    int ncellsX = matrix.size.x;
+    int ncellsY = matrix.size.y;
+    int ncellsZ = matrix.size.z;
+
+    int YtimeZ = (ncellsY + 1)*(ncellsZ + 1);	//for little extra speed
+    int ni, nj;
+    f32v3 mainOffset(-ncellsX / 2.0f, -ncellsY / 2.0f, -ncellsZ / 2.0f);
+
+    //go through all the points
+    for (int i = 0; i < ncellsX; i++) {		//x axis
+        ni = i*YtimeZ;
+        for (int j = 0; j < ncellsY; j++) {	//y axis
+            nj = j*(ncellsZ + 1);
+            for (int k = 0; k < ncellsZ; k++)	//z axis
+            {
+                //initialize vertices
+                f32v4 verts[8];
+                int ind = ni + nj + k;
+                /*(step 3)*/
+                verts[0] = points[ind];
+                verts[1] = points[ind + YtimeZ];
+                verts[2] = points[ind + YtimeZ + 1];
+                verts[3] = points[ind + 1];
+                verts[4] = points[ind + (ncellsZ + 1)];
+                verts[5] = points[ind + YtimeZ + (ncellsZ + 1)];
+                verts[6] = points[ind + YtimeZ + (ncellsZ + 1) + 1];
+                verts[7] = points[ind + (ncellsZ + 1) + 1];
+
+                //get the index
+                int cubeIndex = int(0);
+                for (int n = 0; n < 8; n++)
+                /*(step 4)*/
+                if (verts[n].w <= minValue) cubeIndex |= (1 << n);
+
+                //check if its completely inside or outside
+                /*(step 5)*/
+                if (!edgeTable[cubeIndex]) continue;
+
+                //get linearly interpolated vertices on edges and save into the array
+                f32v3 intVerts[12];
+                /*(step 6)*/
+                if (edgeTable[cubeIndex] & 1) intVerts[0] = linearInterp(verts[0], verts[1], minValue);
+                if (edgeTable[cubeIndex] & 2) intVerts[1] = linearInterp(verts[1], verts[2], minValue);
+                if (edgeTable[cubeIndex] & 4) intVerts[2] = linearInterp(verts[2], verts[3], minValue);
+                if (edgeTable[cubeIndex] & 8) intVerts[3] = linearInterp(verts[3], verts[0], minValue);
+                if (edgeTable[cubeIndex] & 16) intVerts[4] = linearInterp(verts[4], verts[5], minValue);
+                if (edgeTable[cubeIndex] & 32) intVerts[5] = linearInterp(verts[5], verts[6], minValue);
+                if (edgeTable[cubeIndex] & 64) intVerts[6] = linearInterp(verts[6], verts[7], minValue);
+                if (edgeTable[cubeIndex] & 128) intVerts[7] = linearInterp(verts[7], verts[4], minValue);
+                if (edgeTable[cubeIndex] & 256) intVerts[8] = linearInterp(verts[0], verts[4], minValue);
+                if (edgeTable[cubeIndex] & 512) intVerts[9] = linearInterp(verts[1], verts[5], minValue);
+                if (edgeTable[cubeIndex] & 1024) intVerts[10] = linearInterp(verts[2], verts[6], minValue);
+                if (edgeTable[cubeIndex] & 2048) intVerts[11] = linearInterp(verts[3], verts[7], minValue);
+
+                //now build the triangles using triTable
+                for (int n = 0; triTable[cubeIndex][n] != -1; n += 3) {
+                    int startIndex = vertices.size();
+                    vertices.resize(vertices.size() + 3);
+                    /*(step 7)*/
+                    vertices[startIndex].pos = intVerts[triTable[cubeIndex][n + 2]];
+                    vertices[startIndex + 1].pos = intVerts[triTable[cubeIndex][n + 1]];
+                    vertices[startIndex + 2].pos = intVerts[triTable[cubeIndex][n]];
+
+                    f32v3 p1 = vertices[startIndex + 1].pos - vertices[startIndex].pos;
+                    f32v3 p2 = vertices[startIndex + 2].pos - vertices[startIndex].pos;
+                    //Computing normal as cross product of triangle's edges
+                    /*(step 8)*/
+                    f32v3 normal = glm::normalize(glm::cross(p1, p2));
+                    vertices[startIndex].normal = normal;
+                    vertices[startIndex + 1].normal = normal;
+                    vertices[startIndex + 2].normal = normal;
+                    // Offsets and color
+                    vertices[startIndex].color = getColor(vertices[startIndex].pos, matrix);
+                    vertices[startIndex + 1].color = getColor(vertices[startIndex + 1].pos, matrix);
+                    vertices[startIndex + 2].color = getColor(vertices[startIndex + 2].pos, matrix);
+
+                    vertices[startIndex].pos += mainOffset;
+                    vertices[startIndex + 1].pos += mainOffset;
+                    vertices[startIndex + 2].pos += mainOffset;
+                }
+
+            }
+        }
+    }
+}
+
 f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
     f32 potential = 0.0f;
     int filterSize = 2;
@@ -273,7 +363,7 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
     for (int i = 0; i < filterSize; i++) {
         for (int j = 0; j < filterSize; j++) {
             for (int k = 0; k < filterSize; k++) {
-                if (matrix.getColor(x + i, y + j, z + k).a != 0) {
+                if (matrix.getColorAndCheckBounds(x + i, y + j, z + k).a != 0) {
                     potential += 1.0f;
                 }
             }
@@ -286,20 +376,36 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
 void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {
     // TODO(Ben): Could be optimized
     f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
-    for(i32 i = 0; i < matrix.size.x; i++) {
-        for(i32 j = 0; j < matrix.size.y; j++) {
-            for(i32 k = 0; k < matrix.size.z; k++) {
-                ColorRGBA8 voxel = matrix.getColor(i, j, k); // Get the current voxel's color
+    int voxelIndex;
+    for(int z = 0; z < matrix.size.z; z++) {
+        for (int y = 0; y < matrix.size.y; y++) {
+            for (int x = 0; x < matrix.size.x; x++) {
+                voxelIndex = matrix.getIndex(x, y, z);
+                const ColorRGBA8& voxel = matrix.getColor(voxelIndex); // Get the current voxel's color
                 if(voxel.a == 0) continue; // If the current voxel is invisible go to next voxel
 
-                f32v3 offset = f32v3(i, j, k) - mainOffset; // Position of the current voxel in the model
-                for(i32 face = 0; face < 6; face++) { // For each face of the voxel
-                    if(matrix.getColor(i32v3(i, j, k) + VOXEL_SIDES[face]).a == 0) { // Check if the adjacent voxel is invisible
-                        i32 indexStart = vertices.size(); // Get the position of the first vertex for this face
-                        for(int l = 0; l < 4; l++) // Add the 4 vertices for this face
-                            vertices.emplace_back(offset + VOXEL_MODEL[face * 4 + l], voxel.rgb, f32v3(VOXEL_SIDES[face]));
-                        for(int l = 0; l < 6; l++) // Add the 6 indices for this face
-                            indices.push_back(indexStart + VOXEL_INDICES[l]);
+                f32v3 offset = f32v3(x, y, z) - mainOffset; // Position of the current voxel in the model
+                for (int face = 0; face < 6; face++) { // For each face of the voxel
+                    if(matrix.getColorAndCheckBounds(i32v3(x, y, z) + VOXEL_SIDES[face]).a == 0) { // Check if the adjacent voxel is invisible
+                        int indexStart = (int)vertices.size();
+                        int indiceStart = (int)indices.size();
+
+                        // Add the 4 vertices for this face
+                        vertices.resize(indexStart + 4);
+                        for (int l = 0; l < 4; l++) {
+                            vertices[indexStart + l].pos = offset + VOXEL_MODEL[face * 4 + l];
+                            vertices[indexStart + l].color = voxel.rgb;
+                            vertices[indexStart + l].normal = f32v3(VOXEL_SIDES[face]);
+                        }
+
+                        // Add the 6 indices for this face
+                        indices.resize(indiceStart + 6);
+                        indices[indiceStart] = indexStart + VOXEL_INDICES[0];
+                        indices[indiceStart + 1] = indexStart + VOXEL_INDICES[1];
+                        indices[indiceStart + 2] = indexStart + VOXEL_INDICES[2];
+                        indices[indiceStart + 3] = indexStart + VOXEL_INDICES[3];
+                        indices[indiceStart + 4] = indexStart + VOXEL_INDICES[4];
+                        indices[indiceStart + 5] = indexStart + VOXEL_INDICES[5];
                     }
                 }
             }

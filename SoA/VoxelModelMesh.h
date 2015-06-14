@@ -7,6 +7,7 @@
 
 class VoxelModelVertex {
 public:
+    VoxelModelVertex() {}
     VoxelModelVertex(f32v3 pos, color3 color, f32v3 normal):
         pos(pos),
         color(color),

@@ -15,13 +15,12 @@
 #include "MarchingCubesCross.h"
 
 //Linear Interpolation function
-f32v3 LinearInterp(f32v4 p1, f32v4 p2, float value) {
-    f32v3 p;
+f32v3 LinearInterp(const f32v4& p1, const f32v4& p2, float value) {
+    f32v3 p13 = f32v3(p1);
     if (p1.w != p2.w)
-        p = f32v3(p1) + (f32v3(p2) - f32v3(p1)) / (p2.w - p1.w)*(value - p1.w);
+        return p13 + (f32v3(p2) - p13) / (p2.w - p1.w)*(value - p1.w);
     else
-        p = (f32v3)p1;
-    return p;
+        return f32v3(p1);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

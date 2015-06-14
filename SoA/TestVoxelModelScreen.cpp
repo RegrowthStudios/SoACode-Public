@@ -138,6 +138,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     m_model = new VoxelModel();
     info.name = "Models/human_female.qb";
     m_model->loadFromFile(info.name);
+    info.size = m_model->getMatrix().size.x * m_model->getMatrix().size.y * m_model->getMatrix().size.z * sizeof(color4);
 
     timer.start();
     m_meshes.push_back(ModelMesher::createMesh(m_model));
@@ -153,6 +154,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
 
     info.name = "Models/human_male.qb";
     m_model->loadFromFile(info.name);
+    info.size = m_model->getMatrix().size.x * m_model->getMatrix().size.y * m_model->getMatrix().size.z * sizeof(color4);
 
     timer.start();
     m_meshes.push_back(ModelMesher::createMesh(m_model));
@@ -223,9 +225,10 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
 
     m_sb.begin();
     char buf[512];
-    sprintf(buf, "Name: %s\nTriangles: %d\nBuild Time: %.4lf", m_meshInfos[m_currentMesh].name.c_str(),
+    sprintf(buf, "Name: %s\nTriangles: %d\nBuild Time: %.4lf ms\nsize: %f mb", m_meshInfos[m_currentMesh].name.c_str(),
             m_meshInfos[m_currentMesh].numPolygons,
-            m_meshInfos[m_currentMesh].buildTime);
+            m_meshInfos[m_currentMesh].buildTime,
+            m_meshInfos[m_currentMesh].size / 1000.0f / 1000.0f);
     m_sb.drawString(&m_sf, buf, f32v2(30.0f), f32v2(1.0f), color::White);
 
     m_sb.end();
