@@ -5,7 +5,6 @@
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
 #include "MarchingCubesTable.h"
-#include "MarchingCubesMesher.h"
 
 #include <vector>
 
@@ -112,20 +111,10 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
         }
     }
 
-    int numTriangles;
-    TRIANGLE* tris = MarchingCubes(matrix.size.x, matrix.size.y, matrix.size.z, 1.0f, 1.0f, 1.0f, 0.5f, points, numTriangles);
-   
+    marchingCubes(matrix, 1.0f, 1.0f, 1.0f, 0.5f, points, vertices);
 
-    f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
-
-    for (int i = 0; i < numTriangles; i++) {
-
-        vertices.emplace_back(tris[i].p[0] - mainOffset, getColor(tris[i].p[0], matrix), tris[i].norm[0]);
-        vertices.emplace_back(tris[i].p[1] - mainOffset, getColor(tris[i].p[1], matrix), tris[i].norm[1]);
-        vertices.emplace_back(tris[i].p[2] - mainOffset, getColor(tris[i].p[2], matrix), tris[i].norm[2]);
-    }
-
-    rv.m_triCount = numTriangles;
+    // TODO(Ben): Indexed drawing
+    rv.m_triCount = vertices.size() / 3;
     delete[] points;
 
     glGenVertexArrays(1, &rv.m_vao);
@@ -267,101 +256,268 @@ color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
     return color3(fColor.r, fColor.g, fColor.b);
 }
 
-//Linear Interpolation function
+//Macros used to compute gradient vector on each vertex of a cube
+//argument should be the name of array of vertices
+//can be verts or *verts if done by reference
+#define CALC_GRAD_VERT_0(verts) f32v4(points[ind-YtimeZ].w-(verts[1]).w,points[ind-pointsZ].w-(verts[4]).w,points[ind-1].w-(verts[3]).w, (verts[0]).w);
+#define CALC_GRAD_VERT_1(verts) f32v4((verts[0]).w-points[ind+2*YtimeZ].w,points[ind+YtimeZ-pointsZ].w-(verts[5]).w,points[ind+YtimeZ-1].w-(verts[2]).w, (verts[1]).w);
+#define CALC_GRAD_VERT_2(verts) f32v4((verts[3]).w-points[ind+2*YtimeZ+1].w,points[ind+YtimeZ-ncellsZ].w-(verts[6]).w,(verts[1]).w-points[ind+YtimeZ+2].w, (verts[2]).w);
+#define CALC_GRAD_VERT_3(verts) f32v4(points[ind-YtimeZ+1].w-(verts[2]).w,points[ind-ncellsZ].w-(verts[7]).w,(verts[0]).w-points[ind+2].w, (verts[3]).w);
+#define CALC_GRAD_VERT_4(verts) f32v4(points[ind-YtimeZ+ncellsZ+1].w-(verts[5]).w,(verts[0]).w-points[ind+2*pointsZ].w,points[ind+ncellsZ].w-(verts[7]).w, (verts[4]).w);
+#define CALC_GRAD_VERT_5(verts) f32v4((verts[4]).w-points[ind+2*YtimeZ+ncellsZ+1].w,(verts[1]).w-points[ind+YtimeZ+2*pointsZ].w,points[ind+YtimeZ+ncellsZ].w-(verts[6]).w, (verts[5]).w);
+#define CALC_GRAD_VERT_6(verts) f32v4((verts[7]).w-points[ind+2*YtimeZ+ncellsZ+2].w,(verts[2]).w-points[ind+YtimeZ+2*ncellsZ+3].w,(verts[5]).w-points[ind+YtimeZ+ncellsZ+3].w, (verts[6]).w);
+#define CALC_GRAD_VERT_7(verts) f32v4(points[ind-YtimeZ+ncellsZ+2].w-(verts[6]).w,(verts[3]).w-points[ind+2*ncellsZ+3].w,(verts[4]).w-points[ind+ncellsZ+3].w, (verts[7]).w);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// GLOBAL //
+//Global variables - so they dont have to be passed into functions
+int pointsZ;	//number of points on Z zxis (equal to ncellsZ+1)
+int YtimeZ;		//'plane' of cubes on YZ (equal to (ncellsY+1)*pointsZ )
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Linear Interpolation between two points
 f32v3 linearInterp(const f32v4& p1, const f32v4& p2, float value) {
-    f32v3 p;
-    if (p1.w != p2.w)
-        p = f32v3(p1) + (f32v3(p2) - f32v3(p1)) / (p2.w - p1.w)*(value - p1.w);
+    f32v3 p13(p1);
+    if (fabs(p1.w - p2.w) > 0.00001f)
+        return p13 + (f32v3(p2) - p13) / (p2.w - p1.w)*(value - p1.w);
     else
-        p = (f32v3)p1;
-    return p;
+        return p13;
 }
 
-void ModelMesher::marchingCubesCross(const VoxelMatrix& matrix,
-                                     float minValue, f32v4 * points,
-                                     std::vector<VoxelModelVertex>& vertices) {
-
+void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
+                                float gradFactorX, float gradFactorY, float gradFactorZ,
+                                float minValue, f32v4 * points, std::vector<VoxelModelVertex>& vertices) {
     int ncellsX = matrix.size.x;
     int ncellsY = matrix.size.y;
     int ncellsZ = matrix.size.z;
 
-    int YtimeZ = (ncellsY + 1)*(ncellsZ + 1);	//for little extra speed
-    int ni, nj;
-    f32v3 mainOffset(-ncellsX / 2.0f, -ncellsY / 2.0f, -ncellsZ / 2.0f);
+    pointsZ = ncellsZ + 1;			//initialize global variable (for extra speed) 
+    YtimeZ = (ncellsY + 1)*pointsZ;
+    int lastX = ncellsX;			//left from older version
+    int lastY = ncellsY;
+    int lastZ = ncellsZ;
 
-    //go through all the points
-    for (int i = 0; i < ncellsX; i++) {		//x axis
+    f32v4 *verts[8];			//vertices of a cube (array of pointers for extra speed)
+    f32v3 intVerts[12];			//linearly interpolated vertices on each edge
+    int cubeIndex;					//shows which vertices are outside/inside
+    int edgeIndex;					//index returned by edgeTable[cubeIndex]
+    f32v4 gradVerts[8];			//gradients at each vertex of a cube		
+    f32v3 grads[12];				//linearly interpolated gradients on each edge
+    int indGrad;					//shows which gradients already have been computed
+    int ind, ni, nj;				//ind: index of vertex 0
+    //factor by which corresponding coordinates of gradient vectors are scaled
+    f32v3 factor(1.0f / (2.0*gradFactorX), 1.0f / (2.0*gradFactorY), 1.0f / (2.0*gradFactorZ));
+
+    f32v3 mainOffset(-(matrix.size.x / 2.0f), -(matrix.size.y / 2.0f), -(matrix.size.z / 2.0f);
+
+    //MAIN LOOP: goes through all the points
+    for (int i = 0; i < lastX; i++) {			//x axis
         ni = i*YtimeZ;
-        for (int j = 0; j < ncellsY; j++) {	//y axis
-            nj = j*(ncellsZ + 1);
-            for (int k = 0; k < ncellsZ; k++)	//z axis
+        for (int j = 0; j < lastY; j++) {		//y axis
+            nj = j*pointsZ;
+            for (int k = 0; k < lastZ; k++, ind++)	//z axis
             {
                 //initialize vertices
-                f32v4 verts[8];
-                int ind = ni + nj + k;
-                /*(step 3)*/
-                verts[0] = points[ind];
-                verts[1] = points[ind + YtimeZ];
-                verts[2] = points[ind + YtimeZ + 1];
-                verts[3] = points[ind + 1];
-                verts[4] = points[ind + (ncellsZ + 1)];
-                verts[5] = points[ind + YtimeZ + (ncellsZ + 1)];
-                verts[6] = points[ind + YtimeZ + (ncellsZ + 1) + 1];
-                verts[7] = points[ind + (ncellsZ + 1) + 1];
+                ind = ni + nj + k;
+                verts[0] = &points[ind];
+                verts[1] = &points[ind + YtimeZ];
+                verts[4] = &points[ind + pointsZ];
+                verts[5] = &points[ind + YtimeZ + pointsZ];
+                verts[2] = &points[ind + YtimeZ + 1];
+                verts[3] = &points[ind + 1];
+                verts[6] = &points[ind + YtimeZ + pointsZ + 1];
+                verts[7] = &points[ind + pointsZ + 1];
 
                 //get the index
-                int cubeIndex = int(0);
+                cubeIndex = int(0);
                 for (int n = 0; n < 8; n++)
-                /*(step 4)*/
-                if (verts[n].w <= minValue) cubeIndex |= (1 << n);
+                    if (verts[n]->w <= minValue) cubeIndex |= (1 << n);
 
                 //check if its completely inside or outside
-                /*(step 5)*/
                 if (!edgeTable[cubeIndex]) continue;
 
-                //get linearly interpolated vertices on edges and save into the array
-                f32v3 intVerts[12];
-                /*(step 6)*/
-                if (edgeTable[cubeIndex] & 1) intVerts[0] = linearInterp(verts[0], verts[1], minValue);
-                if (edgeTable[cubeIndex] & 2) intVerts[1] = linearInterp(verts[1], verts[2], minValue);
-                if (edgeTable[cubeIndex] & 4) intVerts[2] = linearInterp(verts[2], verts[3], minValue);
-                if (edgeTable[cubeIndex] & 8) intVerts[3] = linearInterp(verts[3], verts[0], minValue);
-                if (edgeTable[cubeIndex] & 16) intVerts[4] = linearInterp(verts[4], verts[5], minValue);
-                if (edgeTable[cubeIndex] & 32) intVerts[5] = linearInterp(verts[5], verts[6], minValue);
-                if (edgeTable[cubeIndex] & 64) intVerts[6] = linearInterp(verts[6], verts[7], minValue);
-                if (edgeTable[cubeIndex] & 128) intVerts[7] = linearInterp(verts[7], verts[4], minValue);
-                if (edgeTable[cubeIndex] & 256) intVerts[8] = linearInterp(verts[0], verts[4], minValue);
-                if (edgeTable[cubeIndex] & 512) intVerts[9] = linearInterp(verts[1], verts[5], minValue);
-                if (edgeTable[cubeIndex] & 1024) intVerts[10] = linearInterp(verts[2], verts[6], minValue);
-                if (edgeTable[cubeIndex] & 2048) intVerts[11] = linearInterp(verts[3], verts[7], minValue);
+                indGrad = int(0);
+                edgeIndex = edgeTable[cubeIndex];
+
+                if (edgeIndex & 1) {
+                    intVerts[0] = linearInterp(*verts[0], *verts[1], minValue);
+                    if (i != 0 && j != 0 && k != 0) gradVerts[0] = CALC_GRAD_VERT_0(*verts)
+                    else gradVerts[0] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                    if (i != lastX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
+                    else gradVerts[1] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                    indGrad |= 3;
+                    grads[0] = linearInterp(gradVerts[0], gradVerts[1], minValue);
+                    grads[0].x *= factor.x; grads[0].y *= factor.y; grads[0].z *= factor.z;
+                }
+                if (edgeIndex & 2) {
+                    intVerts[1] = linearInterp(*verts[1], *verts[2], minValue);
+                    if (!(indGrad & 2)) {
+                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
+                        else gradVerts[1] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 2;
+                    }
+                    if (i != lastX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
+                    else gradVerts[2] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                    indGrad |= 4;
+                    grads[1] = linearInterp(gradVerts[1], gradVerts[2], minValue);
+                    grads[1].x *= factor.x; grads[1].y *= factor.y; grads[1].z *= factor.z;
+                }
+                if (edgeIndex & 4) {
+                    intVerts[2] = linearInterp(*verts[2], *verts[3], minValue);
+                    if (!(indGrad & 4)) {
+                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
+                        else gradVerts[2] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 4;
+                    }
+                    if (i != 0 && j != 0 && k != lastZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
+                    else gradVerts[3] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                    indGrad |= 8;
+                    grads[2] = linearInterp(gradVerts[2], gradVerts[3], minValue);
+                    grads[2].x *= factor.x; grads[2].y *= factor.y; grads[2].z *= factor.z;
+                }
+                if (edgeIndex & 8) {
+                    intVerts[3] = linearInterp(*verts[3], *verts[0], minValue);
+                    if (!(indGrad & 8)) {
+                        if (i != 0 && j != 0 && k != lastZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
+                        else gradVerts[3] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 8;
+                    }
+                    if (!(indGrad & 1)) {
+                        if (i != 0 && j != 0 && k != 0) gradVerts[0] = CALC_GRAD_VERT_0(*verts)
+                        else gradVerts[0] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 1;
+                    }
+                    grads[3] = linearInterp(gradVerts[3], gradVerts[0], minValue);
+                    grads[3].x *= factor.x; grads[3].y *= factor.y; grads[3].z *= factor.z;
+                }
+                if (edgeIndex & 16) {
+                    intVerts[4] = linearInterp(*verts[4], *verts[5], minValue);
+
+                    if (i != 0 && j != lastY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
+                    else gradVerts[4] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+
+                    if (i != lastX - 1 && j != lastY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
+                    else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+
+                    indGrad |= 48;
+                    grads[4] = linearInterp(gradVerts[4], gradVerts[5], minValue);
+                    grads[4].x *= factor.x; grads[4].y *= factor.y; grads[4].z *= factor.z;
+                }
+                if (edgeIndex & 32) {
+                    intVerts[5] = linearInterp(*verts[5], *verts[6], minValue);
+                    if (!(indGrad & 32)) {
+                        if (i != lastX - 1 && j != lastY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
+                        else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 32;
+                    }
+
+                    if (i != lastX - 1 && j != lastY - 1 && k != lastZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
+                    else gradVerts[6] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                    indGrad |= 64;
+                    grads[5] = linearInterp(gradVerts[5], gradVerts[6], minValue);
+                    grads[5].x *= factor.x; grads[5].y *= factor.y; grads[5].z *= factor.z;
+                }
+                if (edgeIndex & 64) {
+                    intVerts[6] = linearInterp(*verts[6], *verts[7], minValue);
+                    if (!(indGrad & 64)) {
+                        if (i != lastX - 1 && j != lastY - 1 && k != lastZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
+                        else gradVerts[6] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 64;
+                    }
+
+                    if (i != 0 && j != lastY - 1 && k != lastZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
+                    else gradVerts[7] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                    indGrad |= 128;
+                    grads[6] = linearInterp(gradVerts[6], gradVerts[7], minValue);
+                    grads[6].x *= factor.x; grads[6].y *= factor.y; grads[6].z *= factor.z;
+                }
+                if (edgeIndex & 128) {
+                    intVerts[7] = linearInterp(*verts[7], *verts[4], minValue);
+                    if (!(indGrad & 128)) {
+                        if (i != 0 && j != lastY - 1 && k != lastZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
+                        else gradVerts[7] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 128;
+                    }
+                    if (!(indGrad & 16)) {
+                        if (i != 0 && j != lastY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
+                        else gradVerts[4] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 16;
+                    }
+                    grads[7] = linearInterp(gradVerts[7], gradVerts[4], minValue);
+                    grads[7].x *= factor.x; grads[7].y *= factor.y; grads[7].z *= factor.z;
+                }
+                if (edgeIndex & 256) {
+                    intVerts[8] = linearInterp(*verts[0], *verts[4], minValue);
+                    if (!(indGrad & 1)) {
+                        if (i != 0 && j != 0 && k != 0) gradVerts[0] = CALC_GRAD_VERT_0(*verts)
+                        else gradVerts[0] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 1;
+                    }
+                    if (!(indGrad & 16)) {
+                        if (i != 0 && j != lastY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
+                        else gradVerts[4] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 16;
+                    }
+                    grads[8] = linearInterp(gradVerts[0], gradVerts[4], minValue);
+                    grads[8].x *= factor.x; grads[8].y *= factor.y; grads[8].z *= factor.z;
+                }
+                if (edgeIndex & 512) {
+                    intVerts[9] = linearInterp(*verts[1], *verts[5], minValue);
+                    if (!(indGrad & 2)) {
+                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
+                        else gradVerts[1] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 2;
+                    }
+                    if (!(indGrad & 32)) {
+                        if (i != lastX - 1 && j != lastY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
+                        else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 32;
+                    }
+                    grads[9] = linearInterp(gradVerts[1], gradVerts[5], minValue);
+                    grads[9].x *= factor.x; grads[9].y *= factor.y; grads[9].z *= factor.z;
+                }
+                if (edgeIndex & 1024) {
+                    intVerts[10] = linearInterp(*verts[2], *verts[6], minValue);
+                    if (!(indGrad & 4)) {
+                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
+                        else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 4;
+                    }
+                    if (!(indGrad & 64)) {
+                        if (i != lastX - 1 && j != lastY - 1 && k != lastZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
+                        else gradVerts[6] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 64;
+                    }
+                    grads[10] = linearInterp(gradVerts[2], gradVerts[6], minValue);
+                    grads[10].x *= factor.x; grads[10].y *= factor.y; grads[10].z *= factor.z;
+                }
+                if (edgeIndex & 2048) {
+                    intVerts[11] = linearInterp(*verts[3], *verts[7], minValue);
+                    if (!(indGrad & 8)) {
+                        if (i != 0 && j != 0 && k != lastZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
+                        else gradVerts[3] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 8;
+                    }
+                    if (!(indGrad & 128)) {
+                        if (i != 0 && j != lastY - 1 && k != lastZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
+                        else gradVerts[7] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
+                        indGrad |= 128;
+                    }
+                    grads[11] = linearInterp(gradVerts[3], gradVerts[7], minValue);
+                    grads[11].x *= factor.x; grads[11].y *= factor.y; grads[11].z *= factor.z;
+                }
 
                 //now build the triangles using triTable
                 for (int n = 0; triTable[cubeIndex][n] != -1; n += 3) {
-                    int startIndex = vertices.size();
+                    int index[3] = { triTable[cubeIndex][n + 2], triTable[cubeIndex][n + 1], triTable[cubeIndex][n] };
+                    int startVertex = vertices.size();
                     vertices.resize(vertices.size() + 3);
-                    /*(step 7)*/
-                    vertices[startIndex].pos = intVerts[triTable[cubeIndex][n + 2]];
-                    vertices[startIndex + 1].pos = intVerts[triTable[cubeIndex][n + 1]];
-                    vertices[startIndex + 2].pos = intVerts[triTable[cubeIndex][n]];
-
-                    f32v3 p1 = vertices[startIndex + 1].pos - vertices[startIndex].pos;
-                    f32v3 p2 = vertices[startIndex + 2].pos - vertices[startIndex].pos;
-                    //Computing normal as cross product of triangle's edges
-                    /*(step 8)*/
-                    f32v3 normal = glm::normalize(glm::cross(p1, p2));
-                    vertices[startIndex].normal = normal;
-                    vertices[startIndex + 1].normal = normal;
-                    vertices[startIndex + 2].normal = normal;
-                    // Offsets and color
-                    vertices[startIndex].color = getColor(vertices[startIndex].pos, matrix);
-                    vertices[startIndex + 1].color = getColor(vertices[startIndex + 1].pos, matrix);
-                    vertices[startIndex + 2].color = getColor(vertices[startIndex + 2].pos, matrix);
-
-                    vertices[startIndex].pos += mainOffset;
-                    vertices[startIndex + 1].pos += mainOffset;
-                    vertices[startIndex + 2].pos += mainOffset;
+                    for (int h = 0; h < 3; h++) {
+                        vertices[startVertex + h].pos = intVerts[index[h]] + mainOffset;
+                        vertices[startVertex + h].normal = grads[index[h]];
+                        vertices[startVertex + h].color = getColor(vertices[startVertex + h].pos, matrix);
+                    }
                 }
-
             }
         }
     }

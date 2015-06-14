@@ -18,9 +18,9 @@ private:
 
     // *** Marching Cubes ***
     static color3 getColor(const f32v3& pos, const VoxelMatrix& matrix);
-    static void marchingCubesCross(const VoxelMatrix& matrix,
-                                   float minValue, f32v4 * points,
-                                   std::vector<VoxelModelVertex>& vertices);
+    static void marchingCubes(const VoxelMatrix& matrix,
+                              float gradFactorX, float gradFactorY, float gradFactorZ,
+                              float minValue, f32v4 * points, std::vector<VoxelModelVertex>& vertices);
     static f32 getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z);
 };
 
