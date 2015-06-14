@@ -589,6 +589,7 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
+    <ClInclude Include="MarchingCubesMesher.h" />
     <ClInclude Include="MarchingCubesTable.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ModelMesher.h" />
@@ -803,6 +804,7 @@ EXIT 0</Command>
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
+    <ClCompile Include="MarchingCubesMesher.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ModelMesher.cpp" />
     <ClCompile Include="MetaSection.cpp" />

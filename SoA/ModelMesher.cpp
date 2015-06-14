@@ -5,6 +5,7 @@
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
 #include "MarchingCubesTable.h"
+#include "MarchingCubesMesher.h"
 
 #include <vector>
 
@@ -111,9 +112,22 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
         }
     }
 
-    marchingCubesCross(matrix, 0.5f, points, vertices);
+    int numTriangles;
+    TRIANGLE* tris = MarchingCubes(matrix.size.x, matrix.size.y, matrix.size.z, 1.0f, 1.0f, 1.0f, 0.5f, points, numTriangles);
+   
 
-    rv.m_triCount = vertices.size() / 3;
+    f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
+
+    for (int i = 0; i < numTriangles; i++) {
+
+        vertices.emplace_back(tris[i].p[0] - mainOffset, getColor(tris[i].p[0], matrix), tris[i].norm[0]);
+        vertices.emplace_back(tris[i].p[1] - mainOffset, getColor(tris[i].p[1], matrix), tris[i].norm[1]);
+        vertices.emplace_back(tris[i].p[2] - mainOffset, getColor(tris[i].p[2], matrix), tris[i].norm[2]);
+    }
+
+    rv.m_triCount = numTriangles;
+    delete[] points;
+
     glGenVertexArrays(1, &rv.m_vao);
     glBindVertexArray(rv.m_vao);
 
