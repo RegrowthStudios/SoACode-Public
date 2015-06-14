@@ -71,6 +71,7 @@ VoxelModelMesh ModelMesher::createMesh(const VoxelModel* model) {
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VoxelModelVertex), vertices.data(), GL_STATIC_DRAW);
     
     rv.m_indCount = indices.size();
+    rv.m_triCount = (indices.size() * 2) / 6;
     glGenBuffers(1, &rv.m_ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rv.m_ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, rv.m_indCount * sizeof(ui32), indices.data(), GL_STATIC_DRAW);
@@ -111,13 +112,15 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
     }
 
     int numTriangles;       
-    TRIANGLE* tris = MarchingCubesCross(matrix.size.x, matrix.size.y, matrix.size.z, 0.76f, points, numTriangles);
+    TRIANGLE* tris = MarchingCubesCross(matrix.size.x, matrix.size.y, matrix.size.z, 0.5f, points, numTriangles);
+
+    f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
 
     for (int i = 0; i < numTriangles; i++) {
 
-        vertices.emplace_back(tris[i].p[0], getColor(tris[i].p[0], matrix), tris[i].norm);
-        vertices.emplace_back(tris[i].p[1], getColor(tris[i].p[1], matrix), tris[i].norm);
-        vertices.emplace_back(tris[i].p[2], getColor(tris[i].p[2], matrix), tris[i].norm);
+        vertices.emplace_back(tris[i].p[0] - mainOffset, getColor(tris[i].p[0], matrix), tris[i].norm);
+        vertices.emplace_back(tris[i].p[1] - mainOffset, getColor(tris[i].p[1], matrix), tris[i].norm);
+        vertices.emplace_back(tris[i].p[2] - mainOffset, getColor(tris[i].p[2], matrix), tris[i].norm);
     }
 
     rv.m_triCount = numTriangles;
@@ -282,13 +285,14 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
 
 void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {
     // TODO(Ben): Could be optimized
+    f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
     for(i32 i = 0; i < matrix.size.x; i++) {
         for(i32 j = 0; j < matrix.size.y; j++) {
             for(i32 k = 0; k < matrix.size.z; k++) {
                 ColorRGBA8 voxel = matrix.getColor(i, j, k); // Get the current voxel's color
                 if(voxel.a == 0) continue; // If the current voxel is invisible go to next voxel
 
-                f32v3 offset = f32v3(i, j, k); // Position of the current voxel in the model
+                f32v3 offset = f32v3(i, j, k) - mainOffset; // Position of the current voxel in the model
                 for(i32 face = 0; face < 6; face++) { // For each face of the voxel
                     if(matrix.getColor(i32v3(i, j, k) + VOXEL_SIDES[face]).a == 0) { // Check if the adjacent voxel is invisible
                         i32 indexStart = vertices.size(); // Get the position of the first vertex for this face

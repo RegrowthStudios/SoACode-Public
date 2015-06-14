@@ -20,6 +20,8 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/graphics/SpriteFont.h>
 
 #include "Camera.h"
 #include "VoxelModel.h"
@@ -28,6 +30,12 @@
 class App;
 class VoxelMatrix;
 class VoxelModelVertex;
+
+struct MeshDebugInfo {
+    nString name;
+    ui32 numPolygons;
+    f64 buildTime;
+};
 
 class TestVoxelModelScreen : public vui::IAppScreen<App> {
 public:
@@ -51,8 +59,12 @@ private:
     VoxelModel* m_model;
     ui32 m_currentMesh = 0;
     std::vector<VoxelModelMesh> m_meshes;
+    std::vector<MeshDebugInfo> m_meshInfos;
     VoxelModelRenderer m_renderer;
     bool m_wireFrame = false;
+
+    vg::SpriteBatch m_sb;
+    vg::SpriteFont m_sf;
 
     bool m_movingForward;
     bool m_movingBack;

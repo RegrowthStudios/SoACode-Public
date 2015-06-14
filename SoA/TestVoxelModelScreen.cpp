@@ -6,6 +6,7 @@
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/io/IOManager.h>
+#include <Vorb/Timing.h>
 
 #include "DebugRenderer.h"
 #include "Errors.h"
@@ -33,12 +34,15 @@ void TestVoxelModelScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
+
+    m_sb.init();
+    m_sf.init("Fonts/orbitron_bold-webfont.ttf", 32);
   
     m_camera.init(m_game->getWindow().getAspectRatio());
-    m_camera.setPosition(f64v3(0, 0, 0));
+    m_camera.setPosition(f64v3(0, 0, 100));
     m_camera.setClippingPlane(0.01f, 100000.0f);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
-    m_camera.setRight(f32v3(-1.0f, 0.0f, 0.0f));
+    m_camera.setRight(f32v3(1.0f, 0.0f, 0.0f));
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
             m_camera.rotateFromMouse(-e.dx, -e.dy, 0.1f);
@@ -86,7 +90,14 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         case VKEY_M:
             m_wireFrame = !m_wireFrame;
             break;
-        case VKEY_N:
+        case VKEY_LEFT:
+            if (m_currentMesh == 0) {
+                m_currentMesh = m_meshes.size() - 1;
+            } else {
+                m_currentMesh--;
+            }
+            break;
+        case VKEY_RIGHT:
             m_currentMesh++;
             if (m_currentMesh >= m_meshes.size()) m_currentMesh = 0;
             break;
@@ -120,16 +131,40 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
 
-    m_model = new VoxelModel();
-    m_model->loadFromFile("Models/human_female.qb");
 
     m_currentMesh = 0;
-    m_meshes.push_back(ModelMesher::createMesh(m_model));
-    m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
+    MeshDebugInfo info;
+    PreciseTimer timer;
+    m_model = new VoxelModel();
+    info.name = "Models/human_female.qb";
+    m_model->loadFromFile(info.name);
 
-    m_model->loadFromFile("Models/human_male.qb");
+    timer.start();
     m_meshes.push_back(ModelMesher::createMesh(m_model));
+    info.buildTime = timer.stop();
+    info.numPolygons = m_meshes.back().getTriCount();
+    m_meshInfos.push_back(info);
+
+    timer.start();
     m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
+    info.buildTime = timer.stop();
+    info.numPolygons = m_meshes.back().getTriCount();
+    m_meshInfos.push_back(info);
+
+    info.name = "Models/human_male.qb";
+    m_model->loadFromFile(info.name);
+
+    timer.start();
+    m_meshes.push_back(ModelMesher::createMesh(m_model));
+    info.buildTime = timer.stop();
+    info.numPolygons = m_meshes.back().getTriCount();
+    m_meshInfos.push_back(info);
+
+    timer.start();
+    m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
+    info.buildTime = timer.stop();
+    info.numPolygons = m_meshes.back().getTriCount();
+    m_meshInfos.push_back(info);
 
     m_renderer.initGL();
 
@@ -185,5 +220,17 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     m_model->setMesh(m_meshes[m_currentMesh]);
     m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), m_camera.getPosition(), f64q());
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    m_sb.begin();
+    char buf[512];
+    sprintf(buf, "Name: %s\nTriangles: %d\nBuild Time: %.4lf", m_meshInfos[m_currentMesh].name.c_str(),
+            m_meshInfos[m_currentMesh].numPolygons,
+            m_meshInfos[m_currentMesh].buildTime);
+    m_sb.drawString(&m_sf, buf, f32v2(30.0f), f32v2(1.0f), color::White);
+
+    m_sb.end();
+    m_sb.render(f32v2(m_game->getWindow().getViewportDims()));
+
+
     checkGlError("TestVoxelModelScreen::draw");
 }
