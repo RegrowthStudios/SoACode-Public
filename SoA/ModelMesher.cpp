@@ -111,12 +111,13 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
     }
 
     int numTriangles;       
-    TRIANGLE* tris = MarchingCubesCross(matrix.size.x, matrix.size.y, matrix.size.z, 0.99f, points, numTriangles);
+    TRIANGLE* tris = MarchingCubesCross(matrix.size.x, matrix.size.y, matrix.size.z, 0.76f, points, numTriangles);
 
     for (int i = 0; i < numTriangles; i++) {
-        vertices.emplace_back(tris[i].p[0], color3(255, 255, 255), tris[i].norm);
-        vertices.emplace_back(tris[i].p[1], color3(255, 255, 255), tris[i].norm);
-        vertices.emplace_back(tris[i].p[2], color3(255, 255, 255), tris[i].norm);
+
+        vertices.emplace_back(tris[i].p[0], getColor(tris[i].p[0], matrix), tris[i].norm);
+        vertices.emplace_back(tris[i].p[1], getColor(tris[i].p[1], matrix), tris[i].norm);
+        vertices.emplace_back(tris[i].p[2], getColor(tris[i].p[2], matrix), tris[i].norm);
     }
 
     rv.m_triCount = numTriangles;
@@ -146,26 +147,61 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
     return rv;
 }
 
-f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
+color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
+    i32v3 ipos(glm::round(pos));
+    if (ipos.x >= matrix.size.x) ipos.x = matrix.size.x - 1;
+    if (ipos.y >= matrix.size.y) ipos.y = matrix.size.y - 1;
+    if (ipos.z >= matrix.size.z) ipos.z = matrix.size.z - 1;
+    int x = ipos.x;
+    int y = ipos.y;
+    int z = ipos.z;
+
+    int numColors = 0;
+    i32v3 fColor(0);
+
     if (y > 0) {
         if (z > 0) {
             // Bottom back left
             if (x > 0) {
-                if (matrix.getColor(x - 1, y - 1, z - 1).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x - 1, y - 1, z - 1);
+                if (color.a != 0 && !matrix.isInterior(x - 1, y - 1, z - 1)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
             // Bottom back right
             if (x < matrix.size.x) {
-                if (matrix.getColor(x, y - 1, z - 1).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x, y - 1, z - 1);
+                if (color.a != 0 && !matrix.isInterior(x, y - 1, z - 1)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
         }
         if (z < matrix.size.z) {
             // Bottom front left
             if (x > 0) {
-                if (matrix.getColor(x - 1, y - 1, z).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x - 1, y - 1, z);
+                if (color.a != 0 && !matrix.isInterior(x - 1, y - 1, z)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
             // Bottom front right
             if (x < matrix.size.x) {
-                if (matrix.getColor(x, y - 1, z).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x, y - 1, z);
+                if (color.a != 0 && !matrix.isInterior(x, y - 1, z)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
         }
 
@@ -175,25 +211,73 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
         if (z > 0) {
             // Top back left
             if (x > 0) {
-                if (matrix.getColor(x - 1, y, z - 1).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x - 1, y, z - 1);
+                if (color.a != 0 && !matrix.isInterior(x - 1, y, z - 1)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
             // Top back right
             if (x < matrix.size.x) {
-                if (matrix.getColor(x, y, z - 1).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x, y, z - 1);
+                if (color.a != 0 && !matrix.isInterior(x, y, z - 1)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
         }
         if (z < matrix.size.z) {
             // Top front left
             if (x > 0) {
-                if (matrix.getColor(x - 1, y, z).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x - 1, y, z);
+                if (color.a != 0 && !matrix.isInterior(x - 1, y, z)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
             // Top front right
             if (x < matrix.size.x) {
-                if (matrix.getColor(x, y, z).a != 0) return 1.0f;
+                color4 color = matrix.getColor(x, y, z);
+                if (color.a != 0 && !matrix.isInterior(x, y, z)) {
+                    numColors++;
+                    fColor.r += color.r;
+                    fColor.g += color.g;
+                    fColor.b += color.b;
+                }
             }
         }
     }
-    return 0.0f;
+    if (numColors) {
+        fColor /= numColors;
+    }
+
+    return color3(fColor.r, fColor.g, fColor.b);
+}
+
+f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
+    f32 potential = 0.0f;
+    int filterSize = 2;
+    int halfFilterSize = filterSize / 2;
+    x -= halfFilterSize;
+    y -= halfFilterSize;
+    z -= halfFilterSize;
+    for (int i = 0; i < filterSize; i++) {
+        for (int j = 0; j < filterSize; j++) {
+            for (int k = 0; k < filterSize; k++) {
+                if (matrix.getColor(x + i, y + j, z + k).a != 0) {
+                    potential += 1.0f;
+                }
+            }
+        }
+    }
+   
+    return potential / (filterSize * filterSize * filterSize);
 }
 
 void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {

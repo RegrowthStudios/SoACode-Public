@@ -15,6 +15,9 @@ public:
         return x + y * size.x + z * size.x * size.y;
     }
 
+    bool isInterior(const i32v3& position) const;
+    bool isInterior(const i32 x, const i32 y, const i32 z) const;
+
     void dispose() {
         delete[] data;
         data = nullptr;

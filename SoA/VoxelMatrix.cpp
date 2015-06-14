@@ -16,3 +16,17 @@ ColorRGBA8 VoxelMatrix::getColor(const i32 x, const i32 y, const i32 z) const {
     if(z < 0 || z >= size.z) return color::Transparent;
     return data[x + y * size.x + z * size.x * size.y];
 }
+
+bool VoxelMatrix::isInterior(const i32v3& position) const {
+    if (getColor(position + i32v3(1, 0, 0)).a == 0) return false;
+    if (getColor(position + i32v3(0, 1, 0)).a == 0) return false;
+    if (getColor(position + i32v3(0, 0, 1)).a == 0) return false;
+    if (getColor(position + i32v3(-1, 0, 0)).a == 0) return false;
+    if (getColor(position + i32v3(0, -1, 0)).a == 0) return false;
+    if (getColor(position + i32v3(0, 0, -1)).a == 0) return false;
+    return true;
+}
+
+bool VoxelMatrix::isInterior(const i32 x, const i32 y, const i32 z) const {
+    return isInterior(i32v3(x, y, z));
+}

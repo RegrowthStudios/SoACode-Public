@@ -13,6 +13,7 @@ public:
     static VoxelModelMesh createMarchingCubesMesh(const VoxelModel* model);
 
 private:
+    static color3 getColor(const f32v3& pos, const VoxelMatrix& matrix);
     static f32 getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z);
     static void genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);
 };

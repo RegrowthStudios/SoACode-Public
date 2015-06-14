@@ -88,7 +88,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
             break;
         case VKEY_N:
             m_currentMesh++;
-            if (m_currentMesh > 1) m_currentMesh = 0;
+            if (m_currentMesh >= m_meshes.size()) m_currentMesh = 0;
             break;
         case VKEY_F1:
             // Reload shader
@@ -124,8 +124,12 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     m_model->loadFromFile("Models/human_female.qb");
 
     m_currentMesh = 0;
-    m_meshes[0] = ModelMesher::createMesh(m_model);
-    m_meshes[1] = ModelMesher::createMarchingCubesMesh(m_model);
+    m_meshes.push_back(ModelMesher::createMesh(m_model));
+    m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
+
+    m_model->loadFromFile("Models/human_male.qb");
+    m_meshes.push_back(ModelMesher::createMesh(m_model));
+    m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
 
     m_renderer.initGL();
 

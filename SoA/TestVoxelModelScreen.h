@@ -50,7 +50,7 @@ private:
 
     VoxelModel* m_model;
     ui32 m_currentMesh = 0;
-    VoxelModelMesh m_meshes[2];
+    std::vector<VoxelModelMesh> m_meshes;
     VoxelModelRenderer m_renderer;
     bool m_wireFrame = false;
 
