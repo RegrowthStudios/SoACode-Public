@@ -49,7 +49,10 @@ private:
     bool m_mouseButtons[3];
 
     VoxelModel* m_model;
+    ui32 m_currentMesh = 0;
+    VoxelModelMesh m_meshes[2];
     VoxelModelRenderer m_renderer;
+    bool m_wireFrame = false;
 
     bool m_movingForward;
     bool m_movingBack;

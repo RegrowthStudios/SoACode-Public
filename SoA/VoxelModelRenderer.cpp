@@ -34,9 +34,10 @@ void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, const f64v3& relativ
 
     m_program.use();
     glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, false, &mWVP[0][0]);
-    glUniformMatrix4fv(m_program.getUniform("unW"), 1, false, &mW[0][0]);
+   
     // TODO(Ben): Temporary
-    glUniform3f(m_program.getUniform("unLightDirWorld"), 1.0f, 0.0f, 0.0f);
+    f32v3 lightDir = glm::normalize(f32v3(1.0f, 0.0f, 1.0f));
+    glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &lightDir[0]);
 
     model->getMesh().bind();
     m_program.enableVertexAttribArrays();
@@ -44,7 +45,11 @@ void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, const f64v3& relativ
     glVertexAttribPointer(m_program.getAttribute("vNormal"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, normal));
     glVertexAttribPointer(m_program.getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, true, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, color));
     
-    glDrawElements(GL_TRIANGLES, model->getMesh().getIndexCount(), GL_UNSIGNED_INT, nullptr);
+    if (model->getMesh().getIndexCount() == 0) {
+        glDrawArrays(GL_TRIANGLES, 0, model->getMesh().getTriCount() * 3);
+    } else {
+        glDrawElements(GL_TRIANGLES, model->getMesh().getIndexCount(), GL_UNSIGNED_INT, nullptr);
+    }
     model->getMesh().unbind();
 
     m_program.unuse();

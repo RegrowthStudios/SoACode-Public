@@ -29,12 +29,13 @@ public:
     VGIndexBuffer getIBO() const { return m_ibo; }
     VGVertexArray getVAO() const { return m_vao; }
     ui32 getIndexCount() const { return m_indCount; }
-    
+    ui32 getTriCount() const { return m_triCount; }
 private:
     VGVertexBuffer m_vbo = 0;
     VGIndexBuffer m_ibo = 0;
     VGVertexArray m_vao = 0;
     ui32 m_indCount = 0;
+    ui32 m_triCount = 0;
 };
 
 #endif // VoxelModelMesh_h__

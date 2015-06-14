@@ -16,5 +16,4 @@ VoxelModel::~VoxelModel() {
 
 void VoxelModel::loadFromFile(const nString& path) {
     setMatrix(VoxelModelLoader::loadModel(path));
-    m_mesh = ModelMesher::createMesh(this);
 }

@@ -4,6 +4,7 @@
 #include "VoxelMatrix.h"
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
+#include "MarchingCubesCross.h"
 
 #include <vector>
 
@@ -86,6 +87,113 @@ VoxelModelMesh ModelMesher::createMesh(const VoxelModel* model) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     return rv;
+}
+
+VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
+    std::vector<VoxelModelVertex> vertices;
+    std::vector<ui32> indices;
+    VoxelModelMesh rv;
+
+    auto& matrix = model->getMatrix();
+
+    f32v4* points = new f32v4[(matrix.size.x + 1) * (matrix.size.y + 1) * (matrix.size.z + 1)];
+    int index = 0;
+    for (i32 x = 0; x < matrix.size.x + 1; x++) {
+        for (i32 y = 0; y < matrix.size.y + 1; y++) {
+            for (i32 z = 0; z < matrix.size.z + 1; z++) {
+                f32v4 vert(x, y, z, 0);
+                vert.w = getMarchingPotential(matrix, x, y, z);
+               
+                points[x*(matrix.size.y + 1)*(matrix.size.z + 1) + y*(matrix.size.z + 1) + z] = vert;
+                index++;
+            }
+        }
+    }
+
+    int numTriangles;       
+    TRIANGLE* tris = MarchingCubesCross(matrix.size.x, matrix.size.y, matrix.size.z, 0.99f, points, numTriangles);
+
+    for (int i = 0; i < numTriangles; i++) {
+        vertices.emplace_back(tris[i].p[0], color3(255, 255, 255), tris[i].norm);
+        vertices.emplace_back(tris[i].p[1], color3(255, 255, 255), tris[i].norm);
+        vertices.emplace_back(tris[i].p[2], color3(255, 255, 255), tris[i].norm);
+    }
+
+    rv.m_triCount = numTriangles;
+    glGenVertexArrays(1, &rv.m_vao);
+    glBindVertexArray(rv.m_vao);
+
+    glGenBuffers(1, &rv.m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, rv.m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VoxelModelVertex), vertices.data(), GL_STATIC_DRAW);
+
+    rv.m_indCount = 0;
+    glGenBuffers(1, &rv.m_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rv.m_ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, rv.m_indCount * sizeof(ui32), indices.data(), GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(rv.m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, rv.m_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rv.m_ibo);
+    glBindVertexArray(0);
+    // THIS CAUSES CRASH v v v
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    return rv;
+}
+
+f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
+    if (y > 0) {
+        if (z > 0) {
+            // Bottom back left
+            if (x > 0) {
+                if (matrix.getColor(x - 1, y - 1, z - 1).a != 0) return 1.0f;
+            }
+            // Bottom back right
+            if (x < matrix.size.x) {
+                if (matrix.getColor(x, y - 1, z - 1).a != 0) return 1.0f;
+            }
+        }
+        if (z < matrix.size.z) {
+            // Bottom front left
+            if (x > 0) {
+                if (matrix.getColor(x - 1, y - 1, z).a != 0) return 1.0f;
+            }
+            // Bottom front right
+            if (x < matrix.size.x) {
+                if (matrix.getColor(x, y - 1, z).a != 0) return 1.0f;
+            }
+        }
+
+    }
+
+    if (y < matrix.size.y) {
+        if (z > 0) {
+            // Top back left
+            if (x > 0) {
+                if (matrix.getColor(x - 1, y, z - 1).a != 0) return 1.0f;
+            }
+            // Top back right
+            if (x < matrix.size.x) {
+                if (matrix.getColor(x, y, z - 1).a != 0) return 1.0f;
+            }
+        }
+        if (z < matrix.size.z) {
+            // Top front left
+            if (x > 0) {
+                if (matrix.getColor(x - 1, y, z).a != 0) return 1.0f;
+            }
+            // Top front right
+            if (x < matrix.size.x) {
+                if (matrix.getColor(x, y, z).a != 0) return 1.0f;
+            }
+        }
+    }
+    return 0.0f;
 }
 
 void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {

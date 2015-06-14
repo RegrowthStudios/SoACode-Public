@@ -8,8 +8,9 @@
 #include <Vorb/io/IOManager.h>
 
 #include "DebugRenderer.h"
-#include "VoxelModelLoader.h"
 #include "Errors.h"
+#include "ModelMesher.h"
+#include "VoxelModelLoader.h"
 #include "soaUtils.h"
 
 TestVoxelModelScreen::TestVoxelModelScreen(const App* app) :
@@ -79,11 +80,15 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         case VKEY_SPACE:
             m_movingUp = true;
             break;
-        case VKEY_LCTRL:
-            m_movingDown = true;
-            break;
         case VKEY_LSHIFT:
             m_movingFast = true;
+            break;
+        case VKEY_M:
+            m_wireFrame = !m_wireFrame;
+            break;
+        case VKEY_N:
+            m_currentMesh++;
+            if (m_currentMesh > 1) m_currentMesh = 0;
             break;
         case VKEY_F1:
             // Reload shader
@@ -109,9 +114,6 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
         case VKEY_SPACE:
             m_movingUp = false;
             break;
-        case VKEY_LCTRL:
-            m_movingDown = false;
-            break;
         case VKEY_LSHIFT:
             m_movingFast = false;
             break;
@@ -120,6 +122,10 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_model = new VoxelModel();
     m_model->loadFromFile("Models/human_female.qb");
+
+    m_currentMesh = 0;
+    m_meshes[0] = ModelMesher::createMesh(m_model);
+    m_meshes[1] = ModelMesher::createMarchingCubesMesh(m_model);
 
     m_renderer.initGL();
 
@@ -171,6 +177,9 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
 
+    if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    m_model->setMesh(m_meshes[m_currentMesh]);
     m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), m_camera.getPosition(), f64q());
+    if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     checkGlError("TestVoxelModelScreen::draw");
 }
