@@ -308,7 +308,7 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
     //factor by which corresponding coordinates of gradient vectors are scaled
     f32v3 factor(1.0f / (2.0*gradFactorX), 1.0f / (2.0*gradFactorY), 1.0f / (2.0*gradFactorZ));
 
-    f32v3 mainOffset(-(matrix.size.x / 2.0f), -(matrix.size.y / 2.0f), -(matrix.size.z / 2.0f);
+    f32v3 mainOffset(-(matrix.size.x / 2.0f), -(matrix.size.y / 2.0f), -(matrix.size.z / 2.0f));
 
     //MAIN LOOP: goes through all the points
     for (int i = 0; i < lastX; i++) {			//x axis
@@ -513,9 +513,9 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                     int startVertex = vertices.size();
                     vertices.resize(vertices.size() + 3);
                     for (int h = 0; h < 3; h++) {
+                        vertices[startVertex + h].color = getColor(intVerts[index[h]], matrix);
                         vertices[startVertex + h].pos = intVerts[index[h]] + mainOffset;
                         vertices[startVertex + h].normal = grads[index[h]];
-                        vertices[startVertex + h].color = getColor(vertices[startVertex + h].pos, matrix);
                     }
                 }
             }
