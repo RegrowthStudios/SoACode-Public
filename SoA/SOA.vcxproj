@@ -556,7 +556,9 @@ EXIT 0</Command>
     <ClInclude Include="ColorFilterRenderStage.h" />
     <ClInclude Include="Computer.h" />
     <ClInclude Include="CpuNoise.h" />
+    <ClInclude Include="Density.h" />
     <ClInclude Include="DevScreen.h" />
+    <ClInclude Include="DualContouringMesher.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
     <ClInclude Include="FarTerrainPatch.h" />
@@ -602,6 +604,7 @@ EXIT 0</Command>
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="NoiseShaderGenerator.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OptionsController.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
@@ -621,6 +624,7 @@ EXIT 0</Command>
     <ClInclude Include="Positional.h" />
     <ClInclude Include="ProceduralChunkGenerator.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="qef.h" />
     <ClInclude Include="ShaderAssetLoader.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
@@ -643,6 +647,7 @@ EXIT 0</Command>
     <ClInclude Include="SphericalTerrainCpuGenerator.h" />
     <ClInclude Include="SphericalTerrainGpuGenerator.h" />
     <ClInclude Include="StarComponentRenderer.h" />
+    <ClInclude Include="svd.h" />
     <ClInclude Include="SystemARRenderer.h" />
     <ClInclude Include="TerrainPatchMeshManager.h" />
     <ClInclude Include="SpaceSystemComponentTables.h" />
@@ -773,8 +778,10 @@ EXIT 0</Command>
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="CpuNoise.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
+    <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
+    <ClCompile Include="DualContouringMesher.cpp" />
     <ClCompile Include="FarTerrainComponentRenderer.cpp" />
     <ClCompile Include="FarTerrainComponentUpdater.cpp" />
     <ClCompile Include="FarTerrainPatch.cpp" />
@@ -813,6 +820,7 @@ EXIT 0</Command>
     <ClCompile Include="NChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
@@ -829,6 +837,7 @@ EXIT 0</Command>
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
     <ClCompile Include="ProceduralChunkGenerator.cpp" />
+    <ClCompile Include="qef.cpp" />
     <ClCompile Include="ShaderAssetLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
@@ -850,6 +859,7 @@ EXIT 0</Command>
     <ClCompile Include="SphericalTerrainCpuGenerator.cpp" />
     <ClCompile Include="SphericalTerrainGpuGenerator.cpp" />
     <ClCompile Include="StarComponentRenderer.cpp" />
+    <ClCompile Include="svd.cpp" />
     <ClCompile Include="SystemARRenderer.cpp" />
     <ClCompile Include="TerrainPatchMeshManager.cpp" />
     <ClCompile Include="SpaceSystemComponentTables.cpp" />

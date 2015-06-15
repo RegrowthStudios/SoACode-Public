@@ -147,26 +147,26 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     m_meshInfos.push_back(info);
 
     timer.start();
-    m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
+    m_meshes.push_back(ModelMesher::createDualContouringMesh(m_model));
     info.buildTime = timer.stop();
     info.numPolygons = m_meshes.back().getTriCount();
     m_meshInfos.push_back(info);
 
-    info.name = "Models/human_male.qb";
-    m_model->loadFromFile(info.name);
-    info.size = m_model->getMatrix().size.x * m_model->getMatrix().size.y * m_model->getMatrix().size.z * sizeof(color4);
+    /*  info.name = "Models/human_male.qb";
+      m_model->loadFromFile(info.name);
+      info.size = m_model->getMatrix().size.x * m_model->getMatrix().size.y * m_model->getMatrix().size.z * sizeof(color4);
 
-    timer.start();
-    m_meshes.push_back(ModelMesher::createMesh(m_model));
-    info.buildTime = timer.stop();
-    info.numPolygons = m_meshes.back().getTriCount();
-    m_meshInfos.push_back(info);
+      timer.start();
+      m_meshes.push_back(ModelMesher::createMesh(m_model));
+      info.buildTime = timer.stop();
+      info.numPolygons = m_meshes.back().getTriCount();
+      m_meshInfos.push_back(info);
 
-    timer.start();
-    m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
-    info.buildTime = timer.stop();
-    info.numPolygons = m_meshes.back().getTriCount();
-    m_meshInfos.push_back(info);
+      timer.start();
+      m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
+      info.buildTime = timer.stop();
+      info.numPolygons = m_meshes.back().getTriCount();
+      m_meshInfos.push_back(info);*/
 
     m_renderer.initGL();
 
@@ -216,8 +216,11 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     vg::DepthState::FULL.set();
-    vg::RasterizerState::CULL_CLOCKWISE.set();
-
+    if (m_currentMesh == 1) {
+        vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
+    } else {
+        vg::RasterizerState::CULL_CLOCKWISE.set();
+    }
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_model->setMesh(m_meshes[m_currentMesh]);
     m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), m_camera.getPosition(), f64q());

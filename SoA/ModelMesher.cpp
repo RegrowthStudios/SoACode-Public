@@ -5,6 +5,7 @@
 #include "VoxelModel.h"
 #include "VoxelModelMesh.h"
 #include "MarchingCubesTable.h"
+#include "DualContouringMesher.h"
 
 #include <vector>
 
@@ -105,7 +106,7 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
                 f32v4 vert(x, y, z, 0);
                 vert.w = getMarchingPotential(matrix, x, y, z);
                
-                points[x*(matrix.size.y + 1)*(matrix.size.z + 1) + y*(matrix.size.z + 1) + z] = vert;
+                points[x * (matrix.size.y + 1) * (matrix.size.z + 1) + y * (matrix.size.z + 1) + z] = vert;
                 index++;
             }
         }
@@ -141,6 +142,101 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     return rv;
+}
+
+VoxelModelMesh ModelMesher::createDualContouringMesh(const VoxelModel* model) {
+    std::vector<VoxelModelVertex> vertices;
+    std::vector<ui32> indices;
+    VoxelModelMesh rv;
+
+    DualContouringMesher::genMatrixMesh(model->getMatrix(), vertices, indices);
+
+    if (indices.size() == 0) return rv;
+
+    glGenVertexArrays(1, &rv.m_vao);
+    glBindVertexArray(rv.m_vao);
+
+    glGenBuffers(1, &rv.m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, rv.m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VoxelModelVertex), vertices.data(), GL_STATIC_DRAW);
+
+    rv.m_indCount = indices.size();
+    rv.m_triCount = (indices.size() * 2) / 6;
+    glGenBuffers(1, &rv.m_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rv.m_ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, rv.m_indCount * sizeof(ui32), indices.data(), GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(rv.m_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, rv.m_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rv.m_ibo);
+    glBindVertexArray(0);
+    // THIS CAUSES CRASH v v v
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    return rv;
+}
+
+
+f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
+    f32 potential = 0.0f;
+    int filterSize = 2;
+    int halfFilterSize = filterSize / 2;
+    x -= halfFilterSize;
+    y -= halfFilterSize;
+    z -= halfFilterSize;
+    for (int i = 0; i < filterSize; i++) {
+        for (int j = 0; j < filterSize; j++) {
+            for (int k = 0; k < filterSize; k++) {
+                if (matrix.getColorAndCheckBounds(x + i, y + j, z + k).a != 0) {
+                    potential += 1.0f;
+                }
+                /* float dx = abs(i - 1.5f);
+                 float dy = abs(j - 1.5f);
+                 float dz = abs(k - 1.5f);
+                 if (matrix.getColorAndCheckBounds(x + i, y + j, z + k).a != 0) {
+                 if (dx <= 0.75f && dy <= 0.75f && dz <= 0.75f) {
+                 potential += 2.0f;
+                 } else {
+                 potential += 0.75f;
+                 }
+                 } else if (dx <= 0.75f && dy <= 0.75f && dz <= 0.75f) {
+                 potential -= 2.0f;
+                 }*/
+            }
+        }
+    }
+
+    return potential / (filterSize * filterSize * filterSize);
+
+    if (matrix.getColor(x, y, z).a != 0.0) {
+        potential += 2.0f;
+    }
+
+    if (matrix.getColorAndCheckBounds(x - 1, y, z).a != 0.0) {
+        potential += 0.25f;
+    }
+    if (matrix.getColorAndCheckBounds(x + 1, y, z).a != 0.0) {
+        potential += 0.25f;
+    }
+    if (matrix.getColorAndCheckBounds(x, y - 1, z).a != 0.0) {
+        potential += 0.25f;
+    }
+    if (matrix.getColorAndCheckBounds(x, y + 1, z).a != 0.0) {
+        potential += 0.25f;
+    }
+    if (matrix.getColorAndCheckBounds(x, y, z - 1).a != 0.0) {
+        potential += 0.25f;
+    }
+    if (matrix.getColorAndCheckBounds(x, y, z + 1).a != 0.0) {
+        potential += 0.25f;
+    }
+
+    // Check 2x2 sample
+    return potential / 7.0f;
 }
 
 color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
@@ -256,6 +352,66 @@ color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
     return color3(fColor.r, fColor.g, fColor.b);
 }
 
+color3 ModelMesher::getColor2(const i32v3& pos, const VoxelMatrix& matrix) {
+    int numColors = 1;
+    i32v3 fColor(0);
+
+    { // Center
+        color4 vColor = matrix.getColorAndCheckBounds(pos);
+        if (vColor.a != 0 && !matrix.isInterior(pos)) {
+            return vColor.rgb;
+        }
+    }
+    { // Left
+        i32v3 vPos = pos + i32v3(-1, 0, 0);
+        color4 vColor = matrix.getColorAndCheckBounds(vPos);
+        if (vColor.a != 0 && !matrix.isInterior(vPos)) {
+            return vColor.rgb;
+        }
+    }
+    { // Right
+        i32v3 vPos = pos + i32v3(1, 0, 0);
+        color4 vColor = matrix.getColorAndCheckBounds(vPos);
+        if (vColor.a != 0 && !matrix.isInterior(vPos)) {
+            return vColor.rgb;
+        }
+    }
+    { // Bottom
+        i32v3 vPos = pos + i32v3(0, -1, 0);
+        color4 vColor = matrix.getColorAndCheckBounds(vPos);
+        if (vColor.a != 0 && !matrix.isInterior(vPos)) {
+            return vColor.rgb;
+        }
+    }
+    { // Top
+        i32v3 vPos = pos + i32v3(0, 1, 0);
+        color4 vColor = matrix.getColorAndCheckBounds(vPos);
+        if (vColor.a != 0 && !matrix.isInterior(vPos)) {
+            return vColor.rgb;
+        }
+    }
+    { // Back
+        i32v3 vPos = pos + i32v3(0, 0, -1);
+        color4 vColor = matrix.getColorAndCheckBounds(vPos);
+        if (vColor.a != 0 && !matrix.isInterior(vPos)) {
+            return vColor.rgb;
+        }
+    }
+    { // Front
+        i32v3 vPos = pos + i32v3(0, 0, 1);
+        color4 vColor = matrix.getColorAndCheckBounds(vPos);
+        if (vColor.a != 0 && !matrix.isInterior(vPos)) {
+            return vColor.rgb;
+        }
+    }
+    return color3(0, 0, 0);
+    if (numColors) {
+        fColor /= numColors;
+    }
+
+    return color3(fColor.r, fColor.g, fColor.b);
+}
+
 //Macros used to compute gradient vector on each vertex of a cube
 //argument should be the name of array of vertices
 //can be verts or *verts if done by reference
@@ -293,9 +449,6 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
 
     pointsZ = ncellsZ + 1;			//initialize global variable (for extra speed) 
     YtimeZ = (ncellsY + 1)*pointsZ;
-    int lastX = ncellsX;			//left from older version
-    int lastY = ncellsY;
-    int lastZ = ncellsZ;
 
     f32v4 *verts[8];			//vertices of a cube (array of pointers for extra speed)
     f32v3 intVerts[12];			//linearly interpolated vertices on each edge
@@ -311,11 +464,11 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
     f32v3 mainOffset(-(matrix.size.x / 2.0f), -(matrix.size.y / 2.0f), -(matrix.size.z / 2.0f));
 
     //MAIN LOOP: goes through all the points
-    for (int i = 0; i < lastX; i++) {			//x axis
+    for (int i = 0; i < ncellsX; i++) {			//x axis
         ni = i*YtimeZ;
-        for (int j = 0; j < lastY; j++) {		//y axis
+        for (int j = 0; j < ncellsY; j++) {		//y axis
             nj = j*pointsZ;
-            for (int k = 0; k < lastZ; k++, ind++)	//z axis
+            for (int k = 0; k < ncellsZ; k++, ind++)	//z axis
             {
                 //initialize vertices
                 ind = ni + nj + k;
@@ -343,7 +496,7 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                     intVerts[0] = linearInterp(*verts[0], *verts[1], minValue);
                     if (i != 0 && j != 0 && k != 0) gradVerts[0] = CALC_GRAD_VERT_0(*verts)
                     else gradVerts[0] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
-                    if (i != lastX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
+                    if (i != ncellsX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
                     else gradVerts[1] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                     indGrad |= 3;
                     grads[0] = linearInterp(gradVerts[0], gradVerts[1], minValue);
@@ -352,11 +505,11 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 2) {
                     intVerts[1] = linearInterp(*verts[1], *verts[2], minValue);
                     if (!(indGrad & 2)) {
-                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
+                        if (i != ncellsX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
                         else gradVerts[1] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 2;
                     }
-                    if (i != lastX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
+                    if (i != ncellsX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
                     else gradVerts[2] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                     indGrad |= 4;
                     grads[1] = linearInterp(gradVerts[1], gradVerts[2], minValue);
@@ -365,11 +518,11 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 4) {
                     intVerts[2] = linearInterp(*verts[2], *verts[3], minValue);
                     if (!(indGrad & 4)) {
-                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
+                        if (i != ncellsX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
                         else gradVerts[2] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 4;
                     }
-                    if (i != 0 && j != 0 && k != lastZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
+                    if (i != 0 && j != 0 && k != ncellsZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
                     else gradVerts[3] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                     indGrad |= 8;
                     grads[2] = linearInterp(gradVerts[2], gradVerts[3], minValue);
@@ -378,7 +531,7 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 8) {
                     intVerts[3] = linearInterp(*verts[3], *verts[0], minValue);
                     if (!(indGrad & 8)) {
-                        if (i != 0 && j != 0 && k != lastZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
+                        if (i != 0 && j != 0 && k != ncellsZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
                         else gradVerts[3] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 8;
                     }
@@ -393,10 +546,10 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 16) {
                     intVerts[4] = linearInterp(*verts[4], *verts[5], minValue);
 
-                    if (i != 0 && j != lastY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
+                    if (i != 0 && j != ncellsY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
                     else gradVerts[4] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
 
-                    if (i != lastX - 1 && j != lastY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
+                    if (i != ncellsX - 1 && j != ncellsY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
                     else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
 
                     indGrad |= 48;
@@ -406,12 +559,12 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 32) {
                     intVerts[5] = linearInterp(*verts[5], *verts[6], minValue);
                     if (!(indGrad & 32)) {
-                        if (i != lastX - 1 && j != lastY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
+                        if (i != ncellsX - 1 && j != ncellsY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
                         else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 32;
                     }
 
-                    if (i != lastX - 1 && j != lastY - 1 && k != lastZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
+                    if (i != ncellsX - 1 && j != ncellsY - 1 && k != ncellsZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
                     else gradVerts[6] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                     indGrad |= 64;
                     grads[5] = linearInterp(gradVerts[5], gradVerts[6], minValue);
@@ -420,12 +573,12 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 64) {
                     intVerts[6] = linearInterp(*verts[6], *verts[7], minValue);
                     if (!(indGrad & 64)) {
-                        if (i != lastX - 1 && j != lastY - 1 && k != lastZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
+                        if (i != ncellsX - 1 && j != ncellsY - 1 && k != ncellsZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
                         else gradVerts[6] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 64;
                     }
 
-                    if (i != 0 && j != lastY - 1 && k != lastZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
+                    if (i != 0 && j != ncellsY - 1 && k != ncellsZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
                     else gradVerts[7] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                     indGrad |= 128;
                     grads[6] = linearInterp(gradVerts[6], gradVerts[7], minValue);
@@ -434,12 +587,12 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 128) {
                     intVerts[7] = linearInterp(*verts[7], *verts[4], minValue);
                     if (!(indGrad & 128)) {
-                        if (i != 0 && j != lastY - 1 && k != lastZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
+                        if (i != 0 && j != ncellsY - 1 && k != ncellsZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
                         else gradVerts[7] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 128;
                     }
                     if (!(indGrad & 16)) {
-                        if (i != 0 && j != lastY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
+                        if (i != 0 && j != ncellsY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
                         else gradVerts[4] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 16;
                     }
@@ -454,7 +607,7 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                         indGrad |= 1;
                     }
                     if (!(indGrad & 16)) {
-                        if (i != 0 && j != lastY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
+                        if (i != 0 && j != ncellsY - 1 && k != 0) gradVerts[4] = CALC_GRAD_VERT_4(*verts)
                         else gradVerts[4] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 16;
                     }
@@ -464,12 +617,12 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 512) {
                     intVerts[9] = linearInterp(*verts[1], *verts[5], minValue);
                     if (!(indGrad & 2)) {
-                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
+                        if (i != ncellsX - 1 && j != 0 && k != 0) gradVerts[1] = CALC_GRAD_VERT_1(*verts)
                         else gradVerts[1] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 2;
                     }
                     if (!(indGrad & 32)) {
-                        if (i != lastX - 1 && j != lastY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
+                        if (i != ncellsX - 1 && j != ncellsY - 1 && k != 0) gradVerts[5] = CALC_GRAD_VERT_5(*verts)
                         else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 32;
                     }
@@ -479,12 +632,12 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 1024) {
                     intVerts[10] = linearInterp(*verts[2], *verts[6], minValue);
                     if (!(indGrad & 4)) {
-                        if (i != lastX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
+                        if (i != ncellsX - 1 && j != 0 && k != 0) gradVerts[2] = CALC_GRAD_VERT_2(*verts)
                         else gradVerts[5] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 4;
                     }
                     if (!(indGrad & 64)) {
-                        if (i != lastX - 1 && j != lastY - 1 && k != lastZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
+                        if (i != ncellsX - 1 && j != ncellsY - 1 && k != ncellsZ - 1) gradVerts[6] = CALC_GRAD_VERT_6(*verts)
                         else gradVerts[6] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 64;
                     }
@@ -494,12 +647,12 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                 if (edgeIndex & 2048) {
                     intVerts[11] = linearInterp(*verts[3], *verts[7], minValue);
                     if (!(indGrad & 8)) {
-                        if (i != 0 && j != 0 && k != lastZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
+                        if (i != 0 && j != 0 && k != ncellsZ - 1) gradVerts[3] = CALC_GRAD_VERT_3(*verts)
                         else gradVerts[3] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 8;
                     }
                     if (!(indGrad & 128)) {
-                        if (i != 0 && j != lastY - 1 && k != lastZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
+                        if (i != 0 && j != ncellsY - 1 && k != ncellsZ - 1) gradVerts[7] = CALC_GRAD_VERT_7(*verts)
                         else gradVerts[7] = f32v4(1.0f, 1.0f, 1.0f, 1.0f);
                         indGrad |= 128;
                     }
@@ -513,7 +666,7 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                     int startVertex = vertices.size();
                     vertices.resize(vertices.size() + 3);
                     for (int h = 0; h < 3; h++) {
-                        vertices[startVertex + h].color = getColor(intVerts[index[h]], matrix);
+                        vertices[startVertex + h].color = color3(points[ind].w, points[ind].w, points[ind].w);
                         vertices[startVertex + h].pos = intVerts[index[h]] + mainOffset;
                         vertices[startVertex + h].normal = grads[index[h]];
                     }
@@ -521,26 +674,6 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
             }
         }
     }
-}
-
-f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
-    f32 potential = 0.0f;
-    int filterSize = 2;
-    int halfFilterSize = filterSize / 2;
-    x -= halfFilterSize;
-    y -= halfFilterSize;
-    z -= halfFilterSize;
-    for (int i = 0; i < filterSize; i++) {
-        for (int j = 0; j < filterSize; j++) {
-            for (int k = 0; k < filterSize; k++) {
-                if (matrix.getColorAndCheckBounds(x + i, y + j, z + k).a != 0) {
-                    potential += 1.0f;
-                }
-            }
-        }
-    }
-   
-    return potential / (filterSize * filterSize * filterSize);
 }
 
 void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {

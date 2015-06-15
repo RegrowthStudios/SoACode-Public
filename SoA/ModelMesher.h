@@ -11,13 +11,14 @@ class ModelMesher {
 public:
     static VoxelModelMesh createMesh(const VoxelModel* model);
     static VoxelModelMesh createMarchingCubesMesh(const VoxelModel* model);
-
+    static VoxelModelMesh createDualContouringMesh(const VoxelModel* model);
 private:
     // *** Regular ***
     static void genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);
 
     // *** Marching Cubes ***
     static color3 getColor(const f32v3& pos, const VoxelMatrix& matrix);
+    static color3 getColor2(const i32v3& pos, const VoxelMatrix& matrix);
     static void marchingCubes(const VoxelMatrix& matrix,
                               float gradFactorX, float gradFactorY, float gradFactorZ,
                               float minValue, f32v4 * points, std::vector<VoxelModelVertex>& vertices);

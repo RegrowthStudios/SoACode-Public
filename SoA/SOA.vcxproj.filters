@@ -180,6 +180,9 @@
     <Filter Include="SOA Files\Voxel\Meshing\MarchingCubes">
       <UniqueIdentifier>{47627022-6e4d-4945-87e5-1cfa8d7dd0d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Meshing\DualContouring">
+      <UniqueIdentifier>{31bb11bc-8842-4671-a2f4-30a929f241ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -835,6 +838,21 @@
     <ClInclude Include="MarchingCubesTable.h">
       <Filter>SOA Files\Voxel\Meshing\MarchingCubes</Filter>
     </ClInclude>
+    <ClInclude Include="DualContouringMesher.h">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClInclude>
+    <ClInclude Include="qef.h">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClInclude>
+    <ClInclude Include="svd.h">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClInclude>
+    <ClInclude Include="Density.h">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1360,6 +1378,21 @@
     </ClCompile>
     <ClCompile Include="ProceduralChunkGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="DualContouringMesher.cpp">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClCompile>
+    <ClCompile Include="qef.cpp">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClCompile>
+    <ClCompile Include="svd.cpp">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
+    </ClCompile>
+    <ClCompile Include="Density.cpp">
+      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
