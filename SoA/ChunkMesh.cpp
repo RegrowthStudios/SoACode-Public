@@ -14,8 +14,8 @@ KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("flat", MeshType::FLAT);
 }
 
-void MesherInfo::init(int dataWidth, int dataLayer) {
-
+void MesherInfo::init(BlockPack* blocks, int dataWidth, int dataLayer) {
+    this->blocks = blocks;
     #define NUM_FACES 6
     // Set up the texture params
     pyBaseMethodParams.init(this, 1, -dataWidth, dataLayer, offsetof(BlockTextureFaces, BlockTextureFaces::py) / sizeof(ui32));

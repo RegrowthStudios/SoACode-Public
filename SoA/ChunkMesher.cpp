@@ -19,18 +19,12 @@
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
 
+#define GETBLOCK(a) (((*m_blocks)[((a) & 0x0FFF)]))
+
 const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
-ChunkMesher::ChunkMesher()
-{
-
-    chunkMeshData = NULL;
-
-}
-
-ChunkMesher::~ChunkMesher()
-{
-
+void ChunkMesher::init(BlockPack* blocks) {
+    m_blocks = blocks;
 }
 
 void ChunkMesher::bindVBOIndicesID()
@@ -157,7 +151,7 @@ void ChunkMesher::calculateFaceLight(BlockVertex* face, int blockIndex, int upOf
 
 void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 {
-    const Block &block = Blocks[mi.btype];
+    const Block &block = m_blocks->operator[](mi.btype);
 
     ColorRGB8 color, overlayColor;
     const int wc = mi.wc;
@@ -196,13 +190,13 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[ZPOS]){ //0 1 2 3
         //Get the color of the block
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[2]);
+        (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[2]);
         
         //We will offset the texture index based on the texture method
-        textureIndex = block.textures[2].base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
-        overlayTextureIndex = block.textures[2].overlay.getBlockTextureIndex(mi.pzOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[2]->base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
+        overlayTextureIndex = block.textures[2]->overlay.getBlockTextureIndex(mi.pzOverlayMethodParams, overlayColor);
 
-        if (block.textures[2].base.transparency) {
+        if (block.textures[2]->base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
             VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[2]);
             mi.transparentIndex += 4;
@@ -239,14 +233,14 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     if (faces[ZNEG]) {
         //Get the color of the block
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[5]);
+        (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[5]);
        
         //We will offset the texture index based on the texture method
 
-        textureIndex = block.textures[5].base.getBlockTextureIndex(mi.nzBaseMethodParams, color);
-        overlayTextureIndex = block.textures[5].overlay.getBlockTextureIndex(mi.nzOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[5]->base.getBlockTextureIndex(mi.nzBaseMethodParams, color);
+        overlayTextureIndex = block.textures[5]->overlay.getBlockTextureIndex(mi.nzOverlayMethodParams, overlayColor);
 
-        if (block.textures[5].base.transparency) {
+        if (block.textures[5]->base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
             VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[5]);
             mi.transparentIndex += 4;
@@ -279,13 +273,13 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[YPOS]){ //0 5 6 1                        
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[1]);
+        (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[1]);
 
         //We will offset the texture index based on the texture method
-        textureIndex = block.textures[1].base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
-        overlayTextureIndex = block.textures[1].overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[1]->base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
+        overlayTextureIndex = block.textures[1]->overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
 
-        if (block.textures[1].base.transparency) {
+        if (block.textures[1]->base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
             VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[1]);
             mi.transparentIndex += 4;
@@ -318,13 +312,13 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[YNEG]) {
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[4]);
+        (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[4]);
        
         //We will offset the texture index based on the texture method
-        textureIndex = block.textures[4].base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
-        overlayTextureIndex = block.textures[4].overlay.getBlockTextureIndex(mi.nyOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[4]->base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
+        overlayTextureIndex = block.textures[4]->overlay.getBlockTextureIndex(mi.nyOverlayMethodParams, overlayColor);
 
-        if (block.textures[4].base.transparency) {
+        if (block.textures[4]->base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
             VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[4]);
             mi.transparentIndex += 4;
@@ -356,14 +350,14 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[XPOS]) {
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[0]);
+        (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[0]);
       
         //We will offset the texture index based on the texture method
-        textureIndex = block.textures[0].base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
-        overlayTextureIndex = block.textures[0].overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[0]->base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
+        overlayTextureIndex = block.textures[0]->overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
 
 
-        if (block.textures[0].base.transparency) {  
+        if (block.textures[0]->base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
             VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
             mi.transparentIndex += 4;
@@ -379,13 +373,13 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     }
 
     if (faces[XNEG]) {
-        Blocks[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[3]);
+        (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[3]);
 
         //We will offset the texture index based on the texture method
-        textureIndex = block.textures[3].base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
-        overlayTextureIndex = block.textures[3].overlay.getBlockTextureIndex(mi.nxOverlayMethodParams, overlayColor);
+        textureIndex = block.textures[3]->base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
+        overlayTextureIndex = block.textures[3]->overlay.getBlockTextureIndex(mi.nxOverlayMethodParams, overlayColor);
 
-        if (block.textures[3].base.transparency) {
+        if (block.textures[3]->base.transparency) {
             _transparentVerts.resize(_transparentVerts.size() + 4);
             VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[3]);
             mi.transparentIndex += 4;
@@ -405,7 +399,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 //adds a flora mesh
 void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
 
-    const Block &block = Blocks[mi.btype];
+    const Block &block = (*m_blocks)[mi.btype];
     mi.currentBlock = &block;
 
     ColorRGB8 color, overlayColor;
@@ -428,11 +422,11 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
     lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
-    Blocks[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.textures[0]);
+    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.textures[0]);
 
     //We will offset the texture index based on the texture method
-    i32 textureIndex = block.textures[0].base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
-    i32 overlayTextureIndex = block.textures[0].overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
+    i32 textureIndex = block.textures[0]->base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
+    i32 overlayTextureIndex = block.textures[0]->overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
 
     int r;
 
@@ -493,274 +487,275 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
    
 //END CALCULATE_LIQUID_VERTEX_HEIGHT
 
+// TODO(Ben): Instead of 8 verts per box, share vertices and index into it!
 void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
-    const Block &block = Blocks[mi.btype];
-    Block* nextBlock;
-    i32 nextBlockID;
-    const i32 wc = mi.wc;
-    i32 x = mi.x;
-    i32 y = mi.y;
-    i32 z = mi.z;
+  //  const Block &block = (*m_blocks)[mi.btype];
+  //  Block* nextBlock;
+  //  i32 nextBlockID;
+  //  const i32 wc = mi.wc;
+  //  i32 x = mi.x;
+  //  i32 y = mi.y;
+  //  i32 z = mi.z;
 
-    RenderTask* task = mi.task;
+  //  RenderTask* task = mi.task;
 
-    const i32 maxLevel = 100;
+  //  const i32 maxLevel = 100;
 
-    float liquidLevel = block.waterMeshLevel / (float)maxLevel;
-    float fallingReduction = 0.0f;
+  //  float liquidLevel = block.waterMeshLevel / (float)maxLevel;
+  //  float fallingReduction = 0.0f;
 
-    bool faces[6] = { false, false, false, false, false, false };
+  //  bool faces[6] = { false, false, false, false, false, false };
 
-    float backLeftHeight = liquidLevel;
-    float backRightHeight = liquidLevel;
-    float frontRightHeight = liquidLevel;
-    float frontLeftHeight = liquidLevel;
+  //  float backLeftHeight = liquidLevel;
+  //  float backRightHeight = liquidLevel;
+  //  float frontRightHeight = liquidLevel;
+  //  float frontLeftHeight = liquidLevel;
 
-    const i32 MIN_ALPHA = 75;
-    const i32 MAX_ALPHA = 175;
-    const i32 ALPHA_RANGE = MAX_ALPHA - MIN_ALPHA;
+  //  const i32 MIN_ALPHA = 75;
+  //  const i32 MAX_ALPHA = 175;
+  //  const i32 ALPHA_RANGE = MAX_ALPHA - MIN_ALPHA;
 
-    ui8 backRightAlpha, frontRightAlpha, frontLeftAlpha, backLeftAlpha;
+  //  ui8 backRightAlpha, frontRightAlpha, frontLeftAlpha, backLeftAlpha;
 
-    i32 textureUnit = 0;
+  //  i32 textureUnit = 0;
 
-    i32 div;
-    i32 tot;
+  //  i32 div;
+  //  i32 tot;
 
-    i32 left, right, back, front, bottom;
+  //  i32 left, right, back, front, bottom;
 
-    ui8 uOff = x * 7;
-    ui8 vOff = 224 - z * 7;
+  //  ui8 uOff = x * 7;
+  //  ui8 vOff = 224 - z * 7;
 
-    ui8 temperature = chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
-    ui8 depth = chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
+  //  ui8 temperature = chunkGridData->heightData[x + z*CHUNK_WIDTH].temperature;
+  //  ui8 depth = chunkGridData->heightData[x + z*CHUNK_WIDTH].depth;
 
-    ColorRGB8 color;// = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
+  //  ColorRGB8 color;// = GameManager::texturePackLoader->getColorMap(TerrainGenerator::DefaultColorMaps::WATER)[depth * 256 + temperature];
 
-    ui8 sunlight = _sunlightData[wc];
-    ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-                        (_lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-                        _lampLightData[wc] & LAMP_BLUE_MASK);
+  //  ui8 sunlight = _sunlightData[wc];
+  //  ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+  //                      (_lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+  //                      _lampLightData[wc] & LAMP_BLUE_MASK);
 
-    sunlight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunlight)));
-    lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
-    lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
-    lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
+  //  sunlight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunlight)));
+  //  lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
+  //  lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
+  //  lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
-    nextBlockID = _blockIDData[wc + PADDED_OFFSETS::BOTTOM];
-    nextBlock = &GETBLOCK(nextBlockID);
-    //Check if the block is falling
-    if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->caIndex == block.caIndex && nextBlock->waterMeshLevel != maxLevel)) {
-        memset(faces, 1, 6); //all faces are active
-  //      backLeftHeight = backRightHeight = frontLeftHeight = frontRightHeight 
-        fallingReduction = 1.0f;
-    } else {
+  //  nextBlockID = _blockIDData[wc + PADDED_OFFSETS::BOTTOM];
+  //  nextBlock = &GETBLOCK(nextBlockID);
+  //  //Check if the block is falling
+  //  if (nextBlockID == 0 || nextBlock->waterBreak || (nextBlock->caIndex == block.caIndex && nextBlock->waterMeshLevel != maxLevel)) {
+  //      memset(faces, 1, 6); //all faces are active
+  ////      backLeftHeight = backRightHeight = frontLeftHeight = frontRightHeight 
+  //      fallingReduction = 1.0f;
+  //  } else {
 
-        //Get occlusion
-        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::LEFT]);
-        faces[XNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
+  //      //Get occlusion
+  //      nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::LEFT]);
+  //      faces[XNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
-        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BACK]);
-        faces[ZNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
+  //      nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BACK]);
+  //      faces[ZNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
-        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::RIGHT]);
-        faces[XPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
+  //      nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::RIGHT]);
+  //      faces[XPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
-        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::FRONT]);
-        faces[ZPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
+  //      nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::FRONT]);
+  //      faces[ZPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
 
-        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BOTTOM]);
-        faces[YNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
-    }
+  //      nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::BOTTOM]);
+  //      faces[YNEG] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
+  //  }
 
-    left = LEVEL(wc + PADDED_OFFSETS::LEFT);
-    right = LEVEL(wc + PADDED_OFFSETS::RIGHT);
-    back = LEVEL(wc + PADDED_OFFSETS::BACK);
-    front = LEVEL(wc + PADDED_OFFSETS::FRONT);
-    bottom = LEVEL(wc + PADDED_OFFSETS::BOTTOM);
+  //  left = LEVEL(wc + PADDED_OFFSETS::LEFT);
+  //  right = LEVEL(wc + PADDED_OFFSETS::RIGHT);
+  //  back = LEVEL(wc + PADDED_OFFSETS::BACK);
+  //  front = LEVEL(wc + PADDED_OFFSETS::FRONT);
+  //  bottom = LEVEL(wc + PADDED_OFFSETS::BOTTOM);
 
-    //Calculate the liquid levels
+  //  //Calculate the liquid levels
 
-    //Back Left Vertex
-    CALCULATE_LIQUID_VERTEX_HEIGHT(backLeftHeight, left, back, wc + PADDED_OFFSETS::BACK_LEFT);
+  //  //Back Left Vertex
+  //  CALCULATE_LIQUID_VERTEX_HEIGHT(backLeftHeight, left, back, wc + PADDED_OFFSETS::BACK_LEFT);
 
-    //Back Right Vertex
-    CALCULATE_LIQUID_VERTEX_HEIGHT(backRightHeight, right, back, wc + PADDED_OFFSETS::BACK_RIGHT);
+  //  //Back Right Vertex
+  //  CALCULATE_LIQUID_VERTEX_HEIGHT(backRightHeight, right, back, wc + PADDED_OFFSETS::BACK_RIGHT);
 
-    //Front Right Vertex
-    CALCULATE_LIQUID_VERTEX_HEIGHT(frontRightHeight, right, front, wc + PADDED_OFFSETS::FRONT_RIGHT);
+  //  //Front Right Vertex
+  //  CALCULATE_LIQUID_VERTEX_HEIGHT(frontRightHeight, right, front, wc + PADDED_OFFSETS::FRONT_RIGHT);
 
-    //Front Left Vertex
-    CALCULATE_LIQUID_VERTEX_HEIGHT(frontLeftHeight, left, front, wc + PADDED_OFFSETS::FRONT_LEFT);
+  //  //Front Left Vertex
+  //  CALCULATE_LIQUID_VERTEX_HEIGHT(frontLeftHeight, left, front, wc + PADDED_OFFSETS::FRONT_LEFT);
 
-    //only occlude top if we are a full water block and our sides arent down at all
-    if (liquidLevel == 1.0f && backRightHeight == 1.0f && backLeftHeight == 1.0f && frontLeftHeight == 1.0f && frontRightHeight == 1.0f) {
-        nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::TOP]);
-        faces[YPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
-    } else {
-        faces[YPOS] = true;
-    }
-    
-    //Compute alpha
-    if (bottom == maxLevel) {
-        backRightAlpha = backLeftAlpha = frontRightAlpha = frontLeftAlpha = MAX_ALPHA;
-    } else {
-        backRightAlpha = (ui8)(backRightHeight * ALPHA_RANGE + MIN_ALPHA);
-        backLeftAlpha = (ui8)(backLeftHeight * ALPHA_RANGE + MIN_ALPHA);
-        frontRightAlpha = (ui8)(frontRightHeight * ALPHA_RANGE + MIN_ALPHA);
-        frontLeftAlpha = (ui8)(frontLeftHeight * ALPHA_RANGE + MIN_ALPHA);
-    }
+  //  //only occlude top if we are a full water block and our sides arent down at all
+  //  if (liquidLevel == 1.0f && backRightHeight == 1.0f && backLeftHeight == 1.0f && frontLeftHeight == 1.0f && frontRightHeight == 1.0f) {
+  //      nextBlock = &GETBLOCK(_blockIDData[wc + PADDED_OFFSETS::TOP]);
+  //      faces[YPOS] = ((nextBlock->caIndex != block.caIndex) && (nextBlock->occlude == BlockOcclusion::NONE));
+  //  } else {
+  //      faces[YPOS] = true;
+  //  }
+  //  
+  //  //Compute alpha
+  //  if (bottom == maxLevel) {
+  //      backRightAlpha = backLeftAlpha = frontRightAlpha = frontLeftAlpha = MAX_ALPHA;
+  //  } else {
+  //      backRightAlpha = (ui8)(backRightHeight * ALPHA_RANGE + MIN_ALPHA);
+  //      backLeftAlpha = (ui8)(backLeftHeight * ALPHA_RANGE + MIN_ALPHA);
+  //      frontRightAlpha = (ui8)(frontRightHeight * ALPHA_RANGE + MIN_ALPHA);
+  //      frontLeftAlpha = (ui8)(frontLeftHeight * ALPHA_RANGE + MIN_ALPHA);
+  //  }
 
-    //Add vertices for the faces
-    if (faces[YNEG]){
+  //  //Add vertices for the faces
+  //  if (faces[YNEG]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
-        
-        _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[48];
-        _waterVboVerts[mi.liquidIndex].position[1] = y + VoxelMesher::liquidVertices[49] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[50];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[51];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[52] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[53];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[54];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[55] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[56];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[57];
-        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + VoxelMesher::liquidVertices[58] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[59];
+  //      VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
+  //      
+  //      _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[48];
+  //      _waterVboVerts[mi.liquidIndex].position[1] = y + VoxelMesher::liquidVertices[49] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[50];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[51];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[52] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[53];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[54];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[55] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[56];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[57];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[1] = y + VoxelMesher::liquidVertices[58] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[59];
 
-        //set alpha
-        _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color.a = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color.a = backLeftAlpha;
+  //      //set alpha
+  //      _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 1].color.a = backRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 3].color.a = backLeftAlpha;
 
-        mi.liquidIndex += 4;
-    }
+  //      mi.liquidIndex += 4;
+  //  }
 
-    if (faces[ZPOS]){
+  //  if (faces[ZPOS]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
+  //      VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[0];
-        _waterVboVerts[mi.liquidIndex].position[1] = y + frontLeftHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[2];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[3];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[4] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[5];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[6];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[7] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[8];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[9];
-        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontRightHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[11];
+  //      _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[0];
+  //      _waterVboVerts[mi.liquidIndex].position[1] = y + frontLeftHeight;
+  //      _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[2];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[3];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[4] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[5];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[6];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[7] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[8];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[9];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontRightHeight;
+  //      _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[11];
 
-        _waterVboVerts[mi.liquidIndex].color.a = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color.a = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color.a = frontRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex].color.a = frontLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 1].color.a = frontLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 3].color.a = frontRightAlpha;
 
-        mi.liquidIndex += 4;
-    }
+  //      mi.liquidIndex += 4;
+  //  }
 
-    if (faces[YPOS]){
+  //  if (faces[YPOS]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
+  //      VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
-        _waterVboVerts.resize(_waterVboVerts.size() + 4);
-        _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[24];
-        _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[26];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[27];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + frontLeftHeight;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[29];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[30];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + frontRightHeight;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[32];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[33];
-        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backRightHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[35];
+  //      _waterVboVerts.resize(_waterVboVerts.size() + 4);
+  //      _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[24];
+  //      _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
+  //      _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[26];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[27];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[1] = y + frontLeftHeight;
+  //      _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[29];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[30];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[1] = y + frontRightHeight;
+  //      _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[32];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[33];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backRightHeight;
+  //      _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[35];
 
-        _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color.a = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color.a = backRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 1].color.a = frontLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 2].color.a = frontRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 3].color.a = backRightAlpha;
 
-        mi.liquidIndex += 4;
-    }
+  //      mi.liquidIndex += 4;
+  //  }
 
-    if (faces[ZNEG]){
+  //  if (faces[ZNEG]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
+  //      VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[60];
-        _waterVboVerts[mi.liquidIndex].position[1] = y + backRightHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[62];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[63];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[64] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[65];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[66];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[67] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[68];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[69];
-        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backLeftHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[71];
+  //      _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[60];
+  //      _waterVboVerts[mi.liquidIndex].position[1] = y + backRightHeight;
+  //      _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[62];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[63];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[64] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[65];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[66];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[67] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[68];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[69];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[1] = y + backLeftHeight;
+  //      _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[71];
 
-        _waterVboVerts[mi.liquidIndex].color.a = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color.a = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color.a = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color.a = backLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex].color.a = backRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 1].color.a = backRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 2].color.a = backLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 3].color.a = backLeftAlpha;
 
-        mi.liquidIndex += 4;
-    }
-    if (faces[XPOS]){
+  //      mi.liquidIndex += 4;
+  //  }
+  //  if (faces[XPOS]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
+  //      VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position.x = x + VoxelMesher::liquidVertices[12];
-        _waterVboVerts[mi.liquidIndex].position.y = y + frontRightHeight;
-        _waterVboVerts[mi.liquidIndex].position.z = z + VoxelMesher::liquidVertices[14];
-        _waterVboVerts[mi.liquidIndex + 1].position.x = x + VoxelMesher::liquidVertices[15];
-        _waterVboVerts[mi.liquidIndex + 1].position.y = y + VoxelMesher::liquidVertices[16] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position.z = z + VoxelMesher::liquidVertices[17];
-        _waterVboVerts[mi.liquidIndex + 2].position.x = x + VoxelMesher::liquidVertices[18];
-        _waterVboVerts[mi.liquidIndex + 2].position.y = y + VoxelMesher::liquidVertices[19] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position.z = z + VoxelMesher::liquidVertices[20];
-        _waterVboVerts[mi.liquidIndex + 3].position.x = x + VoxelMesher::liquidVertices[21];
-        _waterVboVerts[mi.liquidIndex + 3].position.y = y + backRightHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position.z = z + VoxelMesher::liquidVertices[23];
+  //      _waterVboVerts[mi.liquidIndex].position.x = x + VoxelMesher::liquidVertices[12];
+  //      _waterVboVerts[mi.liquidIndex].position.y = y + frontRightHeight;
+  //      _waterVboVerts[mi.liquidIndex].position.z = z + VoxelMesher::liquidVertices[14];
+  //      _waterVboVerts[mi.liquidIndex + 1].position.x = x + VoxelMesher::liquidVertices[15];
+  //      _waterVboVerts[mi.liquidIndex + 1].position.y = y + VoxelMesher::liquidVertices[16] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 1].position.z = z + VoxelMesher::liquidVertices[17];
+  //      _waterVboVerts[mi.liquidIndex + 2].position.x = x + VoxelMesher::liquidVertices[18];
+  //      _waterVboVerts[mi.liquidIndex + 2].position.y = y + VoxelMesher::liquidVertices[19] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 2].position.z = z + VoxelMesher::liquidVertices[20];
+  //      _waterVboVerts[mi.liquidIndex + 3].position.x = x + VoxelMesher::liquidVertices[21];
+  //      _waterVboVerts[mi.liquidIndex + 3].position.y = y + backRightHeight;
+  //      _waterVboVerts[mi.liquidIndex + 3].position.z = z + VoxelMesher::liquidVertices[23];
 
-        _waterVboVerts[mi.liquidIndex].color.a = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color.a = frontRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color.a = backRightAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color.a = backRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex].color.a = frontRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 1].color.a = frontRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 2].color.a = backRightAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 3].color.a = backRightAlpha;
 
-        mi.liquidIndex += 4;
-    }
-    if (faces[XNEG]){
+  //      mi.liquidIndex += 4;
+  //  }
+  //  if (faces[XNEG]){
 
-        VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
+  //      VoxelMesher::makeLiquidFace(_waterVboVerts, mi.liquidIndex, uOff, vOff, lampLight, sunlight, color, textureUnit);
 
-        _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[36];
-        _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
-        _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[38];
-        _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[39];
-        _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[40] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[41];
-        _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[42];
-        _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[43] - fallingReduction;
-        _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[44];
-        _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[45];
-        _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontLeftHeight;
-        _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[47];
+  //      _waterVboVerts[mi.liquidIndex].position[0] = x + VoxelMesher::liquidVertices[36];
+  //      _waterVboVerts[mi.liquidIndex].position[1] = y + backLeftHeight;
+  //      _waterVboVerts[mi.liquidIndex].position[2] = z + VoxelMesher::liquidVertices[38];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[0] = x + VoxelMesher::liquidVertices[39];
+  //      _waterVboVerts[mi.liquidIndex + 1].position[1] = y + VoxelMesher::liquidVertices[40] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 1].position[2] = z + VoxelMesher::liquidVertices[41];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[0] = x + VoxelMesher::liquidVertices[42];
+  //      _waterVboVerts[mi.liquidIndex + 2].position[1] = y + VoxelMesher::liquidVertices[43] - fallingReduction;
+  //      _waterVboVerts[mi.liquidIndex + 2].position[2] = z + VoxelMesher::liquidVertices[44];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[0] = x + VoxelMesher::liquidVertices[45];
+  //      _waterVboVerts[mi.liquidIndex + 3].position[1] = y + frontLeftHeight;
+  //      _waterVboVerts[mi.liquidIndex + 3].position[2] = z + VoxelMesher::liquidVertices[47];
 
-        _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 1].color.a = backLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 2].color.a = frontLeftAlpha;
-        _waterVboVerts[mi.liquidIndex + 3].color.a = frontLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex].color.a = backLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 1].color.a = backLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 2].color.a = frontLeftAlpha;
+  //      _waterVboVerts[mi.liquidIndex + 3].color.a = frontLeftAlpha;
 
-        mi.liquidIndex += 4;
-    }
+  //      mi.liquidIndex += 4;
+  //  }
 }
 
 int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
@@ -1371,7 +1366,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     dataSize = PADDED_CHUNK_SIZE;
 
     // Init the mesh info
-    mi.init(dataWidth, dataLayer);
+    mi.init(m_blocks, dataWidth, dataLayer);
 
     for (mi.y = 0; mi.y < dataWidth-2; mi.y++) {
 
@@ -1399,16 +1394,16 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
                 mi.wc = (mi.y + 1)*(dataLayer)+(mi.z + 1)*(dataWidth)+(mi.x + 1); //get the expanded c for our sentinelized array
                 //get the block properties
                 mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
-                block = &(Blocks[mi.btype]);
+                block = &((*m_blocks)[mi.btype]);
 
 
                 waveEffect = block->waveEffect;
                 //water is currently hardcoded 
-                if (mi.btype >= LOWWATER){
+                if (0 /*mi.btype >= LOWWATER*/){
                     addLiquidToMesh(mi);
                 } else {
                     //Check the mesh type
-                    mi.meshType = Blocks[mi.btype].meshType;
+                    mi.meshType = (*m_blocks)[mi.btype].meshType;
 
                     switch (mi.meshType){
                         case MeshType::BLOCK:

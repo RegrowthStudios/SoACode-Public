@@ -26,7 +26,7 @@ class RenderTask;
 class MesherInfo {
 public:
 
-    void init(int dataWidth, int dataLayer);
+    void init(BlockPack* blocks, int dataWidth, int dataLayer);
 
     i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
     i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
@@ -61,6 +61,7 @@ public:
     RenderTask* task;
     std::shared_ptr<ChunkGridData> chunkGridData;
     i32v3 position;
+    BlockPack* blocks;
 };
 
 class ChunkMeshRenderData {

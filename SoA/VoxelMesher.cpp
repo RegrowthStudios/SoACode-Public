@@ -115,7 +115,7 @@ const ui8 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
         7, 7, 0, 7, 0, 0, 0, 0, 7, 0, 7, 7 } };
 
 
-void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo)
+void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture* texInfo)
 {
 
     // 7 per coord
@@ -125,7 +125,7 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
-    ui8 blendMode = getBlendMode(texInfo.blendMode);
+    ui8 blendMode = getBlendMode(texInfo->blendMode);
 
     Verts[vertexIndex].blendMode = blendMode;
     Verts[vertexIndex + 1].blendMode = blendMode;
@@ -138,23 +138,23 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
     GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / ATLAS_SIZE);
     GLubyte overlayTex = (GLubyte)(overlayTextureIndex % ATLAS_SIZE);
 
-    Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo.base.size.y;
+    Verts[vertexIndex].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo->base.size.y;
 
-    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
+    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
 
     Verts[vertexIndex].position.x = pos.x + positions[vertexOffset];
     Verts[vertexIndex].position.y = pos.y + positions[vertexOffset + 1];
@@ -261,7 +261,7 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
 }
 
 
-void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture& texInfo) {
+void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture* texInfo) {
 
     //get the face index so we can determine the axis alignment
     int faceIndex = vertexOffset / 12;
@@ -276,7 +276,7 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, 
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
-    ui8 blendMode = getBlendMode(texInfo.blendMode);
+    ui8 blendMode = getBlendMode(texInfo->blendMode);
     
     Verts[vertexIndex].blendMode = blendMode;
     Verts[vertexIndex + 1].blendMode = blendMode;
@@ -289,23 +289,23 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, 
     GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / ATLAS_SIZE);
     GLubyte overlayTex = (GLubyte)(overlayTextureIndex % ATLAS_SIZE);
 
-    Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo.base.size.y;
+    Verts[vertexIndex].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo->base.size.y;
 
-    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
+    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
 
     Verts[vertexIndex].position.x = pos.x + positions[vertexOffset];
     Verts[vertexIndex].position.y = pos.y + positions[vertexOffset + 1];
@@ -412,7 +412,7 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, 
 }
 
 
-void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture& texInfo)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture* texInfo)
 {
 
     //get the face index so we can determine the axis alignment
@@ -430,7 +430,7 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEff
 
     //Blend type. The 6 LSBs are used to encode alpha blending, add/subtract, and multiplication factors.
     //They are used in the shader to determine how to blend.
-    ui8 blendMode = getBlendMode(texInfo.blendMode);
+    ui8 blendMode = getBlendMode(texInfo->blendMode);
     
     Verts[vertexIndex].blendMode = blendMode;
     Verts[vertexIndex + 1].blendMode = blendMode;
@@ -443,23 +443,23 @@ void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEff
     GLubyte overlayTexAtlas = (GLubyte)(overlayTextureIndex / ATLAS_SIZE);
     GLubyte overlayTex = (GLubyte)(overlayTextureIndex % ATLAS_SIZE);
 
-    Verts[vertexIndex].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo.base.size.y;
-    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo.base.size.x;
-    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo.base.size.y;
+    Verts[vertexIndex].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 1].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 1].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 2].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 2].textureHeight = (ubyte)texInfo->base.size.y;
+    Verts[vertexIndex + 3].textureWidth = (ubyte)texInfo->base.size.x;
+    Verts[vertexIndex + 3].textureHeight = (ubyte)texInfo->base.size.y;
 
-    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
-    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo.overlay.size.x;
-    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo.overlay.size.y;
+    Verts[vertexIndex].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 1].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 1].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 2].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 2].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
+    Verts[vertexIndex + 3].overlayTextureWidth = (ubyte)texInfo->overlay.size.x;
+    Verts[vertexIndex + 3].overlayTextureHeight = (ubyte)texInfo->overlay.size.y;
 
     Verts[vertexIndex].position.x = pos.x + cverts[vertexOffset];
     Verts[vertexIndex].position.y = pos.y + cverts[vertexOffset + 1];

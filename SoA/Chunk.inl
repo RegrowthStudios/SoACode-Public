@@ -2,8 +2,6 @@
 #include "BlockPack.h"
 #include "VoxelNavigation.inl"
 
-BlockPack* Chunk::blocks = nullptr;
-
 inline void Chunk::changeState(ChunkStates State)
 {
     //Only set the state if the new state is higher priority

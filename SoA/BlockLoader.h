@@ -13,7 +13,7 @@ class TexturePackLoader;
 
 class GameBlockPostProcess {
 public:
-    GameBlockPostProcess(const vio::IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache);
+    GameBlockPostProcess(const vio::IOManager* iom, CaPhysicsTypeDict* caCache);
 
     void invoke(Sender s, ui16 id);
 

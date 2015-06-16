@@ -15,11 +15,16 @@
 #ifndef BlockTextureLoader_h__
 #define BlockTextureLoader_h__
 
+#include <Vorb/io/IOManager.h>
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VG(class ScopedBitmapResource)
+
 class Block;
 class BlockTexturePack;
 class ModPathResolver;
-
-#include <Vorb/io/IOManager.h>
+class BlockTextureLayer;
+struct BlockTexture;
 
 class BlockTextureLoader {
 public:

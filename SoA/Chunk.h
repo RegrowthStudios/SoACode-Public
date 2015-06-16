@@ -8,6 +8,7 @@
 #include <Vorb/IThreadPoolTask.h>
 
 #include "Biome.h"
+#include "BlockPack.h"
 #include "CAEngine.h"
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
@@ -27,7 +28,6 @@
 const int MAXLIGHT = 31;
 
 class Block;
-class BlockPack;
 
 class PlantData;
 

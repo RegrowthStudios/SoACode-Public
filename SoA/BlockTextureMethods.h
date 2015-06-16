@@ -19,6 +19,7 @@
 
 class MesherInfo;
 class BlockTextureLayer;
+class BlockPack;
 
 typedef ui32 BlockTextureIndex;
 

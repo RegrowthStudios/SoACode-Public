@@ -4,6 +4,7 @@
 #include <SDL/SDL.h>
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/ImageIO.h>
+#include <Vorb/voxel/VoxCommon.h>
 
 #include "CAEngine.h"
 #include "ChunkMesh.h"
@@ -18,7 +19,6 @@
 #define GETFLAG3(a) (((a) & 0x2000) >> 13)
 #define GETFLAG4(a) (((a) & 0x1000) >> 12)
 #define GETBLOCKID(a) (((a) & 0x0FFF))
-#define GETBLOCK(a) ((Blocks[((a) & 0x0FFF)]))
 #define SETFLAGS(a, b) ((a) = ((a) | ((b) << 12)))
 
 enum class BlockOcclusion {
@@ -60,15 +60,15 @@ class ItemDrop
 class BlockTextureFaces {
 public:
     union {
-        ui32 array[6];       ///  Access 6-sided block textures as an array
+        ui32 array[6]; /// Access 6-sided block textures as an array
         class {
         public:
-            ui32 px;  /// Positive x-axis texture
-            ui32 py;  /// Positive y-axis texture
-            ui32 pz;  /// Positive z-axis texture
             ui32 nx;  /// Negative x-axis texture
+            ui32 px;  /// Positive x-axis texture
             ui32 ny;  /// Negative y-axis texture
+            ui32 py;  /// Positive y-axis texture
             ui32 nz;  /// Negative z-axis texture
+            ui32 pz;  /// Positive z-axis texture
         }; /// Textures named in cardinal convention
     };
     
@@ -84,8 +84,8 @@ class Block
 public:
     Block();
 
-    void GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
-    void GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture);
+    void GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture);
 
     void SetAvgTexColors();
 
@@ -134,6 +134,7 @@ public:
     bool active;
 
     BlockTexture* textures[6];
+    nString texturePaths[6];
    
     // TODO(BEN): a bit redudant isn't it?
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
@@ -142,7 +143,8 @@ public:
     BlockTextureFaces normal;
     // END
 
-    nString leftTexName, rightTexName, frontTexName, backTexName, topTexName, bottomTexName, particleTexName;
+    // TODO(Ben): NOPE
+    nString particleTexName;
     nString emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 

@@ -19,7 +19,7 @@ bool BlockLoader::loadBlocks(const vio::IOManager& iom, BlockPack* pack) {
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
-    GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
+    GameBlockPostProcess bpp(&iom, &CaPhysicsType::typesCache);
     pack->onBlockAddition += bpp.del;
     if (!BlockLoader::load(&iom, BLOCK_DATA_PATH, pack)) {
         pack->onBlockAddition -= bpp.del;
@@ -44,8 +44,6 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     writer.push(keg::WriterParam::BEGIN_MAP);
     for (size_t i = 0; i < blocks.size(); i++) {
         if (blocks[i].active) {
-            // TODO: Water is a special case. We have 100 water block IDs, but we only want to write water once.
-            if (i >= LOWWATER && i != LOWWATER) continue;
 
             // Write the block name first
             writer.push(keg::WriterParam::KEY) << blocks[i].name;
@@ -106,7 +104,7 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
 }
 
 
-GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache) :
+GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, CaPhysicsTypeDict* caCache) :
     m_iom(iom),
     m_caCache(caCache) {
     del = makeDelegate(*this, &GameBlockPostProcess::invoke);

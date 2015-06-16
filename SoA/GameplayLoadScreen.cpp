@@ -37,7 +37,7 @@ void GameplayLoadScreen::destroy(const vui::GameTime& gameTime) {
 
 void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
-    addLoadTask("BlockData", new LoadTaskBlockData);
+    addLoadTask("BlockData", new LoadTaskBlockData(&m_commonState->state->blocks));
 
   //  addLoadTask("Textures", new LoadTaskTextures);
   //  m_monitor.setDep("Textures", "BlockData");

@@ -28,42 +28,25 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
         block.overlay[i] = 0;
     }
 
-    loadTexture()
-    GameManager::texturePackLoader->getBlockTexture(topTexName, textures[1]);
-    base.py = textures[1].base.index;
-    overlay.py = textures[1].overlay.index;
-
-    GameManager::texturePackLoader->getBlockTexture(leftTexName, textures[3]);
-    base.nx = textures[3].base.index;
-    overlay.nx = textures[3].overlay.index;
-
-    GameManager::texturePackLoader->getBlockTexture(rightTexName, textures[0]);
-    base.px = textures[0].base.index;
-    overlay.px = textures[0].overlay.index;
-
-    GameManager::texturePackLoader->getBlockTexture(frontTexName, textures[2]);
-    base.pz = textures[2].base.index;
-    overlay.pz = textures[2].overlay.index;
-
-    GameManager::texturePackLoader->getBlockTexture(backTexName, textures[5]);
-    base.nz = textures[5].base.index;
-    overlay.nz = textures[5].overlay.index;
-
-    GameManager::texturePackLoader->getBlockTexture(bottomTexName, textures[4]);
-    base.ny = textures[4].base.index;
-    overlay.ny = textures[4].overlay.index;
-
-    BlockTexture particleTexture;
-    GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
-    particleTex = particleTexture.base.index;
+    // Load the textures for each face
+    for (int i = 0; i < 6; i++) {
+        block.textures[i] = loadTexture(block.texturePaths[i]); // TODO(Ben): Free the string?
+        block.base[i] = block.textures[i]->base.index;
+        block.overlay[i] = block.textures[i]->overlay.index;
+    }
+   
+    // TODO(Ben): NOPE
+    /* BlockTexture particleTexture;
+     GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
+     particleTex = particleTexture.base.index;*/
 
     // Calculate flora height
-    // TODO(Ben): Not really a good place for this
-    if (textures[0].base.method == ConnectedTextureMethods::FLORA) {
-        // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
+    // TODO(Ben): This is dubious
+    if (block.textures[0]->base.method == ConnectedTextureMethods::FLORA) {
+        // Just a bit of algebra to solve for n with the equation y = (n^2 + n) / 2
         // which becomes n = (sqrt(8 * y + 1) - 1) / 2
-        int y = textures[0].base.size.y;
-        floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
+        int y = block.textures[0]->base.size.y;
+        block.floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
     }
 }
 
@@ -74,7 +57,7 @@ BlockTexture* BlockTextureLoader::loadTexture(const nString& filePath) {
 
     // Resolve the path
     vio::Path path;
-    if (!m_texturePathResolver->resolvePath(filePath, path)) return;
+    if (!m_texturePathResolver->resolvePath(filePath, path)) return nullptr;
 
     // Get next free texture
     BlockTexture* texture = m_texturePack->getNextFreeTexture();
@@ -87,7 +70,9 @@ BlockTexture* BlockTextureLoader::loadTexture(const nString& filePath) {
 
     // Load the layers
     loadLayer(texture->base);
-    loadLayer(texture->overlay);
+    if (texture->overlay.path.size()) {
+        loadLayer(texture->overlay);
+    }
 
     return texture;
 }
@@ -104,9 +89,8 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
         // Get pixels for the base texture
         vg::ScopedBitmapResource rs = vg::ImageIO().load(layer.path, vg::ImageIOFormat::RGBA_UI8);
         // Do post processing on the layer
-        if (postProcessLayer(rs, layer)) {
-            layer.initBlockTextureFunc();
-        }
+        if (!postProcessLayer(rs, layer)) return false;
+
         m_texturePack->addLayer(layer, (color4*)rs.bytesUI8v4);
     }    
 }
@@ -188,8 +172,8 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             } else { // Need to check if there is the right number of weights
                 if (layer.weights.size() * resolution != bitmap.width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
-                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / _packInfo.resolution) + " columns.");
-                    return nullptr;
+                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / resolution) + " columns.");
+                    return false;
                 }
             }
             break;
@@ -209,8 +193,8 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             floraRows = BlockTextureLayer::getFloraRows(layer.floraHeight);
             if (bitmap.height != resolution * floraRows) {
                 pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
-                       std::to_string(bitmap.height) + " but it is " + std::to_string(_packInfo.resolution * floraRows));
-                return nullptr;
+                       std::to_string(bitmap.height) + " but it is " + std::to_string(resolution * floraRows));
+                return false;
             }
             // If no weights, they are all equal
             if (layer.weights.size() == 0) {
@@ -218,8 +202,8 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             } else { // Need to check if there is the right number of weights
                 if (layer.weights.size() * resolution != bitmap.width) {
                     pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
-                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / _packInfo.resolution) + " columns.");
-                    return nullptr;
+                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / resolution) + " columns.");
+                    return false;
                 }
             }
             // Tile dimensions and count
@@ -234,6 +218,6 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             break;
     }
 
-    // Return pointer
+    layer.initBlockTextureFunc();
     return true;
 }

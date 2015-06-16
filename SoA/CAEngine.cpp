@@ -68,7 +68,7 @@ CAEngine::CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine) :
     m_physicsEngine(physicsEngine){
     memset(_blockUpdateFlagList, 0, sizeof(_blockUpdateFlagList));
     //temporary
-    _lowIndex = LOWWATER; 
+    _lowIndex = 0; // TODO(Ben): yeahhhhhh....
     _range = 100;
     _highIndex = _lowIndex + _range - 1;
 }

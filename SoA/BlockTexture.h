@@ -114,16 +114,9 @@ public:
 };
 KEG_TYPE_DECL(BlockTextureLayer);
 
-class BlockTexture {
-public:
-    BlockTexture() {};
-    BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
-        base(b), overlay(o), blendMode(bt) {
-        // Empty
-    }
+struct BlockTexture {
     BlockTextureLayer base;
     BlockTextureLayer overlay;
-
     BlendType blendMode = BlendType::ALPHA;
 };
 KEG_TYPE_DECL(BlockTexture);

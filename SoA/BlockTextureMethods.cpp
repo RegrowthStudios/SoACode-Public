@@ -10,6 +10,8 @@
 #include "RenderTask.h"
 #include "VoxelBits.h"
 
+#define GETBLOCK(a) (((*blocks)[((a) & 0x0FFF)]))
+
 //Gets a random offset for use by random textures
 void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     //TODO: MurmurHash3
@@ -89,7 +91,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
 
 //Gets a connected texture offset by looking at the surrounding blocks
 void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
-
+    BlockPack* blocks = params.mesherInfo->blocks;
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
     const int& upDir = params.upDir;
@@ -203,7 +205,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
 
 //Gets a grass side texture offset by looking at the surrounding blocks
 void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
-
+    BlockPack* blocks = params.mesherInfo->blocks;
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
     const int& upDir = params.upDir;
@@ -219,8 +221,8 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
     if (mi->levelOfDetail > 1 || block->base[offset] == tex) {
         block = &GETBLOCK(blockIDData[wc]);
-        result = block->textures[1].base.index;
-        block->textures[1].base.blockTextureFunc(params, result);
+        result = block->textures[1]->base.index;
+        block->textures[1]->base.blockTextureFunc(params, result);
         block->GetBlockColor(*params.color, 0, mi->temperature, mi->rainfall, block->textures[1]);
         return;
     }
@@ -281,7 +283,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
 }
 
 void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
-
+    BlockPack* blocks = params.mesherInfo->blocks;
     static int verticalOffsets[4] = { 0, 1, 3, 2 };
 
     int connectedOffset;
@@ -316,6 +318,7 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
 
 void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     static int horizontalOffsets[4] = { 0, 1, 3, 2 };
+    BlockPack* blocks = params.mesherInfo->blocks;
 
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;

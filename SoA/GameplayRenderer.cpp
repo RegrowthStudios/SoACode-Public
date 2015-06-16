@@ -159,8 +159,9 @@ void GameplayRenderer::render() {
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
+    // TODO(Ben): Is this causing the camera slide descrepency? SHouldn't we use MTRenderState?
     m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
-                                       pos, 100, m_meshManager, false);
+                                       pos, 100, m_meshManager, &m_state->blocks, false);
     // Bind the FBO
     m_hdrTarget.use();
   

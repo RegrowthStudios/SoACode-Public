@@ -6,7 +6,8 @@
 class RenderTask;
 class Chunk;
 class ChunkMeshData;
-class BlockTexture;
+class BlockPack;
+struct BlockTexture;
 class BlockTextureLayer;
 
 // Sizes For A Padded Chunk
@@ -17,19 +18,15 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 // each worker thread gets one of these
 class ChunkMesher {
 public:
+    void init(BlockPack* blocks);
 
-    friend class Chunk;
-
-    ChunkMesher();
-    ~ChunkMesher();
-    
     bool createChunkMesh(RenderTask* renderTask);
     bool createOnlyWaterMesh(RenderTask* renderTask);
     void freeBuffers();
 
     static void bindVBOIndicesID();
 
-    ChunkMeshData* chunkMeshData;
+    ChunkMeshData* chunkMeshData = nullptr;
 private:
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
 
@@ -102,4 +99,6 @@ private:
     i32 _prevBackQuads[2][1024];
 
     BlockVertex _bottomVerts[4100];
+
+    BlockPack* m_blocks = nullptr;
 };

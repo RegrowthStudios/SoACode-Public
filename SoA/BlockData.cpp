@@ -44,12 +44,12 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("allowsLight", keg::Value::basic(offsetof(Block, allowLight), keg::BasicType::BOOL));
     kt.addValue("crushable", keg::Value::basic(offsetof(Block, isCrushable), keg::BasicType::BOOL));
     kt.addValue("supportive", keg::Value::basic(offsetof(Block, isSupportive), keg::BasicType::BOOL));
-    kt.addValue("textureLeft", keg::Value::basic(offsetof(Block, leftTexName), keg::BasicType::STRING));
-    kt.addValue("textureRight", keg::Value::basic(offsetof(Block, rightTexName), keg::BasicType::STRING));
-    kt.addValue("textureFront", keg::Value::basic(offsetof(Block, frontTexName), keg::BasicType::STRING));
-    kt.addValue("textureBack", keg::Value::basic(offsetof(Block, backTexName), keg::BasicType::STRING));
-    kt.addValue("textureTop", keg::Value::basic(offsetof(Block, topTexName), keg::BasicType::STRING));
-    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, bottomTexName), keg::BasicType::STRING));
+    kt.addValue("textureLeft", keg::Value::basic(offsetof(Block, texturePaths[0]), keg::BasicType::STRING));
+    kt.addValue("textureRight", keg::Value::basic(offsetof(Block, texturePaths[1]), keg::BasicType::STRING));
+    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, texturePaths[2]), keg::BasicType::STRING));
+    kt.addValue("textureTop", keg::Value::basic(offsetof(Block, texturePaths[3]), keg::BasicType::STRING));
+    kt.addValue("textureBack", keg::Value::basic(offsetof(Block, texturePaths[4]), keg::BasicType::STRING));
+    kt.addValue("textureFront", keg::Value::basic(offsetof(Block, texturePaths[5]), keg::BasicType::STRING));
 }
 
 /// "less than" operator for inserting into sets in TexturePackLoader
@@ -73,6 +73,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     return false;
 }
 
+// TODO(Ben): LOL
 Block::Block() : emitterName(""), 
 emitterOnBreakName(""), 
 emitter(nullptr),
@@ -84,7 +85,11 @@ overlayColor(255, 255, 255),
 lightColor(0, 0, 0) {
     allowLight = false;
     ID = 0;
-    name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
+    name = particleTexName = "";
+    for (int i = 0; i < 6; i++) {
+        texturePaths[i] = "";
+        textures[i] = nullptr;
+    }
     particleTex = 0;
     collide = true;
     occlude = BlockOcclusion::ALL;
@@ -110,7 +115,7 @@ lightColor(0, 0, 0) {
     colorFilter = f32v3(1.0f);
 }
 
-void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
+void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture)
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
@@ -140,7 +145,7 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
     }
 }
 
-void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
+void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture)
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
@@ -176,11 +181,11 @@ void Block::SetAvgTexColors()
 
 void SetBlockAvgTexColors()
 {
-    for (size_t i = 0; i < Blocks.size(); i++){
+    /*for (size_t i = 0; i < Blocks.size(); i++){
         if (Blocks[i].active){
             Blocks[i].SetAvgTexColors();
         }
-    }
+    }*/
 }
 
 void DrawHeadBlock(glm::dvec3 position, glm::mat4 &VP, Block *block, int flags, float light, float sunlight)
