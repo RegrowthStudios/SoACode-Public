@@ -5,7 +5,6 @@
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/ImageIO.h>
 
-#include "BlockTextureMethods.h"
 #include "CAEngine.h"
 #include "ChunkMesh.h"
 #include "BlockTexture.h"

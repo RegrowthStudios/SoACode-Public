@@ -219,7 +219,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
     if (mi->levelOfDetail > 1 || block->base[offset] == tex) {
         block = &GETBLOCK(blockIDData[wc]);
-        result = block->textures[1].base.textureIndex;
+        result = block->textures[1].base.index;
         block->textures[1].base.blockTextureFunc(params, result);
         block->GetBlockColor(*params.color, 0, mi->temperature, mi->rainfall, block->textures[1]);
         return;

@@ -391,7 +391,7 @@ void TexturePackLoader::mapTexturesToAtlases() {
         // Get a non-const pointer to the data
         layer = (BlockTextureLayer*)&(*it);
         // Map the texture layer to an atlas position
-        layer->textureIndex = _textureAtlasStitcher.addTexture(*it);
+        layer->index = _textureAtlasStitcher.addTexture(*it);
     }
 
     // Build the pixel data for the texture array

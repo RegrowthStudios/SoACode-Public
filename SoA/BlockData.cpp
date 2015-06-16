@@ -179,32 +179,32 @@ void Block::InitializeTexture() {
         }
 
         GameManager::texturePackLoader->getBlockTexture(topTexName, textures[1]);
-        base.py = textures[1].base.textureIndex;
-        overlay.py = textures[1].overlay.textureIndex;
+        base.py = textures[1].base.index;
+        overlay.py = textures[1].overlay.index;
 
         GameManager::texturePackLoader->getBlockTexture(leftTexName, textures[3]);
-        base.nx = textures[3].base.textureIndex;
-        overlay.nx = textures[3].overlay.textureIndex;
+        base.nx = textures[3].base.index;
+        overlay.nx = textures[3].overlay.index;
 
         GameManager::texturePackLoader->getBlockTexture(rightTexName, textures[0]);
-        base.px = textures[0].base.textureIndex;
-        overlay.px = textures[0].overlay.textureIndex;
+        base.px = textures[0].base.index;
+        overlay.px = textures[0].overlay.index;
 
         GameManager::texturePackLoader->getBlockTexture(frontTexName, textures[2]);
-        base.pz = textures[2].base.textureIndex;
-        overlay.pz = textures[2].overlay.textureIndex;
+        base.pz = textures[2].base.index;
+        overlay.pz = textures[2].overlay.index;
 
         GameManager::texturePackLoader->getBlockTexture(backTexName, textures[5]);
-        base.nz = textures[5].base.textureIndex;
-        overlay.nz = textures[5].overlay.textureIndex;
+        base.nz = textures[5].base.index;
+        overlay.nz = textures[5].overlay.index;
 
         GameManager::texturePackLoader->getBlockTexture(bottomTexName, textures[4]);
-        base.ny = textures[4].base.textureIndex;
-        overlay.ny = textures[4].overlay.textureIndex;
+        base.ny = textures[4].base.index;
+        overlay.ny = textures[4].overlay.index;
 
         BlockTexture particleTexture;
         GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
-        particleTex = particleTexture.base.textureIndex;
+        particleTex = particleTexture.base.index;
 
         // Calculate flora height
         // TODO(Ben): Not really a good place for this

@@ -98,28 +98,28 @@ void TextureAtlasStitcher::buildPixelData(const std::vector <BlockLayerLoadData>
         // Write pixels to the _pixelData array based on method
         switch (layer->method) {
             case ConnectedTextureMethods::CONNECTED:
-                writeToAtlasContiguous(layer->textureIndex, pixels, 12, 4, 47);
+                writeToAtlasContiguous(layer->index, pixels, 12, 4, 47);
                 break;
             case ConnectedTextureMethods::RANDOM:
-                writeToAtlasContiguous(layer->textureIndex, pixels, layer->numTiles, 1, layer->numTiles);
+                writeToAtlasContiguous(layer->index, pixels, layer->numTiles, 1, layer->numTiles);
                 break;
             case ConnectedTextureMethods::REPEAT:
-                writeToAtlas(layer->textureIndex, pixels, _resolution * layer->size.x, _resolution * layer->size.y, layer->size.x * _resolution * BYTES_PER_PIXEL);
+                writeToAtlas(layer->index, pixels, _resolution * layer->size.x, _resolution * layer->size.y, layer->size.x * _resolution * BYTES_PER_PIXEL);
                 break;
             case ConnectedTextureMethods::GRASS:
-                writeToAtlasContiguous(layer->textureIndex, pixels, 3, 3, 9);
+                writeToAtlasContiguous(layer->index, pixels, 3, 3, 9);
                 break;
             case ConnectedTextureMethods::HORIZONTAL:
-                writeToAtlasContiguous(layer->textureIndex, pixels, 4, 1, 4);
+                writeToAtlasContiguous(layer->index, pixels, 4, 1, 4);
                 break;
             case ConnectedTextureMethods::VERTICAL:
-                writeToAtlasContiguous(layer->textureIndex, pixels, 1, 4, 4);
+                writeToAtlasContiguous(layer->index, pixels, 1, 4, 4);
                 break;
             case ConnectedTextureMethods::FLORA:
-                writeToAtlasContiguous(layer->textureIndex, pixels, layer->size.x, layer->size.y, layer->numTiles);
+                writeToAtlasContiguous(layer->index, pixels, layer->size.x, layer->size.y, layer->numTiles);
                 break;
             default:
-                writeToAtlas(layer->textureIndex, pixels, _resolution, _resolution, _resolution * BYTES_PER_PIXEL);
+                writeToAtlas(layer->index, pixels, _resolution, _resolution, _resolution * BYTES_PER_PIXEL);
                 break;
         }
     }
@@ -344,8 +344,6 @@ i32 TextureAtlasStitcher::mapContiguous(int numTiles) {
 
     return index;
 }
-
-
 
 void TextureAtlasStitcher::writeToAtlas(int texIndex, ui8* pixels, int pixelWidth, int pixelHeight, int bytesPerPixelRow) {
     

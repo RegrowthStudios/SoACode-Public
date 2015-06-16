@@ -627,11 +627,11 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
 
 void VoxelMesher::makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
-    ui8 textureAtlas = (ui8)(blockTexture.base.textureIndex / ATLAS_SIZE);
-    ui8 textureIndex = (ui8)(blockTexture.base.textureIndex % ATLAS_SIZE);
+    ui8 textureAtlas = (ui8)(blockTexture.base.index / ATLAS_SIZE);
+    ui8 textureIndex = (ui8)(blockTexture.base.index % ATLAS_SIZE);
 
-    ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.textureIndex / ATLAS_SIZE);
-    ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.textureIndex % ATLAS_SIZE);
+    ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.index / ATLAS_SIZE);
+    ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.index % ATLAS_SIZE);
 
     ui8 blendMode = getBlendMode(blockTexture.blendMode);
 

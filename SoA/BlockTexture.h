@@ -17,6 +17,8 @@
 
 #include <Vorb/io/Keg.h>
 
+#include "BlockTextureMethods.h"
+
 enum class ConnectedTextureMethods {
     NONE,
     CONNECTED,
@@ -79,14 +81,14 @@ public:
     }
 
     BlockTextureIndex getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8 color) const {
-        BlockTextureIndex index = textureIndex;
+        BlockTextureIndex index = index;
         params.set(this, color);
         blockTextureFunc(params, index);
         return index;
     }
 
     ConnectedTextureMethods method = ConnectedTextureMethods::NONE;
-    ui8v2 size = ui8v2(1);
+    ui32v2 size = ui32v2(1);
     ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
     ConnectedTextureReducedMethod reducedMethod = ConnectedTextureReducedMethod::NONE;
     nString useMapColor = "";
@@ -95,7 +97,7 @@ public:
     Array<i32> weights;
     ui32 totalWeight = 0;
     ui32 numTiles = 1;
-    BlockTextureIndex textureIndex = 0;
+    BlockTextureIndex index = 0;
     bool innerSeams = false;
     bool transparency = false;
     nString path = "";
