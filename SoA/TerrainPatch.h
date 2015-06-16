@@ -15,7 +15,6 @@
 #ifndef TerrainPatch_h__
 #define TerrainPatch_h__
 
-#include "TerrainGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 #include "TerrainPatchConstants.h"
 

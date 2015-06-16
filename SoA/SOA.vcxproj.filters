@@ -323,12 +323,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureAtlasStitcher.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelEditor.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
@@ -379,9 +373,6 @@
     </ClInclude>
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="TexturePackLoader.h">
-      <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
@@ -921,12 +912,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureAtlasStitcher.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
     <ClCompile Include="VoxelEditor.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClCompile>
@@ -971,9 +956,6 @@
     </ClCompile>
     <ClCompile Include="MainMenuScreen.cpp">
       <Filter>SOA Files\Screens\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="TexturePackLoader.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>

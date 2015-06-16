@@ -20,6 +20,8 @@
 class MesherInfo;
 class BlockTextureLayer;
 
+typedef ui32 BlockTextureIndex;
+
 class BlockTextureMethodParams {
 public:
 
@@ -45,7 +47,7 @@ public:
     ColorRGB8* color = nullptr;
 };
 
-typedef std::function <void(BlockTextureMethodParams& params, int& result)> BlockTextureFunc;
+typedef std::function <void(BlockTextureMethodParams& params, BlockTextureIndex& result)> BlockTextureFunc;
 
 namespace BlockTextureMethods {
     inline void getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) { /* Do nothing */ };

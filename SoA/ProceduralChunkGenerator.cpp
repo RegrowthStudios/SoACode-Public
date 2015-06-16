@@ -4,7 +4,6 @@
 #include "NChunk.h"
 #include "Constants.h"
 #include "VoxelSpaceConversions.h"
-#include "HardCodedIDs.h"
 
 #include "SmartVoxelContainer.hpp"
 
@@ -67,7 +66,7 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
                 if (dh >= 0) {
                     //chunk->numBlocks++;
                     // TODO(Ben): Optimize
-                    blockData = DIRT; // calculateBlockLayer((ui32)dh, genData).block;
+                    blockData = 2; // calculateBlockLayer((ui32)dh, genData).block;
                     // Check for surface block replacement
                     if (dh == 0) {
                         if (blockData == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
@@ -82,7 +81,7 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
                         blockData = m_genData->liquidBlock;
                         // TODO(Ben): Precalculate light here based on depth?
                     } else {
-                        blockData = NONE;
+                        blockData = 0;
                         sunlightData = 31;
                     }
                 }

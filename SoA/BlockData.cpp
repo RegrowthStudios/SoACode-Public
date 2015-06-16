@@ -6,8 +6,6 @@
 #include "GameManager.h"
 #include "SoaOptions.h"
 #include "Rendering.h"
-#include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "ZipFile.h"
 
 KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {

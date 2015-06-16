@@ -45,8 +45,6 @@ enum class ConnectedTextureReducedMethod {
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
-typedef ui32 BlockTextureIndex;
-
 class BlockTextureLayer {
 public:
     static ui32 getFloraRows(ui32 floraMaxHeight) {

@@ -12,7 +12,6 @@
 #include "ChunkRenderer.h"
 #include "FloraGenerator.h"
 #include "SmartVoxelContainer.hpp"
-#include "TerrainGenerator.h"
 #include "VoxPool.h"
 #include "VoxelBits.h"
 #include "VoxelCoordinateSpaces.h"

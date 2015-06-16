@@ -17,7 +17,6 @@
 #include "SoaOptions.h"
 #include "RenderTask.h"
 #include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
 
