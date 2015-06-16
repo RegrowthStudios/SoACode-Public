@@ -43,7 +43,8 @@ public:
 
     void dispose();
 
-    VGTexture getAtlasTexture();
+    const VGTexture& getAtlasTexture() const { return m_atlasTexture; }
+    const ui32& getResolution() const { return m_resolution; }
 private:
     VORB_NON_COPYABLE(BlockTexturePack);
 
