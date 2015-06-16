@@ -10,14 +10,6 @@ public:
     ubyte color[4];
 };
 
-enum class BlendType {
-    ALPHA,
-    ADD,
-    SUBTRACT,
-    MULTIPLY
-};
-KEG_ENUM_DECL(BlendType);
-
 // Size: 32 Bytes
 class BlockVertex {
 public:

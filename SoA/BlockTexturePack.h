@@ -30,13 +30,17 @@ class BlockTexturePack {
 public:
     ~BlockTexturePack();
 
-    void init(ui32 resolution);
+    void init(ui32 resolution, ui32 maxTextures);
     // Maps the texture layer to the atlas and updates the index in layer.
     // Does not check if texture already exists
-    void addTexture(BlockTextureLayer& layer, color4* pixels);
-
+    void addLayer(BlockTextureLayer& layer, color4* pixels);  
     // Tries to find the texture index. Returns empty description on fail.
-    AtlasTextureDescription findTexture(const nString& filePath);
+    AtlasTextureDescription findLayer(const nString& filePath);
+
+    BlockTexture* findTexture(const nString& filePath);
+    // Returns a pointer to the next free block texture and increments internal counter.
+    // Will crash if called more than m_maxTextures times.
+    BlockTexture* getNextFreeTexture();
 
     // Call on GL thread. Will upload any textures that aren't yet uploaded.
     void update();
@@ -68,11 +72,17 @@ private:
     VGTexture m_atlasTexture = 0;
     std::vector<AtlasPage> m_pages; ///< Cached pixel data
     std::vector<int> m_dirtyPages; ///< List of dirty pages TODO(Ben): Maybe bad for multithreading
-    std::unordered_map<nString, AtlasTextureDescription> m_lookupMap;
+    std::unordered_map<nString, AtlasTextureDescription> m_descLookup;
     ui32 m_resolution = 0;
     ui32 m_pageWidthPixels = 0;
     ui32 m_mipLevels = 0;
     bool m_needsRealloc = false;
+
+    // For cache friendly caching of textures
+    std::map<nString, ui32> m_textureLookup;
+    BlockTexture* m_textures = nullptr; ///< Storage of all block textures
+    ui32 m_nextFree = 0;
+    ui32 m_maxTextures = 0; ///< Maximum possible number of unique textures with this mod config
 };
 
 #endif // BlockTexturePack_h__

@@ -18,7 +18,6 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
-#include "TerrainGenerator.h"
 #include "VRayHelper.h"
 #include "WSO.h"
 #include "WSOAtlas.h"

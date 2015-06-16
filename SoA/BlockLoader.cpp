@@ -8,7 +8,6 @@
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "TexturePackLoader.h"
 
 #define BLOCK_MAPPING_PATH "BlockMapping.ini"
 #define BLOCK_DATA_PATH "BlockData.yml"

@@ -15,9 +15,9 @@
 #include "VoxPool.h"
 #include "VoxelBits.h"
 #include "VoxelCoordinateSpaces.h"
-#include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
 #include "WorldStructs.h"
+#include "HeightData.h"
 #include "readerwriterqueue.h"
 
 #include <Vorb/RPC.h>

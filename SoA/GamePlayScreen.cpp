@@ -33,7 +33,6 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
-#include "TexturePackLoader.h"
 #include "VoxelEditor.h"
 
 GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :

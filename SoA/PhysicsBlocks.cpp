@@ -12,7 +12,6 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "RenderUtils.h"
-#include "TerrainGenerator.h"
 #include "VoxelMesher.h"
 
 f32m4 PhysicsBlockBatch::worldMatrix(1.0);

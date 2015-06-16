@@ -45,6 +45,14 @@ enum class ConnectedTextureReducedMethod {
 };
 KEG_ENUM_DECL(ConnectedTextureReducedMethod);
 
+enum class BlendType {
+    ALPHA,
+    ADD,
+    SUBTRACT,
+    MULTIPLY
+};
+KEG_ENUM_DECL(BlendType);
+
 class BlockTextureLayer {
 public:
     static ui32 getFloraRows(ui32 floraMaxHeight) {

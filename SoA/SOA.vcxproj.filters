@@ -808,6 +808,9 @@
     <ClInclude Include="BlockTextureLoader.h">
       <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClInclude>
+    <ClInclude Include="HeightData.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">

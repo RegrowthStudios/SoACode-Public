@@ -578,6 +578,7 @@ EXIT 0</Command>
     <ClInclude Include="GasGiantComponentRenderer.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
+    <ClInclude Include="HeightData.h" />
     <ClInclude Include="ImageAssetLoader.h" />
     <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="LenseFlareRenderer.h" />

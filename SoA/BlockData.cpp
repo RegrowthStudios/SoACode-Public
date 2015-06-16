@@ -14,17 +14,6 @@ KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
     e.addValue("selfOnly", BlockOcclusion::SELF_ONLY);
     e.addValue("all", BlockOcclusion::ALL);
 }
-KEG_ENUM_DEF(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e) {
-    e.addValue("none", ConnectedTextureReducedMethod::NONE);
-    e.addValue("top", ConnectedTextureReducedMethod::TOP);
-    e.addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
-}
-KEG_ENUM_DEF(BlendType, BlendType, e) {
-    e.addValue("add", BlendType::ADD);
-    e.addValue("multiply", BlendType::MULTIPLY);
-    e.addValue("replace", BlendType::ALPHA);
-    e.addValue("subtract", BlendType::SUBTRACT);
-}
 
 KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("ID", keg::Value::basic(offsetof(Block, ID), keg::BasicType::UI16));
@@ -125,25 +114,26 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
-    if (blockTexture.base.colorMap) {
+    // TODO(Ben): Handle this
+    /*if (blockTexture.base.colorMap) {
         ui8v3* bytes = blockTexture.base.colorMap->bytesUI8v3 + index;
         //Average the map color with the base color
         baseColor.r = (ui8)(((float)Block::color.r * (float)bytes->r) / 255.0f);
         baseColor.g = (ui8)(((float)Block::color.g * (float)bytes->g) / 255.0f);
         baseColor.b = (ui8)(((float)Block::color.b * (float)bytes->b) / 255.0f);
-    } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
+    } else */if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         baseColor = altColors[flags - 1];
     } else{
         baseColor = color;
     }
     //overlay color
-    if (blockTexture.overlay.colorMap) {
+    /*if (blockTexture.overlay.colorMap) {
         ui8v3* bytes = blockTexture.overlay.colorMap->bytesUI8v3 + index;
         //Average the map color with the base color
         overlayColor.r = (ui8)(((float)Block::overlayColor.r * (float)bytes->r) / 255.0f);
         overlayColor.g = (ui8)(((float)Block::overlayColor.g * (float)bytes->g) / 255.0f);
         overlayColor.b = (ui8)(((float)Block::overlayColor.b * (float)bytes->b) / 255.0f);
-    } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
+    } else */if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         overlayColor= altColors[flags - 1];
     } else{
         overlayColor = Block::overlayColor;
@@ -154,64 +144,16 @@ void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, i
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
-    if (blockTexture.base.colorMap) {
+    /*if (blockTexture.base.colorMap) {
         ui8v3* bytes = blockTexture.base.colorMap->bytesUI8v3 + index;
         //Average the map color with the base color
         baseColor.r = (ui8)(((float)Block::color.r * (float)bytes->r) / 255.0f);
         baseColor.g = (ui8)(((float)Block::color.g * (float)bytes->g) / 255.0f);
         baseColor.b = (ui8)(((float)Block::color.b * (float)bytes->b) / 255.0f);
-    } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
+    } else*/ if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         baseColor = altColors[flags - 1];
     } else{
         baseColor = color;
-    }
-}
-
-void Block::InitializeTexture() {
-    if (active) {
-        // Default values for texture indices
-        for (i32 i = 0; i < 6; i++) {
-            base[i] = 0;
-            normal[i] = -1;
-            overlay[i] = -1;
-        }
-
-        GameManager::texturePackLoader->getBlockTexture(topTexName, textures[1]);
-        base.py = textures[1].base.index;
-        overlay.py = textures[1].overlay.index;
-
-        GameManager::texturePackLoader->getBlockTexture(leftTexName, textures[3]);
-        base.nx = textures[3].base.index;
-        overlay.nx = textures[3].overlay.index;
-
-        GameManager::texturePackLoader->getBlockTexture(rightTexName, textures[0]);
-        base.px = textures[0].base.index;
-        overlay.px = textures[0].overlay.index;
-
-        GameManager::texturePackLoader->getBlockTexture(frontTexName, textures[2]);
-        base.pz = textures[2].base.index;
-        overlay.pz = textures[2].overlay.index;
-
-        GameManager::texturePackLoader->getBlockTexture(backTexName, textures[5]);
-        base.nz = textures[5].base.index;
-        overlay.nz = textures[5].overlay.index;
-
-        GameManager::texturePackLoader->getBlockTexture(bottomTexName, textures[4]);
-        base.ny = textures[4].base.index;
-        overlay.ny = textures[4].overlay.index;
-
-        BlockTexture particleTexture;
-        GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
-        particleTex = particleTexture.base.index;
-
-        // Calculate flora height
-        // TODO(Ben): Not really a good place for this
-        if (textures[0].base.method == ConnectedTextureMethods::FLORA) {
-            // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
-            // which becomes n = (sqrt(8 * y + 1) - 1) / 2
-            int y = textures[0].base.size.y;
-            floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
-        }
     }
 }
 

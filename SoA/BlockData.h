@@ -84,7 +84,6 @@ class Block
 public:
     Block();
 
-    void InitializeTexture();
     void GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
     void GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture);
 
@@ -134,8 +133,9 @@ public:
     bool isSupportive;
     bool active;
 
-    BlockTexture textures[6];
+    BlockTexture* textures[6];
    
+    // TODO(BEN): a bit redudant isn't it?
     // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
     BlockTextureFaces base;
     BlockTextureFaces overlay;

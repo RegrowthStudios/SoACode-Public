@@ -16,7 +16,6 @@
 #include "GameManager.h"
 #include "SoaOptions.h"
 #include "RenderTask.h"
-#include "TerrainGenerator.h"
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
 

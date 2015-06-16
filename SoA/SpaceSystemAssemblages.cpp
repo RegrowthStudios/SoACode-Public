@@ -21,7 +21,6 @@
 
 // TEMPORARY
 #include "GameManager.h"
-#include "TexturePackLoader.h"
 #include "PlanetData.h"
 
 #include <glm/gtx/quaternion.hpp>

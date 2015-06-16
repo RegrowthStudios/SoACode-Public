@@ -7,9 +7,12 @@ BlockTexturePack::~BlockTexturePack() {
     dispose();
 }
 
-void BlockTexturePack::init(ui32 resolution) {
+void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     m_resolution = resolution;
     m_pageWidthPixels = m_resolution * m_stitcher.getTilesPerRow();
+    m_maxTextures = maxTextures;
+    m_textures = new BlockTexture[maxTextures];
+    m_nextFree = 0;
     // Calculate max mipmap level
     m_mipLevels = 0;
     int width = m_pageWidthPixels;
@@ -20,7 +23,7 @@ void BlockTexturePack::init(ui32 resolution) {
 }
 
 // TODO(Ben): Lock?
-void BlockTexturePack::addTexture(BlockTextureLayer& layer, color4* pixels) {
+void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
     // Map the texture
     if (layer.size.y > 1) {
         layer.index = m_stitcher.mapBox(layer.size.x, layer.size.y);
@@ -68,15 +71,29 @@ void BlockTexturePack::addTexture(BlockTextureLayer& layer, color4* pixels) {
     AtlasTextureDescription tex;
     tex.index = layer.index;
     tex.size = layer.size;
-    m_lookupMap[layer.path] = tex;
+    m_descLookup[layer.path] = tex;
 }
 
-AtlasTextureDescription BlockTexturePack::findTexture(const nString& filePath) {
-    auto& it = m_lookupMap.find(filePath);
-    if (it != m_lookupMap.end()) {
+AtlasTextureDescription BlockTexturePack::findLayer(const nString& filePath) {
+    auto& it = m_descLookup.find(filePath);
+    if (it != m_descLookup.end()) {
         return it->second;
     }
     return {};
+}
+
+BlockTexture* BlockTexturePack::findTexture(const nString& filePath) {
+    auto& it = m_textureLookup.find(filePath);
+    if (it != m_textureLookup.end()) {
+        return &m_textures[it->second];
+    }
+    return nullptr;
+}
+// Returns a pointer to the next free block texture and increments internal counter.
+// Will crash if called more than m_maxTextures times.
+BlockTexture* BlockTexturePack::getNextFreeTexture() {
+    if (m_nextFree >= m_maxTextures) pError("m_nextFree >= m_maxTextures in BlockTexturePack::getNextFreeTexture");
+    return &m_textures[m_nextFree++];
 }
 
 void BlockTexturePack::update() {
@@ -115,6 +132,9 @@ void BlockTexturePack::dispose() {
     }
     std::vector<AtlasPage>().swap(m_pages);
     m_stitcher.dispose();
+    std::map<nString, ui32>().swap(m_textureLookup);
+    delete[] m_textures;
+    m_textures = nullptr;
 }
 
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {

@@ -127,19 +127,19 @@ void SoaEngine::setPlanetBlocks(SoaState* state) {
         if (cmp.planetGenData) {
             // Set all block layers
             for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
-                ui16 blockID = Blocks[blockInfo.blockLayerNames[i]].ID;
+                ui16 blockID = state->blocks[blockInfo.blockLayerNames[i]].ID;
                 cmp.planetGenData->blockLayers[i].block = blockID;
             }
             // Clear memory
             std::vector<nString>().swap(blockInfo.blockLayerNames);
             // Set liquid block
             if (blockInfo.liquidBlockName.length()) {
-                cmp.planetGenData->liquidBlock = Blocks[blockInfo.liquidBlockName].ID;
+                cmp.planetGenData->liquidBlock = state->blocks[blockInfo.liquidBlockName].ID;
                 nString().swap(blockInfo.liquidBlockName); // clear memory
             }
             // Set surface block
             if (blockInfo.surfaceBlockName.length()) {
-                cmp.planetGenData->surfaceBlock = Blocks[blockInfo.surfaceBlockName].ID;
+                cmp.planetGenData->surfaceBlock = state->blocks[blockInfo.surfaceBlockName].ID;
                 nString().swap(blockInfo.surfaceBlockName); // clear memory
             }
         }

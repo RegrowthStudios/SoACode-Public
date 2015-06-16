@@ -2,6 +2,7 @@
 #include "BlockTextureLoader.h"
 #include "ModPathResolver.h"
 #include "BlockTexturePack.h"
+#include "BlockData.h"
 #include "Errors.h"
 
 #include <Vorb/graphics/ImageIO.h>
@@ -19,24 +20,80 @@ void BlockTextureLoader::init(ModPathResolver* texturePathResolver, BlockTexture
     m_texturePack = texturePack;
 }
 
-void BlockTextureLoader::loadTexture(OUT BlockTexture& texture, const nString& filePath) {
+void BlockTextureLoader::loadBlockTextures(Block& block) {
+    // Default values for texture indices
+    for (i32 i = 0; i < 6; i++) {
+        block.base[i] = 0;
+        block.normal[i] = 0;
+        block.overlay[i] = 0;
+    }
+
+    loadTexture()
+    GameManager::texturePackLoader->getBlockTexture(topTexName, textures[1]);
+    base.py = textures[1].base.index;
+    overlay.py = textures[1].overlay.index;
+
+    GameManager::texturePackLoader->getBlockTexture(leftTexName, textures[3]);
+    base.nx = textures[3].base.index;
+    overlay.nx = textures[3].overlay.index;
+
+    GameManager::texturePackLoader->getBlockTexture(rightTexName, textures[0]);
+    base.px = textures[0].base.index;
+    overlay.px = textures[0].overlay.index;
+
+    GameManager::texturePackLoader->getBlockTexture(frontTexName, textures[2]);
+    base.pz = textures[2].base.index;
+    overlay.pz = textures[2].overlay.index;
+
+    GameManager::texturePackLoader->getBlockTexture(backTexName, textures[5]);
+    base.nz = textures[5].base.index;
+    overlay.nz = textures[5].overlay.index;
+
+    GameManager::texturePackLoader->getBlockTexture(bottomTexName, textures[4]);
+    base.ny = textures[4].base.index;
+    overlay.ny = textures[4].overlay.index;
+
+    BlockTexture particleTexture;
+    GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
+    particleTex = particleTexture.base.index;
+
+    // Calculate flora height
+    // TODO(Ben): Not really a good place for this
+    if (textures[0].base.method == ConnectedTextureMethods::FLORA) {
+        // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
+        // which becomes n = (sqrt(8 * y + 1) - 1) / 2
+        int y = textures[0].base.size.y;
+        floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
+    }
+}
+
+BlockTexture* BlockTextureLoader::loadTexture(const nString& filePath) {
+    // Check for cached texture
+    BlockTexture* exists = m_texturePack->findTexture(filePath);
+    if (exists) return exists;
 
     // Resolve the path
     vio::Path path;
     if (!m_texturePathResolver->resolvePath(filePath, path)) return;
 
+    // Get next free texture
+    BlockTexture* texture = m_texturePack->getNextFreeTexture();
+
     // Load the tex file (if it exists)
     loadTexFile(path.getString(), texture);
 
     // If there wasn't an explicit override base path, we use the texturePath
-    if (texture.base.path.empty()) texture.base.path = path.getString();
+    if (texture->base.path.empty()) texture->base.path = path.getString();
 
-    loadLayer(texture.base);
-    loadLayer(texture.overlay);
+    // Load the layers
+    loadLayer(texture->base);
+    loadLayer(texture->overlay);
+
+    return texture;
 }
 
 bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
-    AtlasTextureDescription desc = m_texturePack->findTexture(layer.path);
+    AtlasTextureDescription desc = m_texturePack->findLayer(layer.path);
     // Check if its already been loaded
     if (desc.size.x != 0) {
         // Already loaded so just use the desc
@@ -50,11 +107,11 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
         if (postProcessLayer(rs, layer)) {
             layer.initBlockTextureFunc();
         }
-        m_texturePack->addTexture(layer, (color4*)rs.bytesUI8v4);
+        m_texturePack->addLayer(layer, (color4*)rs.bytesUI8v4);
     }    
 }
 
-bool BlockTextureLoader::loadTexFile(const nString& imagePath, BlockTexture& texture) {
+bool BlockTextureLoader::loadTexFile(const nString& imagePath, BlockTexture* texture) {
     // Convert .png to .tex
     nString texFileName = imagePath;
     texFileName.replace(texFileName.end() - 4, texFileName.end(), ".tex");
@@ -62,26 +119,26 @@ bool BlockTextureLoader::loadTexFile(const nString& imagePath, BlockTexture& tex
     nString data;
     m_iom.readFileToString(texFileName.c_str(), data);
     if (data.length()) {
-        if (keg::parse(&texture, data.c_str(), "BlockTexture") == keg::Error::NONE) {
-            if (texture.base.weights.size() > 0) {
-                texture.base.totalWeight = 0;
-                for (size_t i = 0; i < texture.base.weights.size(); i++) {
-                    texture.base.totalWeight += texture.base.weights[i];
+        if (keg::parse(texture, data.c_str(), "BlockTexture") == keg::Error::NONE) {
+            if (texture->base.weights.size() > 0) {
+                texture->base.totalWeight = 0;
+                for (size_t i = 0; i < texture->base.weights.size(); i++) {
+                    texture->base.totalWeight += texture->base.weights[i];
                 }
             }
-            if (texture.overlay.weights.size() > 0) {
-                texture.overlay.totalWeight = 0;
-                for (size_t i = 0; i < texture.overlay.weights.size(); i++) {
-                    texture.overlay.totalWeight += texture.overlay.weights[i];
+            if (texture->overlay.weights.size() > 0) {
+                texture->overlay.totalWeight = 0;
+                for (size_t i = 0; i < texture->overlay.weights.size(); i++) {
+                    texture->overlay.totalWeight += texture->overlay.weights[i];
                 }
             }
 
             // Get ColorMaps
-            /* if (texture.base.useMapColor.length()) {
-                 texture.base.colorMap = getColorMap(texture.base.useMapColor);
+            /* if (texture->base.useMapColor.length()) {
+                 texture->base.colorMap = getColorMap(texture->base.useMapColor);
                  }
-                 if (texture.overlay.useMapColor.length()) {
-                 texture.overlay.colorMap = getColorMap(texture.overlay.useMapColor);
+                 if (texture->overlay.useMapColor.length()) {
+                 texture->overlay.colorMap = getColorMap(texture->overlay.useMapColor);
                  }*/
             return true;
         }
