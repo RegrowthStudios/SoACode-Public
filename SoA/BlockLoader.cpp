@@ -10,25 +10,25 @@
 #include "GameManager.h"
 #include "TexturePackLoader.h"
 
-bool BlockLoader::loadBlocks(const nString& filePath, BlockPack* pack) {
-    vio::IOManager iom; // TODO: Pass in a real boy
+#define BLOCK_MAPPING_PATH "BlockMapping.ini"
+#define BLOCK_DATA_PATH "BlockData.yml"
+
+bool BlockLoader::loadBlocks(const vio::IOManager& iom, BlockPack* pack) {
+    // Load existing mapping if there is one
+    tryLoadMapping(iom, BLOCK_MAPPING_PATH, pack);
 
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
     GameBlockPostProcess bpp(&iom, GameManager::texturePackLoader, &CaPhysicsType::typesCache);
     pack->onBlockAddition += bpp.del;
-    if (!BlockLoader::load(&iom, filePath.c_str(), pack)) {
+    if (!BlockLoader::load(&iom, BLOCK_DATA_PATH, pack)) {
         pack->onBlockAddition -= bpp.del;
         return false;
     }
     pack->onBlockAddition -= bpp.del;
 
-    // Set up the water blocks
-    std::vector<Block> waterBlocks;
-    SetWaterBlocks(waterBlocks);
-    pack->append(waterBlocks.data(), waterBlocks.size());
-    LOWWATER = (*pack)["Water (1)"].ID; // TODO: Please kill me now... I can't take this kind of nonsense anymore
+    saveMapping(iom, BLOCK_MAPPING_PATH, pack);
 
     return true;
 }
@@ -65,33 +65,18 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     return true;
 }
 
-void BlockLoader::SetWaterBlocks(std::vector<Block>& blocks) {
-    for (i32 i = 0; i < 100; i++) {
-        blocks.push_back(Block());
-        blocks.back().name = "Water (" + std::to_string(i + 1) + ")";
-        blocks.back().waterMeshLevel = i + 1;
-        blocks.back().meshType = MeshType::LIQUID;
-    }
-    for (i32 i = 100; i < 150; i++) {
-        blocks.push_back(Block());
-        blocks.back().name = "Water Pressurized (" + std::to_string(i + 1) + ")";
-        blocks.back().waterMeshLevel = i + 1;
-        blocks.back().meshType = MeshType::LIQUID; // TODO: Should this be here?
-    }
-}
-
 bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockPack* pack) {
     // Read file
-    const cString data = iom->readFileToString(filePath);
-    if (!data) return false;
+    nString data;
+    iom->readFileToString(filePath, data);
+    if (data.empty()) return false;
 
     // Convert to YAML
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
-    context.reader.init(data);
+    context.reader.init(data.c_str());
     keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
-        delete[] data;
         context.reader.dispose();
         return false;
     }
@@ -112,10 +97,11 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
     context.reader.forAllInMap(node, f);
     delete f;
     context.reader.dispose();
-    delete[] data;
 
     // Add blocks to pack
-    pack->append(loadedBlocks.data(), loadedBlocks.size());
+    for (auto& b : loadedBlocks) {
+        pack->append(b);
+    }
 
     return true;
 }
@@ -123,7 +109,6 @@ bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockP
 
 GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, TexturePackLoader* tpl, CaPhysicsTypeDict* caCache) :
     m_iom(iom),
-    m_texPackLoader(tpl),
     m_caCache(caCache) {
     del = makeDelegate(*this, &GameBlockPostProcess::invoke);
 }
@@ -131,14 +116,6 @@ GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, TexturePac
 void GameBlockPostProcess::invoke(Sender s, ui16 id) {
     Block& block = ((BlockPack*)s)->operator[](id);
     block.active = true;
-
-    // Block textures
-    m_texPackLoader->registerBlockTexture(block.topTexName);
-    m_texPackLoader->registerBlockTexture(block.leftTexName);
-    m_texPackLoader->registerBlockTexture(block.rightTexName);
-    m_texPackLoader->registerBlockTexture(block.backTexName);
-    m_texPackLoader->registerBlockTexture(block.frontTexName);
-    m_texPackLoader->registerBlockTexture(block.bottomTexName);
 
     // Pack light color
     block.lightColorPacked =
@@ -151,6 +128,8 @@ void GameBlockPostProcess::invoke(Sender s, ui16 id) {
         // Check if this physics type was already loaded
         auto it = m_caCache->find(block.caFilePath);
         if (it == m_caCache->end()) {
+            // TODO(Ben): Why new?
+            // TODO(Ben): This isn't getting stored...
             CaPhysicsType* newType = new CaPhysicsType();
             // Load in the data
             if (newType->loadFromYml(block.caFilePath, m_iom)) {
@@ -167,3 +146,38 @@ void GameBlockPostProcess::invoke(Sender s, ui16 id) {
 
 }
 
+bool BlockLoader::tryLoadMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
+    vio::Path path;
+    if (!iom.resolvePath(filePath, path)) return false;
+
+    std::ifstream file(path.getCString());
+    if (file.fail()) return false;
+
+    // TODO(Ben): Handle comments
+    nString token;
+    BlockID id;
+    while (std::getline(file, token, ':')) {
+        // Read the id
+        file >> id;
+        pack->reserveID(token, id);
+        // Get the newline
+        char nl;
+        file.get(nl);
+    }
+    return true;
+}
+
+bool BlockLoader::saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
+    vio::Path path;
+    if (!iom.resolvePath(filePath, path)) return false;
+
+    std::ofstream file(path.getCString());
+    if (file.fail()) return false;
+
+    const auto& blockMap = pack->getBlockMap();
+
+    for (auto& b : blockMap) {
+        file << b.first << ": " << b.second << '\n';        
+    }
+    return true;
+}

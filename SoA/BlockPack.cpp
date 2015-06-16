@@ -4,9 +4,8 @@
 BlockPack::BlockPack() :
     onBlockAddition(this) {
     
-    Block defaults[2];
     { // Create "None" block
-        Block& b = defaults[0];
+        Block b;
         b.name = "None";
         b.allowLight = true;
         b.collide = false;
@@ -16,38 +15,37 @@ BlockPack::BlockPack() :
         b.isSupportive = false;
         b.blockLight = false;
         b.useable = true;
+        append(b);
     }
     { // Create "Unknown" block
-        Block& b = defaults[1];
+        Block b;
         b.name = "Unknown";
-    }
-
-    // Add default blocks
-    append(defaults, 2);
-}
-
-void BlockPack::append(const Block* blocks, size_t n) {
-    Block* block;
-    size_t index;
-    for (size_t i = 0; i < n; i++) {
-        if (hasBlock(blocks[i].name, &block)) {
-            index = block->ID;
-
-            // Overwrite previous block
-            *block = blocks[i];
-        } else {
-            index = m_blocks.size();
-
-            // Add a new block
-            m_blockList.push_back(blocks[i]);
-            block = &m_blockList.back();
-        }
-
-        // Set the correct index
-        block->ID = index;
-        m_blocks[block->name] = index;
-        onBlockAddition(block->ID);
+        append(b);
     }
 }
 
-BlockPack Blocks;
+BlockID BlockPack::append(Block& block) {
+    Block* curBlock;
+    BlockID rv;
+    if (curBlock = hasBlock(block.name)) {
+        rv = curBlock->ID;
+        block.ID = rv;
+        // Overwrite block
+        *curBlock = block;
+    } else {
+        rv = m_blocks.size();
+        block.ID = rv;
+        // Add a new block
+        m_blockList.push_back(block);
+    }
+
+    // Set the correct index
+    m_blocks[block.name] = rv;
+    onBlockAddition(block.ID);
+    return rv;
+}
+
+void BlockPack::reserveID(const BlockIdentifier& sid, const BlockID& id) {
+    if (id < m_blockList.size()) m_blockList.resize(id);
+    m_blocks[sid] = id;
+}

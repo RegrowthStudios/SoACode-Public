@@ -19,7 +19,6 @@ public:
 
     Delegate<Sender, ui16> del;
 private:
-    TexturePackLoader* m_texPackLoader; ///< Texture pack loader
     const vio::IOManager* m_iom; ///< IO workspace
     CaPhysicsTypeDict* m_caCache; ///< CA type cache
 };
@@ -28,10 +27,8 @@ class BlockLoader
 {
 public:
     /// Loads blocks from a .yml file
-    /// @param filePath: The .yml file path
-    /// @param pack: Depository for all loaded blocks
     /// @return true on success, false on failure
-    static bool loadBlocks(const nString& filePath, BlockPack* pack);
+    static bool loadBlocks(const vio::IOManager& iom, BlockPack* pack);
 
     /// Loads blocks from a .yml file
     /// @param iom: IO workspace
@@ -49,5 +46,11 @@ private:
     /// Sets up the water blocks. This is temporary
     /// @param blocks: Output list for blocks
     static void SetWaterBlocks(std::vector<Block>& blocks);
+
+    /// Tries to load an existing block mapping scheme
+    static bool tryLoadMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
+
+    /// Saves the block mapping scheme
+    static bool saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
 };
 

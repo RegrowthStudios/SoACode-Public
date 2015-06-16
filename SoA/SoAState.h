@@ -22,6 +22,7 @@
 
 #include "PlanetLoader.h" // TODO(Ben): Why is this needed here for unique_ptr?
 #include "ModPathResolver.h"
+#include "BlockPack.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
@@ -52,6 +53,8 @@ struct SoaState {
     std::unique_ptr<PlanetLoader> planetLoader = nullptr;
 
     SoaOptions* options = nullptr; // Lives in App
+
+    BlockPack blocks;
 
     // TODO(Ben): This is temporary?
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
