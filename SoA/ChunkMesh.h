@@ -12,6 +12,7 @@ enum class MeshType {
     LIQUID,
     FLAT 
 };
+KEG_ENUM_DECL(MeshType);
 
 enum class RenderTaskType;
 

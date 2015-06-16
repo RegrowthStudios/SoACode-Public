@@ -177,6 +177,9 @@
     <Filter Include="SOA Files\Voxel\Allocation">
       <UniqueIdentifier>{548ab1e5-861c-44a6-9081-0769265688b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Texturing">
+      <UniqueIdentifier>{29e1a60e-9cde-4091-b045-d6c803be19ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -805,6 +808,15 @@
     <ClInclude Include="ProceduralChunkGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
+    <ClInclude Include="BlockTexturePack.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTexture.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTextureLoader.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1306,6 +1318,15 @@
     </ClCompile>
     <ClCompile Include="ProceduralChunkGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTexturePack.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTexture.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTextureLoader.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

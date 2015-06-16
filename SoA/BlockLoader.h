@@ -42,6 +42,8 @@ public:
     /// @param pack: Source of block data
     /// @return true on success, false on failure
     static bool saveBlocks(const nString& filePath, BlockPack* pack);
+
+    static void loadBlockTextures(Block& block, )
 private:
     /// Sets up the water blocks. This is temporary
     /// @param blocks: Output list for blocks

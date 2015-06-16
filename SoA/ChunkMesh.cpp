@@ -4,6 +4,16 @@
 #include "Chunk.h"
 #include "RenderTask.h"
 
+KEG_ENUM_DEF(MeshType, MeshType, e) {
+    e.addValue("none", MeshType::NONE);
+    e.addValue("cube", MeshType::BLOCK);
+    e.addValue("leaves", MeshType::LEAVES);
+    e.addValue("triangle", MeshType::FLORA);
+    e.addValue("cross", MeshType::CROSSFLORA);
+    e.addValue("liquid", MeshType::LIQUID);
+    e.addValue("flat", MeshType::FLAT);
+}
+
 void MesherInfo::init(int dataWidth, int dataLayer) {
 
     #define NUM_FACES 6

@@ -126,10 +126,10 @@ inline int Chunk::getBlockIDSafe(Chunk*& lockedChunk, int c) {
 }
 
 inline const Block& Chunk::getBlock(int c) const {
-    return blocks[getBlockData(c)];
+    return blocks->operator[](getBlockData(c));
 }
 
 inline const Block& Chunk::getBlockSafe(Chunk*& lockedChunk, int c) {
     vvox::swapLockedChunk(this, lockedChunk);
-    return blocks[getBlockData(c)];
+    return blocks->operator[](getBlockData(c));
 }

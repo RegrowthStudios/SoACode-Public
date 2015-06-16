@@ -11,7 +11,7 @@
 #include "VoxelBits.h"
 
 //Gets a random offset for use by random textures
-void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     //TODO: MurmurHash3
     const MesherInfo* mi = params.mesherInfo;
     const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
@@ -22,7 +22,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
 
     // TODO(Ben): Binary search?
     if (blockTexInfo->weights.size()) {
-        for (int i = 0; i < blockTexInfo->numTiles; i++) {
+        for (ui32 i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {
                 result += i;
@@ -30,7 +30,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
             }
         }
     } else {
-        for (int i = 0; i < blockTexInfo->numTiles; i++) {
+        for (ui32 i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += 1.0f;
             if (r <= totalWeight) {
                 result += i;
@@ -40,7 +40,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
     }
 }
 
-void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     //TODO: MurmurHash3
     const MesherInfo* mi = params.mesherInfo;
     i32 seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
@@ -57,7 +57,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
 
     // TODO(Ben): Binary search?
     if (blockTexInfo->weights.size()) {
-        for (int i = 0; i < blockTexInfo->size.x; i++) {
+        for (ui32 i = 0; i < blockTexInfo->size.x; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {
                 column = i;
@@ -65,7 +65,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
             }
         }
     } else {
-        for (int i = 0; i < blockTexInfo->size.x; i++) {
+        for (ui32 i = 0; i < blockTexInfo->size.x; i++) {
             totalWeight += 1.0f;
             if (r <= totalWeight) {
                 column = i;
@@ -88,7 +88,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
 }
 
 //Gets a connected texture offset by looking at the surrounding blocks
-void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
 
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
@@ -202,7 +202,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
 }
 
 //Gets a grass side texture offset by looking at the surrounding blocks
-void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
 
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
@@ -280,7 +280,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     result += vg::ConnectedTextureHelper::getOffsetSmall(connectedOffset);
 }
 
-void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
 
     static int verticalOffsets[4] = { 0, 1, 3, 2 };
 
@@ -314,7 +314,7 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
     result += verticalOffsets[connectedOffset];
 }
 
-void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     static int horizontalOffsets[4] = { 0, 1, 3, 2 };
 
     int connectedOffset = 0;

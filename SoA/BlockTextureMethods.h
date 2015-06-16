@@ -48,13 +48,13 @@ public:
 typedef std::function <void(BlockTextureMethodParams& params, int& result)> BlockTextureFunc;
 
 namespace BlockTextureMethods {
-    inline void getDefaultTextureIndex(BlockTextureMethodParams& params, int& result) { /* Do nothing */ };
-    extern void getRandomTextureIndex(BlockTextureMethodParams& params, int& result);
-    extern void getFloraTextureIndex(BlockTextureMethodParams& params, int& result);
-    extern void getConnectedTextureIndex(BlockTextureMethodParams& params, int& result);
-    extern void getGrassTextureIndex(BlockTextureMethodParams& params, int& result);
-    extern void getVerticalTextureIndex(BlockTextureMethodParams& params, int& result);
-    extern void getHorizontalTextureIndex(BlockTextureMethodParams& params, int& resultt);
+    inline void getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) { /* Do nothing */ };
+    extern void getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
+    extern void getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
+    extern void getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
+    extern void getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
+    extern void getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
+    extern void getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
 }
 
 #endif // BlockTextureMethods_h__

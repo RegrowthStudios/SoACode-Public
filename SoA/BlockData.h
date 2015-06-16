@@ -8,6 +8,7 @@
 #include "BlockTextureMethods.h"
 #include "CAEngine.h"
 #include "ChunkMesh.h"
+#include "BlockTexture.h"
 #include "Constants.h"
 #include "Rendering.h"
 #include "Item.h"
@@ -21,32 +22,6 @@
 #define GETBLOCK(a) ((Blocks[((a) & 0x0FFF)]))
 #define SETFLAGS(a, b) ((a) = ((a) | ((b) << 12)))
 
-enum class ConnectedTextureMethods {
-    NONE,
-    CONNECTED,
-    HORIZONTAL,
-    VERTICAL,
-    GRASS,
-    REPEAT,
-    RANDOM,
-    FLORA
-};
-KEG_ENUM_DECL(ConnectedTextureMethods);
-
-enum class ConnectedTextureSymmetry {
-    NONE,
-    OPPOSITE,
-    ALL
-};
-KEG_ENUM_DECL(ConnectedTextureSymmetry);
-
-enum class ConnectedTextureReducedMethod {
-    NONE,
-    TOP,
-    BOTTOM
-};
-KEG_ENUM_DECL(ConnectedTextureReducedMethod);
-
 enum class BlockOcclusion {
     NONE,
     ALL,
@@ -54,101 +29,6 @@ enum class BlockOcclusion {
     SELF_ONLY
 };
 KEG_ENUM_DECL(BlockOcclusion);
-
-class BlockTextureLayer {
-public:
-    // Set defaults in Constructor for no .tex file
-    BlockTextureLayer() : 
-        method(ConnectedTextureMethods::NONE),
-        size(1),
-        symmetry(ConnectedTextureSymmetry::NONE),
-        reducedMethod(ConnectedTextureReducedMethod::NONE),
-        useMapColor(""),
-        floraHeight(0),
-        totalWeight(0),
-        numTiles(1),
-        textureIndex(0),
-        innerSeams(false),
-        transparency(false),
-        path(""),
-        blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex) {
-        // Empty
-    }
-
-    static ui32 getFloraRows(ui32 floraMaxHeight) {
-        return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
-    }
-
-    // Sets the texture funct based on the method
-    // needs to have the method
-    void initBlockTextureFunc() {
-        switch (method) {
-            case ConnectedTextureMethods::CONNECTED:
-                blockTextureFunc = BlockTextureMethods::getConnectedTextureIndex;
-                break;
-            case ConnectedTextureMethods::RANDOM:
-                blockTextureFunc = BlockTextureMethods::getRandomTextureIndex;
-                break;
-            case ConnectedTextureMethods::GRASS:
-                blockTextureFunc = BlockTextureMethods::getGrassTextureIndex;
-                break;
-            case ConnectedTextureMethods::HORIZONTAL:
-                blockTextureFunc = BlockTextureMethods::getHorizontalTextureIndex;
-                break;
-            case ConnectedTextureMethods::VERTICAL:
-                blockTextureFunc = BlockTextureMethods::getVerticalTextureIndex;
-                break;
-            case ConnectedTextureMethods::FLORA:
-                blockTextureFunc = BlockTextureMethods::getFloraTextureIndex;
-                break;
-            default:
-                break;
-        }
-    }
-
-    i32 getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8 color) const {
-        i32 index = textureIndex;
-        params.set(this, color);
-        blockTextureFunc(params, index);
-        return index;
-    }
-
-    ConnectedTextureMethods method;
-    i32v2 size;
-    ConnectedTextureSymmetry symmetry;
-    ConnectedTextureReducedMethod reducedMethod;
-    nString useMapColor;
-    vg::BitmapResource* colorMap = nullptr;
-    ui32 floraHeight;
-    Array<i32> weights;
-    i32 totalWeight;
-    i32 numTiles;
-    i32 textureIndex;
-    bool innerSeams;
-    bool transparency;
-    nString path;
-    BlockTextureFunc blockTextureFunc;
-
-    /// "less than" operator for inserting into sets in TexturePackLoader
-    bool operator<(const BlockTextureLayer& b) const;
-};
-KEG_TYPE_DECL(BlockTextureLayer);
-
-class BlockTexture {
-public:
-    BlockTexture() : blendMode(BlendType::ALPHA){};
-    BlockTexture(const BlockTextureLayer& b, const BlockTextureLayer& o, BlendType bt) :
-        base(b), overlay(o), blendMode(bt){
-        // Empty
-    }
-    BlockTextureLayer base;
-    BlockTextureLayer overlay;
-
-    BlendType blendMode;
-};
-KEG_TYPE_DECL(BlockTexture);
-
-extern std::vector <int> TextureUnitIndices;
 
 enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
 
@@ -167,8 +47,6 @@ public:
     bool editorAccessible;
     std::vector<nString> listNames;
 };
-
-extern std::map<nString, BlockVariable> blockVariableMap;
 
 class ItemDrop
 {

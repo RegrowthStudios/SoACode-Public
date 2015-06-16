@@ -5,7 +5,7 @@
 #include "PlanetHeightData.h"
 #include "VoxelSpaceConversions.h"
 #include "CpuNoise.h"
-#include "HardCodedIDs.h" ///< TODO(Ben): Temporary
+
 //
 //SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
 //                                                           PlanetGenData* planetGenData) :
@@ -67,7 +67,7 @@ void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, 
     height.height = getNoiseValue(pos, m_genData->baseTerrainFuncs);
     height.temperature = getNoiseValue(pos, m_genData->tempTerrainFuncs);
     height.rainfall = getNoiseValue(pos, m_genData->humTerrainFuncs);
-    height.surfaceBlock = DIRTGRASS;
+    height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
 }
 
 f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition) const {
