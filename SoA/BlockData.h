@@ -9,18 +9,8 @@
 #include "CAEngine.h"
 #include "ChunkMesh.h"
 #include "Constants.h"
-#include "HardCodedIDs.h"
 #include "Rendering.h"
 #include "Item.h"
-
-ui16& getLowWaterID();
-#define LOWWATER (getLowWaterID())
-ui16& getVisitedNodeID();
-#define VISITED_NODE (getVisitedNodeID())
-
-#define FULLWATER (LOWWATER + 99)
-#define FULLPRESSURE 4095
-#define WATERSOURCE 3946
 
 #define GETFLAGS(a) ((a) >> 12)
 #define GETFLAG1(a) (((a) & 0x8000) >> 15)
