@@ -5,11 +5,19 @@
 #include "GameManager.h"
 #include "LoadMonitor.h"
 
+#include <Vorb/io/IOManager.h>
+
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {
+public:
+    LoadTaskBlockData(BlockPack* blockPack) : m_blockPack(blockPack) {}
+
     virtual void load() {
+        // TODO(Ben): Put in state
+        vio::IOManager iom;
+        iom.setSearchDirectory("Data/Blocks");
         // Load in .yml
-        if (!BlockLoader::loadBlocks("Data/BlockData.yml", &Blocks)) {
+        if (!BlockLoader::loadBlocks(iom, m_blockPack)) {
             pError("Failed to load Data/BlockData.yml");
             exit(123456);
         }
@@ -17,13 +25,14 @@ class LoadTaskBlockData : public ILoadTask {
         // Uncomment to Save in .yml
         //BlockLoader::saveBlocks("Data/SavedBlockData.yml");
 
-        { // For use in pressure explosions
-            Block visitedNode = Blocks[0];
-            visitedNode.name = "Visited Node";
-            Blocks.append(&visitedNode, 1);
-            VISITED_NODE = Blocks["Visited Node"].ID;
-        }
+        //{ // For use in pressure explosions
+        //    Block visitedNode = Blocks[0];
+        //    visitedNode.name = "Visited Node";
+        //    Blocks.append(&visitedNode, 1);
+        //    VISITED_NODE = Blocks["Visited Node"].ID;
+        //}
 
-        findIDs(&Blocks);
     }
+
+    BlockPack* m_blockPack;
 };

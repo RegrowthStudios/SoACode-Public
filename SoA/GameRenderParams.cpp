@@ -12,9 +12,11 @@ void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        const VoxelPosition3D& voxPosition,
                                        f64 voxelWorldRadius,
                                        ChunkMeshManager* ChunkMeshmanager,
+                                       BlockPack* blocks,
                                        bool IsUnderwater) {
     chunkCamera = ChunkCamera;
     isUnderwater = IsUnderwater;
+    this->blocks = blocks;
 
     chunkMeshmanager = ChunkMeshmanager;
 

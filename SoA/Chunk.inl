@@ -2,6 +2,8 @@
 #include "BlockPack.h"
 #include "VoxelNavigation.inl"
 
+BlockPack* Chunk::blocks = nullptr;
+
 inline void Chunk::changeState(ChunkStates State)
 {
     //Only set the state if the new state is higher priority
@@ -124,10 +126,10 @@ inline int Chunk::getBlockIDSafe(Chunk*& lockedChunk, int c) {
 }
 
 inline const Block& Chunk::getBlock(int c) const {
-    return Blocks[getBlockData(c)];
+    return blocks[getBlockData(c)];
 }
 
 inline const Block& Chunk::getBlockSafe(Chunk*& lockedChunk, int c) {
     vvox::swapLockedChunk(this, lockedChunk);
-    return Blocks[getBlockData(c)];
+    return blocks[getBlockData(c)];
 }

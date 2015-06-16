@@ -488,9 +488,6 @@
     <ClInclude Include="BlockPack.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="HardCodedIDs.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelMesh.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -1058,9 +1055,6 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="HardCodedIDs.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="TestBlockViewScreen.cpp">

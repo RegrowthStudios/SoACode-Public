@@ -28,6 +28,7 @@
 const int MAXLIGHT = 31;
 
 class Block;
+class BlockPack;
 
 class PlantData;
 
@@ -228,6 +229,7 @@ public:
     inline void unlock() { _dataLock.unlock(); }
     std::mutex& getDataLock() { return _dataLock; }
 
+    static BlockPack* blocks;
 private:
 
     /// _dataLock guards chunk data.

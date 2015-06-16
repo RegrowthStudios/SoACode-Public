@@ -9,6 +9,7 @@
 class ChunkMesh;
 class Camera;
 class ChunkMeshManager;
+class BlockPack;
 
 class GameRenderParams {
 public:
@@ -17,6 +18,7 @@ public:
                          const VoxelPosition3D& voxPosition,
                          f64 voxelWorldRadius,
                          ChunkMeshManager* ChunkMeshmanager,
+                         BlockPack* blocks,
                          bool IsUnderwater);
 
     f32v3 sunlightDirection;
@@ -28,6 +30,7 @@ public:
     float lightActive;
     const Camera* chunkCamera;
     ChunkMeshManager* chunkMeshmanager;
+    BlockPack* blocks;
     bool isUnderwater;
 private:
     void calculateFog(float theta, bool isUnderwater);
