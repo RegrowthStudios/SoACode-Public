@@ -58,6 +58,10 @@ void SoaEngine::initState(SoaState* state) {
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
    
+    // TODO(Ben): Don't hardcode this. Load a texture pack file
+    state->blockTextures = std::make_unique<BlockTexturePack>();
+    state->blockTextures->init(32, 4096);
+    state->blockTextureLoader.init(&state->texturePathResolver, state->blockTextures.get());
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {

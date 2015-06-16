@@ -28,6 +28,7 @@ struct AtlasTextureDescription {
 
 class BlockTexturePack {
 public:
+    BlockTexturePack() {};
     ~BlockTexturePack();
 
     void init(ui32 resolution, ui32 maxTextures);

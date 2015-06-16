@@ -164,17 +164,11 @@ bool BlockLoader::tryLoadMapping(const vio::IOManager& iom, const cString filePa
     return true;
 }
 
-bool BlockLoader::saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
-    vio::Path path;
-    if (!iom.resolvePath(filePath, path)) return false;
+bool BlockLoader::saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {    
+    vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::WRITE_ONLY_CREATE);
 
-    std::ofstream file(path.getCString());
-    if (file.fail()) return false;
-
-    const auto& blockMap = pack->getBlockMap();
-
-    for (auto& b : blockMap) {
-        file << b.first << ": " << b.second << '\n';        
+    for (auto& b : pack->getBlockMap()) {
+        fs.write("%s: %d\n", b.first, b.second);
     }
     return true;
 }

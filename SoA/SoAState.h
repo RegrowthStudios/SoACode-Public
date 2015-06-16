@@ -23,6 +23,8 @@
 #include "PlanetLoader.h" // TODO(Ben): Why is this needed here for unique_ptr?
 #include "ModPathResolver.h"
 #include "BlockPack.h"
+#include "BlockTexturePack.h"
+#include "BlockTextureLoader.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
@@ -36,6 +38,7 @@ class SoaOptions;
 DECL_VIO(class IOManager);
 
 struct SoaState {
+    SoaState() {}
     ~SoaState();
 
     std::unique_ptr<SpaceSystem> spaceSystem = nullptr;
@@ -55,6 +58,8 @@ struct SoaState {
     SoaOptions* options = nullptr; // Lives in App
 
     BlockPack blocks;
+    BlockTextureLoader blockTextureLoader;
+    std::unique_ptr<BlockTexturePack> blockTextures;
 
     // TODO(Ben): This is temporary?
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
@@ -68,6 +73,8 @@ struct SoaState {
     f64 time = 0.0;
     bool isInputEnabled = true;
     float timeStep = 0.016f;
+private:
+    VORB_NON_COPYABLE(SoaState);
 };
 
 #endif // SoAState_h__

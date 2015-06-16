@@ -92,7 +92,8 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
         if (!postProcessLayer(rs, layer)) return false;
 
         m_texturePack->addLayer(layer, (color4*)rs.bytesUI8v4);
-    }    
+    }
+    return true;
 }
 
 bool BlockTextureLoader::loadTexFile(const nString& imagePath, BlockTexture* texture) {

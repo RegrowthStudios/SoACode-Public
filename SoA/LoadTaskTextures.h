@@ -9,7 +9,7 @@ class LoadTaskTextures : public ILoadTask {
     virtual void load() {
       
         //load the texture pack
-        //GameManager::texturePackLoader->setColorMaps(&PlanetGenData::colorMaps);
-        //GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
+        // GameManager::texturePackLoader->setColorMaps(&PlanetGenData::colorMaps);
+        // GameManager::texturePackLoader->loadAllTextures("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
     }
 };
