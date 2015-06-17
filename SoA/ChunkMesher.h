@@ -17,6 +17,7 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
 class ChunkMesher {
+    friend class RenderTask;
 public:
     void init(BlockPack* blocks);
 
@@ -67,8 +68,8 @@ private:
     int dataLayer;
     int dataSize;
 
-    Chunk* chunk; ///< The chunk we are currently meshing;
-    std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
+    NChunk* chunk; ///< The chunk we are currently meshing;
+    NChunkGridData* chunkGridData; ///< current grid data
 
     int wSize;
     // Voxel data arrays

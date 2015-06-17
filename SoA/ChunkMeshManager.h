@@ -23,20 +23,21 @@ class ChunkMeshData;
 
 class ChunkMeshManager {
 public:
-    ChunkMeshManager();
+    ChunkMeshManager() {}
     ~ChunkMeshManager();
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
     /// Deletes and removes a mesh
     void deleteMesh(ChunkMesh* mesh, int index = -1);
     /// Adds a mesh for updating
-    void addMeshForUpdate(ChunkMeshData* meshData);
+    void addMeshForUpdate(ChunkMeshData* meshData) { m_meshQueue.enqueue(meshData); }
     /// Destroys all meshes
     void destroy();
 
     const std::vector <ChunkMesh *>& getChunkMeshes() { return m_chunkMeshes; }
 
 private:
+    VORB_NON_COPYABLE(ChunkMeshManager);
     /// Uploads a mesh and adds to list if needed
     void updateMesh(ChunkMeshData* meshData);
 

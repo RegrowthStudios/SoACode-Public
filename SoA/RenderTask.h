@@ -20,7 +20,7 @@
 #include "Constants.h"
 #include "VoxPool.h"
 
-class Chunk;
+class NChunk;
 class ChunkGridData;
 class ChunkMesh;
 class ChunkMeshData;
@@ -40,15 +40,15 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Initializes the task
-    void init(Chunk* ch, RenderTaskType cType, ChunkMeshManager* meshManager);
+    void init(NChunk* ch, RenderTaskType cType, BlockPack* blockPack, ChunkMeshManager* meshManager);
 
     RenderTaskType type; 
-    Chunk* chunk = nullptr;
-    ChunkMesh* chunkMesh = nullptr;
+    NChunk* chunk = nullptr;
     ChunkMeshManager* meshManager = nullptr;
-
+    BlockPack* blockPack = nullptr;
 private:
     void updateLight(VoxelLightEngine* voxelLightEngine);
+    void setupMeshData(ChunkMesher* chunkMesher);
 };
 
 #endif // RenderTask_h__

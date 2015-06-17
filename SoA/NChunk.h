@@ -46,6 +46,7 @@ class NChunk {
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
     friend class NChunkGrid;
+    friend class RenderTask;
 public:
     void init(const ChunkPosition3D& pos);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
@@ -63,10 +64,27 @@ public:
     NChunkPtr getNextActive() const { return m_nextActive; }
     NChunkPtr getPrevActive() const { return m_prevActive; }
 
+    inline ui16 getBlockData(int c) const {
+        return m_blocks[c];
+    }
+    inline ui16 getLampLight(int c) const {
+        return m_lamp[c];
+    }
+    inline ui8 getSunlight(int c) const {
+        return m_sunlight[c];
+    }
+    inline ui16 getTertiaryData(int c) const {
+        return m_tertiary[c];
+    }
+
     // True when the chunk needs to be meshed
     bool needsRemesh() { return m_remeshFlags != 0; }
     // Marks the chunks as dirty and flags for a re-mesh
     void flagDirty() { m_isDirty = true; m_remeshFlags |= 1; }
+
+    // TODO(Ben): This can be better
+    void lock() { mutex.lock(); }
+    void unlock() { mutex.unlock(); }
 
     /************************************************************************/
     /* Members                                                              */
@@ -83,6 +101,7 @@ public:
     int refCount = 0;
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     volatile bool isAccessible = false;
+    volatile bool queuedForMesh = false;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;

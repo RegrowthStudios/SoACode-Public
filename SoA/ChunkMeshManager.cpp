@@ -8,23 +8,20 @@
 
 #define MAX_UPDATES_PER_FRAME 100
 
-ChunkMeshManager::ChunkMeshManager() : 
-    m_updateBuffer(MAX_UPDATES_PER_FRAME, nullptr) {
-    // Empty
-}
-
 ChunkMeshManager::~ChunkMeshManager() {
     destroy();
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
+    ChunkMeshData* updateBuffer[MAX_UPDATES_PER_FRAME];
     size_t numUpdates;
-    if (numUpdates = m_meshQueue.try_dequeue_bulk(m_updateBuffer.begin(), MAX_UPDATES_PER_FRAME)) {
+    if (numUpdates = m_meshQueue.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
         for (size_t i = 0; i < numUpdates; i++) {
             updateMesh(m_updateBuffer[i]);
         }
     }
 
+    // TODO(Ben): This is redundant with the chunk manager! Find a way to share! (Pointer?)
     updateMeshDistances(cameraPosition);
     if (shouldSort) {
         // TODO(Ben): std::sort
@@ -39,10 +36,6 @@ void ChunkMeshManager::deleteMesh(ChunkMesh* mesh, int index /* = -1 */) {
     if (mesh->refCount == 0) {
         delete mesh;
     }
-}
-
-void ChunkMeshManager::addMeshForUpdate(ChunkMeshData* meshData) {
-    m_meshQueue.enqueue(meshData);
 }
 
 void ChunkMeshManager::destroy() {
