@@ -63,6 +63,11 @@ public:
     NChunkPtr getNextActive() const { return m_nextActive; }
     NChunkPtr getPrevActive() const { return m_prevActive; }
 
+    // True when the chunk needs to be meshed
+    bool needsRemesh() { return m_remeshFlags != 0; }
+    // Marks the chunks as dirty and flags for a re-mesh
+    void flagDirty() { m_isDirty = true; m_remeshFlags |= 1; }
+
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
@@ -77,6 +82,7 @@ public:
     std::mutex mutex;
     int refCount = 0;
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    volatile bool isAccessible = false;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
@@ -85,6 +91,7 @@ private:
     NChunkPtr m_prevActive = nullptr;
 
     ui32 m_numNeighbors = 0u;
+    ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
     // TODO(Ben): Think about data locality.
@@ -92,7 +99,9 @@ private:
     vvox::SmartVoxelContainer<ui8> m_sunlight;
     vvox::SmartVoxelContainer<ui16> m_lamp;
     vvox::SmartVoxelContainer<ui16> m_tertiary;
+    ui8 m_remeshFlags;
     bool m_isInRange;
+    bool m_isDirty;
     f32 m_distance2; //< Squared distance
 };
 

@@ -49,6 +49,11 @@ private:
 
     void tryLoadChunkNeighbor(const VoxelPosition3D& agentPosition, f32 loadDist2, const f64v3& pos);
 
+    void requestChunkMesh(NChunk* chunk);
+
+    bool trySetMeshDependencies(NChunk* chunk);
+
+    void tryRemoveMeshDependencies(NChunk* chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

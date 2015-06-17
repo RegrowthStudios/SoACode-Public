@@ -25,7 +25,6 @@ public:
     friend class SphericalVoxelComponentUpdater;
 
     ChunkGrid(WorldCubeFace face) : m_face(face) {}
-    ~ChunkGrid();
 
     /// Adds a chunk to the grid
     /// @param chunk: The chunk to add

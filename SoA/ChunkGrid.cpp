@@ -3,11 +3,6 @@
 
 #include "ChunkMemoryManager.h"
 
-
-ChunkGrid::~ChunkGrid() {
-    // Empty
-}
-
 void ChunkGrid::addChunk(Chunk* chunk) {
     // Add to lookup hashmap
     m_chunkMap[chunk->gridPosition.pos] = chunk;

@@ -28,6 +28,7 @@ public:
 
     void init(BlockPack* blocks, int dataWidth, int dataLayer);
 
+    // TODO(Ben): array this shit
     i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
     i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
     i32 wsize;
@@ -120,7 +121,7 @@ public:
     ChunkMesh(const Chunk *ch);
     ~ChunkMesh();
 
-    ChunkMeshRenderData meshInfo;
+    ChunkMeshRenderData renderData;
 
     VGVertexBuffer vboID = 0;
     VGVertexArray vaoID = 0;
@@ -130,13 +131,14 @@ public:
     VGVertexArray cutoutVaoID = 0;
     VGVertexBuffer waterVboID = 0;
     VGVertexArray waterVaoID = 0;
-    f64 distance2 = 32.0f;
+
+    f64 distance2 = 32.0;
     f64v3 position;
     bool inFrustum = false;
     bool needsSort = true;
     bool needsDestroy = false;
     volatile int refCount = 0;
-    bool inMeshList = false;
+    bool inMeshList = false; // TODO(Ben): Dont think this is needed
 
     //*** Transparency info for sorting ***
     VGIndexBuffer transIndexID = 0;

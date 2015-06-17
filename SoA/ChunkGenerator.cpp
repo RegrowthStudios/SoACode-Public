@@ -66,6 +66,7 @@ void ChunkGenerator::update() {
                 q2->m_isFinished = true;
                 q2->m_cond.notify_one();
                 q2->m_chunk->refCount--;
+                q->m_chunk->isAccessible = true;
                 if (q2->shouldDelete) delete q;
             }
             std::vector<ChunkQuery*>().swap(chunk->m_genQueryData.pending);
@@ -79,6 +80,7 @@ void ChunkGenerator::update() {
                     q->m_isFinished = true;
                     q->m_cond.notify_one();
                     q->m_chunk->refCount--;
+                    q->m_chunk->isAccessible = true;
                     if (q->shouldDelete) delete q;
                     // TODO(Ben): Do we care about order?
                     chunk->m_genQueryData.pending[i] = chunk->m_genQueryData.pending.back();

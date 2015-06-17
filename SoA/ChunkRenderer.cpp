@@ -31,7 +31,7 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
 
     glBindVertexArray(cm->vaoID);
 
-    const ChunkMeshRenderData& chunkMeshInfo = cm->meshInfo;
+    const ChunkMeshRenderData& chunkMeshInfo = cm->renderData;
     
     //top
     if (chunkMeshInfo.pyVboSize){
@@ -79,7 +79,7 @@ void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const vg::GLProgram& pr
 
     glBindVertexArray(cm->transVaoID);
 
-    glDrawElements(GL_TRIANGLES, cm->meshInfo.transVboSize, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, cm->renderData.transVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 
@@ -97,7 +97,7 @@ void ChunkRenderer::drawCutout(const ChunkMesh *cm, const vg::GLProgram& program
 
     glBindVertexArray(cm->cutoutVaoID);
 
-    glDrawElements(GL_TRIANGLES, cm->meshInfo.cutoutVboSize, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, cm->renderData.cutoutVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
 
@@ -117,7 +117,7 @@ void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram& program,
 
         glBindVertexArray(cm->waterVaoID);
 
-        glDrawElements(GL_TRIANGLES, cm->meshInfo.waterIndexSize, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, cm->renderData.waterIndexSize, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
     }

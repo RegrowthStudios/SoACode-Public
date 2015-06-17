@@ -149,11 +149,11 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
                     cm->cutoutVboID = 0;
                 }
             }
-            cm->meshInfo = meshData->chunkMeshRenderData;
+            cm->renderData = meshData->chunkMeshRenderData;
             //The missing break is deliberate!
         case RenderTaskType::LIQUID:
 
-            cm->meshInfo.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
+            cm->renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
             if (meshData->waterVertices.size()) {
                 mapBufferData(cm->waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
 

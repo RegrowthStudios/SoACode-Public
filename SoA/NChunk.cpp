@@ -11,6 +11,7 @@ void NChunk::init(const ChunkPosition3D& pos) {
     m_voxelPosition = VoxelSpaceConversions::chunkToVoxel(m_chunkPosition);
     refCount = 0;
     m_genQueryData.current = nullptr;
+    m_remeshFlags = 1;
     m_genQueryData.pending.clear();
 }
 
