@@ -113,7 +113,7 @@ void NChunkGrid::submitQuery(ChunkQuery* query) {
     m_queries.enqueue(query);
 }
 
-const std::shared_ptr<NChunkGridData>& NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
+std::shared_ptr<NChunkGridData> NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
     auto it = m_chunkGridDataMap.find(gridPos);
     if (it == m_chunkGridDataMap.end()) return nullptr;
     return it->second;

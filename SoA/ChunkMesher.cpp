@@ -26,7 +26,7 @@ const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
 const int MAXLIGHT = 31;
 
-void ChunkMesher::init(BlockPack* blocks) {
+void ChunkMesher::init(const BlockPack* blocks) {
     m_blocks = blocks;
 }
 
@@ -68,7 +68,7 @@ bool ChunkMesher::checkBlockFaces(bool faces[6], const RenderTask* task, const B
 {
     //*** END GET_L_COLOR
 
-    Block *nblock;
+    const Block *nblock;
     bool hasFace = false;
 
     if (faces[XNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))){
@@ -1323,7 +1323,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 {
 
     int waveEffect;
-    Block *block;
+    const Block *block;
     NChunk* chunk = renderTask->chunk;
 
     //Stores the information about the current mesh job

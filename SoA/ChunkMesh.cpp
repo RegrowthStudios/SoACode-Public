@@ -15,7 +15,7 @@ KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("flat", MeshType::FLAT);
 }
 
-void MesherInfo::init(BlockPack* blocks, int dataWidth, int dataLayer) {
+void MesherInfo::init(const BlockPack* blocks, int dataWidth, int dataLayer) {
     this->blocks = blocks;
     #define NUM_FACES 6
     // Set up the texture params

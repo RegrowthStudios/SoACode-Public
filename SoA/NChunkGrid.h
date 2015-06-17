@@ -49,7 +49,7 @@ public:
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
-    const std::shared_ptr<NChunkGridData>& getChunkGridData(const i32v2& gridPos) const;
+    std::shared_ptr<NChunkGridData> getChunkGridData(const i32v2& gridPos) const;
 
     // Processes chunk queries
     void update();

@@ -19,7 +19,7 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 class ChunkMesher {
     friend class RenderTask;
 public:
-    void init(BlockPack* blocks);
+    void init(const BlockPack* blocks);
 
     bool createChunkMesh(RenderTask* renderTask);
     bool createOnlyWaterMesh(RenderTask* renderTask);
@@ -101,5 +101,5 @@ private:
 
     BlockVertex _bottomVerts[4100];
 
-    BlockPack* m_blocks = nullptr;
+    const BlockPack* m_blocks = nullptr;
 };

@@ -25,6 +25,7 @@ void RenderTask::execute(WorkerData* workerData) {
     // Lazily allocate chunkMesher // TODO(Ben): Seems wasteful.
     if (workerData->chunkMesher == nullptr) {
         workerData->chunkMesher = new ChunkMesher;
+        workerData->chunkMesher->init(blockPack);
     }
 
     // Pre-processing
