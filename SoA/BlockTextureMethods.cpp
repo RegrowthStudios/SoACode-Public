@@ -91,7 +91,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
 
 //Gets a connected texture offset by looking at the surrounding blocks
 void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
-    BlockPack* blocks = params.mesherInfo->blocks;
+    const BlockPack* blocks = params.mesherInfo->blocks;
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
     const int& upDir = params.upDir;
@@ -102,7 +102,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
     int tex = result;
 
     // Top Left
-    Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir]);
+    const Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir]);
 
     if (block->base[offset] != tex) {
         connectedOffset |= 0x80;
@@ -152,7 +152,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
 
     if (params.blockTexInfo->innerSeams) {
         // Top Front Left
-        Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc + upDir - rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x80;
         }
@@ -205,7 +205,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
 
 //Gets a grass side texture offset by looking at the surrounding blocks
 void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
-    BlockPack* blocks = params.mesherInfo->blocks;
+    const BlockPack* blocks = params.mesherInfo->blocks;
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
     const int& upDir = params.upDir;
@@ -218,7 +218,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     int tex = result;
 
     // Bottom Front
-    Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
+    const Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
     if (mi->levelOfDetail > 1 || block->base[offset] == tex) {
         block = &GETBLOCK(blockIDData[wc]);
         result = block->textures[1]->base.index;
@@ -283,7 +283,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
 }
 
 void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
-    BlockPack* blocks = params.mesherInfo->blocks;
+    const BlockPack* blocks = params.mesherInfo->blocks;
     static int verticalOffsets[4] = { 0, 1, 3, 2 };
 
     int connectedOffset;
@@ -303,7 +303,7 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
     }
 
     //top bit
-    Block *block = &GETBLOCK(blockIDData[wc + upDir]);
+    const Block *block = &GETBLOCK(blockIDData[wc + upDir]);
     if (block->base[params.offset] == tex) {
         connectedOffset |= 2;
     }
@@ -318,7 +318,7 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
 
 void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     static int horizontalOffsets[4] = { 0, 1, 3, 2 };
-    BlockPack* blocks = params.mesherInfo->blocks;
+    const BlockPack* blocks = params.mesherInfo->blocks;
 
     int connectedOffset = 0;
     const int& wc = params.mesherInfo->wc;
@@ -328,7 +328,7 @@ void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& pa
     int tex = result;
 
     //right bit
-    Block *block = &GETBLOCK(blockIDData[wc + rightDir]);
+    const Block *block = &GETBLOCK(blockIDData[wc + rightDir]);
     if (block->base[params.offset] == tex) {
         connectedOffset |= 1;
     }
@@ -340,7 +340,7 @@ void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& pa
 
     if (params.blockTexInfo->innerSeams) {
         //front right bit
-        Block *block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
         if (block->base[params.offset] == tex) {
             connectedOffset &= 2;
         }

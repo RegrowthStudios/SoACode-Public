@@ -75,6 +75,9 @@ public:
     ui32& operator[] (const i32& i) {
         return array[i];
     }
+    const ui32& operator[] (const i32& i) const {
+        return array[i];
+    }
 };
 
 typedef nString BlockIdentifier; ///< Unique identifier key for blocks

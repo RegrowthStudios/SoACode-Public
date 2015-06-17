@@ -21,7 +21,7 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
     size_t numUpdates;
     if (numUpdates = m_messages.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
         for (size_t i = 0; i < numUpdates; i++) {
-            updateMesh(updateBuffer[i]);
+            processMessage(updateBuffer[i]);
         }
     }
 
