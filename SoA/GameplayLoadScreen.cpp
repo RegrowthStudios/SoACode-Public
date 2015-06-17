@@ -37,7 +37,9 @@ void GameplayLoadScreen::destroy(const vui::GameTime& gameTime) {
 
 void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
-    addLoadTask("BlockData", new LoadTaskBlockData(&m_commonState->state->blocks));
+    addLoadTask("BlockData", new LoadTaskBlockData(&m_commonState->state->blocks,
+        &m_commonState->state->blockTextureLoader,
+        &m_commonState->loadContext));
 
   //  addLoadTask("Textures", new LoadTaskTextures);
   //  m_monitor.setDep("Textures", "BlockData");
@@ -95,6 +97,8 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 
         // Post process the planets
         SoaEngine::setPlanetBlocks(m_commonState->state);
+        m_commonState->state->blockTextures->update();
+        m_commonState->state->blockTextures->writeDebugAtlases();
         m_state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
     }

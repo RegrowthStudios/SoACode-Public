@@ -4,26 +4,37 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "LoadMonitor.h"
+#include "BlockTextureLoader.h"
+#include "LoadContext.h"
 
 #include <Vorb/io/IOManager.h>
 
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {
 public:
-    LoadTaskBlockData(BlockPack* blockPack) : m_blockPack(blockPack) {}
+    LoadTaskBlockData(BlockPack* blockPack, BlockTextureLoader* loader, StaticLoadContext* context) :
+        blockPack(blockPack), loader(loader), context(context) {
+        context->addAnticipatedWork(50, 0);
+    }
 
     virtual void load() {
         // TODO(Ben): Put in state
         vio::IOManager iom;
         iom.setSearchDirectory("Data/Blocks/");
         // Load in .yml
-        if (!BlockLoader::loadBlocks(iom, m_blockPack)) {
+        if (!BlockLoader::loadBlocks(iom, blockPack)) {
             pError("Failed to load Data/BlockData.yml");
             exit(123456);
         }
+        context->addWorkCompleted(40);
 
-
-
+        for (int i = 0; i < blockPack->size(); i++) {
+            Block& b = blockPack->operator[](i);
+            if (b.active) {
+                loader->loadBlockTextures(b);
+            }
+        }
+        context->addWorkCompleted(10);
         // Uncomment to Save in .yml
         //BlockLoader::saveBlocks("Data/SavedBlockData.yml");
 
@@ -35,6 +46,7 @@ public:
         //}
 
     }
-
-    BlockPack* m_blockPack;
+    BlockPack* blockPack;
+    BlockTextureLoader* loader;
+    StaticLoadContext* context;
 };

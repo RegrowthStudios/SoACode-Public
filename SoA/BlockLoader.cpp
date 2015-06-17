@@ -166,9 +166,8 @@ bool BlockLoader::tryLoadMapping(const vio::IOManager& iom, const cString filePa
 
 bool BlockLoader::saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {    
     vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::WRITE_ONLY_CREATE);
-    if (!fs.isOpened()) pError("WHAAHH");
+    if (!fs.isOpened()) pError("Failed to open block mapping file for save");
     for (auto& b : pack->getBlockMap()) {
-        printf("%s: %d\n", b.first.c_str(), b.second);
         fs.write("%s: %d\n", b.first.c_str(), b.second);
     }
     return true;

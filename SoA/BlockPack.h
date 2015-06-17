@@ -44,8 +44,8 @@ public:
         }
     }
     Block* hasBlock(const BlockIdentifier& sid) {
-        auto v = m_blocks.find(sid);
-        if (v == m_blocks.end()) {
+        auto v = m_blockMap.find(sid);
+        if (v == m_blockMap.end()) {
             return nullptr;
         } else {
             return &m_blockList[v->second];
@@ -67,19 +67,19 @@ public:
         return m_blockList[index];
     }
     Block& operator[](const BlockIdentifier& sid) {
-        return m_blockList[m_blocks.at(sid)];
+        return m_blockList[m_blockMap.at(sid)];
     }
     const Block& operator[](const BlockIdentifier& sid) const {
-        return m_blockList[m_blocks.at(sid)];
+        return m_blockList[m_blockMap.at(sid)];
     }
 
-    const std::unordered_map<BlockIdentifier, ui16>& getBlockMap() const { return m_blocks; }
+    const std::unordered_map<BlockIdentifier, ui16>& getBlockMap() const { return m_blockMap; }
     const std::vector<Block>& getBlockList() const { return m_blockList; }
 
     Event<ui16> onBlockAddition; ///< Signaled when a block is loaded
     vg::Texture texture; // TODO(Ben): Move?
 private:
-    std::unordered_map<BlockIdentifier, ui16> m_blocks; ///< Blocks indices organized by identifiers
+    std::unordered_map<BlockIdentifier, ui16> m_blockMap; ///< Blocks indices organized by identifiers
     std::vector<Block> m_blockList; ///< Block data list
 };
 

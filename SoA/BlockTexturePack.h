@@ -46,6 +46,8 @@ public:
     // Call on GL thread. Will upload any textures that aren't yet uploaded.
     void update();
 
+    void writeDebugAtlases();
+
     void dispose();
 
     const VGTexture& getAtlasTexture() const { return m_atlasTexture; }
@@ -59,7 +61,7 @@ private:
 
     void uploadPage(ui32 pageIndex);
 
-    void writeToAtlas(BlockTextureIndex texIndex, color4* pixels, ui32 pixelWidth, ui32 pixelHeight);
+    void writeToAtlas(BlockTextureIndex texIndex, color4* pixels, ui32 pixelWidth, ui32 pixelHeight, ui32 tileWidth);
 
     void writeToAtlasContiguous(BlockTextureIndex texIndex, color4* pixels, ui32 width, ui32 height, ui32 numTiles);
 

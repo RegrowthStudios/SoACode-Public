@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "BlockTexturePack.h"
 
+#include <SDL/SDL.h>
+
 #include "Errors.h"
 
 BlockTexturePack::~BlockTexturePack() {
@@ -25,21 +27,47 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 // TODO(Ben): Lock?
 void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
     // Map the texture
-    if (layer.size.y > 1) {
-        layer.index = m_stitcher.mapBox(layer.size.x, layer.size.y);
-    } else if (layer.size.x > 1) {
-        layer.index = m_stitcher.mapContiguous(layer.size.x);
-    } else {
-        layer.index = m_stitcher.mapSingle();
+    int firstPageIndex;
+    int lastPageIndex;
+    switch (layer.method) {
+        case ConnectedTextureMethods::CONNECTED:
+            layer.index = m_stitcher.mapContiguous(47);
+            lastPageIndex = (layer.index + 47) / m_stitcher.getTilesPerPage();
+            break;
+        case ConnectedTextureMethods::RANDOM:
+            layer.index = m_stitcher.mapContiguous(layer.numTiles);
+            lastPageIndex = (layer.index + layer.numTiles) / m_stitcher.getTilesPerPage();
+            break;
+        case ConnectedTextureMethods::REPEAT:
+            layer.index = m_stitcher.mapBox(layer.size.x, layer.size.y);
+            lastPageIndex = (layer.index + (layer.size.y - 1) * m_stitcher.getTilesPerRow() + (layer.size.x - 1)) / m_stitcher.getTilesPerPage();
+            break;
+        case ConnectedTextureMethods::GRASS:
+            layer.index = m_stitcher.mapContiguous(9);
+            lastPageIndex = (layer.index + 9) / m_stitcher.getTilesPerPage();
+            break;
+        case ConnectedTextureMethods::HORIZONTAL:
+            layer.index = m_stitcher.mapContiguous(4);
+            lastPageIndex = (layer.index + 4) / m_stitcher.getTilesPerPage();
+            break;
+        case ConnectedTextureMethods::VERTICAL:
+            layer.index = m_stitcher.mapContiguous(4);
+            lastPageIndex = (layer.index + 4) / m_stitcher.getTilesPerPage();
+            break;
+        case ConnectedTextureMethods::FLORA:
+            layer.index = m_stitcher.mapContiguous(layer.numTiles);
+            lastPageIndex = (layer.index + layer.numTiles) / m_stitcher.getTilesPerPage();
+            break;
+        default:
+            layer.index = m_stitcher.mapSingle();
+            lastPageIndex = (layer.index + 1) / m_stitcher.getTilesPerPage();
+            break;
     }
-
-    // Flag dirty pages and allocate new in ram if needed
-    int firstPageIndex = layer.index % m_stitcher.getTilesPerPage();
-    int lastPageIndex = (layer.index + (layer.size.y - 1) * m_stitcher.getTilesPerRow() + (layer.size.x - 1)) % m_stitcher.getTilesPerPage();
+    firstPageIndex = layer.index / m_stitcher.getTilesPerPage();
     flagDirtyPage(firstPageIndex);
     if (lastPageIndex != firstPageIndex) flagDirtyPage(lastPageIndex);
 
-    // Map data
+    // Copy data
     switch (layer.method) {
         case ConnectedTextureMethods::CONNECTED:
             writeToAtlasContiguous(layer.index, pixels, 12, 4, 47);
@@ -48,7 +76,7 @@ void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
             writeToAtlasContiguous(layer.index, pixels, layer.numTiles, 1, layer.numTiles);
             break;
         case ConnectedTextureMethods::REPEAT:
-            writeToAtlas(layer.index, pixels, m_resolution * layer.size.x, m_resolution * layer.size.y);
+            writeToAtlas(layer.index, pixels, m_resolution * layer.size.x, m_resolution * layer.size.y, 1);
             break;
         case ConnectedTextureMethods::GRASS:
             writeToAtlasContiguous(layer.index, pixels, 3, 3, 9);
@@ -63,7 +91,7 @@ void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
             writeToAtlasContiguous(layer.index, pixels, layer.size.x, layer.size.y, layer.numTiles);
             break;
         default:
-            writeToAtlas(layer.index, pixels, m_resolution, m_resolution);
+            writeToAtlas(layer.index, pixels, m_resolution, m_resolution, 1);
             break;
     }
 
@@ -124,6 +152,24 @@ void BlockTexturePack::update() {
     }
 }
 
+void BlockTexturePack::writeDebugAtlases() {
+    int width = m_resolution * m_stitcher.getTilesPerRow();
+    int height = width;
+
+    int pixelsPerPage = width * height * 4;
+    ui8 *pixels = new ui8[width * height * 4 * m_pages.size()];
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
+    glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    for (int i = 0; i < m_pages.size(); i++) {
+        SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, m_resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
+        SDL_SaveBMP(surface, ("atlas" + std::to_string(i) + ".bmp").c_str());
+    }
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+    delete[] pixels;
+}
+
 void BlockTexturePack::dispose() {
     if (m_atlasTexture) glDeleteTextures(1, &m_atlasTexture);
     m_atlasTexture = 0;
@@ -139,7 +185,7 @@ void BlockTexturePack::dispose() {
 
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {
     // If we need to allocate new pages, do so
-    if (pageIndex > m_pages.size()) {
+    if (pageIndex >= m_pages.size()) {
         int i = m_pages.size();
         m_pages.resize(pageIndex + 1);
         for (; i < m_pages.size(); i++) {
@@ -182,7 +228,7 @@ void BlockTexturePack::uploadPage(ui32 pageIndex) {
     glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, pageIndex, m_pageWidthPixels, m_pageWidthPixels, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_pages[pageIndex].pixels);
 }
 
-void BlockTexturePack::writeToAtlas(BlockTextureIndex texIndex, color4* pixels, ui32 pixelWidth, ui32 pixelHeight) {
+void BlockTexturePack::writeToAtlas(BlockTextureIndex texIndex, color4* pixels, ui32 pixelWidth, ui32 pixelHeight, ui32 tileWidth) {
 
     // Get the location in the array
     ui32 i = texIndex % m_stitcher.getTilesPerPage();
@@ -195,6 +241,7 @@ void BlockTexturePack::writeToAtlas(BlockTextureIndex texIndex, color4* pixels, 
     ui32 pixelsOffset;
     ui32 yDestOffset;
     ui32 yPixelsOffset;
+    ui32 pixelsPerRow = pixelWidth * tileWidth;
 
     // Start of destination
     color4* dest = m_pages[pageIndex].pixels + dx * m_resolution + dy * m_resolution * m_pageWidthPixels;
@@ -204,7 +251,7 @@ void BlockTexturePack::writeToAtlas(BlockTextureIndex texIndex, color4* pixels, 
     for (ui32 y = 0; y < pixelHeight; y++) {
         // Calculate Y offsets
         yDestOffset = y * m_pageWidthPixels;
-        yPixelsOffset = y * m_pageWidthPixels;
+        yPixelsOffset = y * pixelsPerRow;
         // Need to do alpha blending for every pixel against a black background
         for (ui32 x = 0; x < pixelWidth; x++) {
             // Calculate offsets
@@ -223,7 +270,7 @@ void BlockTexturePack::writeToAtlas(BlockTextureIndex texIndex, color4* pixels, 
 }
 
 void BlockTexturePack::writeToAtlasContiguous(BlockTextureIndex texIndex, color4* pixels, ui32 width, ui32 height, ui32 numTiles) {
-    ui32 pixelsPerTileRow = m_resolution * m_pageWidthPixels;
+    ui32 pixelsPerTileRow = m_resolution * m_resolution * width;
 
     ui32 n = 0;
     for (ui32 y = 0; y < height; y++) {
@@ -231,7 +278,7 @@ void BlockTexturePack::writeToAtlasContiguous(BlockTextureIndex texIndex, color4
             // Get pointer to source data
             color4* src = pixels + y * pixelsPerTileRow + x * m_resolution;
 
-            writeToAtlas(texIndex++, src, m_resolution, m_resolution);
+            writeToAtlas(texIndex++, src, m_resolution, m_resolution, width);
         }
     }
 }

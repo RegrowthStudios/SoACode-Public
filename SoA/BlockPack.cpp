@@ -33,12 +33,12 @@ BlockID BlockPack::append(Block& block) {
         // Overwrite block
         *curBlock = block;
     } else {
-        rv = m_blocks.size();
+        rv = m_blockMap.size();
         block.ID = rv;
         // Add a new block
         m_blockList.push_back(block);
         // Set the correct index
-        m_blocks[block.name] = rv;
+        m_blockMap[block.name] = rv;
     }
     onBlockAddition(block.ID);
     return rv;
@@ -46,5 +46,6 @@ BlockID BlockPack::append(Block& block) {
 
 void BlockPack::reserveID(const BlockIdentifier& sid, const BlockID& id) {
     if (id >= m_blockList.size()) m_blockList.resize(id + 1);
-    m_blocks[sid] = id;
+    m_blockMap[sid] = id;
+    m_blockList[id].ID = id;
 }
