@@ -20,7 +20,16 @@ class ChunkMesh;
 class ChunkMeshData;
 
 #include "concurrentqueue.h"
+#include "NChunk.h"
 #include <mutex>
+
+enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
+
+struct ChunkMeshMessage {
+    ChunkID chunkID;
+    ChunkMeshMessageID messageID;
+    ChunkMeshData* meshData;
+};
 
 class ChunkMeshManager {
 public:
@@ -28,10 +37,8 @@ public:
     ~ChunkMeshManager();
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
-    /// Deletes and removes a mesh
-    void deleteMesh(ChunkMesh* mesh, int index = -1);
     /// Adds a mesh for updating
-    void addMeshForUpdate(ChunkMeshData* meshData) { m_meshQueue.enqueue(meshData); }
+    void requestUpdate(const ChunkMeshMessage& message) { m_messages.enqueue(message); }
     /// Destroys all meshes
     void destroy();
 
@@ -40,20 +47,26 @@ public:
 private:
     VORB_NON_COPYABLE(ChunkMeshManager);
 
-    std::mutex m_fmLock; ///< For freeMeshes
+    typedef ui32 MeshID;
+
+    void processMessage(ChunkMeshMessage& message);
+
+    void createMesh(ChunkMeshMessage& message);
+
+    void destroyMesh(ChunkMeshMessage& message);
     /// Uploads a mesh and adds to list if needed
-    void updateMesh(ChunkMeshData* meshData);
+    void updateMesh(ChunkMeshMessage& message);
 
     void updateMeshDistances(const f64v3& cameraPosition);
 
     void updateMeshStorage();
 
-    std::vector <ChunkMesh*> m_activeChunkMeshes;
-    std::vector <ChunkMeshData*> m_updateBuffer;
-    moodycamel::ConcurrentQueue<ChunkMeshData*> m_meshQueue;
+    std::vector <ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
+    moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
 
-    std::vector <ui32> m_freeMeshes;
-    std::vector <ChunkMesh> m_meshStorage;
+    std::vector <MeshID> m_freeMeshes; ///< Stack of free mesh indices
+    std::vector <ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
+    std::unordered_map<ChunkID, MeshID> m_activeChunks; ///< Stores chunk IDs that have meshes
 };
 
 #endif // ChunkMeshManager_h__

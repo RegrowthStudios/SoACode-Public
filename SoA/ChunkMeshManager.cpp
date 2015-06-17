@@ -21,14 +21,11 @@ ChunkMeshManager::~ChunkMeshManager() {
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
-    // Check for increasing mesh storage
-    updateMeshStorage();
-
-    ChunkMeshData* updateBuffer[MAX_UPDATES_PER_FRAME];
+    ChunkMeshMessage updateBuffer[MAX_UPDATES_PER_FRAME];
     size_t numUpdates;
-    if (numUpdates = m_meshQueue.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
+    if (numUpdates = m_messages.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
         for (size_t i = 0; i < numUpdates; i++) {
-            updateMesh(m_updateBuffer[i]);
+            updateMesh(updateBuffer[i]);
         }
     }
 
@@ -36,16 +33,6 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
     updateMeshDistances(cameraPosition);
     if (shouldSort) {
         // TODO(Ben): std::sort
-    }
-}
-
-void ChunkMeshManager::deleteMesh(ChunkMesh* mesh, int index /* = -1 */) {
-    if (index != -1) {
-        m_activeChunkMeshes[index] = m_activeChunkMeshes.back();
-        m_activeChunkMeshes.pop_back();
-    }
-    if (mesh->refCount == 0) {
-        delete mesh;
     }
 }
 
@@ -76,111 +63,156 @@ inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usag
     return true;
 }
 
-void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
-    ChunkMesh *cm = meshData->chunkMesh;
-
-    cm->refCount--;
-
-    // Destroy if need be
-    if (cm->needsDestroy) {
-        if (!cm->inMeshList) {
-            deleteMesh(cm);
-        }
-        delete meshData;
-        return;
+void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
+    switch (message.messageID) {
+        case ChunkMeshMessageID::CREATE:
+            createMesh(message);
+            break;
+        case ChunkMeshMessageID::DESTROY:
+            destroyMesh(message);
+            break;
+        case ChunkMeshMessageID::UPDATE:
+            updateMesh(message);
+            break;
     }
+}
+
+void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
+    // Get a free mesh
+    updateMeshStorage();
+    MeshID id = m_freeMeshes.back();
+    m_freeMeshes.pop_back();
+    ChunkMesh& mesh = m_meshStorage[id];
+
+    // Zero buffers
+    memset(mesh.vbos, 0, sizeof(mesh.vbos));
+    memset(mesh.vaos, 0, sizeof(mesh.vbos));
+    mesh.transIndexID = 0;
+
+    // Register chunk as active and give it a mesh
+    m_activeChunks[message.chunkID] = id;
+}
+
+void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
+    // Get the mesh object
+    auto& it = m_activeChunks.find(message.chunkID);
+    MeshID& id = it->second;
+    ChunkMesh& mesh = m_meshStorage[id];
+
+    // De-allocate buffer objects
+    glDeleteBuffers(4, mesh.vbos);
+    glDeleteVertexArrays(4, mesh.vaos);
+    if (mesh.transIndexID) glDeleteBuffers(1, &mesh.transIndexID);
+
+    // Release the mesh object
+    m_freeMeshes.push_back(id);
+    m_activeChunks.erase(it);
+}
+
+void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {   
+    // Get the mesh object
+    auto& it = m_activeChunks.find(message.chunkID);
+    if (it == m_activeChunks.end()) return; /// The mesh was released, so ignore! // TODO(Ben): MEMORY LEAK!!)(&@!%
+
+    ChunkMesh &cm = m_meshStorage[it->second];
+
+    ChunkMeshData* meshData = message.meshData;
 
     //store the index data for sorting in the chunk mesh
-    cm->transQuadIndices.swap(meshData->transQuadIndices);
-    cm->transQuadPositions.swap(meshData->transQuadPositions);
+    cm.transQuadIndices.swap(meshData->transQuadIndices);
+    cm.transQuadPositions.swap(meshData->transQuadPositions);
+
+    bool canRender = false;
 
     switch (meshData->type) {
         case RenderTaskType::DEFAULT:
             if (meshData->vertices.size()) {
 
-                mapBufferData(cm->vboID, meshData->vertices.size() * sizeof(BlockVertex), &(meshData->vertices[0]), GL_STATIC_DRAW);
+                mapBufferData(cm.vboID, meshData->vertices.size() * sizeof(BlockVertex), &(meshData->vertices[0]), GL_STATIC_DRAW);
+                canRender = true;
 
-                ChunkRenderer::buildVao(cm);
+                if (!cm.vaoID) ChunkRenderer::buildVao(cm);
             } else {
-                if (cm->vboID != 0) {
-                    glDeleteBuffers(1, &(cm->vboID));
-                    cm->vboID = 0;
+                if (cm.vboID != 0) {
+                    glDeleteBuffers(1, &(cm.vboID));
+                    cm.vboID = 0;
                 }
-                if (cm->vaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm->vaoID));
-                    cm->vaoID = 0;
+                if (cm.vaoID != 0) {
+                    glDeleteVertexArrays(1, &(cm.vaoID));
+                    cm.vaoID = 0;
                 }
             }
 
             if (meshData->transVertices.size()) {
 
                 //vertex data
-                mapBufferData(cm->transVboID, meshData->transVertices.size() * sizeof(BlockVertex), &(meshData->transVertices[0]), GL_STATIC_DRAW);
+                mapBufferData(cm.transVboID, meshData->transVertices.size() * sizeof(BlockVertex), &(meshData->transVertices[0]), GL_STATIC_DRAW);
 
                 //index data
-                mapBufferData(cm->transIndexID, cm->transQuadIndices.size() * sizeof(ui32), &(cm->transQuadIndices[0]), GL_STATIC_DRAW);
+                mapBufferData(cm.transIndexID, cm.transQuadIndices.size() * sizeof(ui32), &(cm.transQuadIndices[0]), GL_STATIC_DRAW);
+                canRender = true;
+                cm.needsSort = true; //must sort when changing the mesh
 
-                cm->needsSort = true; //must sort when changing the mesh
-
-                ChunkRenderer::buildTransparentVao(cm);
+                if (!cm.transVaoID) ChunkRenderer::buildTransparentVao(cm);
             } else {
-                if (cm->transVaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm->transVaoID));
-                    cm->transVaoID = 0;
+                if (cm.transVaoID != 0) {
+                    glDeleteVertexArrays(1, &(cm.transVaoID));
+                    cm.transVaoID = 0;
                 }
-                if (cm->transVboID != 0) {
-                    glDeleteBuffers(1, &(cm->transVboID));
-                    cm->transVboID = 0;
+                if (cm.transVboID != 0) {
+                    glDeleteBuffers(1, &(cm.transVboID));
+                    cm.transVboID = 0;
                 }
-                if (cm->transIndexID != 0) {
-                    glDeleteBuffers(1, &(cm->transIndexID));
-                    cm->transIndexID = 0;
+                if (cm.transIndexID != 0) {
+                    glDeleteBuffers(1, &(cm.transIndexID));
+                    cm.transIndexID = 0;
                 }
             }
 
             if (meshData->cutoutVertices.size()) {
 
-                mapBufferData(cm->cutoutVboID, meshData->cutoutVertices.size() * sizeof(BlockVertex), &(meshData->cutoutVertices[0]), GL_STATIC_DRAW);
-
-                ChunkRenderer::buildCutoutVao(cm);
+                mapBufferData(cm.cutoutVboID, meshData->cutoutVertices.size() * sizeof(BlockVertex), &(meshData->cutoutVertices[0]), GL_STATIC_DRAW);
+                canRender = true;
+                if (!cm.cutoutVaoID) ChunkRenderer::buildCutoutVao(cm);
             } else {
-                if (cm->cutoutVaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm->cutoutVaoID));
-                    cm->cutoutVaoID = 0;
+                if (cm.cutoutVaoID != 0) {
+                    glDeleteVertexArrays(1, &(cm.cutoutVaoID));
+                    cm.cutoutVaoID = 0;
                 }
-                if (cm->cutoutVboID != 0) {
-                    glDeleteBuffers(1, &(cm->cutoutVboID));
-                    cm->cutoutVboID = 0;
+                if (cm.cutoutVboID != 0) {
+                    glDeleteBuffers(1, &(cm.cutoutVboID));
+                    cm.cutoutVboID = 0;
                 }
             }
-            cm->renderData = meshData->chunkMeshRenderData;
-            //The missing break is deliberate!
+            cm.renderData = meshData->chunkMeshRenderData;
+        //The missing break is deliberate!
         case RenderTaskType::LIQUID:
 
-            cm->renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
+            cm.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
             if (meshData->waterVertices.size()) {
-                mapBufferData(cm->waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
-
-                ChunkRenderer::buildWaterVao(cm);
+                mapBufferData(cm.waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
+                canRender = true;
+                if (!cm.waterVaoID) ChunkRenderer::buildWaterVao(cm);
             } else {
-                if (cm->waterVboID != 0) {
-                    glDeleteBuffers(1, &(cm->waterVboID));
-                    cm->waterVboID = 0;
+                if (cm.waterVboID != 0) {
+                    glDeleteBuffers(1, &(cm.waterVboID));
+                    cm.waterVboID = 0;
                 }
-                if (cm->waterVaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm->waterVaoID));
-                    cm->waterVaoID = 0;
+                if (cm.waterVaoID != 0) {
+                    glDeleteVertexArrays(1, &(cm.waterVaoID));
+                    cm.waterVaoID = 0;
                 }
             }
             break;
     }
 
-    // TODO(Ben): We are adding empty meshes here
-    if (!cm->inMeshList) {
-        m_activeChunkMeshes.push_back(cm);
-        cm->inMeshList = true;
+    if (canRender) {
+
+    } else {
+
     }
 
+    // TODO(Ben): come on...
     delete meshData;
 }
 
@@ -197,10 +229,22 @@ void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
 
 void ChunkMeshManager::updateMeshStorage() {
     if (m_freeMeshes.empty()) {
+        // Need to cache all indices
+        std::vector<ui32> tmp(m_activeChunkMeshes.size());
+        for (size_t i = 0; i < tmp.size(); i++) {
+            tmp[i] = m_activeChunkMeshes[i]->activeMeshesIndex;
+        }
+
+        // Resize the storage
         ui32 i = m_meshStorage.size();
         m_meshStorage.resize((ui32)(m_meshStorage.size() * 1.5f));
         for (; i < m_meshStorage.size(); i++) {
             m_freeMeshes.push_back(i);
+        }
+
+        // Set the pointers again, since they were invalidated
+        for (size_t i = 0; i < tmp.size(); i++) {
+            m_activeChunkMeshes[i] = &m_meshStorage[i];
         }
     }
 }

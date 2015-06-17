@@ -5,6 +5,8 @@
 
 #include <Vorb/utils.h>
 
+volatile ChunkID NChunkGrid::m_nextAvailableID = 0;
+
 void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
                       OPT vcore::ThreadPool<WorkerData>* threadPool,
                       ui32 generatorsPerRow,
@@ -147,7 +149,7 @@ void NChunkGrid::update() {
             ChunkPosition3D pos;
             pos.pos = q->chunkPos;
             pos.face = m_face;
-            q->m_chunk->init(pos);
+            q->m_chunk->init(m_nextAvailableID++, pos);
             q->m_chunk->refCount++;
             addChunk(q->m_chunk);
         }

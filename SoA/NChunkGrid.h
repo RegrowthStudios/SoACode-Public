@@ -77,6 +77,8 @@ private:
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;
     WorldCubeFace m_face = FACE_NONE;
+
+    static volatile ChunkID m_nextAvailableID;
 };
 
 #endif // ChunkGrid_h__

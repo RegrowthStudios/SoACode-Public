@@ -25,6 +25,7 @@
 
 class NChunk;
 typedef NChunk* NChunkPtr;
+typedef ui32 ChunkID;
 
 class NChunkGridData {
 public:
@@ -48,7 +49,7 @@ class NChunk {
     friend class NChunkGrid;
     friend class RenderTask;
 public:
-    void init(const ChunkPosition3D& pos);
+    void init(ChunkID id, const ChunkPosition3D& pos);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
                       vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler);
     void updateContainers();
@@ -63,6 +64,7 @@ public:
     const f32& getDistance2() const { return m_distance2; }
     NChunkPtr getNextActive() const { return m_nextActive; }
     NChunkPtr getPrevActive() const { return m_prevActive; }
+    const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
         return m_blocks[c];
@@ -124,6 +126,7 @@ private:
     bool m_isInRange;
     bool m_isDirty;
     f32 m_distance2; //< Squared distance
+    ChunkID m_id;
 };
 
 #endif // NChunk_h__

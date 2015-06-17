@@ -39,8 +39,11 @@ void RenderTask::execute(WorkerData* workerData) {
             workerData->chunkMesher->createOnlyWaterMesh(this);
             break;
     }
-
-    meshManager->addMeshForUpdate(workerData->chunkMesher->chunkMeshData);
+    ChunkMeshMessage msg;
+    msg.chunkID = chunk->getID();
+    msg.messageID = ChunkMeshMessageID::UPDATE;
+    msg.meshData = workerData->chunkMesher->chunkMeshData;
+    meshManager->requestUpdate(msg);
 
     workerData->chunkMesher->chunkMeshData = nullptr;
 }

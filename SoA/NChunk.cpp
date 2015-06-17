@@ -5,7 +5,7 @@
 
 ui32 NChunk::vboIndicesID = 0;
 
-void NChunk::init(const ChunkPosition3D& pos) {
+void NChunk::init(ChunkID id, const ChunkPosition3D& pos) {
     memset(neighbors, 0, sizeof(neighbors));  
     m_numNeighbors = 0u;
     m_distance2 = FLT_MAX;
@@ -15,6 +15,7 @@ void NChunk::init(const ChunkPosition3D& pos) {
     m_genQueryData.current = nullptr;
     m_remeshFlags = 1;
     m_genQueryData.pending.clear();
+    m_id = id;
 }
 
 void NChunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,

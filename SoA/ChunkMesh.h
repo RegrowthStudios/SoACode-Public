@@ -107,7 +107,6 @@ public:
     std::vector <BlockVertex> cutoutVertices;
     std::vector <LiquidVertex> waterVertices;
     Chunk *chunk = nullptr;
-    class ChunkMesh *chunkMesh = nullptr;
     RenderTaskType type;
 
     //*** Transparency info for sorting ***
@@ -123,23 +122,30 @@ public:
     ~ChunkMesh();
 
     ChunkMeshRenderData renderData;
-
-    VGVertexBuffer vboID = 0;
-    VGVertexArray vaoID = 0;
-    VGVertexBuffer transVboID = 0;
-    VGVertexArray transVaoID = 0;
-    VGVertexBuffer cutoutVboID = 0;
-    VGVertexArray cutoutVaoID = 0;
-    VGVertexBuffer waterVboID = 0;
-    VGVertexArray waterVaoID = 0;
+    union {
+        struct {
+            VGVertexBuffer vboID;
+            VGVertexBuffer waterVboID;
+            VGVertexBuffer cutoutVboID;
+            VGVertexBuffer transVboID;
+        };
+        VGVertexBuffer vbos[4];
+    };
+    union {
+        struct {
+            VGVertexArray vaoID;
+            VGVertexArray transVaoID;
+            VGVertexArray cutoutVaoID;
+            VGVertexArray waterVaoID;
+        };
+        VGVertexArray vaos[4];
+    };
 
     f64 distance2 = 32.0;
     f64v3 position;
+    ui32 activeMeshesIndex; ///< Index into active meshes array
     bool inFrustum = false;
     bool needsSort = true;
-    bool needsDestroy = false;
-    volatile int refCount = 0;
-    bool inMeshList = false; // TODO(Ben): Dont think this is needed
 
     //*** Transparency info for sorting ***
     VGIndexBuffer transIndexID = 0;
