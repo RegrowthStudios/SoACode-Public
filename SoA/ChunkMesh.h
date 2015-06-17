@@ -17,7 +17,7 @@ KEG_ENUM_DECL(MeshType);
 enum class RenderTaskType;
 
 class Block;
-class Chunk;
+class NChunk;
 class NChunkGridData;
 class ChunkMesh;
 class RenderTask;
@@ -95,8 +95,8 @@ public:
 class ChunkMeshData
 {
 public:
-    ChunkMeshData(ChunkMesh *cm);
-    ChunkMeshData(RenderTask *task);
+    ChunkMeshData::ChunkMeshData();
+    ChunkMeshData::ChunkMeshData(RenderTask *task);
 
     void addTransQuad(const i8v3& pos);
 
@@ -106,7 +106,7 @@ public:
     std::vector <BlockVertex> transVertices;
     std::vector <BlockVertex> cutoutVertices;
     std::vector <LiquidVertex> waterVertices;
-    Chunk *chunk = nullptr;
+    NChunk *chunk = nullptr;
     RenderTaskType type;
 
     //*** Transparency info for sorting ***
@@ -115,12 +115,11 @@ public:
     std::vector <ui32> transQuadIndices;
 };
 
+#define ACTIVE_MESH_INDEX_NONE UINT_MAX
+
 class ChunkMesh
 {
 public:
-    ChunkMesh(const Chunk *ch);
-    ~ChunkMesh();
-
     ChunkMeshRenderData renderData;
     union {
         struct {

@@ -30,16 +30,13 @@ void NChunkGrid::addChunk(NChunk* chunk) {
 
     { // Get grid data
         // Check and see if the grid data is already allocated here
-        NChunkGridData* gridData = getChunkGridData(gridPos);
-        if (gridData == nullptr) {
+        chunk->gridData = getChunkGridData(gridPos);
+        if (chunk->gridData == nullptr) {
             // If its not allocated, make a new one with a new voxelMapData
             // TODO(Ben): Cache this
-            gridData = new NChunkGridData(pos);
-            m_chunkGridDataMap[gridPos] = gridData;
-        } else {
-            gridData->refCount++;
+            chunk->gridData = std::make_shared<NChunkGridData>(pos);
+            m_chunkGridDataMap[gridPos] = chunk->gridData;
         }
-        chunk->gridData = gridData;
     }
 
     connectNeighbors(chunk);
@@ -70,7 +67,8 @@ void NChunkGrid::removeChunk(NChunk* chunk) {
         if (chunk->gridData->refCount == 0) {
             i32v2 gridPosition(pos.pos.x, pos.pos.z);
             m_chunkGridDataMap.erase(gridPosition);
-            delete chunk->gridData;
+            chunk->gridData.reset();
+            chunk->gridData = nullptr;
         }
     }
 
@@ -115,7 +113,7 @@ void NChunkGrid::submitQuery(ChunkQuery* query) {
     m_queries.enqueue(query);
 }
 
-NChunkGridData* NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
+const std::shared_ptr<NChunkGridData>& NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
     auto it = m_chunkGridDataMap.find(gridPos);
     if (it == m_chunkGridDataMap.end()) return nullptr;
     return it->second;

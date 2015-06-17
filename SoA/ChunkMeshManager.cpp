@@ -8,16 +8,12 @@
 
 #define MAX_UPDATES_PER_FRAME 100
 
-ChunkMeshManager::ChunkMeshManager(ui32 startMeshes = 128) {
+ChunkMeshManager::ChunkMeshManager(ui32 startMeshes /*= 128*/) {
     m_meshStorage.resize(startMeshes);
     m_freeMeshes.resize(startMeshes);
     for (ui32 i = 0; i < startMeshes; i++) {
         m_freeMeshes[i] = i;
     }
-}
-
-ChunkMeshManager::~ChunkMeshManager() {
-    destroy();
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
@@ -37,12 +33,11 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
 }
 
 void ChunkMeshManager::destroy() {
-
-    // Free all chunk meshes
-    for (ChunkMesh* cm : m_activeChunkMeshes) {
-        delete cm;
-    }
-    std::vector<ChunkMesh*>().swap(m_activeChunkMeshes);
+    std::vector <ChunkMesh*>().swap(m_activeChunkMeshes);
+    moodycamel::ConcurrentQueue<ChunkMeshMessage>().swap(m_messages);
+    std::vector <MeshID>().swap(m_freeMeshes);
+    std::vector <ChunkMesh>().swap(m_meshStorage);
+    std::unordered_map<ChunkID, MeshID>().swap(m_activeChunks);
 }
 
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
@@ -78,16 +73,21 @@ void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
+
     // Get a free mesh
     updateMeshStorage();
     MeshID id = m_freeMeshes.back();
     m_freeMeshes.pop_back();
     ChunkMesh& mesh = m_meshStorage[id];
 
+    // Set the position
+    mesh.position = static_cast<VoxelPosition3D*>(message.data)->pos;
+
     // Zero buffers
     memset(mesh.vbos, 0, sizeof(mesh.vbos));
     memset(mesh.vaos, 0, sizeof(mesh.vbos));
     mesh.transIndexID = 0;
+    mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
 
     // Register chunk as active and give it a mesh
     m_activeChunks[message.chunkID] = id;
@@ -112,15 +112,16 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
 void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {   
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
-    if (it == m_activeChunks.end()) return; /// The mesh was released, so ignore! // TODO(Ben): MEMORY LEAK!!)(&@!%
+    if (it == m_activeChunks.end()) return; /// The mesh was already released, so ignore! // TODO(Ben): MEMORY LEAK!!)(&@!%
 
-    ChunkMesh &cm = m_meshStorage[it->second];
+    // TODO(Ben): According to moodycamel there is a tiny chance of messages being out of order?
+    ChunkMesh &mesh = m_meshStorage[it->second];
 
-    ChunkMeshData* meshData = message.meshData;
+    ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);
 
     //store the index data for sorting in the chunk mesh
-    cm.transQuadIndices.swap(meshData->transQuadIndices);
-    cm.transQuadPositions.swap(meshData->transQuadPositions);
+    mesh.transQuadIndices.swap(meshData->transQuadIndices);
+    mesh.transQuadPositions.swap(meshData->transQuadPositions);
 
     bool canRender = false;
 
@@ -128,88 +129,97 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
         case RenderTaskType::DEFAULT:
             if (meshData->vertices.size()) {
 
-                mapBufferData(cm.vboID, meshData->vertices.size() * sizeof(BlockVertex), &(meshData->vertices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.vboID, meshData->vertices.size() * sizeof(BlockVertex), &(meshData->vertices[0]), GL_STATIC_DRAW);
                 canRender = true;
 
-                if (!cm.vaoID) ChunkRenderer::buildVao(cm);
+                if (!mesh.vaoID) ChunkRenderer::buildVao(mesh);
             } else {
-                if (cm.vboID != 0) {
-                    glDeleteBuffers(1, &(cm.vboID));
-                    cm.vboID = 0;
+                if (mesh.vboID != 0) {
+                    glDeleteBuffers(1, &(mesh.vboID));
+                    mesh.vboID = 0;
                 }
-                if (cm.vaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm.vaoID));
-                    cm.vaoID = 0;
+                if (mesh.vaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.vaoID));
+                    mesh.vaoID = 0;
                 }
             }
 
             if (meshData->transVertices.size()) {
 
                 //vertex data
-                mapBufferData(cm.transVboID, meshData->transVertices.size() * sizeof(BlockVertex), &(meshData->transVertices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.transVboID, meshData->transVertices.size() * sizeof(BlockVertex), &(meshData->transVertices[0]), GL_STATIC_DRAW);
 
                 //index data
-                mapBufferData(cm.transIndexID, cm.transQuadIndices.size() * sizeof(ui32), &(cm.transQuadIndices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.transIndexID, mesh.transQuadIndices.size() * sizeof(ui32), &(mesh.transQuadIndices[0]), GL_STATIC_DRAW);
                 canRender = true;
-                cm.needsSort = true; //must sort when changing the mesh
+                mesh.needsSort = true; //must sort when changing the mesh
 
-                if (!cm.transVaoID) ChunkRenderer::buildTransparentVao(cm);
+                if (!mesh.transVaoID) ChunkRenderer::buildTransparentVao(mesh);
             } else {
-                if (cm.transVaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm.transVaoID));
-                    cm.transVaoID = 0;
+                if (mesh.transVaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.transVaoID));
+                    mesh.transVaoID = 0;
                 }
-                if (cm.transVboID != 0) {
-                    glDeleteBuffers(1, &(cm.transVboID));
-                    cm.transVboID = 0;
+                if (mesh.transVboID != 0) {
+                    glDeleteBuffers(1, &(mesh.transVboID));
+                    mesh.transVboID = 0;
                 }
-                if (cm.transIndexID != 0) {
-                    glDeleteBuffers(1, &(cm.transIndexID));
-                    cm.transIndexID = 0;
+                if (mesh.transIndexID != 0) {
+                    glDeleteBuffers(1, &(mesh.transIndexID));
+                    mesh.transIndexID = 0;
                 }
             }
 
             if (meshData->cutoutVertices.size()) {
 
-                mapBufferData(cm.cutoutVboID, meshData->cutoutVertices.size() * sizeof(BlockVertex), &(meshData->cutoutVertices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.cutoutVboID, meshData->cutoutVertices.size() * sizeof(BlockVertex), &(meshData->cutoutVertices[0]), GL_STATIC_DRAW);
                 canRender = true;
-                if (!cm.cutoutVaoID) ChunkRenderer::buildCutoutVao(cm);
+                if (!mesh.cutoutVaoID) ChunkRenderer::buildCutoutVao(mesh);
             } else {
-                if (cm.cutoutVaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm.cutoutVaoID));
-                    cm.cutoutVaoID = 0;
+                if (mesh.cutoutVaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.cutoutVaoID));
+                    mesh.cutoutVaoID = 0;
                 }
-                if (cm.cutoutVboID != 0) {
-                    glDeleteBuffers(1, &(cm.cutoutVboID));
-                    cm.cutoutVboID = 0;
+                if (mesh.cutoutVboID != 0) {
+                    glDeleteBuffers(1, &(mesh.cutoutVboID));
+                    mesh.cutoutVboID = 0;
                 }
             }
-            cm.renderData = meshData->chunkMeshRenderData;
+            mesh.renderData = meshData->chunkMeshRenderData;
         //The missing break is deliberate!
         case RenderTaskType::LIQUID:
 
-            cm.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
+            mesh.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
             if (meshData->waterVertices.size()) {
-                mapBufferData(cm.waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
+                mapBufferData(mesh.waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
                 canRender = true;
-                if (!cm.waterVaoID) ChunkRenderer::buildWaterVao(cm);
+                if (!mesh.waterVaoID) ChunkRenderer::buildWaterVao(mesh);
             } else {
-                if (cm.waterVboID != 0) {
-                    glDeleteBuffers(1, &(cm.waterVboID));
-                    cm.waterVboID = 0;
+                if (mesh.waterVboID != 0) {
+                    glDeleteBuffers(1, &(mesh.waterVboID));
+                    mesh.waterVboID = 0;
                 }
-                if (cm.waterVaoID != 0) {
-                    glDeleteVertexArrays(1, &(cm.waterVaoID));
-                    cm.waterVaoID = 0;
+                if (mesh.waterVaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.waterVaoID));
+                    mesh.waterVaoID = 0;
                 }
             }
             break;
     }
 
+    // Manage the active list
     if (canRender) {
-
+        if (mesh.activeMeshesIndex == ACTIVE_MESH_INDEX_NONE) {
+            mesh.activeMeshesIndex = m_activeChunkMeshes.size();
+            m_activeChunkMeshes.push_back(&mesh);
+        }
     } else {
-
+        if (mesh.activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
+            m_activeChunkMeshes[mesh.activeMeshesIndex] = m_activeChunkMeshes.back();
+            m_activeChunkMeshes[mesh.activeMeshesIndex]->activeMeshesIndex = mesh.activeMeshesIndex;
+            m_activeChunkMeshes.pop_back();
+            mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
+        }
     }
 
     // TODO(Ben): come on...
@@ -219,11 +229,11 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
 void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     static const f64v3 CHUNK_DIMS(CHUNK_WIDTH);
 
-    for (auto& cm : m_activeChunkMeshes) { //update distances for all chunk meshes
+    for (auto& mesh : m_activeChunkMeshes) { //update distances for all chunk meshes
         //calculate distance
-        f64v3 closestPoint = getClosestPointOnAABB(cameraPosition, cm->position, CHUNK_DIMS);
+        f64v3 closestPoint = getClosestPointOnAABB(cameraPosition, mesh->position, CHUNK_DIMS);
         // Omit sqrt for faster calculation
-        cm->distance2 = selfDot(closestPoint - cameraPosition);
+        mesh->distance2 = selfDot(closestPoint - cameraPosition);
     }
 }
 

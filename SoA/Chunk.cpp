@@ -106,7 +106,7 @@ void Chunk::clearBuffers()
 {
 	if (mesh){
         // Will signify that it needs to be destroyed in render thread
-        mesh->needsDestroy = true;
+      //  mesh->needsDestroy = true;
         mesh = nullptr;
 	}
 }

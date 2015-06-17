@@ -440,7 +440,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             break;
         case MeshType::CROSSFLORA:
             //Generate a random number between 0 and 3 inclusive
-            r = std::bind(std::uniform_int_distribution<int>(0, 1), std::mt19937(getPositionSeed(mi.nx, mi.nz)))();
+            r = std::bind(std::uniform_int_distribution<int>(0, 1), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 8);
             VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
@@ -450,7 +450,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
             break;
         case MeshType::FLORA:
             //Generate a random number between 0 and 3 inclusive
-            r = std::bind(std::uniform_int_distribution<int>(0, 3), std::mt19937(getPositionSeed(mi.nx, mi.nz)))();
+            r = std::bind(std::uniform_int_distribution<int>(0, 3), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
 
             _cutoutVerts.resize(_cutoutVerts.size() + 12);
             VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
@@ -1336,7 +1336,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //store the render task so we can pass it to functions
     mi.task = renderTask;
     mi.chunkGridData = chunk->gridData;
-    mi.position = chunk->getVoxelPosition();
+    mi.position = chunk->getVoxelPosition().pos;
 
     //Used in merging
     _currPrevRightQuads = 0;

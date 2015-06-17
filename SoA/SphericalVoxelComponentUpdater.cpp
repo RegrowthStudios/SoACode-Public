@@ -254,7 +254,7 @@ bool SphericalVoxelComponentUpdater::trySetMeshDependencies(NChunk* chunk) {
     return true;
 }
 
-void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(Chunk* chunk) {
+void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(NChunk* chunk) {
     //chunk->meshJobCounter--;
     //// If this chunk is still in a mesh thread, don't remove dependencies
     //if (chunk->meshJobCounter) return;

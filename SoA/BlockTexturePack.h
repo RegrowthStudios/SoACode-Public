@@ -43,7 +43,7 @@ public:
     // Will crash if called more than m_maxTextures times.
     BlockTexture* getNextFreeTexture();
 
-    BlockTexture* getDefaultTexture();
+    BlockTexture* getDefaultTexture() { return &m_defaultTexture; }
 
     // Call on GL thread. Will upload any textures that aren't yet uploaded.
     void update();

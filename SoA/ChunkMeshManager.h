@@ -28,13 +28,12 @@ enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
 struct ChunkMeshMessage {
     ChunkID chunkID;
     ChunkMeshMessageID messageID;
-    ChunkMeshData* meshData;
+    void* data;
 };
 
 class ChunkMeshManager {
 public:
     ChunkMeshManager(ui32 startMeshes = 128);
-    ~ChunkMeshManager();
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
     /// Adds a mesh for updating

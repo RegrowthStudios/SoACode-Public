@@ -42,7 +42,7 @@ void RenderTask::execute(WorkerData* workerData) {
     ChunkMeshMessage msg;
     msg.chunkID = chunk->getID();
     msg.messageID = ChunkMeshMessageID::UPDATE;
-    msg.meshData = workerData->chunkMesher->chunkMeshData;
+    msg.data = workerData->chunkMesher->chunkMeshData;
     meshManager->requestUpdate(msg);
 
     workerData->chunkMesher->chunkMeshData = nullptr;

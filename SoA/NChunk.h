@@ -91,7 +91,7 @@ public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
-    NChunkGridData* gridData = nullptr;
+    std::shared_ptr<NChunkGridData> gridData = nullptr;
     MetaFieldInformation meta;    
     union {
         struct {

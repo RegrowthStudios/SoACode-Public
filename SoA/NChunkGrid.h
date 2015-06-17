@@ -18,16 +18,14 @@
 #include "VoxelCoordinateSpaces.h"
 #include "ChunkGenerator.h"
 #include "concurrentqueue.h"
+#include "NChunk.h"
 
 #include <memory>
 #include <map>
 #include <vector>
 #include <Vorb/utils.h>
 
-
-class NChunk;
 class ChunkAllocator;
-class NChunkGridData;
 
 class NChunkGrid {
 public:
@@ -51,7 +49,7 @@ public:
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
-    NChunkGridData* getChunkGridData(const i32v2& gridPos) const;
+    const std::shared_ptr<NChunkGridData>& getChunkGridData(const i32v2& gridPos) const;
 
     // Processes chunk queries
     void update();
@@ -72,7 +70,7 @@ private:
     ui32 m_numActiveChunks = 0;
 
     std::unordered_map<i32v3, NChunk*> m_chunkMap; ///< hashmap of chunks
-    std::unordered_map<i32v2, NChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
+    std::unordered_map<i32v2, std::shared_ptr<NChunkGridData> > m_chunkGridDataMap; ///< 2D grid specific data
     
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;

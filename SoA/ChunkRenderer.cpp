@@ -123,13 +123,13 @@ void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram& program,
     }
 }
 
-void ChunkRenderer::buildTransparentVao(ChunkMesh *cm)
+void ChunkRenderer::buildTransparentVao(ChunkMesh& cm)
 {
-    glGenVertexArrays(1, &(cm->transVaoID));
-    glBindVertexArray(cm->transVaoID);
+    glGenVertexArrays(1, &(cm.transVaoID));
+    glBindVertexArray(cm.transVaoID);
 
-    glBindBuffer(GL_ARRAY_BUFFER, cm->transVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.transVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm.transIndexID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
@@ -155,12 +155,12 @@ void ChunkRenderer::buildTransparentVao(ChunkMesh *cm)
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::buildCutoutVao(ChunkMesh *cm)
+void ChunkRenderer::buildCutoutVao(ChunkMesh& cm)
 {
-    glGenVertexArrays(1, &(cm->cutoutVaoID));
-    glBindVertexArray(cm->cutoutVaoID);
+    glGenVertexArrays(1, &(cm.cutoutVaoID));
+    glBindVertexArray(cm.cutoutVaoID);
 
-    glBindBuffer(GL_ARRAY_BUFFER, cm->cutoutVboID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.cutoutVboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
@@ -188,11 +188,11 @@ void ChunkRenderer::buildCutoutVao(ChunkMesh *cm)
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::buildVao(ChunkMesh *cm)
+void ChunkRenderer::buildVao(ChunkMesh& cm)
 {
-    glGenVertexArrays(1, &(cm->vaoID));
-    glBindVertexArray(cm->vaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, cm->vboID);
+    glGenVertexArrays(1, &(cm.vaoID));
+    glBindVertexArray(cm.vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.vboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
@@ -219,11 +219,11 @@ void ChunkRenderer::buildVao(ChunkMesh *cm)
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::buildWaterVao(ChunkMesh *cm)
+void ChunkRenderer::buildWaterVao(ChunkMesh& cm)
 {
-    glGenVertexArrays(1, &(cm->waterVaoID));
-    glBindVertexArray(cm->waterVaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, cm->waterVboID);
+    glGenVertexArrays(1, &(cm.waterVaoID));
+    glBindVertexArray(cm.waterVaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     glEnableVertexAttribArray(0);
@@ -231,7 +231,7 @@ void ChunkRenderer::buildWaterVao(ChunkMesh *cm)
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
 
-    glBindBuffer(GL_ARRAY_BUFFER, cm->waterVboID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
     //uvs_texUnit_texIndex
