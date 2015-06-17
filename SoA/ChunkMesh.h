@@ -18,7 +18,7 @@ enum class RenderTaskType;
 
 class Block;
 class Chunk;
-class ChunkGridData;
+class NChunkGridData;
 class ChunkMesh;
 class RenderTask;
 
@@ -60,13 +60,14 @@ public:
     BlockTextureMethodParams nzBaseMethodParams, nzOverlayMethodParams;
 
     RenderTask* task;
-    std::shared_ptr<ChunkGridData> chunkGridData;
+    std::shared_ptr<NChunkGridData> chunkGridData;
     i32v3 position;
     BlockPack* blocks;
 };
 
 class ChunkMeshRenderData {
 public:
+    // TODO(Ben): These can be ui16
     i32 pxVboOff = 0;
     i32 pxVboSize = 0; 
     i32 nxVboOff = 0;

@@ -3,6 +3,8 @@
 
 #include "VoxelSpaceConversions.h"
 
+ui32 NChunk::vboIndicesID = 0;
+
 void NChunk::init(const ChunkPosition3D& pos) {
     memset(neighbors, 0, sizeof(neighbors));  
     m_numNeighbors = 0u;

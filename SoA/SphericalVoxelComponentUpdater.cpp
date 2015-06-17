@@ -147,24 +147,14 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
     //    continue;
     //}
 
-    if (chunk->inFrustum && trySetMeshDependencies(chunk)) {
-
-        // Allocate mesh if needed
-        if (chunk->mesh == nullptr) {
-            chunk->mesh = new ChunkMesh(chunk);
-        }
+    if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
 
         // Get a render task
-        newRenderTask = new RenderTask;
+        // TODO(Ben): This is a purposeful, temporary memory leak. Don't freak out
+        RenderTask* newRenderTask = new RenderTask;
+ 
+        newRenderTask->init(chunk, RenderTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
-        if (chunk->_state == ChunkStates::MESH) {
-            newRenderTask->init(chunk, RenderTaskType::DEFAULT,
-                                m_cmp->chunkMeshManager);
-        } else {
-            newRenderTask->init(chunk, RenderTaskType::LIQUID, m_cmp->chunkMeshManager);
-        }
-
-        chunk->lastOwnerTask = newRenderTask;
         m_cmp->threadPool->addTask(newRenderTask);
 
         chunk->m_remeshFlags = 0;
@@ -172,143 +162,141 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
 }
 
 bool SphericalVoxelComponentUpdater::trySetMeshDependencies(NChunk* chunk) {
-    // TODO(Ben): This is a lot of branching. There must be a better way
-    // If this chunk is still in a mesh thread, don't re-add dependencies
-    if (chunk->meshJobCounter) {
-        chunk->meshJobCounter++;
-        return true;
-    }
-    // TODO(Ben): Redundant?
-    if (chunk->numNeighbors != 6) return false;
+    //// TODO(Ben): This is a lot of branching. There must be a better way
+    //// If this chunk is still in a mesh thread, don't re-add dependencies
+    //if (chunk->meshJobCounter) {
+    //    chunk->meshJobCounter++;
+    //    return true;
+    //}
 
-    Chunk* nc;
+    //NChunk* nc;
 
-    // Neighbors
-    if (!chunk->left->isAccessible || !chunk->right->isAccessible ||
-        !chunk->front->isAccessible || !chunk->back->isAccessible ||
-        !chunk->top->isAccessible || !chunk->bottom->isAccessible) return false;
+    //// Neighbors
+    //if (!chunk->left->isAccessible || !chunk->right->isAccessible ||
+    //    !chunk->front->isAccessible || !chunk->back->isAccessible ||
+    //    !chunk->top->isAccessible || !chunk->bottom->isAccessible) return false;
 
-    // Left Side
-    if (!chunk->left->back || !chunk->left->back->isAccessible) return false;
-    if (!chunk->left->front || !chunk->left->front->isAccessible) return false;
-    nc = chunk->left->top;
-    if (!nc || !nc->isAccessible) return false;
-    if (!nc->back || !nc->back->isAccessible) return false;
-    if (!nc->front || !nc->front->isAccessible) return false;
-    nc = chunk->left->bottom;
-    if (!nc || !nc->isAccessible) return false;
-    if (!nc->back || !nc->back->isAccessible) return false;
-    if (!nc->front || !nc->front->isAccessible) return false;
+    //// Left Side
+    //if (!chunk->left->back || !chunk->left->back->isAccessible) return false;
+    //if (!chunk->left->front || !chunk->left->front->isAccessible) return false;
+    //nc = chunk->left->top;
+    //if (!nc || !nc->isAccessible) return false;
+    //if (!nc->back || !nc->back->isAccessible) return false;
+    //if (!nc->front || !nc->front->isAccessible) return false;
+    //nc = chunk->left->bottom;
+    //if (!nc || !nc->isAccessible) return false;
+    //if (!nc->back || !nc->back->isAccessible) return false;
+    //if (!nc->front || !nc->front->isAccessible) return false;
 
-    // Right side
-    if (!chunk->right->back || !chunk->right->back->isAccessible) return false;
-    if (!chunk->right->front || !chunk->right->front->isAccessible) return false;
-    nc = chunk->right->top;
-    if (!nc || !nc->isAccessible) return false;
-    if (!nc->back || !nc->back->isAccessible) return false;
-    if (!nc->front || !nc->front->isAccessible) return false;
-    nc = chunk->right->bottom;
-    if (!nc || !nc->isAccessible) return false;
-    if (!nc->back || !nc->back->isAccessible) return false;
-    if (!nc->front || !nc->front->isAccessible) return false;
+    //// Right side
+    //if (!chunk->right->back || !chunk->right->back->isAccessible) return false;
+    //if (!chunk->right->front || !chunk->right->front->isAccessible) return false;
+    //nc = chunk->right->top;
+    //if (!nc || !nc->isAccessible) return false;
+    //if (!nc->back || !nc->back->isAccessible) return false;
+    //if (!nc->front || !nc->front->isAccessible) return false;
+    //nc = chunk->right->bottom;
+    //if (!nc || !nc->isAccessible) return false;
+    //if (!nc->back || !nc->back->isAccessible) return false;
+    //if (!nc->front || !nc->front->isAccessible) return false;
 
-    // Front
-    if (!chunk->front->top || !chunk->front->top->isAccessible) return false;
-    if (!chunk->front->bottom || !chunk->front->bottom->isAccessible) return false;
+    //// Front
+    //if (!chunk->front->top || !chunk->front->top->isAccessible) return false;
+    //if (!chunk->front->bottom || !chunk->front->bottom->isAccessible) return false;
 
-    // Back
-    if (!chunk->back->top || !chunk->back->top->isAccessible) return false;
-    if (!chunk->back->bottom || !chunk->back->bottom->isAccessible) return false;
+    //// Back
+    //if (!chunk->back->top || !chunk->back->top->isAccessible) return false;
+    //if (!chunk->back->bottom || !chunk->back->bottom->isAccessible) return false;
 
-    // If we get here, we can set dependencies
+    //// If we get here, we can set dependencies
 
-    // Neighbors
-    chunk->left->addDependency();
-    chunk->right->addDependency();
-    chunk->front->addDependency();
-    chunk->back->addDependency();
-    chunk->top->addDependency();
-    chunk->bottom->addDependency();
+    //// Neighbors
+    //chunk->left->addDependency();
+    //chunk->right->addDependency();
+    //chunk->front->addDependency();
+    //chunk->back->addDependency();
+    //chunk->top->addDependency();
+    //chunk->bottom->addDependency();
 
-    // Left Side
-    chunk->left->back->addDependency();
-    chunk->left->front->addDependency();
-    nc = chunk->left->top;
-    nc->addDependency();
-    nc->back->addDependency();
-    nc->front->addDependency();
-    nc = chunk->left->bottom;
-    nc->addDependency();
-    nc->back->addDependency();
-    nc->front->addDependency();
+    //// Left Side
+    //chunk->left->back->addDependency();
+    //chunk->left->front->addDependency();
+    //nc = chunk->left->top;
+    //nc->addDependency();
+    //nc->back->addDependency();
+    //nc->front->addDependency();
+    //nc = chunk->left->bottom;
+    //nc->addDependency();
+    //nc->back->addDependency();
+    //nc->front->addDependency();
 
-    // Right side
-    chunk->right->back->addDependency();
-    chunk->right->front->addDependency();
-    nc = chunk->right->top;
-    nc->addDependency();
-    nc->back->addDependency();
-    nc->front->addDependency();
-    nc = chunk->right->bottom;
-    nc->addDependency();
-    nc->back->addDependency();
-    nc->front->addDependency();
+    //// Right side
+    //chunk->right->back->addDependency();
+    //chunk->right->front->addDependency();
+    //nc = chunk->right->top;
+    //nc->addDependency();
+    //nc->back->addDependency();
+    //nc->front->addDependency();
+    //nc = chunk->right->bottom;
+    //nc->addDependency();
+    //nc->back->addDependency();
+    //nc->front->addDependency();
 
-    // Front
-    chunk->front->top->addDependency();
-    chunk->front->bottom->addDependency();
+    //// Front
+    //chunk->front->top->addDependency();
+    //chunk->front->bottom->addDependency();
 
-    // Back
-    chunk->back->top->addDependency();
-    chunk->back->bottom->addDependency();
+    //// Back
+    //chunk->back->top->addDependency();
+    //chunk->back->bottom->addDependency();
 
-    chunk->meshJobCounter++;
+    //chunk->meshJobCounter++;
     return true;
 }
 
 void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(Chunk* chunk) {
-    chunk->meshJobCounter--;
-    // If this chunk is still in a mesh thread, don't remove dependencies
-    if (chunk->meshJobCounter) return;
+    //chunk->meshJobCounter--;
+    //// If this chunk is still in a mesh thread, don't remove dependencies
+    //if (chunk->meshJobCounter) return;
 
-    Chunk* nc;
-    // Neighbors
-    chunk->left->removeDependency();
-    chunk->right->removeDependency();
-    chunk->front->removeDependency();
-    chunk->back->removeDependency();
-    chunk->top->removeDependency();
-    chunk->bottom->removeDependency();
+    //Chunk* nc;
+    //// Neighbors
+    //chunk->left->removeDependency();
+    //chunk->right->removeDependency();
+    //chunk->front->removeDependency();
+    //chunk->back->removeDependency();
+    //chunk->top->removeDependency();
+    //chunk->bottom->removeDependency();
 
-    // Left Side
-    chunk->left->back->removeDependency();
-    chunk->left->front->removeDependency();
-    nc = chunk->left->top;
-    nc->removeDependency();
-    nc->back->removeDependency();
-    nc->front->removeDependency();
-    nc = chunk->left->bottom;
-    nc->removeDependency();
-    nc->back->removeDependency();
-    nc->front->removeDependency();
+    //// Left Side
+    //chunk->left->back->removeDependency();
+    //chunk->left->front->removeDependency();
+    //nc = chunk->left->top;
+    //nc->removeDependency();
+    //nc->back->removeDependency();
+    //nc->front->removeDependency();
+    //nc = chunk->left->bottom;
+    //nc->removeDependency();
+    //nc->back->removeDependency();
+    //nc->front->removeDependency();
 
-    // Right side
-    chunk->right->back->removeDependency();
-    chunk->right->front->removeDependency();
-    nc = chunk->right->top;
-    nc->removeDependency();
-    nc->back->removeDependency();
-    nc->front->removeDependency();
-    nc = chunk->right->bottom;
-    nc->removeDependency();
-    nc->back->removeDependency();
-    nc->front->removeDependency();
+    //// Right side
+    //chunk->right->back->removeDependency();
+    //chunk->right->front->removeDependency();
+    //nc = chunk->right->top;
+    //nc->removeDependency();
+    //nc->back->removeDependency();
+    //nc->front->removeDependency();
+    //nc = chunk->right->bottom;
+    //nc->removeDependency();
+    //nc->back->removeDependency();
+    //nc->front->removeDependency();
 
-    // Front
-    chunk->front->top->removeDependency();
-    chunk->front->bottom->removeDependency();
+    //// Front
+    //chunk->front->top->removeDependency();
+    //chunk->front->bottom->removeDependency();
 
-    // Back
-    chunk->back->top->removeDependency();
-    chunk->back->bottom->removeDependency();
+    //// Back
+    //chunk->back->top->removeDependency();
+    //chunk->back->bottom->removeDependency();
 }

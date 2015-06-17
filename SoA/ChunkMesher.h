@@ -4,7 +4,7 @@
 #include "ChunkMesh.h"
 
 class RenderTask;
-class Chunk;
+class NChunk;
 class ChunkMeshData;
 class BlockPack;
 struct BlockTexture;
@@ -69,7 +69,7 @@ private:
     int dataSize;
 
     NChunk* chunk; ///< The chunk we are currently meshing;
-    NChunkGridData* chunkGridData; ///< current grid data
+    std::shared_ptr<NChunkGridData> chunkGridData; ///< current grid data
 
     int wSize;
     // Voxel data arrays

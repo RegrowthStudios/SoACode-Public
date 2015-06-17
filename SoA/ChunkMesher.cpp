@@ -11,22 +11,26 @@
 #include <Vorb/utils.h>
 
 #include "BlockPack.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
 #include "RenderTask.h"
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
+#include "VoxelBits.h"
 
 #define GETBLOCK(a) (((*m_blocks)[((a) & 0x0FFF)]))
 
 const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
+const int MAXLIGHT = 31;
+
 void ChunkMesher::init(BlockPack* blocks) {
     m_blocks = blocks;
 }
 
+// TODO(Ben): Better name and functionality please.
 void ChunkMesher::bindVBOIndicesID()
 {
     std::vector<ui32> indices;
@@ -43,14 +47,14 @@ void ChunkMesher::bindVBOIndicesID()
         j += 4;
     }
 
-    if (Chunk::vboIndicesID != 0){
-        glDeleteBuffers(1, &(Chunk::vboIndicesID));
+    if (NChunk::vboIndicesID != 0){
+        glDeleteBuffers(1, &(NChunk::vboIndicesID));
     }
-    glGenBuffers(1, &(Chunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
+    glGenBuffers(1, &(NChunk::vboIndicesID));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (NChunk::vboIndicesID));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
         
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0]));
 }
 
 #define CompareVertices(v1, v2) (!memcmp(&v1.color, &v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(&v1.lampColor, &v2.lampColor, 3)  \
@@ -171,7 +175,7 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
     lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
 
     //Lookup the current biome, temperature, and rainfall
-    Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
+    //Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
     mi.temperature = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].temperature;
     mi.rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
 
@@ -406,7 +410,7 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     const int wc = mi.wc;
     const int btype = mi.btype;
 
-    Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
+    //Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
     int temperature = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].temperature;
     int rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
 
@@ -1320,7 +1324,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     int waveEffect;
     Block *block;
-    Chunk* chunk = renderTask->chunk;
+    NChunk* chunk = renderTask->chunk;
 
     //Stores the information about the current mesh job
     MesherInfo mi = {};
@@ -1331,8 +1335,8 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     //store the render task so we can pass it to functions
     mi.task = renderTask;
-    mi.chunkGridData = chunk->chunkGridData;
-    mi.position = chunk->voxelPosition;
+    mi.chunkGridData = chunk->gridData;
+    mi.position = chunk->getVoxelPosition();
 
     //Used in merging
     _currPrevRightQuads = 0;
@@ -1354,11 +1358,11 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     mi.sunlightData = _sunlightData;
     mi.tertiaryData = _tertiaryData;
 
-    int levelOfDetail = chunk->getLevelOfDetail();
+    int levelOfDetail = 0; // chunk->getLevelOfDetail();
     mi.levelOfDetail = levelOfDetail;
 
     if (levelOfDetail > 1) {
-        computeLODData(levelOfDetail);
+        computeLODData(levelOfDetail); // TODO(Ben): Not sure this is a benifit
     }
 
     dataLayer = PADDED_CHUNK_LAYER;

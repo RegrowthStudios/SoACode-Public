@@ -8,11 +8,22 @@
 
 #define MAX_UPDATES_PER_FRAME 100
 
+ChunkMeshManager::ChunkMeshManager(ui32 startMeshes = 128) {
+    m_meshStorage.resize(startMeshes);
+    m_freeMeshes.resize(startMeshes);
+    for (ui32 i = 0; i < startMeshes; i++) {
+        m_freeMeshes[i] = i;
+    }
+}
+
 ChunkMeshManager::~ChunkMeshManager() {
     destroy();
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
+    // Check for increasing mesh storage
+    updateMeshStorage();
+
     ChunkMeshData* updateBuffer[MAX_UPDATES_PER_FRAME];
     size_t numUpdates;
     if (numUpdates = m_meshQueue.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
@@ -30,8 +41,8 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
 
 void ChunkMeshManager::deleteMesh(ChunkMesh* mesh, int index /* = -1 */) {
     if (index != -1) {
-        m_chunkMeshes[index] = m_chunkMeshes.back();
-        m_chunkMeshes.pop_back();
+        m_activeChunkMeshes[index] = m_activeChunkMeshes.back();
+        m_activeChunkMeshes.pop_back();
     }
     if (mesh->refCount == 0) {
         delete mesh;
@@ -41,10 +52,10 @@ void ChunkMeshManager::deleteMesh(ChunkMesh* mesh, int index /* = -1 */) {
 void ChunkMeshManager::destroy() {
 
     // Free all chunk meshes
-    for (ChunkMesh* cm : m_chunkMeshes) {
+    for (ChunkMesh* cm : m_activeChunkMeshes) {
         delete cm;
     }
-    std::vector<ChunkMesh*>().swap(m_chunkMeshes);
+    std::vector<ChunkMesh*>().swap(m_activeChunkMeshes);
 }
 
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
@@ -166,7 +177,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 
     // TODO(Ben): We are adding empty meshes here
     if (!cm->inMeshList) {
-        m_chunkMeshes.push_back(cm);
+        m_activeChunkMeshes.push_back(cm);
         cm->inMeshList = true;
     }
 
@@ -176,10 +187,20 @@ void ChunkMeshManager::updateMesh(ChunkMeshData* meshData) {
 void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     static const f64v3 CHUNK_DIMS(CHUNK_WIDTH);
 
-    for (auto& cm : m_chunkMeshes) { //update distances for all chunk meshes
+    for (auto& cm : m_activeChunkMeshes) { //update distances for all chunk meshes
         //calculate distance
         f64v3 closestPoint = getClosestPointOnAABB(cameraPosition, cm->position, CHUNK_DIMS);
         // Omit sqrt for faster calculation
         cm->distance2 = selfDot(closestPoint - cameraPosition);
+    }
+}
+
+void ChunkMeshManager::updateMeshStorage() {
+    if (m_freeMeshes.empty()) {
+        ui32 i = m_meshStorage.size();
+        m_meshStorage.resize((ui32)(m_meshStorage.size() * 1.5f));
+        for (; i < m_meshStorage.size(); i++) {
+            m_freeMeshes.push_back(i);
+        }
     }
 }

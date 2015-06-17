@@ -20,10 +20,11 @@ class ChunkMesh;
 class ChunkMeshData;
 
 #include "concurrentqueue.h"
+#include <mutex>
 
 class ChunkMeshManager {
 public:
-    ChunkMeshManager() {}
+    ChunkMeshManager(ui32 startMeshes = 128);
     ~ChunkMeshManager();
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
@@ -34,18 +35,25 @@ public:
     /// Destroys all meshes
     void destroy();
 
-    const std::vector <ChunkMesh *>& getChunkMeshes() { return m_chunkMeshes; }
+    const std::vector <ChunkMesh *>& getChunkMeshes() { return m_activeChunkMeshes; }
 
 private:
     VORB_NON_COPYABLE(ChunkMeshManager);
+
+    std::mutex m_fmLock; ///< For freeMeshes
     /// Uploads a mesh and adds to list if needed
     void updateMesh(ChunkMeshData* meshData);
 
     void updateMeshDistances(const f64v3& cameraPosition);
 
-    std::vector <ChunkMesh*> m_chunkMeshes;
+    void updateMeshStorage();
+
+    std::vector <ChunkMesh*> m_activeChunkMeshes;
     std::vector <ChunkMeshData*> m_updateBuffer;
     moodycamel::ConcurrentQueue<ChunkMeshData*> m_meshQueue;
+
+    std::vector <ui32> m_freeMeshes;
+    std::vector <ChunkMesh> m_meshStorage;
 };
 
 #endif // ChunkMeshManager_h__

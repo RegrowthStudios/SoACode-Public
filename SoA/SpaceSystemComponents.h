@@ -26,12 +26,13 @@
 #include "VoxelLightEngine.h"
 #include "NChunkGrid.h"
 
+class BlockPack;
 class ChunkIOManager;
 class ChunkListManager;
 class ChunkManager;
-class PagedChunkAllocator;
 class ChunkMeshManager;
 class FarTerrainPatch;
+class PagedChunkAllocator;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
@@ -158,6 +159,7 @@ struct SphericalVoxelComponent {
     const TerrainPatchData* sphericalTerrainData = nullptr;
 
     const vio::IOManager* saveFileIom = nullptr;
+    const BlockPack* blockPack = nullptr;
 
     vecs::ComponentID sphericalTerrainComponent = 0;
     vecs::ComponentID farTerrainComponent = 0;
