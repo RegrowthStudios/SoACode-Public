@@ -43,6 +43,8 @@ public:
     // Will crash if called more than m_maxTextures times.
     BlockTexture* getNextFreeTexture();
 
+    BlockTexture* getDefaultTexture();
+
     // Call on GL thread. Will upload any textures that aren't yet uploaded.
     void update();
 
@@ -84,6 +86,7 @@ private:
     // For cache friendly caching of textures
     std::map<nString, ui32> m_textureLookup;
     BlockTexture* m_textures = nullptr; ///< Storage of all block textures
+    BlockTexture m_defaultTexture;
     ui32 m_nextFree = 0;
     ui32 m_maxTextures = 0; ///< Maximum possible number of unique textures with this mod config
 };

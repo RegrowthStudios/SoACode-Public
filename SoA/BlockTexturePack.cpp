@@ -5,6 +5,11 @@
 
 #include "Errors.h"
 
+#define CONNECTED_TILES 47
+#define GRASS_TILES 9
+#define HORIZONTAL_TILES 4
+#define VERTICAL_TILES 4
+
 BlockTexturePack::~BlockTexturePack() {
     dispose();
 }
@@ -31,8 +36,8 @@ void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
     int lastPageIndex;
     switch (layer.method) {
         case ConnectedTextureMethods::CONNECTED:
-            layer.index = m_stitcher.mapContiguous(47);
-            lastPageIndex = (layer.index + 47) / m_stitcher.getTilesPerPage();
+            layer.index = m_stitcher.mapContiguous(CONNECTED_TILES);
+            lastPageIndex = (layer.index + CONNECTED_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::RANDOM:
             layer.index = m_stitcher.mapContiguous(layer.numTiles);
@@ -43,16 +48,16 @@ void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
             lastPageIndex = (layer.index + (layer.size.y - 1) * m_stitcher.getTilesPerRow() + (layer.size.x - 1)) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::GRASS:
-            layer.index = m_stitcher.mapContiguous(9);
-            lastPageIndex = (layer.index + 9) / m_stitcher.getTilesPerPage();
+            layer.index = m_stitcher.mapContiguous(GRASS_TILES);
+            lastPageIndex = (layer.index + GRASS_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::HORIZONTAL:
-            layer.index = m_stitcher.mapContiguous(4);
-            lastPageIndex = (layer.index + 4) / m_stitcher.getTilesPerPage();
+            layer.index = m_stitcher.mapContiguous(HORIZONTAL_TILES);
+            lastPageIndex = (layer.index + HORIZONTAL_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::VERTICAL:
-            layer.index = m_stitcher.mapContiguous(4);
-            lastPageIndex = (layer.index + 4) / m_stitcher.getTilesPerPage();
+            layer.index = m_stitcher.mapContiguous(VERTICAL_TILES);
+            lastPageIndex = (layer.index + VERTICAL_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::FLORA:
             layer.index = m_stitcher.mapContiguous(layer.numTiles);
@@ -70,7 +75,7 @@ void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
     // Copy data
     switch (layer.method) {
         case ConnectedTextureMethods::CONNECTED:
-            writeToAtlasContiguous(layer.index, pixels, 12, 4, 47);
+            writeToAtlasContiguous(layer.index, pixels, 12, 4, CONNECTED_TILES);
             break;
         case ConnectedTextureMethods::RANDOM:
             writeToAtlasContiguous(layer.index, pixels, layer.numTiles, 1, layer.numTiles);
@@ -79,13 +84,13 @@ void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
             writeToAtlas(layer.index, pixels, m_resolution * layer.size.x, m_resolution * layer.size.y, 1);
             break;
         case ConnectedTextureMethods::GRASS:
-            writeToAtlasContiguous(layer.index, pixels, 3, 3, 9);
+            writeToAtlasContiguous(layer.index, pixels, 3, 3, GRASS_TILES);
             break;
         case ConnectedTextureMethods::HORIZONTAL:
-            writeToAtlasContiguous(layer.index, pixels, 4, 1, 4);
+            writeToAtlasContiguous(layer.index, pixels, HORIZONTAL_TILES, 1, HORIZONTAL_TILES);
             break;
         case ConnectedTextureMethods::VERTICAL:
-            writeToAtlasContiguous(layer.index, pixels, 1, 4, 4);
+            writeToAtlasContiguous(layer.index, pixels, 1, VERTICAL_TILES, VERTICAL_TILES);
             break;
         case ConnectedTextureMethods::FLORA:
             writeToAtlasContiguous(layer.index, pixels, layer.size.x, layer.size.y, layer.numTiles);

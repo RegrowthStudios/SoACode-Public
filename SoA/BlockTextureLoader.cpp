@@ -35,6 +35,7 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
             block.base[i] = block.textures[i]->base.index;
             block.overlay[i] = block.textures[i]->overlay.index;
         } else {
+            block.textures[i] = m_texturePack->getDefaultTexture();
             printf("Warning: Could not load texture %s for block %s\n", block.texturePaths[i].c_str(), block.name.c_str());
         }
     }
@@ -46,7 +47,7 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
 
     // Calculate flora height
     // TODO(Ben): This is dubious
-    if (block.textures[0] && block.textures[0]->base.method == ConnectedTextureMethods::FLORA) {
+    if (block.textures[0]->base.method == ConnectedTextureMethods::FLORA) {
         // Just a bit of algebra to solve for n with the equation y = (n^2 + n) / 2
         // which becomes n = (sqrt(8 * y + 1) - 1) / 2
         int y = block.textures[0]->base.size.y;
