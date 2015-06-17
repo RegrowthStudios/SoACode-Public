@@ -51,6 +51,8 @@ private:
 
     void requestChunkMesh(NChunk* chunk);
 
+    void disposeChunk(NChunk* chunk);
+
     bool trySetMeshDependencies(NChunk* chunk);
 
     void tryRemoveMeshDependencies(NChunk* chunk);

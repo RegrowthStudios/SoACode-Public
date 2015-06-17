@@ -16,6 +16,7 @@ void NChunk::init(ChunkID id, const ChunkPosition3D& pos) {
     m_remeshFlags = 1;
     m_genQueryData.pending.clear();
     m_id = id;
+    hasCreatedMesh = false;
 }
 
 void NChunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,

@@ -6,6 +6,7 @@
 #include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
 #include "ChunkListManager.h"
+#include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "ChunkUpdater.h"
 #include "FloraTask.h"
@@ -83,6 +84,7 @@ void SphericalVoxelComponentUpdater::updateChunks(NChunkGrid& grid, const VoxelP
             // Unload the chunk
             NChunk* tmp = chunk;
             chunk = chunk->getNextActive();
+            disposeChunk(tmp);
             grid.removeChunk(tmp);
         } else {
             // Check for neighbor loading TODO(Ben): Don't keep redundantly checking edges? Distance threshold?
@@ -149,6 +151,16 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
 
     if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
 
+        // Make the mesh!
+        if (!chunk->hasCreatedMesh) {
+            ChunkMeshMessage msg;
+            msg.chunkID = chunk->getID();
+            msg.data = &chunk->m_voxelPosition;
+            msg.messageID = ChunkMeshMessageID::CREATE;
+            m_cmp->chunkMeshManager->sendMessage(msg);
+            chunk->hasCreatedMesh = true;
+        }
+
         // Get a render task
         // TODO(Ben): This is a purposeful, temporary memory leak. Don't freak out
         RenderTask* newRenderTask = new RenderTask;
@@ -158,6 +170,17 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
         m_cmp->threadPool->addTask(newRenderTask);
 
         chunk->m_remeshFlags = 0;
+    }
+}
+
+void SphericalVoxelComponentUpdater::disposeChunk(NChunk* chunk) {
+    // delete the mesh!
+    if (chunk->hasCreatedMesh) {
+        ChunkMeshMessage msg;
+        msg.chunkID = chunk->getID();
+        msg.messageID = ChunkMeshMessageID::DESTROY;
+        m_cmp->chunkMeshManager->sendMessage(msg);
+        chunk->hasCreatedMesh = true;
     }
 }
 

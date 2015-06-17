@@ -37,7 +37,7 @@ public:
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
     /// Adds a mesh for updating
-    void requestUpdate(const ChunkMeshMessage& message) { m_messages.enqueue(message); }
+    void sendMessage(const ChunkMeshMessage& message) { m_messages.enqueue(message); }
     /// Destroys all meshes
     void destroy();
 

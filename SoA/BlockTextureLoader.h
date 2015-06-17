@@ -40,8 +40,6 @@ private:
     bool loadTexFile(const nString& imagePath, BlockTexture* texture);
     bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
 
-    // TODO(Ben): Custom paged allocator for cache friendly-ness?
-    
     ModPathResolver* m_texturePathResolver = nullptr;
     BlockTexturePack* m_texturePack = nullptr;
     vio::IOManager m_iom;

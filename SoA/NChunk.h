@@ -104,6 +104,7 @@ public:
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     volatile bool isAccessible = false;
     volatile bool queuedForMesh = false;
+    bool hasCreatedMesh = false;
 
     static ui32 vboIndicesID;
 private:
