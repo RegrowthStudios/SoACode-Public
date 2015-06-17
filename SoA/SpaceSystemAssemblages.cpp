@@ -264,7 +264,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
     svcmp.chunkListManager = new ChunkListManager();
     svcmp.chunkAllocator = new PagedChunkAllocator();
-    svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
+    svcmp.chunkMeshManager = soaState->chunkMeshManager;
 
     // Set up threadpool
     // Check the hardware concurrency

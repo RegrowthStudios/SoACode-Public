@@ -7,7 +7,4 @@
 #include "MeshManager.h"
 #include "PlanetLoader.h"
 #include "ChunkMeshManager.h"
-
-SoaState::~SoaState() {
-    // Empty
-}
+#include "PlanetLoader.h"

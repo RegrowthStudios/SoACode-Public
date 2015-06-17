@@ -134,8 +134,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 }
 
 void GameplayScreen::updateECS() {
-    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
-    GameSystem* gameSystem = m_soaState->gameSystem.get();
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+    GameSystem* gameSystem = m_soaState->gameSystem;
 
     // Time warp
     const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 1000.0;
@@ -164,7 +164,7 @@ void GameplayScreen::updateECS() {
 void GameplayScreen::updateMTRenderState() {
     MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
 
-    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem;
     // Set all space positions
     for (auto& it : spaceSystem->m_namePositionCT) {
         state->spaceBodyPositions[it.first] = it.second.position;
@@ -313,8 +313,8 @@ void GameplayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, m_app->getWindow().getViewportDims());
    /* m_renderPipeline.init(viewport, m_soaState,
                           m_app, &m_pda,
-                          m_soaState->spaceSystem.get(),
-                          m_soaState->gameSystem.get(),
+                          m_soaState->spaceSystem,
+                          m_soaState->gameSystem,
                           &m_pauseMenu);*/
 }
 

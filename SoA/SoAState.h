@@ -20,7 +20,6 @@
 #include "Camera.h"
 #include "MainMenuSystemViewer.h"
 
-#include "PlanetLoader.h" // TODO(Ben): Why is this needed here for unique_ptr?
 #include "ModPathResolver.h"
 #include "BlockPack.h"
 #include "BlockTexturePack.h"
@@ -39,27 +38,26 @@ DECL_VIO(class IOManager);
 
 struct SoaState {
     SoaState() {}
-    ~SoaState();
 
-    std::unique_ptr<SpaceSystem> spaceSystem = nullptr;
-    std::unique_ptr<GameSystem> gameSystem = nullptr;
+    SpaceSystem* spaceSystem = nullptr;
+    GameSystem* gameSystem = nullptr;
 
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
 
-    std::unique_ptr<DebugRenderer> debugRenderer = nullptr;
-    std::unique_ptr<MeshManager> meshManager = nullptr;
-    std::unique_ptr<ChunkMeshManager> chunkMeshManager = nullptr;
-    std::unique_ptr<MainMenuSystemViewer> systemViewer = nullptr;
+    DebugRenderer* debugRenderer = nullptr;
+    MeshManager* meshManager = nullptr;
+    ChunkMeshManager* chunkMeshManager = nullptr;
+    MainMenuSystemViewer* systemViewer = nullptr;
 
-    std::unique_ptr<vio::IOManager> systemIoManager = nullptr;
-    std::unique_ptr<PlanetLoader> planetLoader = nullptr;
+    vio::IOManager* systemIoManager = nullptr;
+    PlanetLoader* planetLoader = nullptr;
 
     SoaOptions* options = nullptr; // Lives in App
 
     BlockPack blocks;
     BlockTextureLoader blockTextureLoader;
-    std::unique_ptr<BlockTexturePack> blockTextures;
+    BlockTexturePack* blockTextures = nullptr;
 
     // TODO(Ben): This is temporary?
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space

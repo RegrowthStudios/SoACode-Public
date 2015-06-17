@@ -27,8 +27,8 @@
 #include <Vorb/voxel/VoxCommon.h>
 
 void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
-    SpaceSystem* spaceSystem = soaState->spaceSystem.get();
-    GameSystem* gameSystem = soaState->gameSystem.get();
+    SpaceSystem* spaceSystem = soaState->spaceSystem;
+    GameSystem* gameSystem = soaState->gameSystem;
     if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
 
         // TODO(Ben): This is temporary hard coded player stuff.

@@ -15,7 +15,7 @@ public:
     virtual void load() {
         // TODO(Ben): Put in state
         vio::IOManager iom;
-        iom.setSearchDirectory("Data/Blocks");
+        iom.setSearchDirectory("Data/Blocks/");
         // Load in .yml
         if (!BlockLoader::loadBlocks(iom, m_blockPack)) {
             pError("Failed to load Data/BlockData.yml");

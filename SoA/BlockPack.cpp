@@ -37,15 +37,14 @@ BlockID BlockPack::append(Block& block) {
         block.ID = rv;
         // Add a new block
         m_blockList.push_back(block);
+        // Set the correct index
+        m_blocks[block.name] = rv;
     }
-
-    // Set the correct index
-    m_blocks[block.name] = rv;
     onBlockAddition(block.ID);
     return rv;
 }
 
 void BlockPack::reserveID(const BlockIdentifier& sid, const BlockID& id) {
-    if (id < m_blockList.size()) m_blockList.resize(id);
+    if (id >= m_blockList.size()) m_blockList.resize(id + 1);
     m_blocks[sid] = id;
 }

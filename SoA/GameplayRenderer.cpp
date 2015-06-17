@@ -127,7 +127,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
 void GameplayRenderer::hook() {
     // Note: Common stages are hooked in MainMenuRenderer, no need to re-hook
     // Grab mesh manager handle
-    m_meshManager = m_state->chunkMeshManager.get();
+    m_meshManager = m_state->chunkMeshManager;
     stages.opaqueVoxel.hook(&m_gameRenderParams);
     stages.cutoutVoxel.hook(&m_gameRenderParams);
     stages.chunkGrid.hook(&m_gameRenderParams);
@@ -146,12 +146,12 @@ void GameplayRenderer::updateGL() {
 
 
 void GameplayRenderer::render() {
-    const GameSystem* gameSystem = m_state->gameSystem.get();
-    const SpaceSystem* spaceSystem = m_state->spaceSystem.get();
+    const GameSystem* gameSystem = m_state->gameSystem;
+    const SpaceSystem* spaceSystem = m_state->spaceSystem;
 
     updateCameras();
     // Set up the gameRenderParams
-    const GameSystem* gs = m_state->gameSystem.get();
+    const GameSystem* gs = m_state->gameSystem;
 
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
@@ -299,8 +299,8 @@ void GameplayRenderer::toggleChunkGrid() {
 }
 
 void GameplayRenderer::updateCameras() {
-    const GameSystem* gs = m_state->gameSystem.get();
-    const SpaceSystem* ss = m_state->spaceSystem.get();
+    const GameSystem* gs = m_state->gameSystem;
+    const SpaceSystem* ss = m_state->spaceSystem;
 
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);

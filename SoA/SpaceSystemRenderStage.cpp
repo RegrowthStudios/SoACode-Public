@@ -56,8 +56,8 @@ void SpaceSystemRenderStage::init(vui::GameWindow* window, StaticLoadContext& co
 
 void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera /*= nullptr*/) {
     m_viewport = m_window->getViewportDims();
-    m_spaceSystem = state->spaceSystem.get();
-    m_mainMenuSystemViewer = state->systemViewer.get();
+    m_spaceSystem = state->spaceSystem;
+    m_mainMenuSystemViewer = state->systemViewer;
     m_lensFlareRenderer.init(&state->texturePathResolver);
     m_starRenderer.init(&state->texturePathResolver);
     m_systemARRenderer.init(&state->texturePathResolver);
