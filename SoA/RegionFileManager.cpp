@@ -10,7 +10,7 @@
 #include <Vorb/utils.h>
 #include <ZLIB/zlib.h>
 
-#include "Chunk.h"
+#include "NChunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "VoxelSpaceConversions.h"

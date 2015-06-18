@@ -9,7 +9,7 @@
 
 #include "BlockData.h"
 #include "CAEngine.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkIOManager.h"
 #include "DebugRenderer.h"
 #include "InputMapper.h"

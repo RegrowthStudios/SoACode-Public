@@ -6,7 +6,7 @@
 #include <Vorb/TextureRecycler.hpp>
 #include <Vorb/graphics/GraphicsDevice.h>
 
-#include "Chunk.h"
+#include "NChunk.h"
 #include "Errors.h"
 #include "HeightData.h"
 #include "PlanetData.h"
@@ -35,7 +35,7 @@ HeightmapGenRpcDispatcher::~HeightmapGenRpcDispatcher() {
     delete[] m_generators;
 }
 
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
+bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<NChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
     // Lazy init
     if (!m_generators) {
         m_generators = new RawHeightGenerator[NUM_GENERATORS];

@@ -4,7 +4,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "BlockData.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "GameManager.h"
 #include "ObjectLoader.h"
 #include "OpenGLStructs.h"

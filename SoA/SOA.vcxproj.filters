@@ -197,9 +197,6 @@
     <ClInclude Include="Camera.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Chunk.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="ChunkGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
@@ -650,15 +647,6 @@
     <ClInclude Include="ChunkMeshManager.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkGrid.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkListManager.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkMemoryManager.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="TestGasGiantScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -824,9 +812,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Chunk.cpp">
-      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="ChunkGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
@@ -1192,15 +1177,6 @@
     <ClCompile Include="ChunkMeshManager.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="ChunkGrid.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkListManager.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkMemoryManager.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
     <ClCompile Include="TestGasGiantScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
@@ -1330,9 +1306,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Chunk.inl">
-      <Filter>SOA Files\Voxel</Filter>
-    </None>
     <None Include="VoxelIntervalTree.inl">
       <Filter>SOA Files\Ext\ADT</Filter>
     </None>

@@ -2,7 +2,7 @@
 #include "CellularAutomataTask.h"
 
 #include "CAEngine.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkMeshManager.h"
 #include "RenderTask.h"
 #include "VoxPool.h"

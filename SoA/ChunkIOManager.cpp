@@ -13,7 +13,7 @@
 #include <ZLIB/zlib.h>
 
 #include "BlockData.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"

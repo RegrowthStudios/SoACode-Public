@@ -3,7 +3,7 @@
 #include "TerrainPatchMesher.h"
 #include "TerrainPatchMesh.h"
 
-#include "Chunk.h"
+#include "NChunk.h"
 #include "RPC.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"

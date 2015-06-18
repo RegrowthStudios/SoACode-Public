@@ -2,7 +2,6 @@
 #include "WorldStructs.h"
 
 #include "BlockData.h"
-#include "Chunk.h"
 #include "SoaOptions.h"
 #include "GameManager.h"
 #include "RenderTask.h"

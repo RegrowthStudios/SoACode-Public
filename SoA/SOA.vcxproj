@@ -545,11 +545,8 @@ EXIT 0</Command>
     <ClInclude Include="BlockTexturePack.h" />
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkAllocator.h" />
-    <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="ChunkHandle.h" />
-    <ClInclude Include="ChunkListManager.h" />
-    <ClInclude Include="ChunkMemoryManager.h" />
     <ClInclude Include="ChunkMeshManager.h" />
     <ClInclude Include="CommonState.h" />
     <ClInclude Include="CloudsComponentRenderer.h" />
@@ -714,7 +711,6 @@ EXIT 0</Command>
     <ClInclude Include="atomicops.h" />
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Chunk.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Errors.h" />
@@ -756,10 +752,7 @@ EXIT 0</Command>
     <ClCompile Include="BlockTexturePack.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkAllocator.cpp" />
-    <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
-    <ClCompile Include="ChunkListManager.cpp" />
-    <ClCompile Include="ChunkMemoryManager.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
@@ -877,7 +870,6 @@ EXIT 0</Command>
     <ClCompile Include="InputMapper.cpp" />
     <ClCompile Include="BlockData.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleBatch.cpp" />
@@ -934,7 +926,6 @@ EXIT 0</Command>
     <Text Include="docs\FileSpecs\WSO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Chunk.inl" />
     <None Include="VirtualKeyKegDef.inl" />
     <None Include="VoxelIntervalTree.inl" />
     <None Include="VoxelUpdateOrder.inl" />
