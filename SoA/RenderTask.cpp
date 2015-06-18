@@ -126,7 +126,7 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chData[wc] = chunk->m_blocks[c];
+                    chData[wc] = chunk->m_blocks.get(c);
                     if (GETBLOCK(chData[wc]).meshType == MeshType::LIQUID) {
                         wvec[s++] = wc;
                     }
@@ -155,7 +155,7 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chLampData[wc] = chunk->m_lamp[c];
+                    chLampData[wc] = chunk->m_lamp.get(c);
                 }
             }
         }
@@ -180,7 +180,7 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chSunlightData[wc] = chunk->m_sunlight[c];
+                    chSunlightData[wc] = chunk->m_sunlight.get(c);
                 }
             }
         }
@@ -206,7 +206,7 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chTertiaryData[wc] = chunk->m_tertiary[c];
+                    chTertiaryData[wc] = chunk->m_tertiary.get(c);
                 }
             }
         }

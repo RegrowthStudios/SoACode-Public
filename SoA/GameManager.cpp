@@ -99,11 +99,11 @@ void BindVBOIndicesID() {
         j += 4;
     }
 
-    if (Chunk::vboIndicesID != 0) {
-        glDeleteBuffers(1, &(Chunk::vboIndicesID));
+    if (NChunk::vboIndicesID != 0) {
+        glDeleteBuffers(1, &(NChunk::vboIndicesID));
     }
-    glGenBuffers(1, &(Chunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
+    glGenBuffers(1, &(NChunk::vboIndicesID));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (NChunk::vboIndicesID));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
 
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000

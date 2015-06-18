@@ -6,7 +6,6 @@
 
 #include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
-#include "ChunkListManager.h"
 #include "FarTerrainPatch.h"
 #include "NChunkGrid.h"
 #include "ParticleEngine.h"
@@ -22,7 +21,6 @@ void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs:
     SphericalVoxelComponent& cmp = _components[cID].second;
     cmp.threadPool->destroy();
     delete cmp.threadPool;
-    delete cmp.chunkListManager;
     delete cmp.chunkAllocator;
     delete cmp.chunkIo;
     delete[] cmp.chunkGrids;

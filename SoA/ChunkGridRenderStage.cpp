@@ -6,7 +6,6 @@
 
 #include "Camera.h"
 #include "NChunk.h"
-#include "ChunkMemoryManager.h"
 #include "Frustum.h"
 #include "GameRenderParams.h"
 #include "ShaderLoader.h"

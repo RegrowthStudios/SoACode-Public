@@ -28,7 +28,6 @@
 
 class BlockPack;
 class ChunkIOManager;
-class ChunkListManager;
 class ChunkManager;
 class ChunkMeshManager;
 class FarTerrainPatch;
@@ -147,7 +146,6 @@ struct SphericalGravityComponent {
 
 struct SphericalVoxelComponent {
     NChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
-    ChunkListManager* chunkListManager = nullptr;
     PagedChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;

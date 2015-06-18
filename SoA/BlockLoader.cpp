@@ -8,6 +8,7 @@
 #include "NChunk.h"
 #include "Errors.h"
 #include "GameManager.h"
+#include "VoxelBits.h"
 
 #define BLOCK_MAPPING_PATH "BlockMapping.ini"
 #define BLOCK_DATA_PATH "BlockData.yml"

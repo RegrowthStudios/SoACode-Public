@@ -3,7 +3,6 @@
 
 #include "NChunkGrid.h"
 #include "ChunkIOManager.h"
-#include "ChunkListManager.h"
 #include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"
 #include "OrbitComponentUpdater.h"
@@ -262,7 +261,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkListManager = new ChunkListManager();
     svcmp.chunkAllocator = new PagedChunkAllocator();
     svcmp.chunkMeshManager = soaState->chunkMeshManager;
     svcmp.blockPack = &soaState->blocks;

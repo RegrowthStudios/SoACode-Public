@@ -5,7 +5,6 @@
 #include <Vorb/ui/GameWindow.h>
 #include <Vorb/AssetLoader.h>
 
-#include "ChunkMemoryManager.h"
 #include "ChunkMeshManager.h"
 #include "CommonState.h"
 #include "Errors.h"

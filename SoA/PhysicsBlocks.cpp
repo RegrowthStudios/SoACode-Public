@@ -79,39 +79,39 @@ PhysicsBlock::PhysicsBlock(const f32v3& pos, PhysicsBlockBatch* Batch, i32 Block
     colliding(false)
 {
     // TODO(Ben): What the fuck is this shit?
-    f32 v = 0.0;
-    bool tree = 0;
-    done = 0;
-    if (dir[0] != 0 || dir[1] != 0) tree = 1;
+    //f32 v = 0.0;
+    //bool tree = 0;
+    //done = 0;
+    //if (dir[0] != 0 || dir[1] != 0) tree = 1;
 
-    if (ydiff < 0) ydiff = -ydiff;
+    //if (ydiff < 0) ydiff = -ydiff;
 
-    if (ydiff > 50){
-        if (tree){
-     //       grav = GRAVITY;
-     //       fric = 0.98f - 0.02f;
-        }
-        v = 1.0f;
-    } else if (ydiff > 1){
-        v = (ydiff - 1) / 49.0f;
-        if (tree){
-     //       grav = GRAVITY;
-     //       fric = 0.98f - 0.02*(ydiff - 1) / 49.0f;
-        }
-    }
+    //if (ydiff > 50){
+    //    if (tree){
+    // //       grav = GRAVITY;
+    // //       fric = 0.98f - 0.02f;
+    //    }
+    //    v = 1.0f;
+    //} else if (ydiff > 1){
+    //    v = (ydiff - 1) / 49.0f;
+    //    if (tree){
+    // //       grav = GRAVITY;
+    // //       fric = 0.98f - 0.02*(ydiff - 1) / 49.0f;
+    //    }
+    //}
 
-    if (v){
-        velocity.x = ((rand() % 100) * .001f - 0.05f + dir[0] * 1.65f)*v;
-        velocity.y = 0;
-        velocity.z = ((rand() % 100) * .001f - 0.05f + dir[1] * 1.65f)*v;
-    } else{
-        velocity = glm::vec3(0.0f);
-    }
+    //if (v){
+    //    velocity.x = ((rand() % 100) * .001f - 0.05f + dir[0] * 1.65f)*v;
+    //    velocity.y = 0;
+    //    velocity.z = ((rand() % 100) * .001f - 0.05f + dir[1] * 1.65f)*v;
+    //} else{
+    //    velocity = glm::vec3(0.0f);
+    //}
 
-    velocity += extraForce;
+    //velocity += extraForce;
 
-    light[LIGHT] = 0;
-    light[SUNLIGHT] = (GLubyte)(255.0f);
+    //light[LIGHT] = 0;
+    //light[SUNLIGHT] = (GLubyte)(255.0f);
 }
 
 int bdirs[96] = { 0, 1, 2, 3, 0, 1, 3, 2, 0, 2, 3, 1, 0, 2, 1, 3, 0, 3, 2, 1, 0, 3, 1, 2,

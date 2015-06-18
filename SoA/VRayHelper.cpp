@@ -65,6 +65,7 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     //}
     //if (prevChunk) prevChunk->unlock();
     //return query;
+    return VoxelRayQuery();
 }
 const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid* cg, PredBlockID f) {
     //// First Convert To Voxel Coordinates
@@ -128,6 +129,7 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     //    query.inner.distance = vr.getDistanceTraversed();
     //}
     //if (prevChunk) prevChunk->unlock();
-    return query;
+    //return query;
+    return VoxelRayFullQuery();
 }
 

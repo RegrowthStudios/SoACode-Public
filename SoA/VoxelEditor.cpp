@@ -129,9 +129,9 @@ void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, con
             const float BOX_PAD = 0.001f;
 
             i32v3 startPosition;
-            startPosition.x = MIN(_startPosition.x, _endPosition.x);
-            startPosition.y = MIN(_startPosition.y, _endPosition.y);
-            startPosition.z = MIN(_startPosition.z, _endPosition.z);
+            startPosition.x = glm::min(_startPosition.x, _endPosition.x);
+            startPosition.y = glm::min(_startPosition.y, _endPosition.y);
+            startPosition.z = glm::min(_startPosition.z, _endPosition.z);
 
             const i32v3 size = glm::abs(_endPosition - _startPosition) + i32v3(1);
 
