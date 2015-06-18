@@ -43,6 +43,11 @@ namespace vorb {
             SmartHandle& operator= (T data);
             SmartHandle& operator= (const SmartHandle& o);
 
+            SmartHandle(SmartHandle&& o) :
+                m_container(o.m_container),
+                m_index(o.m_index) {
+                // TODO: Empty for now try to null it out
+            }
             SmartHandle(const SmartHandle& o) = delete;
             SmartHandle& operator= (SmartHandle&& o) = delete;
         private:
@@ -90,9 +95,8 @@ namespace vorb {
                 _arrayRecycler = arrayRecycler;
             }
 
-            SmartHandle<T, SIZE>&& operator[] (size_t index) {
-                SmartHandle<T, SIZE> hnd(*this, index);
-                return std::move(hnd);
+            SmartHandle<T, SIZE> operator[] (size_t index) {
+                return std::move(SmartHandle<T, SIZE>(*this, index));
             }
             const T& operator[] (size_t index) const {
                 return (getters[(size_t)_state])(this, index);
