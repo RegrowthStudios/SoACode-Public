@@ -26,51 +26,6 @@ void RawHeightGenerator::release() {
 
 float SphericalTerrainGpuGenerator::m_heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
 
-HeightmapGenRpcDispatcher::HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator) :
-    m_generator(generator) {
-    // Empty    
-}
-
-HeightmapGenRpcDispatcher::~HeightmapGenRpcDispatcher() {
-    delete[] m_generators;
-}
-
-bool HeightmapGenRpcDispatcher::dispatchHeightmapGen(std::shared_ptr<NChunkGridData>& cgd, const ChunkPosition3D& facePosition, float planetRadius) {
-    // Lazy init
-    if (!m_generators) {
-        m_generators = new RawHeightGenerator[NUM_GENERATORS];
-        for (int i = 0; i < NUM_GENERATORS; i++) {
-            m_generators[i].generator = m_generator;
-        }
-    }
-    
-    // Check if there is a free generator
-    if (!m_generators[counter].inUse) {
-        auto& gen = m_generators[counter];
-        // Mark the generator as in use
-        gen.inUse = true;
-        cgd->wasRequestSent = true;
-        gen.gridData = cgd;
-
-        // Set the data
-        gen.startPos = f32v3(facePosition.pos.x * CHUNK_WIDTH * KM_PER_VOXEL,
-                             planetRadius * KM_PER_VOXEL,
-                             facePosition.pos.z * CHUNK_WIDTH * KM_PER_VOXEL);
-
-        gen.cubeFace = facePosition.face;
-
-        gen.width = 32;
-        gen.step = (f32)KM_PER_VOXEL;
-        // Invoke generator
-        m_generator->invokeRawGen(&gen.rpc);
-        // Go to next generator
-        counter++;
-        if (counter == NUM_GENERATORS) counter = 0;
-        return true;
-    }
-    return false;
-}
-
 SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManager* meshManager,
                                                      PlanetGenData* planetGenData,
                                                      vg::GLProgram* normalProgram,
@@ -86,8 +41,7 @@ SphericalTerrainGpuGenerator::SphericalTerrainGpuGenerator(TerrainPatchMeshManag
     unPatchWidth(m_genProgram.getUniform("unPatchWidth")),
     unRadius(m_genProgram.getUniform("unRadius")),
     unHeightMap(m_normalProgram->getUniform("unHeightMap")),
-    unWidth(m_normalProgram->getUniform("unWidth")),
-    heightmapGenRpcDispatcher(this) {
+    unWidth(m_normalProgram->getUniform("unWidth")) {
     // Empty
 }
 
@@ -385,11 +339,11 @@ void SphericalTerrainGpuGenerator::updateRawGeneration() {
                 data->gridData->heightData[c].temperature = (int)heightData[y][x][1];
                 data->gridData->heightData[c].rainfall = (int)heightData[y][x][2];
                 //TODO(Ben): Biomes
-                data->gridData->heightData[c].biome = nullptr;
+                //data->gridData->heightData[c].biome = nullptr;
                 data->gridData->heightData[c].surfaceBlock = 0;
                 data->gridData->heightData[c].depth = 0;
-                data->gridData->heightData[c].sandDepth = 0; // TODO(Ben): kill this
-                data->gridData->heightData[c].snowDepth = 0;
+                //data->gridData->heightData[c].sandDepth = 0; // TODO(Ben): kill this
+                //data->gridData->heightData[c].snowDepth = 0;
                 data->gridData->heightData[c].flags = 0;
             }
         }

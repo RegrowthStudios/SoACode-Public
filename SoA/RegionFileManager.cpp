@@ -15,7 +15,6 @@
 #include "GameManager.h"
 #include "VoxelSpaceConversions.h"
 
-
 // Section tags
 #define TAG_VOXELDATA 0x1
 
@@ -207,178 +206,179 @@ void RegionFileManager::closeRegionFile(RegionFile* regionFile) {
 }
 
 //Attempt to load a chunk. Returns false on failure
-bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
+bool RegionFileManager::tryLoadChunk(NChunk* chunk) {
 
-    nString regionString = getRegionString(chunk);
+    //nString regionString = getRegionString(chunk);
 
-    //Open the region file
-    if (!openRegionFile(regionString, chunk->gridPosition, false)) return false;
+    ////Open the region file
+    //if (!openRegionFile(regionString, chunk->gridPosition, false)) return false;
 
-    //Get the chunk sector offset
-    ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
-    //If chunkOffset is zero, it hasnt been saved
-    if (chunkSectorOffset == 0) {
-        return false;
-    }
+    ////Get the chunk sector offset
+    //ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
+    ////If chunkOffset is zero, it hasnt been saved
+    //if (chunkSectorOffset == 0) {
+    //    return false;
+    //}
 
-    //Location is not stored zero indexed, so that 0 indicates that it hasnt been saved
-    chunkSectorOffset -= 1;
+    ////Location is not stored zero indexed, so that 0 indicates that it hasnt been saved
+    //chunkSectorOffset -= 1;
 
-    //Seek to the chunk header
-    if (!seekToChunk(chunkSectorOffset)){
-        pError("Region: Chunk data fseek C error! " + std::to_string(sizeof(RegionFileHeader)+chunkSectorOffset * SECTOR_SIZE) + " size: " + std::to_string(_regionFile->totalSectors));
-        return false;
-    }
+    ////Seek to the chunk header
+    //if (!seekToChunk(chunkSectorOffset)){
+    //    pError("Region: Chunk data fseek C error! " + std::to_string(sizeof(RegionFileHeader)+chunkSectorOffset * SECTOR_SIZE) + " size: " + std::to_string(_regionFile->totalSectors));
+    //    return false;
+    //}
 
-    //Get the chunk header
-    if (!readChunkHeader()) return false;
+    ////Get the chunk header
+    //if (!readChunkHeader()) return false;
 
-    // Read all chunk data
-    if (!readChunkData_v0()) return false;
-    
-    // Read all tags and process the data
-    _chunkOffset = 0;
-    while (_chunkOffset < _chunkBufferSize) {
-        // Read the tag
-        ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
-        _chunkOffset += sizeof(ui32);
+    //// Read all chunk data
+    //if (!readChunkData_v0()) return false;
+    //
+    //// Read all tags and process the data
+    //_chunkOffset = 0;
+    //while (_chunkOffset < _chunkBufferSize) {
+    //    // Read the tag
+    //    ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
+    //    _chunkOffset += sizeof(ui32);
 
-        switch (tag) {
-            case TAG_VOXELDATA:
-                //Fill the chunk with the aquired data
-                if (!fillChunkVoxelData(chunk)) return false;
-                break;
-            default:
-                std::cout << "INVALID TAG " << tag << std::endl;
-                return false;
-        }
-    }
+    //    switch (tag) {
+    //        case TAG_VOXELDATA:
+    //            //Fill the chunk with the aquired data
+    //            if (!fillChunkVoxelData(chunk)) return false;
+    //            break;
+    //        default:
+    //            std::cout << "INVALID TAG " << tag << std::endl;
+    //            return false;
+    //    }
+    //}
+    //return true;
     return true;
 }
 
 //Saves a chunk to a region file
-bool RegionFileManager::saveChunk(Chunk* chunk) {
+bool RegionFileManager::saveChunk(NChunk* chunk) {
 
-    //Used for copying sectors if we need to resize the file
-    if (_copySectorsBuffer) {
-        delete[] _copySectorsBuffer;
-        _copySectorsBuffer = nullptr;
-    }
+    ////Used for copying sectors if we need to resize the file
+    //if (_copySectorsBuffer) {
+    //    delete[] _copySectorsBuffer;
+    //    _copySectorsBuffer = nullptr;
+    //}
 
-    nString regionString = getRegionString(chunk);
+    //nString regionString = getRegionString(chunk);
 
-    if (!openRegionFile(regionString, chunk->gridPosition, true)) return false;
+    //if (!openRegionFile(regionString, chunk->gridPosition, true)) return false;
 
-    ui32 tableOffset;
-    ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
+    //ui32 tableOffset;
+    //ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
 
-    i32 numOldSectors;
+    //i32 numOldSectors;
 
-    //If chunkOffset is zero, then we need to add the entry
-    if (chunkSectorOffset == 0) {
+    ////If chunkOffset is zero, then we need to add the entry
+    //if (chunkSectorOffset == 0) {
 
-        //Set the sector offset in the table
-        BufferUtils::setInt(_regionFile->header.lookupTable, tableOffset, _regionFile->totalSectors + 1); //we add 1 so that 0 can indicate not saved
-        _regionFile->isHeaderDirty = true;
+    //    //Set the sector offset in the table
+    //    BufferUtils::setInt(_regionFile->header.lookupTable, tableOffset, _regionFile->totalSectors + 1); //we add 1 so that 0 can indicate not saved
+    //    _regionFile->isHeaderDirty = true;
 
-        chunkSectorOffset = _regionFile->totalSectors;
+    //    chunkSectorOffset = _regionFile->totalSectors;
 
-        numOldSectors = 0;
-      
-    } else {
-        //Convert sector offset from 1 indexed to 0 indexed
-        chunkSectorOffset--;
-        //seek to the chunk
-        if (!seekToChunk(chunkSectorOffset)){
-            pError("Region: Chunk data fseek save error BB! " + std::to_string(chunkSectorOffset));
-            return false;
-        }
+    //    numOldSectors = 0;
+    //  
+    //} else {
+    //    //Convert sector offset from 1 indexed to 0 indexed
+    //    chunkSectorOffset--;
+    //    //seek to the chunk
+    //    if (!seekToChunk(chunkSectorOffset)){
+    //        pError("Region: Chunk data fseek save error BB! " + std::to_string(chunkSectorOffset));
+    //        return false;
+    //    }
 
-        //Get the chunk header
-        if (!readChunkHeader()) return false;
-        ui32 oldDataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
-        numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
+    //    //Get the chunk header
+    //    if (!readChunkHeader()) return false;
+    //    ui32 oldDataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
+    //    numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
 
-        if (numOldSectors > _regionFile->totalSectors) {
-            std::cout << (std::to_string(chunkSectorOffset) + " " + std::to_string(tableOffset) + "Chunk Header Corrupted\n");
-            return false;
-        }
-    }
+    //    if (numOldSectors > _regionFile->totalSectors) {
+    //        std::cout << (std::to_string(chunkSectorOffset) + " " + std::to_string(tableOffset) + "Chunk Header Corrupted\n");
+    //        return false;
+    //    }
+    //}
 
-    //Compress the chunk data
-    rleCompressChunk(chunk);
-    zlibCompress();
+    ////Compress the chunk data
+    //rleCompressChunk(chunk);
+    //zlibCompress();
 
-    i32 numSectors = sectorsFromBytes(_compressedBufferSize);
-    i32 sectorDiff = numSectors - numOldSectors;
+    //i32 numSectors = sectorsFromBytes(_compressedBufferSize);
+    //i32 sectorDiff = numSectors - numOldSectors;
 
-    //If we need to resize the number of sectors in the file and this chunk is not at the end of file,
-    //then we should copy all sectors at the end of the file so we can resize it. This operation should be
-    //fairly rare.
-    if ((sectorDiff != 0) && ((chunkSectorOffset + numOldSectors) != _regionFile->totalSectors)) {
-        if (!seekToChunk(chunkSectorOffset + numOldSectors)){
-            pError("Region: Failed to seek for sectorCopy " + std::to_string(chunkSectorOffset) + " " + std::to_string(numOldSectors) + " " + std::to_string(_regionFile->totalSectors));
-            return false;
-        }
+    ////If we need to resize the number of sectors in the file and this chunk is not at the end of file,
+    ////then we should copy all sectors at the end of the file so we can resize it. This operation should be
+    ////fairly rare.
+    //if ((sectorDiff != 0) && ((chunkSectorOffset + numOldSectors) != _regionFile->totalSectors)) {
+    //    if (!seekToChunk(chunkSectorOffset + numOldSectors)){
+    //        pError("Region: Failed to seek for sectorCopy " + std::to_string(chunkSectorOffset) + " " + std::to_string(numOldSectors) + " " + std::to_string(_regionFile->totalSectors));
+    //        return false;
+    //    }
 
-        _copySectorsBufferSize = (_regionFile->totalSectors - (chunkSectorOffset + numOldSectors)) * SECTOR_SIZE;
-        _copySectorsBuffer = new ui8[_copySectorsBufferSize]; //for storing all the data that will need to be copied in the end
-       
-        readSectors(_copySectorsBuffer, _copySectorsBufferSize);
-    }
+    //    _copySectorsBufferSize = (_regionFile->totalSectors - (chunkSectorOffset + numOldSectors)) * SECTOR_SIZE;
+    //    _copySectorsBuffer = new ui8[_copySectorsBufferSize]; //for storing all the data that will need to be copied in the end
+    //   
+    //    readSectors(_copySectorsBuffer, _copySectorsBufferSize);
+    //}
 
-    //Set the header data
-    BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
-    BufferUtils::setInt(_chunkHeader.timeStamp, 0);
-    BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
+    ////Set the header data
+    //BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
+    //BufferUtils::setInt(_chunkHeader.timeStamp, 0);
+    //BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
 
-    //Copy the header data to the write buffer
-    memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
+    ////Copy the header data to the write buffer
+    //memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
 
-    //seek to the chunk
-    if (!seekToChunk(chunkSectorOffset)){
-        pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
-        return false;
-    }
+    ////seek to the chunk
+    //if (!seekToChunk(chunkSectorOffset)){
+    //    pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
+    //    return false;
+    //}
 
-    //Write the header and data
-    writeSectors(_compressedByteBuffer, (ui32)_compressedBufferSize);
+    ////Write the header and data
+    //writeSectors(_compressedByteBuffer, (ui32)_compressedBufferSize);
 
-    //Keep track of total sectors in file so we can infer filesize
-    _regionFile->totalSectors += sectorDiff;
+    ////Keep track of total sectors in file so we can infer filesize
+    //_regionFile->totalSectors += sectorDiff;
 
-    //If we need to move some sectors around
-    if (_copySectorsBuffer) {
+    ////If we need to move some sectors around
+    //if (_copySectorsBuffer) {
    
-        if (!seekToChunk(chunkSectorOffset + numSectors)){
-            pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
-            return false;
-        }
-        //Write the buffer of sectors
-        writeSectors(_copySectorsBuffer, _copySectorsBufferSize);
-        delete[] _copySectorsBuffer;
-        _copySectorsBuffer = nullptr;
+    //    if (!seekToChunk(chunkSectorOffset + numSectors)){
+    //        pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
+    //        return false;
+    //    }
+    //    //Write the buffer of sectors
+    //    writeSectors(_copySectorsBuffer, _copySectorsBufferSize);
+    //    delete[] _copySectorsBuffer;
+    //    _copySectorsBuffer = nullptr;
 
-        //if the file got smaller
-        if (sectorDiff < 0){
-            //truncate the file
-            if (fileTruncate(_regionFile->fileDescriptor, sizeof(RegionFileHeader)+_regionFile->totalSectors * SECTOR_SIZE) != 0) {
-                perror("Region file: Truncate error!\n");
-            }
-        }
+    //    //if the file got smaller
+    //    if (sectorDiff < 0){
+    //        //truncate the file
+    //        if (fileTruncate(_regionFile->fileDescriptor, sizeof(RegionFileHeader)+_regionFile->totalSectors * SECTOR_SIZE) != 0) {
+    //            perror("Region file: Truncate error!\n");
+    //        }
+    //    }
 
-        //Update the table
-        ui32 nextChunkSectorOffset;
-        for (int i = 0; i < REGION_SIZE * 4; i += 4){
-            nextChunkSectorOffset = BufferUtils::extractInt(_regionFile->header.lookupTable, i);
-            //See if the 1 indexed nextChunkSectorOffset is > the 0 indexed chunkSectorOffset
-            if (nextChunkSectorOffset > (chunkSectorOffset + 1)){ 
-                BufferUtils::setInt(_regionFile->header.lookupTable, i, nextChunkSectorOffset + sectorDiff);
-            } 
-        }
-        _regionFile->isHeaderDirty = true;
-    }
-    fflush(_regionFile->file);
+    //    //Update the table
+    //    ui32 nextChunkSectorOffset;
+    //    for (int i = 0; i < REGION_SIZE * 4; i += 4){
+    //        nextChunkSectorOffset = BufferUtils::extractInt(_regionFile->header.lookupTable, i);
+    //        //See if the 1 indexed nextChunkSectorOffset is > the 0 indexed chunkSectorOffset
+    //        if (nextChunkSectorOffset > (chunkSectorOffset + 1)){ 
+    //            BufferUtils::setInt(_regionFile->header.lookupTable, i, nextChunkSectorOffset + sectorDiff);
+    //        } 
+    //    }
+    //    _regionFile->isHeaderDirty = true;
+    //}
+    //fflush(_regionFile->file);
     return true;
 }
 
@@ -541,7 +541,7 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
     return 0;
 }
 
-bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
+bool RegionFileManager::fillChunkVoxelData(NChunk* chunk) {
 
     // TODO(Ben): Fix
 
@@ -736,7 +736,7 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
     tot += count;
 }
 
-bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
+bool RegionFileManager::rleCompressChunk(NChunk* chunk) {
 
     // TODO(Ben): Fix
 
@@ -841,29 +841,30 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
     return seek(sizeof(RegionFileHeader) + chunkSectorOffset * SECTOR_SIZE);
 }
 
-ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
+ui32 RegionFileManager::getChunkSectorOffset(NChunk* chunk, ui32* retTableOffset) {
     
-    const ChunkPosition3D& gridPos = chunk->gridPosition;
+    //const ChunkPosition3D& gridPos = chunk->gridPosition;
 
-    int x = gridPos.pos.x % REGION_WIDTH;
-    int y = gridPos.pos.y % REGION_WIDTH;
-    int z = gridPos.pos.z % REGION_WIDTH;
+    //int x = gridPos.pos.x % REGION_WIDTH;
+    //int y = gridPos.pos.y % REGION_WIDTH;
+    //int z = gridPos.pos.z % REGION_WIDTH;
 
-    //modulus is weird in c++ for negative numbers
-    if (x < 0) x += REGION_WIDTH;
-    if (y < 0) y += REGION_WIDTH;
-    if (z < 0) z += REGION_WIDTH;
-    ui32 tableOffset = 4 * (x + z * REGION_WIDTH + y * REGION_LAYER);
+    ////modulus is weird in c++ for negative numbers
+    //if (x < 0) x += REGION_WIDTH;
+    //if (y < 0) y += REGION_WIDTH;
+    //if (z < 0) z += REGION_WIDTH;
+    //ui32 tableOffset = 4 * (x + z * REGION_WIDTH + y * REGION_LAYER);
 
-    //If the caller asked for the table offset, return it
-    if (retTableOffset) *retTableOffset = tableOffset;
+    ////If the caller asked for the table offset, return it
+    //if (retTableOffset) *retTableOffset = tableOffset;
 
-    return BufferUtils::extractInt(_regionFile->header.lookupTable, tableOffset);
+    //return BufferUtils::extractInt(_regionFile->header.lookupTable, tableOffset);
+    return 0;
 }
 
-nString RegionFileManager::getRegionString(Chunk *ch)
+nString RegionFileManager::getRegionString(NChunk *ch)
 {
-    const ChunkPosition3D& gridPos = ch->gridPosition;
+    const ChunkPosition3D& gridPos = ch->getChunkPosition();
 
     return "r." + std::to_string(fastFloor((float)gridPos.pos.x / REGION_WIDTH)) + "."
         + std::to_string(fastFloor((float)gridPos.pos.y / REGION_WIDTH)) + "."

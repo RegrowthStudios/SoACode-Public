@@ -227,8 +227,8 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk
 }
 
 void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType) {
-    vvox::swapLockedChunk(chunk, lockedChunk);
-    placeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex, blockType);
+    /*  vvox::swapLockedChunk(chunk, lockedChunk);
+      placeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex, blockType);*/
 }
 
 void ChunkUpdater::removeBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir)
@@ -330,8 +330,8 @@ void ChunkUpdater::removeBlock(ChunkManager* chunkManager, PhysicsEngine* physic
 }
 
 void ChunkUpdater::removeBlockSafe(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, glm::vec3 explodeDir) {
-    vvox::swapLockedChunk(chunk, lockedChunk);
-    removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);
+    /* vvox::swapLockedChunk(chunk, lockedChunk);
+     removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);*/
 }
 
 void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
@@ -384,8 +384,8 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChun
 }
 
 void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
-    vvox::swapLockedChunk(chunk, lockedChunk);
-    removeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex);
+   /* vvox::swapLockedChunk(chunk, lockedChunk);
+    removeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex);*/
 }
 
 void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state) {

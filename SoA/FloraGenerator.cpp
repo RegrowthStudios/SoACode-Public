@@ -77,7 +77,7 @@ KEG_TYPE_DEF_SAME_NAME(TreeType, kt) {
     kt.addValue("isSlopeRandom", Value::basic(offsetof(TreeType, isSlopeRandom), BasicType::BOOL));
 }
 
-bool FloraGenerator::generateTree(const TreeData& treeData, Chunk* startChunk) {
+bool FloraGenerator::generateTree(const TreeData& treeData, NChunk* startChunk) {
     _treeData = &treeData;
 
     if (!generateTrunk()) return false;
@@ -399,7 +399,7 @@ void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir
     }
 }
 
-bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
+bool FloraGenerator::generateFlora(NChunk* chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
     //int c;
    
     //std::vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
@@ -483,8 +483,8 @@ int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, in
     return 0;
 }
 
-int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
-    int c = td.startc;
+int FloraGenerator::makeTreeData(NChunk* chunk, TreeData &td, TreeType *tt) {
+   /* int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
     srand(chunk->voxelPosition.z*chunk->voxelPosition.x - x*z);
@@ -523,7 +523,7 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     } else {
         td.leafColor = 0;
     }
-
+*/
     return 0;
 }
 

@@ -67,16 +67,16 @@ public:
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
-        return m_blocks[c];
+        return m_blocks.get(c);
     }
     inline ui16 getLampLight(int c) const {
-        return m_lamp[c];
+        return m_lamp.get(c);
     }
     inline ui8 getSunlight(int c) const {
-        return m_sunlight[c];
+        return m_sunlight.get(c);
     }
     inline ui16 getTertiaryData(int c) const {
-        return m_tertiary[c];
+        return m_tertiary.get(c);
     }
 
     // True when the chunk needs to be meshed

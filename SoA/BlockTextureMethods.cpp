@@ -17,9 +17,9 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
     //TODO: MurmurHash3
     const MesherInfo* mi = params.mesherInfo;
     const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
-    i32 seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
+    i32 seed = 0; // getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
 
-    f32 r = (f32)((PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo->totalWeight);
+    f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * blockTexInfo->totalWeight);
     f32 totalWeight = 0;
 
     // TODO(Ben): Binary search?
@@ -45,9 +45,9 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
 void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     //TODO: MurmurHash3
     const MesherInfo* mi = params.mesherInfo;
-    i32 seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
+    i32 seed = 0; // getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
 
-    f32 r = (f32)((PseudoRand(seed) + 1.0) * 0.5 * params.blockTexInfo->totalWeight);
+    f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * params.blockTexInfo->totalWeight);
     f32 totalWeight = 0;
 
     const BlockTextureLayer* blockTexInfo = params.blockTexInfo;

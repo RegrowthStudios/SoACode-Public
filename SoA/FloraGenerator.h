@@ -2,7 +2,7 @@
 #include <Vorb/utils.h>
 #include <Vorb/io/Keg.h>
 
-class Chunk;
+class NChunk;
 class TreeType;
 class TreeData;
 class Biome;
@@ -26,14 +26,14 @@ public:
         TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
     };
 
-    bool generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
+    bool generateFlora(NChunk* chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
     static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
-    static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
+    static i32 makeTreeData(NChunk* chunk, TreeData &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
 
 private:
     // generates a tree and stores the resulting nodes
-    bool generateTree(const TreeData& treeData, Chunk* startChunk);
+    bool generateTree(const TreeData& treeData, NChunk* startChunk);
     bool generateTrunk();
     bool makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, float heightRatio);
     bool makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes);
