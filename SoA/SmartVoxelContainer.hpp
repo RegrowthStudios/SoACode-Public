@@ -284,9 +284,13 @@ namespace vorb {
             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler = nullptr; ///< For recycling the voxel arrays
         };
 
-        template<typename T, size_t SIZE>
+        /*template<typename T, size_t SIZE>
         inline SmartHandle<T, SIZE>::operator const T&() const {
             return m_container[m_index];
+        }*/
+        template<typename T, size_t SIZE>
+        inline SmartHandle<T, SIZE>::operator const T&() const {
+            return (m_container.getters[(size_t)m_container.getState()])(&m_container, m_index);
         }
         template<typename T, size_t SIZE>
         inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (T data) {
