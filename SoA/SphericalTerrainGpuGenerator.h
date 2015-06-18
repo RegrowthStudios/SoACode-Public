@@ -28,7 +28,7 @@
 #include "TerrainGenTextures.h"
 #include "TerrainPatchMesher.h"
 
-class ChunkGridData;
+class NChunkGridData;
 class SphericalTerrainGpuGenerator;
 class TerrainGenDelegate;
 struct PlanetGenData;
@@ -54,7 +54,7 @@ public:
     int width;
     float step;
 
-    std::shared_ptr<ChunkGridData> gridData = nullptr;
+    std::shared_ptr<NChunkGridData> gridData = nullptr;
 
     SphericalTerrainGpuGenerator* generator = nullptr;
 };
@@ -64,7 +64,7 @@ public:
     HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator);
     ~HeightmapGenRpcDispatcher();
     /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
+    bool dispatchHeightmapGen(std::shared_ptr<NChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
 private:
     static const int NUM_GENERATORS = 512;
     int counter = 0;

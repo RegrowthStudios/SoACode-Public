@@ -3,7 +3,6 @@
 
 #include "BlockPack.h"
 #include "CAEngine.h"
-#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "ParticleEngine.h"
@@ -120,8 +119,8 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
 }
 
 void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData) {
-    vvox::swapLockedChunk(chunk, lockedChunk);
-    placeBlock(chunk, lockedChunk, blockIndex, blockData);
+   /* vvox::swapLockedChunk(chunk, lockedChunk);
+    placeBlock(chunk, lockedChunk, blockIndex, blockData);*/
 }
 
 void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
@@ -390,7 +389,7 @@ void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& locked
 }
 
 void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state) {
-    if (pos.x == 0){
+  /*  if (pos.x == 0){
         if (chunk->left){
             chunk->left->changeState(state);
         }
@@ -416,11 +415,11 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkSta
         if (chunk->front){
             chunk->front->changeState(state);
         }
-    }
+    }*/
 }
 
 void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkStates state) {
-    const i32v3 pos = getPosFromBlockIndex(blockIndex);
+   /* const i32v3 pos = getPosFromBlockIndex(blockIndex);
     if (pos.x == 0){
         if (chunk->left){
             chunk->left->changeState(state);
@@ -447,126 +446,126 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkState
         if (chunk->front){
             chunk->front->changeState(state);
         }
-    }
+    }*/
 }
 
 void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c)
 {
-    int phys;
-    const i32v3 pos = getPosFromBlockIndex(c);
+    //int phys;
+    //const i32v3 pos = getPosFromBlockIndex(c);
 
-    Chunk*& left = chunk->left;
-    Chunk*& right = chunk->right;
-    Chunk*& front = chunk->front;
-    Chunk*& back = chunk->back;
-    Chunk*& top = chunk->top;
-    Chunk*& bottom = chunk->bottom;
+    //Chunk*& left = chunk->left;
+    //Chunk*& right = chunk->right;
+    //Chunk*& front = chunk->front;
+    //Chunk*& back = chunk->back;
+    //Chunk*& top = chunk->top;
+    //Chunk*& bottom = chunk->bottom;
 
-    if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {
-        chunk->addPhysicsUpdate(phys, c);
-    }
+    //if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {
+    //    chunk->addPhysicsUpdate(phys, c);
+    //}
 
-    if (pos.x > 0){ //left
-        if ((phys = chunk->getBlockSafe(lockedChunk, c - 1).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c - 1);
-        }
-    } else if (left && left->isAccessible){
-        if ((phys = left->getBlockSafe(lockedChunk, c + CHUNK_WIDTH - 1).caIndex) > -1) {
-            left->addPhysicsUpdate(phys, c + CHUNK_WIDTH - 1);
-        }
-    } else{
-        return;
-    }
+    //if (pos.x > 0){ //left
+    //    if ((phys = chunk->getBlockSafe(lockedChunk, c - 1).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c - 1);
+    //    }
+    //} else if (left && left->isAccessible){
+    //    if ((phys = left->getBlockSafe(lockedChunk, c + CHUNK_WIDTH - 1).caIndex) > -1) {
+    //        left->addPhysicsUpdate(phys, c + CHUNK_WIDTH - 1);
+    //    }
+    //} else{
+    //    return;
+    //}
 
-    if (pos.x < CHUNK_WIDTH - 1){ //right
-        if ((phys = chunk->getBlockSafe(lockedChunk, c + 1).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c + 1);
-        }
-    } else if (right && right->isAccessible){
-        if ((phys = right->getBlockSafe(lockedChunk, c - CHUNK_WIDTH + 1).caIndex) > -1) {
-            right->addPhysicsUpdate(phys, c - CHUNK_WIDTH + 1);
-        }
-    } else{
-        return;
-    }
+    //if (pos.x < CHUNK_WIDTH - 1){ //right
+    //    if ((phys = chunk->getBlockSafe(lockedChunk, c + 1).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c + 1);
+    //    }
+    //} else if (right && right->isAccessible){
+    //    if ((phys = right->getBlockSafe(lockedChunk, c - CHUNK_WIDTH + 1).caIndex) > -1) {
+    //        right->addPhysicsUpdate(phys, c - CHUNK_WIDTH + 1);
+    //    }
+    //} else{
+    //    return;
+    //}
 
-    if (pos.z > 0){ //back
-        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_WIDTH).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c - CHUNK_WIDTH);
-        }
-    } else if (back && back->isAccessible){
-        if ((phys = back->getBlockSafe(lockedChunk, c + CHUNK_LAYER - CHUNK_WIDTH).caIndex) > -1) {
-            back->addPhysicsUpdate(phys, c + CHUNK_LAYER - CHUNK_WIDTH);
-        }
-    } else{
-        return;
-    }
+    //if (pos.z > 0){ //back
+    //    if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_WIDTH).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c - CHUNK_WIDTH);
+    //    }
+    //} else if (back && back->isAccessible){
+    //    if ((phys = back->getBlockSafe(lockedChunk, c + CHUNK_LAYER - CHUNK_WIDTH).caIndex) > -1) {
+    //        back->addPhysicsUpdate(phys, c + CHUNK_LAYER - CHUNK_WIDTH);
+    //    }
+    //} else{
+    //    return;
+    //}
 
-    if (pos.z < CHUNK_WIDTH - 1){ //front
-        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_WIDTH).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c + CHUNK_WIDTH);
-        }
-    } else if (front && front->isAccessible){
-        if ((phys = front->getBlockSafe(lockedChunk, c - CHUNK_LAYER + CHUNK_WIDTH).caIndex) > -1) {
-            front->addPhysicsUpdate(phys, c - CHUNK_LAYER + CHUNK_WIDTH);
-        }
-    } else{
-        return;
-    }
+    //if (pos.z < CHUNK_WIDTH - 1){ //front
+    //    if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_WIDTH).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c + CHUNK_WIDTH);
+    //    }
+    //} else if (front && front->isAccessible){
+    //    if ((phys = front->getBlockSafe(lockedChunk, c - CHUNK_LAYER + CHUNK_WIDTH).caIndex) > -1) {
+    //        front->addPhysicsUpdate(phys, c - CHUNK_LAYER + CHUNK_WIDTH);
+    //    }
+    //} else{
+    //    return;
+    //}
 
-    if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_LAYER).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
-        }
-    } else if (bottom && bottom->isAccessible){
-        if ((phys = bottom->getBlockSafe(lockedChunk, CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
-            bottom->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
-        }
-    } else{
-        return;
-    }
+    //if (pos.y > 0){ //bottom
+    //    if ((phys = chunk->getBlockSafe(lockedChunk, c - CHUNK_LAYER).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
+    //    }
+    //} else if (bottom && bottom->isAccessible){
+    //    if ((phys = bottom->getBlockSafe(lockedChunk, CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
+    //        bottom->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
+    //    }
+    //} else{
+    //    return;
+    //}
 
-    if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_LAYER).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
-        }
-    } else if (top && top->isAccessible){
-        if ((phys = top->getBlockSafe(lockedChunk, c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
-            top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
-        }
-    }
+    //if (pos.y < CHUNK_WIDTH - 1){ //top
+    //    if ((phys = chunk->getBlockSafe(lockedChunk, c + CHUNK_LAYER).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
+    //    }
+    //} else if (top && top->isAccessible){
+    //    if ((phys = top->getBlockSafe(lockedChunk, c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
+    //        top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
+    //    }
+    //}
 }
 
 void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
 {
-    int phys;
-    const i32v3 pos = getPosFromBlockIndex(c);
+    //int phys;
+    //const i32v3 pos = getPosFromBlockIndex(c);
 
-    if ((phys = chunk->getBlock(c).caIndex) > -1) {
-        chunk->addPhysicsUpdate(phys, c);
-    }
+    //if ((phys = chunk->getBlock(c).caIndex) > -1) {
+    //    chunk->addPhysicsUpdate(phys, c);
+    //}
 
-    if (pos.y > 0){ //bottom
-        if ((phys = chunk->getBlock(c - CHUNK_LAYER).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
-        }
-    } else if (chunk->bottom && chunk->bottom->isAccessible){
-        if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
-        }
-    } else{
-        return;
-    }
+    //if (pos.y > 0){ //bottom
+    //    if ((phys = chunk->getBlock(c - CHUNK_LAYER).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c - CHUNK_LAYER);
+    //    }
+    //} else if (chunk->bottom && chunk->bottom->isAccessible){
+    //    if ((phys = chunk->bottom->getBlock(CHUNK_SIZE - CHUNK_LAYER + c).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, CHUNK_SIZE - CHUNK_LAYER + c);
+    //    }
+    //} else{
+    //    return;
+    //}
 
-    if (pos.y < CHUNK_WIDTH - 1){ //top
-        if ((phys = chunk->getBlock(c + CHUNK_LAYER).caIndex) > -1) {
-            chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
-        }
-    } else if (chunk->top && chunk->top->isAccessible){
-        if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
-            chunk->top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
-        }
-    }
+    //if (pos.y < CHUNK_WIDTH - 1){ //top
+    //    if ((phys = chunk->getBlock(c + CHUNK_LAYER).caIndex) > -1) {
+    //        chunk->addPhysicsUpdate(phys, c + CHUNK_LAYER);
+    //    }
+    //} else if (chunk->top && chunk->top->isAccessible){
+    //    if ((phys = chunk->top->getBlock(c - CHUNK_SIZE + CHUNK_LAYER).caIndex) > -1) {
+    //        chunk->top->addPhysicsUpdate(phys, c - CHUNK_SIZE + CHUNK_LAYER);
+    //    }
+    //}
 }
 
 //TODO: Replace this with simple emitterOnBreak
@@ -599,88 +598,88 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
 
 // TODO(Ben): Make this cleaner
 void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockID) {
-    
-    // Start it out at -1 so when we add 1 we get 0.
-    ui16 floraHeight = -1;
-    ui16 floraYpos = -1;
-    ui16 tertiaryData; 
-    // Get tertiary data
-    if (blockIndex > CHUNK_LAYER) {
-        // Only need the data if its the same plant as we are
-        if (chunk->getBlockID(blockIndex - CHUNK_LAYER) == blockID) {
-            tertiaryData = chunk->getTertiaryData(blockIndex - CHUNK_LAYER);
-            // Grab height and position
-            floraHeight = VoxelBits::getFloraHeight(tertiaryData);
-            floraYpos = VoxelBits::getFloraPosition(tertiaryData);
-        }
-    } else {
+    //
+    //// Start it out at -1 so when we add 1 we get 0.
+    //ui16 floraHeight = -1;
+    //ui16 floraYpos = -1;
+    //ui16 tertiaryData; 
+    //// Get tertiary data
+    //if (blockIndex > CHUNK_LAYER) {
+    //    // Only need the data if its the same plant as we are
+    //    if (chunk->getBlockID(blockIndex - CHUNK_LAYER) == blockID) {
+    //        tertiaryData = chunk->getTertiaryData(blockIndex - CHUNK_LAYER);
+    //        // Grab height and position
+    //        floraHeight = VoxelBits::getFloraHeight(tertiaryData);
+    //        floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+    //    }
+    //} else {
 
-        if (chunk->bottom && chunk->bottom->isAccessible) {
-            // Only need the data if its the same plant as we are
-            if (chunk->bottom->getBlockID(blockIndex - CHUNK_LAYER + CHUNK_SIZE) == blockIndex) {
-                tertiaryData = chunk->bottom->getTertiaryData(blockIndex - CHUNK_LAYER + CHUNK_SIZE);
-                // Grab height and position
-                floraHeight = VoxelBits::getFloraHeight(tertiaryData);
-                floraYpos = VoxelBits::getFloraPosition(tertiaryData);
-            }
-        } else {
-            return;
-        }
-    }
-    tertiaryData = 0;
-    floraHeight += 1; // add one since we are bigger now
-    // Add 1 to the tertiary data
-    VoxelBits::setFloraHeight(tertiaryData, floraHeight);
-    VoxelBits::setFloraPosition(tertiaryData, floraYpos + 1);
-    // Set it
-    chunk->setTertiaryData(blockIndex, tertiaryData);
-    // Loop downwards through all flora blocks of the same type and increase their height by 1
-    while (true) {
-        // Move the index down
-        if (blockIndex >= CHUNK_LAYER) {
-            blockIndex -= CHUNK_LAYER;
-        } else {
-            if (chunk->bottom && chunk->bottom->isAccessible) {
-                chunk = chunk->bottom;
-            } else {
-                return;
-            }
-            blockIndex = blockIndex - CHUNK_LAYER + CHUNK_SIZE;
-        }
+    //    if (chunk->bottom && chunk->bottom->isAccessible) {
+    //        // Only need the data if its the same plant as we are
+    //        if (chunk->bottom->getBlockID(blockIndex - CHUNK_LAYER + CHUNK_SIZE) == blockIndex) {
+    //            tertiaryData = chunk->bottom->getTertiaryData(blockIndex - CHUNK_LAYER + CHUNK_SIZE);
+    //            // Grab height and position
+    //            floraHeight = VoxelBits::getFloraHeight(tertiaryData);
+    //            floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+    //        }
+    //    } else {
+    //        return;
+    //    }
+    //}
+    //tertiaryData = 0;
+    //floraHeight += 1; // add one since we are bigger now
+    //// Add 1 to the tertiary data
+    //VoxelBits::setFloraHeight(tertiaryData, floraHeight);
+    //VoxelBits::setFloraPosition(tertiaryData, floraYpos + 1);
+    //// Set it
+    //chunk->setTertiaryData(blockIndex, tertiaryData);
+    //// Loop downwards through all flora blocks of the same type and increase their height by 1
+    //while (true) {
+    //    // Move the index down
+    //    if (blockIndex >= CHUNK_LAYER) {
+    //        blockIndex -= CHUNK_LAYER;
+    //    } else {
+    //        if (chunk->bottom && chunk->bottom->isAccessible) {
+    //            chunk = chunk->bottom;
+    //        } else {
+    //            return;
+    //        }
+    //        blockIndex = blockIndex - CHUNK_LAYER + CHUNK_SIZE;
+    //    }
 
-        // Loop while this is the same block type
-        if (chunk->getBlockID(blockIndex) == blockID) {
-            tertiaryData = chunk->getTertiaryData(blockIndex);
-            // Set new flora height
-            VoxelBits::setFloraHeight(tertiaryData, floraHeight);
-            chunk->setTertiaryData(blockIndex, tertiaryData);
-        } else {
-            return;
-        }
+    //    // Loop while this is the same block type
+    //    if (chunk->getBlockID(blockIndex) == blockID) {
+    //        tertiaryData = chunk->getTertiaryData(blockIndex);
+    //        // Set new flora height
+    //        VoxelBits::setFloraHeight(tertiaryData, floraHeight);
+    //        chunk->setTertiaryData(blockIndex, tertiaryData);
+    //    } else {
+    //        return;
+    //    }
 
-    }
+    //}
 }
 
 void ChunkUpdater::removeFlora(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockID) {
-    // Grab tertiary data
-    ui16 tertiaryData = chunk->getTertiaryData(blockIndex);
-    // Grab height and position
-    ui16 floraYpos = VoxelBits::getFloraPosition(tertiaryData);
-    // Set tertiary data to 0
-    chunk->setTertiaryData(blockIndex, 0);
+    //// Grab tertiary data
+    //ui16 tertiaryData = chunk->getTertiaryData(blockIndex);
+    //// Grab height and position
+    //ui16 floraYpos = VoxelBits::getFloraPosition(tertiaryData);
+    //// Set tertiary data to 0
+    //chunk->setTertiaryData(blockIndex, 0);
 
-    // Recursively kill above flora blocks
-    blockIndex += CHUNK_LAYER;
-    if (blockIndex < CHUNK_SIZE) {
-        if (chunk->getBlockID(blockIndex) == blockID) {
-            removeBlockSafe(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, true);
-        }
-    } else if (chunk->top && chunk->top->isAccessible) {
-        blockIndex -= CHUNK_SIZE;
-        if (chunk->top->getBlockID(blockIndex) == blockID) {
-            removeBlockSafe(chunkManager, physicsEngine, chunk->top, lockedChunk, blockIndex, true);
-        }
-    }
+    //// Recursively kill above flora blocks
+    //blockIndex += CHUNK_LAYER;
+    //if (blockIndex < CHUNK_SIZE) {
+    //    if (chunk->getBlockID(blockIndex) == blockID) {
+    //        removeBlockSafe(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, true);
+    //    }
+    //} else if (chunk->top && chunk->top->isAccessible) {
+    //    blockIndex -= CHUNK_SIZE;
+    //    if (chunk->top->getBlockID(blockIndex) == blockID) {
+    //        removeBlockSafe(chunkManager, physicsEngine, chunk->top, lockedChunk, blockIndex, true);
+    //    }
+    //}
 }
 
 float ChunkUpdater::getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
@@ -719,178 +718,178 @@ float ChunkUpdater::getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int bl
 }
 
 void ChunkUpdater::updateFireBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, int blockIndex) {
-    //left
-    int blockIndex2, blockIndex3, blockIndex4;
-    Chunk *owner2, *owner3, *owner4;
-    int bt;
+    ////left
+    //int blockIndex2, blockIndex3, blockIndex4;
+    //Chunk *owner2, *owner3, *owner4;
+    //int bt;
 
-    const i32v3 pos = getPosFromBlockIndex(blockIndex);
+    //const i32v3 pos = getPosFromBlockIndex(blockIndex);
 
-    const f32 sideTopMult = 1.5f;
-    const f32 topMult = 2.0f;
-    const f32 sideBotMult = 0.5f;
-    const f32 botMult = 0.8f;
+    //const f32 sideTopMult = 1.5f;
+    //const f32 topMult = 2.0f;
+    //const f32 sideBotMult = 0.5f;
+    //const f32 botMult = 0.8f;
 
-    Chunk* lockedChunk = nullptr;
+    //Chunk* lockedChunk = nullptr;
 
-    burnAdjacentBlocks(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex);
+    //burnAdjacentBlocks(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex);
 
-    //********************************************************left
-    bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
+    ////********************************************************left
+    //bt = vvox::getLeftBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
-    //left front
-    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
+    ////left front
+    //bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
-    //left back
-    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
+    ////left back
+    //bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
-    //left top
-    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
-
-
-    //left top front
-    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
-
-    //left top back
-    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
-
-    //left bottom
-    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
-
-    //left bottom front
-    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
-
-    //left bottom back
-    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
-
-    //********************************************************right
-    bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
-
-    //left front
-    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
-
-    //left back
-    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
-
-    //left top
-    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+    ////left top
+    //bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
-    //left top front
-    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
+    ////left top front
+    //bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
-    //left top back
-    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
+    ////left top back
+    //bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
-    //left bottom
-    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+    ////left bottom
+    //bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
-    //left bottom front
-    bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
+    ////left bottom front
+    //bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
-    //left bottom back
-    bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
+    ////left bottom back
+    //bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
-    //******************************************************front
-    bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
+    ////********************************************************right
+    //bt = vvox::getRightBlockData(chunk, lockedChunk, blockIndex, pos.x, blockIndex2, owner2);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
 
-    //front top
-    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+    ////left front
+    //bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
-    //front bottom
-    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+    ////left back
+    //bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3);
 
-    //********************************************************back
-    bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
-
-    //back top
-    bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
-
-    //back bottom
-    bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
-
-    //********************************************************top
-    bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, topMult);
-
-    //top front
-    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
-
-    //top back
-    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+    ////left top
+    //bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
 
 
-    //********************************************************bottom
-    bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, botMult);
+    ////left top front
+    //bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
-    //bottom front
-    bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+    ////left top back
+    //bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideTopMult);
 
-    //bottom back
-    bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
-    if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
-    checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+    ////left bottom
+    //bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
 
-    removeBlockSafe(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, false);
+    ////left bottom front
+    //bt = vvox::getFrontBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
 
-    if (lockedChunk) lockedChunk->unlock();
+    ////left bottom back
+    //bt = vvox::getBackBlockData(owner3, lockedChunk, blockIndex3, blockIndex4, owner4);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex4, lockedChunk, bt, owner4, sideBotMult);
+
+    ////******************************************************front
+    //bt = vvox::getFrontBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
+
+    ////front top
+    //bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+
+    ////front bottom
+    //bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+
+    ////********************************************************back
+    //bt = vvox::getBackBlockData(chunk, lockedChunk, blockIndex, pos.z, blockIndex2, owner2);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex2, lockedChunk, bt, owner2);
+
+    ////back top
+    //bt = vvox::getTopBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+
+    ////back bottom
+    //bt = vvox::getBottomBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+
+    ////********************************************************top
+    //bt = vvox::getTopBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, topMult);
+
+    ////top front
+    //bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+
+    ////top back
+    //bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideTopMult);
+
+
+    ////********************************************************bottom
+    //bt = vvox::getBottomBlockData(chunk, lockedChunk, blockIndex, pos.y, blockIndex2, owner2);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex2, lockedChunk, bt, owner2, botMult);
+
+    ////bottom front
+    //bt = vvox::getFrontBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+
+    ////bottom back
+    //bt = vvox::getBackBlockData(owner2, lockedChunk, blockIndex2, blockIndex3, owner3);
+    //if (bt == -1) { if (lockedChunk) { lockedChunk->unlock(); }; return; }
+    //checkBurnBlock(blockIndex3, lockedChunk, bt, owner3, sideBotMult);
+
+    //removeBlockSafe(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, false);
+
+    //if (lockedChunk) lockedChunk->unlock();
 }
 
 void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex){

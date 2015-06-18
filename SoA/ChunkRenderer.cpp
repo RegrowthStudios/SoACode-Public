@@ -2,7 +2,7 @@
 #include "ChunkRenderer.h"
 
 #include "Camera.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkMeshManager.h"
 #include "Frustum.h"
 #include "GameManager.h"

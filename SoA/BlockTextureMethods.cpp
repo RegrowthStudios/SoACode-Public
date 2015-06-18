@@ -5,7 +5,7 @@
 #include <Vorb/utils.h>
 
 #include "BlockPack.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkMesh.h"
 #include "RenderTask.h"
 #include "VoxelBits.h"

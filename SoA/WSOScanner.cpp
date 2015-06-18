@@ -4,7 +4,7 @@
 #include "WSO.h"
 #include "WSOAtlas.h"
 #include "WSOData.h"
-#include "ChunkGrid.h"
+#include "NChunkGrid.h"
 
 // Scan A Radius Of (WSO_MAX_SIZE - 1) From The Center Block
 const int WSO_QUERY_SIZE = WSO_MAX_SIZE * 2 - 1;
@@ -58,36 +58,36 @@ bool checkForWSO(const i16* query, const WSOData* data, i32v3& offset) {
     // Could Not Find A Single One
     return false;
 }
-std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkGrid* cg) {
-    // Get A Piece Of The World
-    const i16* query = getQuery(position, cg);
+std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, NChunkGrid* cg) {
+    //// Get A Piece Of The World
+    //const i16* query = getQuery(position, cg);
 
-    std::vector<WSO*> wsos;
+    //std::vector<WSO*> wsos;
 
-    // Loop Through All Possible WSOs
-    i32v3 offset;
-    for (i32 i = _wsoAtlas->getSize() - 1; i >= 0; i--) {
-        WSOData* data = _wsoAtlas->get(i);
-        if (checkForWSO(query, data, offset)) {
-            i32v3 localPos = offset - i32v3(WSO_MAX_SIZE - 1);
-            localPos += position;
+    //// Loop Through All Possible WSOs
+    //i32v3 offset;
+    //for (i32 i = _wsoAtlas->getSize() - 1; i >= 0; i--) {
+    //    WSOData* data = _wsoAtlas->get(i);
+    //    if (checkForWSO(query, data, offset)) {
+    //        i32v3 localPos = offset - i32v3(WSO_MAX_SIZE - 1);
+    //        localPos += position;
 
-            // This Is A Possible WSO
-            //TODO(Cristian) Make this work for new chunkmanager mapping
-            //WSO* wso = new WSO(data, f64v3(localPos + cm->cornerPosition));
-            //wsos.push_back(wso);
-        }
-    }
+    //        // This Is A Possible WSO
+    //        //TODO(Cristian) Make this work for new chunkmanager mapping
+    //        //WSO* wso = new WSO(data, f64v3(localPos + cm->cornerPosition));
+    //        //wsos.push_back(wso);
+    //    }
+    //}
 
-    // TODO: Make Sure We Don't Get Already Created WSOs
+    //// TODO: Make Sure We Don't Get Already Created WSOs
 
-    delete query;
-    return wsos;
+    //delete query;
+    //return wsos;
 }
 
-const i16* WSOScanner::getQuery(const i32v3& position, ChunkGrid* cg) {
-    // Get The Query Based Off Of The Max Size Of The WSO
-    const i32v3 minPos = position - i32v3(WSO_MAX_SIZE - 1);
-    const i32v3 maxPos = position + i32v3(WSO_MAX_SIZE - 1);
-    return cg->getIDQuery(minPos, maxPos);
+const i16* WSOScanner::getQuery(const i32v3& position, NChunkGrid* cg) {
+    //// Get The Query Based Off Of The Max Size Of The WSO
+    //const i32v3 minPos = position - i32v3(WSO_MAX_SIZE - 1);
+    //const i32v3 maxPos = position + i32v3(WSO_MAX_SIZE - 1);
+    //return cg->getIDQuery(minPos, maxPos);
 }

@@ -1,5 +1,5 @@
 #pragma once
-class ChunkGrid;
+class NChunkGrid;
 class WSO;
 class WSOAtlas;
 
@@ -10,10 +10,10 @@ public:
     WSOScanner(WSOAtlas* atlas);
 
     // Retrieve All The WSOs
-    std::vector<WSO*> scanWSOs(const i32v3& position, ChunkGrid* cm);
+    std::vector<WSO*> scanWSOs(const i32v3& position, NChunkGrid* cm);
 private:
     // Obtain A Box Volume Of Voxel IDs
-    const i16* getQuery(const i32v3& position, ChunkGrid* cm);
+    const i16* getQuery(const i32v3& position, NChunkGrid* cm);
 
     // This Does Not Have To Point To A Global Atlas Necessarily ;)
     WSOAtlas* _wsoAtlas;

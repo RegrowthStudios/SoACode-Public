@@ -3,7 +3,8 @@
 
 #include <Vorb/graphics/GLProgram.h>
 #include "Camera.h"
-#include "Chunk.h"
+#include "NChunk.h"
+#include "BlockPack.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
@@ -38,7 +39,7 @@ void SonarRenderStage::render(const Camera* camera) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blocks->texture.id);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
 
     glUniform1f(m_program.getUniform("sonarDistance"), SONAR_DISTANCE);
     glUniform1f(m_program.getUniform("waveWidth"), SONAR_WIDTH);

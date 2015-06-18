@@ -4,7 +4,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"

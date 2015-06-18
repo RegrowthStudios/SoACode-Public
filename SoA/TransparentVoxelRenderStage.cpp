@@ -2,16 +2,17 @@
 #include "TransparentVoxelRenderStage.h"
 
 #include <Vorb/graphics/GLProgram.h>
+#include "BlockPack.h"
 #include "Camera.h"
-#include "Chunk.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
 #include "MeshManager.h"
-#include "SoaOptions.h"
+#include "NChunk.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
+#include "SoaOptions.h"
 
 void TransparentVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;

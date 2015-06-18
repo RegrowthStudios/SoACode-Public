@@ -3,7 +3,7 @@
 
 #include <Vorb/utils.h>
 
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ParticleEngine.h"
 
 std::vector <ParticleType> particleTypes;

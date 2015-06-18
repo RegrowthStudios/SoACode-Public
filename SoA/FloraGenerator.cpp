@@ -6,7 +6,7 @@
 #include <Vorb/utils.h>
 
 #include "BlockData.h"
-#include "Chunk.h"
+#include "NChunk.h"
 #include "ChunkUpdater.h"
 #include "WorldStructs.h"
 

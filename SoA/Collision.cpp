@@ -3,7 +3,7 @@
 
 #include <Vorb/utils.h>
 
-#include "Chunk.h"
+#include "NChunk.h"
 #include "BlockPack.h"
 
 void blockCollision(Player* player, Chunk* chunk, Chunk* lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);

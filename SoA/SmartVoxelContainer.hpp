@@ -34,27 +34,27 @@ namespace vorb {
 
         template<typename T, size_t SIZE> class SmartVoxelContainer;
 
-        template<typename T, size_t SIZE>
-        class SmartHandle {
-            friend class SmartVoxelContainer<T, SIZE>;
-        public:
-            operator const T&() const;
+        //template<typename T, size_t SIZE>
+        //class SmartHandle {
+        //    friend class SmartVoxelContainer<T, SIZE>;
+        //public:
+        //    operator const T&() const;
 
-            SmartHandle& operator= (T data);
-            SmartHandle& operator= (const SmartHandle& o);
+        //    SmartHandle& operator= (T data);
+        //    SmartHandle& operator= (const SmartHandle& o);
 
-            SmartHandle(const SmartHandle& o) = delete;
-            SmartHandle& operator= (SmartHandle&& o) = delete;
-        private:
-            SmartHandle(SmartVoxelContainer<T, SIZE>& container, size_t index) :
-                m_container(container),
-                m_index(index) {
-                // Empty
-            }
+        //    SmartHandle(const SmartHandle& o) = delete;
+        //    SmartHandle& operator= (SmartHandle&& o) = delete;
+        //private:
+        //    SmartHandle(SmartVoxelContainer<T, SIZE>* container, size_t index) :
+        //        m_container(container),
+        //        m_index(index) {
+        //        // Empty
+        //    }
 
-            SmartVoxelContainer<T, SIZE>& m_container; ///< The parent container that created the handle
-            size_t m_index; ///< The index of this handle into the smart container
-        };
+        //    SmartVoxelContainer<T, SIZE>* m_container; ///< The parent container that created the handle
+        //    size_t m_index; ///< The index of this handle into the smart container
+        //};
 
         /// This should be called once per frame to reset totalContainerChanges
         inline void clearContainerCompressionsCounter() {
@@ -68,7 +68,7 @@ namespace vorb {
 
         template <typename T, size_t SIZE = CHUNK_SIZE>
         class SmartVoxelContainer {
-            friend class SmartHandle<T, SIZE>;
+           // friend class SmartHandle<T, SIZE>;
         public:
             /// Constructor
             SmartVoxelContainer() {
@@ -90,13 +90,13 @@ namespace vorb {
                 _arrayRecycler = arrayRecycler;
             }
 
-            SmartHandle<T, SIZE>&& operator[] (size_t index) {
-                SmartHandle<T, SIZE> hnd(*this, index);
-                return std::move(hnd);
-            }
-            const T& operator[] (size_t index) const {
-                return (getters[(size_t)_state])(this, index);
-            }
+            //SmartHandle<T, SIZE>& operator[] (size_t index) {
+            //    SmartHandle<T, SIZE> hnd(this, index);
+            //    return hnd;
+            //}
+            //const T& operator[] (size_t index) const {
+            //    return (getters[(size_t)_state])(this, index);
+            //}
 
 
             /// Initializes the container
@@ -184,6 +184,21 @@ namespace vorb {
             /// @param buffer: Buffer of memory to store the result
             inline void uncompressIntoBuffer(T* buffer) { _dataTree.uncompressIntoBuffer(buffer); }
 
+            /// Gets the element at index
+            /// @param index: must be (0, SIZE]
+            /// @return The element
+            inline const T& get(size_t index) const {
+                return (getters[(size_t)_state])(this, index);
+            }
+            
+            /// Sets the element at index
+            /// @param index: must be (0, SIZE]
+            /// @param value: The value to set at index
+            inline void set(size_t index, T value) {
+                _accessCount++;
+                (setters[(size_t)_state])(this, index, value);
+            }
+
             /// Getters
             VoxelStorageState getState() {
                 return _state;
@@ -219,20 +234,6 @@ namespace vorb {
 
             static Getter getters[2];
             static Setter setters[2];
-
-            /// Gets the element at index
-            /// @param index: must be (0, SIZE]
-            /// @return The element
-            inline const T& get(size_t index) const {
-                return (getters[(size_t)_state])(this, index);
-            }
-            /// Sets the element at index
-            /// @param index: must be (0, SIZE]
-            /// @param value: The value to set at index
-            inline void set(size_t index, T value) {
-                _accessCount++;
-                (setters[(size_t)_state])(this, index, value);
-            }
 
             inline void uncompress(std::mutex& dataLock) {
                 dataLock.lock();
@@ -284,24 +285,20 @@ namespace vorb {
             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler = nullptr; ///< For recycling the voxel arrays
         };
 
-        /*template<typename T, size_t SIZE>
-        inline SmartHandle<T, SIZE>::operator const T&() const {
-            return m_container[m_index];
-        }*/
-        template<typename T, size_t SIZE>
-        inline SmartHandle<T, SIZE>::operator const T&() const {
-            return (m_container.getters[(size_t)m_container.getState()])(&m_container, m_index);
-        }
-        template<typename T, size_t SIZE>
-        inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (T data) {
-            m_container.set(m_index, data);
-            return *this;
-        }
-        template<typename T, size_t SIZE>
-        inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (const SmartHandle<T, SIZE>& o) {
-            m_container.set(m_index, o.m_container[o.m_index]);
-            return *this;
-        }
+        //template<typename T, size_t SIZE>
+        //inline SmartHandle<T, SIZE>::operator const T&() const {
+        //    return (m_container->getters[(size_t)m_container->getState()])(m_container, m_index);
+        //}
+        //template<typename T, size_t SIZE>
+        //inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (T data) {
+        //    m_container->set(m_index, data);
+        //    return *this;
+        //}
+        //template<typename T, size_t SIZE>
+        //inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (const SmartHandle<T, SIZE>& o) {
+        //    m_container->set(m_index, o->m_container[o.m_index]);
+        //    return *this;
+        //}
 
         template<typename T, size_t SIZE>
         typename SmartVoxelContainer<T, SIZE>::Getter SmartVoxelContainer<T, SIZE>::getters[2] = {
