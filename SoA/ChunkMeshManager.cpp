@@ -73,7 +73,6 @@ void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
-    std::cout << "A ";
     // Get a free mesh
     updateMeshStorage();
     MeshID id = m_freeMeshes.back();
@@ -91,8 +90,6 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
 
     // Register chunk as active and give it a mesh
     m_activeChunks[message.chunkID] = id;
-
-    std::cout << m_activeChunks.size() << std::endl;
 }
 
 void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
@@ -105,6 +102,16 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
     glDeleteBuffers(4, mesh.vbos);
     glDeleteVertexArrays(4, mesh.vaos);
     if (mesh.transIndexID) glDeleteBuffers(1, &mesh.transIndexID);
+    mesh.vboID = 0;
+    mesh.vaoID = 0;
+
+    // Remove from mesh list
+    if (mesh.activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
+        m_activeChunkMeshes[mesh.activeMeshesIndex] = m_activeChunkMeshes.back();
+        m_activeChunkMeshes[mesh.activeMeshesIndex]->activeMeshesIndex = mesh.activeMeshesIndex;
+        m_activeChunkMeshes.pop_back();
+        mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
+    }
 
     // Release the mesh object
     m_freeMeshes.push_back(id);

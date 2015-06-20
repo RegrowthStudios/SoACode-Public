@@ -272,6 +272,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     if (hc > 1) hc--;
     if (hc > 1) hc--;
 
+    // Drop a thread so we don't steal the hardware on debug
+#ifdef DEBUG
+    if (hc > 1) hc--;
+#endif
+
     // Initialize the threadpool with hc threads
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
     svcmp.threadPool->init(hc);

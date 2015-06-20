@@ -18,6 +18,7 @@ f32m4 ChunkRenderer::worldMatrix = f32m4(1.0f);
 
 void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
+    checkGlError("A");
     if (cm->vboID == 0) {
         //printf("VBO is 0 in drawChunkBlocks\n");
         return;
@@ -26,13 +27,20 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    checkGlError("B");
+    glUniformMatrix4fv(program.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
+    checkGlError("C");
 
     glBindVertexArray(cm->vaoID);
+    checkGlError("D");
+
+    if (cm->vaoID == 0) {
+        std::cout << "HERE";
+    }
 
     const ChunkMeshRenderData& chunkMeshInfo = cm->renderData;
-    
+    checkGlError("V");
     //top
     if (chunkMeshInfo.pyVboSize){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
@@ -62,7 +70,7 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
     if (chunkMeshInfo.nyVboSize && PlayerPos.y < cm->position.y + chunkMeshInfo.highestY){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nyVboOff * 6 * sizeof(GLuint)) / 4));
     }
-    
+    checkGlError("B");
 
     glBindVertexArray(0);
 }
@@ -208,9 +216,9 @@ void ChunkRenderer::buildVao(ChunkMesh& cm)
     //Texture dimensions
     glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
     //color
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
+    glVertexAttribPointer(4, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
     //overlayColor
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
+    glVertexAttribPointer(5, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
     //lightcolor[3], sunlight,
     glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, lampColor));
     //normal

@@ -175,10 +175,9 @@ void GameplayRenderer::render() {
     m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
 
     if (m_voxelsActive) {
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
         stages.opaqueVoxel.render(&m_state->localCamera);
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
