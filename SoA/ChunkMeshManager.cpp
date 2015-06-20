@@ -73,7 +73,7 @@ void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
-
+    std::cout << "A ";
     // Get a free mesh
     updateMeshStorage();
     MeshID id = m_freeMeshes.back();

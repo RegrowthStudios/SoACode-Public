@@ -13,8 +13,7 @@ public:
 // Size: 32 Bytes
 class BlockVertex {
 public:
-    class vPosition {  //3 bytes  << 1
-    public:
+    struct {  //3 bytes  << 1
         ubyte x;
         ubyte y;
         ubyte z;

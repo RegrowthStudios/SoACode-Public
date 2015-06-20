@@ -32,7 +32,6 @@ void main() {
 uniform float unZCoef;
 
 in vec4 fTint;
-in float fLogZ;
 
 out vec4 fColor;
 

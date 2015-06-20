@@ -87,7 +87,7 @@ public:
     }
 
     BlockTextureIndex getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8 color) const {
-        BlockTextureIndex index = index;
+        BlockTextureIndex index = this->index;
         params.set(this, color);
         blockTextureFunc(params, index);
         return index;

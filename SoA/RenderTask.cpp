@@ -95,6 +95,11 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
     ui8* chSunlightData = chunkMesher->_sunlightData;
     ui16* chTertiaryData = chunkMesher->_tertiaryData;
 
+    memset(chData, 0, sizeof(chunkMesher->_blockIDData));
+    memset(chLampData, 0, sizeof(chunkMesher->_lampLightData));
+    memset(chSunlightData, 0, sizeof(chunkMesher->_sunlightData));
+    memset(chTertiaryData, 0, sizeof(chunkMesher->_tertiaryData));
+
     chunkMesher->wSize = 0;
     chunkMesher->chunk = chunk;
     chunkMesher->chunkGridData = chunk->gridData;

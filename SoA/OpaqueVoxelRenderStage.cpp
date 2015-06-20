@@ -65,7 +65,7 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
     for (int i = chunkMeshes.size() - 1; i >= 0; i--) {
         ChunkMesh* cm = chunkMeshes[i];
 
-        if (m_gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
+        if (1 || m_gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
             // TODO(Ben): Implement perfect fade
             cm->inFrustum = 1;
             ChunkRenderer::drawOpaque(cm, m_program, position,
