@@ -75,23 +75,27 @@ void SphericalVoxelComponentUpdater::updateChunks(NChunkGrid& grid, const VoxelP
 
         // Check container update
         if (chunk->genLevel == GEN_DONE) {
-            chunk->updateContainers();
+        //    chunk->updateContainers();
         }
 
         // Check for unload
-        if (chunk->m_distance2 > renderDist2 && chunk->refCount == 0) {
-            // Unload the chunk
-            NChunk* tmp = chunk;
-            chunk = chunk->getNextActive();
-            disposeChunk(tmp);
-            grid.removeChunk(tmp);
+        if (chunk->m_distance2 > renderDist2) {
+            if (chunk->refCount == 0) {
+                // Unload the chunk
+                NChunk* tmp = chunk;
+                chunk = chunk->getNextActive();
+                disposeChunk(tmp);
+                grid.removeChunk(tmp);
+            } else {
+                chunk = chunk->getNextActive();
+            }
         } else {
             // Check for neighbor loading TODO(Ben): Don't keep redundantly checking edges? Distance threshold?
             if (!chunk->hasAllNeighbors()){
                 if (chunk->genLevel > GEN_TERRAIN) {
                     tryLoadChunkNeighbors(chunk, agentPosition, renderDist2);
                 }
-            } else if (chunk->needsRemesh()) {
+            } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
                 requestChunkMesh(chunk);
             }
             chunk = chunk->getNextActive();
@@ -163,9 +167,10 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
         // Get a render task
         // TODO(Ben): This is a purposeful, temporary memory leak. Don't freak out
         RenderTask* newRenderTask = new RenderTask;
- 
+        
         newRenderTask->init(chunk, RenderTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
+        chunk->refCount++;
         m_cmp->threadPool->addTask(newRenderTask);
 
         chunk->m_remeshFlags = 0;

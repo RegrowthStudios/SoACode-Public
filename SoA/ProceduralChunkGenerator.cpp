@@ -90,6 +90,10 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
               //      chunk->spawnerBlocks.push_back(c);
               //  }
 
+                if (c == 0) {
+                    blockData = 2;
+                }
+
                 // Set up the data arrays
                 if (blockDataArray.size() == 0) {
                     blockDataArray.emplace_back(c, 1, blockData);

@@ -13,11 +13,6 @@
 #include "VoxelUtils.h"
 
 void RenderTask::execute(WorkerData* workerData) {
-    if (this == nullptr) {
-        std::cout << "OHGOD";
-        int a;
-        std::cin >> a;
-    }
 
     // Mesh updates are accompanied by light updates // TODO(Ben): Seems wasteful.
     if (workerData->voxelLightEngine == nullptr) {
@@ -35,6 +30,9 @@ void RenderTask::execute(WorkerData* workerData) {
 
     // Pre-processing
     setupMeshData(workerData->chunkMesher);
+    ChunkMeshMessage msg;
+    msg.chunkID = chunk->getID();
+    chunk->refCount--;
 
     // Mesh based on render job type
     switch (type) {
@@ -45,8 +43,8 @@ void RenderTask::execute(WorkerData* workerData) {
             workerData->chunkMesher->createOnlyWaterMesh(this);
             break;
     }
-    ChunkMeshMessage msg;
-    msg.chunkID = chunk->getID();
+   
+    
     msg.messageID = ChunkMeshMessageID::UPDATE;
     msg.data = workerData->chunkMesher->chunkMeshData;
     meshManager->sendMessage(msg);

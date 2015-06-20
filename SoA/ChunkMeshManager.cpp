@@ -91,6 +91,8 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
 
     // Register chunk as active and give it a mesh
     m_activeChunks[message.chunkID] = id;
+
+    std::cout << m_activeChunks.size() << std::endl;
 }
 
 void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {

@@ -66,6 +66,8 @@ void GameplayScreen::destroy(const vui::GameTime& gameTime) {
 
 void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+
     initInput();
 
     ChunkMesher::bindVBOIndicesID();
@@ -345,6 +347,7 @@ void GameplayScreen::initRenderPipeline() {
 /// This is the update thread
 void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(60.0f);
