@@ -674,7 +674,6 @@ EXIT 0</Command>
     <ClInclude Include="ChunkUpdater.h" />
     <ClInclude Include="GeometrySorter.h" />
     <ClInclude Include="SmartVoxelContainer.hpp" />
-    <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="LiquidData.h" />
     <ClInclude Include="LoadBar.h" />
     <ClInclude Include="MainMenuLoadScreen.h" />
@@ -927,7 +926,6 @@ EXIT 0</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="VirtualKeyKegDef.inl" />
-    <None Include="VoxelIntervalTree.inl" />
     <None Include="VoxelUpdateOrder.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

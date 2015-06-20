@@ -22,6 +22,8 @@
 #include "SoaFileSystem.h"
 #include "SoaState.h"
 
+#include "SmartVoxelContainer.hpp"
+
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
 const color4 LOAD_COLOR_BG_FINISHED(25, 105, 5, 255);
@@ -104,6 +106,7 @@ void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
+
     SoaFileSystem fs;
     fs.init();
     MusicPlayer mp;

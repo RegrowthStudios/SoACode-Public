@@ -356,9 +356,6 @@
     <ClInclude Include="ChunkMesh.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelIntervalTree.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -1306,9 +1303,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VoxelIntervalTree.inl">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
     <None Include="VoxelUpdateOrder.inl">
       <Filter>SOA Files\Voxel</Filter>
     </None>

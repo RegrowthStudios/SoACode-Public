@@ -126,7 +126,7 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chData[wc] = chunk->m_blocks.get(c);
+                    chData[wc] = chunk->m_blocks[c];
                     if (GETBLOCK(chData[wc]).meshType == MeshType::LIQUID) {
                         wvec[s++] = wc;
                     }

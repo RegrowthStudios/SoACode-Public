@@ -30,10 +30,10 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
     VoxelPosition3D voxPosition = chunk->getVoxelPosition();
 
     // Grab the handles to the arrays
-    std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockDataArray;
-    std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightDataArray;
-    std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightDataArray;
-    std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataArray;
+    std::vector<IntervalTree<ui16>::LNode> blockDataArray;
+    std::vector<IntervalTree<ui16>::LNode> lampLightDataArray;
+    std::vector<IntervalTree<ui8>::LNode> sunlightDataArray;
+    std::vector<IntervalTree<ui16>::LNode> tertiaryDataArray;
     ui16 c = 0;
     for (size_t y = 0; y < CHUNK_WIDTH; y++) {
         for (size_t z = 0; z < CHUNK_WIDTH; z++) {

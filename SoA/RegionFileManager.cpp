@@ -566,10 +566,10 @@ bool RegionFileManager::fillChunkVoxelData(NChunk* chunk) {
 
 
     ////Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
-    //static std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    //static std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    //static std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
-    //static std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui16>::LNode> blockIDNodes(CHUNK_SIZE, IntervalTree<ui16>::LNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui16>::LNode> lampLightNodes(CHUNK_SIZE, IntervalTree<ui16>::LNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui8>::LNode> sunlightNodes(CHUNK_SIZE, IntervalTree<ui8>::LNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui16>::LNode> tertiaryDataNodes(CHUNK_SIZE, IntervalTree<ui16>::LNode(0, 0, 0));
 
     ////Make the size 0
     //blockIDNodes.clear();
@@ -584,10 +584,10 @@ bool RegionFileManager::fillChunkVoxelData(NChunk* chunk) {
     //ui16 tertiaryData;
 
     ////Add first nodes
-    //blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
-    //lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
-    //sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
-    //tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
+    //blockIDNodes.push_back(IntervalTree<ui16>::LNode(0, 1, _blockIDBuffer[0]));
+    //lampLightNodes.push_back(IntervalTree<ui16>::LNode(0, 1, _lampLightBuffer[0]));
+    //sunlightNodes.push_back(IntervalTree<ui8>::LNode(0, 1, _sunlightBuffer[0]));
+    //tertiaryDataNodes.push_back(IntervalTree<ui16>::LNode(0, 1, _tertiaryDataBuffer[0]));
 
     ////Construct the node vectors
     //for (int i = 1; i < CHUNK_SIZE; i++) {
@@ -605,22 +605,22 @@ bool RegionFileManager::fillChunkVoxelData(NChunk* chunk) {
     //    if (blockID == blockIDNodes.back().data) {
     //        blockIDNodes.back().length++;
     //    } else {
-    //        blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, blockID));
+    //        blockIDNodes.push_back(IntervalTree<ui16>::LNode(i, 1, blockID));
     //    }
     //    if (lampLight == lampLightNodes.back().data) {
     //        lampLightNodes.back().length++;
     //    } else {
-    //        lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, lampLight));
+    //        lampLightNodes.push_back(IntervalTree<ui16>::LNode(i, 1, lampLight));
     //    }
     //    if (sunlight == sunlightNodes.back().data) {
     //        sunlightNodes.back().length++;
     //    } else {
-    //        sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
+    //        sunlightNodes.push_back(IntervalTree<ui8>::LNode(i, 1, sunlight));
     //    }
     //    if (tertiaryData == tertiaryDataNodes.back().data) {
     //        tertiaryDataNodes.back().length++;
     //    } else {
-    //        tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, tertiaryData));
+    //        tertiaryDataNodes.push_back(IntervalTree<ui16>::LNode(i, 1, tertiaryData));
     //    }
     //}
   
