@@ -19,6 +19,7 @@
 #include "TerrainPatch.h"
 #include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
+#include "PlanetData.h"
 
 struct NoiseBase;
 struct PlanetHeightData;

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "SphericalTerrainCpuGenerator.h"
 
-#include "PlanetData.h"
 #include "PlanetHeightData.h"
 #include "VoxelSpaceConversions.h"
 #include "CpuNoise.h"
@@ -64,9 +63,9 @@ void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, 
 
     pos = glm::normalize(pos) * m_genData->radius;
 
-    height.height = m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, TerrainOp::ADD);
-    height.temperature = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, TerrainOp::ADD);
-    height.rainfall = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, TerrainOp::ADD);
+    height.height = m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    height.temperature = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    height.rainfall = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
 }
 
@@ -81,7 +80,7 @@ f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition)
     pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
 
     pos = glm::normalize(pos) * m_genData->radius;
-    return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, TerrainOp::ADD);
+    return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
 f32 doOperation(const TerrainOp& op, f32 a, f32 b) {
@@ -91,7 +90,7 @@ f32 doOperation(const TerrainOp& op, f32 a, f32 b) {
         case TerrainOp::MUL: return a * b;
         case TerrainOp::DIV: return a / b;
     }
-    return 0.0f
+    return 0.0f;
 }
 
 f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
@@ -106,6 +105,8 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
     f64 amplitude;
     f64 maxAmplitude;
     f64 frequency;
+    f64v2 ff;
+    f64 tmp;
 
     TerrainOp nextOp;
 
@@ -143,6 +144,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
             f64 maxAmplitude = 0.0;
             f64 frequency = fn.frequency;
             for (int i = 0; i < fn.octaves; i++) {
+                
                 switch (fn.func) {
                     case TerrainStage::CUBED_NOISE:
                     case TerrainStage::SQUARED_NOISE:
@@ -156,17 +158,17 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                         total += glm::abs(CpuNoise::rawAshimaSimplex3D(pos * frequency)) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_NOISE:
-                        f64v2 ff = CpuNoise::cellular(pos * frequency);
+                        ff = CpuNoise::cellular(pos * frequency);
                         total += (ff.y - ff.x) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_SQUARED_NOISE:
-                        f64v2 ff = CpuNoise::cellular(pos * frequency);
-                        f64 tmp = ff.y - ff.x;
+                        ff = CpuNoise::cellular(pos * frequency);
+                        tmp = ff.y - ff.x;
                         total += tmp * tmp * amplitude;
                         break;
                     case TerrainStage::CELLULAR_CUBED_NOISE:
-                        f64v2 ff = CpuNoise::cellular(pos * frequency);
-                        f64 tmp = ff.y - ff.x;
+                        ff = CpuNoise::cellular(pos * frequency);
+                        tmp = ff.y - ff.x;
                         total += tmp * tmp * tmp * amplitude;
                         break;
                 }

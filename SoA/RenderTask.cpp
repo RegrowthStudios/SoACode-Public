@@ -13,6 +13,11 @@
 #include "VoxelUtils.h"
 
 void RenderTask::execute(WorkerData* workerData) {
+    if (this == nullptr) {
+        std::cout << "OHGOD";
+        int a;
+        std::cin >> a;
+    }
 
     // Mesh updates are accompanied by light updates // TODO(Ben): Seems wasteful.
     if (workerData->voxelLightEngine == nullptr) {
