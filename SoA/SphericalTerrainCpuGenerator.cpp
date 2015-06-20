@@ -64,9 +64,9 @@ void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, 
 
     pos = glm::normalize(pos) * m_genData->radius;
 
-    height.height = getNoiseValue(pos, m_genData->baseTerrainFuncs);
-    height.temperature = getNoiseValue(pos, m_genData->tempTerrainFuncs);
-    height.rainfall = getNoiseValue(pos, m_genData->humTerrainFuncs);
+    height.height = m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, TerrainOp::ADD);
+    height.temperature = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, TerrainOp::ADD);
+    height.rainfall = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, TerrainOp::ADD);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
 }
 
@@ -81,53 +81,134 @@ f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition)
     pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
 
     pos = glm::normalize(pos) * m_genData->radius;
-    return getNoiseValue(pos, m_genData->baseTerrainFuncs);
+    return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, TerrainOp::ADD);
 }
 
-f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos, const NoiseBase& funcs) const {
+f32 doOperation(const TerrainOp& op, f32 a, f32 b) {
+    switch (op) {
+        case TerrainOp::ADD: return a + b;
+        case TerrainOp::SUB: return a - b;
+        case TerrainOp::MUL: return a * b;
+        case TerrainOp::DIV: return a / b;
+    }
+    return 0.0f
+}
+
+f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
+                                                const Array<TerrainFuncKegProperties>& funcs,
+                                                f32* modifier,
+                                                const TerrainOp& op) const {
 
 #define SCALE_CODE rv += (total / maxAmplitude) * (fn.high - fn.low) * 0.5f + (fn.high + fn.low) * 0.5f
 
-    f64 rv = funcs.base;
+    f64 rv = 0.0f;
     f64 total;
     f64 amplitude;
     f64 maxAmplitude;
     f64 frequency;
 
+    TerrainOp nextOp;
+
     // NOTE: Make sure this implementation matches NoiseShaderGenerator::addNoiseFunctions()
-    for (size_t f = 0; f < funcs.funcs.size(); f++) {
-        auto& fn = funcs.funcs[f];
-        switch (fn.func) {
-            case TerrainStage::NOISE:
-                total = 0.0f;
-                amplitude = 1.0f;
-                maxAmplitude = 0.0f;
-                frequency = fn.frequency;
-                for (int i = 0; i < fn.octaves; i++) {
-                    total += CpuNoise::rawAshimaSimplex3D(pos * frequency) * amplitude;
+    for (size_t f = 0; f < funcs.size(); f++) {
+        auto& fn = funcs[f];
 
-                    frequency *= 2.0f;
-                    maxAmplitude += amplitude;
-                    amplitude *= fn.persistence;
-                }
-                SCALE_CODE;
-                break;
-            case TerrainStage::RIDGED_NOISE:
-                total = 0.0f;
-                amplitude = 1.0f;
-                maxAmplitude = 0.0f;
-                frequency = fn.frequency;
-                for (int i = 0; i < fn.octaves; i++) {
-                    total += ((1.0f - glm::abs(CpuNoise::rawAshimaSimplex3D(pos * frequency))) * 2.0f - 1.0f) * amplitude;
+        float h = 0.0f;
 
-                    frequency *= 2.0f;
-                    maxAmplitude += amplitude;
-                    amplitude *= fn.persistence;
+        // Check if its not a noise function
+        if (fn.func == TerrainStage::CONSTANT) {
+            h = fn.low;
+            // Apply parent before clamping
+            if (modifier) {
+                h = doOperation(op, h, *modifier);
+            }
+            // Optional clamp if both fields are not 0.0f
+            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                h = glm::clamp(*modifier, fn.clamp[0], fn.clamp[1]);
+            }
+            nextOp = fn.op;
+        } else if (fn.func == TerrainStage::PASS_THROUGH) {
+            // Apply parent before clamping
+            if (modifier) {
+                h = doOperation(op, *modifier, fn.low);
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
-                SCALE_CODE;
-                break;
-            default:
-                break;
+            }
+            nextOp = op;
+        } else { // It's a noise function
+            f64 total = 0.0;
+            f64 amplitude = 1.0;
+            f64 maxAmplitude = 0.0;
+            f64 frequency = fn.frequency;
+            for (int i = 0; i < fn.octaves; i++) {
+                switch (fn.func) {
+                    case TerrainStage::CUBED_NOISE:
+                    case TerrainStage::SQUARED_NOISE:
+                    case TerrainStage::NOISE:
+                        total += CpuNoise::rawAshimaSimplex3D(pos * frequency) * amplitude;
+                        break;
+                    case TerrainStage::RIDGED_NOISE:
+                        total += ((1.0 - glm::abs(CpuNoise::rawAshimaSimplex3D(pos * frequency))) * 2.0 - 1.0) * amplitude;
+                        break;
+                    case TerrainStage::ABS_NOISE:
+                        total += glm::abs(CpuNoise::rawAshimaSimplex3D(pos * frequency)) * amplitude;
+                        break;
+                    case TerrainStage::CELLULAR_NOISE:
+                        f64v2 ff = CpuNoise::cellular(pos * frequency);
+                        total += (ff.y - ff.x) * amplitude;
+                        break;
+                    case TerrainStage::CELLULAR_SQUARED_NOISE:
+                        f64v2 ff = CpuNoise::cellular(pos * frequency);
+                        f64 tmp = ff.y - ff.x;
+                        total += tmp * tmp * amplitude;
+                        break;
+                    case TerrainStage::CELLULAR_CUBED_NOISE:
+                        f64v2 ff = CpuNoise::cellular(pos * frequency);
+                        f64 tmp = ff.y - ff.x;
+                        total += tmp * tmp * tmp * amplitude;
+                        break;
+                }
+                frequency *= 2.0;
+                maxAmplitude += amplitude;
+                amplitude *= fn.persistence;
+            }
+            total = (total / maxAmplitude);
+            // Handle any post processes per noise
+            switch (fn.func) {
+                case TerrainStage::CUBED_NOISE:
+                    total = total * total * total;
+                    break;
+                case TerrainStage::SQUARED_NOISE:
+                    total = total * total;
+                    break;
+                default:
+                    break;
+            }
+            // Conditional scaling. 
+            float h;
+            if (fn.low != -1.0f || fn.high != 1.0f) {
+                h = (total / maxAmplitude) * (fn.high - fn.low) * 0.5 + (fn.high + fn.low) * 0.5;
+            } else {
+                h = total;
+            }
+            // Optional clamp if both fields are not 0.0f
+            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
+            }
+            // Apply modifier from parent if needed
+            if (modifier) {
+                h = doOperation(op, h, *modifier);
+            }
+            nextOp = fn.op;
+        }
+
+        if (fn.children.size()) {
+            getNoiseValue(pos, fn.children, &h, nextOp);
+            rv += h;
+        } else {
+            rv = doOperation(fn.op, rv, h);
         }
     }
     return rv;

@@ -122,10 +122,10 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
         }
     }
     // Set up interval trees
-    chunk->m_blocks.initFromSortedArray(vvox::VoxelStorageState::FLAT_ARRAY, blockDataArray);
-    chunk->m_lamp.initFromSortedArray(vvox::VoxelStorageState::FLAT_ARRAY, lampLightDataArray);
-    chunk->m_sunlight.initFromSortedArray(vvox::VoxelStorageState::FLAT_ARRAY, sunlightDataArray);
-    chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::FLAT_ARRAY, tertiaryDataArray);
+    chunk->m_blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray);
+    chunk->m_lamp.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightDataArray);
+    chunk->m_sunlight.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightDataArray);
+    chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray);
 }
 
 void ProceduralChunkGenerator::generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const {

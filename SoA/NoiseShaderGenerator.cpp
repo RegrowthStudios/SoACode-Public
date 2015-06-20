@@ -123,11 +123,12 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
             // Apply parent before clamping
             if (modifier.length()) {
                 fSource += h + getOpChar(fn.op) + "=" + TS(fn.low) + ";\n";
-            }
-            // Optional clamp if both fields are not 0.0f
-            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
-            }
+
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+                }
+            }           
             nextOp = op;
         } else { // It's a noise function
             fSource = fSource +

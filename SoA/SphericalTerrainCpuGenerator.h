@@ -36,10 +36,11 @@ public:
     f64 getHeight(const VoxelPosition2D& facePosition) const;
 private:
     /// Gets noise value using terrainFuncs
-    /// @param pos: Position to sample noise from
-    /// @Param funcs: The terrain functions to use
     /// @return the noise value
-    f64 getNoiseValue(const f64v3& pos, const NoiseBase& funcs) const;
+    f64 getNoiseValue(const f64v3& pos,
+                      const Array<TerrainFuncKegProperties>& funcs,
+                      f32* modifier,
+                      const TerrainOp& op) const;
 
   //  TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data
