@@ -201,7 +201,7 @@ bool BlockLoader::tryLoadMapping(const vio::IOManager& iom, const cString filePa
 
 bool BlockLoader::saveBinary(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
     vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::WRITE_ONLY_CREATE | vio::FileOpenFlags::BINARY);
-    if (!fs.isOpened()) pError("Failed to open binary block cache file for save.");
+    if (!fs.isOpened()) return false;
 
     ui32 size = pack->getBlockMap().size();
     ui32 blockSize = sizeof(Block);

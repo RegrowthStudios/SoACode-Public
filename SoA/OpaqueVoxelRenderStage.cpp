@@ -49,7 +49,7 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
     glUniform3f(m_program.getUniform("unAmbientLight"), blockAmbient, blockAmbient, blockAmbient);
     glUniform3fv(m_program.getUniform("unSunColor"), 1, &(m_gameRenderParams->sunlightColor[0]));
 
-    glUniform1f(m_program.getUniform("unFadeDist"), ChunkRenderer::fadeDist);
+    glUniform1f(m_program.getUniform("unFadeDist"), 1000.0f/*ChunkRenderer::fadeDist*/);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
 
     f64v3 closestPoint;

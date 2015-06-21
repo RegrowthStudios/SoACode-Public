@@ -96,6 +96,12 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
 void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
+    // Check for rare case where destroy comes before create, just re-enqueue.
+    if (it == m_activeChunks.end()) {
+        sendMessage(message);
+        std::cout << "RESEND\n";
+        return;
+    }
     ChunkMesh::ID& id = it->second;
     ChunkMesh& mesh = m_meshStorage[id];
 
@@ -121,8 +127,8 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
     if (it == m_activeChunks.end()) return; /// The mesh was already released, so ignore! // TODO(Ben): MEMORY LEAK!!)(&@!%
+    fflush(stdout);
 
-    // TODO(Ben): According to moodycamel there is a tiny chance of messages being out of order?
     ChunkMesh &mesh = m_meshStorage[it->second];
 
     ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);

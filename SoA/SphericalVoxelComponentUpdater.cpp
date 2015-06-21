@@ -154,15 +154,7 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
 
     if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
 
-        // Make the mesh!
-        if (!chunk->hasCreatedMesh) {
-            ChunkMeshMessage msg;
-            msg.chunkID = chunk->getID();
-            msg.data = &chunk->m_voxelPosition;
-            msg.messageID = ChunkMeshMessageID::CREATE;
-            m_cmp->chunkMeshManager->sendMessage(msg);
-            chunk->hasCreatedMesh = true;
-        }
+       
 
         // Get a render task
         // TODO(Ben): This is a purposeful, temporary memory leak. Don't freak out

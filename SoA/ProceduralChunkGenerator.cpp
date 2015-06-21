@@ -90,7 +90,7 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
               //      chunk->spawnerBlocks.push_back(c);
               //  }
 
-                if (c == 0) {
+                if (c < 1024) {
                     blockData = 2;
                 }
 

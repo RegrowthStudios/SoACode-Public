@@ -78,6 +78,9 @@ void ChunkGridRenderStage::render(const Camera* camera) {
                 case GEN_DONE:
                     color = ColorRGBA8(0, 0, 255, 255);
                     break;
+                case GEN_FLORA:
+                    color = ColorRGBA8(0, 255, 0, 255);
+                    break;
                 default:
                     color = ColorRGBA8(255, 0, 0, 255);
                     break;
@@ -121,11 +124,9 @@ void ChunkGridRenderStage::render(const Camera* camera) {
         glUniformMatrix4fv(m_program.getUniform("MVP"), 1,
                            GL_FALSE,
                            &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
-        glDisable(GL_DEPTH_TEST);
         // Draw the grid
         mesh.draw();
         // Unuse the program
         m_program.unuse();
-        glEnable(GL_DEPTH_TEST);
     }
 }

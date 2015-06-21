@@ -14,6 +14,16 @@
 
 void RenderTask::execute(WorkerData* workerData) {
 
+    // Make the mesh!
+    if (!chunk->hasCreatedMesh) {
+        ChunkMeshMessage msg;
+        msg.chunkID = chunk->getID();
+        msg.data = &chunk->m_voxelPosition;
+        msg.messageID = ChunkMeshMessageID::CREATE;
+        meshManager->sendMessage(msg);
+        chunk->hasCreatedMesh = true;
+    }
+
     // Mesh updates are accompanied by light updates // TODO(Ben): Seems wasteful.
     if (workerData->voxelLightEngine == nullptr) {
         workerData->voxelLightEngine = new VoxelLightEngine();

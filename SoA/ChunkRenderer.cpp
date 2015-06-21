@@ -18,7 +18,6 @@ f32m4 ChunkRenderer::worldMatrix = f32m4(1.0f);
 
 void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP)
 {
-    checkGlError("A");
     if (cm->vboID == 0) {
         //printf("VBO is 0 in drawChunkBlocks\n");
         return;
@@ -28,21 +27,13 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
     f32m4 MVP = VP * worldMatrix;
 
     glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
-    checkGlError("B");
     glUniformMatrix4fv(program.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
-    checkGlError("C");
 
     glBindVertexArray(cm->vaoID);
-    checkGlError("D");
-
-    if (cm->vaoID == 0) {
-        std::cout << "HERE";
-    }
 
     const ChunkMeshRenderData& chunkMeshInfo = cm->renderData;
-    checkGlError("V");
     //top
-    if (chunkMeshInfo.pyVboSize){
+    if (chunkMeshInfo.pyVboSize && PlayerPos.y > cm->position.y + chunkMeshInfo.lowestY) {
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.pyVboOff * 6 * sizeof(GLuint)) / 4));
     }
 
@@ -70,7 +61,6 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
     if (chunkMeshInfo.nyVboSize && PlayerPos.y < cm->position.y + chunkMeshInfo.highestY){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, ((char *)NULL + (chunkMeshInfo.nyVboOff * 6 * sizeof(GLuint)) / 4));
     }
-    checkGlError("B");
 
     glBindVertexArray(0);
 }
