@@ -16,11 +16,9 @@
 #ifndef ChunkMeshManager_h__
 #define ChunkMeshManager_h__
 
-class ChunkMesh;
-class ChunkMeshData;
-
 #include "concurrentqueue.h"
 #include "NChunk.h"
+#include "ChunkMesh.h"
 #include <mutex>
 
 enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
@@ -46,8 +44,6 @@ public:
 private:
     VORB_NON_COPYABLE(ChunkMeshManager);
 
-    typedef ui32 MeshID;
-
     void processMessage(ChunkMeshMessage& message);
 
     void createMesh(ChunkMeshMessage& message);
@@ -63,9 +59,9 @@ private:
     std::vector <ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
     moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
 
-    std::vector <MeshID> m_freeMeshes; ///< Stack of free mesh indices
+    std::vector <ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
     std::vector <ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
-    std::unordered_map<ChunkID, MeshID> m_activeChunks; ///< Stores chunk IDs that have meshes
+    std::unordered_map<ChunkID, ChunkMesh::ID> m_activeChunks; ///< Stores chunk IDs that have meshes
 };
 
 #endif // ChunkMeshManager_h__

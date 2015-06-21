@@ -35,9 +35,9 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
 void ChunkMeshManager::destroy() {
     std::vector <ChunkMesh*>().swap(m_activeChunkMeshes);
     moodycamel::ConcurrentQueue<ChunkMeshMessage>().swap(m_messages);
-    std::vector <MeshID>().swap(m_freeMeshes);
+    std::vector <ChunkMesh::ID>().swap(m_freeMeshes);
     std::vector <ChunkMesh>().swap(m_meshStorage);
-    std::unordered_map<ChunkID, MeshID>().swap(m_activeChunks);
+    std::unordered_map<ChunkID, ChunkMesh::ID>().swap(m_activeChunks);
 }
 
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
@@ -75,16 +75,17 @@ void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
 void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
     // Get a free mesh
     updateMeshStorage();
-    MeshID id = m_freeMeshes.back();
+    ChunkMesh::ID id = m_freeMeshes.back();
     m_freeMeshes.pop_back();
     ChunkMesh& mesh = m_meshStorage[id];
+    mesh.id = id;
 
     // Set the position
     mesh.position = static_cast<VoxelPosition3D*>(message.data)->pos;
 
     // Zero buffers
     memset(mesh.vbos, 0, sizeof(mesh.vbos));
-    memset(mesh.vaos, 0, sizeof(mesh.vbos));
+    memset(mesh.vaos, 0, sizeof(mesh.vaos));
     mesh.transIndexID = 0;
     mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
 
@@ -95,15 +96,13 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
 void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
-    MeshID& id = it->second;
+    ChunkMesh::ID& id = it->second;
     ChunkMesh& mesh = m_meshStorage[id];
 
     // De-allocate buffer objects
     glDeleteBuffers(4, mesh.vbos);
     glDeleteVertexArrays(4, mesh.vaos);
     if (mesh.transIndexID) glDeleteBuffers(1, &mesh.transIndexID);
-    mesh.vboID = 0;
-    mesh.vaoID = 0;
 
     // Remove from mesh list
     if (mesh.activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
@@ -249,9 +248,9 @@ void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
 void ChunkMeshManager::updateMeshStorage() {
     if (m_freeMeshes.empty()) {
         // Need to cache all indices
-        std::vector<ui32> tmp(m_activeChunkMeshes.size());
+        std::vector<ChunkMesh::ID> tmp(m_activeChunkMeshes.size());
         for (size_t i = 0; i < tmp.size(); i++) {
-            tmp[i] = m_activeChunkMeshes[i]->activeMeshesIndex;
+            tmp[i] = m_activeChunkMeshes[i]->id;
         }
 
         // Resize the storage
@@ -263,7 +262,7 @@ void ChunkMeshManager::updateMeshStorage() {
 
         // Set the pointers again, since they were invalidated
         for (size_t i = 0; i < tmp.size(); i++) {
-            m_activeChunkMeshes[i] = &m_meshStorage[i];
+            m_activeChunkMeshes[i] = &m_meshStorage[tmp[i]];
         }
     }
 }

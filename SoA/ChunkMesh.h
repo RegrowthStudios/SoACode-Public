@@ -120,6 +120,9 @@ public:
 class ChunkMesh
 {
 public:
+
+    typedef ui32 ID;
+
     ChunkMeshRenderData renderData;
     union {
         struct {
@@ -145,6 +148,7 @@ public:
     ui32 activeMeshesIndex; ///< Index into active meshes array
     bool inFrustum = false;
     bool needsSort = true;
+    ID id;
 
     //*** Transparency info for sorting ***
     VGIndexBuffer transIndexID = 0;
