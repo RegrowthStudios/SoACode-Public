@@ -102,6 +102,7 @@ public:
 
     ChunkMeshRenderData chunkMeshRenderData;
 
+    // TODO(Ben): Could use a contiguous buffer for this?
     std::vector <BlockVertex> vertices;
     std::vector <BlockVertex> transVertices;
     std::vector <BlockVertex> cutoutVertices;

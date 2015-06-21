@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 #include "Chunk.h"
 #include "ChunkAllocator.h"
 

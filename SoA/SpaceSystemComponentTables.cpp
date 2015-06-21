@@ -7,7 +7,7 @@
 #include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
 #include "FarTerrainPatch.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "PlanetData.h"

@@ -596,7 +596,7 @@ EXIT 0</Command>
     <ClInclude Include="MusicPlayer.h" />
     <ClInclude Include="BlockTextureLoader.h" />
     <ClInclude Include="Chunk.h" />
-    <ClInclude Include="NChunkGrid.h" />
+    <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
     <ClInclude Include="NoiseShaderGenerator.h" />
@@ -722,7 +722,7 @@ EXIT 0</Command>
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="ObjectLoader.h" />
-    <ClInclude Include="OpenGLStructs.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="SoaOptions.h" />
     <ClInclude Include="Particles.h" />
     <ClInclude Include="readerwriterqueue.h" />
@@ -795,7 +795,7 @@ EXIT 0</Command>
     <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="Chunk.cpp" />
-    <ClCompile Include="NChunkGrid.cpp" />
+    <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />

@@ -3,17 +3,30 @@
 #include "BlockData.h"
 #include "ChunkMesh.h"
 
-class RenderTask;
+class BlockPack;
+class BlockTextureLayer;
 class Chunk;
 class ChunkMeshData;
-class BlockPack;
+class RenderTask;
 struct BlockTexture;
-class BlockTextureLayer;
+struct PlanetHeightData;
 
 // Sizes For A Padded Chunk
 const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
 const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
 const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
+
+struct VoxelQuad {
+    union {
+        struct {
+            BlockVertex v0;
+            BlockVertex v1;
+            BlockVertex v2;
+            BlockVertex v3;
+        };
+        BlockVertex verts[4];
+    };
+};
 
 // each worker thread gets one of these
 class ChunkMesher {
@@ -29,36 +42,21 @@ public:
 
     ChunkMeshData* chunkMeshData = nullptr;
 private:
+    // Cardinal?
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
 
-    void mergeTopVerts(MesherInfo& mi);
-    void mergeFrontVerts(MesherInfo& mi);
-    void mergeBackVerts(MesherInfo& mi);
-    void mergeRightVerts(MesherInfo& mi);
-    void mergeLeftVerts(MesherInfo& mi);
-    void mergeBottomVerts(MesherInfo& mi);
-
-    void addBlockToMesh(MesherInfo& mi);
-    void addBlockXFace()
-
-    void addFloraToMesh(MesherInfo& mi);
-    void addLiquidToMesh(MesherInfo& mi);
+    void addBlock();
+    void addFlora();
+    void addLiquid(MesherInfo& mi);
 
     int getLiquidLevel(int blockIndex, const Block& block);
 
-    bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
+    bool shouldRenderFace(int offset);
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
     void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
     void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
 
-    void computeLODData(int levelOfDetail);
-
-    std::vector<BlockVertex> _finalTopVerts;
-    std::vector<BlockVertex> _finalLeftVerts;
-    std::vector<BlockVertex> _finalRightVerts;
-    std::vector<BlockVertex> _finalFrontVerts;
-    std::vector<BlockVertex> _finalBackVerts;
-    std::vector<BlockVertex> _finalBottomVerts;
+    std::vector<BlockVertex> m_finalVerts[6];
 
     std::vector<BlockVertex> _vboVerts;
     std::vector<BlockVertex> _transparentVerts;
@@ -66,9 +64,15 @@ private:
     std::vector<LiquidVertex> _waterVboVerts;
 
     //Dimensions of the voxel data, based on LOD
-    int dataWidth;
-    int dataLayer;
-    int dataSize;
+    int m_dataWidth;
+    int m_dataLayer;
+    int m_dataSize;
+
+    int bx, by, bz; // Block iterators
+    int m_blockIndex;
+    ui16 m_blockID;
+    const Block* m_block;
+    const PlanetHeightData* m_heightData;
 
     Chunk* chunk; ///< The chunk we are currently meshing;
     std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
@@ -84,24 +88,6 @@ private:
     ui32 m_finalQuads[7000];
 
     BlockVertex m_topVerts[4100];
-
-    BlockVertex m_leftVerts[4100];
-    i32 _currPrevLeftQuads;
-    i32 _prevLeftQuads[2][1024];
-
-    BlockVertex m_rightVerts[4100];
-    i32 _currPrevRightQuads;
-    i32 _prevRightQuads[2][1024];
-
-    BlockVertex _frontVerts[4100];
-    i32 _currPrevFrontQuads;
-    i32 _prevFrontQuads[2][1024];
-
-    BlockVertex _backVerts[4100];
-    i32 _currPrevBackQuads;
-    i32 _prevBackQuads[2][1024];
-
-    BlockVertex _bottomVerts[4100];
 
     const BlockPack* m_blocks = nullptr;
 };

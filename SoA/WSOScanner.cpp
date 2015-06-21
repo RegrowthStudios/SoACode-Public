@@ -4,7 +4,7 @@
 #include "WSO.h"
 #include "WSOAtlas.h"
 #include "WSOData.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 
 // Scan A Radius Of (WSO_MAX_SIZE - 1) From The Center Block
 const int WSO_QUERY_SIZE = WSO_MAX_SIZE * 2 - 1;

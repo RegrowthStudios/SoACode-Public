@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SpaceSystemAssemblages.h"
 
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 #include "ChunkIOManager.h"
 #include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"

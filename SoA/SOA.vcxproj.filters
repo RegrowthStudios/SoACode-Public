@@ -272,9 +272,6 @@
     <ClInclude Include="ObjectLoader.h">
       <Filter>SOA Files\Data</Filter>
     </ClInclude>
-    <ClInclude Include="OpenGLStructs.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClInclude>
@@ -772,9 +769,6 @@
     <ClInclude Include="PlanetHeightData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="NChunkGrid.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="ChunkAllocator.h">
       <Filter>SOA Files\Voxel\Allocation</Filter>
     </ClInclude>
@@ -795,6 +789,12 @@
     </ClInclude>
     <ClInclude Include="Chunk.h">
       <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkGrid.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1265,9 +1265,6 @@
     <ClCompile Include="TestNewBlockAPIScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="NChunkGrid.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
     <ClCompile Include="ChunkAllocator.cpp">
       <Filter>SOA Files\Voxel\Allocation</Filter>
     </ClCompile>
@@ -1284,6 +1281,9 @@
       <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClCompile>
     <ClCompile Include="Chunk.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkGrid.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
   </ItemGroup>

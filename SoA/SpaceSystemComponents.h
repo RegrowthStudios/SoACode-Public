@@ -24,7 +24,7 @@
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 
 class BlockPack;
 class ChunkIOManager;

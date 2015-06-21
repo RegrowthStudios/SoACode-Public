@@ -1,9 +1,20 @@
+///
+/// Vertex.h
+/// Seed of Andromeda
+///
+/// Created by Benjamin Arnold on 21 Jun 2015
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// Vertex definitions for SoA
+///
+
 #pragma once
-#include <Vorb/io/Keg.h>
 
-#include "Constants.h"
+#ifndef Vertex_h__
+#define Vertex_h__
 
-// 4324 53
 class ColorVertex {
 public:
     f32v3 position;
@@ -11,8 +22,7 @@ public:
 };
 
 // Size: 32 Bytes
-class BlockVertex {
-public:
+struct BlockVertex {
     struct {  //3 bytes  << 1
         ubyte x;
         ubyte y;
@@ -83,53 +93,4 @@ public:
     i8 pad2; //20
 };
 
-class Face {
-public:
-    Face(i32 facen, i32 f1, i32 f2, i32 f3, i32 t1, i32 t2, i32 t3, i32 m) : facenum(facen) {
-        vertexs[0] = f1;
-        vertexs[1] = f2;
-        vertexs[2] = f3;
-        texcoord[0] = t1;
-        texcoord[1] = t2;
-        texcoord[2] = t3;
-        mat = m;
-        isQuad = 0;
-    }
-    Face(i32 facen, i32 f1, i32 f2, i32 f3, i32 f4, i32 t1, i32 t2, i32 t3, i32 t4, i32 m) : facenum(facen) {
-        vertexs[0] = f1;
-        vertexs[1] = f2;
-        vertexs[2] = f3;
-        vertexs[3] = f4;
-        texcoord[0] = t1;
-        texcoord[1] = t2;
-        texcoord[2] = t3;
-        texcoord[3] = t4;
-        mat = m;
-        isQuad = 1;
-    }
-
-    i32 facenum;
-    bool isQuad;
-    i32 vertexs[4];
-    i32 texcoord[4];
-    i32 mat;
-};
-
-class Material {
-public:
-    Material(const char* na, f32 a, f32 n, f32 ni2, f32* d, f32* am,
-        f32* s, i32 il, i32 t);
-
-    std::string name;
-    f32 alpha, ns, ni;
-    f32 dif[3], amb[3], spec[3];
-    i32 illum;
-    i32 texture;
-};
-
-class TexCoord {
-public:
-    TexCoord(f32 a, f32 b);
-
-    f32 u, v;
-};
+#endif // Vertex_h__

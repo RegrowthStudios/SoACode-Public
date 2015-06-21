@@ -10,7 +10,7 @@
 #include "GameRenderParams.h"
 #include "ShaderLoader.h"
 #include "soaUtils.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 
 namespace {
     // Default shader source
