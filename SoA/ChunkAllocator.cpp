@@ -7,8 +7,7 @@
 #define NUM_BYTE_VOXEL_ARRAYS 1
 
 PagedChunkAllocator::PagedChunkAllocator() :
-m_shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS),
-m_byteFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_BYTE_VOXEL_ARRAYS) {
+m_shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS) {
     // Empty
 }
 
@@ -27,7 +26,7 @@ Chunk* PagedChunkAllocator::getNewChunk() {
         // Add chunks to free chunks lists
         for (int i = 0; i < CHUNK_PAGE_SIZE; i++) {
             Chunk* chunk = &page->chunks[CHUNK_PAGE_SIZE - i - 1];
-            chunk->setRecyclers(&m_shortFixedSizeArrayRecycler, &m_byteFixedSizeArrayRecycler);
+            chunk->setRecyclers(&m_shortFixedSizeArrayRecycler);
             m_freeChunks.push_back(chunk);
         }
     }

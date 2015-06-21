@@ -47,7 +47,6 @@ protected:
     std::vector<Chunk*> m_freeChunks; ///< List of inactive chunks
     std::vector<ChunkPage*> m_chunkPages; ///< All pages
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_shortFixedSizeArrayRecycler; ///< For recycling voxel data
-    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> m_byteFixedSizeArrayRecycler; ///< For recycling voxel data
 };
 
 #endif // ChunkAllocator_h__

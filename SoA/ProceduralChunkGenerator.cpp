@@ -31,8 +31,6 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
     // Grab the handles to the arrays
     std::vector<IntervalTree<ui16>::LNode> blockDataArray;
-    std::vector<IntervalTree<ui16>::LNode> lampLightDataArray;
-    std::vector<IntervalTree<ui8>::LNode> sunlightDataArray;
     std::vector<IntervalTree<ui16>::LNode> tertiaryDataArray;
     ui16 c = 0;
     for (size_t y = 0; y < CHUNK_WIDTH; y++) {
@@ -97,24 +95,12 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 // Set up the data arrays
                 if (blockDataArray.size() == 0) {
                     blockDataArray.emplace_back(c, 1, blockData);
-                    lampLightDataArray.emplace_back(c, 1, lampData);
-                    sunlightDataArray.emplace_back(c, 1, sunlightData);
                     tertiaryDataArray.emplace_back(c, 1, tertiaryData);
                 } else {
                     if (blockData == blockDataArray.back().data) {
                         blockDataArray.back().length++;
                     } else {
                         blockDataArray.emplace_back(c, 1, blockData);
-                    }
-                    if (lampData == lampLightDataArray.back().data) {
-                        lampLightDataArray.back().length++;
-                    } else {
-                        lampLightDataArray.emplace_back(c, 1, lampData);
-                    }
-                    if (sunlightData == sunlightDataArray.back().data) {
-                        sunlightDataArray.back().length++;
-                    } else {
-                        sunlightDataArray.emplace_back(c, 1, sunlightData);
                     }
                     if (tertiaryData == tertiaryDataArray.back().data) {
                         tertiaryDataArray.back().length++;
@@ -127,8 +113,6 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
     }
     // Set up interval trees
     chunk->m_blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray);
-    chunk->m_lamp.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightDataArray);
-    chunk->m_sunlight.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightDataArray);
     chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray);
 }
 

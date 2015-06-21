@@ -19,17 +19,12 @@ void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
     hasCreatedMesh = false;
 }
 
-void Chunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
-         vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) {
+void Chunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler) {
     m_blocks.setArrayRecycler(shortRecycler);
-    m_sunlight.setArrayRecycler(byteRecycler);
-    m_lamp.setArrayRecycler(shortRecycler);
     m_tertiary.setArrayRecycler(shortRecycler);
 }
 
 void Chunk::updateContainers() {
     m_blocks.update(mutex);
-    m_sunlight.update(mutex);
-    m_lamp.update(mutex);
     m_tertiary.update(mutex);
 }

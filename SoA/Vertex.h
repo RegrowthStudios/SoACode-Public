@@ -48,12 +48,12 @@ struct BlockVertex {
     ui8 overlayTextureWidth; //15;
     ui8 overlayTextureHeight; //16
 
-    ColorRGB8 color; //19
+    ui8v3 color; //19
     ui8 waveEffect; //20
-    ColorRGB8 overlayColor; //23
+    ui8v3 overlayColor; //23
     ui8 pad2; //24
 
-    ColorRGB8 lampColor; //27
+    ui8v3 lampColor; //27
     ui8 sunlight; //28
 
     ui8 normal[3]; //31

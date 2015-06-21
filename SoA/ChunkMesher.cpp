@@ -381,6 +381,11 @@ void ChunkMesher::addBlock()
     }
 }
 
+void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
+    // TODO(Ben): Merging
+
+}
+
 //adds a flora mesh
 void ChunkMesher::addFlora() {
 
@@ -753,6 +758,9 @@ int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
 
 bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 {
+
+    // Clear quad indices
+    memset(m_quadIndices, 0, sizeof(m_quadIndices));
 
     int waveEffect;
     // CONST?

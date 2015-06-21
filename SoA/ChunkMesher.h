@@ -1,5 +1,5 @@
 #pragma once
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 #include "BlockData.h"
 #include "ChunkMesh.h"
 
@@ -24,7 +24,9 @@ struct VoxelQuad {
             BlockVertex v2;
             BlockVertex v3;
         };
-        BlockVertex verts[4];
+        struct {
+            BlockVertex verts[4];
+        };
     };
 };
 
@@ -46,6 +48,7 @@ private:
     enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
 
     void addBlock();
+    void addQuad(int face, int leftOffset, int downOffset);
     void addFlora();
     void addLiquid(MesherInfo& mi);
 
@@ -55,6 +58,8 @@ private:
     GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
     void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
     void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
+
+
 
     std::vector<BlockVertex> m_finalVerts[6];
 
@@ -79,6 +84,7 @@ private:
 
     int wSize;
     // Voxel data arrays
+    i32 m_quadIndices[PADDED_CHUNK_SIZE][6];
     ui16 m_wvec[CHUNK_SIZE];
     ui16 m_blockData[PADDED_CHUNK_SIZE];
     ui16 m_lampData[PADDED_CHUNK_SIZE];

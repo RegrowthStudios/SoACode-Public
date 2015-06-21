@@ -50,8 +50,7 @@ class Chunk {
     friend class RenderTask;
 public:
     void init(ChunkID id, const ChunkPosition3D& pos);
-    void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
-                      vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler);
+    void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
     /************************************************************************/
@@ -68,12 +67,6 @@ public:
 
     inline ui16 getBlockData(int c) const {
         return m_blocks.get(c);
-    }
-    inline ui16 getLampLight(int c) const {
-        return m_lamp.get(c);
-    }
-    inline ui8 getSunlight(int c) const {
-        return m_sunlight.get(c);
     }
     inline ui16 getTertiaryData(int c) const {
         return m_tertiary.get(c);
@@ -120,8 +113,6 @@ private:
     VoxelPosition3D m_voxelPosition;
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> m_blocks;
-    vvox::SmartVoxelContainer<ui8> m_sunlight;
-    vvox::SmartVoxelContainer<ui16> m_lamp;
     vvox::SmartVoxelContainer<ui16> m_tertiary;
     ui8 m_remeshFlags;
     bool m_isInRange;
