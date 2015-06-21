@@ -12,23 +12,48 @@
 
 #define BLOCK_MAPPING_PATH "BlockMapping.ini"
 #define BLOCK_DATA_PATH "BlockData.yml"
+#define BINARY_CACHE_PATH "BlockCache.bin"
 
 bool BlockLoader::loadBlocks(const vio::IOManager& iom, BlockPack* pack) {
     // Load existing mapping if there is one
     tryLoadMapping(iom, BLOCK_MAPPING_PATH, pack);
 
+    // Check for binary cache
+    vio::Path binPath;
+    bool useCache = false;
+    if (iom.resolvePath(BINARY_CACHE_PATH, binPath)) {
+        vio::Path dataPath;
+        if (!iom.resolvePath(BLOCK_DATA_PATH, dataPath)) return false;
+        if (binPath.getLastModTime() >= dataPath.getLastModTime()) {
+            useCache = true;
+        }
+    }
+   
     // Clear CA physics cache
     CaPhysicsType::clearTypes();
 
     GameBlockPostProcess bpp(&iom, &CaPhysicsType::typesCache);
     pack->onBlockAddition += bpp.del;
-    if (!BlockLoader::load(&iom, BLOCK_DATA_PATH, pack)) {
-        pack->onBlockAddition -= bpp.del;
-        return false;
+    if (useCache) {
+        if (!BlockLoader::loadBinary(iom, BINARY_CACHE_PATH, pack)) {
+            printf("Failed to load binary cache %s\n", BINARY_CACHE_PATH);
+            if (!BlockLoader::load(iom, BLOCK_DATA_PATH, pack)) {
+                pack->onBlockAddition -= bpp.del;
+                return false;
+            }
+        }
+    } else {
+        if (!BlockLoader::load(iom, BLOCK_DATA_PATH, pack)) {
+            pack->onBlockAddition -= bpp.del;
+            return false;
+        }
     }
     pack->onBlockAddition -= bpp.del;
 
     saveMapping(iom, BLOCK_MAPPING_PATH, pack);
+    if (!useCache) {
+        saveBinary(iom, BINARY_CACHE_PATH, pack);
+    }
 
     return true;
 }
@@ -63,10 +88,10 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     return true;
 }
 
-bool BlockLoader::load(const vio::IOManager* iom, const cString filePath, BlockPack* pack) {
+bool BlockLoader::load(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
     // Read file
     nString data;
-    iom->readFileToString(filePath, data);
+    iom.readFileToString(filePath, data);
     if (data.empty()) return false;
 
     // Convert to YAML
@@ -141,7 +166,16 @@ void GameBlockPostProcess::invoke(Sender s, ui16 id) {
             block.caAlg = it->second->getCaAlg();
         }
     }
+}
 
+bool BlockLoader::saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {    
+    vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::WRITE_ONLY_CREATE);
+    if (!fs.isOpened()) pError("Failed to open block mapping file for save");
+
+    for (auto& b : pack->getBlockMap()) {
+        fs.write("%s: %d\n", b.first.c_str(), b.second);
+    }
+    return true;
 }
 
 bool BlockLoader::tryLoadMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
@@ -165,11 +199,75 @@ bool BlockLoader::tryLoadMapping(const vio::IOManager& iom, const cString filePa
     return true;
 }
 
-bool BlockLoader::saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {    
-    vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::WRITE_ONLY_CREATE);
-    if (!fs.isOpened()) pError("Failed to open block mapping file for save");
+bool BlockLoader::saveBinary(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
+    vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::WRITE_ONLY_CREATE | vio::FileOpenFlags::BINARY);
+    if (!fs.isOpened()) pError("Failed to open binary block cache file for save.");
+
+    ui32 size = pack->getBlockMap().size();
+    ui32 blockSize = sizeof(Block);
+    // Write sizes
+    fs.write(1, sizeof(ui32), &size);
+    fs.write(1, sizeof(ui32), &blockSize);
+
+    // TODO(Ben): This isn't complete.
+    const std::vector<Block>& blockList = pack->getBlockList();
     for (auto& b : pack->getBlockMap()) {
-        fs.write("%s: %d\n", b.first.c_str(), b.second);
+        const Block& block = blockList[b.second];
+        fs.write("%s", block.name.c_str()); fs.write(1, 1, "\0");
+        for (int i = 0; i < 6; i++) {
+            fs.write("%s\0", block.texturePaths[i].c_str()); fs.write(1, 1, "\0");
+        }
+        fs.write(1, sizeof(bool), &block.powderMove);
+        fs.write(1, sizeof(bool), &block.collide);
+        fs.write(1, sizeof(bool), &block.waterBreak);
+        fs.write(1, sizeof(bool), &block.blockLight);
+        fs.write(1, sizeof(bool), &block.useable);
+        fs.write(1, sizeof(bool), &block.allowLight);
+        fs.write(1, sizeof(bool), &block.isCrushable);
+        fs.write(1, sizeof(bool), &block.isSupportive);
+    }
+    return true;
+}
+
+void readStr(vio::FileStream& fs, char* buf) {
+    int i = 0;
+    do {
+        fs.read(1, sizeof(char), buf + i);
+    } while (buf[i++] != 0);
+}
+
+bool BlockLoader::loadBinary(const vio::IOManager& iom, const cString filePath, BlockPack* pack) {
+    vio::FileStream fs = iom.openFile(filePath, vio::FileOpenFlags::READ_ONLY_EXISTING | vio::FileOpenFlags::BINARY);
+    if (!fs.isOpened()) return false;
+
+    ui32 size;
+    ui32 blockSize;
+    // Read sizes
+    fs.read(1, sizeof(ui32), &size);
+    fs.read(1, sizeof(ui32), &blockSize);
+    // Make sure block size didn't change. DEBUG MODE CHANGES THE SIZE!!!
+    //if (blockSize != sizeof(Block)) return false;
+
+    char buf[512];
+
+    // TODO(Ben): This isn't complete.
+    for (ui32 i = 0; i < size; i++) {
+        Block b;
+        readStr(fs, buf);
+        b.name = buf;
+        for (int i = 0; i < 6; i++) {
+            readStr(fs, buf);
+            b.texturePaths[i] = buf;
+        }
+        fs.read(1, sizeof(bool), &b.powderMove);
+        fs.read(1, sizeof(bool), &b.collide);
+        fs.read(1, sizeof(bool), &b.waterBreak);
+        fs.read(1, sizeof(bool), &b.blockLight);
+        fs.read(1, sizeof(bool), &b.useable);
+        fs.read(1, sizeof(bool), &b.allowLight);
+        fs.read(1, sizeof(bool), &b.isCrushable);
+        fs.read(1, sizeof(bool), &b.isSupportive);
+        pack->append(b);
     }
     return true;
 }

@@ -35,7 +35,7 @@ public:
     /// @param filePath: The .yml file path
     /// @param pack: Depository for all loaded blocks
     /// @return true on success, false on failure
-    static bool load(const vio::IOManager* iom, const cString filePath, BlockPack* pack);
+    static bool load(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
 
     /// Saves blocks to a .yml file
     /// @param filePath: The .yml file path
@@ -47,10 +47,16 @@ private:
     /// @param blocks: Output list for blocks
     static void SetWaterBlocks(std::vector<Block>& blocks);
 
+    /// Saves the block mapping scheme
+    static bool saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
+
     /// Tries to load an existing block mapping scheme
     static bool tryLoadMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
 
-    /// Saves the block mapping scheme
-    static bool saveMapping(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
+    /// Caches blocks in binary
+    static bool saveBinary(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
+
+    /// Tries to load an existing block mapping scheme
+    static bool loadBinary(const vio::IOManager& iom, const cString filePath, BlockPack* pack);
 };
 
