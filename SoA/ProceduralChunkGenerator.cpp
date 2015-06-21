@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ProceduralChunkGenerator.h"
 
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Constants.h"
 #include "VoxelSpaceConversions.h"
 
@@ -12,7 +12,7 @@ void ProceduralChunkGenerator::init(PlanetGenData* genData) {
     m_heightGenerator.init(genData);
 }
 
-void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* heightData) const {
+void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* heightData) const {
 
     int temperature;
     int rainfall;
@@ -132,7 +132,7 @@ void ProceduralChunkGenerator::generateChunk(NChunk* chunk, PlanetHeightData* he
     chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray);
 }
 
-void ProceduralChunkGenerator::generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const {
+void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const {
     VoxelPosition3D cornerPos3D = VoxelSpaceConversions::chunkToVoxel(chunk->getChunkPosition());
     VoxelPosition2D cornerPos2D;
     cornerPos2D.pos.x = cornerPos3D.pos.x;

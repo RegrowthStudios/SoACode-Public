@@ -284,7 +284,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Give some time for the threads to spin up
     SDL_Delay(100);
 
-    svcmp.chunkGrids = new NChunkGrid[6];
+    svcmp.chunkGrids = new ChunkGrid[6];
     for (int i = 0; i < 6; i++) {
         svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.chunkAllocator, svcmp.threadPool, 1, ftcmp.planetGenData);
     }

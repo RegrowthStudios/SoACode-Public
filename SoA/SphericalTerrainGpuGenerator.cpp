@@ -6,7 +6,7 @@
 #include <Vorb/TextureRecycler.hpp>
 #include <Vorb/graphics/GraphicsDevice.h>
 
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "HeightData.h"
 #include "PlanetData.h"

@@ -58,7 +58,7 @@ bool checkForWSO(const i16* query, const WSOData* data, i32v3& offset) {
     // Could Not Find A Single One
     return false;
 }
-std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, NChunkGrid* cg) {
+std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkGrid* cg) {
     //// Get A Piece Of The World
     //const i16* query = getQuery(position, cg);
 
@@ -86,7 +86,7 @@ std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, NChunkGrid* cg) {
     return std::vector<WSO*>();
 }
 
-const i16* WSOScanner::getQuery(const i32v3& position, NChunkGrid* cg) {
+const i16* WSOScanner::getQuery(const i32v3& position, ChunkGrid* cg) {
     //// Get The Query Based Off Of The Max Size Of The WSO
     //const i32v3 minPos = position - i32v3(WSO_MAX_SIZE - 1);
     //const i32v3 maxPos = position + i32v3(WSO_MAX_SIZE - 1);

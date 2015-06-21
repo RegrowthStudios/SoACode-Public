@@ -18,7 +18,7 @@
 #include "VoxelCoordinateSpaces.h"
 #include "ChunkGenerator.h"
 #include "concurrentqueue.h"
-#include "NChunk.h"
+#include "Chunk.h"
 
 #include <memory>
 #include <map>
@@ -27,50 +27,50 @@
 
 class ChunkAllocator;
 
-class NChunkGrid {
+class ChunkGrid {
 public:
     void init(WorldCubeFace face, ChunkAllocator* chunkAllocator, 
               OPT vcore::ThreadPool<WorkerData>* threadPool,
               ui32 generatorsPerRow,
               PlanetGenData* genData);
 
-    void addChunk(NChunk* chunk);
+    void addChunk(Chunk* chunk);
 
-    void removeChunk(NChunk* chunk);
+    void removeChunk(Chunk* chunk);
 
-    NChunk* getChunk(const f64v3& voxelPos);
+    Chunk* getChunk(const f64v3& voxelPos);
 
-    NChunk* getChunk(const i32v3& chunkPos);
+    Chunk* getChunk(const i32v3& chunkPos);
 
-    const NChunk* getChunk(const i32v3& chunkPos) const;
+    const Chunk* getChunk(const i32v3& chunkPos) const;
 
     // Will generate chunk if it doesn't exist
     void submitQuery(ChunkQuery* query);
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
-    std::shared_ptr<NChunkGridData> getChunkGridData(const i32v2& gridPos) const;
+    std::shared_ptr<ChunkGridData> getChunkGridData(const i32v2& gridPos) const;
 
     // Processes chunk queries
     void update();
 
-    NChunk* getActiveChunks() const { return m_activeChunks; }
+    Chunk* getActiveChunks() const { return m_activeChunks; }
     const ui32& getNumActiveChunks() const { return m_numActiveChunks; }
 
 private:
-    void connectNeighbors(NChunk* chunk);
-    void disconnectNeighbors(NChunk* chunk);
+    void connectNeighbors(Chunk* chunk);
+    void disconnectNeighbors(Chunk* chunk);
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
     ChunkAllocator* m_allocator = nullptr;
     ChunkGenerator* m_generators = nullptr;
 
-    NChunk* m_activeChunks = nullptr; ///< Linked list of chunks
+    Chunk* m_activeChunks = nullptr; ///< Linked list of chunks
     ui32 m_numActiveChunks = 0;
 
-    std::unordered_map<i32v3, NChunk*> m_chunkMap; ///< hashmap of chunks
-    std::unordered_map<i32v2, std::shared_ptr<NChunkGridData> > m_chunkGridDataMap; ///< 2D grid specific data
+    std::unordered_map<i32v3, Chunk*> m_chunkMap; ///< hashmap of chunks
+    std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > m_chunkGridDataMap; ///< 2D grid specific data
     
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;

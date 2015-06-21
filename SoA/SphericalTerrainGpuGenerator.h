@@ -28,7 +28,7 @@
 #include "TerrainGenTextures.h"
 #include "TerrainPatchMesher.h"
 
-class NChunkGridData;
+class ChunkGridData;
 class SphericalTerrainGpuGenerator;
 class TerrainGenDelegate;
 struct PlanetGenData;
@@ -54,7 +54,7 @@ public:
     int width;
     float step;
 
-    std::shared_ptr<NChunkGridData> gridData = nullptr;
+    std::shared_ptr<ChunkGridData> gridData = nullptr;
 
     SphericalTerrainGpuGenerator* generator = nullptr;
 };

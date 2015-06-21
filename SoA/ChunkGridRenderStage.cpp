@@ -5,7 +5,7 @@
 #include <Vorb/graphics/Mesh.h>
 
 #include "Camera.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Frustum.h"
 #include "GameRenderParams.h"
 #include "ShaderLoader.h"
@@ -96,8 +96,8 @@ void ChunkGridRenderStage::render(const Camera* camera) {
             numVertices += 8;
             
             // Build the vertices
-            const f32 gmin = 0.00001f;
-            const f32 gmax = 31.9999f;
+            const f32 gmin = 0.01f;
+            const f32 gmax = 31.99f;
             vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;
             vertices[1].position = f32v3(gmax, gmin, gmin) + posOffset;
             vertices[2].position = f32v3(gmin, gmin, gmax) + posOffset;

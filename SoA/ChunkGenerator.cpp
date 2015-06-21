@@ -2,7 +2,7 @@
 #include "ChunkGenerator.h"
 
 #include "ChunkAllocator.h"
-#include "NChunk.h"
+#include "Chunk.h"
 
 void ChunkGenerator::init(ChunkAllocator* chunkAllocator,
                           vcore::ThreadPool<WorkerData>* threadPool,
@@ -13,7 +13,7 @@ void ChunkGenerator::init(ChunkAllocator* chunkAllocator,
 }
 
 void ChunkGenerator::submitQuery(ChunkQuery* query) {
-    NChunk* chunk = query->getChunk();
+    Chunk* chunk = query->getChunk();
     if (!chunk->gridData->isLoaded) {
         // If this heightmap isn't already loading, send it
         if (!chunk->gridData->isLoading) {
@@ -46,7 +46,7 @@ void ChunkGenerator::update() {
     size_t numQueries = m_finishedQueries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
-        NChunk* chunk = q->getChunk();
+        Chunk* chunk = q->getChunk();
         chunk->m_genQueryData.current = nullptr;
         // Check if it was a heightmap gen
         if (chunk->gridData->isLoading) {

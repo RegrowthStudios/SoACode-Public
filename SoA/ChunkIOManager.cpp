@@ -13,7 +13,7 @@
 #include <ZLIB/zlib.h>
 
 #include "BlockData.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
@@ -32,7 +32,7 @@ ChunkIOManager::~ChunkIOManager()
 }
 
 void ChunkIOManager::clear() {
-    NChunk*  tmp;
+    Chunk*  tmp;
     _queueLock.lock();
     //flush queues
     while (chunksToLoad.try_dequeue(tmp));
@@ -46,7 +46,7 @@ void ChunkIOManager::clear() {
 }
 
 
-void ChunkIOManager::addToSaveList(NChunk* ch)
+void ChunkIOManager::addToSaveList(Chunk* ch)
 {
     //if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
     //    ch->dirty = 0;
@@ -56,7 +56,7 @@ void ChunkIOManager::addToSaveList(NChunk* ch)
     //}
 }
 
-void ChunkIOManager::addToSaveList(std::vector <NChunk* > &chunks)
+void ChunkIOManager::addToSaveList(std::vector <Chunk* > &chunks)
 {
   /*  NChunk* ch;
     for (size_t i = 0; i < chunks.size(); i++){
@@ -70,7 +70,7 @@ void ChunkIOManager::addToSaveList(std::vector <NChunk* > &chunks)
     _cond.notify_one();*/
 }
 
-void ChunkIOManager::addToLoadList(NChunk* ch)
+void ChunkIOManager::addToLoadList(Chunk* ch)
 {
   /*  if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
         ch->loadStatus = 0;
@@ -80,7 +80,7 @@ void ChunkIOManager::addToLoadList(NChunk* ch)
     }*/
 }
 
-void ChunkIOManager::addToLoadList(std::vector <NChunk* > &chunks)
+void ChunkIOManager::addToLoadList(std::vector <Chunk* > &chunks)
 {
    /* NChunk* ch;
 

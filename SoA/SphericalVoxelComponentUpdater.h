@@ -16,14 +16,14 @@
 #define SphericalVoxelComponentUpdater_h__
 
 class Camera;
-class NChunk;
+class Chunk;
 class FloraTask;
 class Frustum;
 class GameSystem;
 class GenerateTask;
 class GeneratedTreeNodes;
 class RenderTask;
-class NChunkGrid;
+class ChunkGrid;
 struct SoaState;
 class SpaceSystem;
 struct AxisRotationComponent;
@@ -43,19 +43,19 @@ private:
 
     void updateComponent(const VoxelPosition3D& agentPosition);
 
-    void updateChunks(NChunkGrid& grid, const VoxelPosition3D& agentPosition);
+    void updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition);
 
-    void tryLoadChunkNeighbors(NChunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2);
+    void tryLoadChunkNeighbors(Chunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2);
 
     void tryLoadChunkNeighbor(const VoxelPosition3D& agentPosition, f32 loadDist2, const f64v3& pos);
 
-    void requestChunkMesh(NChunk* chunk);
+    void requestChunkMesh(Chunk* chunk);
 
-    void disposeChunk(NChunk* chunk);
+    void disposeChunk(Chunk* chunk);
 
-    bool trySetMeshDependencies(NChunk* chunk);
+    bool trySetMeshDependencies(Chunk* chunk);
 
-    void tryRemoveMeshDependencies(NChunk* chunk);
+    void tryRemoveMeshDependencies(Chunk* chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

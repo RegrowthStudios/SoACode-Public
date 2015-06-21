@@ -3,7 +3,7 @@
 
 #include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"

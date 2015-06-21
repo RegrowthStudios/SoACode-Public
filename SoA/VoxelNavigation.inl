@@ -18,7 +18,7 @@
 
 // TODO(Ben): Generalize Chunk and voxel stuff
 // TODO(Cristian): Try to tell Ben that we can't quite generalize everything...
-#include "NChunk.h"
+#include "Chunk.h"
 #include "VoxelUtils.h"
 
 namespace vorb {

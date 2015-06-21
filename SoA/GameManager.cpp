@@ -9,7 +9,7 @@
 
 #include "BlockData.h"
 #include "CAEngine.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkIOManager.h"
 #include "DebugRenderer.h"
 #include "InputMapper.h"
@@ -99,11 +99,11 @@ void BindVBOIndicesID() {
         j += 4;
     }
 
-    if (NChunk::vboIndicesID != 0) {
-        glDeleteBuffers(1, &(NChunk::vboIndicesID));
+    if (Chunk::vboIndicesID != 0) {
+        glDeleteBuffers(1, &(Chunk::vboIndicesID));
     }
-    glGenBuffers(1, &(NChunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (NChunk::vboIndicesID));
+    glGenBuffers(1, &(Chunk::vboIndicesID));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
 
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000

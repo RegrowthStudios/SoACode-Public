@@ -2,7 +2,7 @@
 #include "ChunkMesh.h"
 
 #include "BlockData.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "RenderTask.h"
 
 KEG_ENUM_DEF(MeshType, MeshType, e) {

@@ -17,8 +17,8 @@ KEG_ENUM_DECL(MeshType);
 enum class RenderTaskType;
 
 class Block;
-class NChunk;
-class NChunkGridData;
+class Chunk;
+class ChunkGridData;
 class ChunkMesh;
 class RenderTask;
 
@@ -60,7 +60,7 @@ public:
     BlockTextureMethodParams nzBaseMethodParams, nzOverlayMethodParams;
 
     RenderTask* task;
-    std::shared_ptr<NChunkGridData> chunkGridData;
+    std::shared_ptr<ChunkGridData> chunkGridData;
     i32v3 position;
     const BlockPack* blocks;
 };
@@ -106,7 +106,7 @@ public:
     std::vector <BlockVertex> transVertices;
     std::vector <BlockVertex> cutoutVertices;
     std::vector <LiquidVertex> waterVertices;
-    NChunk *chunk = nullptr;
+    Chunk *chunk = nullptr;
     RenderTaskType type;
 
     //*** Transparency info for sorting ***

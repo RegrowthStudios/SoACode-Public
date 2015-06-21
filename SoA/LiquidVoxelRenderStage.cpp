@@ -3,7 +3,7 @@
 
 #include <Vorb/graphics/GLProgram.h>
 #include "Camera.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
@@ -51,7 +51,7 @@ void LiquidVoxelRenderStage::render(const Camera* camera) {
     if (m_gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
     {

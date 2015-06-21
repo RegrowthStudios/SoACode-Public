@@ -57,7 +57,7 @@ public:
     ui8 chunkVersion[4];
 };
 
-class NChunk;
+class Chunk;
 
 class RegionFileManager {
 public:
@@ -68,8 +68,8 @@ public:
 
     bool openRegionFile(nString region, const ChunkPosition3D& gridPosition, bool create);
 
-    bool tryLoadChunk(NChunk* chunk);
-    bool saveChunk(NChunk* chunk);
+    bool tryLoadChunk(Chunk* chunk);
+    bool saveChunk(Chunk* chunk);
 
     void flush();
 
@@ -83,14 +83,14 @@ private:
 
     int rleUncompressArray(ui8* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
     int rleUncompressArray(ui16* data, ui32& byteIndex, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
-    bool fillChunkVoxelData(NChunk* chunk);
+    bool fillChunkVoxelData(Chunk* chunk);
 
     bool saveRegionHeader();
     bool loadRegionHeader();
 
     void rleCompressArray(ui8* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
     void rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc);
-    bool rleCompressChunk(NChunk* chunk);
+    bool rleCompressChunk(Chunk* chunk);
     bool zlibCompress();
 
     bool tryConvertSave(ui32 regionVersion);
@@ -101,8 +101,8 @@ private:
     bool seek(ui32 byteOffset);
     bool seekToChunk(ui32 chunkSectorOffset);
 
-    ui32 getChunkSectorOffset(NChunk* chunk, ui32* retTableOffset = nullptr);
-    nString getRegionString(NChunk* chunk);
+    ui32 getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset = nullptr);
+    nString getRegionString(Chunk* chunk);
     
     //Byte buffer for reading chunk data
     ui32 _bufferSize;

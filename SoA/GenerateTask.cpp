@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "GenerateTask.h"
 
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkGenerator.h"
 
 void GenerateTask::execute(WorkerData* workerData) {
-    NChunk* chunk = query->getChunk();
+    Chunk* chunk = query->getChunk();
 
     // Check if this is a heightmap gen
     if (chunk->gridData->isLoading) {

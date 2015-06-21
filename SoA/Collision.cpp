@@ -3,14 +3,14 @@
 
 #include <Vorb/utils.h>
 
-#include "NChunk.h"
+#include "Chunk.h"
 #include "BlockPack.h"
 
-void blockCollision(Player* player, NChunk*  chunk, NChunk*  lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);
+void blockCollision(Player* player, Chunk*  chunk, Chunk*  lockedChunk, ui16 blockType, i32 c, f64 bdx, f64 bdy, f64 bdz, f64 dx, f64 dy, f64 dz);
 
 //This method could be easily implemented as a recursive function, but is more efficient if unfolded
 //TODO(Ben) This is laughable. 
-void aabbChunkCollision(Player* player, f64v3* playerPos, NChunk* * chunks, ui8 size)
+void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk* * chunks, ui8 size)
 {
     //int x, y, z, x1, y1, z1 ,x2, y2, z2, x3, y3, z3, x4, y4, z4, c; //midpoints
     //int blockID;
@@ -213,7 +213,7 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, NChunk* * chunks, ui8 
 }
 
 // TODO(Ben): What the FUCK is this?!?! This code is rated XXX.
-void blockCollision(Player *player, NChunk* chunk, NChunk*  lockedChunk, GLushort blockType, int c, double bdx, double bdy, double bdz, double dx, double dy, double dz)
+void blockCollision(Player *player, Chunk* chunk, Chunk*  lockedChunk, GLushort blockType, int c, double bdx, double bdy, double bdz, double dx, double dy, double dz)
 {
 //    if (chunks[i]->data[blx + bly + blz] == WATER) continue; //no clip water
 

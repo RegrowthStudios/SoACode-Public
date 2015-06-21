@@ -5,7 +5,7 @@
 
 #include <Vorb/ThreadPool.h>
 
-#include "NChunk.h"
+#include "Chunk.h"
 
 bool searchVector(const std::vector <ui16>& allChunkOffsets, ui16 offset) {
     return (std::find(allChunkOffsets.begin(), allChunkOffsets.end(), offset) != allChunkOffsets.end());

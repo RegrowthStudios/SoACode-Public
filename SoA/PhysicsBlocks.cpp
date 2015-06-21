@@ -4,7 +4,7 @@
 #include <Vorb/utils.h>
 
 #include "BlockData.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkUpdater.h"
 #include "Frustum.h"
 #include "GameManager.h"

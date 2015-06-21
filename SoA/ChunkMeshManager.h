@@ -17,7 +17,7 @@
 #define ChunkMeshManager_h__
 
 #include "concurrentqueue.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkMesh.h"
 #include <mutex>
 

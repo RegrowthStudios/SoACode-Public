@@ -19,7 +19,7 @@
 
 #include "VoxPool.h"
 
-class NChunk;
+class Chunk;
 class ChunkGenerator;
 class ChunkQuery;
 struct PlanetHeightData;

@@ -2,7 +2,7 @@
 #include "ChunkRenderer.h"
 
 #include "Camera.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkMeshManager.h"
 #include "Frustum.h"
 #include "GameManager.h"
@@ -159,7 +159,7 @@ void ChunkRenderer::buildCutoutVao(ChunkMesh& cm)
     glBindVertexArray(cm.cutoutVaoID);
 
     glBindBuffer(GL_ARRAY_BUFFER, cm.cutoutVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
@@ -191,7 +191,7 @@ void ChunkRenderer::buildVao(ChunkMesh& cm)
     glGenVertexArrays(1, &(cm.vaoID));
     glBindVertexArray(cm.vaoID);
     glBindBuffer(GL_ARRAY_BUFFER, cm.vboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
@@ -222,7 +222,7 @@ void ChunkRenderer::buildWaterVao(ChunkMesh& cm)
     glGenVertexArrays(1, &(cm.waterVaoID));
     glBindVertexArray(cm.waterVaoID);
     glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

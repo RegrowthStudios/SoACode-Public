@@ -4,7 +4,7 @@
 #include <Vorb/io/IOManager.h>
 
 #include "BlockPack.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkUpdater.h"
 #include "GameManager.h"
 #include "ParticleEngine.h"

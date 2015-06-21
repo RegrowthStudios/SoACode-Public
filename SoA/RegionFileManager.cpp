@@ -10,7 +10,7 @@
 #include <Vorb/utils.h>
 #include <ZLIB/zlib.h>
 
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "VoxelSpaceConversions.h"
@@ -206,7 +206,7 @@ void RegionFileManager::closeRegionFile(RegionFile* regionFile) {
 }
 
 //Attempt to load a chunk. Returns false on failure
-bool RegionFileManager::tryLoadChunk(NChunk* chunk) {
+bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
 
     //nString regionString = getRegionString(chunk);
 
@@ -257,7 +257,7 @@ bool RegionFileManager::tryLoadChunk(NChunk* chunk) {
 }
 
 //Saves a chunk to a region file
-bool RegionFileManager::saveChunk(NChunk* chunk) {
+bool RegionFileManager::saveChunk(Chunk* chunk) {
 
     ////Used for copying sectors if we need to resize the file
     //if (_copySectorsBuffer) {
@@ -541,7 +541,7 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
     return 0;
 }
 
-bool RegionFileManager::fillChunkVoxelData(NChunk* chunk) {
+bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
     // TODO(Ben): Fix
 
@@ -736,7 +736,7 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
     tot += count;
 }
 
-bool RegionFileManager::rleCompressChunk(NChunk* chunk) {
+bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 
     // TODO(Ben): Fix
 
@@ -841,7 +841,7 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
     return seek(sizeof(RegionFileHeader) + chunkSectorOffset * SECTOR_SIZE);
 }
 
-ui32 RegionFileManager::getChunkSectorOffset(NChunk* chunk, ui32* retTableOffset) {
+ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
     
     //const ChunkPosition3D& gridPos = chunk->gridPosition;
 
@@ -862,7 +862,7 @@ ui32 RegionFileManager::getChunkSectorOffset(NChunk* chunk, ui32* retTableOffset
     return 0;
 }
 
-nString RegionFileManager::getRegionString(NChunk *ch)
+nString RegionFileManager::getRegionString(Chunk *ch)
 {
     const ChunkPosition3D& gridPos = ch->getChunkPosition();
 

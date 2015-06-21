@@ -11,7 +11,7 @@
 #include "FloraTask.h"
 #include "GameSystem.h"
 #include "GenerateTask.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "NChunkGrid.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
@@ -60,14 +60,14 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
     m_cmp->chunkGrids[agentPosition.face].update();
 }
 
-void SphericalVoxelComponentUpdater::updateChunks(NChunkGrid& grid, const VoxelPosition3D& agentPosition) {
+void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition) {
     // Get render distance squared
     f32 renderDist2 = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH);
     renderDist2 *= renderDist2;
 
     // Loop through all currently active chunks
     // TODO(Ben): Chunk should only become active after load?
-    NChunk* chunk = grid.getActiveChunks();
+    Chunk* chunk = grid.getActiveChunks();
     while (chunk != nullptr) {
 
         // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
@@ -82,7 +82,7 @@ void SphericalVoxelComponentUpdater::updateChunks(NChunkGrid& grid, const VoxelP
         if (chunk->m_distance2 > renderDist2) {
             if (chunk->refCount == 0) {
                 // Unload the chunk
-                NChunk* tmp = chunk;
+                Chunk* tmp = chunk;
                 chunk = chunk->getNextActive();
                 disposeChunk(tmp);
                 grid.removeChunk(tmp);
@@ -103,7 +103,7 @@ void SphericalVoxelComponentUpdater::updateChunks(NChunkGrid& grid, const VoxelP
     }
 }
 
-void SphericalVoxelComponentUpdater::tryLoadChunkNeighbors(NChunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2) {
+void SphericalVoxelComponentUpdater::tryLoadChunkNeighbors(Chunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2) {
     const f64v3& pos = chunk->getVoxelPosition().pos;
     if (!chunk->left) {
         f64v3 newPos(pos.x - (f64)CHUNK_WIDTH, pos.y, pos.z);
@@ -141,7 +141,7 @@ void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(const VoxelPosition3D&
     }
 }
 
-void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
+void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
     // If it has no solid blocks, don't mesh it
     //if (!chunk->numBlocks) {
     //    // Remove from the mesh list
@@ -169,7 +169,7 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(NChunk* chunk) {
     }
 }
 
-void SphericalVoxelComponentUpdater::disposeChunk(NChunk* chunk) {
+void SphericalVoxelComponentUpdater::disposeChunk(Chunk* chunk) {
     // delete the mesh!
     if (chunk->hasCreatedMesh) {
         ChunkMeshMessage msg;
@@ -180,7 +180,7 @@ void SphericalVoxelComponentUpdater::disposeChunk(NChunk* chunk) {
     }
 }
 
-bool SphericalVoxelComponentUpdater::trySetMeshDependencies(NChunk* chunk) {
+bool SphericalVoxelComponentUpdater::trySetMeshDependencies(Chunk* chunk) {
     //// TODO(Ben): This is a lot of branching. There must be a better way
     //// If this chunk is still in a mesh thread, don't re-add dependencies
     //if (chunk->meshJobCounter) {
@@ -273,7 +273,7 @@ bool SphericalVoxelComponentUpdater::trySetMeshDependencies(NChunk* chunk) {
     return true;
 }
 
-void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(NChunk* chunk) {
+void SphericalVoxelComponentUpdater::tryRemoveMeshDependencies(Chunk* chunk) {
     //chunk->meshJobCounter--;
     //// If this chunk is still in a mesh thread, don't remove dependencies
     //if (chunk->meshJobCounter) return;

@@ -145,7 +145,7 @@ struct SphericalGravityComponent {
 };
 
 struct SphericalVoxelComponent {
-    NChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
+    ChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
     PagedChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;

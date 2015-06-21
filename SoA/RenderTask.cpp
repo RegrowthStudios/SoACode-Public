@@ -8,7 +8,7 @@
 #include "ChunkMeshManager.h"
 #include "ChunkMesher.h"
 #include "GameManager.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "VoxelLightEngine.h"
 #include "VoxelUtils.h"
 
@@ -62,7 +62,7 @@ void RenderTask::execute(WorkerData* workerData) {
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
 
-void RenderTask::init(NChunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void RenderTask::init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
     chunk = ch;
     chunk->queuedForMesh = true;
@@ -87,28 +87,28 @@ void RenderTask::updateLight(VoxelLightEngine* voxelLightEngine) {
 void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
     int x, y, z, off1, off2;
 
-    NChunk *ch1, *ch2;
-    NChunk* left = chunk->left;
-    NChunk* right = chunk->right;
-    NChunk* bottom = chunk->bottom;
-    NChunk* top = chunk->top;
-    NChunk* back = chunk->back;
-    NChunk* front = chunk->front;
+    Chunk *ch1, *ch2;
+    Chunk* left = chunk->left;
+    Chunk* right = chunk->right;
+    Chunk* bottom = chunk->bottom;
+    Chunk* top = chunk->top;
+    Chunk* back = chunk->back;
+    Chunk* front = chunk->front;
     int wc;
     int c = 0;
 
     i32v3 pos;
 
-    ui16* wvec = chunkMesher->_wvec;
-    ui16* chData = chunkMesher->_blockIDData;
-    ui16* chLampData = chunkMesher->_lampLightData;
-    ui8* chSunlightData = chunkMesher->_sunlightData;
-    ui16* chTertiaryData = chunkMesher->_tertiaryData;
+    ui16* wvec = chunkMesher->m_wvec;
+    ui16* chData = chunkMesher->m_blockData;
+    ui16* chLampData = chunkMesher->m_lampData;
+    ui8* chSunlightData = chunkMesher->m_sunData;
+    ui16* chTertiaryData = chunkMesher->m_tertiaryData;
 
-    memset(chData, 0, sizeof(chunkMesher->_blockIDData));
-    memset(chLampData, 0, sizeof(chunkMesher->_lampLightData));
-    memset(chSunlightData, 0, sizeof(chunkMesher->_sunlightData));
-    memset(chTertiaryData, 0, sizeof(chunkMesher->_tertiaryData));
+    memset(chData, 0, sizeof(chunkMesher->m_blockData));
+    memset(chLampData, 0, sizeof(chunkMesher->m_lampData));
+    memset(chSunlightData, 0, sizeof(chunkMesher->m_sunData));
+    memset(chTertiaryData, 0, sizeof(chunkMesher->m_tertiaryData));
 
     chunkMesher->wSize = 0;
     chunkMesher->chunk = chunk;

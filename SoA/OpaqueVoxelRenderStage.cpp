@@ -4,7 +4,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include "Camera.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
@@ -50,7 +50,7 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
     glUniform3fv(m_program.getUniform("unSunColor"), 1, &(m_gameRenderParams->sunlightColor[0]));
 
     glUniform1f(m_program.getUniform("unFadeDist"), 1000.0f/*ChunkRenderer::fadeDist*/);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, NChunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 
     f64v3 closestPoint;
     static const f64v3 boxDims(CHUNK_WIDTH);

@@ -5,7 +5,7 @@
 #include <Vorb/io/Keg.h>
 
 #include "BlockPack.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "VoxelBits.h"

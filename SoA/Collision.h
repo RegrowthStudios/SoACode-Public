@@ -1,6 +1,6 @@
 #pragma once
 class Player;
-class NChunk;
+class Chunk;
 
 const i32 PLAYER_COLLISION_STEPS = 20;
 
@@ -11,4 +11,4 @@ const i32 PLAYER_COLLISION_STEPS = 20;
 //float TriangleArea(coordinate3lf &p1, coordinate3lf &p2, coordinate3lf &p3);
 //bool AABBCollision(coordinate3lf &b1, coordinate3lf &b2, coordinate3lf &r1, coordinate3lf &r2, coordinate3lf &vn);
 
-void aabbChunkCollision(Player* player, f64v3* playerPos, NChunk** chunks, ui8 size);
+void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk** chunks, ui8 size);

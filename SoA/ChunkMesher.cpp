@@ -11,7 +11,7 @@
 #include <Vorb/utils.h>
 
 #include "BlockPack.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
@@ -47,11 +47,11 @@ void ChunkMesher::bindVBOIndicesID()
         j += 4;
     }
 
-    if (NChunk::vboIndicesID != 0){
-        glDeleteBuffers(1, &(NChunk::vboIndicesID));
+    if (Chunk::vboIndicesID != 0){
+        glDeleteBuffers(1, &(Chunk::vboIndicesID));
     }
-    glGenBuffers(1, &(NChunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (NChunk::vboIndicesID));
+    glGenBuffers(1, &(Chunk::vboIndicesID));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
         
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0]));
@@ -71,27 +71,27 @@ bool ChunkMesher::checkBlockFaces(bool faces[6], const RenderTask* task, const B
     const Block *nblock;
     bool hasFace = false;
 
-    if (faces[XNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))){
+    if (faces[XNEG] = ((nblock = &GETBLOCK(m_blockData[wc - 1]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))){
         hasFace = true;
     }
 
-    if (faces[XPOS] = ((nblock = &GETBLOCK(_blockIDData[1 + wc]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
+    if (faces[XPOS] = ((nblock = &GETBLOCK(m_blockData[1 + wc]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
     }
 
-    if (faces[YNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
+    if (faces[YNEG] = ((nblock = &GETBLOCK(m_blockData[wc - dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
     }
 
-    if (faces[YPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
+    if (faces[YPOS] = ((nblock = &GETBLOCK(m_blockData[wc + dataLayer]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
     }
 
-    if (faces[ZNEG] = ((nblock = &GETBLOCK(_blockIDData[wc - dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
+    if (faces[ZNEG] = ((nblock = &GETBLOCK(m_blockData[wc - dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
     }
 
-    if (faces[ZPOS] = ((nblock = &GETBLOCK(_blockIDData[wc + dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
+    if (faces[ZPOS] = ((nblock = &GETBLOCK(m_blockData[wc + dataWidth]))->occlude == BlockOcclusion::NONE || ((nblock->occlude == BlockOcclusion::SELF || occlude == BlockOcclusion::SELF_ONLY) && nblock->ID != btype))) {
         hasFace = true;
     }
 
@@ -164,10 +164,10 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
     GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    ui8 sunLight = _sunlightData[wc];
-    ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-        (_lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-        _lampLightData[wc] & LAMP_BLUE_MASK);
+    ui8 sunLight = m_sunData[wc];
+    ColorRGB8 lampLight((m_lampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+        (m_lampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+        m_lampData[wc] & LAMP_BLUE_MASK);
 
     sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
     lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
@@ -292,18 +292,18 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             mi.mergeUp = false;
         } else {
-            calculateFaceLight(&_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
+            calculateFaceLight(&m_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[1]);
+            VoxelMesher::makeCubeFace(m_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[1]);
             
             //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
             if (mi.mergeUp && mi.pbtype == btype &&
-                CompareVertices(_topVerts[mi.pupIndex], _topVerts[mi.pupIndex + 3]) && CompareVertices(_topVerts[mi.pupIndex + 3], _topVerts[mi.topIndex]) && CompareVertices(_topVerts[mi.topIndex], _topVerts[mi.topIndex + 3]) &&//-z vertices
-                CompareVertices(_topVerts[mi.pupIndex + 1], _topVerts[mi.pupIndex + 2]) && CompareVertices(_topVerts[mi.pupIndex + 2], _topVerts[mi.topIndex + 1]) && CompareVertices(_topVerts[mi.topIndex + 1], _topVerts[mi.topIndex + 2])){ //+z vertices
-                _topVerts[mi.pupIndex + 2].position.x += 7;                    //change x
-                _topVerts[mi.pupIndex + 3].position.x += 7;
-                _topVerts[mi.pupIndex + 2].tex[0]++;
-                _topVerts[mi.pupIndex + 3].tex[0]++;
+                CompareVertices(m_topVerts[mi.pupIndex], m_topVerts[mi.pupIndex + 3]) && CompareVertices(m_topVerts[mi.pupIndex + 3], m_topVerts[mi.topIndex]) && CompareVertices(m_topVerts[mi.topIndex], m_topVerts[mi.topIndex + 3]) &&//-z vertices
+                CompareVertices(m_topVerts[mi.pupIndex + 1], m_topVerts[mi.pupIndex + 2]) && CompareVertices(m_topVerts[mi.pupIndex + 2], m_topVerts[mi.topIndex + 1]) && CompareVertices(m_topVerts[mi.topIndex + 1], m_topVerts[mi.topIndex + 2])){ //+z vertices
+                m_topVerts[mi.pupIndex + 2].position.x += 7;                    //change x
+                m_topVerts[mi.pupIndex + 3].position.x += 7;
+                m_topVerts[mi.pupIndex + 2].tex[0]++;
+                m_topVerts[mi.pupIndex + 3].tex[0]++;
             } else{
                 mi.pupIndex = mi.topIndex;
                 mi.topIndex += 4;
@@ -368,9 +368,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
 
             chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
         } else {
-            calculateFaceLight(&_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ambientOcclusion);
+            calculateFaceLight(&m_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[0]);
+            VoxelMesher::makeCubeFace(m_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[0]);
 
             mi.rightIndex += 4;
         }
@@ -391,9 +391,9 @@ void ChunkMesher::addBlockToMesh(MesherInfo& mi)
             chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
         } else {
            
-            calculateFaceLight(&_leftVerts[mi.leftIndex], wc, -1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ambientOcclusion);
+            calculateFaceLight(&m_leftVerts[mi.leftIndex], wc, -1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ambientOcclusion);
 
-            VoxelMesher::makeCubeFace(_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[3]);
+            VoxelMesher::makeCubeFace(m_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[3]);
 
             mi.leftIndex += 4;
         }
@@ -414,12 +414,12 @@ void ChunkMesher::addFloraToMesh(MesherInfo& mi) {
     int temperature = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].temperature;
     int rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
 
-    GLuint flags = GETFLAGS(_blockIDData[mi.wc]);
+    GLuint flags = GETFLAGS(m_blockData[mi.wc]);
 
-    ui8 sunLight = _sunlightData[wc];
-    ColorRGB8 lampLight((_lampLightData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-                        (_lampLightData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-                        _lampLightData[wc] & LAMP_BLUE_MASK);
+    ui8 sunLight = m_sunData[wc];
+    ColorRGB8 lampLight((m_lampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
+                        (m_lampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
+                        m_lampData[wc] & LAMP_BLUE_MASK);
 
     sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
     lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
@@ -763,7 +763,7 @@ void ChunkMesher::addLiquidToMesh(MesherInfo& mi) {
 }
 
 int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
-    int val = GETBLOCKID(_blockIDData[blockIndex]); // Get block ID
+    int val = GETBLOCKID(m_blockData[blockIndex]); // Get block ID
     val = val - block.liquidStartID;
     if (val < 0) return 0;
     if (val > block.liquidLevels) return 0;
@@ -780,37 +780,37 @@ void ChunkMesher::mergeTopVerts(MesherInfo &mi)
 
     for (int i = 0; i < mi.topIndex; i += 4) {
         // Early exit if it cant merge
-        if (_topVerts[i].merge == -1) {
+        if (m_topVerts[i].merge == -1) {
             continue;
         } else {
             //Use this quad in the final mesh
             qi = mi.pyVboSize;
-            _finalTopVerts[mi.pyVboSize++] = _topVerts[i];
-            _finalTopVerts[mi.pyVboSize++] = _topVerts[i + 1];
-            _finalTopVerts[mi.pyVboSize++] = _topVerts[i + 2];
-            _finalTopVerts[mi.pyVboSize++] = _topVerts[i + 3];
+            _finalTopVerts[mi.pyVboSize++] = m_topVerts[i];
+            _finalTopVerts[mi.pyVboSize++] = m_topVerts[i + 1];
+            _finalTopVerts[mi.pyVboSize++] = m_topVerts[i + 2];
+            _finalTopVerts[mi.pyVboSize++] = m_topVerts[i + 3];
         }
         if (_finalTopVerts[qi].merge != 0 && CompareVerticesLight(_finalTopVerts[qi], _finalTopVerts[qi + 1]) && CompareVerticesLight(_finalTopVerts[qi + 2], _finalTopVerts[qi + 3])) {
             // Search for the next mergeable quad
             for (int j = i + 4; j < mi.topIndex; j += 4) {
                 // Skip if the J index is not active for merging
-                if (_topVerts[j].merge < 1) continue;
+                if (m_topVerts[j].merge < 1) continue;
 
                 // Early exit if the J index cant be merged
-                if (CompareVerticesLight(_topVerts[j], _topVerts[j + 1]) && CompareVerticesLight(_topVerts[j + 2], _topVerts[j + 3])) {
+                if (CompareVerticesLight(m_topVerts[j], m_topVerts[j + 1]) && CompareVerticesLight(m_topVerts[j + 2], m_topVerts[j + 3])) {
                     // Early exit if we went too far
-                    if (_topVerts[j+1].position.z > _finalTopVerts[qi+1].position.z + 7) break;
+                    if (m_topVerts[j+1].position.z > _finalTopVerts[qi+1].position.z + 7) break;
 
                     // If the x locations of the quads line up
-                    if (_finalTopVerts[qi].position.x == _topVerts[j].position.x && _finalTopVerts[qi+2].position.x == _topVerts[j+2].position.x) {
-                        if (CompareVertices(_finalTopVerts[qi + 1], _topVerts[j]) && CompareVertices(_finalTopVerts[qi + 2], _topVerts[j + 3])) {
+                    if (_finalTopVerts[qi].position.x == m_topVerts[j].position.x && _finalTopVerts[qi+2].position.x == m_topVerts[j+2].position.x) {
+                        if (CompareVertices(_finalTopVerts[qi + 1], m_topVerts[j]) && CompareVertices(_finalTopVerts[qi + 2], m_topVerts[j + 3])) {
                             //they are stretchable, so strech the current quad
                             _finalTopVerts[qi + 1].position.z += 7;
                             _finalTopVerts[qi + 2].position.z += 7;
                             _finalTopVerts[qi + 1].tex[1]--;
                             _finalTopVerts[qi + 2].tex[1]--;
                             //indicate that we want to ignore
-                            _topVerts[j].merge = -1;
+                            m_topVerts[j].merge = -1;
                         } else{
                             //Else, that was our only shot. Next quad!
                             break;
@@ -818,7 +818,7 @@ void ChunkMesher::mergeTopVerts(MesherInfo &mi)
                     }
                 } else {
                     //Indicate that its not mergeable
-                    _topVerts[j].merge = 0;
+                    m_topVerts[j].merge = 0;
                 }
             }
         }
@@ -1007,33 +1007,33 @@ void ChunkMesher::mergeRightVerts(MesherInfo &mi) {
 // Loop through each quad
     for (int i = 0; i < mi.rightIndex; i+=4) {
         // Early exit if it cant merge
-        if (_rightVerts[i].merge == -1) {
+        if (m_rightVerts[i].merge == -1) {
             continue;
         } else {
             //Probably use this quad in the final mesh
-            _finalQuads[finalQuadIndex++] = i;
+            m_finalQuads[finalQuadIndex++] = i;
         }
-        if (_rightVerts[i].merge != 0 && CompareVerticesLight(_rightVerts[i], _rightVerts[i + 3]) && CompareVerticesLight(_rightVerts[i + 1], _rightVerts[i + 2])) {
+        if (m_rightVerts[i].merge != 0 && CompareVerticesLight(m_rightVerts[i], m_rightVerts[i + 3]) && CompareVerticesLight(m_rightVerts[i + 1], m_rightVerts[i + 2])) {
             // Search for the next mergeable quad
             for (int j = i+4; j < mi.rightIndex; j += 4) {
                 // Skip if the J index is not active for merging
-                if (_rightVerts[j].merge < 1) continue;
+                if (m_rightVerts[j].merge < 1) continue;
             
                 // Early exit if the J index cant be merged
-                if (CompareVerticesLight(_rightVerts[j], _rightVerts[j + 3]) && CompareVerticesLight(_rightVerts[j + 1], _rightVerts[j + 2])) {
+                if (CompareVerticesLight(m_rightVerts[j], m_rightVerts[j + 3]) && CompareVerticesLight(m_rightVerts[j + 1], m_rightVerts[j + 2])) {
                     // Early exit if we went too far
-                    if (_rightVerts[j].position.z > _rightVerts[i].position.z + 7) break;
+                    if (m_rightVerts[j].position.z > m_rightVerts[i].position.z + 7) break;
 
                     // If the x locations of the quads line up
-                    if (_rightVerts[i].position.x == _rightVerts[j].position.x) {
-                        if (CompareVertices(_rightVerts[i], _rightVerts[j + 3]) && CompareVertices(_rightVerts[i + 1], _rightVerts[j + 2])) {
+                    if (m_rightVerts[i].position.x == m_rightVerts[j].position.x) {
+                        if (CompareVertices(m_rightVerts[i], m_rightVerts[j + 3]) && CompareVertices(m_rightVerts[i + 1], m_rightVerts[j + 2])) {
                             //they are stretchable, so strech the current quad
-                            _rightVerts[i].position.z += 7;
-                            _rightVerts[i + 1].position.z += 7;
-                            _rightVerts[i].tex[0]--;
-                            _rightVerts[i + 1].tex[0]--;
+                            m_rightVerts[i].position.z += 7;
+                            m_rightVerts[i + 1].position.z += 7;
+                            m_rightVerts[i].tex[0]--;
+                            m_rightVerts[i + 1].tex[0]--;
                             //indicate that we want to ignore
-                            _rightVerts[j].merge = -1;
+                            m_rightVerts[j].merge = -1;
                         } else{
                             //Else, that was our only shot. Next quad!
                             break;
@@ -1041,7 +1041,7 @@ void ChunkMesher::mergeRightVerts(MesherInfo &mi) {
                     }
                 } else {
                     //Indicate that its not mergeable
-                    _rightVerts[j].merge = 0;
+                    m_rightVerts[j].merge = 0;
                 }
             }
         }
@@ -1067,26 +1067,26 @@ void ChunkMesher::mergeRightVerts(MesherInfo &mi) {
         mi.pLayerRightIndex = 0;
         //Iterate again for upward merging
         for (int i = 0; i < finalQuadIndex; i++) {
-            qi = _finalQuads[i];
+            qi = m_finalQuads[i];
             //check if its upward mergeable
-            if (CompareVerticesLight(_rightVerts[qi], _rightVerts[qi + 1]) && CompareVerticesLight(_rightVerts[qi + 2], _rightVerts[qi + 3])) {
+            if (CompareVerticesLight(m_rightVerts[qi], m_rightVerts[qi + 1]) && CompareVerticesLight(m_rightVerts[qi + 2], m_rightVerts[qi + 3])) {
                 //indicate that it can upward merge
-                _rightVerts[qi].merge = 1;
+                m_rightVerts[qi].merge = 1;
                 for (int j = 0; j < pLayerRightIndex; j++){
                     qj = prevQuads[j];
-                    if (_finalRightVerts[qj + 2].position.z >= _rightVerts[qi + 2].position.z) {
+                    if (_finalRightVerts[qj + 2].position.z >= m_rightVerts[qi + 2].position.z) {
                         //Early exit if we went too far
-                        if (_finalRightVerts[qj + 2].position.z > _rightVerts[qi + 2].position.z) break;
+                        if (_finalRightVerts[qj + 2].position.z > m_rightVerts[qi + 2].position.z) break;
                         //Make sure its lined up
-                        if (_finalRightVerts[qj].position.z == _rightVerts[qi].position.z && _finalRightVerts[qj].position.x == _rightVerts[qi].position.x) {
-                            if (CompareVertices(_rightVerts[qi + 1], _finalRightVerts[qj]) && CompareVertices(_rightVerts[qi + 2], _finalRightVerts[qj + 3])) {
+                        if (_finalRightVerts[qj].position.z == m_rightVerts[qi].position.z && _finalRightVerts[qj].position.x == m_rightVerts[qi].position.x) {
+                            if (CompareVertices(m_rightVerts[qi + 1], _finalRightVerts[qj]) && CompareVertices(m_rightVerts[qi + 2], _finalRightVerts[qj + 3])) {
                                 //They can stretch!
                                 _finalRightVerts[qj].position.y += 7;
                                 _finalRightVerts[qj + 3].position.y += 7;
                                 _finalRightVerts[qj].tex[1]++;
                                 _finalRightVerts[qj + 3].tex[1]++;
                                 _prevRightQuads[_currPrevRightQuads][mi.pLayerRightIndex++] = qj;
-                                _rightVerts[qi].merge = -1;
+                                m_rightVerts[qi].merge = -1;
                                 break;
                             }
                         }
@@ -1094,20 +1094,20 @@ void ChunkMesher::mergeRightVerts(MesherInfo &mi) {
                 }
             } else {
                 //signal that it is not upward mergeable
-                _rightVerts[qi].merge = 0;
+                m_rightVerts[qi].merge = 0;
             }
             //If the vertex still is active, add to mesh
-            if (_rightVerts[qi].merge != -1) {
+            if (m_rightVerts[qi].merge != -1) {
 
                 //if it is upward mergeable, then add to prev right verts
-                if (_rightVerts[qi].merge > 0) {
+                if (m_rightVerts[qi].merge > 0) {
                     _prevRightQuads[_currPrevRightQuads][mi.pLayerRightIndex++] = mi.pxVboSize;
                 }
 
-                _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi];
-                _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi + 1];
-                _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi + 2];
-                _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi + 3];
+                _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi];
+                _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi + 1];
+                _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi + 2];
+                _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi + 3];
                
             }
         }
@@ -1115,17 +1115,17 @@ void ChunkMesher::mergeRightVerts(MesherInfo &mi) {
     } else { //if there was no previous layer, add verts to final mesh
         //we can assume merge is != -1.
         for (int i = 0; i < finalQuadIndex; i++) {
-            qi = _finalQuads[i];
+            qi = m_finalQuads[i];
 
             //if it is upward mergeable, then add to prev right verts
-            if (_rightVerts[qi].merge > 0 && CompareVertices(_rightVerts[qi], _rightVerts[qi + 1]) && CompareVertices(_rightVerts[qi + 2], _rightVerts[qi + 3])) {
+            if (m_rightVerts[qi].merge > 0 && CompareVertices(m_rightVerts[qi], m_rightVerts[qi + 1]) && CompareVertices(m_rightVerts[qi + 2], m_rightVerts[qi + 3])) {
                 _prevRightQuads[_currPrevRightQuads][mi.pLayerRightIndex++] = mi.pxVboSize;
             }
 
-            _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi];
-            _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi + 1];
-            _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi + 2];
-            _finalRightVerts[mi.pxVboSize++] = _rightVerts[qi + 3];
+            _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi];
+            _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi + 1];
+            _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi + 2];
+            _finalRightVerts[mi.pxVboSize++] = m_rightVerts[qi + 3];
         }
     }
 }
@@ -1141,33 +1141,33 @@ void ChunkMesher::mergeLeftVerts(MesherInfo &mi)
     // Loop through each quad
     for (int i = 0; i < mi.leftIndex; i += 4) {
         // Early exit if it cant merge
-        if (_leftVerts[i].merge == -1) {
+        if (m_leftVerts[i].merge == -1) {
             continue;
         } else {
             //Probably use this quad in the final mesh
-            _finalQuads[finalQuadIndex++] = i;
+            m_finalQuads[finalQuadIndex++] = i;
         }
-        if (_leftVerts[i].merge != 0 && CompareVerticesLight(_leftVerts[i], _leftVerts[i + 3]) && CompareVerticesLight(_leftVerts[i + 1], _leftVerts[i + 2])) {
+        if (m_leftVerts[i].merge != 0 && CompareVerticesLight(m_leftVerts[i], m_leftVerts[i + 3]) && CompareVerticesLight(m_leftVerts[i + 1], m_leftVerts[i + 2])) {
             // Search for the next mergeable quad
             for (int j = i + 4; j < mi.leftIndex; j += 4) {
                 // Skip if the J index is not active for merging
-                if (_leftVerts[j].merge < 1) continue;
+                if (m_leftVerts[j].merge < 1) continue;
 
                 // Early exit if the J index cant be merged
-                if (CompareVerticesLight(_leftVerts[j], _leftVerts[j + 3]) && CompareVerticesLight(_leftVerts[j + 1], _leftVerts[j + 2])) {
+                if (CompareVerticesLight(m_leftVerts[j], m_leftVerts[j + 3]) && CompareVerticesLight(m_leftVerts[j + 1], m_leftVerts[j + 2])) {
                     // Early exit if we went too far
-                    if (_leftVerts[j + 2].position.z > _leftVerts[i + 2].position.z + 7) break;
+                    if (m_leftVerts[j + 2].position.z > m_leftVerts[i + 2].position.z + 7) break;
 
                     // If the x locations of the quads line up
-                    if (_leftVerts[i].position.x == _leftVerts[j].position.x) {
-                        if (CompareVertices(_leftVerts[i + 3], _leftVerts[j]) && CompareVertices(_leftVerts[i + 2], _leftVerts[j + 1])) {
+                    if (m_leftVerts[i].position.x == m_leftVerts[j].position.x) {
+                        if (CompareVertices(m_leftVerts[i + 3], m_leftVerts[j]) && CompareVertices(m_leftVerts[i + 2], m_leftVerts[j + 1])) {
                             //they are stretchable, so strech the current quad
-                            _leftVerts[i + 2].position.z += 7;
-                            _leftVerts[i + 3].position.z += 7;
-                            _leftVerts[i + 2].tex[0]++;
-                            _leftVerts[i + 3].tex[0]++;
+                            m_leftVerts[i + 2].position.z += 7;
+                            m_leftVerts[i + 3].position.z += 7;
+                            m_leftVerts[i + 2].tex[0]++;
+                            m_leftVerts[i + 3].tex[0]++;
                             //indicate that we want to ignore
-                            _leftVerts[j].merge = -1;
+                            m_leftVerts[j].merge = -1;
                         } else{
                             //Else, that was our only shot. Next quad!
                             break;
@@ -1175,7 +1175,7 @@ void ChunkMesher::mergeLeftVerts(MesherInfo &mi)
                     }
                 } else {
                     //Indicate that its not mergeable
-                    _leftVerts[j].merge = 0;
+                    m_leftVerts[j].merge = 0;
                 }
             }
         }
@@ -1201,26 +1201,26 @@ void ChunkMesher::mergeLeftVerts(MesherInfo &mi)
         mi.pLayerLeftIndex = 0;
         //Iterate again for upward merging
         for (int i = 0; i < finalQuadIndex; i++) {
-            qi = _finalQuads[i];
+            qi = m_finalQuads[i];
             //check if its upward mergeable
-            if (CompareVerticesLight(_leftVerts[qi], _leftVerts[qi + 1]) && CompareVerticesLight(_leftVerts[qi + 2], _leftVerts[qi + 3])) {
+            if (CompareVerticesLight(m_leftVerts[qi], m_leftVerts[qi + 1]) && CompareVerticesLight(m_leftVerts[qi + 2], m_leftVerts[qi + 3])) {
                 //indicate that it can upward merge
-                _leftVerts[qi].merge = 1;
+                m_leftVerts[qi].merge = 1;
                 for (int j = 0; j < pLayerLeftIndex; j++){
                     qj = prevQuads[j];
-                    if (_finalLeftVerts[qj].position.z >= _leftVerts[qi].position.z) {
+                    if (_finalLeftVerts[qj].position.z >= m_leftVerts[qi].position.z) {
                         //Early exit if we went too far
-                        if (_finalLeftVerts[qj].position.z > _leftVerts[qi].position.z) break;
+                        if (_finalLeftVerts[qj].position.z > m_leftVerts[qi].position.z) break;
                         //Make sure its lined up
-                        if (_finalLeftVerts[qj+2].position.z == _leftVerts[qi+2].position.z && _finalLeftVerts[qj].position.x == _leftVerts[qi].position.x) {
-                            if (CompareVertices(_leftVerts[qi + 1], _finalLeftVerts[qj]) && CompareVertices(_leftVerts[qi + 2], _finalLeftVerts[qj + 3])) {
+                        if (_finalLeftVerts[qj+2].position.z == m_leftVerts[qi+2].position.z && _finalLeftVerts[qj].position.x == m_leftVerts[qi].position.x) {
+                            if (CompareVertices(m_leftVerts[qi + 1], _finalLeftVerts[qj]) && CompareVertices(m_leftVerts[qi + 2], _finalLeftVerts[qj + 3])) {
                                 //They can stretch!
                                 _finalLeftVerts[qj].position.y += 7;
                                 _finalLeftVerts[qj + 3].position.y += 7;
                                 _finalLeftVerts[qj].tex[1]++;
                                 _finalLeftVerts[qj + 3].tex[1]++;
                                 _prevLeftQuads[_currPrevLeftQuads][mi.pLayerLeftIndex++] = qj;
-                                _leftVerts[qi].merge = -1;
+                                m_leftVerts[qi].merge = -1;
                                 break;
                             }
                         }
@@ -1228,20 +1228,20 @@ void ChunkMesher::mergeLeftVerts(MesherInfo &mi)
                 }
             } else {
                 //signal that it is not upward mergeable
-                _leftVerts[qi].merge = 0;
+                m_leftVerts[qi].merge = 0;
             }
             //If the vertex still is active, add to mesh
-            if (_leftVerts[qi].merge != -1) {
+            if (m_leftVerts[qi].merge != -1) {
 
                 //if it is upward mergeable, then add to prev left verts
-                if (_leftVerts[qi].merge > 0) {
+                if (m_leftVerts[qi].merge > 0) {
                     _prevLeftQuads[_currPrevLeftQuads][mi.pLayerLeftIndex++] = mi.nxVboSize;
                 }
 
-                _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi];
-                _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi + 1];
-                _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi + 2];
-                _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi + 3];
+                _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi];
+                _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi + 1];
+                _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi + 2];
+                _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi + 3];
 
             }
         }
@@ -1249,17 +1249,17 @@ void ChunkMesher::mergeLeftVerts(MesherInfo &mi)
     } else { //if there was no previous layer, add verts to final mesh
         //we can assume merge is != -1.
         for (int i = 0; i < finalQuadIndex; i++) {
-            qi = _finalQuads[i];
+            qi = m_finalQuads[i];
 
             //if it is upward mergeable, then add to prev left verts
-            if (_leftVerts[qi].merge > 0 && CompareVertices(_leftVerts[qi], _leftVerts[qi + 1]) && CompareVertices(_leftVerts[qi + 2], _leftVerts[qi + 3])) {
+            if (m_leftVerts[qi].merge > 0 && CompareVertices(m_leftVerts[qi], m_leftVerts[qi + 1]) && CompareVertices(m_leftVerts[qi + 2], m_leftVerts[qi + 3])) {
                 _prevLeftQuads[_currPrevLeftQuads][mi.pLayerLeftIndex++] = mi.nxVboSize;
             }
 
-            _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi];
-            _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi + 1];
-            _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi + 2];
-            _finalLeftVerts[mi.nxVboSize++] = _leftVerts[qi + 3];
+            _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi];
+            _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi + 1];
+            _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi + 2];
+            _finalLeftVerts[mi.nxVboSize++] = m_leftVerts[qi + 3];
         }
     }
 }
@@ -1324,7 +1324,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
     int waveEffect;
     const Block *block;
-    NChunk* chunk = renderTask->chunk;
+    Chunk* chunk = renderTask->chunk;
 
     //Stores the information about the current mesh job
     MesherInfo mi = {};
@@ -1353,10 +1353,10 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //Stores the data for a chunk mesh
     chunkMeshData = new ChunkMeshData(renderTask);
 
-    mi.blockIDData = _blockIDData;
-    mi.lampLightData = _lampLightData;
-    mi.sunlightData = _sunlightData;
-    mi.tertiaryData = _tertiaryData;
+    mi.blockIDData = m_blockData;
+    mi.lampLightData = m_lampData;
+    mi.sunlightData = m_sunData;
+    mi.tertiaryData = m_tertiaryData;
 
     int levelOfDetail = 0; // chunk->getLevelOfDetail();
     mi.levelOfDetail = levelOfDetail;
@@ -1397,7 +1397,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
                 //We use wc instead of c, because the array is sentinalized at all edges so we dont have to access neighbor chunks with mutexes
                 mi.wc = (mi.y + 1)*(dataLayer)+(mi.z + 1)*(dataWidth)+(mi.x + 1); //get the expanded c for our sentinelized array
                 //get the block properties
-                mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
+                mi.btype = GETBLOCKID(m_blockData[mi.wc]);
                 block = &((*m_blocks)[mi.btype]);
 
 
@@ -1434,12 +1434,12 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
             mi.mergeBot = 0;
         }
         //second pass of merging for all directions
-        mergeTopVerts(mi);
-        mergeFrontVerts(mi);
-        mergeBackVerts(mi);
-        mergeRightVerts(mi);
-        mergeLeftVerts(mi);
-        mergeBottomVerts(mi);
+     //   mergeTopVerts(mi);
+    //    mergeFrontVerts(mi);
+     //   mergeBackVerts(mi);
+    //    mergeRightVerts(mi);
+    //    mergeLeftVerts(mi);
+    //    mergeBottomVerts(mi);
     }
 
     int highestY = 0, lowestY = 256, highestX = 0, lowestX = 256, highestZ = 0, lowestZ = 256;
@@ -1549,8 +1549,8 @@ bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask)
     mi.task = renderTask;
 
     for (int i = 0; i < wSize; i++) {
-        mi.wc = _wvec[i];
-        mi.btype = GETBLOCKID(_blockIDData[mi.wc]);
+        mi.wc = m_wvec[i];
+        mi.btype = GETBLOCKID(m_blockData[mi.wc]);
         mi.x = (mi.wc % PADDED_CHUNK_WIDTH) - 1;
         mi.y = (mi.wc / PADDED_CHUNK_LAYER) - 1;
         mi.z = ((mi.wc % PADDED_CHUNK_LAYER) / PADDED_CHUNK_WIDTH) - 1;
@@ -1614,13 +1614,13 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                     for (int lz = 0; lz < lodStep; lz++) {
                         for (int lx = 0; lx < lodStep; lx++) {
                             blockIndex = startIndex + ly * PADDED_CHUNK_LAYER + lz * PADDED_CHUNK_WIDTH + lx;
-                            const Block& block = GETBLOCK(_blockIDData[blockIndex]);
+                            const Block& block = GETBLOCK(m_blockData[blockIndex]);
                             if (block.occlude != BlockOcclusion::NONE || block.meshType == MeshType::LIQUID) {
                                 // Check for surface block
-                                if (GETBLOCK(_blockIDData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE || surfaceBlockID == 0) {
+                                if (GETBLOCK(m_blockData[blockIndex + PADDED_CHUNK_LAYER]).occlude == BlockOcclusion::NONE || surfaceBlockID == 0) {
                                     // TODO(Ben): Do better than just picking a random surfaceBlock
-                                    surfaceBlockID = _blockIDData[blockIndex];
-                                    surfaceTertiaryData = _tertiaryData[blockIndex];
+                                    surfaceBlockID = m_blockData[blockIndex];
+                                    surfaceTertiaryData = m_tertiaryData[blockIndex];
                                 }
                                 // Check for minimum bounding box
                                 if (lx < minX) minX = lx;
@@ -1647,14 +1647,14 @@ void ChunkMesher::computeLODData(int levelOfDetail) {
                             }
                             // If its in the minimum box, set it to the surface block
                             if (lx < minX || lx > maxX || ly < minY || ly > maxY || lz < minZ || lz > maxZ) {
-                                _blockIDData[blockIndex] = 0;
-                                _tertiaryData[blockIndex] = 0;
+                                m_blockData[blockIndex] = 0;
+                                m_tertiaryData[blockIndex] = 0;
                             } else {
-                                _blockIDData[blockIndex] = surfaceBlockID;
-                                _tertiaryData[blockIndex] = surfaceTertiaryData;
+                                m_blockData[blockIndex] = surfaceBlockID;
+                                m_tertiaryData[blockIndex] = surfaceTertiaryData;
                             }
-                            _sunlightData[blockIndex] = 31;
-                            _lampLightData[blockIndex] = lampLightData;
+                            m_sunData[blockIndex] = 31;
+                            m_lampData[blockIndex] = lampLightData;
                         }
                     }
                 }

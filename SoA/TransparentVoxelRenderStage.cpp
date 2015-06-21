@@ -9,7 +9,7 @@
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
 #include "MeshManager.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 #include "SoaOptions.h"

@@ -22,14 +22,14 @@
 #include <Vorb/ThreadPool.h>
 
 class ChunkAllocator;
-class NChunkGridData;
+class ChunkGridData;
 
 enum ChunkGenLevel { GEN_NONE = 0, GEN_TERRAIN, GEN_FLORA, GEN_SCRIPT, GEN_DONE };
 
 class ChunkQuery {
     friend class ChunkGenerator;
     friend class GenerateTask;
-    friend class NChunkGrid;
+    friend class ChunkGrid;
 public:
     void set(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldDelete) {
         this->chunkPos = chunkPos;
@@ -45,7 +45,7 @@ public:
     }
 
     const bool& isFinished() const { return m_isFinished; }
-    NChunk* getChunk() const { return m_chunk; }
+    Chunk* getChunk() const { return m_chunk; }
 
     i32v3 chunkPos;
     ChunkGenLevel genLevel;
@@ -53,7 +53,7 @@ public:
     bool shouldDelete = false;
 private:
     bool m_isFinished = false;
-    NChunk* m_chunk = nullptr;
+    Chunk* m_chunk = nullptr;
     std::mutex m_lock;
     std::condition_variable m_cond;
 };
@@ -61,7 +61,7 @@ private:
 // Data stored in Chunk and used only by ChunkGenerator
 struct ChunkGenQueryData {
     friend class ChunkGenerator;
-    friend class NChunk;
+    friend class Chunk;
 private:
     ChunkQuery* current = nullptr;
     std::vector<ChunkQuery*> pending;
@@ -79,7 +79,7 @@ public:
     void update();
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_finishedQueries;
-    std::map < NChunkGridData*, std::vector<ChunkQuery*> >m_pendingQueries; ///< Queries waiting on height map
+    std::map < ChunkGridData*, std::vector<ChunkQuery*> >m_pendingQueries; ///< Queries waiting on height map
 
     ProceduralChunkGenerator m_proceduralGenerator;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;

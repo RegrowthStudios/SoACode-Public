@@ -17,15 +17,15 @@
 
 struct PlanetGenData;
 struct PlanetHeightData;
-class NChunk;
+class Chunk;
 
 #include "SphericalTerrainCpuGenerator.h"
 
 class ProceduralChunkGenerator {
 public:
     void init(PlanetGenData* genData);
-    void generateChunk(NChunk* chunk, PlanetHeightData* heightData) const;
-    void generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const;
+    void generateChunk(Chunk* chunk, PlanetHeightData* heightData) const;
+    void generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const;
 private:
     PlanetGenData* m_genData = nullptr;
     SphericalTerrainCpuGenerator m_heightGenerator;

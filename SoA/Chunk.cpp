@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "NChunk.h"
+#include "Chunk.h"
 
 #include "VoxelSpaceConversions.h"
 
-ui32 NChunk::vboIndicesID = 0;
+ui32 Chunk::vboIndicesID = 0;
 
-void NChunk::init(ChunkID id, const ChunkPosition3D& pos) {
+void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
     memset(neighbors, 0, sizeof(neighbors));  
     m_numNeighbors = 0u;
     m_distance2 = FLT_MAX;
@@ -19,7 +19,7 @@ void NChunk::init(ChunkID id, const ChunkPosition3D& pos) {
     hasCreatedMesh = false;
 }
 
-void NChunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
+void Chunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler,
          vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8>* byteRecycler) {
     m_blocks.setArrayRecycler(shortRecycler);
     m_sunlight.setArrayRecycler(byteRecycler);
@@ -27,7 +27,7 @@ void NChunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* short
     m_tertiary.setArrayRecycler(shortRecycler);
 }
 
-void NChunk::updateContainers() {
+void Chunk::updateContainers() {
     m_blocks.update(mutex);
     m_sunlight.update(mutex);
     m_lamp.update(mutex);

@@ -20,7 +20,7 @@
 #include "Constants.h"
 #include "VoxPool.h"
 
-class NChunk;
+class Chunk;
 class ChunkGridData;
 class ChunkMesh;
 class ChunkMeshData;
@@ -41,10 +41,10 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Initializes the task
-    void init(NChunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
+    void init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
 
     RenderTaskType type; 
-    NChunk* chunk = nullptr;
+    Chunk* chunk = nullptr;
     ChunkMeshManager* meshManager = nullptr;
     const BlockPack* blockPack = nullptr;
 private:

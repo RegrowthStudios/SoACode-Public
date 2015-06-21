@@ -769,9 +769,6 @@
     <ClInclude Include="Positional.h">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClInclude>
-    <ClInclude Include="NChunk.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="PlanetHeightData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
@@ -795,6 +792,9 @@
     </ClInclude>
     <ClInclude Include="HeightData.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1265,9 +1265,6 @@
     <ClCompile Include="TestNewBlockAPIScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
-    <ClCompile Include="NChunk.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
     <ClCompile Include="NChunkGrid.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
@@ -1285,6 +1282,9 @@
     </ClCompile>
     <ClCompile Include="BlockTextureLoader.cpp">
       <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

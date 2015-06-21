@@ -20,7 +20,7 @@
 #include "FloraGenerator.h"
 #include "VoxPool.h"
 
-class NChunk;
+class Chunk;
 class WorkerData;
 
 #define FLORA_TASK_ID 2
@@ -45,13 +45,13 @@ public:
     void execute(WorkerData* workerData) override;
 
     /// Initializes the task
-    void init(NChunk* ch) { chunk = ch; }
+    void init(Chunk* ch) { chunk = ch; }
 
     /// Helper Function
     static i32v3 getChunkOffset(ui16 offset);
 
     bool isSuccessful; ///< True if the generation finished
-    NChunk* chunk = nullptr;
+    Chunk* chunk = nullptr;
 
     GeneratedTreeNodes* generatedTreeNodes;
 private:

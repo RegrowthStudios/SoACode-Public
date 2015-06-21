@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "NChunkGrid.h"
-#include "NChunk.h"
+#include "Chunk.h"
 #include "ChunkAllocator.h"
 
 #include <Vorb/utils.h>
 
-volatile ChunkID NChunkGrid::m_nextAvailableID = 0;
+volatile ChunkID ChunkGrid::m_nextAvailableID = 0;
 
-void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
+void ChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
                       OPT vcore::ThreadPool<WorkerData>* threadPool,
                       ui32 generatorsPerRow,
                       PlanetGenData* genData) {
@@ -21,7 +21,7 @@ void NChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
     }
 }
 
-void NChunkGrid::addChunk(NChunk* chunk) {
+void ChunkGrid::addChunk(Chunk* chunk) {
     const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Add to lookup hashmap
     m_chunkMap[pos.pos] = chunk;
@@ -34,7 +34,7 @@ void NChunkGrid::addChunk(NChunk* chunk) {
         if (chunk->gridData == nullptr) {
             // If its not allocated, make a new one with a new voxelMapData
             // TODO(Ben): Cache this
-            chunk->gridData = std::make_shared<NChunkGridData>(pos);
+            chunk->gridData = std::make_shared<ChunkGridData>(pos);
             m_chunkGridDataMap[gridPos] = chunk->gridData;
         }
     }
@@ -56,7 +56,7 @@ void NChunkGrid::addChunk(NChunk* chunk) {
     }
 }
 
-void NChunkGrid::removeChunk(NChunk* chunk) {
+void ChunkGrid::removeChunk(Chunk* chunk) {
     const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Remove from lookup hashmap
     m_chunkMap.erase(pos.pos);
@@ -86,7 +86,7 @@ void NChunkGrid::removeChunk(NChunk* chunk) {
     }
 }
 
-NChunk* NChunkGrid::getChunk(const f64v3& position) {
+Chunk* ChunkGrid::getChunk(const f64v3& position) {
 
     i32v3 chPos(fastFloor(position.x / (f64)CHUNK_WIDTH),
                 fastFloor(position.y / (f64)CHUNK_WIDTH),
@@ -97,29 +97,29 @@ NChunk* NChunkGrid::getChunk(const f64v3& position) {
     return it->second;
 }
 
-NChunk* NChunkGrid::getChunk(const i32v3& chunkPos) {
+Chunk* ChunkGrid::getChunk(const i32v3& chunkPos) {
     auto it = m_chunkMap.find(chunkPos);
     if (it == m_chunkMap.end()) return nullptr;
     return it->second;
 }
 
-const NChunk* NChunkGrid::getChunk(const i32v3& chunkPos) const {
+const Chunk* ChunkGrid::getChunk(const i32v3& chunkPos) const {
     auto it = m_chunkMap.find(chunkPos);
     if (it == m_chunkMap.end()) return nullptr;
     return it->second;
 }
 
-void NChunkGrid::submitQuery(ChunkQuery* query) {
+void ChunkGrid::submitQuery(ChunkQuery* query) {
     m_queries.enqueue(query);
 }
 
-std::shared_ptr<NChunkGridData> NChunkGrid::getChunkGridData(const i32v2& gridPos) const {
+std::shared_ptr<ChunkGridData> ChunkGrid::getChunkGridData(const i32v2& gridPos) const {
     auto it = m_chunkGridDataMap.find(gridPos);
     if (it == m_chunkGridDataMap.end()) return nullptr;
     return it->second;
 }
 
-void NChunkGrid::update() {
+void ChunkGrid::update() {
     // TODO(Ben): Handle generator distribution
     m_generators[0].update();
 
@@ -129,7 +129,7 @@ void NChunkGrid::update() {
     size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
-        NChunk* chunk = getChunk(q->chunkPos);
+        Chunk* chunk = getChunk(q->chunkPos);
         if (chunk) {
             // Check if we don't need to do any generation
             if (chunk->genLevel <= q->genLevel) {
@@ -157,7 +157,7 @@ void NChunkGrid::update() {
     }
 }
 
-void NChunkGrid::connectNeighbors(NChunk* chunk) {
+void ChunkGrid::connectNeighbors(Chunk* chunk) {
     const i32v3& pos = chunk->getChunkPosition().pos;
     { // Left
         i32v3 newPos(pos.x - 1, pos.y, pos.z);
@@ -215,7 +215,7 @@ void NChunkGrid::connectNeighbors(NChunk* chunk) {
     } 
 }
 
-void NChunkGrid::disconnectNeighbors(NChunk* chunk) {
+void ChunkGrid::disconnectNeighbors(Chunk* chunk) {
     if (chunk->left) {
         chunk->left->right = nullptr;
         chunk->left->m_numNeighbors--;

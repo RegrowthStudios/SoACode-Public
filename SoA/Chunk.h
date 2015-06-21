@@ -23,13 +23,13 @@
 #include "ChunkGenerator.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
-class NChunk;
-typedef NChunk* NChunkPtr;
+class Chunk;
+typedef Chunk* ChunkPtr;
 typedef ui32 ChunkID;
 
-class NChunkGridData {
+class ChunkGridData {
 public:
-    NChunkGridData(const ChunkPosition3D& pos) {
+    ChunkGridData(const ChunkPosition3D& pos) {
         gridPosition.pos = i32v2(pos.pos.x, pos.pos.z);
         gridPosition.face = pos.face;
     }
@@ -41,12 +41,12 @@ public:
     int refCount = 1;
 };
 
-class NChunk {
+class Chunk {
     friend class ChunkGenerator;
     friend class ProceduralChunkGenerator;
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
-    friend class NChunkGrid;
+    friend class ChunkGrid;
     friend class RenderTask;
 public:
     void init(ChunkID id, const ChunkPosition3D& pos);
@@ -62,8 +62,8 @@ public:
     bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
     const bool& isInRange() const { return m_isInRange; }
     const f32& getDistance2() const { return m_distance2; }
-    NChunkPtr getNextActive() const { return m_nextActive; }
-    NChunkPtr getPrevActive() const { return m_prevActive; }
+    ChunkPtr getNextActive() const { return m_nextActive; }
+    ChunkPtr getPrevActive() const { return m_prevActive; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
@@ -91,13 +91,13 @@ public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
-    std::shared_ptr<NChunkGridData> gridData = nullptr;
+    std::shared_ptr<ChunkGridData> gridData = nullptr;
     MetaFieldInformation meta;    
     union {
         struct {
-            NChunkPtr left, right, bottom, top, back, front;
+            ChunkPtr left, right, bottom, top, back, front;
         };
-        NChunkPtr neighbors[6];
+        ChunkPtr neighbors[6];
     };
     std::mutex mutex;
     int refCount = 0;
@@ -111,8 +111,8 @@ private:
     // For generation
     ChunkGenQueryData m_genQueryData;
     // For ChunkGrid
-    NChunkPtr m_nextActive = nullptr;
-    NChunkPtr m_prevActive = nullptr;
+    ChunkPtr m_nextActive = nullptr;
+    ChunkPtr m_prevActive = nullptr;
 
     ui32 m_numNeighbors = 0u;
     ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible

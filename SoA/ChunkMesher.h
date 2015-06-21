@@ -4,7 +4,7 @@
 #include "ChunkMesh.h"
 
 class RenderTask;
-class NChunk;
+class Chunk;
 class ChunkMeshData;
 class BlockPack;
 struct BlockTexture;
@@ -39,6 +39,8 @@ private:
     void mergeBottomVerts(MesherInfo& mi);
 
     void addBlockToMesh(MesherInfo& mi);
+    void addBlockXFace()
+
     void addFloraToMesh(MesherInfo& mi);
     void addLiquidToMesh(MesherInfo& mi);
 
@@ -68,26 +70,26 @@ private:
     int dataLayer;
     int dataSize;
 
-    NChunk* chunk; ///< The chunk we are currently meshing;
-    std::shared_ptr<NChunkGridData> chunkGridData; ///< current grid data
+    Chunk* chunk; ///< The chunk we are currently meshing;
+    std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
 
     int wSize;
     // Voxel data arrays
-    ui16 _wvec[CHUNK_SIZE];
-    ui16 _blockIDData[PADDED_CHUNK_SIZE];
-    ui16 _lampLightData[PADDED_CHUNK_SIZE];
-    ui8 _sunlightData[PADDED_CHUNK_SIZE];
-    ui16 _tertiaryData[PADDED_CHUNK_SIZE];
+    ui16 m_wvec[CHUNK_SIZE];
+    ui16 m_blockData[PADDED_CHUNK_SIZE];
+    ui16 m_lampData[PADDED_CHUNK_SIZE];
+    ui8 m_sunData[PADDED_CHUNK_SIZE];
+    ui16 m_tertiaryData[PADDED_CHUNK_SIZE];
 
-    ui32 _finalQuads[7000];
+    ui32 m_finalQuads[7000];
 
-    BlockVertex _topVerts[4100];
+    BlockVertex m_topVerts[4100];
 
-    BlockVertex _leftVerts[4100];
+    BlockVertex m_leftVerts[4100];
     i32 _currPrevLeftQuads;
     i32 _prevLeftQuads[2][1024];
 
-    BlockVertex _rightVerts[4100];
+    BlockVertex m_rightVerts[4100];
     i32 _currPrevRightQuads;
     i32 _prevRightQuads[2][1024];
 
