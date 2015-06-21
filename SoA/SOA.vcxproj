@@ -721,7 +721,6 @@ EXIT 0</Command>
     <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
-    <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="SoaOptions.h" />
     <ClInclude Include="Particles.h" />
@@ -905,7 +904,6 @@ EXIT 0</Command>
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="SoaOptions.cpp" />
     <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />

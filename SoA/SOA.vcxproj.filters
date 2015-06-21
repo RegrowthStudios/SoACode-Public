@@ -269,9 +269,6 @@
     <ClInclude Include="MaterialStack.h">
       <Filter>SOA Files\Game\Objects\Materials</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectLoader.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClInclude>
@@ -863,9 +860,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectLoader.cpp">
-      <Filter>SOA Files\Data</Filter>
     </ClCompile>
     <ClCompile Include="Particle.cpp">
       <Filter>SOA Files\Game\Particles</Filter>

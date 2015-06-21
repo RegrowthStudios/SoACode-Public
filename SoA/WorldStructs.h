@@ -5,7 +5,7 @@
 #include <Vorb/graphics/Texture.h>
 
 #include "Constants.h"
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 extern AccumulationTimer globalAccumulationTimer;

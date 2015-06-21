@@ -1,6 +1,7 @@
 #pragma once
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 #include "BlockTextureMethods.h"
+#include <Vorb/io/Keg.h>
 #include <Vorb/graphics/gtypes.h>
 
 enum class MeshType {

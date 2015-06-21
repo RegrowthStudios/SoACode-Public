@@ -101,13 +101,9 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
 
     ui16* wvec = chunkMesher->m_wvec;
     ui16* chData = chunkMesher->m_blockData;
-    ui16* chLampData = chunkMesher->m_lampData;
-    ui8* chSunlightData = chunkMesher->m_sunData;
     ui16* chTertiaryData = chunkMesher->m_tertiaryData;
 
     memset(chData, 0, sizeof(chunkMesher->m_blockData));
-    memset(chLampData, 0, sizeof(chunkMesher->m_lampData));
-    memset(chSunlightData, 0, sizeof(chunkMesher->m_sunData));
     memset(chTertiaryData, 0, sizeof(chunkMesher->m_tertiaryData));
 
     chunkMesher->wSize = 0;
@@ -152,56 +148,6 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
             }
         }
         chunkMesher->wSize = s;
-    }
-    if (chunk->m_lamp.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        //lamp data
-        c = 0;
-        auto& dataTree = chunk->m_lamp.getTree();
-        for (int i = 0; i < dataTree.size(); i++) {
-            for (int j = 0; j < dataTree[i].length; j++) {
-                c = dataTree[i].getStart() + j;
-
-                getPosFromBlockIndex(c, pos);
-                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-
-                chLampData[wc] = dataTree[i].data;
-            }
-        }
-    } else {
-        c = 0;
-        for (y = 0; y < CHUNK_WIDTH; y++) {
-            for (z = 0; z < CHUNK_WIDTH; z++) {
-                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
-                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chLampData[wc] = chunk->m_lamp.get(c);
-                }
-            }
-        }
-    }
-    if (chunk->m_sunlight.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        //sunlight data
-        c = 0;
-        auto& dataTree = chunk->m_sunlight.getTree();
-        for (int i = 0; i < dataTree.size(); i++) {
-            for (int j = 0; j < dataTree[i].length; j++) {
-                c = dataTree[i].getStart() + j;
-
-                getPosFromBlockIndex(c, pos);
-                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-
-                chSunlightData[wc] = dataTree[i].data;
-            }
-        }
-    } else {
-        c = 0;
-        for (y = 0; y < CHUNK_WIDTH; y++) {
-            for (z = 0; z < CHUNK_WIDTH; z++) {
-                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
-                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    chSunlightData[wc] = chunk->m_sunlight.get(c);
-                }
-            }
-        }
     }
     if (chunk->m_tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data

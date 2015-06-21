@@ -6,8 +6,7 @@
 #include "BlockData.h"
 #include "Chunk.h"
 #include "GameManager.h"
-#include "ObjectLoader.h"
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
 

@@ -55,11 +55,6 @@ private:
     int getLiquidLevel(int blockIndex, const Block& block);
 
     bool shouldRenderFace(int offset);
-    GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
-    void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
-    void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
-
-
 
     std::vector<BlockVertex> m_finalVerts[6];
 
@@ -87,8 +82,6 @@ private:
     i32 m_quadIndices[PADDED_CHUNK_SIZE][6];
     ui16 m_wvec[CHUNK_SIZE];
     ui16 m_blockData[PADDED_CHUNK_SIZE];
-    ui16 m_lampData[PADDED_CHUNK_SIZE];
-    ui8 m_sunData[PADDED_CHUNK_SIZE];
     ui16 m_tertiaryData[PADDED_CHUNK_SIZE];
 
     ui32 m_finalQuads[7000];
