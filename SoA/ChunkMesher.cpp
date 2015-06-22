@@ -82,239 +82,56 @@ void ChunkMesher::addBlock()
     // Check the faces
     // Left
     if (shouldRenderFace(-1)) {
-
+        addQuad((int)vvox::Cardinal::X_NEG, 0, 0);
     }
     // Right
     if (shouldRenderFace(1)) {
-
+        addQuad((int)vvox::Cardinal::X_POS, 0, 0);
     }
     // Bottom
     if (shouldRenderFace(-PADDED_CHUNK_LAYER)) {
-
+        addQuad((int)vvox::Cardinal::Y_NEG, 0, 0);
     }
     // Top
     if (shouldRenderFace(PADDED_CHUNK_LAYER)) {
-
+        addQuad((int)vvox::Cardinal::Y_POS, 0, 0);
     }
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
-
+        addQuad((int)vvox::Cardinal::Z_NEG, 0, 0);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
-
+        addQuad((int)vvox::Cardinal::Z_POS, 0, 0);
     }
-
-    //if (faces[ZPOS]){ //0 1 2 3
-    //    //Get the color of the block
-    //    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[2]);
-    //    
-    //    //We will offset the texture index based on the texture method
-    //    textureIndex = block.textures[2]->base.getBlockTextureIndex(mi.pzBaseMethodParams, color);
-    //    overlayTextureIndex = block.textures[2]->overlay.getBlockTextureIndex(mi.pzOverlayMethodParams, overlayColor);
-
-    //    if (block.textures[2]->base.transparency) {
-    //        _transparentVerts.resize(_transparentVerts.size() + 4);
-    //        VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 0, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[2]);
-    //        mi.transparentIndex += 4;
-
-    //        chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2 + 2));
-
-    //        mi.mergeFront = false;
-    //    } else {
-    //        //Set up the light data using smooth lighting
-    //        calculateFaceLight(&_frontVerts[mi.frontIndex], wc, PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 1, ambientOcclusion);
-
-    //        //Set up most of the vertex data for a face
-    //        VoxelMesher::makeCubeFace(_frontVerts, CUBE_FACE_0_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.frontIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[2]);
-
-    //        //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
-    //        if (mi.mergeFront && mi.pbtype == btype &&
-    //            CompareVertices(_frontVerts[mi.pfrontIndex], _frontVerts[mi.pfrontIndex + 3]) && CompareVertices(_frontVerts[mi.pfrontIndex + 3], _frontVerts[mi.frontIndex]) && CompareVertices(_frontVerts[mi.frontIndex], _frontVerts[mi.frontIndex + 3]) &&//-z vertices
-    //            CompareVertices(_frontVerts[mi.pfrontIndex + 1], _frontVerts[mi.pfrontIndex + 2]) && CompareVertices(_frontVerts[mi.pfrontIndex + 2], _frontVerts[mi.frontIndex + 1]) && CompareVertices(_frontVerts[mi.frontIndex + 1], _frontVerts[mi.frontIndex + 2])){ //+z vertices
-
-    //            _frontVerts[mi.pfrontIndex + 2].position.x += 7;
-    //            _frontVerts[mi.pfrontIndex + 3].position.x += 7;
-    //            _frontVerts[mi.pfrontIndex + 2].tex[0]++;
-    //            _frontVerts[mi.pfrontIndex + 3].tex[0]++;
-    //        } else{
-    //            mi.pfrontIndex = mi.frontIndex;
-    //            mi.frontIndex += 4;
-    //            mi.mergeFront = 1;
-    //        }
-    //    }
-    //}
-    //else{
-    //    mi.mergeFront = 0;
-    //}
-
-    //if (faces[ZNEG]) {
-    //    //Get the color of the block
-    //    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[5]);
-    //   
-    //    //We will offset the texture index based on the texture method
-
-    //    textureIndex = block.textures[5]->base.getBlockTextureIndex(mi.nzBaseMethodParams, color);
-    //    overlayTextureIndex = block.textures[5]->overlay.getBlockTextureIndex(mi.nzOverlayMethodParams, overlayColor);
-
-    //    if (block.textures[5]->base.transparency) {
-    //        _transparentVerts.resize(_transparentVerts.size() + 4);
-    //        VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 60, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[5]);
-    //        mi.transparentIndex += 4;
-
-    //        chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 1, mi.z2));
-    //        mi.mergeBack = false;
-    //    } else {
-
-    //        calculateFaceLight(&_backVerts[mi.backIndex], wc, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, -1, ambientOcclusion);
-
-    //        VoxelMesher::makeCubeFace(_backVerts, CUBE_FACE_5_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.backIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[5]);
-
-    //        //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
-    //        if (mi.mergeBack && mi.pbtype == btype &&
-    //            CompareVertices(_backVerts[mi.pbackIndex], _backVerts[mi.pbackIndex + 3]) && CompareVertices(_backVerts[mi.pbackIndex + 3], _backVerts[mi.backIndex]) && CompareVertices(_backVerts[mi.backIndex], _backVerts[mi.backIndex + 3]) &&//-z vertices
-    //            CompareVertices(_backVerts[mi.pbackIndex + 1], _backVerts[mi.pbackIndex + 2]) && CompareVertices(_backVerts[mi.pbackIndex + 2], _backVerts[mi.backIndex + 1]) && CompareVertices(_backVerts[mi.backIndex + 1], _backVerts[mi.backIndex + 2])){ //+z vertices
-
-    //            _backVerts[mi.pbackIndex].position.x += 7;
-    //            _backVerts[mi.pbackIndex + 1].position.x += 7;
-    //            _backVerts[mi.pbackIndex].tex[0]--;
-    //            _backVerts[mi.pbackIndex + 1].tex[0]--;
-    //        } else{
-    //            mi.pbackIndex = mi.backIndex;
-    //            mi.backIndex += 4;
-    //            mi.mergeBack = 1;
-    //        }
-    //    }
-    //} else {
-    //    mi.mergeBack = 0;
-    //}
-
-    //if (faces[YPOS]){ //0 5 6 1                        
-    //    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[1]);
-
-    //    //We will offset the texture index based on the texture method
-    //    textureIndex = block.textures[1]->base.getBlockTextureIndex(mi.pyBaseMethodParams, color);
-    //    overlayTextureIndex = block.textures[1]->overlay.getBlockTextureIndex(mi.pyOverlayMethodParams, overlayColor);
-
-    //    if (block.textures[1]->base.transparency) {
-    //        _transparentVerts.resize(_transparentVerts.size() + 4);
-    //        VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 24, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[1]);
-    //        mi.transparentIndex += 4;
-
-    //        chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2 + 2, mi.z2 + 1));
-
-    //        mi.mergeUp = false;
-    //    } else {
-    //        calculateFaceLight(&m_topVerts[mi.topIndex], wc, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ambientOcclusion);
-
-    //        VoxelMesher::makeCubeFace(m_topVerts, CUBE_FACE_2_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.topIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[1]);
-    //        
-    //        //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
-    //        if (mi.mergeUp && mi.pbtype == btype &&
-    //            CompareVertices(m_topVerts[mi.pupIndex], m_topVerts[mi.pupIndex + 3]) && CompareVertices(m_topVerts[mi.pupIndex + 3], m_topVerts[mi.topIndex]) && CompareVertices(m_topVerts[mi.topIndex], m_topVerts[mi.topIndex + 3]) &&//-z vertices
-    //            CompareVertices(m_topVerts[mi.pupIndex + 1], m_topVerts[mi.pupIndex + 2]) && CompareVertices(m_topVerts[mi.pupIndex + 2], m_topVerts[mi.topIndex + 1]) && CompareVertices(m_topVerts[mi.topIndex + 1], m_topVerts[mi.topIndex + 2])){ //+z vertices
-    //            m_topVerts[mi.pupIndex + 2].position.x += 7;                    //change x
-    //            m_topVerts[mi.pupIndex + 3].position.x += 7;
-    //            m_topVerts[mi.pupIndex + 2].tex[0]++;
-    //            m_topVerts[mi.pupIndex + 3].tex[0]++;
-    //        } else{
-    //            mi.pupIndex = mi.topIndex;
-    //            mi.topIndex += 4;
-    //            mi.mergeUp = true;
-    //        }
-    //    }
-    //}
-    //else{
-    //    mi.mergeUp = false;
-    //}
-
-    //if (faces[YNEG]) {
-    //    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[4]);
-    //   
-    //    //We will offset the texture index based on the texture method
-    //    textureIndex = block.textures[4]->base.getBlockTextureIndex(mi.nyBaseMethodParams, color);
-    //    overlayTextureIndex = block.textures[4]->overlay.getBlockTextureIndex(mi.nyOverlayMethodParams, overlayColor);
-
-    //    if (block.textures[4]->base.transparency) {
-    //        _transparentVerts.resize(_transparentVerts.size() + 4);
-    //        VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 48, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[4]);
-    //        mi.transparentIndex += 4;
-
-    //        chunkMeshData->addTransQuad(i8v3(mi.x2 + 1, mi.y2, mi.z2 + 1));
-
-    //        mi.mergeBot = false;
-    //    } else {
-    //        calculateFaceLight(&_bottomVerts[mi.botIndex], wc, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, -1, ambientOcclusion);
-
-    //        VoxelMesher::makeCubeFace(_bottomVerts, CUBE_FACE_4_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.botIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[4]);
-
-    //        //to check for a +x merge, we check that the vertices aligned in the direction of stretch are equal
-    //        if (mi.mergeBot && mi.pbtype == btype &&
-    //            CompareVertices(_bottomVerts[mi.pbotIndex], _bottomVerts[mi.pbotIndex + 3]) && CompareVertices(_bottomVerts[mi.pbotIndex + 3], _bottomVerts[mi.botIndex]) && CompareVertices(_bottomVerts[mi.botIndex], _bottomVerts[mi.botIndex + 3]) &&//-z vertices
-    //            CompareVertices(_bottomVerts[mi.pbotIndex + 1], _bottomVerts[mi.pbotIndex + 2]) && CompareVertices(_bottomVerts[mi.pbotIndex + 2], _bottomVerts[mi.botIndex + 1]) && CompareVertices(_bottomVerts[mi.botIndex + 1], _bottomVerts[mi.botIndex + 2])){ //+z vertices
-    //            _bottomVerts[mi.pbotIndex].position.x += 7;                    //change x
-    //            _bottomVerts[mi.pbotIndex + 1].position.x += 7;
-    //            _bottomVerts[mi.pbotIndex].tex[0]--;
-    //            _bottomVerts[mi.pbotIndex + 1].tex[0]--;
-    //        } else {
-    //            mi.pbotIndex = mi.botIndex;
-    //            mi.botIndex += 4;
-    //            mi.mergeBot = 1;
-    //        }
-    //    }
-    //} else{
-    //    mi.mergeBot = 0;
-    //}
-
-    //if (faces[XPOS]) {
-    //    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[0]);
-    //  
-    //    //We will offset the texture index based on the texture method
-    //    textureIndex = block.textures[0]->base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
-    //    overlayTextureIndex = block.textures[0]->overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
-
-
-    //    if (block.textures[0]->base.transparency) {
-    //        _transparentVerts.resize(_transparentVerts.size() + 4);
-    //        VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 12, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
-    //        mi.transparentIndex += 4;
-
-    //        chunkMeshData->addTransQuad(i8v3(mi.x2 + 2, mi.y2 + 1, mi.z2 + 1));
-    //    } else {
-    //        calculateFaceLight(&m_rightVerts[mi.rightIndex], wc, 1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ambientOcclusion);
-
-    //        VoxelMesher::makeCubeFace(m_rightVerts, CUBE_FACE_1_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.rightIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[0]);
-
-    //        mi.rightIndex += 4;
-    //    }
-    //}
-
-    //if (faces[XNEG]) {
-    //    (*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, mi.temperature, mi.rainfall, block.textures[3]);
-
-    //    //We will offset the texture index based on the texture method
-    //    textureIndex = block.textures[3]->base.getBlockTextureIndex(mi.nxBaseMethodParams, color);
-    //    overlayTextureIndex = block.textures[3]->overlay.getBlockTextureIndex(mi.nxOverlayMethodParams, overlayColor);
-
-    //    if (block.textures[3]->base.transparency) {
-    //        _transparentVerts.resize(_transparentVerts.size() + 4);
-    //        VoxelMesher::makeTransparentFace(&(_transparentVerts[0]), VoxelMesher::cubeVertices, VoxelMesher::cubeNormals, 36, block.waveEffect, i32v3(mi.x, mi.y, mi.z), mi.transparentIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[3]);
-    //        mi.transparentIndex += 4;
-
-    //        chunkMeshData->addTransQuad(i8v3(mi.x2, mi.y2 + 1, mi.z2 + 1));
-    //    } else {
-    //       
-    //        calculateFaceLight(&m_leftVerts[mi.leftIndex], wc, -1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ambientOcclusion);
-
-    //        VoxelMesher::makeCubeFace(m_leftVerts, CUBE_FACE_3_VERTEX_OFFSET, (int)block.waveEffect, glm::ivec3(mi.nx, mi.ny, mi.nz), mi.leftIndex, textureIndex, overlayTextureIndex, color, overlayColor, ambientOcclusion, block.textures[3]);
-
-    //        mi.leftIndex += 4;
-    //    }
-    //}
 }
 
 void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
+    // Get color
+    // TODO(Ben): Flags?
+    color3 blockColor[2];
+    m_block->getBlockColor(blockColor[0], blockColor[1],
+                           0,
+                           m_heightData->temperature,
+                           m_heightData->rainfall,
+                           m_block->textures[face]);
+
     // TODO(Ben): Merging
+    m_quads[face].emplace_back();
+    VoxelQuad& quad = m_quads[face].back();
+    quad.v0.faceIndex = face; // Useful for later
+    for (int i = 0; i < 4; i++) {
+        quad.verts[i].position = VoxelMesher::VOXEL_POSITIONS[face][i] + m_voxelPosOffset;
+        quad.verts[i].color = blockColor[0];
+        quad.verts[i].overlayColor = blockColor[1];
+    }
+    // TODO(Ben): Think about this more
+    if (quad.v0.position.x < m_lowestX) m_lowestX = quad.v0.position.x;
+    if (quad.v0.position.x > m_highestX) m_highestX = quad.v0.position.x;
+    if (quad.v0.position.y < m_lowestY) m_lowestY = quad.v0.position.y;
+    if (quad.v0.position.y > m_highestY) m_highestY = quad.v0.position.y;
+    if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
+    if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
 
 }
 
@@ -691,8 +508,19 @@ int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
 bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 {
 
+    m_highestY = 0;
+    m_lowestY = 256;
+    m_highestX = 0;
+    m_lowestX = 256;
+    m_highestZ = 0;
+    m_lowestZ = 256;
+
     // Clear quad indices
     memset(m_quadIndices, 0, sizeof(m_quadIndices));
+
+    for (int i = 0; i < 6; i++) {
+        m_quads[i].clear();
+    }
 
     int waveEffect;
     // CONST?
@@ -733,14 +561,18 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //mi.init(m_blocks, m_dataWidth, m_dataLayer);
 
     // Loop through blocks
-    for (by = 1; by < m_dataWidth-1; by++) {
-        for (bz = 1; bz < m_dataWidth-1; bz++){
-            for (bx = 1; bx < m_dataWidth-1; bx++){
+    for (by = 0; by < m_dataWidth-2; by++) {
+        for (bz = 0; bz < m_dataWidth-2; bz++){
+            for (bx = 0; bx < m_dataWidth-2; bx++){
                 // Get data for this voxel
-                m_heightData = &chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
-                m_blockIndex = by * m_dataLayer + bz * m_dataWidth + bx;
+                // TODO(Ben): Could optimize out -1
+                m_blockIndex = (by + 1) * m_dataLayer + (bz + 1) * m_dataWidth + (bx + 1);
                 m_blockID = m_blockData[m_blockIndex];
+                if (m_blockID == 0) continue; // Skip air blocks
+                m_heightData = &chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
                 m_block = &m_blocks->operator[](m_blockID);
+                // TODO(Ben) Don't think bx needs to be member
+                m_voxelPosOffset = ui8v3(bx * 7, by * 7, bz * 7);
 
                 switch (m_block->meshType) {
                     case MeshType::BLOCK:
@@ -759,57 +591,55 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         }
     }
 
-    int highestY = 0, lowestY = 256, highestX = 0, lowestX = 256, highestZ = 0, lowestZ = 256;
-    int pyVboOff, pxVboOff, pzVboOff, nyVboOff, nxVboOff, nzVboOff;
-    int index = 0;
-    pyVboOff = 0;
+    ChunkMeshRenderData& renderData = chunkMeshData->chunkMeshRenderData;
 
-   /* chunkMeshData->vertices.resize(mi.pyVboSize + mi.nxVboSize + mi.pxVboSize + mi.nzVboSize + mi.pzVboSize + mi.nyVboSize);
-    for (int i = 0; i < mi.pyVboSize; i++){
-        if (_finalTopVerts[i].position.y < lowestY) lowestY = _finalTopVerts[i].position.y;
-        chunkMeshData->vertices[index++] = _finalTopVerts[i];
+    // Get quad buffer to fill
+    std::vector<VoxelQuad>& quads = chunkMeshData->opaqueQuads;
+    // Start by swapping with the X_NEG to reduce copying
+    quads.swap(m_quads[0]);
+    int nxSize = quads.size();
+    int offset = nxSize;
+    quads.resize(quads.size() + m_quads[1].size() + m_quads[2].size() +
+                 m_quads[3].size() + m_quads[4].size() + m_quads[5].size());
+    // Copy the data
+    // TODO(Ben): Could construct in place and not need ANY copying with 6 iterations.
+    for (int i = 1; i < 6; i++) {
+        memcpy(quads.data() + offset, m_quads[i].data(), m_quads[i].size() * sizeof(VoxelQuad));
+        offset += m_quads[i].size();
     }
-    nxVboOff = index;
-    for (int i = 0; i < mi.nxVboSize; i++){
-        if (_finalLeftVerts[i].position.x > highestX) highestX = _finalLeftVerts[i].position.x;
-        chunkMeshData->vertices[index++] = _finalLeftVerts[i];
-    }
-    pxVboOff = index;
-    for (int i = 0; i < mi.pxVboSize; i++){
-        if (_finalRightVerts[i].position.x < lowestX) lowestX = _finalRightVerts[i].position.x;
-        chunkMeshData->vertices[index++] = _finalRightVerts[i];
-    }
-    nzVboOff = index;
-    for (int i = 0; i < mi.nzVboSize; i++){
-        if (_finalBackVerts[i].position.z > highestZ) highestZ = _finalBackVerts[i].position.z;
-        chunkMeshData->vertices[index++] = _finalBackVerts[i];
-    }
-    pzVboOff = index;
-    for (int i = 0; i < mi.pzVboSize; i++){
-        if (_finalFrontVerts[i].position.z < lowestZ) lowestZ = _finalFrontVerts[i].position.z;
-        chunkMeshData->vertices[index++] = _finalFrontVerts[i];
-    }
-    nyVboOff = index;
-    for (int i = 0; i < mi.nyVboSize; i++){
-        if (_finalBottomVerts[i].position.y > highestY) highestY = _finalBottomVerts[i].position.y;
-        chunkMeshData->vertices[index++] = _finalBottomVerts[i];
-    }*/
 
- //   if (mi.transparentIndex) {
- //       chunkMeshData->transVertices.swap(_transparentVerts);
- //       assert(chunkMeshData->transQuadIndices.size() != 0);
- //   }
+    m_highestY /= 7;
+    m_lowestY /= 7;
+    m_highestX /= 7;
+    m_lowestX /= 7;
+    m_highestZ /= 7;
+    m_lowestZ /= 7;
 
- //   if (mi.cutoutIndex) {
- //       chunkMeshData->cutoutVertices.swap(_cutoutVerts);
- //   }
+#define INDICES_PER_QUAD 6
 
- //   highestY /= 7;
- //   lowestY /= 7;
- //   highestX /= 7;
- //   lowestX /= 7;
- //   highestZ /= 7;
- //   lowestZ /= 7;
+    if (quads.size()) {
+        renderData.nxVboOff = 0;
+        renderData.nxVboSize = nxSize * INDICES_PER_QUAD;
+        renderData.pxVboOff = renderData.nxVboSize;
+        renderData.pxVboSize = m_quads[1].size() * INDICES_PER_QUAD;
+        renderData.nyVboOff = renderData.pxVboOff + renderData.pxVboSize;
+        renderData.nyVboSize = m_quads[2].size() * INDICES_PER_QUAD;
+        renderData.pyVboOff = renderData.nyVboOff + renderData.nyVboSize;
+        renderData.pyVboSize = m_quads[3].size() * INDICES_PER_QUAD;
+        renderData.nzVboOff = renderData.pyVboOff + renderData.pyVboSize;
+        renderData.nzVboSize = m_quads[4].size() * INDICES_PER_QUAD;
+        renderData.pzVboOff = renderData.nzVboOff + renderData.nzVboSize;
+        renderData.pzVboSize = m_quads[5].size() * INDICES_PER_QUAD;
+        renderData.indexSize = quads.size() * INDICES_PER_QUAD;
+
+        // Redundant
+        renderData.highestX = m_highestX;
+        renderData.lowestX = m_lowestX;
+        renderData.highestY = m_highestY;
+        renderData.lowestY = m_lowestY;
+        renderData.highestZ = m_highestZ;
+        renderData.lowestZ = m_lowestZ;
+    }
 
  //   int indice = (index / 4) * 6;
 

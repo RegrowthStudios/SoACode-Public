@@ -93,6 +93,20 @@ public:
     ui32 waterIndexSize = 0;
 };
 
+struct VoxelQuad {
+    union {
+        struct {
+            BlockVertex v0;
+            BlockVertex v1;
+            BlockVertex v2;
+            BlockVertex v3;
+        };
+        struct {
+            BlockVertex verts[4];
+        };
+    };
+};
+
 class ChunkMeshData
 {
 public:
@@ -104,9 +118,9 @@ public:
     ChunkMeshRenderData chunkMeshRenderData;
 
     // TODO(Ben): Could use a contiguous buffer for this?
-    std::vector <BlockVertex> vertices;
-    std::vector <BlockVertex> transVertices;
-    std::vector <BlockVertex> cutoutVertices;
+    std::vector <VoxelQuad> opaqueQuads;
+    std::vector <VoxelQuad> transQuads;
+    std::vector <VoxelQuad> cutoutQuads;
     std::vector <LiquidVertex> waterVertices;
     Chunk *chunk = nullptr;
     RenderTaskType type;

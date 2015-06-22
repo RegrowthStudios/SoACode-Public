@@ -141,9 +141,9 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
 
     switch (meshData->type) {
         case RenderTaskType::DEFAULT:
-            if (meshData->vertices.size()) {
+            if (meshData->opaqueQuads.size()) {
 
-                mapBufferData(mesh.vboID, meshData->vertices.size() * sizeof(BlockVertex), &(meshData->vertices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.vboID, meshData->opaqueQuads.size() * sizeof(VoxelQuad), &(meshData->opaqueQuads[0]), GL_STATIC_DRAW);
                 canRender = true;
 
                 if (!mesh.vaoID) ChunkRenderer::buildVao(mesh);
@@ -158,10 +158,10 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
                 }
             }
 
-            if (meshData->transVertices.size()) {
+            if (meshData->transQuads.size()) {
 
                 //vertex data
-                mapBufferData(mesh.transVboID, meshData->transVertices.size() * sizeof(BlockVertex), &(meshData->transVertices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.transVboID, meshData->transQuads.size() * sizeof(VoxelQuad), &(meshData->transQuads[0]), GL_STATIC_DRAW);
 
                 //index data
                 mapBufferData(mesh.transIndexID, mesh.transQuadIndices.size() * sizeof(ui32), &(mesh.transQuadIndices[0]), GL_STATIC_DRAW);
@@ -184,9 +184,9 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
                 }
             }
 
-            if (meshData->cutoutVertices.size()) {
+            if (meshData->cutoutQuads.size()) {
 
-                mapBufferData(mesh.cutoutVboID, meshData->cutoutVertices.size() * sizeof(BlockVertex), &(meshData->cutoutVertices[0]), GL_STATIC_DRAW);
+                mapBufferData(mesh.cutoutVboID, meshData->cutoutQuads.size() * sizeof(VoxelQuad), &(meshData->cutoutQuads[0]), GL_STATIC_DRAW);
                 canRender = true;
                 if (!mesh.cutoutVaoID) ChunkRenderer::buildCutoutVao(mesh);
             } else {

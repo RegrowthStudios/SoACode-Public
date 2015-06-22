@@ -32,8 +32,8 @@ public:
 #define NUM_FACES 6
 #define NUM_VERTICES 72
 
+    static const ui8v3 VOXEL_POSITIONS[NUM_FACES][4];
     static const GLfloat leafVertices[NUM_VERTICES];
-    static const GLubyte cubeVertices[NUM_VERTICES];
     static const int cubeFaceAxis[NUM_FACES][2];
     static const int cubeFaceAxisSign[NUM_FACES][2];
     static const GLfloat liquidVertices[NUM_VERTICES];

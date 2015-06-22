@@ -23,11 +23,16 @@ public:
 
 // Size: 32 Bytes
 struct BlockVertex {
-    struct {  //3 bytes  << 1
-        ubyte x;
-        ubyte y;
-        ubyte z;
-    } position;
+    union {
+        struct {  //3 bytes  << 1
+            ui8 x;
+            ui8 y;
+            ui8 z;
+        };
+        struct {
+            ui8v3 position;
+        };
+    };
     ui8 textureType; //4   
 
     //   10 = overlay 
@@ -48,16 +53,22 @@ struct BlockVertex {
     ui8 overlayTextureWidth; //15;
     ui8 overlayTextureHeight; //16
 
-    ui8v3 color; //19
+    // Have to use struct since color3 has constructor
+    struct {
+        color3 color; //19
+    };
     ui8 waveEffect; //20
-    ui8v3 overlayColor; //23
+    struct {
+        color3 overlayColor; //23
+    };
     ui8 pad2; //24
-
-    ui8v3 lampColor; //27
+    struct {
+        color3 lampColor; //27
+    };
     ui8 sunlight; //28
 
     ui8 normal[3]; //31
-    ui8 merge; //32
+    ui8 faceIndex; //32 // Helpful during the meshing process to cut out some ifs.
 };
 
 class LiquidVertex {

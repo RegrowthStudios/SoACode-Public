@@ -115,7 +115,7 @@ lightColor(0, 0, 0) {
     colorFilter = f32v3(1.0f);
 }
 
-void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
+void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
@@ -145,7 +145,7 @@ void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint 
     }
 }
 
-void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
+void Block::getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color

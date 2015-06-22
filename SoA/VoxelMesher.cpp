@@ -25,14 +25,15 @@ const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f,
 // Cube Vertex Positional Resolution
 #define C_RES 7
 
-// Each block has a positional resolution of 7. There are 6 arrays for the LOD levels
-const GLubyte VoxelMesher::cubeVertices[72] = {
-    0, C_RES, C_RES, 0, 0, C_RES, C_RES, 0, C_RES, C_RES, C_RES, C_RES,  // v1-v2-v3-v0 (front)
-    C_RES, C_RES, C_RES, C_RES, 0, C_RES, C_RES, 0, 0, C_RES, C_RES, 0,     // v0-v3-v4-v5 (right)
-    0, C_RES, 0, 0, C_RES, C_RES, C_RES, C_RES, C_RES, C_RES, C_RES, 0,    // v6-v1-v0-v5 (top)
-    0, C_RES, 0, 0, 0, 0, 0, 0, C_RES, 0, C_RES, C_RES,   // v6-v7-v2-v1 (left)
-    C_RES, 0, 0, C_RES, 0, C_RES, 0, 0, C_RES, 0, 0, 0,  // v4-v3-v2-v7 (bottom)
-    C_RES, C_RES, 0, C_RES, 0, 0, 0, 0, 0, 0, C_RES, 0 };
+const ui8v3 VoxelMesher::VOXEL_POSITIONS[NUM_FACES][4] = {
+    { ui8v3(0, C_RES, 0), ui8v3(0, 0, 0), ui8v3(0, 0, C_RES), ui8v3(0, C_RES, C_RES) }, // v6-v7-v2-v1 (left)
+    { ui8v3(C_RES, C_RES, C_RES), ui8v3(C_RES, 0, C_RES), ui8v3(C_RES, 0, 0), ui8v3(C_RES, C_RES, 0) }, // v0-v3-v4-v5 (right)
+    { ui8v3(C_RES, 0, 0), ui8v3(C_RES, 0, C_RES), ui8v3(0, 0, C_RES), ui8v3(0, 0, 0) }, // v7-v4-v3-v2 (bottom)
+    { ui8v3(0, C_RES, 0), ui8v3(0, C_RES, C_RES), ui8v3(C_RES, C_RES, C_RES), ui8v3(C_RES, C_RES, 0) }, // v6-v1-v0-v5 (top)
+    { ui8v3(C_RES, C_RES, 0), ui8v3(C_RES, 0, 0), ui8v3(0, 0, 0), ui8v3(0, C_RES, 0) }, // v5-v4-v7-v6 (back)
+    { ui8v3(0, C_RES, C_RES), ui8v3(0, 0, C_RES), ui8v3(C_RES, 0, C_RES), ui8v3(C_RES, C_RES, C_RES) } // v1-v2-v3-v0 (front)
+};
+
 //0 = x, 1 = y, 2 = z
 const int VoxelMesher::cubeFaceAxis[6][2] = { { 0, 1 }, { 2, 1 }, { 0, 2 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }; // front, right, top, left, bottom, back, for U and V respectively
 
@@ -615,130 +616,130 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
 
 void VoxelMesher::makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
 {
-    ui8 textureAtlas = (ui8)(blockTexture.base.index / ATLAS_SIZE);
-    ui8 textureIndex = (ui8)(blockTexture.base.index % ATLAS_SIZE);
+    /*  ui8 textureAtlas = (ui8)(blockTexture.base.index / ATLAS_SIZE);
+      ui8 textureIndex = (ui8)(blockTexture.base.index % ATLAS_SIZE);
 
-    ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.index / ATLAS_SIZE);
-    ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.index % ATLAS_SIZE);
+      ui8 overlayTextureAtlas = (ui8)(blockTexture.overlay.index / ATLAS_SIZE);
+      ui8 overlayTextureIndex = (ui8)(blockTexture.overlay.index % ATLAS_SIZE);
 
-    ui8 blendMode = getBlendMode(blockTexture.blendMode);
+      ui8 blendMode = getBlendMode(blockTexture.blendMode);
 
-    const GLubyte* cverts = cubeVertices;
+      const GLubyte* cverts = cubeVertices;
 
-    verts[index].blendMode = blendMode;
-    verts[index + 1].blendMode = blendMode;
-    verts[index + 2].blendMode = blendMode;
-    verts[index + 3].blendMode = blendMode;
-    verts[index + 4].blendMode = blendMode;
-    verts[index + 5].blendMode = blendMode;
+      verts[index].blendMode = blendMode;
+      verts[index + 1].blendMode = blendMode;
+      verts[index + 2].blendMode = blendMode;
+      verts[index + 3].blendMode = blendMode;
+      verts[index + 4].blendMode = blendMode;
+      verts[index + 5].blendMode = blendMode;
 
-    verts[index].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 1].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 1].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 2].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 2].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 3].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 3].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 4].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 4].textureHeight = (ui8)blockTexture.base.size.y;
-    verts[index + 5].textureWidth = (ui8)blockTexture.base.size.x;
-    verts[index + 5].textureHeight = (ui8)blockTexture.base.size.y;
+      verts[index].textureWidth = (ui8)blockTexture.base.size.x;
+      verts[index].textureHeight = (ui8)blockTexture.base.size.y;
+      verts[index + 1].textureWidth = (ui8)blockTexture.base.size.x;
+      verts[index + 1].textureHeight = (ui8)blockTexture.base.size.y;
+      verts[index + 2].textureWidth = (ui8)blockTexture.base.size.x;
+      verts[index + 2].textureHeight = (ui8)blockTexture.base.size.y;
+      verts[index + 3].textureWidth = (ui8)blockTexture.base.size.x;
+      verts[index + 3].textureHeight = (ui8)blockTexture.base.size.y;
+      verts[index + 4].textureWidth = (ui8)blockTexture.base.size.x;
+      verts[index + 4].textureHeight = (ui8)blockTexture.base.size.y;
+      verts[index + 5].textureWidth = (ui8)blockTexture.base.size.x;
+      verts[index + 5].textureHeight = (ui8)blockTexture.base.size.y;
 
-    verts[index].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 1].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 1].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 2].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 2].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 3].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 3].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 4].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 4].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
-    verts[index + 5].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
-    verts[index + 5].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
+      verts[index].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
+      verts[index].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
+      verts[index + 1].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
+      verts[index + 1].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
+      verts[index + 2].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
+      verts[index + 2].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
+      verts[index + 3].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
+      verts[index + 3].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
+      verts[index + 4].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
+      verts[index + 4].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
+      verts[index + 5].overlayTextureWidth = (ui8)blockTexture.overlay.size.x;
+      verts[index + 5].overlayTextureHeight = (ui8)blockTexture.overlay.size.y;
 
-    verts[index].normal[0] = cubeNormals[vertexOffset];
-    verts[index].normal[1] = cubeNormals[vertexOffset + 1];
-    verts[index].normal[2] = cubeNormals[vertexOffset + 2];
-    verts[index + 1].normal[0] = cubeNormals[vertexOffset + 3];
-    verts[index + 1].normal[1] = cubeNormals[vertexOffset + 4];
-    verts[index + 1].normal[2] = cubeNormals[vertexOffset + 5];
-    verts[index + 2].normal[0] = cubeNormals[vertexOffset + 6];
-    verts[index + 2].normal[1] = cubeNormals[vertexOffset + 7];
-    verts[index + 2].normal[2] = cubeNormals[vertexOffset + 8];
-    verts[index + 3].normal[0] = cubeNormals[vertexOffset + 6];
-    verts[index + 3].normal[1] = cubeNormals[vertexOffset + 7];
-    verts[index + 3].normal[2] = cubeNormals[vertexOffset + 8];
-    verts[index + 4].normal[0] = cubeNormals[vertexOffset + 9];
-    verts[index + 4].normal[1] = cubeNormals[vertexOffset + 10];
-    verts[index + 4].normal[2] = cubeNormals[vertexOffset + 11];
-    verts[index + 5].normal[0] = cubeNormals[vertexOffset];
-    verts[index + 5].normal[1] = cubeNormals[vertexOffset + 1];
-    verts[index + 5].normal[2] = cubeNormals[vertexOffset + 2];
+      verts[index].normal[0] = cubeNormals[vertexOffset];
+      verts[index].normal[1] = cubeNormals[vertexOffset + 1];
+      verts[index].normal[2] = cubeNormals[vertexOffset + 2];
+      verts[index + 1].normal[0] = cubeNormals[vertexOffset + 3];
+      verts[index + 1].normal[1] = cubeNormals[vertexOffset + 4];
+      verts[index + 1].normal[2] = cubeNormals[vertexOffset + 5];
+      verts[index + 2].normal[0] = cubeNormals[vertexOffset + 6];
+      verts[index + 2].normal[1] = cubeNormals[vertexOffset + 7];
+      verts[index + 2].normal[2] = cubeNormals[vertexOffset + 8];
+      verts[index + 3].normal[0] = cubeNormals[vertexOffset + 6];
+      verts[index + 3].normal[1] = cubeNormals[vertexOffset + 7];
+      verts[index + 3].normal[2] = cubeNormals[vertexOffset + 8];
+      verts[index + 4].normal[0] = cubeNormals[vertexOffset + 9];
+      verts[index + 4].normal[1] = cubeNormals[vertexOffset + 10];
+      verts[index + 4].normal[2] = cubeNormals[vertexOffset + 11];
+      verts[index + 5].normal[0] = cubeNormals[vertexOffset];
+      verts[index + 5].normal[1] = cubeNormals[vertexOffset + 1];
+      verts[index + 5].normal[2] = cubeNormals[vertexOffset + 2];
 
-    verts[index].position[0] = cverts[vertexOffset];
-    verts[index].position[1] = cverts[vertexOffset + 1];
-    verts[index].position[2] = cverts[vertexOffset + 2];
-    verts[index + 1].position[0] = cverts[vertexOffset + 3];
-    verts[index + 1].position[1] = cverts[vertexOffset + 4];
-    verts[index + 1].position[2] = cverts[vertexOffset + 5];
-    verts[index + 2].position[0] = cverts[vertexOffset + 6];
-    verts[index + 2].position[1] = cverts[vertexOffset + 7];
-    verts[index + 2].position[2] = cverts[vertexOffset + 8];
-    verts[index + 3].position[0] = cverts[vertexOffset + 6];
-    verts[index + 3].position[1] = cverts[vertexOffset + 7];
-    verts[index + 3].position[2] = cverts[vertexOffset + 8];
-    verts[index + 4].position[0] = cverts[vertexOffset + 9];
-    verts[index + 4].position[1] = cverts[vertexOffset + 10];
-    verts[index + 4].position[2] = cverts[vertexOffset + 11];
-    verts[index + 5].position[0] = cverts[vertexOffset];
-    verts[index + 5].position[1] = cverts[vertexOffset + 1];
-    verts[index + 5].position[2] = cverts[vertexOffset + 2];
+      verts[index].position[0] = cverts[vertexOffset];
+      verts[index].position[1] = cverts[vertexOffset + 1];
+      verts[index].position[2] = cverts[vertexOffset + 2];
+      verts[index + 1].position[0] = cverts[vertexOffset + 3];
+      verts[index + 1].position[1] = cverts[vertexOffset + 4];
+      verts[index + 1].position[2] = cverts[vertexOffset + 5];
+      verts[index + 2].position[0] = cverts[vertexOffset + 6];
+      verts[index + 2].position[1] = cverts[vertexOffset + 7];
+      verts[index + 2].position[2] = cverts[vertexOffset + 8];
+      verts[index + 3].position[0] = cverts[vertexOffset + 6];
+      verts[index + 3].position[1] = cverts[vertexOffset + 7];
+      verts[index + 3].position[2] = cverts[vertexOffset + 8];
+      verts[index + 4].position[0] = cverts[vertexOffset + 9];
+      verts[index + 4].position[1] = cverts[vertexOffset + 10];
+      verts[index + 4].position[2] = cverts[vertexOffset + 11];
+      verts[index + 5].position[0] = cverts[vertexOffset];
+      verts[index + 5].position[1] = cverts[vertexOffset + 1];
+      verts[index + 5].position[2] = cverts[vertexOffset + 2];
 
-#define UV_0 128
-#define UV_1 129
+      #define UV_0 128
+      #define UV_1 129
 
-    verts[index].tex[0] = UV_0;
-    verts[index].tex[1] = UV_1;
-    verts[index + 1].tex[0] = UV_0;
-    verts[index + 1].tex[1] = UV_0;
-    verts[index + 2].tex[0] = UV_1;
-    verts[index + 2].tex[1] = UV_0;
-    verts[index + 3].tex[0] = UV_1;
-    verts[index + 3].tex[1] = UV_0;
-    verts[index + 4].tex[0] = UV_1;
-    verts[index + 4].tex[1] = UV_1;
-    verts[index + 5].tex[0] = UV_0;
-    verts[index + 5].tex[1] = UV_1;
+      verts[index].tex[0] = UV_0;
+      verts[index].tex[1] = UV_1;
+      verts[index + 1].tex[0] = UV_0;
+      verts[index + 1].tex[1] = UV_0;
+      verts[index + 2].tex[0] = UV_1;
+      verts[index + 2].tex[1] = UV_0;
+      verts[index + 3].tex[0] = UV_1;
+      verts[index + 3].tex[1] = UV_0;
+      verts[index + 4].tex[0] = UV_1;
+      verts[index + 4].tex[1] = UV_1;
+      verts[index + 5].tex[0] = UV_0;
+      verts[index + 5].tex[1] = UV_1;
 
-    verts[index].textureAtlas = textureAtlas;
-    verts[index + 1].textureAtlas = textureAtlas;
-    verts[index + 2].textureAtlas = textureAtlas;
-    verts[index + 3].textureAtlas = textureAtlas;
-    verts[index + 4].textureAtlas = textureAtlas;
-    verts[index + 5].textureAtlas = textureAtlas;
+      verts[index].textureAtlas = textureAtlas;
+      verts[index + 1].textureAtlas = textureAtlas;
+      verts[index + 2].textureAtlas = textureAtlas;
+      verts[index + 3].textureAtlas = textureAtlas;
+      verts[index + 4].textureAtlas = textureAtlas;
+      verts[index + 5].textureAtlas = textureAtlas;
 
-    verts[index].textureIndex = textureIndex;
-    verts[index + 1].textureIndex = textureIndex;
-    verts[index + 2].textureIndex = textureIndex;
-    verts[index + 3].textureIndex = textureIndex;
-    verts[index + 4].textureIndex = textureIndex;
-    verts[index + 5].textureIndex = textureIndex;
+      verts[index].textureIndex = textureIndex;
+      verts[index + 1].textureIndex = textureIndex;
+      verts[index + 2].textureIndex = textureIndex;
+      verts[index + 3].textureIndex = textureIndex;
+      verts[index + 4].textureIndex = textureIndex;
+      verts[index + 5].textureIndex = textureIndex;
 
-    verts[index].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 1].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 2].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 3].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 4].overlayTextureAtlas = overlayTextureAtlas;
-    verts[index + 5].overlayTextureAtlas = overlayTextureAtlas;
+      verts[index].overlayTextureAtlas = overlayTextureAtlas;
+      verts[index + 1].overlayTextureAtlas = overlayTextureAtlas;
+      verts[index + 2].overlayTextureAtlas = overlayTextureAtlas;
+      verts[index + 3].overlayTextureAtlas = overlayTextureAtlas;
+      verts[index + 4].overlayTextureAtlas = overlayTextureAtlas;
+      verts[index + 5].overlayTextureAtlas = overlayTextureAtlas;
 
-    verts[index].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 1].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 2].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 3].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 4].overlayTextureIndex = overlayTextureIndex;
-    verts[index + 5].overlayTextureIndex = overlayTextureIndex;
+      verts[index].overlayTextureIndex = overlayTextureIndex;
+      verts[index + 1].overlayTextureIndex = overlayTextureIndex;
+      verts[index + 2].overlayTextureIndex = overlayTextureIndex;
+      verts[index + 3].overlayTextureIndex = overlayTextureIndex;
+      verts[index + 4].overlayTextureIndex = overlayTextureIndex;
+      verts[index + 5].overlayTextureIndex = overlayTextureIndex;*/
 
 }
 
