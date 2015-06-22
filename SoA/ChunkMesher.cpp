@@ -142,6 +142,11 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
 
     ui16 n;
 
+    int rightAxis = (int)vvox::Axis::X;
+    int frontAxis = (int)vvox::Axis::Z;
+    leftOffset = -1;
+    int backOffset = -PADDED_CHUNK_WIDTH;
+
     // Greedy merging
     switch (face) {
         case 0: // Left
@@ -152,26 +157,27 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
             break;
         case 3: // Top
             // TODO(Ben): This is just a test! I know its ugly so leave me alone!
-            n = m_quadIndices[m_blockIndex - 1][3];
+            n = m_quadIndices[m_blockIndex + leftOffset][3];
             if (n != NO_QUAD_INDEX) {
                 VoxelQuad& nquad = quads[n];
                 if (nquad.v0 == quad.v0 && nquad.v1 == quad.v1 &&
                     nquad.v2 == quad.v2 && nquad.v3 == quad.v3) {
-                    nquad.v2.position.x += 7;
-                    nquad.v3.position.x += 7;
+                    nquad.v0.position[rightAxis] += 7;
+                    nquad.v1.position[rightAxis] += 7;
                     quads.pop_back();
                     m_numQuads--;
                     quadIndex = n;
-                    int n2 = m_quadIndices[m_blockIndex - PADDED_CHUNK_WIDTH][3];
+                    int n2 = m_quadIndices[m_blockIndex + backOffset][3];
                     if (n2 != NO_QUAD_INDEX) {
                         VoxelQuad* nquad2 = &quads[n2];
                         while (nquad2->v0.faceIndex == 255) {
                             n2 = nquad2->replaceQuad;
                             nquad2 = &quads[n2];
                         }
-                        if (nquad2->v0.x == nquad.v0.x && nquad2->v2.x == nquad.v2.x) {
-                            nquad2->v1.position.z += 7;
-                            nquad2->v2.position.z += 7;
+                        if (nquad2->v0.position[rightAxis] == nquad.v0.position[rightAxis] &&
+                            nquad2->v2.position[rightAxis] == nquad.v2.position[rightAxis]) {
+                            nquad2->v0.position[frontAxis] += 7;
+                            nquad2->v3.position[frontAxis] += 7;
                             quadIndex = n2;
                             // Mark as not in use
                             quads[n].v0.faceIndex = 255;
