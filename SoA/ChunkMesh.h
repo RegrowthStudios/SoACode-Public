@@ -99,11 +99,12 @@ struct VoxelQuad {
             BlockVertex v0;
             BlockVertex v1;
             BlockVertex v2;
-            BlockVertex v3;
+            union {
+                struct { BlockVertex v3; };
+                ui16 replaceQuad; // Quad that replaces this quad
+            };
         };
-        struct {
-            BlockVertex verts[4];
-        };
+        struct { BlockVertex verts[4]; };
     };
 };
 

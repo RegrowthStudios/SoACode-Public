@@ -118,10 +118,13 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
                            m_heightData->rainfall,
                            m_block->textures[face]);
 
+    std::vector<VoxelQuad>& quads = m_quads[face];
+
     // TODO(Ben): Merging
-    i16 quadIndex = m_quads[face].size();
-    m_quads[face].emplace_back();
-    VoxelQuad& quad = m_quads[face].back();
+    i16 quadIndex = quads.size();
+    quads.emplace_back();
+    m_numQuads++;
+    VoxelQuad& quad = quads.back();
     quad.v0.faceIndex = face; // Useful for later
     for (int i = 0; i < 4; i++) {
         quad.verts[i].position = VoxelMesher::VOXEL_POSITIONS[face][i] + m_voxelPosOffset;
@@ -151,26 +154,29 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
             // TODO(Ben): This is just a test! I know its ugly so leave me alone!
             n = m_quadIndices[m_blockIndex - 1][3];
             if (n != NO_QUAD_INDEX) {
-                VoxelQuad& nquad = m_quads[3][n];
+                VoxelQuad& nquad = quads[n];
                 if (nquad.v0 == quad.v0 && nquad.v1 == quad.v1 &&
                     nquad.v2 == quad.v2 && nquad.v3 == quad.v3) {
                     nquad.v2.position.x += 7;
                     nquad.v3.position.x += 7;
-                    m_quads[3].pop_back();
+                    quads.pop_back();
+                    m_numQuads--;
                     quadIndex = n;
                     int n2 = m_quadIndices[m_blockIndex - PADDED_CHUNK_WIDTH][3];
                     if (n2 != NO_QUAD_INDEX) {
-                        VoxelQuad& nquad2 = m_quads[3][n2];
-                        if (nquad2.v0.x == nquad.v0.x && nquad2.v1.x == nquad.v1.x &&
-                            nquad2.v2.x == nquad.v2.x && nquad2.v3.x == nquad.v3.x) {
-                            nquad2.v2.position.x += 7;
-                            nquad2.v3.position.x += 7;
+                        VoxelQuad* nquad2 = &quads[n2];
+                        while (nquad2->v0.faceIndex == 255) {
+                            n2 = nquad2->replaceQuad;
+                            nquad2 = &quads[n2];
+                        }
+                        if (nquad2->v0.x == nquad.v0.x && nquad2->v2.x == nquad.v2.x) {
+                            nquad2->v1.position.z += 7;
+                            nquad2->v2.position.z += 7;
                             quadIndex = n2;
-                            // Uhhhh... lol
-                            m_quads[3][n].v0.position = ui8v3(0);
-                            m_quads[3][n].v1.position = ui8v3(0);
-                            m_quads[3][n].v2.position = ui8v3(0);
-                            m_quads[3][n].v3.position = ui8v3(0);
+                            // Mark as not in use
+                            quads[n].v0.faceIndex = 255;
+                            quads[n].replaceQuad = n2;
+                            m_numQuads--;
                         }
                     }
                 }
@@ -557,7 +563,7 @@ int ChunkMesher::getLiquidLevel(int blockIndex, const Block& block) {
 
 bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 {
-
+    m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
     m_highestX = 0;
@@ -644,18 +650,22 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     ChunkMeshRenderData& renderData = chunkMeshData->chunkMeshRenderData;
 
     // Get quad buffer to fill
-    std::vector<VoxelQuad>& quads = chunkMeshData->opaqueQuads;
-    // Start by swapping with the X_NEG to reduce copying
-    quads.swap(m_quads[0]);
-    int nxSize = quads.size();
-    int offset = nxSize;
-    quads.resize(quads.size() + m_quads[1].size() + m_quads[2].size() +
-                 m_quads[3].size() + m_quads[4].size() + m_quads[5].size());
+    std::vector<VoxelQuad>& finalQuads = chunkMeshData->opaqueQuads;
+
+    finalQuads.resize(m_numQuads);
     // Copy the data
-    // TODO(Ben): Could construct in place and not need ANY copying with 6 iterations.
-    for (int i = 1; i < 6; i++) {
-        memcpy(quads.data() + offset, m_quads[i].data(), m_quads[i].size() * sizeof(VoxelQuad));
-        offset += m_quads[i].size();
+    // TODO(Ben): Could construct in place and not need ANY copying with 6 iterations?
+    i32 index = 0;
+    i32 sizes[6];
+    for (int i = 0; i < 6; i++) {
+        std::vector<VoxelQuad>& quads = m_quads[i];
+        for (int j = 0; j < quads.size(); j++) {
+            VoxelQuad& q = quads[j];
+            if (q.v0.faceIndex != 255) {
+                finalQuads[index++] = q;
+            }
+        }
+        sizes[i] = index;
     }
 
     m_highestY /= 7;
@@ -667,20 +677,20 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
 
 #define INDICES_PER_QUAD 6
 
-    if (quads.size()) {
+    if (finalQuads.size()) {
         renderData.nxVboOff = 0;
-        renderData.nxVboSize = nxSize * INDICES_PER_QUAD;
+        renderData.nxVboSize = sizes[0] * INDICES_PER_QUAD;
         renderData.pxVboOff = renderData.nxVboSize;
-        renderData.pxVboSize = m_quads[1].size() * INDICES_PER_QUAD;
+        renderData.pxVboSize = sizes[1] * INDICES_PER_QUAD;
         renderData.nyVboOff = renderData.pxVboOff + renderData.pxVboSize;
-        renderData.nyVboSize = m_quads[2].size() * INDICES_PER_QUAD;
+        renderData.nyVboSize = sizes[2] * INDICES_PER_QUAD;
         renderData.pyVboOff = renderData.nyVboOff + renderData.nyVboSize;
-        renderData.pyVboSize = m_quads[3].size() * INDICES_PER_QUAD;
+        renderData.pyVboSize = sizes[3] * INDICES_PER_QUAD;
         renderData.nzVboOff = renderData.pyVboOff + renderData.pyVboSize;
-        renderData.nzVboSize = m_quads[4].size() * INDICES_PER_QUAD;
+        renderData.nzVboSize = sizes[4] * INDICES_PER_QUAD;
         renderData.pzVboOff = renderData.nzVboOff + renderData.nzVboSize;
-        renderData.pzVboSize = m_quads[5].size() * INDICES_PER_QUAD;
-        renderData.indexSize = quads.size() * INDICES_PER_QUAD;
+        renderData.pzVboSize = sizes[5] * INDICES_PER_QUAD;
+        renderData.indexSize = finalQuads.size() * INDICES_PER_QUAD;
 
         // Redundant
         renderData.highestX = m_highestX;

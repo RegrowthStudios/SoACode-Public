@@ -42,6 +42,7 @@ private:
     std::vector<BlockVertex> m_finalVerts[6];
 
     std::vector<VoxelQuad> m_quads[6];
+    ui32 m_numQuads;
 
     std::vector<BlockVertex> _vboVerts;
     std::vector<BlockVertex> _transparentVerts;
