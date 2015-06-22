@@ -31,7 +31,7 @@ public:
     ChunkMeshData* chunkMeshData = nullptr;
 private:
     void addBlock();
-    void addQuad(int face, int leftOffset, int downOffset);
+    void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex);
     void addFlora();
     void addLiquid(MesherInfo& mi);
 

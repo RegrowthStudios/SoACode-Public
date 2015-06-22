@@ -28,6 +28,8 @@ const int MAXLIGHT = 31;
 
 #define NO_QUAD_INDEX 0xFFFF
 
+#define QUAD_SIZE 7
+
 void ChunkMesher::init(const BlockPack* blocks) {
     m_blocks = blocks;
 }
@@ -78,37 +80,34 @@ void ChunkMesher::addBlock()
 
     GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    //get bit flags (needs to be changed) -Ben
-    //GLuint flags = GETFLAGS(mi.blockIDData[mi.wc]);
-
     // Check the faces
     // Left
     if (shouldRenderFace(-1)) {
-        addQuad((int)vvox::Cardinal::X_NEG, 0, 0);
+        addQuad((int)vvox::Cardinal::X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2);
     }
     // Right
     if (shouldRenderFace(1)) {
-        addQuad((int)vvox::Cardinal::X_POS, 0, 0);
+        addQuad((int)vvox::Cardinal::X_POS, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 0);
     }
     // Bottom
     if (shouldRenderFace(-PADDED_CHUNK_LAYER)) {
-    //    addQuad((int)vvox::Cardinal::Y_NEG, 0, 0);
+        addQuad((int)vvox::Cardinal::Y_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 2);
     }
     // Top
     if (shouldRenderFace(PADDED_CHUNK_LAYER)) {
-        addQuad((int)vvox::Cardinal::Y_POS, 0, 0);
+        addQuad((int)vvox::Cardinal::Y_POS, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 0);
     }
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
-        addQuad((int)vvox::Cardinal::Z_NEG, 0, 0);
+        addQuad((int)vvox::Cardinal::Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
-        addQuad((int)vvox::Cardinal::Z_POS, 0, 0);
+        addQuad((int)vvox::Cardinal::Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0);
     }
 }
 
-void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
+void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex) {
     // Get color
     // TODO(Ben): Flags?
     color3 blockColor[2];
@@ -120,80 +119,60 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
 
     std::vector<VoxelQuad>& quads = m_quads[face];
 
-    // TODO(Ben): Merging
     i16 quadIndex = quads.size();
     quads.emplace_back();
     m_numQuads++;
-    VoxelQuad& quad = quads.back();
-    quad.v0.faceIndex = face; // Useful for later
+    VoxelQuad* quad = &quads.back();
+    quad->v0.isActive = true; // Useful for later
     for (int i = 0; i < 4; i++) {
-        quad.verts[i].position = VoxelMesher::VOXEL_POSITIONS[face][i] + m_voxelPosOffset;
-        quad.verts[i].color = blockColor[0];
-        quad.verts[i].overlayColor = blockColor[1];
+        quad->verts[i].position = VoxelMesher::VOXEL_POSITIONS[face][i] + m_voxelPosOffset;
+        quad->verts[i].color = blockColor[0];
+        quad->verts[i].overlayColor = blockColor[1];
     }
 
     // TODO(Ben): Think about this more
-    if (quad.v0.position.x < m_lowestX) m_lowestX = quad.v0.position.x;
-    if (quad.v0.position.x > m_highestX) m_highestX = quad.v0.position.x;
-    if (quad.v0.position.y < m_lowestY) m_lowestY = quad.v0.position.y;
-    if (quad.v0.position.y > m_highestY) m_highestY = quad.v0.position.y;
-    if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
-    if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
+    if (quad->v0.position.x < m_lowestX) m_lowestX = quad->v0.position.x;
+    if (quad->v0.position.x > m_highestX) m_highestX = quad->v0.position.x;
+    if (quad->v0.position.y < m_lowestY) m_lowestY = quad->v0.position.y;
+    if (quad->v0.position.y > m_highestY) m_highestY = quad->v0.position.y;
+    if (quad->v0.position.z < m_lowestZ) m_lowestZ = quad->v0.position.z;
+    if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
-    ui16 n;
-
-    int rightAxis = (int)vvox::Axis::X;
-    int frontAxis = (int)vvox::Axis::Z;
-    leftOffset = -1;
-    int backOffset = -PADDED_CHUNK_WIDTH;
-
-    // Greedy merging
-    switch (face) {
-        case 0: // Left
-            break;
-        case 1: // Right
-            break;
-        case 2: // Bottom
-            break;
-        case 3: // Top
-            // TODO(Ben): This is just a test! I know its ugly so leave me alone!
-            n = m_quadIndices[m_blockIndex + leftOffset][3];
-            if (n != NO_QUAD_INDEX) {
-                VoxelQuad& nquad = quads[n];
-                if (nquad.v0 == quad.v0 && nquad.v1 == quad.v1 &&
-                    nquad.v2 == quad.v2 && nquad.v3 == quad.v3) {
-                    nquad.v0.position[rightAxis] += 7;
-                    nquad.v1.position[rightAxis] += 7;
-                    quads.pop_back();
-                    m_numQuads--;
-                    quadIndex = n;
-                    int n2 = m_quadIndices[m_blockIndex + backOffset][3];
-                    if (n2 != NO_QUAD_INDEX) {
-                        VoxelQuad* nquad2 = &quads[n2];
-                        while (nquad2->v0.faceIndex == 255) {
-                            n2 = nquad2->replaceQuad;
-                            nquad2 = &quads[n2];
-                        }
-                        if (nquad2->v0.position[rightAxis] == nquad.v0.position[rightAxis] &&
-                            nquad2->v2.position[rightAxis] == nquad.v2.position[rightAxis]) {
-                            nquad2->v0.position[frontAxis] += 7;
-                            nquad2->v3.position[frontAxis] += 7;
-                            quadIndex = n2;
-                            // Mark as not in use
-                            quads[n].v0.faceIndex = 255;
-                            quads[n].replaceQuad = n2;
-                            m_numQuads--;
-                        }
-                    }
-                }
-            }
-            break;
-        case 4: // Back
-            break;
-        case 5: // Front
-            break;
+    // Look-Behind Greedy Merging(tm)
+    ui16 leftIndex = m_quadIndices[m_blockIndex + leftOffset][face];
+    // Check left merge
+    if (leftIndex != NO_QUAD_INDEX) {
+        VoxelQuad& lQuad = quads[leftIndex];
+        if (lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1 &&
+            lQuad.v2 == quad->v2 && lQuad.v3 == quad->v3) {
+            lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
+            lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
+            quads.pop_back();
+            m_numQuads--;
+            quadIndex = leftIndex;
+            quad = &lQuad;
+        }
     }
-
+    // Check back merge
+    int n2 = m_quadIndices[m_blockIndex + backOffset][face];
+    if (n2 != NO_QUAD_INDEX) {
+        VoxelQuad* bQuad = &quads[n2];
+        while (!bQuad->v0.isActive) {
+            n2 = bQuad->replaceQuad;
+            bQuad = &quads[n2];
+        }
+        if (bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
+            bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis]) {
+            bQuad->v0.position[frontAxis] += QUAD_SIZE;
+            bQuad->v3.position[frontAxis] += QUAD_SIZE;
+            quadIndex = n2;
+            // Mark as not in use
+            quads[leftIndex].v0.isActive = false;
+            quads[leftIndex].replaceQuad = n2;
+            m_numQuads--;
+        }
+    }
+      
     m_quadIndices[m_blockIndex][face] = quadIndex;
 }
 
@@ -593,12 +572,6 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     _transparentVerts.clear();
     _cutoutVerts.clear();
 
-    //store the render task so we can pass it to functions
-  //  mi.task = renderTask;
-   // mi.chunkGridData = chunk->gridData;
-   // mi.position = chunk->getVoxelPosition().pos;
-
-
     //create a new chunk mesh data container
     if (chunkMeshData != NULL){
         pError("Tried to create mesh with in use chunkMeshData!");
@@ -608,11 +581,6 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     //Stores the data for a chunk mesh
     // TODO(Ben): new is bad mkay
     chunkMeshData = new ChunkMeshData(renderTask);
-    /*
-        mi.blockIDData = m_blockData;
-        mi.lampLightData = m_lampData;
-        mi.sunlightData = m_sunData;
-        mi.tertiaryData = m_tertiaryData;*/
 
     m_dataLayer = PADDED_CHUNK_LAYER;
     m_dataWidth = PADDED_CHUNK_WIDTH;
@@ -634,7 +602,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
                 m_heightData = &chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
                 m_block = &m_blocks->operator[](m_blockID);
                 // TODO(Ben) Don't think bx needs to be member
-                m_voxelPosOffset = ui8v3(bx * 7, by * 7, bz * 7);
+                m_voxelPosOffset = ui8v3(bx * QUAD_SIZE, by * QUAD_SIZE, bz * QUAD_SIZE);
 
                 switch (m_block->meshType) {
                     case MeshType::BLOCK:
@@ -665,21 +633,22 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     i32 sizes[6];
     for (int i = 0; i < 6; i++) {
         std::vector<VoxelQuad>& quads = m_quads[i];
+        int tmp = index;
         for (int j = 0; j < quads.size(); j++) {
             VoxelQuad& q = quads[j];
-            if (q.v0.faceIndex != 255) {
+            if (q.v0.isActive) {
                 finalQuads[index++] = q;
             }
         }
-        sizes[i] = index;
+        sizes[i] = index - tmp;
     }
 
-    m_highestY /= 7;
-    m_lowestY /= 7;
-    m_highestX /= 7;
-    m_lowestX /= 7;
-    m_highestZ /= 7;
-    m_lowestZ /= 7;
+    m_highestY /= QUAD_SIZE;
+    m_lowestY /= QUAD_SIZE;
+    m_highestX /= QUAD_SIZE;
+    m_lowestX /= QUAD_SIZE;
+    m_highestZ /= QUAD_SIZE;
+    m_lowestZ /= QUAD_SIZE;
 
 #define INDICES_PER_QUAD 6
 
@@ -706,44 +675,6 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         renderData.highestZ = m_highestZ;
         renderData.lowestZ = m_lowestZ;
     }
-
- //   int indice = (index / 4) * 6;
-
- //   ChunkMeshRenderData& meshInfo = chunkMeshData->chunkMeshRenderData;
-
- //   //add all vertices to the vbo
- //   if (chunkMeshData->vertices.size() || chunkMeshData->transVertices.size() || chunkMeshData->cutoutVertices.size()) {
- //       meshInfo.indexSize = (chunkMeshData->vertices.size() * 6) / 4;
-
-	//	//now let the sizes represent indice sizes
-	//	meshInfo.pyVboOff = pyVboOff;
-	//	meshInfo.pyVboSize = (mi.pyVboSize / 4) * 6;
-	//	meshInfo.nyVboOff = nyVboOff;
-	//	meshInfo.nyVboSize = (mi.nyVboSize / 4) * 6;
-	//	meshInfo.pxVboOff = pxVboOff;
-	//	meshInfo.pxVboSize = (mi.pxVboSize / 4) * 6;
-	//	meshInfo.nxVboOff = nxVboOff;
-	//	meshInfo.nxVboSize = (mi.nxVboSize / 4) * 6;
-	//	meshInfo.pzVboOff = pzVboOff;
-	//	meshInfo.pzVboSize = (mi.pzVboSize / 4) * 6;
-	//	meshInfo.nzVboOff = nzVboOff;
-	//	meshInfo.nzVboSize = (mi.nzVboSize / 4) * 6;
-
- //       meshInfo.transVboSize = (mi.transparentIndex / 4) * 6;
- //       meshInfo.cutoutVboSize = (mi.cutoutIndex / 4) * 6;
- //     
-	//	meshInfo.highestY = highestY;
-	//	meshInfo.lowestY = lowestY;
-	//	meshInfo.highestX = highestX;
-	//	meshInfo.lowestX = lowestX;
-	//	meshInfo.highestZ = highestZ;
-	//	meshInfo.lowestZ = lowestZ;
-	//}
-
-	//if (mi.liquidIndex){
- //       meshInfo.waterIndexSize = (mi.liquidIndex * 6) / 4;
- //       chunkMeshData->waterVertices.swap(_waterVboVerts);
-	//}
 
 	return 0;
 }

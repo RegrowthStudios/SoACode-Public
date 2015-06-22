@@ -10,17 +10,17 @@
 //  |/      |/
 //  v2------v3 
 
-const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f,  // v1-v2-v3-v0 (front)
+const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f,  // v1-v2-v3-v0 (front) //WRONG!!!
 
-    0.5f, 1.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f,     // v0-v3-v4-v5 (right)
+    0.5f, 1.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, -0.0f,     // v0-v3-v4-v5 (right) //WRONG!!!
 
-    -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f, 1.0f, 1.0f, 0.5f, -0.0f,    // v6-v1-v0-v5 (top)
+    -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, 1.0f, 1.0f, 0.5f, 1.0f, 1.0f, 0.5f, -0.0f,    // v6-v1-v0-v5 (top) //WRONG!!!
 
-    0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f, 1.0f, 1.0f,   // v6-v7-v2-v1 (left)
+    0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f, 1.0f, 1.0f,   // v6-v7-v2-v1 (left) //WRONG!!!
 
-    -0.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f,    // v7-v4-v3-v2 (bottom)
+    -0.0f, 0.5f, -0.0f, 1.0f, 0.5f, -0.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, 1.0f,    // v7-v4-v3-v2 (bottom) //WRONG!!!
 
-    1.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f };     // v5-v4-v7-v6 (back)
+    1.0f, 1.0f, 0.5f, 1.0f, -0.0f, 0.5f, -0.0f, -0.0f, 0.5f, -0.0f, 1.0f, 0.5f };     // v5-v4-v7-v6 (back) //WRONG!!!
 
 // Cube Vertex Positional Resolution
 #define C_RES 7
@@ -28,7 +28,7 @@ const GLfloat VoxelMesher::leafVertices[72] = { -0.0f, 1.0f, 0.5f, -0.0f, -0.0f,
 const ui8v3 VoxelMesher::VOXEL_POSITIONS[NUM_FACES][4] = {
     { ui8v3(0, C_RES, 0), ui8v3(0, 0, 0), ui8v3(0, 0, C_RES), ui8v3(0, C_RES, C_RES) }, // v6-v7-v2-v1 (left)
     { ui8v3(C_RES, C_RES, C_RES), ui8v3(C_RES, 0, C_RES), ui8v3(C_RES, 0, 0), ui8v3(C_RES, C_RES, 0) }, // v0-v3-v4-v5 (right)
-    { ui8v3(0, 0, 0), ui8v3(C_RES, 0, 0), ui8v3(C_RES, 0, C_RES), ui8v3(0, 0, C_RES) }, // v2-v7-v4-v3 (bottom)
+    { ui8v3(0, 0, C_RES), ui8v3(0, 0, 0), ui8v3(C_RES, 0, 0), ui8v3(C_RES, 0, C_RES) }, // v2-v7-v4-v3 (bottom)
     { ui8v3(C_RES, C_RES, C_RES), ui8v3(C_RES, C_RES, 0), ui8v3(0, C_RES, 0), ui8v3(0, C_RES, C_RES) }, // v0-v5-v6-v1 (top)
     { ui8v3(C_RES, C_RES, 0), ui8v3(C_RES, 0, 0), ui8v3(0, 0, 0), ui8v3(0, C_RES, 0) }, // v5-v4-v7-v6 (back)
     { ui8v3(0, C_RES, C_RES), ui8v3(0, 0, C_RES), ui8v3(C_RES, 0, C_RES), ui8v3(C_RES, C_RES, C_RES) } // v1-v2-v3-v0 (front)

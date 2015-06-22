@@ -29,7 +29,7 @@ struct BlockVertex {
             ui8 y;
             ui8 z;
         };
-        struct { ui8v3 position; };
+        UNIONIZE(ui8v3 position);
     };
     ui8 textureType; //4   
 
@@ -37,7 +37,7 @@ struct BlockVertex {
     //  100 = animated overlay 
     // 1000 = normal map
     //10000 = specular map
-    struct { ui8v2 tex; };//6 
+    UNIONIZE(ui8v2 tex); //6 
     ui8 animationLength; //7
     ui8 blendMode; //8
 
@@ -52,17 +52,17 @@ struct BlockVertex {
     ui8 overlayTextureHeight; //16
 
     // Have to use struct since color3 has constructor
-    struct { color3 color; }; // 19
+    UNIONIZE(color3 color); // 19
     ui8 waveEffect; //20
 
-    struct { color3 overlayColor; }; //23
+    UNIONIZE(color3 overlayColor); //23
     ui8 pad2; //24
 
-    struct { color3 lampColor; }; //27
+    UNIONIZE(color3 lampColor); //27
     ui8 sunlight; //28
 
-    struct { ui8v3 normal; }; //31
-    ui8 faceIndex; //32 // Helpful during the meshing process. If its 255, then its inactive.
+    UNIONIZE(ui8v3 normal); //31
+    bool isActive; //32 // Helpful during the meshing process.
 
     // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.
     bool operator==(const BlockVertex& rhs) const {
