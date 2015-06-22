@@ -61,7 +61,8 @@ struct BlockVertex {
     UNIONIZE(color3 lampColor); //27
     ui8 sunlight; //28
 
-    UNIONIZE(ui8v3 normal); //31
+    ui8 face;
+    ui8 paddingg[2];
     bool isActive; //32 // Helpful during the meshing process.
 
     // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.

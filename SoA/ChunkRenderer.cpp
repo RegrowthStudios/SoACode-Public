@@ -212,7 +212,7 @@ void ChunkRenderer::buildVao(ChunkMesh& cm)
     //lightcolor[3], sunlight,
     glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, lampColor));
     //normal
-    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, normal));
+    glVertexAttribPointer(7, 1, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, face));
 
     glBindVertexArray(0);
 }

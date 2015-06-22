@@ -88,7 +88,8 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
               //      chunk->spawnerBlocks.push_back(c);
               //  }
 
-                if (c < 1024) {
+                // TODO(Ben): Just for mesh testing purposes
+                if (y < 2) {
                     blockData = 2;
                 }
 

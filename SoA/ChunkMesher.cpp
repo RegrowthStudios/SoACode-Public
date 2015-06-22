@@ -81,10 +81,10 @@ void ChunkMesher::addBlock()
     GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     // Check the faces
-    // Left
-    if (shouldRenderFace(-1)) {
-        addQuad((int)vvox::Cardinal::X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2);
-    }
+// Left
+if (shouldRenderFace(-1)) {
+    addQuad((int)vvox::Cardinal::X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2);
+}
     // Right
     if (shouldRenderFace(1)) {
         addQuad((int)vvox::Cardinal::X_POS, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 0);
@@ -99,11 +99,11 @@ void ChunkMesher::addBlock()
     }
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
-        addQuad((int)vvox::Cardinal::Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2);
+        addQuad((int)vvox::Cardinal::Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
-        addQuad((int)vvox::Cardinal::Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0);
+        addQuad((int)vvox::Cardinal::Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2);
     }
 }
 
@@ -128,6 +128,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         quad->verts[i].position = VoxelMesher::VOXEL_POSITIONS[face][i] + m_voxelPosOffset;
         quad->verts[i].color = blockColor[0];
         quad->verts[i].overlayColor = blockColor[1];
+        quad->verts[i].face = face;
     }
 
     // TODO(Ben): Think about this more
@@ -167,8 +168,8 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
             bQuad->v3.position[frontAxis] += QUAD_SIZE;
             quadIndex = n2;
             // Mark as not in use
-            quads[leftIndex].v0.isActive = false;
-            quads[leftIndex].replaceQuad = n2;
+            quad->v0.isActive = false;
+            quad->replaceQuad = n2;
             m_numQuads--;
         }
     }
