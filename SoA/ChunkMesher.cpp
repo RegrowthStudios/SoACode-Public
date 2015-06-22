@@ -26,6 +26,8 @@ const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
 const int MAXLIGHT = 31;
 
+#define NO_QUAD_INDEX 0xFFFF
+
 void ChunkMesher::init(const BlockPack* blocks) {
     m_blocks = blocks;
 }
@@ -90,7 +92,7 @@ void ChunkMesher::addBlock()
     }
     // Bottom
     if (shouldRenderFace(-PADDED_CHUNK_LAYER)) {
-        addQuad((int)vvox::Cardinal::Y_NEG, 0, 0);
+    //    addQuad((int)vvox::Cardinal::Y_NEG, 0, 0);
     }
     // Top
     if (shouldRenderFace(PADDED_CHUNK_LAYER)) {
@@ -117,6 +119,7 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
                            m_block->textures[face]);
 
     // TODO(Ben): Merging
+    i16 quadIndex = m_quads[face].size();
     m_quads[face].emplace_back();
     VoxelQuad& quad = m_quads[face].back();
     quad.v0.faceIndex = face; // Useful for later
@@ -125,6 +128,7 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
         quad.verts[i].color = blockColor[0];
         quad.verts[i].overlayColor = blockColor[1];
     }
+
     // TODO(Ben): Think about this more
     if (quad.v0.position.x < m_lowestX) m_lowestX = quad.v0.position.x;
     if (quad.v0.position.x > m_highestX) m_highestX = quad.v0.position.x;
@@ -133,6 +137,52 @@ void ChunkMesher::addQuad(int face, int leftOffset, int downOffset) {
     if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
     if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
 
+    ui16 n;
+
+    // Greedy merging
+    switch (face) {
+        case 0: // Left
+            break;
+        case 1: // Right
+            break;
+        case 2: // Bottom
+            break;
+        case 3: // Top
+            // TODO(Ben): This is just a test! I know its ugly so leave me alone!
+            n = m_quadIndices[m_blockIndex - 1][3];
+            if (n != NO_QUAD_INDEX) {
+                VoxelQuad& nquad = m_quads[3][n];
+                if (nquad.v0 == quad.v0 && nquad.v1 == quad.v1 &&
+                    nquad.v2 == quad.v2 && nquad.v3 == quad.v3) {
+                    nquad.v2.position.x += 7;
+                    nquad.v3.position.x += 7;
+                    m_quads[3].pop_back();
+                    quadIndex = n;
+                    int n2 = m_quadIndices[m_blockIndex - PADDED_CHUNK_WIDTH][3];
+                    if (n2 != NO_QUAD_INDEX) {
+                        VoxelQuad& nquad2 = m_quads[3][n2];
+                        if (nquad2.v0.x == nquad.v0.x && nquad2.v1.x == nquad.v1.x &&
+                            nquad2.v2.x == nquad.v2.x && nquad2.v3.x == nquad.v3.x) {
+                            nquad2.v2.position.x += 7;
+                            nquad2.v3.position.x += 7;
+                            quadIndex = n2;
+                            // Uhhhh... lol
+                            m_quads[3][n].v0.position = ui8v3(0);
+                            m_quads[3][n].v1.position = ui8v3(0);
+                            m_quads[3][n].v2.position = ui8v3(0);
+                            m_quads[3][n].v3.position = ui8v3(0);
+                        }
+                    }
+                }
+            }
+            break;
+        case 4: // Back
+            break;
+        case 5: // Front
+            break;
+    }
+
+    m_quadIndices[m_blockIndex][face] = quadIndex;
 }
 
 //adds a flora mesh
@@ -516,7 +566,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
     m_lowestZ = 256;
 
     // Clear quad indices
-    memset(m_quadIndices, 0, sizeof(m_quadIndices));
+    memset(m_quadIndices, 0xFF, sizeof(m_quadIndices));
 
     for (int i = 0; i < 6; i++) {
         m_quads[i].clear();

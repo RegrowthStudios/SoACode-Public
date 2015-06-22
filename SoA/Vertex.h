@@ -39,7 +39,7 @@ struct BlockVertex {
     //  100 = animated overlay 
     // 1000 = normal map
     //10000 = specular map
-    ui8 tex[2]; //6 
+    ui8v2 tex; //6 
     ui8 animationLength; //7
     ui8 blendMode; //8
 
@@ -66,9 +66,16 @@ struct BlockVertex {
         color3 lampColor; //27
     };
     ui8 sunlight; //28
-
-    ui8 normal[3]; //31
+    struct {
+        ui8v3 normal; //31
+    };
     ui8 faceIndex; //32 // Helpful during the meshing process to cut out some ifs.
+
+    // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.
+    bool operator==(const BlockVertex& rhs) const {
+        return (color == rhs.color && overlayColor == rhs.overlayColor &&
+                textureAtlas == rhs.textureAtlas && textureIndex == rhs.textureIndex);
+    }
 };
 
 class LiquidVertex {

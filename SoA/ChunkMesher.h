@@ -72,7 +72,7 @@ private:
 
     int wSize;
     // Voxel data arrays
-    i32 m_quadIndices[PADDED_CHUNK_SIZE][6];
+    ui16 m_quadIndices[PADDED_CHUNK_SIZE][6];
     ui16 m_wvec[CHUNK_SIZE];
     ui16 m_blockData[PADDED_CHUNK_SIZE];
     ui16 m_tertiaryData[PADDED_CHUNK_SIZE];
