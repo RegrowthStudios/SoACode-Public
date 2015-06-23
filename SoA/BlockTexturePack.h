@@ -15,7 +15,7 @@
 #ifndef BlockTexturePack_h__
 #define BlockTexturePack_h__
 
-#include "BlockTexture.h"
+#include "BlockMaterial.h"
 
 #include <map>
 #include <Vorb/graphics/gtypes.h>
@@ -34,16 +34,16 @@ public:
     void init(ui32 resolution, ui32 maxTextures);
     // Maps the texture layer to the atlas and updates the index in layer.
     // Does not check if texture already exists
-    void addLayer(BlockTextureLayer& layer, color4* pixels);  
+    void addLayer(BlockMaterialLayer& layer, color4* pixels);  
     // Tries to find the texture index. Returns empty description on fail.
     AtlasTextureDescription findLayer(const nString& filePath);
 
-    BlockTexture* findTexture(const nString& filePath);
+    BlockMaterial* findTexture(const nString& filePath);
     // Returns a pointer to the next free block texture and increments internal counter.
     // Will crash if called more than m_maxTextures times.
-    BlockTexture* getNextFreeTexture();
+    BlockMaterial* getNextFreeTexture();
 
-    BlockTexture* getDefaultTexture() { return &m_defaultTexture; }
+    BlockMaterial* getDefaultTexture() { return &m_defaultTexture; }
 
     // Call on GL thread. Will upload any textures that aren't yet uploaded.
     void update();
@@ -51,6 +51,9 @@ public:
     void writeDebugAtlases();
 
     void dispose();
+
+    // TODO(Ben): Possibly temporary
+    void save();
 
     const VGTexture& getAtlasTexture() const { return m_atlasTexture; }
     const ui32& getResolution() const { return m_resolution; }
@@ -85,8 +88,8 @@ private:
 
     // For cache friendly caching of textures
     std::map<nString, ui32> m_textureLookup;
-    BlockTexture* m_textures = nullptr; ///< Storage of all block textures
-    BlockTexture m_defaultTexture;
+    BlockMaterial* m_textures = nullptr; ///< Storage of all block textures
+    BlockMaterial m_defaultTexture;
     ui32 m_nextFree = 0;
     ui32 m_maxTextures = 0; ///< Maximum possible number of unique textures with this mod config
 };

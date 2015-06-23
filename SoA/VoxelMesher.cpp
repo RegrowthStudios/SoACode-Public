@@ -116,7 +116,7 @@ const ui8 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
         7, 7, 0, 7, 0, 0, 0, 0, 7, 0, 7, 7 } };
 
 
-void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture* texInfo)
+void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockMaterial* texInfo)
 {
 
 //    // 7 per coord
@@ -262,7 +262,7 @@ void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const 
 }
 
 
-void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture* texInfo) {
+void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockMaterial* texInfo) {
 //
 //    //get the face index so we can determine the axis alignment
 //    int faceIndex = vertexOffset / 12;
@@ -413,7 +413,7 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts, const ui8* positions, 
 }
 
 
-void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockTexture* texInfo)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, GLfloat ambientOcclusion[], const BlockMaterial* texInfo)
 {
 
     ////get the face index so we can determine the axis alignment
@@ -614,7 +614,7 @@ void VoxelMesher::makeLiquidFace(std::vector<LiquidVertex>& verts, i32 index, ui
     verts[index + 3].textureUnit = (GLubyte)textureUnit;
 }
 
-void VoxelMesher::makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockTexture& blockTexture)
+void VoxelMesher::makePhysicsBlockFace(std::vector <PhysicsBlockVertex> &verts, int vertexOffset, int &index, const BlockMaterial& blockTexture)
 {
     /*  ui8 textureAtlas = (ui8)(blockTexture.base.index / ATLAS_SIZE);
       ui8 textureIndex = (ui8)(blockTexture.base.index % ATLAS_SIZE);

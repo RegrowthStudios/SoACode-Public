@@ -17,7 +17,7 @@
 void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     //TODO: MurmurHash3
     const ChunkMesher* cm = params.chunkMesher;
-    const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
+    const BlockMaterialLayer* blockTexInfo = params.blockTexInfo;
     i32 seed = 0; // getPositionSeed(cm->x + cm->position.x, cm->y + cm->position.y, cm->z + cm->position.z);
 
     f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * blockTexInfo->totalWeight);
@@ -51,7 +51,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
     f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * params.blockTexInfo->totalWeight);
     f32 totalWeight = 0;
 
-    const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
+    const BlockMaterialLayer* blockTexInfo = params.blockTexInfo;
     const ui16* tertiaryData = cm->tertiaryData;
 
     const int& blockIndex = cm->blockIndex;

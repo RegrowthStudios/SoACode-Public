@@ -775,12 +775,6 @@
     <ClInclude Include="BlockTexturePack.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="BlockTexture.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockTextureLoader.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
     <ClInclude Include="HeightData.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
@@ -792,6 +786,12 @@
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockMaterial.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockMaterialLoader.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1268,17 +1268,17 @@
     <ClCompile Include="BlockTexturePack.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
-    <ClCompile Include="BlockTexture.cpp">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockTextureLoader.cpp">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClCompile>
     <ClCompile Include="Chunk.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="ChunkGrid.cpp">
       <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockMaterial.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockMaterialLoader.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

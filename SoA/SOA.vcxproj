@@ -540,7 +540,7 @@ EXIT 0</Command>
     <ClInclude Include="AxisRotationComponentUpdater.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockPack.h" />
-    <ClInclude Include="BlockTexture.h" />
+    <ClInclude Include="BlockMaterial.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="BlockTexturePack.h" />
     <ClInclude Include="CellularAutomataTask.h" />
@@ -594,7 +594,7 @@ EXIT 0</Command>
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
-    <ClInclude Include="BlockTextureLoader.h" />
+    <ClInclude Include="BlockMaterialLoader.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
@@ -744,8 +744,8 @@ EXIT 0</Command>
     <ClCompile Include="AxisRotationComponentUpdater.cpp" />
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp" />
-    <ClCompile Include="BlockTexture.cpp" />
-    <ClCompile Include="BlockTextureLoader.cpp" />
+    <ClCompile Include="BlockMaterial.cpp" />
+    <ClCompile Include="BlockMaterialLoader.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="BlockTexturePack.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />

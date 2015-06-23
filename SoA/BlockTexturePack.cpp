@@ -18,7 +18,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     m_resolution = resolution;
     m_pageWidthPixels = m_resolution * m_stitcher.getTilesPerRow();
     m_maxTextures = maxTextures;
-    m_textures = new BlockTexture[maxTextures];
+    m_textures = new BlockMaterial[maxTextures];
     m_nextFree = 0;
     // Calculate max mipmap level
     m_mipLevels = 0;
@@ -33,7 +33,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 }
 
 // TODO(Ben): Lock?
-void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
+void BlockTexturePack::addLayer(BlockMaterialLayer& layer, color4* pixels) {
     // Map the texture
     int firstPageIndex;
     int lastPageIndex;
@@ -118,7 +118,7 @@ AtlasTextureDescription BlockTexturePack::findLayer(const nString& filePath) {
     return {};
 }
 
-BlockTexture* BlockTexturePack::findTexture(const nString& filePath) {
+BlockMaterial* BlockTexturePack::findTexture(const nString& filePath) {
     auto& it = m_textureLookup.find(filePath);
     if (it != m_textureLookup.end()) {
         return &m_textures[it->second];
@@ -127,7 +127,7 @@ BlockTexture* BlockTexturePack::findTexture(const nString& filePath) {
 }
 // Returns a pointer to the next free block texture and increments internal counter.
 // Will crash if called more than m_maxTextures times.
-BlockTexture* BlockTexturePack::getNextFreeTexture() {
+BlockMaterial* BlockTexturePack::getNextFreeTexture() {
     if (m_nextFree >= m_maxTextures) pError("m_nextFree >= m_maxTextures in BlockTexturePack::getNextFreeTexture");
     return &m_textures[m_nextFree++];
 }
@@ -189,6 +189,10 @@ void BlockTexturePack::dispose() {
     std::map<nString, ui32>().swap(m_textureLookup);
     delete[] m_textures;
     m_textures = nullptr;
+}
+
+void BlockTexturePack::save() {
+
 }
 
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {

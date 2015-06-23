@@ -353,7 +353,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
 
 void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, f32 ambientOcclusion[]) {
     // Get texture TODO(Ben): Null check?
-    const BlockTexture* texture = block->textures[face];
+    const BlockMaterial* texture = block->textures[face];
     // Get color
     // TODO(Ben): Flags?
     color3 blockColor[2];

@@ -6,6 +6,7 @@ BlockPack::BlockPack() :
     
     { // Create "None" block
         Block b;
+        b.sID = "None";
         b.name = "None";
         b.allowLight = true;
         b.collide = false;
@@ -19,6 +20,7 @@ BlockPack::BlockPack() :
     }
     { // Create "Unknown" block
         Block b;
+        b.sID = "Unknown";
         b.name = "Unknown";
         append(b);
     }
@@ -27,7 +29,7 @@ BlockPack::BlockPack() :
 BlockID BlockPack::append(Block& block) {
     Block* curBlock;
     BlockID rv;
-    if (curBlock = hasBlock(block.name)) {
+    if (curBlock = hasBlock(block.sID)) {
         rv = curBlock->ID;
         block.ID = rv;
         // Overwrite block
@@ -38,7 +40,7 @@ BlockID BlockPack::append(Block& block) {
         // Add a new block
         m_blockList.push_back(block);
         // Set the correct index
-        m_blockMap[block.name] = rv;
+        m_blockMap[block.sID] = rv;
     }
     onBlockAddition(block.ID);
     return rv;

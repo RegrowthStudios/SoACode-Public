@@ -65,20 +65,30 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
 
     BlockPack& blocks = *pack;
 
+    std::map<nString, const Block*> sortMap;
+    const std::vector<Block>& blockList = blocks.getBlockList();
+    for (int i = 0; i < blockList.size(); i++) {
+        const Block& b = blockList[i];
+        if (b.active) {
+            sortMap[b.sID] = &b;
+        }
+    }
     // Emit data
     keg::YAMLWriter writer;
     writer.push(keg::WriterParam::BEGIN_MAP);
-    for (size_t i = 0; i < blocks.size(); i++) {
-        if (blocks[i].active) {
-
-            // Write the block name first
-            writer.push(keg::WriterParam::KEY) << blocks[i].name;
-            // Write the block data now
-            writer.push(keg::WriterParam::VALUE);
-            writer.push(keg::WriterParam::BEGIN_MAP);
-            keg::write((ui8*)&(blocks[i]), writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
-            writer.push(keg::WriterParam::END_MAP);
-        }
+    for (auto& it : sortMap) {
+        const Block* b = it.second;
+        // TODO(Ben): TEMPORARY
+        const_cast<Block*>(b)->name = b->sID;
+      
+        // Write the block name first
+        writer.push(keg::WriterParam::KEY) << b->sID;
+        // Write the block data now
+        writer.push(keg::WriterParam::VALUE);
+        writer.push(keg::WriterParam::BEGIN_MAP);
+        keg::write((ui8*)b, writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+        writer.push(keg::WriterParam::END_MAP);
+        
     }
     writer.push(keg::WriterParam::END_MAP);
 
@@ -106,13 +116,13 @@ bool BlockLoader::load(const vio::IOManager& iom, const cString filePath, BlockP
 
     // Load all block nodes
     std::vector<Block> loadedBlocks;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& key, keg::Node value) {
         // Add a block
         loadedBlocks.emplace_back();
         Block& b = loadedBlocks.back();
 
-        // Set name to key
-        b.name = name;
+        // Set sID to key
+        b.sID = key;
         
         // Load data
         keg::parse((ui8*)&b, value, context, &KEG_GLOBAL_TYPE(Block));

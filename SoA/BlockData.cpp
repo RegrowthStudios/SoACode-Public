@@ -16,7 +16,7 @@ KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
 }
 
 KEG_TYPE_DEF_SAME_NAME(Block, kt) {
-    kt.addValue("ID", keg::Value::basic(offsetof(Block, ID), keg::BasicType::UI16));
+    kt.addValue("name", keg::Value::basic(offsetof(Block, name), keg::BasicType::STRING));
     kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::UI16));
     kt.addValue("waveEffect", keg::Value::basic(offsetof(Block, waveEffect), keg::BasicType::I16));
     kt.addValue("lightColor", keg::Value::basic(offsetof(Block, lightColor), keg::BasicType::UI8_V3));
@@ -53,7 +53,7 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
 }
 
 /// "less than" operator for inserting into sets in TexturePackLoader
-bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
+bool BlockMaterialLayer::operator<(const BlockMaterialLayer& b) const {
 
     // Helper macro for checking if !=
 #define LCHECK(a) if (a < b.##a) { return true; } else if (a > b.##a) { return false; }
@@ -115,7 +115,7 @@ lightColor(0, 0, 0) {
     colorFilter = f32v3(1.0f);
 }
 
-void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
+void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
@@ -145,7 +145,7 @@ void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags,
     }
 }
 
-void Block::getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
+void Block::getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color

@@ -23,7 +23,7 @@
 #include "ModPathResolver.h"
 #include "BlockPack.h"
 #include "BlockTexturePack.h"
-#include "BlockTextureLoader.h"
+#include "BlockMaterialLoader.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
@@ -56,7 +56,7 @@ struct SoaState {
     SoaOptions* options = nullptr; // Lives in App
 
     BlockPack blocks;
-    BlockTextureLoader blockTextureLoader;
+    BlockMaterialLoader blockTextureLoader;
     BlockTexturePack* blockTextures = nullptr;
 
     // TODO(Ben): This is temporary?

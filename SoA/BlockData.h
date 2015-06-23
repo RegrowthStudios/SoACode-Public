@@ -8,7 +8,7 @@
 
 #include "CAEngine.h"
 #include "ChunkMesh.h"
-#include "BlockTexture.h"
+#include "BlockMaterial.h"
 #include "Constants.h"
 #include "Rendering.h"
 #include "Item.h"
@@ -28,34 +28,6 @@ enum class BlockOcclusion {
     SELF_ONLY
 };
 KEG_ENUM_DECL(BlockOcclusion);
-
-enum BlockMaterials { M_NONE, M_STONE, M_MINERAL };
-
-//TODO(Ben): Crush this bullshit
-class BlockVariable
-{
-public:
-    //VarType 0 = int, 1 = float
-    BlockVariable(){}
-    BlockVariable(float Min, float Max, float Step, int ByteOffset, int VarType){ min = Min; max = Max; step = Step; byteOffset = ByteOffset; varType = VarType; controlType = 0; editorAccessible = 1;}
-    float min, max;
-    float step;
-    int byteOffset;
-    int varType; //0 = int, 1 = float, 2 = byte
-    int controlType; //0 = slider, 1 = list box
-    bool editorAccessible;
-    std::vector<nString> listNames;
-};
-
-class ItemDrop
-{
-    ItemDrop(Item *itm, int Num){
-        item = itm;
-        num = Num;
-    }
-    Item *item;
-    int num;
-};
 
 class BlockTextureFaces {
 public:
@@ -87,12 +59,13 @@ class Block
 public:
     Block();
 
-    void getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
-    void getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
+    void getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const;
+    void getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const;
 
     void SetAvgTexColors();
 
-    BlockIdentifier name;
+    BlockIdentifier sID;
+    nString name;
     ui16 ID;
     ui16 burnTransformID;
     i16 waveEffect;
@@ -136,7 +109,7 @@ public:
     bool isSupportive;
     bool active;
 
-    BlockTexture* textures[6];
+    BlockMaterial* textures[6];
     nString texturePaths[6];
    
     // TODO(BEN): a bit redudant isn't it?
@@ -152,7 +125,6 @@ public:
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;
 
     std::vector <ColorRGB8> altColors;
-    std::vector <ItemDrop> itemDrops;
 };
 KEG_TYPE_DECL(Block);
 

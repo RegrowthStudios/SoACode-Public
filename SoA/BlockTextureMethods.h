@@ -18,7 +18,7 @@
 #include <functional>
 
 class ChunkMesher;
-class BlockTextureLayer;
+class BlockMaterialLayer;
 class BlockPack;
 
 typedef ui32 BlockTextureIndex;
@@ -34,13 +34,13 @@ public:
         offset = Offset;
     }
 
-    void set(const BlockTextureLayer* blockTextureLayer, ColorRGB8& Color) {
+    void set(const BlockMaterialLayer* blockTextureLayer, ColorRGB8& Color) {
         blockTexInfo = blockTextureLayer;
         color = &Color;
     }
 
     const ChunkMesher* chunkMesher = nullptr;
-    const BlockTextureLayer* blockTexInfo = nullptr;
+    const BlockMaterialLayer* blockTexInfo = nullptr;
     i32 rightDir;
     i32 upDir;
     i32 frontDir;

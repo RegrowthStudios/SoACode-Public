@@ -4,11 +4,11 @@
 #include "ChunkMesh.h"
 
 class BlockPack;
-class BlockTextureLayer;
+class BlockMaterialLayer;
 class Chunk;
 class ChunkMeshData;
 class RenderTask;
-struct BlockTexture;
+struct BlockMaterial;
 struct PlanetHeightData;
 
 // Sizes For A Padded Chunk
