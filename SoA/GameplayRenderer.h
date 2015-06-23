@@ -80,6 +80,8 @@ public:
 
     void dispose(StaticLoadContext& context);
 
+    void reloadShaders();
+
     void updateGL();
 
     /// Renders the pipeline.

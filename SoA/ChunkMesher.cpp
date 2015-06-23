@@ -30,6 +30,8 @@ const int MAXLIGHT = 31;
 
 #define QUAD_SIZE 7
 
+#define USE_AO
+
 void ChunkMesher::init(const BlockPack* blocks) {
     m_blocks = blocks;
 }
@@ -73,41 +75,86 @@ bool ChunkMesher::shouldRenderFace(int offset) {
     if ((neighbor.occlude == BlockOcclusion::SELF) && (m_blockID == neighbor.ID)) return false;
     return true;
 }
+
+int ChunkMesher::getOcclusion(const Block& block) {
+    if (block.occlude == BlockOcclusion::ALL) return 1;
+    if ((block.occlude == BlockOcclusion::SELF) && (m_blockID == block.ID)) return 1;
+    return 0;
+}
+
 void ChunkMesher::addBlock()
 {
     ColorRGB8 color, overlayColor;
     int textureIndex, overlayTextureIndex;
 
-    GLfloat ambientOcclusion[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    f32 ao[4];
 
     // Check the faces
-// Left
-if (shouldRenderFace(-1)) {
-    addQuad((int)vvox::Cardinal::X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2);
-}
+    // Left
+    if (shouldRenderFace(-1)) {
+        computeAmbientOcclusion(-1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ao);
+        addQuad((int)vvox::Cardinal::X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2, ao);
+    }
     // Right
     if (shouldRenderFace(1)) {
-        addQuad((int)vvox::Cardinal::X_POS, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 0);
+        computeAmbientOcclusion(1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ao);
+        addQuad((int)vvox::Cardinal::X_POS, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 0, ao);
     }
     // Bottom
-    if (shouldRenderFace(-PADDED_CHUNK_LAYER)) {
-        addQuad((int)vvox::Cardinal::Y_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 2);
+    if (shouldRenderFace(-PADDED_CHUNK_LAYER)) { 
+        computeAmbientOcclusion(-PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ao);
+        addQuad((int)vvox::Cardinal::Y_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 2, ao);
     }
     // Top
     if (shouldRenderFace(PADDED_CHUNK_LAYER)) {
-        addQuad((int)vvox::Cardinal::Y_POS, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 0);
+        computeAmbientOcclusion(PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, -1, ao);
+        addQuad((int)vvox::Cardinal::Y_POS, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 0, ao);
     }
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
-        addQuad((int)vvox::Cardinal::Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0);
+        computeAmbientOcclusion(-PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, -1, ao);
+        addQuad((int)vvox::Cardinal::Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ao);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
-        addQuad((int)vvox::Cardinal::Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2);
+        computeAmbientOcclusion(PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 1, ao);
+        addQuad((int)vvox::Cardinal::Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2, ao);
     }
 }
 
-void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex) {
+void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]) {
+
+    // Ambient occlusion factor
+#define OCCLUSION_FACTOR 0.2f;
+    // Helper macro
+    // TODO(Ben): This isn't exactly right since self will occlude. Use a function
+#define CALCULATE_VERTEX(v, s1, s2) \
+    nearOccluders = getOcclusion(m_blocks->operator[](m_blockData[blockIndex])) + \
+    getOcclusion(m_blocks->operator[](m_blockData[blockIndex s1 frontOffset])) + \
+    getOcclusion(m_blocks->operator[](m_blockData[blockIndex s2 rightOffset])) + \
+    getOcclusion(m_blocks->operator[](m_blockData[blockIndex s1 frontOffset s2 rightOffset])); \
+    ambientOcclusion[v] = 1.0f - nearOccluders * OCCLUSION_FACTOR; 
+   
+    // Move the block index upwards
+    int blockIndex = m_blockIndex + upOffset;
+    int nearOccluders; ///< For ambient occlusion
+
+    // TODO(Ben): I know for a fact the inputs are wrong for some faces
+
+    // Vertex 0
+    CALCULATE_VERTEX(0, -, -)
+
+    // Vertex 1
+    CALCULATE_VERTEX(1, +, -)
+
+    // Vertex 2
+    CALCULATE_VERTEX(2, +, +)
+
+    // Vertex 3
+    CALCULATE_VERTEX(3, -, +)
+}
+
+void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, f32 ambientOcclusion[]) {
     // Get color
     // TODO(Ben): Flags?
     color3 blockColor[2];
@@ -123,12 +170,22 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     quads.emplace_back();
     m_numQuads++;
     VoxelQuad* quad = &quads.back();
-    quad->v0.isActive = true; // Useful for later
+    quad->v0.mesherFlags = MESH_FLAG_ACTIVE; // Useful for later
     for (int i = 0; i < 4; i++) {
         quad->verts[i].position = VoxelMesher::VOXEL_POSITIONS[face][i] + m_voxelPosOffset;
+#ifdef USE_AO
+        f32& ao = ambientOcclusion[i];
+        quad->verts[i].color.r = (ui8)(blockColor[0].r * ao);
+        quad->verts[i].color.g = (ui8)(blockColor[0].g * ao);
+        quad->verts[i].color.b = (ui8)(blockColor[0].b * ao);
+        quad->verts[i].overlayColor.r = (ui8)(blockColor[1].r * ao);
+        quad->verts[i].overlayColor.g = (ui8)(blockColor[1].g * ao);
+        quad->verts[i].overlayColor.b = (ui8)(blockColor[1].b * ao);
+#else
         quad->verts[i].color = blockColor[0];
         quad->verts[i].overlayColor = blockColor[1];
-        quad->verts[i].face = face;
+#endif
+        quad->verts[i].face = (ui8)face;
     }
 
     // TODO(Ben): Think about this more
@@ -140,37 +197,49 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
     // Look-Behind Greedy Merging(tm)
-    ui16 leftIndex = m_quadIndices[m_blockIndex + leftOffset][face];
-    // Check left merge
-    if (leftIndex != NO_QUAD_INDEX) {
-        VoxelQuad& lQuad = quads[leftIndex];
-        if (lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1 &&
-            lQuad.v2 == quad->v2 && lQuad.v3 == quad->v3) {
-            lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
-            lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
-            quads.pop_back();
-            m_numQuads--;
-            quadIndex = leftIndex;
-            quad = &lQuad;
+    if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
+        ui16 leftIndex = m_quadIndices[m_blockIndex + leftOffset][face];
+        // Check left merge
+        if (leftIndex != NO_QUAD_INDEX) {
+            VoxelQuad& lQuad = quads[leftIndex];
+            if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
+                lQuad.v0.position.z == quad->v0.position.z &&
+                lQuad.v1.position.z == quad->v1.position.z &&
+                lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
+                // Stretch the previous quad
+                lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
+                lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
+                // Remove the current quad
+                quads.pop_back();
+                m_numQuads--;
+                quadIndex = leftIndex;
+                quad = &lQuad;
+            }
         }
     }
     // Check back merge
-    int n2 = m_quadIndices[m_blockIndex + backOffset][face];
-    if (n2 != NO_QUAD_INDEX) {
-        VoxelQuad* bQuad = &quads[n2];
-        while (!bQuad->v0.isActive) {
-            n2 = bQuad->replaceQuad;
-            bQuad = &quads[n2];
-        }
-        if (bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
-            bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis]) {
-            bQuad->v0.position[frontAxis] += QUAD_SIZE;
-            bQuad->v3.position[frontAxis] += QUAD_SIZE;
-            quadIndex = n2;
-            // Mark as not in use
-            quad->v0.isActive = false;
-            quad->replaceQuad = n2;
-            m_numQuads--;
+    if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
+        int backIndex = m_quadIndices[m_blockIndex + backOffset][face];
+        if (backIndex != NO_QUAD_INDEX) {
+            VoxelQuad* bQuad = &quads[backIndex];
+            while (!(bQuad->v0.mesherFlags & MESH_FLAG_ACTIVE)) {
+                backIndex = bQuad->replaceQuad;
+                bQuad = &quads[backIndex];
+            }
+            if (((bQuad->v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
+                bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
+                bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
+                bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
+                bQuad->v0.position[frontAxis] += QUAD_SIZE;
+                bQuad->v3.position[frontAxis] += QUAD_SIZE;
+                quadIndex = backIndex;
+                // Mark as not in use
+                quad->v0.mesherFlags = 0;
+                quad->replaceQuad = backIndex;
+                m_numQuads--;
+            }
         }
     }
       
@@ -637,7 +706,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask)
         int tmp = index;
         for (int j = 0; j < quads.size(); j++) {
             VoxelQuad& q = quads[j];
-            if (q.v0.isActive) {
+            if (q.v0.mesherFlags & MESH_FLAG_ACTIVE) {
                 finalQuads[index++] = q;
             }
         }

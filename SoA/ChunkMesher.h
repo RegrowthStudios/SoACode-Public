@@ -31,13 +31,15 @@ public:
     ChunkMeshData* chunkMeshData = nullptr;
 private:
     void addBlock();
-    void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex);
+    void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, f32 ambientOcclusion[]);
+    void computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
     void addFlora();
     void addLiquid(MesherInfo& mi);
 
     int getLiquidLevel(int blockIndex, const Block& block);
 
     bool shouldRenderFace(int offset);
+    int getOcclusion(const Block& block);
 
     std::vector<BlockVertex> m_finalVerts[6];
 

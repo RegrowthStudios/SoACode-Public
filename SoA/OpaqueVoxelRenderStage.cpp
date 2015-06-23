@@ -28,7 +28,7 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
 
     if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
-                                                             "Shaders/BlockShading/standardShading.frag");
+                                                        "Shaders/BlockShading/standardShading.frag");
         m_program.use();
         glUniform1i(m_program.getUniform("unTextures"), 0);
     }
@@ -43,7 +43,7 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blocks->texture.id);
 
-    glUniform1f(m_program.getUniform("unSunVal"), m_gameRenderParams->sunlightIntensity);
+    //glUniform1f(m_program.getUniform("unSunVal"), m_gameRenderParams->sunlightIntensity);
 
     f32 blockAmbient = 0.000f;
     glUniform3f(m_program.getUniform("unAmbientLight"), blockAmbient, blockAmbient, blockAmbient);
@@ -63,11 +63,15 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
             // TODO(Ben): Implement perfect fade
             cm->inFrustum = 1;
             ChunkRenderer::drawOpaque(cm, m_program, position,
-                                           m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+                                      m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
         } else {
             cm->inFrustum = 0;
         }
     }
     m_program.disableVertexAttribArrays();
     m_program.unuse();
+}
+
+void OpaqueVoxelRenderStage::dispose(StaticLoadContext& context) {
+    m_program.dispose();
 }

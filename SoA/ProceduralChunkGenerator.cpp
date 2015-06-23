@@ -29,6 +29,9 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
     VoxelPosition3D voxPosition = chunk->getVoxelPosition();
 
+    // TODO(Ben): This is hardcoded for ruby (see blockmapping.ini)
+    ui16 testID = 43;
+
     // Grab the handles to the arrays
     std::vector<IntervalTree<ui16>::LNode> blockDataArray;
     std::vector<IntervalTree<ui16>::LNode> tertiaryDataArray;
@@ -89,8 +92,10 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
               //  }
 
                 // TODO(Ben): Just for mesh testing purposes
-                if (y < 2) {
-                    blockData = 2;
+                if ((int)(voxPosition.pos.y / 32) % 5 == 0) {
+                    if (y < 2 || (y < 5 && x % 3 == 0 && z % 3 == 0)) {
+                        blockData = testID;
+                    }
                 }
 
                 // Set up the data arrays

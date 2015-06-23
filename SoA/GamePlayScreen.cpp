@@ -112,6 +112,11 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 /// This update function runs on the render thread
 void GameplayScreen::update(const vui::GameTime& gameTime) {
 
+    if (m_shouldReloadShaders) {
+        m_renderer.reloadShaders();
+        m_shouldReloadShaders = false;
+    }
+
     m_spaceSystemUpdater->glUpdate(m_soaState);
 
     // TODO(Ben): Move to glUpdate for voxel component
@@ -376,7 +381,7 @@ void GameplayScreen::updateThreadFunc() {
 
 void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Reloading Shaders\n");
-    //m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
+    m_shouldReloadShaders = true;
 }
 void GameplayScreen::onReloadTarget(Sender s, ui32 a) {
     m_shouldReloadTarget = true;

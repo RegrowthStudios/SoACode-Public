@@ -21,49 +21,51 @@ public:
     ubyte color[4];
 };
 
+const ui8 MESH_FLAG_ACTIVE = 0x1;
+const ui8 MESH_FLAG_MERGE_RIGHT = 0x2;
+const ui8 MESH_FLAG_MERGE_FRONT = 0x4;
+
 // Size: 32 Bytes
 struct BlockVertex {
     union {
-        struct {  //3 bytes  << 1
+        struct {
             ui8 x;
             ui8 y;
             ui8 z;
         };
         UNIONIZE(ui8v3 position);
     };
-    ui8 textureType; //4   
-
-    //   10 = overlay 
-    //  100 = animated overlay 
-    // 1000 = normal map
-    //10000 = specular map
-    UNIONIZE(ui8v2 tex); //6 
-    ui8 animationLength; //7
-    ui8 blendMode; //8
-
-    ui8 textureAtlas; //9
-    ui8 overlayTextureAtlas; //10
-    ui8 textureIndex; //11
-    ui8 overlayTextureIndex; //12
-
-    ui8 textureWidth; //13
-    ui8 textureHeight; //14
-    ui8 overlayTextureWidth; //15;
-    ui8 overlayTextureHeight; //16
-
-    // Have to use struct since color3 has constructor
-    UNIONIZE(color3 color); // 19
-    ui8 waveEffect; //20
-
-    UNIONIZE(color3 overlayColor); //23
-    ui8 pad2; //24
-
-    UNIONIZE(color3 lampColor); //27
-    ui8 sunlight; //28
-
     ui8 face;
-    ui8 paddingg[2];
-    bool isActive; //32 // Helpful during the meshing process.
+
+    UNIONIZE(ui8v2 tex);
+    ui8 animationLength;
+    ui8 blendMode;
+
+    ui8 textureAtlas;
+    ui8 overlayTextureAtlas;
+    ui8 textureIndex;
+    ui8 overlayTextureIndex;
+    
+    ui8 nrmAtlas;
+    ui8 dispAtlas;
+    ui8 nrmIndex;
+    ui8 dispIndex;
+
+    ui8 overlayNrmAtlas;
+    ui8 overlayDispAtlas;
+    ui8 overlayNrmIndex;
+    ui8 overlayDispIndex;
+
+    ui8 textureWidth;
+    ui8 textureHeight;
+    ui8 overlayTextureWidth;
+    ui8 overlayTextureHeight;
+
+    UNIONIZE(color3 color);
+    ui8 mesherFlags;
+
+    UNIONIZE(color3 overlayColor);
+    ui8 padding;
 
     // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.
     bool operator==(const BlockVertex& rhs) const {

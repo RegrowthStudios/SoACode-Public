@@ -81,6 +81,12 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
     m_swapChain.dispose();
 }
 
+void GameplayRenderer::reloadShaders() {
+    // TODO(Ben): More
+    StaticLoadContext context;
+    stages.opaqueVoxel.dispose(context);
+}
+
 void GameplayRenderer::load(StaticLoadContext& context) {
     m_isLoaded = false;
 
