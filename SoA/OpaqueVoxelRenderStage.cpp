@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Chunk.h"
 #include "BlockPack.h"
+#include "BlockTexturePack.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
@@ -41,7 +42,8 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blocks->texture.id);
+    glUniform1i(m_program.getUniform("unTextures"), 0); // TODO(Ben): Temporary
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blockTexturePack->getAtlasTexture());
 
     //glUniform1f(m_program.getUniform("unSunVal"), m_gameRenderParams->sunlightIntensity);
 

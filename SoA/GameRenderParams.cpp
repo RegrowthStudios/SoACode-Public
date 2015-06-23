@@ -13,10 +13,12 @@ void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        f64 voxelWorldRadius,
                                        ChunkMeshManager* ChunkMeshmanager,
                                        BlockPack* blocks,
+                                       BlockTexturePack* blockTexturePack,
                                        bool IsUnderwater) {
     chunkCamera = ChunkCamera;
     isUnderwater = IsUnderwater;
     this->blocks = blocks;
+    this->blockTexturePack = blockTexturePack;
 
     chunkMeshmanager = ChunkMeshmanager;
 
@@ -27,6 +29,7 @@ void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
     f32 theta = 1.0f;
     calculateFog(theta, isUnderwater);
     calculateSunlight(theta);
+    sunlightColor = f32v3(1.0f);
 }
 
 void GameRenderParams::calculateFog(float theta, bool isUnderwater) {

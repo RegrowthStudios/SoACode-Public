@@ -3,6 +3,7 @@
 
 #include <Vorb/graphics/GLProgram.h>
 #include "BlockPack.h"
+#include "BlockTexturePack.h"
 #include "Camera.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
@@ -45,7 +46,7 @@ void TransparentVoxelRenderStage::render(const Camera* camera) {
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blocks->texture.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blockTexturePack->getAtlasTexture());
 
     glUniform1f(m_program.getUniform("dt"), (GLfloat)1.0f);
 

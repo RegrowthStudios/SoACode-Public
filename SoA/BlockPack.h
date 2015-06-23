@@ -77,7 +77,6 @@ public:
     const std::vector<Block>& getBlockList() const { return m_blockList; }
 
     Event<ui16> onBlockAddition; ///< Signaled when a block is loaded
-    vg::Texture texture; // TODO(Ben): Move?
 private:
     std::unordered_map<BlockIdentifier, ui16> m_blockMap; ///< Blocks indices organized by identifiers
     std::vector<Block> m_blockList; ///< Block data list

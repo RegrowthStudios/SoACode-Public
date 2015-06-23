@@ -44,6 +44,15 @@ const int Y_POS = (int)vvox::Cardinal::Y_POS;
 const int Z_NEG = (int)vvox::Cardinal::Z_NEG;
 const int Z_POS = (int)vvox::Cardinal::Z_POS;
 
+#define UV_0 128
+#define UV_1 129
+
+// Meshing constants
+//0 = x, 1 = y, 2 = z
+const int FACE_AXIS[6][2] = { { 2, 1 }, { 2, 1 }, { 0, 2 }, { 0, 2 }, { 0, 1 }, { 0, 1 } };
+
+const int FACE_AXIS_SIGN[6][2] = { { 1, 1 }, { -1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 }, { 1, 1 } };
+
 void ChunkMesher::init(const BlockPack* blocks) {
     this->blocks = blocks;
 
@@ -83,7 +92,6 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
         m_quads[i].clear();
     }
 
-    int waveEffect;
     // CONST?
     Chunk* chunk = renderTask->chunk;
 
@@ -150,7 +158,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
     for (int i = 0; i < 6; i++) {
         std::vector<VoxelQuad>& quads = m_quads[i];
         int tmp = index;
-        for (int j = 0; j < quads.size(); j++) {
+        for (size_t j = 0; j < quads.size(); j++) {
             VoxelQuad& q = quads[j];
             if (q.v0.mesherFlags & MESH_FLAG_ACTIVE) {
                 finalQuads[index++] = q;
@@ -325,7 +333,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
     ambientOcclusion[v] = 1.0f - nearOccluders * OCCLUSION_FACTOR; 
    
     // Move the block index upwards
-    int blockIndex = blockIndex + upOffset;
+    int blockIndex = this->blockIndex + upOffset;
     int nearOccluders; ///< For ambient occlusion
 
     // TODO(Ben): I know for a fact the inputs are wrong for some faces
@@ -359,9 +367,17 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
 
     // Get texturing parameters
     ui8 blendMode = getBlendMode(texture->blendMode);
+    // TODO(Ben): Get an offset instead?
     BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
     BlockTextureIndex overlayTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[0]);
-
+    ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
+    ui8 overlayTextureAtlas = (ui8)(overlayTextureIndex / ATLAS_SIZE);
+    baseTextureIndex %= ATLAS_SIZE;
+    overlayTextureIndex %= ATLAS_SIZE;
+    i32v3 pos(bx, by, bz);
+    ui8 uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
+    ui8 vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
+    
     // Construct the quad
     i16 quadIndex = quads.size();
     quads.emplace_back();
@@ -383,6 +399,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.color = blockColor[0];
         v.overlayColor = blockColor[1];
 #endif
+        v.textureIndex = baseTextureIndex;
+        v.textureAtlas = baseTextureAtlas;
+        v.overlayTextureIndex = overlayTextureIndex;
+        v.overlayTextureAtlas = overlayTextureAtlas;
         v.textureWidth = (ui8)texture->base.size.x;
         v.textureHeight = (ui8)texture->base.size.y;
         v.overlayTextureWidth = (ui8)texture->overlay.size.x;
@@ -390,6 +410,15 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.blendMode = blendMode;
         v.face = (ui8)face;
     }
+    // Set texture coordinates
+    quad->verts[0].tex[0] = UV_0 + uOffset;
+    quad->verts[0].tex[1] = UV_1 + vOffset;
+    quad->verts[1].tex[0] = UV_0 + uOffset;
+    quad->verts[1].tex[1] = UV_0 + vOffset;
+    quad->verts[2].tex[0] = UV_1 + uOffset;
+    quad->verts[2].tex[1] = UV_0 + vOffset;
+    quad->verts[3].tex[0] = UV_1 + uOffset;
+    quad->verts[3].tex[1] = UV_1 + vOffset;
 
     // Check against lowest and highest for culling in render
     // TODO(Ben): Think about this more

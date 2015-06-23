@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Chunk.h"
 #include "BlockPack.h"
+#include "BlockTexturePack.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
@@ -37,7 +38,7 @@ void SonarRenderStage::render(const Camera* camera) {
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blocks->texture.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blockTexturePack->getAtlasTexture());
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
 

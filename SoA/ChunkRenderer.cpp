@@ -197,19 +197,19 @@ void ChunkRenderer::buildVao(ChunkMesh& cm)
         glEnableVertexAttribArray(i);
     }
 
-    //position + texture type
+    // vPosition_TextureType
     glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
-    //UV, animation, blendmode
+    // vTex_Animation_BlendMode
     glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
-    //textureAtlas_textureIndex
+    // vTextureAtlas_TextureIndex
     glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
-    //Texture dimensions
+    // vTexDims
     glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
-    //color
+    // vColor
     glVertexAttribPointer(4, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
-    //overlayColor
+    // vOverlayColor
     glVertexAttribPointer(5, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
-    //face
+    // vFace
     glVertexAttribIPointer(6, 1, GL_UNSIGNED_BYTE, sizeof(BlockVertex), offsetptr(BlockVertex, face));
 
     glBindVertexArray(0);
