@@ -375,9 +375,9 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     baseTextureIndex %= ATLAS_SIZE;
     overlayTextureIndex %= ATLAS_SIZE;
     i32v3 pos(bx, by, bz);
-    ui8 uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
-    ui8 vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
-    
+    int uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
+    int vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
+
     // Construct the quad
     i16 quadIndex = quads.size();
     quads.emplace_back();
@@ -411,14 +411,14 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.face = (ui8)face;
     }
     // Set texture coordinates
-    quad->verts[0].tex[0] = UV_0 + uOffset;
-    quad->verts[0].tex[1] = UV_1 + vOffset;
-    quad->verts[1].tex[0] = UV_0 + uOffset;
-    quad->verts[1].tex[1] = UV_0 + vOffset;
-    quad->verts[2].tex[0] = UV_1 + uOffset;
-    quad->verts[2].tex[1] = UV_0 + vOffset;
-    quad->verts[3].tex[0] = UV_1 + uOffset;
-    quad->verts[3].tex[1] = UV_1 + vOffset;
+    quad->verts[0].tex.x = (ui8)(UV_0 + uOffset);
+    quad->verts[0].tex.y = (ui8)(UV_1 + vOffset);
+    quad->verts[1].tex.x = (ui8)(UV_0 + uOffset);
+    quad->verts[1].tex.y = (ui8)(UV_0 + vOffset);
+    quad->verts[2].tex.x = (ui8)(UV_1 + uOffset);
+    quad->verts[2].tex.y = (ui8)(UV_0 + vOffset);
+    quad->verts[3].tex.x = (ui8)(UV_1 + uOffset);
+    quad->verts[3].tex.y = (ui8)(UV_1 + vOffset);
 
     // Check against lowest and highest for culling in render
     // TODO(Ben): Think about this more
@@ -442,7 +442,9 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
                     lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
                     // Stretch the previous quad
                     lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
+                    lQuad.verts[rightStretchIndex].tex.x++;
                     lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
+                    lQuad.verts[rightStretchIndex + 1].tex.x++;
                     // Remove the current quad
                     quads.pop_back();
                     m_numQuads--;
@@ -466,7 +468,9 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
                     bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
                     bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
                     bQuad->v0.position[frontAxis] += QUAD_SIZE;
+                    bQuad->v0.tex.y++;
                     bQuad->v3.position[frontAxis] += QUAD_SIZE;
+                    bQuad->v3.tex.y++;
                     quadIndex = backIndex;
                     // Mark as not in use
                     quad->v0.mesherFlags = 0;
