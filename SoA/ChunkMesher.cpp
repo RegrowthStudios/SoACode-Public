@@ -369,7 +369,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     ui8 blendMode = getBlendMode(texture->blendMode);
     // TODO(Ben): Get an offset instead?
     BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex overlayTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[0]);
+    BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[1]);
     ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
     ui8 overlayTextureAtlas = (ui8)(overlayTextureIndex / ATLAS_SIZE);
     baseTextureIndex %= ATLAS_SIZE;

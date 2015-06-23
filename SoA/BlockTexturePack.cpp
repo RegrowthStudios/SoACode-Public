@@ -27,6 +27,9 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
         width >>= 1;
         m_mipLevels++;
     }
+
+    // Set up first page for default textures
+    flagDirtyPage(0);
 }
 
 // TODO(Ben): Lock?
@@ -195,6 +198,7 @@ void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {
         m_pages.resize(pageIndex + 1);
         for (; i < m_pages.size(); i++) {
             m_pages[i].pixels = new color4[m_pageWidthPixels * m_pageWidthPixels];
+            memset(m_pages[i].pixels, 0, m_pageWidthPixels * m_pageWidthPixels * sizeof(color4));
         }
         m_needsRealloc = true;    
     }
