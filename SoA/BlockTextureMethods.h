@@ -17,7 +17,7 @@
 
 #include <functional>
 
-class MesherInfo;
+class ChunkMesher;
 class BlockTextureLayer;
 class BlockPack;
 
@@ -26,8 +26,8 @@ typedef ui32 BlockTextureIndex;
 class BlockTextureMethodParams {
 public:
 
-    void init(MesherInfo* mi, i32 RightDir, i32 UpDir, i32 FrontDir, i32 Offset) {
-        mesherInfo = mi;
+    void init(ChunkMesher* cm, i32 RightDir, i32 UpDir, i32 FrontDir, i32 Offset) {
+        chunkMesher = cm;
         rightDir = RightDir;
         upDir = UpDir;
         frontDir = FrontDir;
@@ -39,7 +39,7 @@ public:
         color = &Color;
     }
 
-    const MesherInfo* mesherInfo = nullptr;
+    const ChunkMesher* chunkMesher = nullptr;
     const BlockTextureLayer* blockTexInfo = nullptr;
     i32 rightDir;
     i32 upDir;

@@ -29,39 +29,47 @@ public:
     static void bindVBOIndicesID();
 
     ChunkMeshData* chunkMeshData = nullptr;
+
+    int bx, by, bz; // Block iterators
+    int blockIndex;
+    ui16 blockID;
+    const Block* block;
+    const PlanetHeightData* heightData;
+    ui8v3 voxelPosOffset;
+
+    // Voxel data arrays
+    ui16 blockData[PADDED_CHUNK_SIZE];
+    ui16 tertiaryData[PADDED_CHUNK_SIZE];
+
+    const BlockPack* blocks = nullptr;
 private:
     void addBlock();
     void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, f32 ambientOcclusion[]);
     void computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
     void addFlora();
-    void addLiquid(MesherInfo& mi);
+    void addLiquid();
 
     int getLiquidLevel(int blockIndex, const Block& block);
 
     bool shouldRenderFace(int offset);
     int getOcclusion(const Block& block);
 
+    ui8 getBlendMode(const BlendType& blendType);
+
+    ui16 m_quadIndices[PADDED_CHUNK_SIZE][6];
+    ui16 m_wvec[CHUNK_SIZE];
+
     std::vector<BlockVertex> m_finalVerts[6];
 
     std::vector<VoxelQuad> m_quads[6];
     ui32 m_numQuads;
 
+    BlockTextureMethodParams m_textureMethodParams[6][2];
+
     std::vector<BlockVertex> _vboVerts;
     std::vector<BlockVertex> _transparentVerts;
     std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
-
-    //Dimensions of the voxel data, based on LOD
-    int m_dataWidth;
-    int m_dataLayer;
-    int m_dataSize;
-
-    int bx, by, bz; // Block iterators
-    int m_blockIndex;
-    ui16 m_blockID;
-    const Block* m_block;
-    const PlanetHeightData* m_heightData;
-    ui8v3 m_voxelPosOffset;
 
     int m_highestY;
     int m_lowestY;
@@ -74,15 +82,9 @@ private:
     std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
 
     int wSize;
-    // Voxel data arrays
-    ui16 m_quadIndices[PADDED_CHUNK_SIZE][6];
-    ui16 m_wvec[CHUNK_SIZE];
-    ui16 m_blockData[PADDED_CHUNK_SIZE];
-    ui16 m_tertiaryData[PADDED_CHUNK_SIZE];
 
     ui32 m_finalQuads[7000];
 
     BlockVertex m_topVerts[4100];
 
-    const BlockPack* m_blocks = nullptr;
 };

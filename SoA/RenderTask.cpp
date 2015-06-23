@@ -100,11 +100,11 @@ void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
     i32v3 pos;
 
     ui16* wvec = chunkMesher->m_wvec;
-    ui16* chData = chunkMesher->m_blockData;
-    ui16* chTertiaryData = chunkMesher->m_tertiaryData;
+    ui16* chData = chunkMesher->blockData;
+    ui16* chTertiaryData = chunkMesher->tertiaryData;
 
-    memset(chData, 0, sizeof(chunkMesher->m_blockData));
-    memset(chTertiaryData, 0, sizeof(chunkMesher->m_tertiaryData));
+    memset(chData, 0, sizeof(chunkMesher->blockData));
+    memset(chTertiaryData, 0, sizeof(chunkMesher->tertiaryData));
 
     chunkMesher->wSize = 0;
     chunkMesher->chunk = chunk;
