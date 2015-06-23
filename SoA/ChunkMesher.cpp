@@ -51,7 +51,7 @@ const int Z_POS = (int)vvox::Cardinal::Z_POS;
 //0 = x, 1 = y, 2 = z
 const int FACE_AXIS[6][2] = { { 2, 1 }, { 2, 1 }, { 0, 2 }, { 0, 2 }, { 0, 1 }, { 0, 1 } };
 
-const int FACE_AXIS_SIGN[6][2] = { { 1, 1 }, { -1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 }, { 1, 1 } };
+const int FACE_AXIS_SIGN[6][2] = { { 1, 1 }, { -1, 1 }, { 1, 1 }, { -1, 1 }, { -1, 1 }, { 1, 1 } };
 
 void ChunkMesher::init(const BlockPack* blocks) {
     this->blocks = blocks;
