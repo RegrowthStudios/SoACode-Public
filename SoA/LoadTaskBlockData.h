@@ -36,7 +36,7 @@ public:
         }
         context->addWorkCompleted(10);
         // Uncomment to Save in .yml
-       // BlockLoader::saveBlocks("Data/Blocks/SavedBlockData.yml", blockPack);
+        BlockLoader::saveBlocks("Data/Blocks/SavedBlockData.yml", blockPack);
 
         //{ // For use in pressure explosions
         //    Block visitedNode = Blocks[0];

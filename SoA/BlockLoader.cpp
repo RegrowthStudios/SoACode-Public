@@ -58,6 +58,9 @@ bool BlockLoader::loadBlocks(const vio::IOManager& iom, BlockPack* pack) {
     return true;
 }
 
+// Conditional keg write
+#define COND_WRITE_KEG(key, var) if (b.##var != d.##var) { writer.push(keg::WriterParam::KEY) << nString(key); writer.push(keg::WriterParam::VALUE) << b.##var; } 
+
 bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     // Open the portal to Hell
     std::ofstream file(filePath);
@@ -73,18 +76,78 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
             sortMap[b.sID] = &b;
         }
     }
+    // Default block
+    Block d;
     // Emit data
     keg::YAMLWriter writer;
     writer.push(keg::WriterParam::BEGIN_MAP);
     for (auto& it : sortMap) {
-        const Block* b = it.second;
+        const Block& b = *it.second;
 
         // Write the block name first
-        writer.push(keg::WriterParam::KEY) << b->sID;
+        writer.push(keg::WriterParam::KEY) << b.sID;
         // Write the block data now
         writer.push(keg::WriterParam::VALUE);
         writer.push(keg::WriterParam::BEGIN_MAP);
-        keg::write((ui8*)b, writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
+
+        COND_WRITE_KEG("allowsLight", allowLight);
+        COND_WRITE_KEG("collide", collide);
+        COND_WRITE_KEG("crushable", isCrushable);
+        COND_WRITE_KEG("explosionPower", explosivePower);
+        COND_WRITE_KEG("explosionPowerLoss", explosionPowerLoss);
+        COND_WRITE_KEG("explosionRays", explosionRays);
+        COND_WRITE_KEG("explosionResistance", explosionResistance);
+        COND_WRITE_KEG("flammability", flammability);
+        COND_WRITE_KEG("floatingAction", floatingAction);
+        COND_WRITE_KEG("lightColorFilter", colorFilter);
+        if (b.meshType != d.meshType) {
+            writer.push(keg::WriterParam::KEY) << nString("meshType");
+            switch (b.meshType) {
+                case MeshType::NONE:
+                    writer.push(keg::WriterParam::VALUE) << nString("none");
+                    break;
+                case MeshType::BLOCK:
+                    writer.push(keg::WriterParam::VALUE) << nString("cube");
+                    break;
+                case MeshType::LEAVES:
+                    writer.push(keg::WriterParam::VALUE) << nString("leaves");
+                    break;
+                case MeshType::FLORA:
+                    writer.push(keg::WriterParam::VALUE) << nString("triangle");
+                    break;
+                case MeshType::CROSSFLORA:
+                    writer.push(keg::WriterParam::VALUE) << nString("cross");
+                    break;
+                case MeshType::LIQUID:
+                    writer.push(keg::WriterParam::VALUE) << nString("liquid");
+                    break;
+                case MeshType::FLAT:
+                    writer.push(keg::WriterParam::VALUE) << nString("flat");
+                    break;
+            }
+        }
+        COND_WRITE_KEG("moveMod", moveMod);
+        COND_WRITE_KEG("name", name);
+        switch (b.occlude) {
+            case BlockOcclusion::NONE:
+                writer.push(keg::WriterParam::KEY) << nString("occlusion");
+                writer.push(keg::WriterParam::VALUE) << nString("none");
+                break;
+            case BlockOcclusion::SELF:
+                writer.push(keg::WriterParam::KEY) << nString("occlusion");
+                writer.push(keg::WriterParam::VALUE) << nString("self");
+                break;
+            case BlockOcclusion::SELF_ONLY:
+                writer.push(keg::WriterParam::KEY) << nString("occlusion");
+                writer.push(keg::WriterParam::VALUE) << nString("selfOnly");
+                break;
+        }
+        COND_WRITE_KEG("sinkVal", sinkVal);
+        COND_WRITE_KEG("spawnerVal", spawnerVal);
+        COND_WRITE_KEG("supportive", isSupportive);
+        COND_WRITE_KEG("waterBreak", waterBreak);
+
+        //keg::write((ui8*)b, writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(Block));
         writer.push(keg::WriterParam::END_MAP);
         
     }

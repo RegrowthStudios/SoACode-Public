@@ -30,6 +30,8 @@ class BlockTextureLoader {
 public:
     void init(ModPathResolver* texturePathResolver, BlockTexturePack* texturePack);
 
+    void loadTextureData();
+
     void loadBlockTextures(Block& block);
 
     BlockTexture* loadTexture(const nString& filePath);
@@ -39,6 +41,9 @@ private:
     bool loadLayer(BlockTextureLayer& layer);
     bool loadTexFile(const nString& imagePath, BlockTexture* texture);
     bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
+
+
+    std::map<nString, BlockTextureLayer> m_layers;
 
     ModPathResolver* m_texturePathResolver = nullptr;
     BlockTexturePack* m_texturePack = nullptr;

@@ -20,6 +20,10 @@ void BlockTextureLoader::init(ModPathResolver* texturePathResolver, BlockTexture
     m_texturePack = texturePack;
 }
 
+void BlockTextureLoader::loadTextureData() {
+
+}
+
 void BlockTextureLoader::loadBlockTextures(Block& block) {
     // Default values for texture indices
     for (i32 i = 0; i < 6; i++) {
