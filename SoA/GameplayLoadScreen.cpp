@@ -73,7 +73,7 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
         SoaEngine::setPlanetBlocks(m_commonState->state);
         m_commonState->state->blockTextures->update();
         m_commonState->state->blockTextures->writeDebugAtlases();
-        m_commonState->state->blockTextures->save();
+        m_commonState->state->blockTextures->save(&m_commonState->state->blocks);
         m_state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
     }

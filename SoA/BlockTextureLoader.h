@@ -23,22 +23,22 @@ DECL_VG(class ScopedBitmapResource)
 class Block;
 class BlockTexturePack;
 class ModPathResolver;
-class BlockMaterialLayer;
-struct BlockMaterial;
+class BlockTextureLayer;
+struct BlockTexture;
 
-class BlockMaterialLoader {
+class BlockTextureLoader {
 public:
     void init(ModPathResolver* texturePathResolver, BlockTexturePack* texturePack);
 
-    void loadBlockMaterials(Block& block);
+    void loadBlockTextures(Block& block);
 
-    BlockMaterial* loadMaterial(const nString& filePath);
+    BlockTexture* loadTexture(const nString& filePath);
 
     void dispose();
 private:
-    bool loadLayer(BlockMaterialLayer& layer);
-    bool loadTexFile(const nString& imagePath, BlockMaterial* texture);
-    bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockMaterialLayer& layer);
+    bool loadLayer(BlockTextureLayer& layer);
+    bool loadTexFile(const nString& imagePath, BlockTexture* texture);
+    bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
 
     ModPathResolver* m_texturePathResolver = nullptr;
     BlockTexturePack* m_texturePack = nullptr;

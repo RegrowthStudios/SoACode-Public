@@ -53,7 +53,7 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
 }
 
 /// "less than" operator for inserting into sets in TexturePackLoader
-bool BlockMaterialLayer::operator<(const BlockMaterialLayer& b) const {
+bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
 
     // Helper macro for checking if !=
 #define LCHECK(a) if (a < b.##a) { return true; } else if (a > b.##a) { return false; }
@@ -115,7 +115,7 @@ lightColor(0, 0, 0) {
     colorFilter = f32v3(1.0f);
 }
 
-void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const
+void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
@@ -145,7 +145,7 @@ void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags,
     }
 }
 
-void Block::getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const
+void Block::getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "BlockMaterialLoader.h"
+#include "BlockTextureLoader.h"
 #include "ModPathResolver.h"
 #include "BlockTexturePack.h"
 #include "BlockData.h"
@@ -15,12 +15,12 @@
 #define HORIZONTAL_WIDTH 4
 #define HORIZONTAL_HEIGHT 1
 
-void BlockMaterialLoader::init(ModPathResolver* texturePathResolver, BlockTexturePack* texturePack) {
+void BlockTextureLoader::init(ModPathResolver* texturePathResolver, BlockTexturePack* texturePack) {
     m_texturePathResolver = texturePathResolver;
     m_texturePack = texturePack;
 }
 
-void BlockMaterialLoader::loadBlockMaterials(Block& block) {
+void BlockTextureLoader::loadBlockTextures(Block& block) {
     // Default values for texture indices
     for (i32 i = 0; i < 6; i++) {
         block.base[i] = 0;
@@ -30,7 +30,7 @@ void BlockMaterialLoader::loadBlockMaterials(Block& block) {
 
     // Load the textures for each face
     for (int i = 0; i < 6; i++) {
-        block.textures[i] = loadMaterial(block.texturePaths[i]); // TODO(Ben): Free the string?
+        block.textures[i] = loadTexture(block.texturePaths[i]); // TODO(Ben): Free the string?
         if (block.textures[i]) {
             block.base[i] = block.textures[i]->base.index;
             block.overlay[i] = block.textures[i]->overlay.index;
@@ -55,9 +55,9 @@ void BlockMaterialLoader::loadBlockMaterials(Block& block) {
     }
 }
 
-BlockMaterial* BlockMaterialLoader::loadMaterial(const nString& filePath) {
+BlockTexture* BlockTextureLoader::loadTexture(const nString& filePath) {
     // Check for cached texture
-    BlockMaterial* exists = m_texturePack->findTexture(filePath);
+    BlockTexture* exists = m_texturePack->findTexture(filePath);
     if (exists) return exists;
 
     // Resolve the path
@@ -65,13 +65,13 @@ BlockMaterial* BlockMaterialLoader::loadMaterial(const nString& filePath) {
     if (!m_texturePathResolver->resolvePath(filePath, path)) return nullptr;
 
     // Get next free texture
-    BlockMaterial* texture = m_texturePack->getNextFreeTexture();
+    BlockTexture* texture = m_texturePack->getNextFreeTexture(filePath);
 
     // Load the tex file (if it exists)
     loadTexFile(path.getString(), texture);
 
     // If there wasn't an explicit override base path, we use the texturePath
-    if (texture->base.path.empty()) texture->base.path = path.getString();
+    if (texture->base.path.empty()) texture->base.path = filePath;
 
     // Load the layers
     loadLayer(texture->base);
@@ -82,7 +82,7 @@ BlockMaterial* BlockMaterialLoader::loadMaterial(const nString& filePath) {
     return texture;
 }
 
-bool BlockMaterialLoader::loadLayer(BlockMaterialLayer& layer) {
+bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
     AtlasTextureDescription desc = m_texturePack->findLayer(layer.path);
     // Check if its already been loaded
     if (desc.size.x != 0) {
@@ -91,8 +91,10 @@ bool BlockMaterialLoader::loadLayer(BlockMaterialLayer& layer) {
         layer.size = desc.size;
         layer.index = desc.index;
     } else {
+        vio::Path path;
+        if (!m_texturePathResolver->resolvePath(layer.path, path)) return nullptr;
         // Get pixels for the base texture
-        vg::ScopedBitmapResource rs = vg::ImageIO().load(layer.path, vg::ImageIOFormat::RGBA_UI8);
+        vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
         // Do post processing on the layer
         if (!postProcessLayer(rs, layer)) return false;
 
@@ -101,7 +103,7 @@ bool BlockMaterialLoader::loadLayer(BlockMaterialLayer& layer) {
     return true;
 }
 
-bool BlockMaterialLoader::loadTexFile(const nString& imagePath, BlockMaterial* texture) {
+bool BlockTextureLoader::loadTexFile(const nString& imagePath, BlockTexture* texture) {
     // Convert .png to .tex
     nString texFileName = imagePath;
     texFileName.replace(texFileName.end() - 4, texFileName.end(), ".tex");
@@ -136,10 +138,14 @@ bool BlockMaterialLoader::loadTexFile(const nString& imagePath, BlockMaterial* t
     return false;
 }
 
-bool BlockMaterialLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockMaterialLayer& layer) {
+bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer) {
 
     ui32 floraRows;
     const ui32& resolution = m_texturePack->getResolution();
+
+    layer.size.x = bitmap.width / resolution;
+    layer.size.y = bitmap.height / resolution;
+    // TODO(Ben): Floraheight
 
     // Helper for checking dimensions
 #define DIM_CHECK(w, cw, h, ch, method) \
@@ -195,28 +201,28 @@ bool BlockMaterialLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Blo
         case ConnectedTextureMethods::REPEAT:
             DIM_CHECK(width, layer.size.x, bitmap.height, layer.size.y, REPEAT);
             break;
-        case ConnectedTextureMethods::FLORA:
-            floraRows = BlockMaterialLayer::getFloraRows(layer.floraHeight);
-            if (bitmap.height != resolution * floraRows) {
-                pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
-                       std::to_string(bitmap.height) + " but it is " + std::to_string(resolution * floraRows));
-                return false;
-            }
-            // If no weights, they are all equal
-            if (layer.weights.size() == 0) {
-                layer.totalWeight = bitmap.width / resolution;
-            } else { // Need to check if there is the right number of weights
-                if (layer.weights.size() * resolution != bitmap.width) {
-                    pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
-                           std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / resolution) + " columns.");
-                    return false;
-                }
-            }
-            // Tile dimensions and count
-            layer.size.x = bitmap.width / resolution;
-            layer.size.y = floraRows;
-            layer.numTiles = layer.size.x * layer.size.y;
-            break;
+        //case ConnectedTextureMethods::FLORA:
+        //    floraRows = BlockTextureLayer::getFloraRows(layer.floraHeight);
+        //    if (bitmap.height != resolution * floraRows) {
+        //        pError("Texture " + layer.path + " texture height must be equal to (maxFloraHeight^2 + maxFloraHeight) / 2 * resolution = " +
+        //               std::to_string(bitmap.height) + " but it is " + std::to_string(resolution * floraRows));
+        //        return false;
+        //    }
+        //    // If no weights, they are all equal
+        //    if (layer.weights.size() == 0) {
+        //        layer.totalWeight = bitmap.width / resolution;
+        //    } else { // Need to check if there is the right number of weights
+        //        if (layer.weights.size() * resolution != bitmap.width) {
+        //            pError("Texture " + layer.path + " weights length must match number of columns or be empty. weights.length() = " +
+        //                   std::to_string(layer.weights.size()) + " but there are " + std::to_string(bitmap.width / resolution) + " columns.");
+        //            return false;
+        //        }
+        //    }
+        //    // Tile dimensions and count
+        //    layer.size.x = bitmap.width / resolution;
+        //    layer.size.y = floraRows;
+        //    layer.numTiles = layer.size.x * layer.size.y;
+        //    break;
         case ConnectedTextureMethods::NONE:
             DIM_CHECK(bitmap.width, 1, bitmap.height, 1, NONE);
             break;

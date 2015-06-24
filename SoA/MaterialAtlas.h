@@ -1,6 +1,6 @@
 #pragma once
 
-class MaterialAtlas {
+class TextureAtlas {
 public:
 
 };

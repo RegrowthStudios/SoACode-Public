@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "BlockTexturePack.h"
 
+#include "BlockPack.h" // TEMPORARY
+#include "BlockTexture.h"
+
 #include <SDL/SDL.h>
 
 #include "Errors.h"
@@ -18,7 +21,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     m_resolution = resolution;
     m_pageWidthPixels = m_resolution * m_stitcher.getTilesPerRow();
     m_maxTextures = maxTextures;
-    m_textures = new BlockMaterial[maxTextures];
+    m_textures = new BlockTexture[maxTextures];
     m_nextFree = 0;
     // Calculate max mipmap level
     m_mipLevels = 0;
@@ -33,7 +36,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 }
 
 // TODO(Ben): Lock?
-void BlockTexturePack::addLayer(BlockMaterialLayer& layer, color4* pixels) {
+void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
     // Map the texture
     int firstPageIndex;
     int lastPageIndex;
@@ -107,6 +110,7 @@ void BlockTexturePack::addLayer(BlockMaterialLayer& layer, color4* pixels) {
     AtlasTextureDescription tex;
     tex.index = layer.index;
     tex.size = layer.size;
+    tex.temp = layer;
     m_descLookup[layer.path] = tex;
 }
 
@@ -118,7 +122,7 @@ AtlasTextureDescription BlockTexturePack::findLayer(const nString& filePath) {
     return {};
 }
 
-BlockMaterial* BlockTexturePack::findTexture(const nString& filePath) {
+BlockTexture* BlockTexturePack::findTexture(const nString& filePath) {
     auto& it = m_textureLookup.find(filePath);
     if (it != m_textureLookup.end()) {
         return &m_textures[it->second];
@@ -127,8 +131,9 @@ BlockMaterial* BlockTexturePack::findTexture(const nString& filePath) {
 }
 // Returns a pointer to the next free block texture and increments internal counter.
 // Will crash if called more than m_maxTextures times.
-BlockMaterial* BlockTexturePack::getNextFreeTexture() {
+BlockTexture* BlockTexturePack::getNextFreeTexture(const nString& filePath) {
     if (m_nextFree >= m_maxTextures) pError("m_nextFree >= m_maxTextures in BlockTexturePack::getNextFreeTexture");
+    m_textureLookup[filePath] = m_nextFree;
     return &m_textures[m_nextFree++];
 }
 
@@ -191,8 +196,104 @@ void BlockTexturePack::dispose() {
     m_textures = nullptr;
 }
 
-void BlockTexturePack::save() {
+void BlockTexturePack::save(BlockPack* blockPack) {
 
+    std::map<BlockTextureLayer, nString> shittyLookup1;
+    std::map<nString, BlockTextureLayer> shittyLookup2;
+
+    { // TextureProperties.yml
+        std::map<nString, std::pair<BlockTextureLayer, BlockTextureLayer> > matMap;
+
+        // Save layers
+        for (auto& it : m_descLookup) {
+            it.second;
+        }
+
+        std::ofstream file("Data/Blocks/LayerProperties.yml");
+
+        for (auto& it : m_descLookup) {
+            vio::Path path(it.second.temp.path);
+            nString string = path.getLeaf();
+            while (string.back() != '.') string.pop_back();
+            string.pop_back();
+            shittyLookup2[string] = it.second.temp;
+        }
+
+        // Emit data
+        keg::YAMLWriter writer;
+        writer.push(keg::WriterParam::BEGIN_MAP);
+        for (auto& it : shittyLookup2) {
+            shittyLookup1[it.second] = it.first;
+            // Write the block name first
+            writer.push(keg::WriterParam::KEY) << it.first;
+            // Write the block data now
+            writer.push(keg::WriterParam::VALUE);
+            writer.push(keg::WriterParam::BEGIN_MAP);
+            keg::write((ui8*)&it.second, writer, keg::getGlobalEnvironment(), &KEG_GLOBAL_TYPE(BlockTextureLayer));
+            writer.push(keg::WriterParam::END_MAP);
+
+        }
+        writer.push(keg::WriterParam::END_MAP);
+
+        file << writer.c_str();
+        file.flush();
+        file.close();
+    }
+    {
+        std::ofstream file("Data/Blocks/Textures.yml");
+
+        // Emit data
+        keg::YAMLWriter writer;
+        writer.push(keg::WriterParam::BEGIN_MAP);
+        for (auto& it : m_textureLookup) {
+            BlockTexture& b = m_textures[it.second];
+            
+            vio::Path path(it.first);
+            nString string = path.getLeaf();
+            while (string.back() != '.') string.pop_back();
+            string.pop_back();
+
+            // Write the block name first
+            writer.push(keg::WriterParam::KEY) << string;
+            // Write the block data now
+            writer.push(keg::WriterParam::VALUE);
+            writer.push(keg::WriterParam::BEGIN_MAP);
+            writer.push(keg::WriterParam::KEY) << nString("base");
+            writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.base];
+            if (b.overlay.index) {
+                writer.push(keg::WriterParam::KEY) << nString("overlay");
+                writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.overlay];
+            }
+            if (b.blendMode != BlendType::ALPHA) {
+                writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                switch (b.blendMode) {
+                    case BlendType::ADD:
+                        writer.push(keg::WriterParam::VALUE) << nString("add");
+                        break;
+                    case BlendType::MULTIPLY:
+                        writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                        break;
+                    case BlendType::SUBTRACT:
+                        writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                        break;
+                }
+            }
+            writer.push(keg::WriterParam::END_MAP);
+        }
+        writer.push(keg::WriterParam::END_MAP);
+
+        file << writer.c_str();
+        file.flush();
+        file.close();
+    }
+
+    /*   const std::vector<Block>& blockList = blockPack->getBlockList();
+       for (int i = 0; i < blockList.size(); i++) {
+       const Block& b = blockList[i];
+       if (b.active) {
+       matMap[b.sID] = std::make_pair()
+       }
+       }*/
 }
 
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {

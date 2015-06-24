@@ -8,7 +8,7 @@
 
 #include "CAEngine.h"
 #include "ChunkMesh.h"
-#include "BlockMaterial.h"
+#include "BlockTexture.h"
 #include "Constants.h"
 #include "Rendering.h"
 #include "Item.h"
@@ -59,8 +59,8 @@ class Block
 public:
     Block();
 
-    void getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const;
-    void getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockMaterial* blockTexture) const;
+    void getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
+    void getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
 
     void SetAvgTexColors();
 
@@ -109,7 +109,7 @@ public:
     bool isSupportive;
     bool active;
 
-    BlockMaterial* textures[6];
+    BlockTexture* textures[6];
     nString texturePaths[6];
    
     // TODO(BEN): a bit redudant isn't it?

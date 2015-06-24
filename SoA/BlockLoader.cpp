@@ -78,9 +78,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     writer.push(keg::WriterParam::BEGIN_MAP);
     for (auto& it : sortMap) {
         const Block* b = it.second;
-        // TODO(Ben): TEMPORARY
-        const_cast<Block*>(b)->name = b->sID;
-      
+
         // Write the block name first
         writer.push(keg::WriterParam::KEY) << b->sID;
         // Write the block data now

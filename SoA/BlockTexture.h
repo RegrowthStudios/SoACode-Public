@@ -53,7 +53,7 @@ enum class BlendType {
 };
 KEG_ENUM_DECL(BlendType);
 
-class BlockMaterialLayer {
+class BlockTextureLayer {
 public:
     static ui32 getFloraRows(ui32 floraMaxHeight) {
         return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
@@ -110,15 +110,22 @@ public:
     BlockTextureFunc blockTextureFunc = BlockTextureMethods::getDefaultTextureIndex;
 
     /// "less than" operator for inserting into sets in TexturePackLoader
-    bool operator<(const BlockMaterialLayer& b) const;
+    bool operator<(const BlockTextureLayer& b) const;
+    bool operator==(const BlockTextureLayer& b) const {
+        return method == b.method && size == b.size && symmetry == b.symmetry &&
+            reducedMethod == b.reducedMethod && useMapColor == b.useMapColor &&
+            averageColor == b.averageColor && floraHeight == b.floraHeight &&
+            totalWeight == b.totalWeight && numTiles == b.numTiles && index == b.index &&
+            innerSeams == b.innerSeams && transparency == b.transparency && path == b.path;
+    }
 };
-KEG_TYPE_DECL(BlockMaterialLayer);
+KEG_TYPE_DECL(BlockTextureLayer);
 
-struct BlockMaterial {
-    BlockMaterialLayer base;
-    BlockMaterialLayer overlay;
+struct BlockTexture {
+    BlockTextureLayer base;
+    BlockTextureLayer overlay;
     BlendType blendMode = BlendType::ALPHA;
 };
-KEG_TYPE_DECL(BlockMaterial);
+KEG_TYPE_DECL(BlockTexture);
 
 #endif // BlockTexture_h__

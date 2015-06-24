@@ -4,7 +4,7 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "LoadMonitor.h"
-#include "BlockMaterialLoader.h"
+#include "BlockTextureLoader.h"
 #include "LoadContext.h"
 
 #include <Vorb/io/IOManager.h>
@@ -12,7 +12,7 @@
 // This is hacky and temporary, it does way to much
 class LoadTaskBlockData : public ILoadTask {
 public:
-    LoadTaskBlockData(BlockPack* blockPack, BlockMaterialLoader* loader, StaticLoadContext* context) :
+    LoadTaskBlockData(BlockPack* blockPack, BlockTextureLoader* loader, StaticLoadContext* context) :
         blockPack(blockPack), loader(loader), context(context) {
         context->addAnticipatedWork(50, 0);
     }
@@ -31,12 +31,12 @@ public:
         for (int i = 0; i < blockPack->size(); i++) {
             Block& b = blockPack->operator[](i);
             if (b.active) {
-                loader->loadBlockMaterials(b);
+                loader->loadBlockTextures(b);
             }
         }
         context->addWorkCompleted(10);
         // Uncomment to Save in .yml
-        BlockLoader::saveBlocks("Data/Blocks/SavedBlockData.yml", blockPack);
+       // BlockLoader::saveBlocks("Data/Blocks/SavedBlockData.yml", blockPack);
 
         //{ // For use in pressure explosions
         //    Block visitedNode = Blocks[0];
@@ -47,6 +47,6 @@ public:
 
     }
     BlockPack* blockPack;
-    BlockMaterialLoader* loader;
+    BlockTextureLoader* loader;
     StaticLoadContext* context;
 };
