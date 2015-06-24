@@ -21,8 +21,8 @@ void BlockTextureLoader::init(ModPathResolver* texturePathResolver, BlockTexture
 }
 
 void BlockTextureLoader::loadTextureData() {
-    loadLayerProperties();
-    loadTextures();
+    if (!loadLayerProperties()) pError("Failed to load LayerProperties.yml");
+    if (!loadTextureProperties()) pError("Failed to load Textures.yml");
     loadBlockTextureMapping();
 }
 
@@ -120,15 +120,81 @@ bool BlockTextureLoader::loadLayerProperties() {
     context.reader.forAllInMap(node, f);
     delete f;
     context.reader.dispose();
+
+    return true;
 }
 
-bool BlockTextureLoader::loadTextures() {
+bool BlockTextureLoader::loadTextureProperties() {
+    vio::Path path;
+    if (!m_texturePathResolver->resolvePath("Textures.yml", path)) return nullptr;
 
+    // Read file
+    nString data;
+    m_iom.readFileToString(path, data);
+    if (data.empty()) return false;
+
+    // Convert to YAML
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        context.reader.dispose();
+        return false;
+    }
+
+    BlockTexture* texture;
+    auto valf = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        
+        if (key == "base") {
+            if (keg::getType(value) == keg::NodeType::MAP) {
+                // TODO(Ben): Handle map
+            } else {
+                nString base = keg::convert<nString>(value);
+                auto& it = m_layers.find(base);
+                if (it != m_layers.end()) {
+                    texture->base = it->second;
+                }
+            }
+        } else if (key == "overlay") {
+            if (keg::getType(value) == keg::NodeType::MAP) {
+                // TODO(Ben): Handle map
+            } else {
+                nString overlay = keg::convert<nString>(value);
+                auto& it = m_layers.find(overlay);
+                if (it != m_layers.end()) {
+                    texture->overlay = it->second;
+                }
+            }
+        } else if (key == "blendMode") {
+            nString v = keg::convert<nString>(value);
+            if (v == "add") {
+                texture->blendMode = BlendType::ADD;
+            } else if (v == "multiply") {
+                texture->blendMode = BlendType::MULTIPLY;
+            } else if (v == "subtract") {
+                texture->blendMode = BlendType::SUBTRACT;
+            }
+        }
+    });
+
+    // Load all layers
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        texture = m_texturePack->getNextFreeTexture(key);
+        context.reader.forAllInMap(value, valf);
+    });
+    context.reader.forAllInMap(node, f);
+    delete f;
+    context.reader.dispose();
+    delete valf;
+
+    return true;
 }
 
 
 bool BlockTextureLoader::loadBlockTextureMapping() {
 
+    return true;
 }
 
 bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {

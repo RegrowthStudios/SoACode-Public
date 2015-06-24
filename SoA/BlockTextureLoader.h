@@ -39,12 +39,11 @@ public:
     void dispose();
 private:
     bool loadLayerProperties();
-    bool loadTextures();
+    bool loadTextureProperties();
     bool loadBlockTextureMapping();
     bool loadLayer(BlockTextureLayer& layer);
     bool loadTexFile(const nString& imagePath, BlockTexture* texture);
     bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
-
 
     std::map<nString, BlockTextureLayer> m_layers;
 
