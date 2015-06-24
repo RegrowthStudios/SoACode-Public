@@ -21,7 +21,9 @@ void BlockTextureLoader::init(ModPathResolver* texturePathResolver, BlockTexture
 }
 
 void BlockTextureLoader::loadTextureData() {
-
+    loadLayerProperties();
+    loadTextures();
+    loadBlockTextureMapping();
 }
 
 void BlockTextureLoader::loadBlockTextures(Block& block) {
@@ -84,6 +86,49 @@ BlockTexture* BlockTextureLoader::loadTexture(const nString& filePath) {
     }
 
     return texture;
+}
+
+bool BlockTextureLoader::loadLayerProperties() {
+    vio::Path path;
+    if (!m_texturePathResolver->resolvePath("LayerProperties.yml", path)) return nullptr;
+
+    // Read file
+    nString data;
+    m_iom.readFileToString(path, data);
+    if (data.empty()) return false;
+
+    // Convert to YAML
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        context.reader.dispose();
+        return false;
+    }
+
+    // Load all layers
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        BlockTextureLayer layer;
+
+        // Load data
+        keg::parse((ui8*)&layer, value, context, &KEG_GLOBAL_TYPE(BlockTextureLayer));
+
+        // Cache the layer
+        m_layers[key] = layer;
+    });
+    context.reader.forAllInMap(node, f);
+    delete f;
+    context.reader.dispose();
+}
+
+bool BlockTextureLoader::loadTextures() {
+
+}
+
+
+bool BlockTextureLoader::loadBlockTextureMapping() {
+
 }
 
 bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {

@@ -38,6 +38,9 @@ public:
 
     void dispose();
 private:
+    bool loadLayerProperties();
+    bool loadTextures();
+    bool loadBlockTextureMapping();
     bool loadLayer(BlockTextureLayer& layer);
     bool loadTexFile(const nString& imagePath, BlockTexture* texture);
     bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
