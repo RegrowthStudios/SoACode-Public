@@ -86,8 +86,17 @@ public:
         }
     }
 
-    BlockTextureIndex getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8 color) const {
-        BlockTextureIndex index = this->index;
+    // TODO(Ben): should it be ref color?
+    inline BlockTextureIndex getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
+        return getTextureIndex(params, this->index, color);
+    }
+    inline BlockTextureIndex getNormalTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
+        return getTextureIndex(params, this->normalIndex, color);
+    }
+    inline BlockTextureIndex getDispTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
+        return getTextureIndex(params, this->dispIndex, color);
+    }
+    inline BlockTextureIndex getTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex index, ColorRGB8& color) const {
         params.set(this, color);
         blockTextureFunc(params, index);
         return index;
@@ -104,9 +113,13 @@ public:
     ui32 totalWeight = 0;
     ui32 numTiles = 1;
     BlockTextureIndex index = 0;
+    BlockTextureIndex normalIndex = 0;
+    BlockTextureIndex dispIndex = 0;
     bool innerSeams = false;
     bool transparency = false;
     nString path = "";
+    nString normalPath = "";
+    nString dispPath = "";
     BlockTextureFunc blockTextureFunc = BlockTextureMethods::getDefaultTextureIndex;
 
     /// "less than" operator for inserting into sets in TexturePackLoader

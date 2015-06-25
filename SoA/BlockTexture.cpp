@@ -38,6 +38,8 @@ KEG_TYPE_DEF_SAME_NAME(BlockTextureLayer, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, useMapColor, STRING);
     kt.addValue("weights", keg::Value::array(offsetof(BlockTextureLayer, weights), keg::BasicType::I32));
     KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, path, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, normalPath, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, dispPath, STRING);
 }
 
 KEG_TYPE_DEF_SAME_NAME(BlockTexture, kt) {

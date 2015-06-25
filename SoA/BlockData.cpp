@@ -16,6 +16,7 @@ KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
 }
 
 KEG_TYPE_DEF_SAME_NAME(Block, kt) {
+    kt.addValue("ID", keg::Value::basic(offsetof(Block, temp), keg::BasicType::I32));
     kt.addValue("name", keg::Value::basic(offsetof(Block, name), keg::BasicType::STRING));
     kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::UI16));
     kt.addValue("waveEffect", keg::Value::basic(offsetof(Block, waveEffect), keg::BasicType::I16));

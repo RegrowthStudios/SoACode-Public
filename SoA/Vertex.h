@@ -46,14 +46,14 @@ struct BlockVertex {
     ui8 textureIndex;
     ui8 overlayTextureIndex;
     
-    ui8 nrmAtlas;
+    ui8 normAtlas;
+    ui8 overlayNormAtlas;
     ui8 dispAtlas;
-    ui8 nrmIndex;
-    ui8 dispIndex;
-
-    ui8 overlayNrmAtlas;
     ui8 overlayDispAtlas;
-    ui8 overlayNrmIndex;
+
+    ui8 normIndex;
+    ui8 overlayNormIndex;
+    ui8 dispIndex;
     ui8 overlayDispIndex;
 
     ui8 textureWidth;

@@ -36,82 +36,84 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 }
 
 // TODO(Ben): Lock?
-void BlockTexturePack::addLayer(BlockTextureLayer& layer, color4* pixels) {
+BlockTextureIndex BlockTexturePack::addLayer(const BlockTextureLayer& layer, const nString& path, color4* pixels) {
+    BlockTextureIndex rv = 0;
     // Map the texture
     int firstPageIndex;
     int lastPageIndex;
     switch (layer.method) {
         case ConnectedTextureMethods::CONNECTED:
-            layer.index = m_stitcher.mapContiguous(CONNECTED_TILES);
-            lastPageIndex = (layer.index + CONNECTED_TILES) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapContiguous(CONNECTED_TILES);
+            lastPageIndex = (rv + CONNECTED_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::RANDOM:
-            layer.index = m_stitcher.mapContiguous(layer.numTiles);
-            lastPageIndex = (layer.index + layer.numTiles) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapContiguous(layer.numTiles);
+            lastPageIndex = (rv + layer.numTiles) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::REPEAT:
-            layer.index = m_stitcher.mapBox(layer.size.x, layer.size.y);
-            lastPageIndex = (layer.index + (layer.size.y - 1) * m_stitcher.getTilesPerRow() + (layer.size.x - 1)) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapBox(layer.size.x, layer.size.y);
+            lastPageIndex = (rv + (layer.size.y - 1) * m_stitcher.getTilesPerRow() + (layer.size.x - 1)) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::GRASS:
-            layer.index = m_stitcher.mapContiguous(GRASS_TILES);
-            lastPageIndex = (layer.index + GRASS_TILES) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapContiguous(GRASS_TILES);
+            lastPageIndex = (rv + GRASS_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::HORIZONTAL:
-            layer.index = m_stitcher.mapContiguous(HORIZONTAL_TILES);
-            lastPageIndex = (layer.index + HORIZONTAL_TILES) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapContiguous(HORIZONTAL_TILES);
+            lastPageIndex = (rv + HORIZONTAL_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::VERTICAL:
-            layer.index = m_stitcher.mapContiguous(VERTICAL_TILES);
-            lastPageIndex = (layer.index + VERTICAL_TILES) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapContiguous(VERTICAL_TILES);
+            lastPageIndex = (rv + VERTICAL_TILES) / m_stitcher.getTilesPerPage();
             break;
         case ConnectedTextureMethods::FLORA:
-            layer.index = m_stitcher.mapContiguous(layer.numTiles);
-            lastPageIndex = (layer.index + layer.numTiles) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapContiguous(layer.numTiles);
+            lastPageIndex = (rv + layer.numTiles) / m_stitcher.getTilesPerPage();
             break;
         default:
-            layer.index = m_stitcher.mapSingle();
-            lastPageIndex = (layer.index + 1) / m_stitcher.getTilesPerPage();
+            rv = m_stitcher.mapSingle();
+            lastPageIndex = (rv + 1) / m_stitcher.getTilesPerPage();
             break;
     }
-    firstPageIndex = layer.index / m_stitcher.getTilesPerPage();
+    firstPageIndex = rv / m_stitcher.getTilesPerPage();
     flagDirtyPage(firstPageIndex);
     if (lastPageIndex != firstPageIndex) flagDirtyPage(lastPageIndex);
 
     // Copy data
     switch (layer.method) {
         case ConnectedTextureMethods::CONNECTED:
-            writeToAtlasContiguous(layer.index, pixels, 12, 4, CONNECTED_TILES);
+            writeToAtlasContiguous(rv, pixels, 12, 4, CONNECTED_TILES);
             break;
         case ConnectedTextureMethods::RANDOM:
-            writeToAtlasContiguous(layer.index, pixels, layer.numTiles, 1, layer.numTiles);
+            writeToAtlasContiguous(rv, pixels, layer.numTiles, 1, layer.numTiles);
             break;
         case ConnectedTextureMethods::REPEAT:
-            writeToAtlas(layer.index, pixels, m_resolution * layer.size.x, m_resolution * layer.size.y, 1);
+            writeToAtlas(rv, pixels, m_resolution * layer.size.x, m_resolution * layer.size.y, 1);
             break;
         case ConnectedTextureMethods::GRASS:
-            writeToAtlasContiguous(layer.index, pixels, 3, 3, GRASS_TILES);
+            writeToAtlasContiguous(rv, pixels, 3, 3, GRASS_TILES);
             break;
         case ConnectedTextureMethods::HORIZONTAL:
-            writeToAtlasContiguous(layer.index, pixels, HORIZONTAL_TILES, 1, HORIZONTAL_TILES);
+            writeToAtlasContiguous(rv, pixels, HORIZONTAL_TILES, 1, HORIZONTAL_TILES);
             break;
         case ConnectedTextureMethods::VERTICAL:
-            writeToAtlasContiguous(layer.index, pixels, 1, VERTICAL_TILES, VERTICAL_TILES);
+            writeToAtlasContiguous(rv, pixels, 1, VERTICAL_TILES, VERTICAL_TILES);
             break;
         case ConnectedTextureMethods::FLORA:
-            writeToAtlasContiguous(layer.index, pixels, layer.size.x, layer.size.y, layer.numTiles);
+            writeToAtlasContiguous(rv, pixels, layer.size.x, layer.size.y, layer.numTiles);
             break;
         default:
-            writeToAtlas(layer.index, pixels, m_resolution, m_resolution, 1);
+            writeToAtlas(rv, pixels, m_resolution, m_resolution, 1);
             break;
     }
 
     // Cache the texture description
     AtlasTextureDescription tex;
-    tex.index = layer.index;
+    tex.index = rv;
     tex.size = layer.size;
     tex.temp = layer;
-    m_descLookup[layer.path] = tex;
+    m_descLookup[path] = tex;
+    return rv;
 }
 
 AtlasTextureDescription BlockTexturePack::findLayer(const nString& filePath) {
@@ -203,6 +205,302 @@ nString getName(nString name) {
     while (name.back() != '.') name.pop_back();
     name.pop_back();
     return name;
+}
+
+void BlockTexturePack::save(BlockPack* blockPack) {
+
+    std::map<BlockTextureLayer, nString> shittyLookup1;
+    std::map<nString, BlockTextureLayer> shittyLookup2;
+
+
+    { // TextureProperties.yml
+        std::map<nString, std::pair<BlockTextureLayer, BlockTextureLayer> > matMap;
+
+        // Save layers
+        for (auto& it : m_descLookup) {
+            it.second;
+        }
+
+        std::ofstream file("Data/Blocks/LayerProperties.yml");
+
+        for (auto& it : m_descLookup) {
+            vio::Path path(it.second.temp.path);
+            nString string = path.getLeaf();
+            while (string.back() != '.') string.pop_back();
+            string.pop_back();
+            shittyLookup2[string] = it.second.temp;
+        }
+
+        // Emit data
+        keg::YAMLWriter writer;
+        writer.push(keg::WriterParam::BEGIN_MAP);
+        for (auto& it : shittyLookup2) {
+            BlockTextureLayer& l = it.second;
+            shittyLookup1[l] = it.first;
+            // Write the block name first
+            writer.push(keg::WriterParam::KEY) << it.first;
+            // Write the block data now
+            writer.push(keg::WriterParam::VALUE);
+            writer.push(keg::WriterParam::BEGIN_MAP);
+
+            writer.push(keg::WriterParam::KEY) << nString("path");
+            writer.push(keg::WriterParam::VALUE) << l.path;
+            if (l.innerSeams) {
+                writer.push(keg::WriterParam::KEY) << nString("innerSeams");
+                writer.push(keg::WriterParam::VALUE) << true;
+            }
+            if (l.method != ConnectedTextureMethods::NONE) {
+                writer.push(keg::WriterParam::KEY) << nString("method");
+                switch (l.method) {
+                    case ConnectedTextureMethods::CONNECTED:
+                        writer.push(keg::WriterParam::VALUE) << nString("connected");
+                        break;
+                    case ConnectedTextureMethods::HORIZONTAL:
+                        writer.push(keg::WriterParam::VALUE) << nString("horizontal");
+                        break;
+                    case ConnectedTextureMethods::VERTICAL:
+                        writer.push(keg::WriterParam::VALUE) << nString("vertical");
+                        break;
+                    case ConnectedTextureMethods::GRASS:
+                        writer.push(keg::WriterParam::VALUE) << nString("grass");
+                        break;
+                    case ConnectedTextureMethods::REPEAT:
+                        writer.push(keg::WriterParam::VALUE) << nString("repeat");
+                        break;
+                    case ConnectedTextureMethods::RANDOM:
+                        writer.push(keg::WriterParam::VALUE) << nString("random");
+                        break;
+                    case ConnectedTextureMethods::FLORA:
+                        writer.push(keg::WriterParam::VALUE) << nString("flora");
+                        break;
+                    default:
+                        writer.push(keg::WriterParam::VALUE) << nString("none");
+                        break;
+                }
+            }
+            if (l.transparency) {
+                writer.push(keg::WriterParam::KEY) << nString("transparency");
+                writer.push(keg::WriterParam::VALUE) << true;
+            }
+            if (l.useMapColor.size()) {
+                writer.push(keg::WriterParam::KEY) << nString("color");
+                writer.push(keg::WriterParam::VALUE) << l.useMapColor;
+            }
+            writer.push(keg::WriterParam::END_MAP);
+
+        }
+        writer.push(keg::WriterParam::END_MAP);
+
+        file << writer.c_str();
+        file.flush();
+        file.close();
+    }
+    {
+        std::ofstream file("Data/Blocks/Textures.yml");
+
+        // Emit data
+        keg::YAMLWriter writer;
+        writer.push(keg::WriterParam::BEGIN_MAP);
+        for (auto& it : m_textureLookup) {
+            BlockTexture& b = m_textures[it.second];
+            if (it.first.empty()) continue;
+            vio::Path path(it.first);
+            nString string = path.getLeaf();
+            while (string.back() != '.') string.pop_back();
+            string.pop_back();
+
+            // Write the block name first
+            writer.push(keg::WriterParam::KEY) << string;
+            // Write the block data now
+            writer.push(keg::WriterParam::VALUE);
+            writer.push(keg::WriterParam::BEGIN_MAP);
+            writer.push(keg::WriterParam::KEY) << nString("base");
+            writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.base];
+            if (b.overlay.index) {
+                writer.push(keg::WriterParam::KEY) << nString("overlay");
+                writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.overlay];
+            }
+            if (b.blendMode != BlendType::ALPHA) {
+                writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                switch (b.blendMode) {
+                    case BlendType::ADD:
+                        writer.push(keg::WriterParam::VALUE) << nString("add");
+                        break;
+                    case BlendType::MULTIPLY:
+                        writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                        break;
+                    case BlendType::SUBTRACT:
+                        writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                        break;
+                }
+            }
+            writer.push(keg::WriterParam::END_MAP);
+        }
+        writer.push(keg::WriterParam::END_MAP);
+
+        file << writer.c_str();
+        file.flush();
+        file.close();
+    }
+
+     { // BlockTextureMapping.yml
+         std::ofstream file("Data/Blocks/BlockTextureMapping.yml");
+
+         // Emit data
+         keg::YAMLWriter writer;
+         writer.push(keg::WriterParam::BEGIN_MAP);
+         
+         for (int i = 0; i < blockPack->size(); i++) {
+             const Block& b = blockPack->operator[](i);
+             nString name[6];
+             if (b.active) {
+                 // Write the block name first
+                 writer.push(keg::WriterParam::KEY) << b.sID;
+                 // Write the block data now
+                 writer.push(keg::WriterParam::VALUE);
+                 writer.push(keg::WriterParam::BEGIN_MAP);
+
+                 // I DON'T GIVE A FUCK
+                 if (b.textures[0]) {
+                     name[0] = "";
+                     for (auto& it : m_textureLookup) {
+                         BlockTexture& b2 = m_textures[it.second];
+                         if (b2.base == b.textures[0]->base && b2.overlay == b.textures[0]->overlay) {
+                             name[0] = getName(it.first);
+                             break;
+                         }
+                     }
+                    
+                 }
+                 if (b.textures[1]) {
+                     name[1] = "";
+                     for (auto& it : m_textureLookup) {
+                         BlockTexture& b2 = m_textures[it.second];
+                         if (b2.base == b.textures[1]->base && b2.overlay == b.textures[1]->overlay) {
+                             name[1] = getName(it.first);
+                             break;
+                         }
+                     }
+                     
+                 }
+                 if (b.textures[2]) {
+                     name[2] = "";
+                     for (auto& it : m_textureLookup) {
+                         BlockTexture& b2 = m_textures[it.second];
+                         if (b2.base == b.textures[2]->base && b2.overlay == b.textures[2]->overlay) {
+                             name[2] = getName(it.first);
+                             break;
+                         }
+                     }
+                     
+                 }
+                 if (b.textures[3]) {
+                     name[3] = "";
+                     for (auto& it : m_textureLookup) {
+                         BlockTexture& b2 = m_textures[it.second];
+                         if (b2.base == b.textures[3]->base && b2.overlay == b.textures[3]->overlay) {
+                             name[3] = getName(it.first);
+                             break;
+                         }
+                     }
+                   
+                 }
+                 if (b.textures[4]) {
+                     name[4] = "";
+                     for (auto& it : m_textureLookup) {
+                         BlockTexture& b2 = m_textures[it.second];
+                         if (b2.base == b.textures[4]->base && b2.overlay == b.textures[4]->overlay) {
+                             name[4] = getName(it.first);
+                             break;
+                         }
+                     }
+                   
+                 }
+                 if (b.textures[5]) {
+                     name[5] = "";
+                     for (auto& it : m_textureLookup) {
+                         BlockTexture& b2 = m_textures[it.second];
+                         if (b2.base == b.textures[5]->base && b2.overlay == b.textures[5]->overlay) {
+                             name[5] = getName(it.first);
+                             break;
+                         }
+                     }
+                   
+                 }
+
+                 if (name[0] == name[1] && name[1] == name[2] && name[2] == name[3] && name[3] == name[4] && name[4] == name[5]) {
+                     if (name[0].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("texture");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[0];
+                     }
+                 } else if (name[0] == name[1] && name[1] == name[4] && name[4] == name[5]) {
+                     if (name[0].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("texture");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[0];
+                     }
+                     if (name[2].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureBottom");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[2];
+                     }
+                     if (name[3].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureTop");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[3];
+                     }
+                 } else {
+                     if (name[0].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureLeft");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[0];
+                     }
+                     if (name[1].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureRight");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[1];
+                     }
+                     if (name[2].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureBottom");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[2];
+                     }
+                     if (name[3].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureTop");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[3];
+                     }
+                     if (name[4].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureBack");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[4];
+                     }
+                     if (name[5].size()) {
+                         writer.push(keg::WriterParam::KEY) << nString("textureFront");
+                         // Write the block data now
+                         writer.push(keg::WriterParam::VALUE) << name[5];
+                     }
+                 }
+
+                 writer.push(keg::WriterParam::END_MAP);
+             }
+         }
+
+         writer.push(keg::WriterParam::END_MAP);
+
+         file << writer.c_str();
+         file.flush();
+         file.close();
+     }
+
+    /*   const std::vector<Block>& blockList = blockPack->getBlockList();
+       for (int i = 0; i < blockList.size(); i++) {
+       const Block& b = blockList[i];
+       if (b.active) {
+       matMap[b.sID] = std::make_pair()
+       }
+       }*/
 }
 
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {

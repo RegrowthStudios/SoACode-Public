@@ -37,7 +37,7 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
     // Check for block mapping
     auto& it = m_blockMappings.find(block.sID);
     if (it == m_blockMappings.end()) {
-        printf("Warning: Could not load texture mapping for block %s\n", block.sID);
+        printf("Warning: Could not load texture mapping for block %s\n", block.sID.c_str());
         for (int i = 0; i < 6; i++) {
             block.textures[i] = m_texturePack->getDefaultTexture();
         }
@@ -55,7 +55,7 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
             }
             block.textures[i] = texture;
         } else {
-            printf("Warning: Could not load texture %d for block %s\n", i, block.sID);
+            printf("Warning: Could not load texture %d for block %s\n", i, block.sID.c_str());
             block.textures[i] = m_texturePack->getDefaultTexture();
             return;
         }
@@ -264,12 +264,29 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
     } else {
         vio::Path path;
         if (!m_texturePathResolver->resolvePath(layer.path, path)) return nullptr;
-        // Get pixels for the base texture
-        vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
-        // Do post processing on the layer
-        if (!postProcessLayer(rs, layer)) return false;
-
-        m_texturePack->addLayer(layer, (color4*)rs.bytesUI8v4);
+        { // Get pixels for the base texture
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
+            // Do post processing on the layer
+            if (!postProcessLayer(rs, layer)) return false;
+        
+            layer.index = m_texturePack->addLayer(layer, layer.path, (color4*)rs.bytesUI8v4);
+        }
+        // Normal map
+        if (layer.normalPath.size() && m_texturePathResolver->resolvePath(layer.normalPath, path)) {
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
+            // Do post processing on the layer
+            if (rs.data) {
+                layer.normalIndex = m_texturePack->addLayer(layer, layer.normalPath, (color4*)rs.bytesUI8v4);
+            }
+        }
+        // disp map
+        if (layer.dispPath.size() && m_texturePathResolver->resolvePath(layer.dispPath, path)) {
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
+            // Do post processing on the layer
+            if (rs.data) {
+                layer.dispIndex = m_texturePack->addLayer(layer, layer.dispPath, (color4*)rs.bytesUI8v4);
+            }
+        }
     }
     return true;
 }

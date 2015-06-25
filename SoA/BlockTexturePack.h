@@ -35,7 +35,7 @@ public:
     void init(ui32 resolution, ui32 maxTextures);
     // Maps the texture layer to the atlas and updates the index in layer.
     // Does not check if texture already exists
-    void addLayer(BlockTextureLayer& layer, color4* pixels);  
+    BlockTextureIndex addLayer(const BlockTextureLayer& layer, const nString& path, color4* pixels);
     // Tries to find the texture index. Returns empty description on fail.
     AtlasTextureDescription findLayer(const nString& filePath);
 
@@ -52,6 +52,9 @@ public:
     void writeDebugAtlases();
 
     void dispose();
+
+    // TODO(Ben): Possibly temporary
+    void save(BlockPack* blockPack);
 
     const VGTexture& getAtlasTexture() const { return m_atlasTexture; }
     const ui32& getResolution() const { return m_resolution; }

@@ -64,6 +64,8 @@ public:
 
     void SetAvgTexColors();
 
+    i32 temp;
+
     BlockIdentifier sID;
     nString name;
     ui16 ID;

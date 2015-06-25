@@ -367,13 +367,27 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
 
     // Get texturing parameters
     ui8 blendMode = getBlendMode(texture->blendMode);
-    // TODO(Ben): Get an offset instead?
+    // TODO(Ben): Make this better
     BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
+    BlockTextureIndex baseNormTextureIndex = texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
+    BlockTextureIndex baseDispTextureIndex = texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
     BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[1]);
+    BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
+    BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
+
+    // TODO(Ben): Bitwise ops?
     ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
+    ui8 baseNormTextureAtlas = (ui8)(baseNormTextureIndex / ATLAS_SIZE);
+    ui8 baseDispTextureAtlas = (ui8)(baseDispTextureIndex / ATLAS_SIZE);
     ui8 overlayTextureAtlas = (ui8)(overlayTextureIndex / ATLAS_SIZE);
+    ui8 overlayNormTextureAtlas = (ui8)(overlayNormTextureIndex / ATLAS_SIZE);
+    ui8 overlayDispTextureAtlas = (ui8)(overlayDispTextureIndex / ATLAS_SIZE);
     baseTextureIndex %= ATLAS_SIZE;
+    baseNormTextureIndex %= ATLAS_SIZE;
+    baseDispTextureIndex %= ATLAS_SIZE;
     overlayTextureIndex %= ATLAS_SIZE;
+    overlayNormTextureIndex %= ATLAS_SIZE;
+    overlayDispTextureIndex %= ATLAS_SIZE;
     i32v3 pos(bx, by, bz);
     int uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
     int vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
@@ -399,10 +413,20 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.color = blockColor[0];
         v.overlayColor = blockColor[1];
 #endif
+        // TODO(Ben) array?
         v.textureIndex = baseTextureIndex;
         v.textureAtlas = baseTextureAtlas;
+        v.normIndex = baseNormTextureIndex;
+        v.normAtlas = baseNormTextureAtlas;
+        v.dispIndex = baseDispTextureIndex;
+        v.dispAtlas = baseDispTextureAtlas;
         v.overlayTextureIndex = overlayTextureIndex;
         v.overlayTextureAtlas = overlayTextureAtlas;
+        v.overlayNormIndex = overlayNormTextureIndex;
+        v.overlayNormAtlas = overlayNormTextureAtlas;
+        v.overlayDispIndex = overlayDispTextureIndex;
+        v.overlayDispAtlas = overlayDispTextureAtlas;
+        
         v.textureWidth = (ui8)texture->base.size.x;
         v.textureHeight = (ui8)texture->base.size.y;
         v.overlayTextureWidth = (ui8)texture->overlay.size.x;

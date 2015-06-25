@@ -52,7 +52,7 @@ bool BlockLoader::loadBlocks(const vio::IOManager& iom, BlockPack* pack) {
 
     saveMapping(iom, BLOCK_MAPPING_PATH, pack);
     if (!useCache) {
-        saveBinary(iom, BINARY_CACHE_PATH, pack);
+   //     saveBinary(iom, BINARY_CACHE_PATH, pack);
     }
 
     return true;
@@ -127,7 +127,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
             }
         }
         COND_WRITE_KEG("moveMod", moveMod);
-        COND_WRITE_KEG("name", name);
+        COND_WRITE_KEG("name", sID); // TEMPORARY
         switch (b.occlude) {
             case BlockOcclusion::NONE:
                 writer.push(keg::WriterParam::KEY) << nString("occlusion");
