@@ -40,15 +40,12 @@ public:
 
     void loadBlockTextures(Block& block);
 
-    BlockTexture* loadTexture(const BlockIdentifier& sID);
-
     void dispose();
 private:
     bool loadLayerProperties();
     bool loadTextureProperties();
     bool loadBlockTextureMapping();
     bool loadLayer(BlockTextureLayer& layer);
-    bool loadTexFile(const nString& imagePath, BlockTexture* texture);
     bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
 
     std::map<nString, BlockTextureLayer> m_layers;

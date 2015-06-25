@@ -53,9 +53,6 @@ public:
 
     void dispose();
 
-    // TODO(Ben): Possibly temporary
-    void save(BlockPack* blockPack);
-
     const VGTexture& getAtlasTexture() const { return m_atlasTexture; }
     const ui32& getResolution() const { return m_resolution; }
 private:

@@ -76,33 +76,6 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
     }
 }
 
-BlockTexture* BlockTextureLoader::loadTexture(const BlockIdentifier& sID) {
-    // Check for cached texture
-    BlockTexture* exists = m_texturePack->findTexture(sID);
-    if (exists) return exists;
-
-    // Resolve the path
-    vio::Path path;
-    if (!m_texturePathResolver->resolvePath(sID, path)) return nullptr;
-
-    // Get next free texture
-    BlockTexture* texture = m_texturePack->getNextFreeTexture(sID);
-
-    // Load the tex file (if it exists)
-    loadTexFile(path.getString(), texture);
-
-    // If there wasn't an explicit override base path, we use the texturePath
-    if (texture->base.path.empty()) texture->base.path = sID;
-
-    // Load the layers
-    loadLayer(texture->base);
-    if (texture->overlay.path.size()) {
-        loadLayer(texture->overlay);
-    }
-
-    return texture;
-}
-
 bool BlockTextureLoader::loadLayerProperties() {
     vio::Path path;
     if (!m_texturePathResolver->resolvePath("LayerProperties.yml", path)) return nullptr;
@@ -299,41 +272,6 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
         m_texturePack->addLayer(layer, (color4*)rs.bytesUI8v4);
     }
     return true;
-}
-
-bool BlockTextureLoader::loadTexFile(const nString& imagePath, BlockTexture* texture) {
-    // Convert .png to .tex
-    nString texFileName = imagePath;
-    texFileName.replace(texFileName.end() - 4, texFileName.end(), ".tex");
-
-    nString data;
-    m_iom.readFileToString(texFileName.c_str(), data);
-    if (data.length()) {
-        if (keg::parse(texture, data.c_str(), "BlockTexture") == keg::Error::NONE) {
-            if (texture->base.weights.size() > 0) {
-                texture->base.totalWeight = 0;
-                for (size_t i = 0; i < texture->base.weights.size(); i++) {
-                    texture->base.totalWeight += texture->base.weights[i];
-                }
-            }
-            if (texture->overlay.weights.size() > 0) {
-                texture->overlay.totalWeight = 0;
-                for (size_t i = 0; i < texture->overlay.weights.size(); i++) {
-                    texture->overlay.totalWeight += texture->overlay.weights[i];
-                }
-            }
-
-            // Get ColorMaps
-            /* if (texture->base.useMapColor.length()) {
-                 texture->base.colorMap = getColorMap(texture->base.useMapColor);
-                 }
-                 if (texture->overlay.useMapColor.length()) {
-                 texture->overlay.colorMap = getColorMap(texture->overlay.useMapColor);
-                 }*/
-            return true;
-        }
-    }
-    return false;
 }
 
 bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer) {
