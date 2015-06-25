@@ -196,6 +196,15 @@ void BlockTexturePack::dispose() {
     m_textures = nullptr;
 }
 
+nString getName(nString name) {
+    if (name.empty()) return "";
+    vio::Path p(name);
+    name = p.getLeaf();
+    while (name.back() != '.') name.pop_back();
+    name.pop_back();
+    return name;
+}
+
 void BlockTexturePack::save(BlockPack* blockPack) {
 
     std::map<BlockTextureLayer, nString> shittyLookup1;
@@ -355,7 +364,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[0]->base && b2.overlay == b.textures[0]->overlay) {
-                             name[0] = it.first;
+                             name[0] = getName(it.first);
                              break;
                          }
                      }
@@ -366,7 +375,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[1]->base && b2.overlay == b.textures[1]->overlay) {
-                             name[1] = it.first;
+                             name[1] = getName(it.first);
                              break;
                          }
                      }
@@ -377,7 +386,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[2]->base && b2.overlay == b.textures[2]->overlay) {
-                             name[2] = it.first;
+                             name[2] = getName(it.first);
                              break;
                          }
                      }
@@ -388,7 +397,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[3]->base && b2.overlay == b.textures[3]->overlay) {
-                             name[3] = it.first;
+                             name[3] = getName(it.first);
                              break;
                          }
                      }
@@ -399,7 +408,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[4]->base && b2.overlay == b.textures[4]->overlay) {
-                             name[4] = it.first;
+                             name[4] = getName(it.first);
                              break;
                          }
                      }
@@ -410,7 +419,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[5]->base && b2.overlay == b.textures[5]->overlay) {
-                             name[5] = it.first;
+                             name[5] = getName(it.first);
                              break;
                          }
                      }

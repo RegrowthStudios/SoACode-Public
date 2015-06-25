@@ -23,7 +23,7 @@ void BlockTextureLoader::init(ModPathResolver* texturePathResolver, BlockTexture
 void BlockTextureLoader::loadTextureData() {
     if (!loadLayerProperties()) pError("Failed to load LayerProperties.yml");
     if (!loadTextureProperties()) pError("Failed to load Textures.yml");
-    loadBlockTextureMapping();
+    if (!loadBlockTextureMapping()) pError("Failed to load BlockTextureMapping.yml");
 }
 
 void BlockTextureLoader::loadBlockTextures(Block& block) {
@@ -34,15 +34,30 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
         block.overlay[i] = 0;
     }
 
-    // Load the textures for each face
-    for (int i = 0; i < 6; i++) {
-        block.textures[i] = loadTexture(block.texturePaths[i]); // TODO(Ben): Free the string?
-        if (block.textures[i]) {
-            block.base[i] = block.textures[i]->base.index;
-            block.overlay[i] = block.textures[i]->overlay.index;
-        } else {
+    // Check for block mapping
+    auto& it = m_blockMappings.find(block.sID);
+    if (it == m_blockMappings.end()) {
+        printf("Warning: Could not load texture mapping for block %s\n", block.sID);
+        for (int i = 0; i < 6; i++) {
             block.textures[i] = m_texturePack->getDefaultTexture();
-            printf("Warning: Could not load texture %s for block %s\n", block.texturePaths[i].c_str(), block.name.c_str());
+        }
+        return;
+    }
+
+    // Load the textures for each face
+    BlockTextureNames& names = it->second;
+    for (int i = 0; i < 6; i++) {
+        BlockTexture* texture = m_texturePack->findTexture(names.names[i]);
+        if (texture) {
+            loadLayer(texture->base);
+            if (texture->overlay.path.size()) {
+                loadLayer(texture->overlay);
+            }
+            block.textures[i] = texture;
+        } else {
+            printf("Warning: Could not load texture %d for block %s\n", i, block.sID);
+            block.textures[i] = m_texturePack->getDefaultTexture();
+            return;
         }
     }
    
@@ -61,23 +76,23 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
     }
 }
 
-BlockTexture* BlockTextureLoader::loadTexture(const nString& filePath) {
+BlockTexture* BlockTextureLoader::loadTexture(const BlockIdentifier& sID) {
     // Check for cached texture
-    BlockTexture* exists = m_texturePack->findTexture(filePath);
+    BlockTexture* exists = m_texturePack->findTexture(sID);
     if (exists) return exists;
 
     // Resolve the path
     vio::Path path;
-    if (!m_texturePathResolver->resolvePath(filePath, path)) return nullptr;
+    if (!m_texturePathResolver->resolvePath(sID, path)) return nullptr;
 
     // Get next free texture
-    BlockTexture* texture = m_texturePack->getNextFreeTexture(filePath);
+    BlockTexture* texture = m_texturePack->getNextFreeTexture(sID);
 
     // Load the tex file (if it exists)
     loadTexFile(path.getString(), texture);
 
     // If there wasn't an explicit override base path, we use the texturePath
-    if (texture->base.path.empty()) texture->base.path = filePath;
+    if (texture->base.path.empty()) texture->base.path = sID;
 
     // Load the layers
     loadLayer(texture->base);
@@ -113,7 +128,7 @@ bool BlockTextureLoader::loadLayerProperties() {
 
         // Load data
         keg::parse((ui8*)&layer, value, context, &KEG_GLOBAL_TYPE(BlockTextureLayer));
-
+ 
         // Cache the layer
         m_layers[key] = layer;
     });
@@ -191,8 +206,76 @@ bool BlockTextureLoader::loadTextureProperties() {
     return true;
 }
 
+nString getBlockTextureName(const keg::Node& value) {
+    if (keg::getType(value) == keg::NodeType::MAP) {
+        // TODO(Ben): Handle map
+    } else {
+        return keg::convert<nString>(value);
+    }
+}
 
 bool BlockTextureLoader::loadBlockTextureMapping() {
+
+    vio::Path path;
+    if (!m_texturePathResolver->resolvePath("BlockTextureMapping.yml", path)) return nullptr;
+
+    // Read file
+    nString data;
+    m_iom.readFileToString(path, data);
+    if (data.empty()) return false;
+
+    // Convert to YAML
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        context.reader.dispose();
+        return false;
+    }
+
+    BlockTextureNames* names;
+    auto valf = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        nString name = getBlockTextureName(value);
+        if (key == "texture") {
+            for (int i = 0; i < 6; i++) {
+                names->names[i] = name;
+            }
+        } else if (key == "textureOpX") {
+            names->names[(int)vvox::Cardinal::X_NEG] = name;
+            names->names[(int)vvox::Cardinal::X_POS] = name;
+        } else if (key == "textureOpY") {
+            names->names[(int)vvox::Cardinal::Y_NEG] = name;
+            names->names[(int)vvox::Cardinal::Y_POS] = name;
+        } else if (key == "textureOpZ") {
+            names->names[(int)vvox::Cardinal::Z_NEG] = name;
+            names->names[(int)vvox::Cardinal::Z_POS] = name;
+        } else if (key == "textureTop") {
+            names->names[(int)vvox::Cardinal::Y_POS] = name;
+        } else if (key == "textureBottom") {
+            names->names[(int)vvox::Cardinal::Y_NEG] = name;
+        } else if (key == "textureFront") {
+            names->names[(int)vvox::Cardinal::Z_POS] = name;
+        } else if (key == "textureBack") {
+            names->names[(int)vvox::Cardinal::Z_NEG] = name;
+        } else if (key == "textureLeft") {
+            names->names[(int)vvox::Cardinal::X_NEG] = name;
+        } else if (key == "textureRight") {
+            names->names[(int)vvox::Cardinal::X_POS] = name;
+        }
+    });
+
+    // Load all layers
+    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        BlockTextureNames tNames = {};
+        names = &tNames;
+        context.reader.forAllInMap(value, valf);
+        m_blockMappings[key] = tNames;
+    });
+    context.reader.forAllInMap(node, f);
+    delete f;
+    context.reader.dispose();
+    delete valf;
 
     return true;
 }

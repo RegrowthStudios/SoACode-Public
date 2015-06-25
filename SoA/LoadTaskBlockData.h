@@ -18,6 +18,9 @@ public:
     }
 
     virtual void load() {
+
+        loader->loadTextureData();
+
         // TODO(Ben): Put in state
         vio::IOManager iom;
         iom.setSearchDirectory("Data/Blocks/");

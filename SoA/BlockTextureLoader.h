@@ -18,6 +18,8 @@
 #include <Vorb/io/IOManager.h>
 #include <Vorb/VorbPreDecl.inl>
 
+#include "BlockData.h"
+
 DECL_VG(class ScopedBitmapResource)
 
 class Block;
@@ -25,6 +27,10 @@ class BlockTexturePack;
 class ModPathResolver;
 class BlockTextureLayer;
 struct BlockTexture;
+
+struct BlockTextureNames {
+    nString names[6];
+};
 
 class BlockTextureLoader {
 public:
@@ -34,7 +40,7 @@ public:
 
     void loadBlockTextures(Block& block);
 
-    BlockTexture* loadTexture(const nString& filePath);
+    BlockTexture* loadTexture(const BlockIdentifier& sID);
 
     void dispose();
 private:
@@ -46,6 +52,7 @@ private:
     bool postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer);
 
     std::map<nString, BlockTextureLayer> m_layers;
+    std::map<BlockIdentifier, BlockTextureNames> m_blockMappings;
 
     ModPathResolver* m_texturePathResolver = nullptr;
     BlockTexturePack* m_texturePack = nullptr;

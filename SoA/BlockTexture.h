@@ -122,8 +122,13 @@ public:
 KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
-    BlockTextureLayer base;
-    BlockTextureLayer overlay;
+    union {
+        struct {
+            BlockTextureLayer base;
+            BlockTextureLayer overlay;
+        };
+        UNIONIZE(BlockTextureLayer layers[2]);
+    };
     BlendType blendMode = BlendType::ALPHA;
 };
 KEG_TYPE_DECL(BlockTexture);
