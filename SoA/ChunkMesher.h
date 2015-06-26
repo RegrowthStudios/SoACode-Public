@@ -44,7 +44,7 @@ public:
     const BlockPack* blocks = nullptr;
 private:
     void addBlock();
-    void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, f32 ambientOcclusion[]);
+    void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]);
     void computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
     void addFlora();
     void addLiquid();

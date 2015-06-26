@@ -290,32 +290,32 @@ void ChunkMesher::addBlock()
     // Left
     if (shouldRenderFace(-1)) {
         computeAmbientOcclusion(-1, -PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, ao);
-        addQuad(X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2, ao);
+        addQuad(X_NEG, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 2, ui8v2(1, 1), ao);
     }
     // Right
     if (shouldRenderFace(1)) {
         computeAmbientOcclusion(1, -PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, ao);
-        addQuad(X_POS, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 0, ao);
+        addQuad(X_POS, (int)vvox::Axis::Z, (int)vvox::Axis::Y, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 0, ui8v2(-1, 1), ao);
     }
     // Bottom
     if (shouldRenderFace(-PADDED_CHUNK_LAYER)) { 
         computeAmbientOcclusion(-PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, 1, ao);
-        addQuad(Y_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 2, ao);
+        addQuad(Y_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 2, ui8v2(1, 1), ao);
     }
     // Top
     if (shouldRenderFace(PADDED_CHUNK_LAYER)) {
         computeAmbientOcclusion(PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, -1, ao);
-        addQuad(Y_POS, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 0, ao);
+        addQuad(Y_POS, (int)vvox::Axis::X, (int)vvox::Axis::Z, -1, -PADDED_CHUNK_WIDTH, 0, ui8v2(-1, 1), ao);
     }
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
         computeAmbientOcclusion(-PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, -1, ao);
-        addQuad(Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ao);
+        addQuad(Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ui8v2(1, 1), ao);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
         computeAmbientOcclusion(PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, 1, ao);
-        addQuad(Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2, ao);
+        addQuad(Z_POS, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 2, ui8v2(1, 1), ao);
     }
 }
 
@@ -351,7 +351,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
     CALCULATE_VERTEX(3, -, +)
 }
 
-void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, f32 ambientOcclusion[]) {
+void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]) {
     // Get texture TODO(Ben): Null check?
     const BlockTexture* texture = block->textures[face];
     // Get color
@@ -461,14 +461,14 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
             if (leftIndex != NO_QUAD_INDEX) {
                 VoxelQuad& lQuad = quads[leftIndex];
                 if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
-                    lQuad.v0.position.z == quad->v0.position.z &&
-                    lQuad.v1.position.z == quad->v1.position.z &&
+                    lQuad.v0.position[frontAxis] == quad->v0.position[frontAxis] &&
+                    lQuad.v1.position[frontAxis] == quad->v1.position[frontAxis] &&
                     lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
                     // Stretch the previous quad
                     lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
-                    lQuad.verts[rightStretchIndex].tex.x++;
+                    lQuad.verts[rightStretchIndex].tex.x += texOffset.x;
                     lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
-                    lQuad.verts[rightStretchIndex + 1].tex.x++;
+                    lQuad.verts[rightStretchIndex + 1].tex.x += texOffset.x;
                     // Remove the current quad
                     quads.pop_back();
                     m_numQuads--;
@@ -492,9 +492,9 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
                     bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
                     bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
                     bQuad->v0.position[frontAxis] += QUAD_SIZE;
-                    bQuad->v0.tex.y++;
+                    bQuad->v0.tex.y += texOffset.y;
                     bQuad->v3.position[frontAxis] += QUAD_SIZE;
-                    bQuad->v3.tex.y++;
+                    bQuad->v3.tex.y += texOffset.y;
                     quadIndex = backIndex;
                     // Mark as not in use
                     quad->v0.mesherFlags = 0;
