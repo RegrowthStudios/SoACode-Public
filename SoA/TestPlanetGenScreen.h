@@ -17,9 +17,11 @@
 
 #include "AtmosphereComponentRenderer.h"
 #include "Camera.h"
-#include "SphericalTerrainComponentRenderer.h"
-#include "SpaceSystemComponents.h"
 #include "SpaceSystem.h"
+#include "SpaceSystemComponents.h"
+#include "SphericalTerrainComponentRenderer.h"
+#include "SphericalTerrainComponentUpdater.h"
+#include "SoaState.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
@@ -44,20 +46,21 @@ public:
     virtual void draw(const vui::GameTime& gameTime) override;
 
 private:
-    const f64 PLANET_RADIUS = 154190.0 / 2.0;
+    const f64 PLANET_RADIUS = 6000.0;
     SphericalTerrainComponentRenderer m_terrainRenderer;
     AtmosphereComponentRenderer m_atmoRenderer;
     AxisRotationComponent m_arCmp;
     NamePositionComponent m_npCmp;
     SystemBody body;
-    SpaceSystem m_spaceSystem;
     f64v3 m_eyePos;
     f64 m_eyeDist = PLANET_RADIUS;
     SphericalTerrainComponent m_stCmp;
+    SphericalTerrainComponentUpdater m_updater;
     SpaceLightComponent m_slCmp;
     AtmosphereComponent m_aCmp;
     Camera m_camera;
     AutoDelegatePool m_hooks;
+    SoaState m_state;
 };
 
 #endif // TestPlanetGenScreen_h__

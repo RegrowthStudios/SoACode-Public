@@ -4,6 +4,8 @@
 #include "soaUtils.h"
 #include "SpaceSystemAssemblages.h"
 #include "Errors.h"
+#include "ShaderLoader.h"
+#include "SoaEngine.h"
 #include "NoiseShaderGenerator.h"
 #include <Vorb\graphics\GLProgram.h>
 #include <Vorb\graphics\GpuMemory.h>
@@ -49,35 +51,34 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     glEnable(GL_DEPTH_TEST);
-
-    vg::BitmapResource rs = vg::ImageIO().load("Textures/Test/GasGiantLookup2.png");
-    if (rs.data == nullptr) pError("Failed to load gas giant texture");
-    VGTexture colorBandLookup = vg::GpuMemory::uploadTexture(&rs,
-                                                             vg::TexturePixelType::UNSIGNED_BYTE,
-                                                             vg::TextureTarget::TEXTURE_2D,
-                                                             &vg::SamplerState::LINEAR_CLAMP);
+    glClearColor(1, 0, 0, 1);
+    glClearDepth(1.0);
 
     m_terrainRenderer.initGL();
+    m_atmoRenderer.initGL();
 
-    vg::ImageIO().free(rs);
-
-    glClearColor(0, 0, 0, 1);
-    glClearDepth(1.0);
+    SoaEngine::initState(&m_state);
 
     m_eyePos = f32v3(0, 0, m_eyeDist);
 
     // Set up planet
+    m_state.spaceSystem->normalMapGenProgram = ShaderLoader::createProgramFromFile("Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag");
     SystemBodyKegProperties props;
     PlanetKegProperties pProps;
     NoiseShaderGenerator generator;
     pProps.diameter = PLANET_RADIUS * 2.0;
     pProps.mass = 10000.0;
     PlanetGenData* genData = new PlanetGenData;
-    genData->program = generator.getDefaultProgram();
+    TerrainFuncKegProperties tprops;
+    tprops.low = 9;
+    tprops.high = 10;
+    genData->radius = PLANET_RADIUS;
+    genData->baseTerrainFuncs.funcs.setData(&tprops, 1);
+    genData->program = generator.generateProgram(genData);
     pProps.planetGenData = genData;
 
     // Set up components
-    SpaceSystemAssemblages::createPlanet(&m_spaceSystem, &props, &pProps, &body);
+    SpaceSystemAssemblages::createPlanet(m_state.spaceSystem, &props, &pProps, &body);
 
     m_aCmp.radius = (f32)(PLANET_RADIUS * 1.025);
     m_aCmp.planetRadius = (f32)PLANET_RADIUS;
@@ -99,6 +100,9 @@ void TestPlanetGenScreen::onExit(const vui::GameTime& gameTime) {
 
 void TestPlanetGenScreen::update(const vui::GameTime& gameTime) {
     m_eyePos = f64v3(0, 0, PLANET_RADIUS + m_eyeDist + 100.0);
+
+    m_updater.update(&m_state, m_eyePos);
+    m_updater.glUpdate(&m_state);
 }
 
 void TestPlanetGenScreen::draw(const vui::GameTime& gameTime) {
@@ -112,11 +116,11 @@ void TestPlanetGenScreen::draw(const vui::GameTime& gameTime) {
     f32v3 lightPos = glm::normalize(f32v3(0.0f, 0.0f, 1.0f));
 
     PreciseTimer timer;
-    m_terrainRenderer.draw(m_stCmp, &m_camera, lightPos,
+    m_terrainRenderer.draw(m_state.spaceSystem->m_sphericalTerrainCT.getFromEntity(body.entity), &m_camera, lightPos,
                            f64v3(0.0f/*m_eyePos*/), computeZCoef(m_camera.getFarClip()), &m_slCmp,
                            &m_arCmp, &m_aCmp);
 
-    m_atmoRenderer.draw(m_aCmp, m_camera.getViewProjectionMatrix(), f32v3(m_eyePos), lightPos,
+    m_atmoRenderer.draw(m_state.spaceSystem->m_atmosphereCT.getFromEntity(body.entity), m_camera.getViewProjectionMatrix(), f32v3(m_eyePos), lightPos,
                         computeZCoef(m_camera.getFarClip()), &m_slCmp);
     //glFinish();
 
