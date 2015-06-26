@@ -658,6 +658,7 @@ EXIT 0</Command>
     <ClInclude Include="TestMappingScreen.h" />
     <ClInclude Include="TestNoiseScreen.h" />
     <ClInclude Include="TestNewBlockAPIScreen.h" />
+    <ClInclude Include="TestPlanetGenScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
@@ -850,6 +851,7 @@ EXIT 0</Command>
     <ClCompile Include="TestMappingScreen.cpp" />
     <ClCompile Include="TestNoiseScreen.cpp" />
     <ClCompile Include="TestNewBlockAPIScreen.cpp" />
+    <ClCompile Include="TestPlanetGenScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />

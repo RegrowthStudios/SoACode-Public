@@ -88,7 +88,7 @@ struct AxisRotationComponent {
 };
 
 struct NamePositionComponent {
-    f64v3 position; ///< Position in space, in KM
+    f64v3 position = f64v3(0.0); ///< Position in space, in KM
     nString name; ///< Name of the entity
 };
 
