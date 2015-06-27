@@ -16,7 +16,7 @@
 #define PlanetHeightData_h__
 
 struct PlanetHeightData {
-    ui32 height;
+    i32 height;
     ui16 surfaceBlock;
     ui8 temperature;
     ui8 rainfall;

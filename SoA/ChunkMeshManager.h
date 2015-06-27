@@ -62,6 +62,7 @@ private:
     std::vector <ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
     std::vector <ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
     std::unordered_map<ChunkID, ChunkMesh::ID> m_activeChunks; ///< Stores chunk IDs that have meshes
+    std::set<ChunkID> m_pendingDestroy;
 };
 
 #endif // ChunkMeshManager_h__

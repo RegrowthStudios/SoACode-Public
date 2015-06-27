@@ -73,8 +73,15 @@ void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
-    // Get a free mesh
+    // Check if we are supposed to be destroyed
+    auto& it = m_pendingDestroy.find(message.chunkID);
+    if (it != m_pendingDestroy.end()) {
+        m_pendingDestroy.erase(it);
+        return;
+    }
+    // Make sure we can even get a free mesh
     updateMeshStorage();
+    // Get a free mesh
     ChunkMesh::ID id = m_freeMeshes.back();
     m_freeMeshes.pop_back();
     ChunkMesh& mesh = m_meshStorage[id];
@@ -98,8 +105,7 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
     auto& it = m_activeChunks.find(message.chunkID);
     // Check for rare case where destroy comes before create, just re-enqueue.
     if (it == m_activeChunks.end()) {
-        sendMessage(message);
-        std::cout << "RESEND\n";
+        m_pendingDestroy.insert(message.chunkID);
         return;
     }
     ChunkMesh::ID& id = it->second;
