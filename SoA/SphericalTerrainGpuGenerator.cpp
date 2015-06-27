@@ -56,7 +56,7 @@ SphericalTerrainGpuGenerator::~SphericalTerrainGpuGenerator() {
         vg::GpuMemory::freeBuffer(m_rawPbos[0][i]);
         vg::GpuMemory::freeBuffer(m_rawPbos[1][i]);
     }
-
+    
     glDeleteFramebuffers(1, &m_normalFbo);
 
     m_genProgram.dispose();

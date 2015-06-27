@@ -128,8 +128,32 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
                 if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
                     fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
                 }
-            }           
+            }
             nextOp = op;
+        } else if (fn.func == TerrainStage::SQUARED) {
+            h = modifier;
+            // Apply parent before clamping
+            if (modifier.length()) {
+                fSource += h + "*=" + h + ";\n";
+
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+                }
+            }
+            nextOp = fn.op;
+        } else if (fn.func == TerrainStage::CUBED) {
+            h = modifier;
+            // Apply parent before clamping
+            if (modifier.length()) {
+                fSource += h + "=" + h + "*" + h + "*" + h + ";\n";
+
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+                }
+            }
+            nextOp = fn.op;
         } else { // It's a noise function
             switch (fn.func) {
                 case TerrainStage::CUBED_NOISE:

@@ -94,7 +94,9 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainTexture.id);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->grassTexture.id);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->rockTexture.id);
         glActiveTexture(GL_TEXTURE0);
         program.use();
         program.enableVertexAttribArrays();
@@ -261,7 +263,9 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainColorMap.id);
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_planetGenData->terrainTexture.id);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->grassTexture.id);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, m_planetGenData->rockTexture.id);
         glActiveTexture(GL_TEXTURE0);
         program.use();
         program.enableVertexAttribArrays();

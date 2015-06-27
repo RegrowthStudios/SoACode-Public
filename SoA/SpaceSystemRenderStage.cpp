@@ -206,7 +206,7 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render clouds
-    glDisable(GL_CULL_FACE);
+  /*  glDisable(GL_CULL_FACE);
     for (auto& it : m_spaceSystem->m_cloudsCT) {
         auto& cCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(cCmp.namePositionComponent);
@@ -221,7 +221,7 @@ void SpaceSystemRenderStage::drawBodies() {
                                        m_spaceSystem->m_axisRotationCT.getFromEntity(it.first), 
                                        m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);*/
 
     // Render atmospheres
     for (auto& it : m_spaceSystem->m_atmosphereCT) {
