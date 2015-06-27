@@ -85,6 +85,7 @@ void GameplayRenderer::reloadShaders() {
     // TODO(Ben): More
     StaticLoadContext context;
     stages.opaqueVoxel.dispose(context);
+    m_commonState->stages.spaceSystem.reloadShaders();
 }
 
 void GameplayRenderer::load(StaticLoadContext& context) {

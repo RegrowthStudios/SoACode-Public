@@ -127,6 +127,21 @@ void SpaceSystemRenderStage::render(const Camera* camera) {
                                           m_viewport);
 }
 
+void SpaceSystemRenderStage::reloadShaders() {
+    StaticLoadContext tmp;
+    dispose(tmp);
+
+    m_lensFlareRenderer.initGL();
+    m_starRenderer.initGL();
+    m_systemARRenderer.initGL();
+    m_sphericalTerrainComponentRenderer.initGL();
+    m_gasGiantComponentRenderer.initGL();
+    m_cloudsComponentRenderer.initGL();
+    m_atmosphereComponentRenderer.initGL();
+    m_ringsRenderer.initGL();
+    m_farTerrainComponentRenderer.initGL();
+}
+
 void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
     for (auto& it : m_starGlowsToRender) {
         m_starRenderer.drawGlow(it.first, m_spaceCamera->getViewProjectionMatrix(), it.second,

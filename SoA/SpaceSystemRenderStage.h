@@ -59,6 +59,8 @@ public:
     /// Draws the render stage
     virtual void render(const Camera* camera) override;
 
+    void reloadShaders();
+
     /// Renders star glows requested in the render call. Call after HDR
     void renderStarGlows(const f32v3& colorMult);
 
