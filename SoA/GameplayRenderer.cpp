@@ -76,6 +76,7 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
     stages.pda.dispose(context);
     stages.pauseMenu.dispose(context);
     stages.nightVision.dispose(context);
+    stages.ssao.dispose(context);
 
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -244,6 +245,10 @@ void GameplayRenderer::render() {
 
     //=======
     if (stages.ssao.isActive()) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getDepthTexture());
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getGeometryTexture(1));
         stages.ssao.setSwapChain(&m_swapChain);
         stages.ssao.render();
         m_swapChain.swap();
