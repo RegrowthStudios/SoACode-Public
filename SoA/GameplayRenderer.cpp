@@ -45,6 +45,7 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.pda.init(window, context);
     stages.pauseMenu.init(window, context);
     stages.nightVision.init(window, context);
+    stages.ssao.init(window, context);
 
     loadNightVision();
 
@@ -125,6 +126,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         stages.pda.load(context);
         stages.pauseMenu.load(context);
         stages.nightVision.load(context);
+        stages.ssao.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -143,6 +145,7 @@ void GameplayRenderer::hook() {
     //stages.pda.hook();
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
     stages.nightVision.hook(&m_commonState->quad);
+    stages.ssao.hook(&m_commonState->quad);
 }
 
 void GameplayRenderer::updateGL() {
@@ -224,7 +227,7 @@ void GameplayRenderer::render() {
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
+    glBindTexture(m_hdrTarget..getTextureTarget(), m_hdrTarget.getTextureDepthID());
     m_commonState->stages.hdr.render();
 
     // UI
