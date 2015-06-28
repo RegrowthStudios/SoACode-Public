@@ -59,10 +59,14 @@ void SsaoRenderStage::render(const Camera* camera)
 
     if (!m_ssaoShader.isCreated()) {
         m_ssaoShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAO.frag");
+        m_ssaoShader.use();
         //glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
         //glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
         //glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
         //glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
+    }
+    else {
+        m_ssaoShader.use();
     }
 
     m_ssaoShader.use();
@@ -78,12 +82,15 @@ void SsaoRenderStage::render(const Camera* camera)
 
     if (!m_blurShader.isCreated()) {
         m_blurShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAOBlur.frag");
+        m_blurShader.use();
         glUniform1i(m_blurShader.getUniform("unTexColor"), 0);
         glUniform1i(m_blurShader.getUniform("unTexSSAO"), 1);
         glUniform1f(m_blurShader.getUniform("unBlurAmount"), 1.0f);
     }
+    else {
+        m_blurShader.use();
+    }
 
-    m_blurShader.use();
     m_ssaoShader.enableVertexAttribArrays();
     m_quad->draw();
     m_ssaoShader.disableVertexAttribArrays();
