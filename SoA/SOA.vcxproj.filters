@@ -796,6 +796,9 @@
     <ClInclude Include="TestPlanetGenScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="SsaoRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1285,6 +1288,9 @@
     </ClCompile>
     <ClCompile Include="BlockTextureLoader.cpp">
       <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="SsaoRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -98,7 +98,6 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         size_t i = 0;
         // Create the HDR target     
         so[i].set([&](Sender, void*) {
-            m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
             Array<vg::GBufferAttachment> attachments;
             vg::GBufferAttachment att[2];
             // TODO(Ben): Don't think this is right.
@@ -112,8 +111,8 @@ void GameplayRenderer::load(StaticLoadContext& context) {
             att[1].pixelFormat = vg::TextureFormat::RGBA;
             att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
             att[1].number = 2;
-
-            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA).initDepth();
+            m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
             
             checkGlError("HELLO");
             
@@ -233,6 +232,7 @@ void GameplayRenderer::render() {
     //m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
 
+
     //// TODO: More Effects
     //if (stages.nightVision.isActive()) {
     //    stages.nightVision.render();
@@ -240,7 +240,11 @@ void GameplayRenderer::render() {
     //    m_swapChain.use(0, false);
     //}
 
+
+
+    //=======
     if (stages.ssao.isActive()) {
+        stages.ssao.setSwapChain(&m_swapChain);
         stages.ssao.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);

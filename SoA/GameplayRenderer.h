@@ -114,7 +114,7 @@ public:
         PdaRenderStage pda; ///< Renders the PDA
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
-        SsaoRenderStage ssao; ///< Renders night vision
+        SsaoRenderStage ssao; ///< Renders SSAO
     } stages;
 
 private:
