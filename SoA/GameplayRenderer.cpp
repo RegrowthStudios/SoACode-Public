@@ -98,7 +98,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         size_t i = 0;
         // Create the HDR target     
         so[i].set([&](Sender, void*) {
-            m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
+            m_hdrTarget = vg::GBuffer(m_window->getWidth(), m_window->getHeight());// .setSize(m_window->getWidth(), m_window->getHeight());
             Array<vg::GBufferAttachment> attachments;
             vg::GBufferAttachment att[2];
             // TODO(Ben): Don't think this is right.
@@ -232,15 +232,16 @@ void GameplayRenderer::render() {
     // Post processing
     //m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
     //// TODO: More Effects
     //if (stages.nightVision.isActive()) {
     //    stages.nightVision.render();
     //    m_swapChain.swap();
     //    m_swapChain.use(0, false);
     //}
-=======
+    //=======
     if (stages.ssao.isActive()) {
+        stages.ssao.setSwapChain(&m_swapChain);
         stages.ssao.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
@@ -252,7 +253,7 @@ void GameplayRenderer::render() {
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
->>>>>>> da7a5c1e56c867f829fbbcc764e30e31752fd1b2
+    //>>>>>>> da7a5c1e56c867f829fbbcc764e30e31752fd1b2
 
     // Draw to backbuffer for the last effect
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
