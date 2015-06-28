@@ -59,6 +59,9 @@ void SsaoRenderStage::render(const Camera* camera)
     m_quad->draw();
     m_ssaoShader.disableVertexAttribArrays();
     
+    glActiveTexture(GL_TEXTURE0);
+    m_swapChain->swap();
+    m_swapChain->use(0, false);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_ssaoTarget.getTextureID());
 
