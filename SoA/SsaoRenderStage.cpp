@@ -6,7 +6,7 @@
 #include "Errors.h"
 #include "ShaderLoader.h"
 
-void SsaoRenderStage::hook(vg::FullQuadVBO* quad) {
+void SsaoRenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height) {
     m_quad = quad;
     m_texNoise.width = SSAO_NOISE_TEXTURE_SIZE;
     m_texNoise.height = SSAO_NOISE_TEXTURE_SIZE;
@@ -29,6 +29,7 @@ void SsaoRenderStage::hook(vg::FullQuadVBO* quad) {
     glBindTexture(GL_TEXTURE_2D, 0);
     delete[] data;
 
+    m_ssaoTarget.setSize(width, height);
     m_ssaoTarget.init(vg::TextureInternalFormat::R8);
     
     for (unsigned int i = 0; i < SSAO_SAMPLE_KERNEL_SIZE; i++) {

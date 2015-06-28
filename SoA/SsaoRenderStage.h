@@ -16,7 +16,7 @@
 class SsaoRenderStage : public IRenderStage
 {
 public:
-    void hook(vg::FullQuadVBO* quad);
+    void hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height);
 
     virtual void dispose(StaticLoadContext& context) override;
 

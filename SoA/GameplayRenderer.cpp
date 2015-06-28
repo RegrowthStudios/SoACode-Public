@@ -162,7 +162,7 @@ void GameplayRenderer::hook() {
     //stages.pda.hook();
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
     stages.nightVision.hook(&m_commonState->quad);
-    stages.ssao.hook(&m_commonState->quad);
+    stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
 }
 
 void GameplayRenderer::updateGL() {
