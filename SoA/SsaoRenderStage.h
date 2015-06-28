@@ -3,12 +3,15 @@
 #include "IRenderStage.h"
 
 #define SSAO_NOISE_TEXTURE_SIZE 32
+#define SSAO_SAMPLE_KERNEL_SIZE 16
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/graphics/Texture.h>
+
+#include <vector>
 
 class SsaoRenderStage : public IRenderStage
 {
@@ -28,4 +31,5 @@ private:
     vg::FullQuadVBO* m_quad; ///< For use in processing through data
     vg::Texture m_texNoise; ///< A noise texture to make low sample amounts less obvious
     vg::RTSwapChain<2>* m_swapChain; ///< Main framebuffer
+    std::vector<f32v3> m_sampleKernel;
 };

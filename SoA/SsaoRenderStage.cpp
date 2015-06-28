@@ -29,6 +29,11 @@ void SsaoRenderStage::hook(vg::FullQuadVBO* quad) {
     delete[] data;
 
     m_ssaoTarget.init(vg::TextureInternalFormat::R8);
+
+    for (unsigned int i = 0; i < SSAO_SAMPLE_KERNEL_SIZE; i++) {
+        m_sampleKernel.emplace_back((f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f), (f32)r.genMT());
+        m_sampleKernel[i] = glm::normalize(m_sampleKernel[i]) * r.genMT();
+    }
 }
 
 void SsaoRenderStage::dispose(StaticLoadContext& context)
@@ -47,11 +52,15 @@ void SsaoRenderStage::render(const Camera* camera)
     glDisable(GL_DEPTH_TEST);
     m_ssaoTarget.use();
 
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
 
     if (!m_ssaoShader.isCreated()) {
         m_ssaoShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAO.frag");
+        glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
+        glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
+        glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
+        glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
     }
 
     m_ssaoShader.use();
