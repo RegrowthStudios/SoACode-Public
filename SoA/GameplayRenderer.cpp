@@ -215,6 +215,12 @@ void GameplayRenderer::render() {
     // Post processing
     m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
+    if (stages.ssao.isActive()) {
+        stages.ssao.render();
+        m_swapChain.swap();
+        m_swapChain.use(0, false);
+    }
+
     // TODO: More Effects
     if (stages.nightVision.isActive()) {
         stages.nightVision.render();

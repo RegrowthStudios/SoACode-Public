@@ -6,8 +6,9 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/GBuffer.h>
 #include <Vorb/graphics/Texture.h>
-
 
 class SsaoRenderStage : public IRenderStage
 {
@@ -20,7 +21,9 @@ public:
     virtual void render(const Camera* camera = nullptr) override;
 private:
     vg::GLProgram m_ssaoShader; ///< SSAO effect
+    vg::GLRenderTarget m_ssaoTarget; ///< SSAO render target
     vg::GLProgram m_blurShader; ///< Blurring to reduce noise
     vg::FullQuadVBO* m_quad; ///< For use in processing through data
     vg::Texture m_texNoise; ///< A noise texture to make low sample amounts less obvious
+    vg::GBuffer m_hdrTarget; ///< Main framebuffer
 };
