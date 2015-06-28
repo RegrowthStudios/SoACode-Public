@@ -114,7 +114,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
     for (size_t f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
 
-        float h = 0.0f;
+        f32 h = 0.0f;
 
         // Check if its not a noise function
         if (fn.func == TerrainStage::CONSTANT) {
@@ -189,7 +189,6 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                     break;
             }
             // Conditional scaling. 
-            float h;
             if (fn.low != -1.0f || fn.high != 1.0f) {
                 h = (total / maxAmplitude) * (fn.high - fn.low) * 0.5 + (fn.high + fn.low) * 0.5;
             } else {

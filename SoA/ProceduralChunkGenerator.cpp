@@ -29,11 +29,6 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
     VoxelPosition3D voxPosition = chunk->getVoxelPosition();
 
-    // TODO(Ben): This is hardcoded for ruby (see blockmapping.ini)
-    ui16 testID = 22;
-
-    printf("%lf, %i\n", chunk->getVoxelPosition().pos.y, (int)heightData[0].height);
-
     // Grab the handles to the arrays
     std::vector<IntervalTree<ui16>::LNode> blockDataArray;
     std::vector<IntervalTree<ui16>::LNode> tertiaryDataArray;
@@ -94,34 +89,41 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
               //  }
 
                 // TODO(Ben): Just for mesh testing purposes
-                //if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
-                //    if (y < 2 /*|| (y < 5 && x % 8 == 0 && z % 8 == 0)*/) {
-                //        blockData = 43;
-                //    }
-                //}
-                //if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
-                //    if ((x < 5 && z < 5)) {
-                //        blockData = 43;
-                //    }
-                //}
-                //if ((int)(voxPosition.pos.y / 32 + 1) % 6 == 0) {
-                //    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
-                //        blockData = 43;
-                //    }
-                //}
-                //if ((int)(voxPosition.pos.y / 32 + 5) % 6 == 0) {
-                //    if ((x < 5 && z < 5)) {
-                //        blockData = 43;
-                //    }
-                //}
-                //if ((int)(voxPosition.pos.y / 32 + 4) % 6 == 0) {
-                //    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
-                //        blockData = 43;
-                //    }
-                //}
-                //if ((x < 3 && z < 3 && x > 1 && z > 1)) {
-                //    blockData = 43;
-                //}
+                if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
+                    if (y < 2 /*|| (y < 5 && x % 8 == 0 && z % 8 == 0)*/) {
+                        blockData = 43;
+                    }
+                    if (x % 6 == 0 && z % 6 == 0 && y == 2) {
+                        blockData = 43;
+                    }
+                    if (x % 6 == 3 && z % 6 == 3 && y == 1) {
+                        blockData = 0;
+                    }
+                }
+                if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
+                    if ((x < 5 && z < 5)) {
+                        blockData = 43;
+                    }
+                }
+                if ((int)(voxPosition.pos.y / 32 + 1) % 6 == 0) {
+                    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
+                        blockData = 43;
+                    }
+                }
+                if ((int)(voxPosition.pos.y / 32 + 5) % 6 == 0) {
+                    if ((x < 5 && z < 5)) {
+                        blockData = 43;
+                    }
+                }
+                if ((int)(voxPosition.pos.y / 32 + 4) % 6 == 0) {
+                    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
+                        blockData = 43;
+                    }
+                }
+                if ((x < 3 && z < 3 && x > 1 && z > 1)) {
+                    blockData = 43;
+                }
+                
 
                 // Set up the data arrays
                 if (blockDataArray.size() == 0) {

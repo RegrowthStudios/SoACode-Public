@@ -83,7 +83,7 @@ void App::addScreens() {
     scrDev->addScreen(VKEY_T, scrTests.back(), "TestPlanetGenScreen");
 
     // Uncomment to start from dev screen for testing other screens
-#define START_AT_DEV_SCREEN
+//#define START_AT_DEV_SCREEN
 #ifdef START_AT_DEV_SCREEN
     m_screenList.setScreen(scrDev->getIndex());
 #else
