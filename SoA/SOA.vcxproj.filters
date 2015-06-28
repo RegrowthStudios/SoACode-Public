@@ -1277,10 +1277,14 @@
     <ClCompile Include="ChunkGrid.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
-    <ClCompile Include="BlockTexture.cpp" />
-    <ClCompile Include="BlockTextureLoader.cpp" />
     <ClCompile Include="TestPlanetGenScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTexture.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTextureLoader.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
