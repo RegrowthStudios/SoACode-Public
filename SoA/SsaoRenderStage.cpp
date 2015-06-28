@@ -51,6 +51,7 @@ void SsaoRenderStage::dispose(StaticLoadContext& context)
 
 void SsaoRenderStage::render(const Camera* camera)
 {
+    glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
     m_ssaoTarget.use();
 
@@ -60,19 +61,17 @@ void SsaoRenderStage::render(const Camera* camera)
     if (!m_ssaoShader.isCreated()) {
         m_ssaoShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAO.frag");
         m_ssaoShader.use();
-        //glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
-        //glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
-        //glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
-        //glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
+      //  glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
+     //   glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
+      //  glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
+      //  glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
     }
     else {
         m_ssaoShader.use();
     }
 
     m_ssaoShader.use();
-    m_ssaoShader.enableVertexAttribArrays();
     m_quad->draw();
-    m_ssaoShader.disableVertexAttribArrays();
     
     glActiveTexture(GL_TEXTURE0);
     m_swapChain->swap();
@@ -97,4 +96,5 @@ void SsaoRenderStage::render(const Camera* camera)
 
     vg::GLProgram::unuse();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
 }
