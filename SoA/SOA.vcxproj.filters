@@ -470,9 +470,6 @@
     <ClInclude Include="SmartVoxelContainer.hpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="Biome.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="MainMenuSystemViewer.h">
       <Filter>SOA Files\Screens\Menu</Filter>
     </ClInclude>
@@ -644,9 +641,6 @@
     <ClInclude Include="ColoredFullQuadRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="InputMapper.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameSystemEvents.h">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClInclude>
@@ -668,31 +662,11 @@
     <ClInclude Include="SphericalTerrainComponentRenderer.h">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClInclude>
-    <ClInclude Include="StarComponentRenderer.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="SpaceSystemComponentTables.h">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetGenerator.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModPathResolver.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LenseFlareRenderer.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuScriptedUI.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OptionsController.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="SoaOptions.h">
       <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetRingsComponentRenderer.h">
     </ClInclude>
     <ClInclude Include="TestDisplacementMappingScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
@@ -778,26 +752,53 @@
     <ClInclude Include="Vertex.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="BlockTexture.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockTextureLoader.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureAtlas.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureData.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureStack.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
     <ClInclude Include="TestPlanetGenScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
     <ClInclude Include="SsaoRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="ModPathResolver.h">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMapper.h">
+      <Filter>SOA Files\Ext\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionsController.h">
+      <Filter>SOA Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetGenerator.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="StarComponentRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="LenseFlareRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTexture.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTextureLoader.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureAtlas.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureData.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureStack.h">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuScriptedUI.h">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetRingsComponentRenderer.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Biome.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1032,7 +1033,6 @@
     <ClCompile Include="SpaceSystemRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
-    <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
@@ -1207,19 +1207,11 @@
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
       <Filter>SOA Files\Rendering\Components</Filter>
     </ClCompile>
-    <ClCompile Include="StarComponentRenderer.cpp" />
     <ClCompile Include="SpaceSystemComponentTables.cpp">
       <Filter>SOA Files\ECS\ComponentTables</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetGenerator.cpp" />
-    <ClCompile Include="ModPathResolver.cpp" />
-    <ClCompile Include="LenseFlareRenderer.cpp" />
-    <ClCompile Include="MainMenuScriptedUI.cpp" />
-    <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="SoaOptions.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetRingsComponentRenderer.cpp">
     </ClCompile>
     <ClCompile Include="TestDisplacementMappingScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
@@ -1257,8 +1249,6 @@
     <ClCompile Include="GameplayLoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
-    <ClCompile Include="TestNoiseScreen.cpp">
-    </ClCompile>
     <ClCompile Include="MetaSection.cpp">
       <Filter>SOA Files\Voxel\API</Filter>
     </ClCompile>
@@ -1291,6 +1281,33 @@
     </ClCompile>
     <ClCompile Include="SsaoRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="LenseFlareRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuScriptedUI.cpp">
+      <Filter>SOA Files\Screens\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="ModPathResolver.cpp">
+      <Filter>SOA Files\Data\IO Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionsController.cpp">
+      <Filter>SOA Files\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetGenerator.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="StarComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetRingsComponentRenderer.cpp">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNoiseScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Biome.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

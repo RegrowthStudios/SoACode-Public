@@ -66,7 +66,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
         f64 fgrav = M_G * gravCmp.mass / (height * height);
         // We don't account mass since we only calculate force on the object
-        pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
+     //   pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
     }
     // Update position
     vpcmp.gridPosition.pos += pyCmp.velocity;
