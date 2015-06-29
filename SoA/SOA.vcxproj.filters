@@ -809,6 +809,9 @@
     <ClInclude Include="ConsoleMain.h">
       <Filter>SOA Files\Console</Filter>
     </ClInclude>
+    <ClInclude Include="ConsoleFuncs.h">
+      <Filter>SOA Files\Console</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1323,6 +1326,9 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleFuncs.cpp">
+      <Filter>SOA Files\Console</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

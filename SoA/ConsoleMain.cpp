@@ -4,6 +4,8 @@
 #include <Vorb/script/Environment.h>
 #include <Vorb/script/REPL.h>
 
+#include "ConsoleFuncs.h"
+
 #define SOA_CONSOLE_COLOR_HEADER (FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define SOA_CONSOLE_COLOR_PROMPT (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)
 #define SOA_CONSOLE_COLOR_MAIN (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)
@@ -42,13 +44,16 @@ void consoleMain() {
 ==========================
 )");
 
+    vscript::Environment env;
+    vscript::REPL repl(&env);
+    registerFuncs(env);
 
-    vscript::REPL repl;
     ConsolePrinter printer;
     printer.hndConsole = hndConsole;
     repl.onStream[VORB_REPL_STREAM_OUT] += makeDelegate(printer, &ConsolePrinter::out);
     repl.onStream[VORB_REPL_STREAM_ERR] += makeDelegate(printer, &ConsolePrinter::err);
     char buf[1024];
+    
     while (true) {
         SetConsoleTextAttribute(hndConsole, SOA_CONSOLE_COLOR_PROMPT);
         printf(">>> ");
