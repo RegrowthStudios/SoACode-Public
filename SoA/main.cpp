@@ -10,6 +10,7 @@
 #include <Vorb/VorbLibs.h>
 
 #include "App.h"
+#include "Startup.h"
 
 // Entry
 int main(int argc, char **argv) {
@@ -21,8 +22,22 @@ int main(int argc, char **argv) {
     SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 #endif
 
-    // Run the game
-    { App().run(); }
+    // Get the startup mode
+    switch (startup(argc, argv)) {
+    case Startup::APP:
+        // Run the game
+        { App().run(); }
+        break;
+    case Startup::CONSOLE:
+        // Run the console
+        break;
+    case Startup::HELP:
+        getchar();
+        break;
+    default:
+        // Do nothing
+        break;
+    }
 
     // Dispose Vorb modules
     vorb::dispose(vorb::InitParam::ALL);
