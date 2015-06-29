@@ -63,7 +63,7 @@ void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, 
 
     pos = glm::normalize(pos) * m_genData->radius;
 
-    height.height = m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    height.height = (m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD)) * VOXELS_PER_M;
     height.temperature = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
     height.rainfall = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
@@ -75,15 +75,15 @@ f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition)
     i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
 
     f64v3 pos;
-    pos[coordMapping.x] = facePosition.pos.x * KM_PER_VOXEL * coordMults.x;
+    pos[coordMapping.x] = facePosition.pos.x * M_PER_VOXEL * coordMults.x;
     pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
-    pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
+    pos[coordMapping.z] = facePosition.pos.y * M_PER_VOXEL * coordMults.y;
 
     pos = glm::normalize(pos) * m_genData->radius;
     return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
-f32 doOperation(const TerrainOp& op, f32 a, f32 b) {
+f64 doOperation(const TerrainOp& op, f64 a, f64 b) {
     switch (op) {
         case TerrainOp::ADD: return a + b;
         case TerrainOp::SUB: return a - b;
@@ -95,7 +95,7 @@ f32 doOperation(const TerrainOp& op, f32 a, f32 b) {
 
 f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                                                 const Array<TerrainFuncKegProperties>& funcs,
-                                                f32* modifier,
+                                                f64* modifier,
                                                 const TerrainOp& op) const {
 
 #define SCALE_CODE rv += (total / maxAmplitude) * (fn.high - fn.low) * 0.5f + (fn.high + fn.low) * 0.5f
@@ -107,6 +107,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
     f64 frequency;
     f64v2 ff;
     f64 tmp;
+    f64* nextMod;
 
     TerrainOp nextOp;
 
@@ -114,10 +115,11 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
     for (size_t f = 0; f < funcs.size(); f++) {
         auto& fn = funcs[f];
 
-        f32 h = 0.0f;
+        f64 h = 0.0f;
 
         // Check if its not a noise function
         if (fn.func == TerrainStage::CONSTANT) {
+            nextMod = &h;
             h = fn.low;
             // Apply parent before clamping
             if (modifier) {
@@ -125,20 +127,44 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
             }
             // Optional clamp if both fields are not 0.0f
             if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                h = glm::clamp(*modifier, fn.clamp[0], fn.clamp[1]);
+                h = glm::clamp(*modifier, (f64)fn.clamp[0], (f64)fn.clamp[1]);
             }
             nextOp = fn.op;
         } else if (fn.func == TerrainStage::PASS_THROUGH) {
+            nextMod = modifier;
             // Apply parent before clamping
             if (modifier) {
                 h = doOperation(op, *modifier, fn.low);
                 // Optional clamp if both fields are not 0.0f
                 if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
+                    h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                }
+            }
+            nextOp = op;
+        } else if (fn.func == TerrainStage::SQUARED) {
+            nextMod = modifier;
+            // Apply parent before clamping
+            if (modifier) {
+                *modifier = (*modifier) * (*modifier);
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                }
+            }
+            nextOp = op;
+        } else if (fn.func == TerrainStage::CUBED) {
+            nextMod = modifier;
+            // Apply parent before clamping
+            if (modifier) {
+                *modifier = (*modifier) * (*modifier) * (*modifier);
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
                 }
             }
             nextOp = op;
         } else { // It's a noise function
+            nextMod = &h;
             f64 total = 0.0;
             f64 amplitude = 1.0;
             f64 maxAmplitude = 0.0;
@@ -196,7 +222,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
             }
             // Optional clamp if both fields are not 0.0f
             if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
+                h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
             }
             // Apply modifier from parent if needed
             if (modifier) {
@@ -206,7 +232,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
         }
 
         if (fn.children.size()) {
-            getNoiseValue(pos, fn.children, &h, nextOp);
+            getNoiseValue(pos, fn.children, nextMod, nextOp);
             rv += h;
         } else {
             rv = doOperation(fn.op, rv, h);
