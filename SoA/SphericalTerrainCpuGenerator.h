@@ -40,7 +40,7 @@ private:
     /// @return the noise value
     f64 getNoiseValue(const f64v3& pos,
                       const Array<TerrainFuncKegProperties>& funcs,
-                      f32* modifier,
+                      f64* modifier,
                       const TerrainOp& op) const;
 
   //  TerrainPatchMesher m_mesher; ///< Creates patch meshes

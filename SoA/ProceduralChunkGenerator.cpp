@@ -89,40 +89,40 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
               //  }
 
                 // TODO(Ben): Just for mesh testing purposes
-                if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
-                    if (y < 2 /*|| (y < 5 && x % 8 == 0 && z % 8 == 0)*/) {
-                        blockData = 43;
-                    }
-                    if (x % 6 == 0 && z % 6 == 0 && y == 2) {
-                        blockData = 43;
-                    }
-                    if (x % 6 == 3 && z % 6 == 3 && y == 1) {
-                        blockData = 0;
-                    }
-                }
-                if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
-                    if ((x < 5 && z < 5)) {
-                        blockData = 43;
-                    }
-                }
-                if ((int)(voxPosition.pos.y / 32 + 1) % 6 == 0) {
-                    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
-                        blockData = 43;
-                    }
-                }
-                if ((int)(voxPosition.pos.y / 32 + 5) % 6 == 0) {
-                    if ((x < 5 && z < 5)) {
-                        blockData = 43;
-                    }
-                }
-                if ((int)(voxPosition.pos.y / 32 + 4) % 6 == 0) {
-                    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
-                        blockData = 43;
-                    }
-                }
-                if ((x < 3 && z < 3 && x > 1 && z > 1)) {
-                    blockData = 43;
-                }
+                //if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
+                //    if (y < 2 /*|| (y < 5 && x % 8 == 0 && z % 8 == 0)*/) {
+                //        blockData = 43;
+                //    }
+                //    if (x % 6 == 0 && z % 6 == 0 && y == 2) {
+                //        blockData = 43;
+                //    }
+                //    if (x % 6 == 3 && z % 6 == 3 && y == 1) {
+                //        blockData = 0;
+                //    }
+                //}
+                //if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
+                //    if ((x < 5 && z < 5)) {
+                //        blockData = 43;
+                //    }
+                //}
+                //if ((int)(voxPosition.pos.y / 32 + 1) % 6 == 0) {
+                //    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
+                //        blockData = 43;
+                //    }
+                //}
+                //if ((int)(voxPosition.pos.y / 32 + 5) % 6 == 0) {
+                //    if ((x < 5 && z < 5)) {
+                //        blockData = 43;
+                //    }
+                //}
+                //if ((int)(voxPosition.pos.y / 32 + 4) % 6 == 0) {
+                //    if ((x < 4 && z < 4 && x > 0 && z > 0)) {
+                //        blockData = 43;
+                //    }
+                //}
+                //if ((x < 3 && z < 3 && x > 1 && z > 1)) {
+                //    blockData = 43;
+                //}
                 
 
                 // Set up the data arrays
@@ -150,7 +150,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 }
 
 void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const {
-    VoxelPosition3D cornerPos3D = VoxelSpaceConversions::chunkToVoxel(chunk->getChunkPosition());
+    VoxelPosition3D cornerPos3D = chunk->getVoxelPosition();
     VoxelPosition2D cornerPos2D;
     cornerPos2D.pos.x = cornerPos3D.pos.x;
     cornerPos2D.pos.y = cornerPos3D.pos.z;
