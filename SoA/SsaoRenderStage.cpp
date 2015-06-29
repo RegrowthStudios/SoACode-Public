@@ -53,48 +53,59 @@ void SsaoRenderStage::render(const Camera* camera)
 {
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
-    m_ssaoTarget.use();
 
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
+    { // SSAO pass      
+        m_ssaoTarget.use();
 
-    if (!m_ssaoShader.isCreated()) {
-        m_ssaoShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAO.frag");
-        m_ssaoShader.use();
-      //  glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
-     //   glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
-      //  glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
-      //  glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
-    }
-    else {
-        m_ssaoShader.use();
-    }
+        // Bind textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_colorTexture);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
 
-    m_ssaoShader.use();
-    m_quad->draw();
-    
-    glActiveTexture(GL_TEXTURE0);
-    m_swapChain->swap();
-    m_swapChain->use(0, false);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_ssaoTarget.getTextureID());
+        // Lazy shader init
+        // TODO(Ben): Make it not lazy
+        if (!m_ssaoShader.isCreated()) {
+            m_ssaoShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAO.frag");
+            m_ssaoShader.use();
+            //  glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
+            //   glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
+            //  glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
+            //  glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
+        } else {
+            m_ssaoShader.use();
+        }
 
-    if (!m_blurShader.isCreated()) {
-        m_blurShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAOBlur.frag");
-        m_blurShader.use();
-        glUniform1i(m_blurShader.getUniform("unTexColor"), 0);
-        glUniform1i(m_blurShader.getUniform("unTexSSAO"), 1);
-        glUniform1f(m_blurShader.getUniform("unBlurAmount"), 1.0f);
-    }
-    else {
-        m_blurShader.use();
+        m_quad->draw();
     }
 
-    m_ssaoShader.enableVertexAttribArrays();
-    m_quad->draw();
-    m_ssaoShader.disableVertexAttribArrays();
+    { // Blur pass
+        // Bind hdr framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFrameBuffer);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_colorTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_ssaoTarget.getTextureID());
 
-    vg::GLProgram::unuse();
+        // Lazy shader init
+        // TODO(Ben): Make it not lazy
+        if (!m_blurShader.isCreated()) {
+            m_blurShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAOBlur.frag");
+            m_blurShader.use();
+            glUniform1i(m_blurShader.getUniform("unTexColor"), 0);
+            glUniform1i(m_blurShader.getUniform("unTexSSAO"), 1);
+            glUniform1f(m_blurShader.getUniform("unBlurAmount"), 1.0f);
+        } else {
+            m_blurShader.use();
+        }
+
+        m_quad->draw();
+
+        vg::GLProgram::unuse();
+    }
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 }

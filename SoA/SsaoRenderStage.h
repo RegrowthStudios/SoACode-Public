@@ -23,13 +23,19 @@ public:
     /// Draws the render stage
     virtual void render(const Camera* camera = nullptr) override;
 
-    inline void setSwapChain(vg::RTSwapChain<2>* swapChain) { m_swapChain = swapChain; }
+    inline void set(VGTexture depthTexture, VGTexture colorTexture, VGFramebuffer hdrFrameBuffer) { 
+        m_depthTexture = depthTexture;
+        m_colorTexture = colorTexture;
+        m_hdrFrameBuffer = hdrFrameBuffer;
+    }
 private:
     vg::GLProgram m_ssaoShader; ///< SSAO effect
     vg::GLRenderTarget m_ssaoTarget; ///< SSAO render target
     vg::GLProgram m_blurShader; ///< Blurring to reduce noise
     vg::FullQuadVBO* m_quad; ///< For use in processing through data
     vg::Texture m_texNoise; ///< A noise texture to make low sample amounts less obvious
-    vg::RTSwapChain<2>* m_swapChain; ///< Main framebuffer
+    VGTexture m_depthTexture;
+    VGTexture m_colorTexture;
+    VGFramebuffer m_hdrFrameBuffer;
     std::vector<f32v3> m_sampleKernel;
 };

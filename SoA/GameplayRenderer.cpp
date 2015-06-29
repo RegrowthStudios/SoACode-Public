@@ -230,26 +230,10 @@ void GameplayRenderer::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
-    //m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
+    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
-
-
-    //// TODO: More Effects
-    //if (stages.nightVision.isActive()) {
-    //    stages.nightVision.render();
-    //    m_swapChain.swap();
-    //    m_swapChain.use(0, false);
-    //}
-
-
-
-    //=======
     if (stages.ssao.isActive()) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getDepthTexture());
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getGeometryTexture(1));
-        stages.ssao.setSwapChain(&m_swapChain);
+        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
         stages.ssao.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
