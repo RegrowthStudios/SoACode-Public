@@ -554,6 +554,7 @@ EXIT 0</Command>
     <ClInclude Include="ColoredFullQuadRenderer.h" />
     <ClInclude Include="ColorFilterRenderStage.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="ConsoleMain.h" />
     <ClInclude Include="CpuNoise.h" />
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
@@ -760,6 +761,7 @@ EXIT 0</Command>
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
     <ClCompile Include="ColorFilterRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="ConsoleMain.cpp" />
     <ClCompile Include="CpuNoise.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />

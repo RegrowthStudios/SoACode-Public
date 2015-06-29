@@ -11,6 +11,7 @@
 
 #include "App.h"
 #include "Startup.h"
+#include "ConsoleMain.h"
 
 // Entry
 int main(int argc, char **argv) {
@@ -30,6 +31,7 @@ int main(int argc, char **argv) {
         break;
     case Startup::CONSOLE:
         // Run the console
+        consoleMain();
         break;
     case Startup::HELP:
         getchar();
