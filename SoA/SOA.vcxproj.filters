@@ -799,6 +799,9 @@
     <ClInclude Include="SsaoRenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="Startup.h">
+      <Filter>SOA Files\Screens</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1291,6 +1294,9 @@
     </ClCompile>
     <ClCompile Include="SsaoRenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="Startup.cpp">
+      <Filter>SOA Files\Screens</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
