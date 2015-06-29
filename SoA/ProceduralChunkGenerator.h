@@ -17,6 +17,7 @@
 
 struct PlanetGenData;
 struct PlanetHeightData;
+struct BlockLayer;
 class Chunk;
 
 #include "SphericalTerrainCpuGenerator.h"
@@ -27,6 +28,8 @@ public:
     void generateChunk(Chunk* chunk, PlanetHeightData* heightData) const;
     void generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const;
 private:
+    const BlockLayer& getBlockLayer(int depth) const;
+
     PlanetGenData* m_genData = nullptr;
     SphericalTerrainCpuGenerator m_heightGenerator;
 };

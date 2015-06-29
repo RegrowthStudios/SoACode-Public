@@ -16,18 +16,17 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
     int temperature;
     int rainfall;
-    int h;
-    int maph;
+    int height;
+    int mapHeight;
     int hindex;
-    int dh;
+    int depth;
 
     ui16 blockData;
-    ui16 lampData;
-    ui8 sunlightData;
     ui16 tertiaryData;
     //double CaveDensity1[9][5][5], CaveDensity2[9][5][5];
 
     VoxelPosition3D voxPosition = chunk->getVoxelPosition();
+    chunk->numBlocks = 0;
 
     // Grab the handles to the arrays
     std::vector<IntervalTree<ui16>::LNode> blockDataArray;
@@ -39,13 +38,11 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 hindex = (c%CHUNK_LAYER); // TODO(Ben): Don't need modulus
 
                 blockData = 0;
-                sunlightData = 0;
-                lampData = 0;
                 tertiaryData = 0;
 
                 //snowDepth = heightMap[hindex].snowDepth;
                 //sandDepth = heightMap[hindex].sandDepth;
-                maph = heightData[hindex].height;
+                mapHeight = heightData[hindex].height;
                 //biome = heightMap[hindex].biome;
                 temperature = heightData[hindex].temperature;
                 rainfall = heightData[hindex].rainfall;
@@ -53,40 +50,30 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
                 //tooSteep = (flags & TOOSTEEP) != 0;
 
-                h = y + voxPosition.pos.y;
-                dh = maph - h; // Get depth of voxel
+                height = y + voxPosition.pos.y;
+                depth = mapHeight - height; // Get depth of voxel
 
                 //if (tooSteep) dh += 3; // If steep, increase depth
 
                 // TODO: Modulate dh with noise
 
                 // Check for underground
-                if (dh >= 0) {
+                if (depth >= 0) {
                     //chunk->numBlocks++;
                     // TODO(Ben): Optimize
-                    blockData = 43; // calculateBlockLayer((ui32)dh, genData).block;
+                    blockData = getBlockLayer(depth).block;
                     // Check for surface block replacement
-                    if (dh == 0) {
+                    if (depth == 0) {
                         if (blockData == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
                             blockData = 43/*m_genData->surfaceBlock*/;
                         }
                     }
                 } else {
-                    // Above heightmap
-
                     // Liquid
-                    if (h < 0 && m_genData->liquidBlock) {
+                    if (height < 0 && m_genData->liquidBlock) {
                         blockData = m_genData->liquidBlock;
-                        // TODO(Ben): Precalculate light here based on depth?
-                    } else {
-                        blockData = 0;
-                        sunlightData = 31;
                     }
                 }
-
-               // if (GETBLOCK(blockData).spawnerVal || GETBLOCK(blockData).sinkVal) {
-              //      chunk->spawnerBlocks.push_back(c);
-              //  }
 
                 // TODO(Ben): Just for mesh testing purposes
                 //if ((int)(voxPosition.pos.y / 32) % 6 == 0) {
@@ -124,6 +111,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 //    blockData = 43;
                 //}
                 
+                if (blockData != 0) chunk->numBlocks++;
 
                 // Set up the data arrays
                 if (blockDataArray.size() == 0) {
@@ -163,4 +151,28 @@ void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData*
             m_heightGenerator.generateHeight(heightData[z * CHUNK_WIDTH + x], pos);
         }
     }
+}
+
+// TODO(Ben): Only need to do this once per col or even once per chunk
+const BlockLayer& ProceduralChunkGenerator::getBlockLayer(int depth) const {
+    auto& layers = m_genData->blockLayers;
+
+    // Binary search
+    int lower = 0;
+    int upper = layers.size() - 1;
+    int pos = (lower + upper) / 2;
+
+    while (lower <= upper) {
+        if (layers[pos].start <= depth && layers[pos].start + layers[pos].width > depth) {
+            // We are in this layer
+            return layers[pos];
+        } else if (layers[pos].start > depth) {
+            upper = pos - 1;
+        } else {
+            lower = pos + 1;
+        }
+        pos = (lower + upper) / 2;
+    }
+    // Just return lowest layer if we fail
+    return layers.back();
 }

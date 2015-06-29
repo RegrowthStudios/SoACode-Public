@@ -139,14 +139,10 @@ void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(const VoxelPosition3D&
 
 void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
     // If it has no solid blocks, don't mesh it
-    //if (!chunk->numBlocks) {
-    //    // Remove from the mesh list
-    //    meshList[i] = meshList.back();
-    //    meshList.pop_back();
-    //    chunk->clearChunkListPtr();
-    //    chunk->_state = ChunkStates::INACTIVE;
-    //    continue;
-    //}
+    if (chunk->numBlocks <= 0) {
+        chunk->m_remeshFlags = 0;
+        return;
+    }
 
     if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
 

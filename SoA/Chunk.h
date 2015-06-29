@@ -91,7 +91,8 @@ public:
         ChunkPtr neighbors[6];
     };
     std::mutex mutex;
-    int refCount = 0;
+    int refCount;
+    int numBlocks;
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     volatile bool isAccessible = false;
     volatile bool queuedForMesh = false;
