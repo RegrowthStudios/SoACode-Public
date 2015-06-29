@@ -16,8 +16,15 @@
 #ifndef MTRenderState_h__
 #define MTRenderState_h__
 
+#include "Chunk.h" // for DebugChunkData
+
 #include <Vorb/ecs/ECS.h>
 #include <map>
+
+struct DebugChunkData {
+    f64v3 voxelPosition;
+    ChunkGenLevel genLevel;
+};
 
 /// Not every bit of render state needs to be in MTRenderState. Only things
 /// that are sensitive, such as fast moving planets and the camera.
@@ -25,6 +32,7 @@ struct MTRenderState {
     f64q spaceCameraOrientation; ///< Orientation in space
     f64v3 spaceCameraPos; ///< Position in space, relative to parent body
     std::map<vecs::EntityID, f64v3> spaceBodyPositions; ///< Space entity positions
+    std::vector<DebugChunkData> debugChunkData;
 };
 
 #endif // MTRenderState_h__

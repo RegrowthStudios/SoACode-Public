@@ -59,21 +59,6 @@ public:
     SphericalTerrainGpuGenerator* generator = nullptr;
 };
 
-class HeightmapGenRpcDispatcher {
-public:
-    HeightmapGenRpcDispatcher(SphericalTerrainGpuGenerator* generator);
-    ~HeightmapGenRpcDispatcher();
-    /// @return a new mesh on success, nullptr on failure
-    bool dispatchHeightmapGen(std::shared_ptr<ChunkGridData>& cgd, const ChunkPosition3D& facePosition, float voxelRadius);
-private:
-    static const int NUM_GENERATORS = 512;
-    int counter = 0;
-
-    SphericalTerrainGpuGenerator* m_generator = nullptr;
-
-    RawHeightGenerator *m_generators = nullptr;
-};
-
 class SphericalTerrainGpuGenerator {
 public:
     SphericalTerrainGpuGenerator(TerrainPatchMeshManager* meshManager,
@@ -108,8 +93,6 @@ public:
     vg::GLProgram* getNormalProgram() { return m_normalProgram; }
     vg::TextureRecycler* getNormalMapRecycler() { return m_normalMapRecycler; }
     const PlanetGenData* getPlanetGenData() { return m_planetGenData; }
-
-    HeightmapGenRpcDispatcher heightmapGenRpcDispatcher;
 
 private:
     /// Lazy initialization function

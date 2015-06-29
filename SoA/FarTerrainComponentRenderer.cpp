@@ -13,7 +13,13 @@
 #include <Vorb/utils.h>
 
 FarTerrainComponentRenderer::~FarTerrainComponentRenderer() {
-    disposeShaders();
+    dispose();
+}
+
+void FarTerrainComponentRenderer::initGL() {
+    if (!m_farTerrainProgram.isCreated()) {
+        buildShaders();
+    }
 }
 
 void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
@@ -28,10 +34,6 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     pos.pos = camera->getPosition();
     pos.face = cmp.face;
 
-    // Lazy shader init
-    if (!m_farTerrainProgram.isCreated()) {
-        buildShaders();
-    }
     f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
 
     // Calculate relative light position
@@ -53,7 +55,7 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     }
 }
 
-void FarTerrainComponentRenderer::disposeShaders() {
+void FarTerrainComponentRenderer::dispose() {
     if (m_farTerrainProgram.isCreated()) m_farTerrainProgram.dispose();
     if (m_farWaterProgram.isCreated()) m_farWaterProgram.dispose();
 }
@@ -66,7 +68,8 @@ void FarTerrainComponentRenderer::buildShaders() {
     m_farTerrainProgram.use();
     glUniform1i(m_farTerrainProgram.getUniform("unNormalMap"), 0);
     glUniform1i(m_farTerrainProgram.getUniform("unColorMap"), 1);
-    glUniform1i(m_farTerrainProgram.getUniform("unTexture"), 2);
+    glUniform1i(m_farTerrainProgram.getUniform("unGrassTexture"), 2);
+    glUniform1i(m_farTerrainProgram.getUniform("unRockTexture"), 3);
     glUniform1f(m_farTerrainProgram.getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
     glUniform1f(m_farTerrainProgram.getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
     m_farTerrainProgram.unuse();

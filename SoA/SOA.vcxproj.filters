@@ -171,6 +171,15 @@
     <Filter Include="SOA Files\Client\Asset">
       <UniqueIdentifier>{c4cbe6c3-81db-48d5-9680-8b949bc631a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\API">
+      <UniqueIdentifier>{705cf454-4163-4629-a5a8-b8f21eceeea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Voxel\Allocation">
+      <UniqueIdentifier>{548ab1e5-861c-44a6-9081-0769265688b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Voxel\Texturing">
+      <UniqueIdentifier>{29e1a60e-9cde-4091-b045-d6c803be19ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -187,9 +196,6 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Chunk.h">
-      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="ChunkGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
@@ -254,21 +260,6 @@
     <ClInclude Include="LoadBar.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialAtlas.h">
-      <Filter>SOA Files\Game\Objects\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialData.h">
-      <Filter>SOA Files\Game\Objects\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialStack.h">
-      <Filter>SOA Files\Game\Objects\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectLoader.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenGLStructs.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClInclude>
@@ -314,12 +305,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureAtlasStitcher.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelEditor.h">
       <Filter>SOA Files\Voxel\Utils</Filter>
     </ClInclude>
@@ -356,9 +341,6 @@
     <ClInclude Include="ChunkMesh.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelIntervalTree.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
     <ClInclude Include="VoxelMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -370,9 +352,6 @@
     </ClInclude>
     <ClInclude Include="MainMenuScreen.h">
       <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="TexturePackLoader.h">
-      <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
@@ -480,9 +459,6 @@
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
     <ClInclude Include="BlockPack.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="HardCodedIDs.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
     <ClInclude Include="VoxelMesh.h">
@@ -653,15 +629,6 @@
     <ClInclude Include="ChunkMeshManager.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkGrid.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkListManager.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkMemoryManager.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
     <ClInclude Include="TestGasGiantScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -771,9 +738,66 @@
     </ClInclude>
     <ClInclude Include="GameplayLoadScreen.h">
       <Filter>SOA Files\Screens\Load</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="TestNoiseScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkHandle.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaSection.h">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClInclude>
+    <ClInclude Include="TestNewBlockAPIScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Positional.h">
+      <Filter>SOA Files\Voxel\Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetHeightData.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkAllocator.h">
+      <Filter>SOA Files\Voxel\Allocation</Filter>
+    </ClInclude>
+    <ClInclude Include="ProceduralChunkGenerator.h">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTexturePack.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="HeightData.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkGrid.h">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>SOA Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTexture.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockTextureLoader.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureAtlas.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureData.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureStack.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPlanetGenScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="SsaoRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -788,9 +812,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Chunk.cpp">
-      <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="ChunkGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
@@ -846,9 +867,6 @@
     <ClCompile Include="main.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectLoader.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
     <ClCompile Include="Particle.cpp">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClCompile>
@@ -878,12 +896,6 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureAtlasStitcher.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
     <ClCompile Include="VoxelEditor.cpp">
       <Filter>SOA Files\Voxel\Utils</Filter>
@@ -929,9 +941,6 @@
     </ClCompile>
     <ClCompile Include="MainMenuScreen.cpp">
       <Filter>SOA Files\Screens\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="TexturePackLoader.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
@@ -1025,9 +1034,6 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="HardCodedIDs.cpp">
       <Filter>SOA Files\Voxel</Filter>
     </ClCompile>
     <ClCompile Include="TestBlockViewScreen.cpp">
@@ -1168,15 +1174,6 @@
     <ClCompile Include="ChunkMeshManager.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
-    <ClCompile Include="ChunkGrid.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkListManager.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkMemoryManager.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
     <ClCompile Include="TestGasGiantScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
@@ -1259,9 +1256,41 @@
     </ClCompile>
     <ClCompile Include="GameplayLoadScreen.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="TestNoiseScreen.cpp">
+    </ClCompile>
+    <ClCompile Include="MetaSection.cpp">
+      <Filter>SOA Files\Voxel\API</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNewBlockAPIScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkAllocator.cpp">
+      <Filter>SOA Files\Voxel\Allocation</Filter>
+    </ClCompile>
+    <ClCompile Include="ProceduralChunkGenerator.cpp">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTexturePack.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkGrid.cpp">
+      <Filter>SOA Files\Voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPlanetGenScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTexture.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockTextureLoader.cpp">
+      <Filter>SOA Files\Voxel\Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="SsaoRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1280,12 +1309,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Chunk.inl">
-      <Filter>SOA Files\Voxel</Filter>
-    </None>
-    <None Include="VoxelIntervalTree.inl">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </None>
     <None Include="VoxelUpdateOrder.inl">
       <Filter>SOA Files\Voxel</Filter>
     </None>

@@ -29,6 +29,7 @@ struct SphericalTerrainComponent;
 class FarTerrainComponentRenderer {
 public:
     ~FarTerrainComponentRenderer();
+    void initGL();
     void draw(const FarTerrainComponent& cmp,
               const Camera* camera,
               const f64v3& lightDir,
@@ -36,7 +37,7 @@ public:
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent,
               const AtmosphereComponent* aComponent);
-    void disposeShaders();
+    void dispose();
 private:
     void buildShaders();
 

@@ -19,35 +19,31 @@
 #include "TerrainPatch.h"
 #include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
+#include "PlanetData.h"
 
 struct NoiseBase;
+struct PlanetHeightData;
 
 class SphericalTerrainCpuGenerator {
 public:
-    SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
-                                 PlanetGenData* planetGenData);
-    ~SphericalTerrainCpuGenerator();
+    void init(const PlanetGenData* planetGenData);
 
     /// Generates a terrain patch: NOTE: This is only here for testing purposes. GPUgen is vastly superior
-    /// @param mesh: The mesh handle
-    /// @param startPos: Starting position
-    /// @param cubeFace: The world cube face
-    /// @param width: Width of the patch
-    void generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width);
+    void generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) const;
 
     /// Gets the height at a specific face position.
-    /// @param facePosition: The position to query
-    /// @return height in meters.
-    float getTerrainHeight(const VoxelPosition2D& facePosition);
+    void generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
 
+    f64 getHeight(const VoxelPosition2D& facePosition) const;
 private:
     /// Gets noise value using terrainFuncs
-    /// @param pos: Position to sample noise from
-    /// @Param funcs: The terrain functions to use
     /// @return the noise value
-    float getNoiseValue(const f32v3& pos, const NoiseBase& funcs);
+    f64 getNoiseValue(const f64v3& pos,
+                      const Array<TerrainFuncKegProperties>& funcs,
+                      f32* modifier,
+                      const TerrainOp& op) const;
 
-    TerrainPatchMesher m_mesher; ///< Creates patch meshes
+  //  TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data
 };
 

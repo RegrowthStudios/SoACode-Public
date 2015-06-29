@@ -55,12 +55,17 @@ void StarComponentRenderer::init(const ModPathResolver* textureResolver) {
     m_tempColorMap.width = -1;
 }
 
+void StarComponentRenderer::initGL() {
+    if (!m_starProgram.isCreated()) buildShaders();
+    if (!m_sVbo) buildMesh();
+    if (m_tempColorMap.width == -1) loadTempColorMap();
+}
+
 void StarComponentRenderer::drawStar(const StarComponent& sCmp,
                                      const f32m4& VP,
                                      const f64q& orientation,
                                      const f32v3& relCamPos,
                                      const f32 zCoef) {
-    checkLazyLoad();
     if (sCmp.visibility == 0.0f) return;
 
     m_starProgram.use();
@@ -110,8 +115,6 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
                                        const f32m4& V,
                                        const f32v3& relCamPos,
                                        const f32 zCoef) {
-    checkLazyLoad();
-
     f32v3 center(-relCamPos);
     f32v3 camRight(V[0][0], V[1][0], V[2][0]);
     f32v3 camUp(V[0][1], V[1][1], V[2][1]);
@@ -205,7 +208,6 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
                                                  const f32 zCoef,
                                                  const f32m4& VP,
                                                  const f64v3& relCamPos) {
-    checkLazyLoad();
     if (!m_occlusionProgram.isCreated()) {
         m_occlusionProgram = vg::ShaderManager::createProgram(OCCLUSION_VERT_SRC, OCCLUSION_FRAG_SRC);
         glGenVertexArrays(1, &m_oVao);
@@ -279,6 +281,7 @@ void StarComponentRenderer::dispose() {
     if (m_tempColorMap.data) {
         vg::ImageIO().free(m_tempColorMap);
         m_tempColorMap.data = nullptr;
+        m_tempColorMap.width = -1;
     }
 }
 
@@ -321,12 +324,6 @@ void StarComponentRenderer::disposeBuffers() {
         glDeleteVertexArrays(1, &m_gVao);
         m_gVao = 0;
     }
-}
-
-void StarComponentRenderer::checkLazyLoad() {
-    if (!m_starProgram.isCreated()) buildShaders();
-    if (!m_sVbo) buildMesh();
-    if (m_tempColorMap.width == -1) loadTempColorMap();
 }
 
 void StarComponentRenderer::buildShaders() {

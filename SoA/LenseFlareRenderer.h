@@ -28,6 +28,7 @@ public:
     ~LenseFlareRenderer();
 
     void init(const ModPathResolver* textureResolver);
+    void initGL();
 
     void render(const f32m4& VP, const f64v3& relCamPos,
                 const f32v3& color,
@@ -37,7 +38,6 @@ public:
 
     void dispose();
 private:
-    void lazyInit();
     void loadSprites(FlareKegProperties& kegProps);
     void initMesh();
 

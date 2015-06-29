@@ -32,6 +32,8 @@
 
 # Language aware diffs and force line endings if git did not know they are text:
 *.h     text diff=cpp
+*.hpp   text diff=cpp
+*.inl   text diff=cpp
 *.cpp   text diff=cpp
 *.py    text diff=python
 *.cs    text diff=csharp

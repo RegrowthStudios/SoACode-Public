@@ -28,6 +28,11 @@ public:
     virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;
 };
 
+class FarTerrainComponentTable : public vecs::ComponentTable < FarTerrainComponent > {
+public:
+    virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;
+};
+
 class OrbitComponentTable : public vecs::ComponentTable < OrbitComponent > {
 public:
     virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override;

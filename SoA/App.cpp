@@ -27,7 +27,9 @@
 #include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
 #include "TestMappingScreen.h"
+#include "TestNewBlockAPIScreen.h"
 #include "TestNoiseScreen.h"
+#include "TestPlanetGenScreen.h"
 #include "TestStarScreen.h"
 
 void App::addScreens() {
@@ -73,9 +75,15 @@ void App::addScreens() {
     scrTests.push_back(new TestNoiseScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_N, scrTests.back(), "TestNoiseScreen");
+    scrTests.push_back(new TestNewBlockAPIScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_A, scrTests.back(), "TestNewBlockAPIScreen");
+    scrTests.push_back(new TestPlanetGenScreen);
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_T, scrTests.back(), "TestPlanetGenScreen");
 
     // Uncomment to start from dev screen for testing other screens
-#define START_AT_DEV_SCREEN
+//#define START_AT_DEV_SCREEN
 #ifdef START_AT_DEV_SCREEN
     m_screenList.setScreen(scrDev->getIndex());
 #else

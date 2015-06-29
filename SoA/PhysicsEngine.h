@@ -1,7 +1,7 @@
 #pragma once
 #include <queue>
 
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 
 class Chunk;
 class ChunkManager;

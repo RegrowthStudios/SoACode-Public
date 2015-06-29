@@ -5,7 +5,7 @@
 #include <Vorb/graphics/Texture.h>
 
 #include "Constants.h"
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 
 extern MultiplePreciseTimer globalMultiplePreciseTimer; ///< For easy global benchmarking
 extern AccumulationTimer globalAccumulationTimer;
@@ -43,28 +43,6 @@ public:
 const int TOOSTEEP = 0x4;
 
 class HeightData;
-
-class LoadData
-{
-public:
-    LoadData()
-    {
-    }
-    LoadData(const HeightData* hmap, const PlanetGenData* gData)
-    {
-        heightMap = hmap;
-        genData = gData;
-    }
-    
-    inline void init(const HeightData* hmap, const PlanetGenData* gData)
-    {
-        heightMap = hmap;
-        genData = gData;
-    }
-
-    const HeightData* heightMap;
-    const PlanetGenData* genData;
-};
 
 struct MineralData
 {

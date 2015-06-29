@@ -175,6 +175,6 @@ void GameSystemEvents::onMegaSpeedUp(Sender s, ui32 a) {
 void GameSystemEvents::onMouseMotion(Sender s, const vui::MouseMotionEvent& e) {
     if (!m_soaState->isInputEnabled) return;
     for (auto& it : m_soaState->gameSystem->freeMoveInput) {
-        FreeMoveComponentUpdater::rotateFromMouse(m_soaState->gameSystem.get(), it.second, (f32)-e.dx, (f32)e.dy, 0.1f);
+        FreeMoveComponentUpdater::rotateFromMouse(m_soaState->gameSystem, it.second, (f32)-e.dx, (f32)e.dy, 0.1f);
     }
 }

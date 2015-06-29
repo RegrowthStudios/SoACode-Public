@@ -26,6 +26,7 @@ class ChunkMesh;
 class ChunkMeshData;
 class ChunkMeshManager;
 class VoxelLightEngine;
+class BlockPack;
 
 enum class RenderTaskType { DEFAULT, LIQUID };
 
@@ -40,15 +41,15 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Initializes the task
-    void init(Chunk* ch, RenderTaskType cType, ChunkMeshManager* meshManager);
+    void init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
 
     RenderTaskType type; 
     Chunk* chunk = nullptr;
-    ChunkMesh* chunkMesh = nullptr;
     ChunkMeshManager* meshManager = nullptr;
-
+    const BlockPack* blockPack = nullptr;
 private:
     void updateLight(VoxelLightEngine* voxelLightEngine);
+    void setupMeshData(ChunkMesher* chunkMesher);
 };
 
 #endif // RenderTask_h__

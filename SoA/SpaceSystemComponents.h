@@ -24,14 +24,14 @@
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
+#include "ChunkGrid.h"
 
-class ChunkGrid;
+class BlockPack;
 class ChunkIOManager;
-class ChunkListManager;
 class ChunkManager;
-class ChunkMemoryManager;
 class ChunkMeshManager;
 class FarTerrainPatch;
+class PagedChunkAllocator;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
@@ -88,7 +88,7 @@ struct AxisRotationComponent {
 };
 
 struct NamePositionComponent {
-    f64v3 position; ///< Position in space, in KM
+    f64v3 position = f64v3(0.0); ///< Position in space, in KM
     nString name; ///< Name of the entity
 };
 
@@ -144,17 +144,11 @@ struct SphericalGravityComponent {
     f64 mass = 0.0; ///< Mass in KG
 };
 
-// TODO(Ben): std::unique_ptr?
 struct SphericalVoxelComponent {
-    friend class SphericalVoxelComponentUpdater;
-
-    PhysicsEngine* physicsEngine = nullptr;
-    ChunkGrid* chunkGrid = nullptr;
-    ChunkListManager* chunkListManager = nullptr;
-    ChunkMemoryManager* chunkMemoryManager = nullptr;
+    ChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
+    PagedChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
-    ParticleEngine* particleEngine = nullptr;
     VoxelLightEngine voxelLightEngine;
 
     SphericalTerrainGpuGenerator* generator = nullptr;
@@ -163,6 +157,7 @@ struct SphericalVoxelComponent {
     const TerrainPatchData* sphericalTerrainData = nullptr;
 
     const vio::IOManager* saveFileIom = nullptr;
+    const BlockPack* blockPack = nullptr;
 
     vecs::ComponentID sphericalTerrainComponent = 0;
     vecs::ComponentID farTerrainComponent = 0;

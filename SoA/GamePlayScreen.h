@@ -106,6 +106,7 @@ private:
 
     // --------------- Event handlers ---------------
     void onReloadShaders(Sender s, ui32 a);
+    void onReloadTarget(Sender s, ui32 a);
     void onQuit(Sender s, ui32 a);
     void onToggleWireframe(Sender s, ui32 i);
     void onWindowClose(Sender s);
@@ -132,6 +133,10 @@ private:
 
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
     const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw
+
+    std::mutex m_reloadLock;
+    bool m_shouldReloadTarget = false;
+    bool m_shouldReloadShaders = false;
 };
 
 #endif // GAMEPLAYSCREEN_H_

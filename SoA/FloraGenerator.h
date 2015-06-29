@@ -26,9 +26,9 @@ public:
         TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
     };
 
-    bool generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
+    bool generateFlora(Chunk* chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
     static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
-    static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
+    static i32 makeTreeData(Chunk* chunk, TreeData &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
 
 private:

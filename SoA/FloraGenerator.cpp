@@ -399,64 +399,64 @@ void FloraGenerator::directionalMove(int& blockIndex, ui16& chunkOffset, TreeDir
     }
 }
 
-bool FloraGenerator::generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
-    int c;
+bool FloraGenerator::generateFlora(Chunk* chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes) {
+    //int c;
    
-    std::vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
-    std::vector <TreeData> &treesToLoad = chunk->treesToLoad;
+    //std::vector <PlantData> &plantsToLoad = chunk->plantsToLoad;
+    //std::vector <TreeData> &treesToLoad = chunk->treesToLoad;
 
-    _wnodes = &wnodes;
-    _lnodes = &lnodes;
+    //_wnodes = &wnodes;
+    //_lnodes = &lnodes;
 
-    // For placing flora
-    Chunk* _lockedChunk = nullptr;
+    //// For placing flora
+    //Chunk* _lockedChunk = nullptr;
 
-    //load plants
-    for (int i = plantsToLoad.size() - 1; i >= 0; i--) {
-        c = plantsToLoad[i].startc;
-        Block &block = GETBLOCK(plantsToLoad[i].ft->baseBlock);
-        bool occ = block.blockLight || block.lightColorPacked;
+    ////load plants
+    //for (int i = plantsToLoad.size() - 1; i >= 0; i--) {
+    //    c = plantsToLoad[i].startc;
+    //    Block &block = GETBLOCK(plantsToLoad[i].ft->baseBlock);
+    //    bool occ = block.blockLight || block.lightColorPacked;
 
-        if (c >= CHUNK_LAYER) {
-            if (_lockedChunk) { _lockedChunk->unlock(); }
-            _lockedChunk = chunk;
-            _lockedChunk->lock();
-            if (chunk->getBlockID(c - CHUNK_LAYER) != NONE) {
-                ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
-            }
-        } else if (chunk->bottom && chunk->bottom->isAccessible) {
-            if (_lockedChunk) { _lockedChunk->unlock(); }
-            _lockedChunk = chunk->bottom;
-            _lockedChunk->lock();
-            if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != NONE) {
-                _lockedChunk->unlock();
-                _lockedChunk = chunk;
-                _lockedChunk->lock();
-                ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
-            }
-        } else {
-            if (_lockedChunk) _lockedChunk->unlock();
-            return false;
-        }
+    //    if (c >= CHUNK_LAYER) {
+    //        if (_lockedChunk) { _lockedChunk->unlock(); }
+    //        _lockedChunk = chunk;
+    //        _lockedChunk->lock();
+    //        if (chunk->getBlockID(c - CHUNK_LAYER) != 0) {
+    //            ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
+    //        }
+    //    } else if (chunk->bottom && chunk->bottom->isAccessible) {
+    //        if (_lockedChunk) { _lockedChunk->unlock(); }
+    //        _lockedChunk = chunk->bottom;
+    //        _lockedChunk->lock();
+    //        if (chunk->bottom->getBlockID(c - CHUNK_LAYER + CHUNK_SIZE) != 0) {
+    //            _lockedChunk->unlock();
+    //            _lockedChunk = chunk;
+    //            _lockedChunk->lock();
+    //            ChunkUpdater::placeBlockNoUpdate(chunk, c, plantsToLoad[i].ft->baseBlock);
+    //        }
+    //    } else {
+    //        if (_lockedChunk) _lockedChunk->unlock();
+    //        return false;
+    //    }
 
-        plantsToLoad.pop_back();
-    }
-    // Make sure to unlock
-    if (_lockedChunk) _lockedChunk->unlock();
-    //we don't want flora to set the dirty bit
-    chunk->dirty = false;
+    //    plantsToLoad.pop_back();
+    //}
+    //// Make sure to unlock
+    //if (_lockedChunk) _lockedChunk->unlock();
+    ////we don't want flora to set the dirty bit
+    //chunk->dirty = false;
 
-    //Load Trees
-    for (int i = treesToLoad.size() - 1; i >= 0; i--) {
+    ////Load Trees
+    //for (int i = treesToLoad.size() - 1; i >= 0; i--) {
 
-        if (!generateTree(treesToLoad[i], chunk)) {
-            if (_lockedChunk) _lockedChunk->unlock();
-            return false;
-        }
+    //    if (!generateTree(treesToLoad[i], chunk)) {
+    //        if (_lockedChunk) _lockedChunk->unlock();
+    //        return false;
+    //    }
 
-        treesToLoad.pop_back();
-    }
-    
+    //    treesToLoad.pop_back();
+    //}
+    //
 
     return true;
 }
@@ -483,8 +483,8 @@ int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, in
     return 0;
 }
 
-int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
-    int c = td.startc;
+int FloraGenerator::makeTreeData(Chunk* chunk, TreeData &td, TreeType *tt) {
+   /* int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
     srand(chunk->voxelPosition.z*chunk->voxelPosition.x - x*z);
@@ -523,7 +523,7 @@ int FloraGenerator::makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt) {
     } else {
         td.leafColor = 0;
     }
-
+*/
     return 0;
 }
 

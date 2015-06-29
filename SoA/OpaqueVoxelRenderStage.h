@@ -30,6 +30,8 @@ public:
 
     /// Draws the render stage
     virtual void render(const Camera* camera) override;
+
+    void dispose(StaticLoadContext& context) override;
 private:
     vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters

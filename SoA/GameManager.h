@@ -36,7 +36,6 @@ public:
     static float fogStart, fogEnd;
     static class WSOAtlas* wsoAtlas;
     static class WSOScanner* wsoScanner;
-    static class TexturePackLoader* texturePackLoader; ///< Handles the loading of texture packs
     static class vg::TextureCache* textureCache;
 
 private:

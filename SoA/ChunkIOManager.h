@@ -17,10 +17,10 @@ public:
     ~ChunkIOManager();
     void clear();
 
-    void addToSaveList(Chunk* ch);
-    void addToSaveList(std::vector<Chunk*>& chunks);
-    void addToLoadList(Chunk* ch);
-    void addToLoadList(std::vector<Chunk*>& chunks);
+    void addToSaveList(Chunk*  ch);
+    void addToSaveList(std::vector<Chunk* >& chunks);
+    void addToLoadList(Chunk*  ch);
+    void addToLoadList(std::vector<Chunk* >& chunks);
 
     void beginThread();
 
@@ -31,10 +31,10 @@ public:
     bool saveVersionFile();
     bool checkVersion();
 
-    moodycamel::ReaderWriterQueue<Chunk*> chunksToLoad;
-    moodycamel::ReaderWriterQueue<Chunk*> chunksToSave;
+    moodycamel::ReaderWriterQueue<Chunk* > chunksToLoad;
+    moodycamel::ReaderWriterQueue<Chunk* > chunksToSave;
     std::thread* readWriteThread;
-    moodycamel::ReaderWriterQueue<Chunk*> finishedLoadChunks;
+    moodycamel::ReaderWriterQueue<Chunk* > finishedLoadChunks;
 private:
     RegionFileManager _regionFileManager;
 

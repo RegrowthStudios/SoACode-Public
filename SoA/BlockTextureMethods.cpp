@@ -7,22 +7,25 @@
 #include "BlockPack.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
+#include "ChunkMesher.h"
 #include "RenderTask.h"
 #include "VoxelBits.h"
 
-//Gets a random offset for use by random textures
-void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, int& result) {
-    //TODO: MurmurHash3
-    const MesherInfo* mi = params.mesherInfo;
-    const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
-    i32 seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
+#define GETBLOCK(a) (((*blocks)[((a) & 0x0FFF)]))
 
-    f32 r = (f32)((PseudoRand(seed) + 1.0) * 0.5 * blockTexInfo->totalWeight);
+//Gets a random offset for use by random textures
+void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+    //TODO: MurmurHash3
+    const ChunkMesher* cm = params.chunkMesher;
+    const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
+    i32 seed = 0; // getPositionSeed(cm->x + cm->position.x, cm->y + cm->position.y, cm->z + cm->position.z);
+
+    f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * blockTexInfo->totalWeight);
     f32 totalWeight = 0;
 
     // TODO(Ben): Binary search?
     if (blockTexInfo->weights.size()) {
-        for (int i = 0; i < blockTexInfo->numTiles; i++) {
+        for (ui32 i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {
                 result += i;
@@ -30,7 +33,7 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
             }
         }
     } else {
-        for (int i = 0; i < blockTexInfo->numTiles; i++) {
+        for (ui32 i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += 1.0f;
             if (r <= totalWeight) {
                 result += i;
@@ -40,24 +43,24 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
     }
 }
 
-void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     //TODO: MurmurHash3
-    const MesherInfo* mi = params.mesherInfo;
-    i32 seed = getPositionSeed(mi->x + mi->position.x, mi->y + mi->position.y, mi->z + mi->position.z);
+    const ChunkMesher* cm = params.chunkMesher;
+    i32 seed = 0; // getPositionSeed(cm->x + cm->position.x, cm->y + cm->position.y, cm->z + cm->position.z);
 
-    f32 r = (f32)((PseudoRand(seed) + 1.0) * 0.5 * params.blockTexInfo->totalWeight);
+    f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * params.blockTexInfo->totalWeight);
     f32 totalWeight = 0;
 
     const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
-    const ui16* tertiaryData = mi->tertiaryData;
+    const ui16* tertiaryData = cm->tertiaryData;
 
-    const int& wc = mi->wc;
+    const int& blockIndex = cm->blockIndex;
 
     int column;
 
     // TODO(Ben): Binary search?
     if (blockTexInfo->weights.size()) {
-        for (int i = 0; i < blockTexInfo->size.x; i++) {
+        for (ui32 i = 0; i < blockTexInfo->size.x; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {
                 column = i;
@@ -65,7 +68,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
             }
         }
     } else {
-        for (int i = 0; i < blockTexInfo->size.x; i++) {
+        for (ui32 i = 0; i < blockTexInfo->size.x; i++) {
             totalWeight += 1.0f;
             if (r <= totalWeight) {
                 column = i;
@@ -77,8 +80,8 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
     result += column;
 
     // Get the height of the current voxel
-    int height = MIN(VoxelBits::getFloraHeight(tertiaryData[wc]), mi->currentBlock->floraHeight);
-    int yPos = height - VoxelBits::getFloraPosition(tertiaryData[wc]);
+    int height = MIN(VoxelBits::getFloraHeight(tertiaryData[blockIndex]), cm->block->floraHeight);
+    int yPos = height - VoxelBits::getFloraPosition(tertiaryData[blockIndex]);
 
     // Move the result to the flora of the correct height
     result += blockTexInfo->size.x * (height * height + height) / 2;
@@ -88,111 +91,111 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
 }
 
 //Gets a connected texture offset by looking at the surrounding blocks
-void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, int& result) {
-
+void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+    const BlockPack* blocks = params.chunkMesher->blocks;
     int connectedOffset = 0;
-    const int& wc = params.mesherInfo->wc;
+    const int& blockIndex = params.chunkMesher->blockIndex;
     const int& upDir = params.upDir;
     const int& rightDir = params.rightDir;
     const int& frontDir = params.frontDir;
-    const ui16* blockIDData = params.mesherInfo->blockIDData;
+    const ui16* blockIDData = params.chunkMesher->blockData;
     const ui32& offset = params.offset;
     int tex = result;
 
     // Top Left
-    Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir]);
+    const Block *block = &GETBLOCK(blockIDData[blockIndex + upDir - rightDir]);
 
     if (block->base[offset] != tex) {
         connectedOffset |= 0x80;
     }
 
     // Top
-    block = &GETBLOCK(blockIDData[wc + upDir]);
+    block = &GETBLOCK(blockIDData[blockIndex + upDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0xE0;
     }
 
     // Top Right
-    block = &GETBLOCK(blockIDData[wc + upDir + rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex + upDir + rightDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0x20;
     }
 
     // Right
-    block = &GETBLOCK(blockIDData[wc + rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex + rightDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0x38;
     }
 
     // Bottom Right
-    block = &GETBLOCK(blockIDData[wc - upDir + rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - upDir + rightDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0x8;
     }
 
     // Bottom
-    block = &GETBLOCK(blockIDData[wc - upDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - upDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0xE;
     }
 
     // Bottom Left
-    block = &GETBLOCK(blockIDData[wc - upDir - rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - upDir - rightDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0x2;
     }
 
     // Left
-    block = &GETBLOCK(blockIDData[wc - rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - rightDir]);
     if (block->base[offset] != tex) {
         connectedOffset |= 0x83;
     }
 
     if (params.blockTexInfo->innerSeams) {
         // Top Front Left
-        Block *block = &GETBLOCK(blockIDData[wc + upDir - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex + upDir - rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x80;
         }
 
         // Top Front Right
-        block = &GETBLOCK(blockIDData[wc + upDir + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex + upDir + rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x20;
         }
 
         // Bottom front Right
-        block = &GETBLOCK(blockIDData[wc - upDir + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex - upDir + rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x8;
         }
 
         //Bottom front
-        block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex - upDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0xE;
         }
 
         // Bottom front Left
-        block = &GETBLOCK(blockIDData[wc - upDir - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex - upDir - rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x2;
         }
 
         //Left front
-        block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex - rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x83;
         }
 
         //Top front
-        block = &GETBLOCK(blockIDData[wc + upDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex + upDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0xE0;
         }
 
         //Right front
-        block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex + rightDir + frontDir]);
         if (block->occlude != BlockOcclusion::NONE) {
             connectedOffset |= 0x38;
         }
@@ -202,37 +205,37 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
 }
 
 //Gets a grass side texture offset by looking at the surrounding blocks
-void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, int& result) {
-
+void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+    const BlockPack* blocks = params.chunkMesher->blocks;
     int connectedOffset = 0;
-    const int& wc = params.mesherInfo->wc;
+    const int& blockIndex = params.chunkMesher->blockIndex;
     const int& upDir = params.upDir;
     const int& rightDir = params.rightDir;
     const int& frontDir = params.frontDir;
-    const ui16* blockIDData = params.mesherInfo->blockIDData;
+    const ui16* blockIDData = params.chunkMesher->blockData;
     const ui32& offset = params.offset;
-    const MesherInfo* mi = params.mesherInfo;
+    const ChunkMesher* cm = params.chunkMesher;
     
     int tex = result;
 
     // Bottom Front
-    Block* block = &GETBLOCK(blockIDData[wc - upDir + frontDir]);
-    if (mi->levelOfDetail > 1 || block->base[offset] == tex) {
-        block = &GETBLOCK(blockIDData[wc]);
-        result = block->pyTexInfo.base.textureIndex;
-        block->pyTexInfo.base.blockTextureFunc(params, result);
-        block->GetBlockColor(*params.color, 0, mi->temperature, mi->rainfall, block->pyTexInfo);
+    const Block* block = &GETBLOCK(blockIDData[blockIndex - upDir + frontDir]);
+    if (/*cm->levelOfDetail > 1 || */block->base[offset] == tex) {
+        block = &GETBLOCK(blockIDData[blockIndex]);
+        result = block->textures[1]->base.index;
+        block->textures[1]->base.blockTextureFunc(params, result);
+        block->getBlockColor(*params.color, 0, cm->heightData->temperature, cm->heightData->rainfall, block->textures[1]);
         return;
     }
 
     // Left
-    block = &GETBLOCK(blockIDData[wc - rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - rightDir]);
     if (block->base[offset] == tex || block->occlude == BlockOcclusion::NONE) {
         connectedOffset |= 0x8;
 
         if (block->base[offset] == tex) {
             // bottom front Left
-            block = &GETBLOCK(blockIDData[wc - upDir - rightDir + frontDir]);
+            block = &GETBLOCK(blockIDData[blockIndex - upDir - rightDir + frontDir]);
             if (block->base[offset] == tex) {
                 connectedOffset |= 0xC;
             }
@@ -240,31 +243,31 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     }
 
     // Front left
-    block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - rightDir + frontDir]);
     if (block->base[offset] == tex) {
         connectedOffset |= 0x8;
     }
 
     // Bottom left
-    block = &GETBLOCK(blockIDData[wc - upDir - rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - upDir - rightDir]);
     if (block->base[offset] == tex) {
         connectedOffset |= 0xC;
     }
 
     // bottom right
-    block = &GETBLOCK(blockIDData[wc - upDir + rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - upDir + rightDir]);
     if (block->base[offset] == tex) {
         connectedOffset |= 0x3;
     }
 
     // Right
-    block = &GETBLOCK(blockIDData[wc + rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex + rightDir]);
     if (block->base[offset] == tex || block->occlude == BlockOcclusion::NONE) {
         connectedOffset |= 0x1;
 
         if (block->base[offset] == tex) {
             // bottom front Right
-            block = &GETBLOCK(blockIDData[wc - upDir + rightDir + frontDir]);
+            block = &GETBLOCK(blockIDData[blockIndex - upDir + rightDir + frontDir]);
             if (block->base[offset] == tex) {
                 connectedOffset |= 0x3;
             }
@@ -272,7 +275,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     }
 
     // Front right
-    block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
+    block = &GETBLOCK(blockIDData[blockIndex + rightDir + frontDir]);
     if (block->base[offset] == tex) {
         connectedOffset |= 0x1;
     }
@@ -280,14 +283,14 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     result += vg::ConnectedTextureHelper::getOffsetSmall(connectedOffset);
 }
 
-void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, int& result) {
-
+void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+    const BlockPack* blocks = params.chunkMesher->blocks;
     static int verticalOffsets[4] = { 0, 1, 3, 2 };
 
     int connectedOffset;
-    const int& wc = params.mesherInfo->wc;
+    const int& blockIndex = params.chunkMesher->blockIndex;
     const int& upDir = params.upDir;
-    const ui16* blockIDData = params.mesherInfo->blockIDData;
+    const ui16* blockIDData = params.chunkMesher->blockData;
     const ConnectedTextureReducedMethod& rm = params.blockTexInfo->reducedMethod;
 
     int tex = result;
@@ -301,12 +304,12 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
     }
 
     //top bit
-    Block *block = &GETBLOCK(blockIDData[wc + upDir]);
+    const Block *block = &GETBLOCK(blockIDData[blockIndex + upDir]);
     if (block->base[params.offset] == tex) {
         connectedOffset |= 2;
     }
     //bottom bit
-    block = &GETBLOCK(blockIDData[wc - upDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - upDir]);
     if (block->base[params.offset] == tex) {
         connectedOffset |= 1;
     }
@@ -314,35 +317,36 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
     result += verticalOffsets[connectedOffset];
 }
 
-void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, int& result) {
+void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
     static int horizontalOffsets[4] = { 0, 1, 3, 2 };
+    const BlockPack* blocks = params.chunkMesher->blocks;
 
     int connectedOffset = 0;
-    const int& wc = params.mesherInfo->wc;
+    const int& blockIndex = params.chunkMesher->blockIndex;
     const int& rightDir = params.rightDir;
     const int& frontDir = params.frontDir;
-    const ui16* blockIDData = params.mesherInfo->blockIDData;
+    const ui16* blockIDData = params.chunkMesher->blockData;
     int tex = result;
 
     //right bit
-    Block *block = &GETBLOCK(blockIDData[wc + rightDir]);
+    const Block *block = &GETBLOCK(blockIDData[blockIndex + rightDir]);
     if (block->base[params.offset] == tex) {
         connectedOffset |= 1;
     }
     //left bit
-    block = &GETBLOCK(blockIDData[wc - rightDir]);
+    block = &GETBLOCK(blockIDData[blockIndex - rightDir]);
     if (block->base[params.offset] == tex) {
         connectedOffset |= 2;
     }
 
     if (params.blockTexInfo->innerSeams) {
         //front right bit
-        Block *block = &GETBLOCK(blockIDData[wc + rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex + rightDir + frontDir]);
         if (block->base[params.offset] == tex) {
             connectedOffset &= 2;
         }
         //front left bit
-        block = &GETBLOCK(blockIDData[wc - rightDir + frontDir]);
+        block = &GETBLOCK(blockIDData[blockIndex - rightDir + frontDir]);
         if (block->base[params.offset] == tex) {
             connectedOffset &= 1;
         }

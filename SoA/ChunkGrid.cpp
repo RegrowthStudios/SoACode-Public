@@ -1,44 +1,88 @@
 #include "stdafx.h"
 #include "ChunkGrid.h"
+#include "Chunk.h"
+#include "ChunkAllocator.h"
 
-#include "ChunkMemoryManager.h"
+#include <Vorb/utils.h>
 
+volatile ChunkID ChunkGrid::m_nextAvailableID = 0;
 
-ChunkGrid::~ChunkGrid() {
-    // Empty
+void ChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
+                      OPT vcore::ThreadPool<WorkerData>* threadPool,
+                      ui32 generatorsPerRow,
+                      PlanetGenData* genData) {
+    m_face = face;
+    m_allocator = chunkAllocator;
+    m_generatorsPerRow = generatorsPerRow;
+    m_numGenerators = generatorsPerRow * generatorsPerRow;
+    m_generators = new ChunkGenerator[m_numGenerators]; // TODO(Ben): delete[]
+    for (ui32 i = 0; i < m_numGenerators; i++) {
+        m_generators[i].init(chunkAllocator, threadPool, genData);
+    }
 }
 
 void ChunkGrid::addChunk(Chunk* chunk) {
+    const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Add to lookup hashmap
-    m_chunkMap[chunk->gridPosition.pos] = chunk;
+    m_chunkMap[pos.pos] = chunk;
+    // TODO(Ben): use the () thingy
+    i32v2 gridPos(pos.pos.x, pos.pos.z);
 
-    i32v2 gridPos(chunk->gridPosition.pos.x,
-                  chunk->gridPosition.pos.z);
-
-    // Check and see if the grid data is already allocated here
-    std::shared_ptr<ChunkGridData> chunkGridData = getChunkGridData(gridPos);
-    if (chunkGridData == nullptr) {
-        // If its not allocated, make a new one with a new voxelMapData
-        chunkGridData = std::make_shared<ChunkGridData>(gridPos,
-                                                        chunk->gridPosition.face);
-        m_chunkGridDataMap[gridPos] = chunkGridData;
-    } else {
-        chunkGridData->refCount++;
+    { // Get grid data
+        // Check and see if the grid data is already allocated here
+        chunk->gridData = getChunkGridData(gridPos);
+        if (chunk->gridData == nullptr) {
+            // If its not allocated, make a new one with a new voxelMapData
+            // TODO(Ben): Cache this
+            chunk->gridData = std::make_shared<ChunkGridData>(pos);
+            m_chunkGridDataMap[gridPos] = chunk->gridData;
+        }
     }
-    chunk->chunkGridData = chunkGridData;
+
+    connectNeighbors(chunk);
+
+    { // Add to linked list
+        if (m_activeChunks) {
+            chunk->m_nextActive = m_activeChunks;
+            m_activeChunks->m_prevActive = chunk;
+            chunk->m_prevActive = nullptr;
+            m_activeChunks = chunk;
+        } else {
+            chunk->m_nextActive = nullptr;
+            chunk->m_prevActive = nullptr;
+            m_activeChunks = chunk;
+        }
+        m_numActiveChunks++;
+    }
 }
 
 void ChunkGrid::removeChunk(Chunk* chunk) {
+    const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Remove from lookup hashmap
-    m_chunkMap.erase(chunk->gridPosition.pos);
+    m_chunkMap.erase(pos.pos);
 
-    // Reduce the ref count since the chunk no longer needs chunkGridData
-    chunk->chunkGridData->refCount--;
-    // Check to see if we should free the grid data
-    if (chunk->chunkGridData->refCount == 0) {
-        i32v2 gridPosition(chunk->gridPosition.pos.x, chunk->gridPosition.pos.z);
-        m_chunkGridDataMap.erase(gridPosition);
-        chunk->chunkGridData.reset(); // TODO(Ben): is shared needed?
+    { // Remove grid data
+        chunk->gridData->refCount--;
+        // Check to see if we should free the grid data
+        if (chunk->gridData->refCount == 0) {
+            i32v2 gridPosition(pos.pos.x, pos.pos.z);
+            m_chunkGridDataMap.erase(gridPosition);
+            chunk->gridData.reset();
+            chunk->gridData = nullptr;
+        }
+    }
+
+    disconnectNeighbors(chunk);
+
+    { // Remove from linked list
+        if (chunk != m_activeChunks) {
+            chunk->m_prevActive->m_nextActive = chunk->m_nextActive;
+            if (chunk->m_nextActive) chunk->m_nextActive->m_prevActive = chunk->m_prevActive;
+        } else {
+            m_activeChunks = chunk->m_nextActive;
+            if (m_activeChunks) m_activeChunks->m_prevActive = nullptr;
+        }
+        m_numActiveChunks--;
     }
 }
 
@@ -65,29 +109,137 @@ const Chunk* ChunkGrid::getChunk(const i32v3& chunkPos) const {
     return it->second;
 }
 
-const i16* ChunkGrid::getIDQuery(const i32v3& start, const i32v3& end) const {
-    i32v3 pIter = start;
-    // Create The Array For The IDs
-    const i32v3 size = end - start + i32v3(1);
-    i32 volume = size.x * size.y * size.z;
-    i16* q = new i16[volume];
-    i32 i = 0;
-    i32v3 chunkPos, voxelPos;
-    for (; pIter.y <= end.y; pIter.y++) {
-        for (pIter.z = start.z; pIter.z <= end.z; pIter.z++) {
-            for (pIter.x = start.x; pIter.x <= end.x; pIter.x++) {
-                // Get The Chunk
-                chunkPos = pIter / CHUNK_WIDTH;
-                const Chunk* c = getChunk(chunkPos);
-                // Get The ID
-                voxelPos = pIter % CHUNK_WIDTH;
-                q[i++] = c->getBlockID(voxelPos.y * CHUNK_LAYER + voxelPos.z * CHUNK_WIDTH + voxelPos.x);
+void ChunkGrid::submitQuery(ChunkQuery* query) {
+    m_queries.enqueue(query);
+}
+
+std::shared_ptr<ChunkGridData> ChunkGrid::getChunkGridData(const i32v2& gridPos) const {
+    auto it = m_chunkGridDataMap.find(gridPos);
+    if (it == m_chunkGridDataMap.end()) return nullptr;
+    return it->second;
+}
+
+void ChunkGrid::update() {
+    // TODO(Ben): Handle generator distribution
+    m_generators[0].update();
+
+    // Needs to be big so we can flush it every frame.
+#define MAX_QUERIES 5000
+    ChunkQuery* queries[MAX_QUERIES];
+    size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
+    for (size_t i = 0; i < numQueries; i++) {
+        ChunkQuery* q = queries[i];
+        Chunk* chunk = getChunk(q->chunkPos);
+        if (chunk) {
+            // Check if we don't need to do any generation
+            if (chunk->genLevel <= q->genLevel) {
+                q->m_chunk = chunk;
+                q->m_isFinished = true;
+                q->m_cond.notify_one();
+                if (q->shouldDelete) delete q;
+                continue;
+            } else {
+                q->m_chunk = chunk;
+                q->m_chunk->refCount++;
             }
+        } else {
+            q->m_chunk = m_allocator->getNewChunk();
+            ChunkPosition3D pos;
+            pos.pos = q->chunkPos;
+            pos.face = m_face;
+            q->m_chunk->init(m_nextAvailableID++, pos);
+            q->m_chunk->refCount++;
+            addChunk(q->m_chunk);
+        }
+        // TODO(Ben): Handle generator distribution
+        q->genTask.init(q, q->m_chunk->gridData->heightData, &m_generators[0]);
+        m_generators[0].submitQuery(q);
+    }
+}
+
+void ChunkGrid::connectNeighbors(Chunk* chunk) {
+    const i32v3& pos = chunk->getChunkPosition().pos;
+    { // Left
+        i32v3 newPos(pos.x - 1, pos.y, pos.z);
+        chunk->left = getChunk(newPos);
+        if (chunk->left) {
+            chunk->left->right = chunk;
+            chunk->left->m_numNeighbors++;
+            chunk->m_numNeighbors++;
         }
     }
-    // openglManager.debugRenderer->drawCube(
-    // f32v3(start + end) * 0.5f + f32v3(cornerPosition) + f32v3(0.5f), f32v3(size) + f32v3(0.4f),
-    // f32v4(1.0f, 0.0f, 0.0f, 0.3f), 1.0f
-    // );
-    return q;
+    { // Right
+        i32v3 newPos(pos.x + 1, pos.y, pos.z);
+        chunk->right = getChunk(newPos);
+        if (chunk->right) {
+            chunk->right->left = chunk;
+            chunk->right->m_numNeighbors++;
+            chunk->m_numNeighbors++;
+        }
+    }
+    { // Bottom
+        i32v3 newPos(pos.x, pos.y - 1, pos.z);
+        chunk->bottom = getChunk(newPos);
+        if (chunk->bottom) {
+            chunk->bottom->top = chunk;
+            chunk->bottom->m_numNeighbors++;
+            chunk->m_numNeighbors++;
+        }
+    }
+    { // Top
+        i32v3 newPos(pos.x, pos.y + 1, pos.z);
+        chunk->top = getChunk(newPos);
+        if (chunk->top) {
+            chunk->top->bottom = chunk;
+            chunk->top->m_numNeighbors++;
+            chunk->m_numNeighbors++;
+        }
+    }
+    { // Back
+        i32v3 newPos(pos.x, pos.y, pos.z - 1);
+        chunk->back = getChunk(newPos);
+        if (chunk->back) {
+            chunk->back->front = chunk;
+            chunk->back->m_numNeighbors++;
+            chunk->m_numNeighbors++;
+        }
+    }
+    { // Front
+        i32v3 newPos(pos.x, pos.y, pos.z + 1);
+        chunk->front = getChunk(newPos);
+        if (chunk->front) {
+            chunk->front->back = chunk;
+            chunk->front->m_numNeighbors++;
+            chunk->m_numNeighbors++;
+        }
+    } 
+}
+
+void ChunkGrid::disconnectNeighbors(Chunk* chunk) {
+    if (chunk->left) {
+        chunk->left->right = nullptr;
+        chunk->left->m_numNeighbors--;
+    }
+    if (chunk->right) {
+        chunk->right->left = nullptr;
+        chunk->right->m_numNeighbors--;
+    }
+    if (chunk->bottom) {
+        chunk->bottom->top = nullptr;
+        chunk->bottom->m_numNeighbors--;
+    }
+    if (chunk->top) {
+        chunk->top->bottom = nullptr;
+        chunk->top->m_numNeighbors--;
+    }
+    if (chunk->back) {
+        chunk->back->front = nullptr;
+        chunk->back->m_numNeighbors--;
+    }
+    if (chunk->front) {
+        chunk->front->back = nullptr;
+        chunk->front->m_numNeighbors--;
+    }
+    memset(chunk->neighbors, 0, sizeof(chunk->neighbors));
+    chunk->m_numNeighbors = 0;
 }

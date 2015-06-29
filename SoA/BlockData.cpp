@@ -6,76 +6,18 @@
 #include "GameManager.h"
 #include "SoaOptions.h"
 #include "Rendering.h"
-#include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "ZipFile.h"
 
-KEG_ENUM_DEF(MeshType, MeshType, e) {
-    e.addValue("none", MeshType::NONE);
-    e.addValue("cube", MeshType::BLOCK);
-    e.addValue("leaves", MeshType::LEAVES);
-    e.addValue("triangle", MeshType::FLORA);
-    e.addValue("cross", MeshType::CROSSFLORA);
-    e.addValue("liquid", MeshType::LIQUID);
-    e.addValue("flat", MeshType::FLAT);
-}
-KEG_ENUM_DEF(ConnectedTextureMethods, ConnectedTextureMethods, e) {
-    e.addValue("none", ConnectedTextureMethods::NONE);
-    e.addValue("connect", ConnectedTextureMethods::CONNECTED);
-    e.addValue("random", ConnectedTextureMethods::RANDOM);
-    e.addValue("repeat", ConnectedTextureMethods::REPEAT);
-    e.addValue("grass", ConnectedTextureMethods::GRASS);
-    e.addValue("horizontal", ConnectedTextureMethods::HORIZONTAL);
-    e.addValue("vertical", ConnectedTextureMethods::VERTICAL);
-    e.addValue("flora", ConnectedTextureMethods::FLORA);
-}
-KEG_ENUM_DEF(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e) {
-    e.addValue("none", ConnectedTextureSymmetry::NONE);
-    e.addValue("opposite", ConnectedTextureSymmetry::OPPOSITE);
-    e.addValue("all", ConnectedTextureSymmetry::ALL);
-}
 KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
     e.addValue("none", BlockOcclusion::NONE);
     e.addValue("self", BlockOcclusion::SELF);
     e.addValue("selfOnly", BlockOcclusion::SELF_ONLY);
     e.addValue("all", BlockOcclusion::ALL);
 }
-KEG_ENUM_DEF(ConnectedTextureReducedMethod, ConnectedTextureReducedMethod, e) {
-    e.addValue("none", ConnectedTextureReducedMethod::NONE);
-    e.addValue("top", ConnectedTextureReducedMethod::TOP);
-    e.addValue("bottom", ConnectedTextureReducedMethod::BOTTOM);
-}
-KEG_ENUM_DEF(BlendType, BlendType, e) {
-    e.addValue("add", BlendType::ADD);
-    e.addValue("multiply", BlendType::MULTIPLY);
-    e.addValue("replace", BlendType::ALPHA);
-    e.addValue("subtract", BlendType::SUBTRACT);
-}
-
-KEG_TYPE_DEF_SAME_NAME(BlockTextureLayer, kt) {
-      kt.addValue("method", keg::Value::custom(offsetof(BlockTextureLayer, method), "ConnectedTextureMethods", true));
-      kt.addValue("reducedMethod", keg::Value::custom(offsetof(BlockTextureLayer, reducedMethod), "ConnectedTextureReducedMethod", true));
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, size, I32_V2);
-      kt.addValue("symmetry", keg::Value::custom(offsetof(BlockTextureLayer, symmetry), "ConnectedTextureSymmetry", true));
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, innerSeams, BOOL);
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, transparency, BOOL);
-      kt.addValue("height", keg::Value::basic(offsetof(BlockTextureLayer, floraHeight), keg::BasicType::UI32));
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, useMapColor, STRING);
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, totalWeight, I32);
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, numTiles, I32);
-      kt.addValue("weights", keg::Value::array(offsetof(BlockTextureLayer, weights), keg::BasicType::I32));
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, textureIndex, I32);
-      KEG_TYPE_INIT_ADD_MEMBER(kt, BlockTextureLayer, path, STRING);
-}
-
-KEG_TYPE_DEF_SAME_NAME(BlockTexture, kt) {
-    kt.addValue("base", keg::Value::custom(offsetof(BlockTexture, base), "BlockTextureLayer"));
-    kt.addValue("overlay", keg::Value::custom(offsetof(BlockTexture, overlay), "BlockTextureLayer"));
-    kt.addValue("blendMode", keg::Value::custom(offsetof(BlockTexture, blendMode), "BlendType", true));
-}
 
 KEG_TYPE_DEF_SAME_NAME(Block, kt) {
-    kt.addValue("ID", keg::Value::basic(offsetof(Block, ID), keg::BasicType::UI16));
+    kt.addValue("ID", keg::Value::basic(offsetof(Block, temp), keg::BasicType::I32));
+    kt.addValue("name", keg::Value::basic(offsetof(Block, name), keg::BasicType::STRING));
     kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::UI16));
     kt.addValue("waveEffect", keg::Value::basic(offsetof(Block, waveEffect), keg::BasicType::I16));
     kt.addValue("lightColor", keg::Value::basic(offsetof(Block, lightColor), keg::BasicType::UI8_V3));
@@ -103,20 +45,13 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("allowsLight", keg::Value::basic(offsetof(Block, allowLight), keg::BasicType::BOOL));
     kt.addValue("crushable", keg::Value::basic(offsetof(Block, isCrushable), keg::BasicType::BOOL));
     kt.addValue("supportive", keg::Value::basic(offsetof(Block, isSupportive), keg::BasicType::BOOL));
-    kt.addValue("textureLeft", keg::Value::basic(offsetof(Block, leftTexName), keg::BasicType::STRING));
-    kt.addValue("textureRight", keg::Value::basic(offsetof(Block, rightTexName), keg::BasicType::STRING));
-    kt.addValue("textureFront", keg::Value::basic(offsetof(Block, frontTexName), keg::BasicType::STRING));
-    kt.addValue("textureBack", keg::Value::basic(offsetof(Block, backTexName), keg::BasicType::STRING));
-    kt.addValue("textureTop", keg::Value::basic(offsetof(Block, topTexName), keg::BasicType::STRING));
-    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, bottomTexName), keg::BasicType::STRING));
+    kt.addValue("textureLeft", keg::Value::basic(offsetof(Block, texturePaths[0]), keg::BasicType::STRING));
+    kt.addValue("textureRight", keg::Value::basic(offsetof(Block, texturePaths[1]), keg::BasicType::STRING));
+    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, texturePaths[2]), keg::BasicType::STRING));
+    kt.addValue("textureTop", keg::Value::basic(offsetof(Block, texturePaths[3]), keg::BasicType::STRING));
+    kt.addValue("textureBack", keg::Value::basic(offsetof(Block, texturePaths[4]), keg::BasicType::STRING));
+    kt.addValue("textureFront", keg::Value::basic(offsetof(Block, texturePaths[5]), keg::BasicType::STRING));
 }
-
-std::vector <int> TextureUnitIndices;
-
-int connectedTextureOffsets[256];
-int grassTextureOffsets[32];
-
-std::map <nString, BlockVariable> blockVariableMap;
 
 /// "less than" operator for inserting into sets in TexturePackLoader
 bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
@@ -139,6 +74,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     return false;
 }
 
+// TODO(Ben): LOL
 Block::Block() : emitterName(""), 
 emitterOnBreakName(""), 
 emitter(nullptr),
@@ -150,7 +86,11 @@ overlayColor(255, 255, 255),
 lightColor(0, 0, 0) {
     allowLight = false;
     ID = 0;
-    name = leftTexName = rightTexName = backTexName = frontTexName = topTexName = bottomTexName = particleTexName = "";
+    name = particleTexName = "";
+    for (int i = 0; i < 6; i++) {
+        texturePaths[i] = "";
+        textures[i] = nullptr;
+    }
     particleTex = 0;
     collide = true;
     occlude = BlockOcclusion::ALL;
@@ -176,97 +116,50 @@ lightColor(0, 0, 0) {
     colorFilter = f32v3(1.0f);
 }
 
-void Block::GetBlockColor(ColorRGB8& baseColor, ColorRGB8& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
+void Block::getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
-    if (blockTexture.base.colorMap) {
+    // TODO(Ben): Handle this
+    /*if (blockTexture.base.colorMap) {
         ui8v3* bytes = blockTexture.base.colorMap->bytesUI8v3 + index;
         //Average the map color with the base color
         baseColor.r = (ui8)(((float)Block::color.r * (float)bytes->r) / 255.0f);
         baseColor.g = (ui8)(((float)Block::color.g * (float)bytes->g) / 255.0f);
         baseColor.b = (ui8)(((float)Block::color.b * (float)bytes->b) / 255.0f);
-    } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
+    } else */if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         baseColor = altColors[flags - 1];
     } else{
         baseColor = color;
     }
     //overlay color
-    if (blockTexture.overlay.colorMap) {
+    /*if (blockTexture.overlay.colorMap) {
         ui8v3* bytes = blockTexture.overlay.colorMap->bytesUI8v3 + index;
         //Average the map color with the base color
         overlayColor.r = (ui8)(((float)Block::overlayColor.r * (float)bytes->r) / 255.0f);
         overlayColor.g = (ui8)(((float)Block::overlayColor.g * (float)bytes->g) / 255.0f);
         overlayColor.b = (ui8)(((float)Block::overlayColor.b * (float)bytes->b) / 255.0f);
-    } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
+    } else */if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         overlayColor= altColors[flags - 1];
     } else{
         overlayColor = Block::overlayColor;
     }
 }
 
-void Block::GetBlockColor(ColorRGB8& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture& blockTexture)
+void Block::getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const
 {
     int index = (255 - rainfall) * 256 + temperature;
     //base color
-    if (blockTexture.base.colorMap) {
+    /*if (blockTexture.base.colorMap) {
         ui8v3* bytes = blockTexture.base.colorMap->bytesUI8v3 + index;
         //Average the map color with the base color
         baseColor.r = (ui8)(((float)Block::color.r * (float)bytes->r) / 255.0f);
         baseColor.g = (ui8)(((float)Block::color.g * (float)bytes->g) / 255.0f);
         baseColor.b = (ui8)(((float)Block::color.b * (float)bytes->b) / 255.0f);
-    } else if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
+    } else*/ if (altColors.size() >= flags && flags){ //alt colors, for leaves and such
         baseColor = altColors[flags - 1];
     } else{
         baseColor = color;
-    }
-}
-
-void Block::InitializeTexture() {
-    if (active) {
-        // Default values for texture indices
-        for (i32 i = 0; i < 6; i++) {
-            base[i] = 0;
-            normal[i] = -1;
-            overlay[i] = -1;
-        }
-
-        GameManager::texturePackLoader->getBlockTexture(topTexName, pyTexInfo);
-        base.py = pyTexInfo.base.textureIndex;
-        overlay.py = pyTexInfo.overlay.textureIndex;
-
-        GameManager::texturePackLoader->getBlockTexture(leftTexName, nxTexInfo);
-        base.nx = nxTexInfo.base.textureIndex;
-        overlay.nx = nxTexInfo.overlay.textureIndex;
-
-        GameManager::texturePackLoader->getBlockTexture(rightTexName, pxTexInfo);
-        base.px = pxTexInfo.base.textureIndex;
-        overlay.px = pxTexInfo.overlay.textureIndex;
-
-        GameManager::texturePackLoader->getBlockTexture(frontTexName, pzTexInfo);
-        base.pz = pzTexInfo.base.textureIndex;
-        overlay.pz = pzTexInfo.overlay.textureIndex;
-
-        GameManager::texturePackLoader->getBlockTexture(backTexName, nzTexInfo);
-        base.nz = nzTexInfo.base.textureIndex;
-        overlay.nz = nzTexInfo.overlay.textureIndex;
-
-        GameManager::texturePackLoader->getBlockTexture(bottomTexName, nyTexInfo);
-        base.ny = nyTexInfo.base.textureIndex;
-        overlay.ny = nyTexInfo.overlay.textureIndex;
-
-        BlockTexture particleTexture;
-        GameManager::texturePackLoader->getBlockTexture(particleTexName, particleTexture);
-        particleTex = particleTexture.base.textureIndex;
-
-        // Calculate flora height
-        // TODO(Ben): Not really a good place for this
-        if (pxTexInfo.base.method == ConnectedTextureMethods::FLORA) {
-            // Just a bit of algebra to solve for n with the equation y = (n² + n) / 2
-            // which becomes n = (sqrt(8 * y + 1) - 1) / 2
-            int y = pxTexInfo.base.size.y;
-            floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
-        }
     }
 }
 
@@ -289,11 +182,11 @@ void Block::SetAvgTexColors()
 
 void SetBlockAvgTexColors()
 {
-    for (size_t i = 0; i < Blocks.size(); i++){
+    /*for (size_t i = 0; i < Blocks.size(); i++){
         if (Blocks[i].active){
             Blocks[i].SetAvgTexColors();
         }
-    }
+    }*/
 }
 
 void DrawHeadBlock(glm::dvec3 position, glm::mat4 &VP, Block *block, int flags, float light, float sunlight)

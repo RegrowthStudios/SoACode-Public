@@ -18,8 +18,6 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
-#include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "VRayHelper.h"
 #include "WSO.h"
 #include "WSOAtlas.h"
@@ -35,7 +33,6 @@ float GameManager::fogStart, GameManager::fogEnd;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
-TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 
 void GameManager::initializeSystems() {
@@ -45,7 +42,6 @@ void GameManager::initializeSystems() {
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
         textureCache = new vg::TextureCache();
-        texturePackLoader = new TexturePackLoader(textureCache);
 
         _systemsInitialized = true;
     }
@@ -53,25 +49,25 @@ void GameManager::initializeSystems() {
 
 void GameManager::registerTexturesForLoad() {
 
-    texturePackLoader->registerTexture("FarTerrain/location_marker.png");
-    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-    texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
-    texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
-    texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
-    texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
-    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    //texturePackLoader->registerTexture("FarTerrain/location_marker.png");
+    //texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    //texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
+    //texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
+    //texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
+    //texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
+    //texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 
-    texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
 
-    texturePackLoader->registerTexture("FarTerrain/water_noise.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-    texturePackLoader->registerTexture("Particle/ball_mask.png");
+    //texturePackLoader->registerTexture("FarTerrain/water_noise.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    //texturePackLoader->registerTexture("Particle/ball_mask.png");
 
-    texturePackLoader->registerTexture("GUI/crosshair.png");
+    //texturePackLoader->registerTexture("GUI/crosshair.png");
 }
 
 void GameManager::getTextureHandles() {
@@ -114,7 +110,7 @@ void BindVBOIndicesID() {
 }
 
 bool isSolidBlock(const i32& blockID) {
-    return blockID && (blockID < LOWWATER || blockID > FULLWATER);
+    return true; // return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
 
 void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay) {

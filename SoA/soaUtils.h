@@ -15,6 +15,8 @@
 #ifndef soaUtils_h__
 #define soaUtils_h__
 
+#include "Constants.h"
+
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/types.h>
@@ -190,6 +192,18 @@ inline f64 fastAtan2(f64 y, f64 x) {
 /// For logarithmic z-buffer shaders
 inline f32 computeZCoef(f32 zFar) {
     return 2.0f / log2(zFar + 1.0f);
+}
+
+/// Get distance from a chunk
+inline f32 computeDistance2FromChunk(const f64v3& chunkPos, const f64v3& p) {
+    f64 dx = ((p.x <= chunkPos.x) ? chunkPos.x : ((p.x > chunkPos.x + CHUNK_WIDTH) ? (chunkPos.x + CHUNK_WIDTH) : p.x));
+    f64 dy = ((p.y <= chunkPos.y) ? chunkPos.y : ((p.y > chunkPos.y + CHUNK_WIDTH) ? (chunkPos.y + CHUNK_WIDTH) : p.y));
+    f64 dz = ((p.z <= chunkPos.z) ? chunkPos.z : ((p.z > chunkPos.z + CHUNK_WIDTH) ? (chunkPos.z + CHUNK_WIDTH) : p.z));
+    dx = dx - p.x;
+    dy = dy - p.y;
+    dz = dz - p.z;
+    // We don't sqrt the distance since sqrt is slow
+    return (f32)(dx*dx + dy*dy + dz*dz);
 }
 
 #endif // soaUtils_h__

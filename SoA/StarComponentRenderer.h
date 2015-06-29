@@ -34,6 +34,7 @@ public:
     ~StarComponentRenderer();
 
     void init(const ModPathResolver* textureResolver);
+    void initGL();
 
     void drawStar(const StarComponent& sCmp,
                   const f32m4& VP,
@@ -65,7 +66,6 @@ public:
     f64 calculateGlowSize(const StarComponent& sCmp, const f64v3& relCamPos);
 
 private:
-    void checkLazyLoad();
     void buildShaders();
     void buildMesh();
     void loadTempColorMap();

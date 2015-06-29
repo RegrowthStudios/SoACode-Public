@@ -13,16 +13,22 @@ KEG_TYPE_DEF_SAME_NAME(LiquidColorKegProperties, kt) {
 
 KEG_TYPE_DEF_SAME_NAME(TerrainColorKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainColorKegProperties, colorPath, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainColorKegProperties, texturePath, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainColorKegProperties, grassTexturePath, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainColorKegProperties, rockTexturePath, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainColorKegProperties, tint, UI8_V3);
 }
 
 KEG_ENUM_DEF(TerrainStage, TerrainStage, kt) {
     kt.addValue("noise", TerrainStage::NOISE);
+    kt.addValue("squared", TerrainStage::SQUARED);
+    kt.addValue("cubed", TerrainStage::CUBED);
     kt.addValue("noise_ridged", TerrainStage::RIDGED_NOISE);
     kt.addValue("noise_abs", TerrainStage::ABS_NOISE);
     kt.addValue("noise_squared", TerrainStage::SQUARED_NOISE);
     kt.addValue("noise_cubed", TerrainStage::CUBED_NOISE);
+    kt.addValue("noise_cellular", TerrainStage::CELLULAR_NOISE);
+    kt.addValue("noise_cellular_squared", TerrainStage::CELLULAR_SQUARED_NOISE);
+    kt.addValue("noise_cellular_cubed", TerrainStage::CELLULAR_CUBED_NOISE);
     kt.addValue("constant", TerrainStage::CONSTANT);
     kt.addValue("passthrough", TerrainStage::PASS_THROUGH);
 }

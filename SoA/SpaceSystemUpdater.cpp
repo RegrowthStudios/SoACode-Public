@@ -7,16 +7,16 @@
 
 void SpaceSystemUpdater::init(const SoaState* soaState) {
     // Set planet rotation
-    m_axisRotationComponentUpdater.update(soaState->spaceSystem.get(), soaState->time);
+    m_axisRotationComponentUpdater.update(soaState->spaceSystem, soaState->time);
     // Set initial position
-    m_orbitComponentUpdater.update(soaState->spaceSystem.get(), soaState->time);
+    m_orbitComponentUpdater.update(soaState->spaceSystem, soaState->time);
 }
 
 void SpaceSystemUpdater::update(const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
 
     // Get handles
-    SpaceSystem* spaceSystem = soaState->spaceSystem.get();
-    const GameSystem* gameSystem = soaState->gameSystem.get();
+    SpaceSystem* spaceSystem = soaState->spaceSystem;
+    const GameSystem* gameSystem = soaState->gameSystem;
 
     // Update planet rotation
     m_axisRotationComponentUpdater.update(spaceSystem, soaState->time);
@@ -29,7 +29,7 @@ void SpaceSystemUpdater::update(const SoaState* soaState, const f64v3& spacePos,
     m_sphericalTerrainComponentUpdater.update(soaState, spacePos);
 
     // Update voxels
-    m_sphericalVoxelComponentUpdater.update(spaceSystem, gameSystem, soaState);
+    m_sphericalVoxelComponentUpdater.update(soaState);
 
     // Update Orbits ( Do this last)
     m_orbitComponentUpdater.update(spaceSystem, soaState->time);
@@ -37,5 +37,5 @@ void SpaceSystemUpdater::update(const SoaState* soaState, const f64v3& spacePos,
 
 void SpaceSystemUpdater::glUpdate(const SoaState* soaState) {
     m_sphericalTerrainComponentUpdater.glUpdate(soaState);
-    m_farTerrainComponentUpdater.glUpdate(soaState->spaceSystem.get());
+    m_farTerrainComponentUpdater.glUpdate(soaState->spaceSystem);
 }

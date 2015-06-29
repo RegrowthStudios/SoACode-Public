@@ -15,7 +15,7 @@
 #define GamePlayRenderer_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
-#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/GBuffer.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/RPC.h>
 
@@ -28,7 +28,6 @@
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
 #include "NightVisionRenderStage.h"
-#include "NightVisionRenderStage.h"
 #include "OpaqueVoxelRenderStage.h"
 #include "PauseMenuRenderStage.h"
 #include "PdaRenderStage.h"
@@ -36,6 +35,7 @@
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
+#include "SsaoRenderStage.h"
 
 /// Forward declarations
 class App;
@@ -68,7 +68,7 @@ struct SoaState;
 class GameplayRenderer {
 public:
     /// Initializes the pipeline and passes dependencies
-    void init(vui::GameWindow* window, LoadContext& context,
+    void init(vui::GameWindow* window, StaticLoadContext& context,
               GameplayScreen* gameplayScreen, CommonState* commonState);
 
     /// Call this every frame before render
@@ -76,9 +76,11 @@ public:
 
     void hook();
 
-    void load(LoadContext& context);
+    void load(StaticLoadContext& context);
 
-    void dispose(LoadContext& context);
+    void dispose(StaticLoadContext& context);
+
+    void reloadShaders();
 
     void updateGL();
 
@@ -112,6 +114,7 @@ public:
         PdaRenderStage pda; ///< Renders the PDA
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
+        SsaoRenderStage ssao; ///< Renders SSAO
     } stages;
 
 private:
@@ -120,7 +123,7 @@ private:
 
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
 
-    vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
+    vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
 
     GameRenderParams m_gameRenderParams; ///< Shared rendering parameters for voxels

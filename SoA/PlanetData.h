@@ -35,17 +35,23 @@ KEG_TYPE_DECL(LiquidColorKegProperties);
 
 struct TerrainColorKegProperties {
     nString colorPath = "";
-    nString texturePath = "";
+    nString grassTexturePath = "";
+    nString rockTexturePath = "";
     ColorRGB8 tint = ColorRGB8(255, 255, 255);
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
 
 enum class TerrainStage {
     NOISE,
+    SQUARED,
+    CUBED,
     RIDGED_NOISE,
     ABS_NOISE,
     SQUARED_NOISE,
     CUBED_NOISE,
+    CELLULAR_NOISE,
+    CELLULAR_SQUARED_NOISE,
+    CELLULAR_CUBED_NOISE,
     CONSTANT,
     PASS_THROUGH
 };
@@ -94,7 +100,8 @@ struct PlanetBlockInitInfo {
 struct PlanetGenData {
     vg::Texture terrainColorMap = 0;
     vg::Texture liquidColorMap = 0;
-    vg::Texture terrainTexture = 0;
+    vg::Texture grassTexture = 0;
+    vg::Texture rockTexture = 0;
     vg::Texture liquidTexture = 0;
     color3 liquidTint = color3(255, 255, 255);
     color3 terrainTint = color3(255, 255, 255);
@@ -119,6 +126,7 @@ struct PlanetGenData {
     NoiseBase humTerrainFuncs;
 
     static ColorMaps colorMaps;
+    nString filePath;
 };
 
 #endif // PlanetData_h__

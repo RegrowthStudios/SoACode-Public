@@ -54,7 +54,6 @@ struct SystemBodyKegProperties;
 
 DECL_VG(class TextureRecycler)
 
-//TODO(Ben): This should be POD, split it up
 class SpaceSystem : public vecs::ECS {
     friend class SpaceSystemRenderStage;
     friend class MainMenuSystemViewer;
@@ -69,7 +68,7 @@ public:
     SphericalTerrainComponentTable m_sphericalTerrainCT;
     vecs::ComponentTable<GasGiantComponent> m_gasGiantCT;
     vecs::ComponentTable<StarComponent> m_starCT;
-    vecs::ComponentTable<FarTerrainComponent> m_farTerrainCT;
+    FarTerrainComponentTable m_farTerrainCT;
     vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
     vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
     vecs::ComponentTable<PlanetRingsComponent> m_planetRingCT;

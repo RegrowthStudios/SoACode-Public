@@ -4,10 +4,12 @@
 #include "BlockData.h"
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
-#include "SoAState.h"
-#include "ProgramGenDelegate.h"
 #include "DebugRenderer.h"
 #include "MeshManager.h"
+#include "PlanetLoader.h"
+#include "ProgramGenDelegate.h"
+#include "SoAState.h"
+#include "SpaceSystemAssemblages.h"
 
 #define M_PER_KM 1000.0
 
@@ -46,17 +48,21 @@ void SoaEngine::initOptions(SoaOptions& options) {
 }
 
 void SoaEngine::initState(SoaState* state) {
-    state->gameSystem = std::make_unique<GameSystem>();
-    state->spaceSystem = std::make_unique<SpaceSystem>();
-    state->debugRenderer = std::make_unique<DebugRenderer>();
-    state->meshManager = std::make_unique<MeshManager>();
-    state->chunkMeshManager = std::make_unique<ChunkMeshManager>();
-    state->systemIoManager = std::make_unique<vio::IOManager>();
-    state->systemViewer = std::make_unique<MainMenuSystemViewer>();
+    state->gameSystem = new GameSystem;
+    state->spaceSystem = new SpaceSystem;
+    state->debugRenderer = new DebugRenderer;
+    state->meshManager = new MeshManager;
+    state->chunkMeshManager = new ChunkMeshManager;
+    state->systemIoManager = new vio::IOManager;
+    state->systemViewer = new MainMenuSystemViewer;
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
    
+    // TODO(Ben): Don't hardcode this. Load a texture pack file
+    state->blockTextures = new BlockTexturePack;
+    state->blockTextures->init(32, 4096);
+    state->blockTextureLoader.init(&state->texturePathResolver, state->blockTextures);
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
@@ -66,7 +72,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     vfile file;
     path.asFile(&file);
 
-    state->planetLoader = std::make_unique<PlanetLoader>(state->systemIoManager.get());
+    state->planetLoader = new PlanetLoader(state->systemIoManager);
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
     pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
@@ -101,9 +107,9 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.glrpc = glrpc;
     spaceSystemLoadParams.dirPath = loadData.filePath;
-    spaceSystemLoadParams.spaceSystem = state->spaceSystem.get();
-    spaceSystemLoadParams.ioManager = state->systemIoManager.get();
-    spaceSystemLoadParams.planetLoader = state->planetLoader.get();
+    spaceSystemLoadParams.spaceSystem = state->spaceSystem;
+    spaceSystemLoadParams.ioManager = state->systemIoManager;
+    spaceSystemLoadParams.planetLoader = state->planetLoader;
 
     m_spaceSystemLoader.loadStarSystem(spaceSystemLoadParams);
 
@@ -118,7 +124,7 @@ bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadDa
 }
 
 void SoaEngine::setPlanetBlocks(SoaState* state) {
-    SpaceSystem* ss = state->spaceSystem.get();
+    SpaceSystem* ss = state->spaceSystem;
     for (auto& it : ss->m_sphericalTerrainCT) {
         auto& cmp = it.second;
         PlanetBlockInitInfo& blockInfo = cmp.planetGenData->blockInfo;
@@ -126,37 +132,91 @@ void SoaEngine::setPlanetBlocks(SoaState* state) {
         if (cmp.planetGenData) {
             // Set all block layers
             for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
-                ui16 blockID = Blocks[blockInfo.blockLayerNames[i]].ID;
+                ui16 blockID = state->blocks[blockInfo.blockLayerNames[i]].ID;
                 cmp.planetGenData->blockLayers[i].block = blockID;
             }
             // Clear memory
             std::vector<nString>().swap(blockInfo.blockLayerNames);
             // Set liquid block
             if (blockInfo.liquidBlockName.length()) {
-                cmp.planetGenData->liquidBlock = Blocks[blockInfo.liquidBlockName].ID;
-                nString().swap(blockInfo.liquidBlockName); // clear memory
+                if (state->blocks.hasBlock(blockInfo.liquidBlockName)) {
+                    cmp.planetGenData->liquidBlock = state->blocks[blockInfo.liquidBlockName].ID;
+                    nString().swap(blockInfo.liquidBlockName); // clear memory
+                }
             }
             // Set surface block
             if (blockInfo.surfaceBlockName.length()) {
-                cmp.planetGenData->surfaceBlock = Blocks[blockInfo.surfaceBlockName].ID;
-                nString().swap(blockInfo.surfaceBlockName); // clear memory
+                if (state->blocks.hasBlock(blockInfo.surfaceBlockName)) {
+                    cmp.planetGenData->surfaceBlock = state->blocks[blockInfo.surfaceBlockName].ID;
+                    nString().swap(blockInfo.surfaceBlockName); // clear memory
+                }
             }
         }
     }
 }
 
+void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
+    SpaceSystem* spaceSystem = state->spaceSystem;
+    auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(eid);
+    f64 radius = stCmp.radius;
+    auto& npCmpID = stCmp.namePositionComponent;
+    auto& arCmpID = stCmp.axisRotationComponent;
+    auto& ftCmpID = stCmp.farTerrainComponent;
+    WorldCubeFace face;
+    PlanetGenData* genData = stCmp.planetGenData;
+    nString filePath = genData->filePath;
+
+    if (ftCmpID) {
+        face = spaceSystem->m_farTerrainCT.getFromEntity(eid).face;
+        SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, eid);
+    }
+    if (stCmp.sphericalVoxelComponent) {
+        SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, eid);
+    }
+
+    SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
+    
+
+    genData = state->planetLoader->loadPlanet(filePath, glRPC);
+    genData->radius = radius;
+
+    auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
+                                                         radius,
+                                                         genData,
+                                                         &spaceSystem->normalMapGenProgram,
+                                                         spaceSystem->normalMapRecycler.get());
+    if (ftCmpID) {
+        auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
+        stCmp.farTerrainComponent = ftCmpID;
+    }
+
+    // TODO(Ben): this doesn't work too well.
+    auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
+    pCmp.parentSphericalTerrainID = stCmpID;
+    pCmp.parentGravityID = spaceSystem->m_sphericalGravityCT.getComponentID(eid);
+    pCmp.parentEntity = eid;
+}
+
 void SoaEngine::destroyAll(SoaState* state) {
-    state->debugRenderer.reset();
-    state->meshManager.reset();
-    state->systemIoManager.reset();
+    delete state->spaceSystem;
+    delete state->gameSystem;
+    delete state->debugRenderer;
+    delete state->meshManager;
+    delete state->chunkMeshManager;
+    delete state->systemViewer;
+    delete state->systemIoManager;
+    delete state->planetLoader;
+    delete state->options;
+    delete state->blockTextures;
     destroyGameSystem(state);
     destroySpaceSystem(state);
 }
 
 void SoaEngine::destroyGameSystem(SoaState* state) {
-    state->gameSystem.reset();
+    delete state->gameSystem;
 }
 
 void SoaEngine::destroySpaceSystem(SoaState* state) {
-    state->spaceSystem.reset();
+    delete state->spaceSystem;
 }
+

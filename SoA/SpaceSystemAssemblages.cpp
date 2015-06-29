@@ -3,8 +3,7 @@
 
 #include "ChunkGrid.h"
 #include "ChunkIOManager.h"
-#include "ChunkListManager.h"
-#include "ChunkMemoryManager.h"
+#include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"
 #include "OrbitComponentUpdater.h"
 #include "ParticleEngine.h"
@@ -21,7 +20,6 @@
 
 // TEMPORARY
 #include "GameManager.h"
-#include "TexturePackLoader.h"
 #include "PlanetData.h"
 
 #include <glm/gtx/quaternion.hpp>
@@ -261,14 +259,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.voxelRadius = ftcmp.sphericalTerrainData->radius * VOXELS_PER_KM;
 
-    svcmp.physicsEngine = new PhysicsEngine();
-
     svcmp.generator = ftcmp.gpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkGrid = new ChunkGrid(worldFace);
-    svcmp.chunkListManager = new ChunkListManager();
-    svcmp.chunkMemoryManager = new ChunkMemoryManager();
-    svcmp.chunkMeshManager = soaState->chunkMeshManager.get();
+    svcmp.chunkAllocator = new PagedChunkAllocator();
+    svcmp.chunkMeshManager = soaState->chunkMeshManager;
+    svcmp.blockPack = &soaState->blocks;
 
     // Set up threadpool
     // Check the hardware concurrency
@@ -277,6 +272,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     if (hc > 1) hc--;
     if (hc > 1) hc--;
 
+    // Drop a thread so we don't steal the hardware on debug
+#ifdef DEBUG
+    if (hc > 1) hc--;
+#endif
+
     // Initialize the threadpool with hc threads
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
     svcmp.threadPool->init(hc);
@@ -284,8 +284,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Give some time for the threads to spin up
     SDL_Delay(100);
 
-    svcmp.particleEngine = new ParticleEngine();
-    
+    svcmp.chunkGrids = new ChunkGrid[6];
+    for (int i = 0; i < 6; i++) {
+        svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.chunkAllocator, svcmp.threadPool, 1, ftcmp.planetGenData);
+    }
+
     svcmp.planetGenData = ftcmp.planetGenData;
     svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
@@ -327,22 +330,21 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
     stCmp.axisRotationComponent = arComp;
     stCmp.planetGenData = planetGenData;
 
-  
     if (planetGenData) {
         stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
                                                         normalMapRecycler);
         stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
                                                               planetGenData,
                                                               normalProgram, normalMapRecycler);
-        stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
-                                                              planetGenData);
+        stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
+        stCmp.cpuGenerator->init(planetGenData);
         stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
     }
     
     stCmp.radius = radius;
     stCmp.alpha = 1.0f;
 
-    f64 patchWidth = (radius * 2.000) / ST_PATCH_ROW;
+    f64 patchWidth = (radius * 2.0) / ST_PATCH_ROW;
     stCmp.sphericalTerrainData = new TerrainPatchData(radius, patchWidth);
 
     return stCmpId;

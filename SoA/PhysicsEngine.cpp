@@ -462,7 +462,7 @@ void PhysicsEngine::explosionRay(ChunkManager* chunkManager, const f64v3 &pos, f
 
 void PhysicsEngine::performExplosions()
 {
-    if (_deferredExplosions.empty()) return;
+  /*  if (_deferredExplosions.empty()) return;
 
     int val;
 
@@ -477,7 +477,7 @@ void PhysicsEngine::performExplosions()
         _deferredExplosions.pop();
         if (SDL_GetTicks() - sticks > 20) break;
     }
-
+*/
 }
 
 void PhysicsEngine::detectFloatingBlocks(const glm::dvec3 &viewDir)

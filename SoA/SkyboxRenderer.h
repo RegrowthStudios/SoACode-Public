@@ -22,11 +22,15 @@ public:
     f32v3 texCoords;
 };
 
+class LoadContext;
+
 class SkyboxRenderer
 {
 public:
     SkyboxRenderer();
     ~SkyboxRenderer();
+
+    void initGL();
 
     /// Draw the skybox
     void drawSkybox(const f32m4& VP, VGTexture textureArray);

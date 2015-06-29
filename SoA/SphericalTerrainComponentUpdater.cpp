@@ -9,11 +9,12 @@
 #include "SphericalTerrainGpuGenerator.h"
 #include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
+#include "PlanetLoader.h"
 #include "soaUtils.h"
 
 void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3& cameraPos) {
 
-    SpaceSystem* spaceSystem = state->spaceSystem.get();
+    SpaceSystem* spaceSystem = state->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
       
         SphericalTerrainComponent& stCmp = it.second;
@@ -74,8 +75,8 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
                                                                   data,
                                                                   &spaceSystem->normalMapGenProgram,
                                                                   spaceSystem->normalMapRecycler.get());
-            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator(stCmp.meshManager,
-                                                                  data);
+            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
+            stCmp.cpuGenerator->init(data);
             stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
             // Do this last to prevent race condition with regular update
             data->radius = stCmp.radius;
@@ -111,7 +112,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
 }
 
 void SphericalTerrainComponentUpdater::updateVoxelComponentLogic(const SoaState* state, vecs::EntityID eid, SphericalTerrainComponent& stCmp) {
-    SpaceSystem* spaceSystem = state->spaceSystem.get();
+    SpaceSystem* spaceSystem = state->spaceSystem;
     // Handle voxel component
     if (stCmp.needsVoxelComponent) {
         // Check for creating a new component

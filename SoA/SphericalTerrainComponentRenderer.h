@@ -28,6 +28,7 @@ struct SphericalTerrainComponent;
 class SphericalTerrainComponentRenderer {
 public:
     ~SphericalTerrainComponentRenderer();
+    void initGL();
     void draw(SphericalTerrainComponent& cmp,
               const Camera* camera,
               const f32v3& lightDir,
@@ -36,10 +37,8 @@ public:
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent* arComponent,
               const AtmosphereComponent* aComponent);
-    void disposeShaders();
+    void dispose();
 private:
-    void buildShaders();
-
     vg::GLProgram m_terrainProgram;
     vg::GLProgram m_waterProgram;
 };

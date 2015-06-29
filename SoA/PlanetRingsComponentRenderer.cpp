@@ -13,13 +13,19 @@
 
 #include <glm/gtx/quaternion.hpp>
 
-PlanetRingsComponentRenderer::PlanetRingsComponentRenderer() {
-    // Empty
+PlanetRingsComponentRenderer::~PlanetRingsComponentRenderer() {
+    dispose();
 }
 
-PlanetRingsComponentRenderer::~PlanetRingsComponentRenderer() {
-    disposeShader();
-    m_quad.dispose();
+void PlanetRingsComponentRenderer::initGL() {
+    if (!m_program.isCreated()) {
+        m_program = ShaderLoader::createProgramFromFile("Shaders/PlanetRings/Rings.vert",
+                                                        "Shaders/PlanetRings/Rings.frag");
+    }
+    if (!m_isInitialized) {
+        m_isInitialized = true;
+        m_quad.init();
+    }
 }
 
 void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
@@ -29,16 +35,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
                                         const f32 planetRadius,
                                         const f32 zCoef,
                                         const SpaceLightComponent* spComponent) {
-    // Lazily construct buffer and shaders
-    if (!m_program.isCreated()) {
-        m_program = ShaderLoader::createProgramFromFile("Shaders/PlanetRings/Rings.vert",
-                                                        "Shaders/PlanetRings/Rings.frag");
-    }
-    if (!m_isInitialized) {
-        m_isInitialized = true;
-        m_quad.init();
-    }
-
+   
     m_program.use();
     // For logarithmic Z buffer
     glUniform1f(m_program.getUniform("unZCoef"), zCoef);
@@ -83,6 +80,10 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
     m_program.unuse();
 }
 
-void PlanetRingsComponentRenderer::disposeShader() {
+void PlanetRingsComponentRenderer::dispose() {
     if (m_program.isCreated()) m_program.dispose();
+    if (m_isInitialized) {
+        m_quad.dispose();
+        m_isInitialized = false;
+    }
 }

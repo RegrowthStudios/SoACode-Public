@@ -22,6 +22,24 @@
 
 #define ATMO_LOAD_DIST 50000.0f
 
+/* ===================== LoadContext =================== */
+const ui32 LENS_WORK = 2;
+const ui32 STAR_WORK = 2;
+const ui32 AR_WORK = 2;
+const ui32 SPHER_WORK = 2;
+const ui32 GAS_WORK = 2;
+const ui32 CLOUD_WORK = 2;
+const ui32 ATMO_WORK = 2;
+const ui32 RING_WORK = 2;
+const ui32 FAR_WORK = 2;
+// Make sure to sum all work here
+const ui32 TOTAL_WORK = LENS_WORK + STAR_WORK + AR_WORK +
+                        SPHER_WORK + GAS_WORK + CLOUD_WORK +
+                        ATMO_WORK + RING_WORK + FAR_WORK;
+// Make sure NUM_TASKS matches the number of tasks listed
+const ui32 NUM_TASKS = 9;
+/* ====================================================== */
+
 const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(0.0, 0.0, 0.0)), // TOP
     f64q(f64v3(0.0, 0.0, -M_PI / 2.0)), // LEFT
@@ -31,15 +49,71 @@ const f64q FACE_ORIENTATIONS[6] = {
     f64q(f64v3(M_PI, 0.0, 0.0))  // BOTTOM
 };
 
+void SpaceSystemRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
+    IRenderStage::init(window, context);
+    context.addAnticipatedWork(TOTAL_WORK, NUM_TASKS);
+}
+
 void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera /*= nullptr*/) {
     m_viewport = m_window->getViewportDims();
-    m_spaceSystem = state->spaceSystem.get();
-    m_mainMenuSystemViewer = state->systemViewer.get();
+    m_spaceSystem = state->spaceSystem;
+    m_mainMenuSystemViewer = state->systemViewer;
     m_lensFlareRenderer.init(&state->texturePathResolver);
     m_starRenderer.init(&state->texturePathResolver);
     m_systemARRenderer.init(&state->texturePathResolver);
     m_spaceCamera = spaceCamera;
     m_farTerrainCamera = farTerrainCamera;
+}
+
+void SpaceSystemRenderStage::load(StaticLoadContext& context) {
+    context.addTask([&](Sender, void*) {
+        m_lensFlareRenderer.initGL();
+        context.addWorkCompleted(LENS_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_starRenderer.initGL();
+        context.addWorkCompleted(STAR_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_systemARRenderer.initGL();
+        context.addWorkCompleted(AR_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_sphericalTerrainComponentRenderer.initGL();
+        context.addWorkCompleted(SPHER_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_gasGiantComponentRenderer.initGL();
+        context.addWorkCompleted(GAS_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_cloudsComponentRenderer.initGL();
+        context.addWorkCompleted(CLOUD_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_atmosphereComponentRenderer.initGL();
+        context.addWorkCompleted(ATMO_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_ringsRenderer.initGL();
+        context.addWorkCompleted(RING_WORK);
+    }, false);
+    context.addTask([&](Sender, void*) {
+        m_farTerrainComponentRenderer.initGL();
+        context.addWorkCompleted(LENS_WORK);
+    }, false);
+}
+
+void SpaceSystemRenderStage::dispose(StaticLoadContext& context) {
+    m_lensFlareRenderer.dispose();
+    m_starRenderer.dispose();
+    m_systemARRenderer.dispose();
+    m_sphericalTerrainComponentRenderer.dispose();
+    m_gasGiantComponentRenderer.dispose();
+    m_cloudsComponentRenderer.dispose();
+    m_atmosphereComponentRenderer.dispose();
+    m_ringsRenderer.dispose();
+    m_farTerrainComponentRenderer.dispose();
 }
 
 void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
@@ -51,6 +125,21 @@ void SpaceSystemRenderStage::render(const Camera* camera) {
     if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                                           m_mainMenuSystemViewer,
                                           m_viewport);
+}
+
+void SpaceSystemRenderStage::reloadShaders() {
+    StaticLoadContext tmp;
+    dispose(tmp);
+
+    m_lensFlareRenderer.initGL();
+    m_starRenderer.initGL();
+    m_systemARRenderer.initGL();
+    m_sphericalTerrainComponentRenderer.initGL();
+    m_gasGiantComponentRenderer.initGL();
+    m_cloudsComponentRenderer.initGL();
+    m_atmosphereComponentRenderer.initGL();
+    m_ringsRenderer.initGL();
+    m_farTerrainComponentRenderer.initGL();
 }
 
 void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
@@ -132,7 +221,7 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render clouds
-    glDisable(GL_CULL_FACE);
+  /*  glDisable(GL_CULL_FACE);
     for (auto& it : m_spaceSystem->m_cloudsCT) {
         auto& cCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(cCmp.namePositionComponent);
@@ -147,7 +236,7 @@ void SpaceSystemRenderStage::drawBodies() {
                                        m_spaceSystem->m_axisRotationCT.getFromEntity(it.first), 
                                        m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);*/
 
     // Render atmospheres
     for (auto& it : m_spaceSystem->m_atmosphereCT) {

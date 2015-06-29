@@ -2,16 +2,18 @@
 #include "TransparentVoxelRenderStage.h"
 
 #include <Vorb/graphics/GLProgram.h>
+#include "BlockPack.h"
+#include "BlockTexturePack.h"
 #include "Camera.h"
-#include "Chunk.h"
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
 #include "MeshManager.h"
-#include "SoaOptions.h"
+#include "Chunk.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
+#include "SoaOptions.h"
 
 void TransparentVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
@@ -44,7 +46,7 @@ void TransparentVoxelRenderStage::render(const Camera* camera) {
 
     // Bind the block textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, Blocks.texture.id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blockTexturePack->getAtlasTexture());
 
     glUniform1f(m_program.getUniform("dt"), (GLfloat)1.0f);
 

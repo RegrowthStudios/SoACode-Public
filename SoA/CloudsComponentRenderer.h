@@ -14,9 +14,9 @@ struct SpaceLightComponent;
 class CloudsComponentRenderer
 {
 public:
-    CloudsComponentRenderer();
     ~CloudsComponentRenderer();
 
+    void initGL();
     void draw(const CloudsComponent& cCmp,
               const f32m4& VP,
               const f32v3& relCamPos,
@@ -25,7 +25,7 @@ public:
               const SpaceLightComponent* spComponent,
               const AxisRotationComponent& arComponent,
               const AtmosphereComponent& aCmp);
-    void disposeShader();
+    void dispose();
 private:
     void buildMesh();
 

@@ -34,6 +34,7 @@ public:
     ~SystemARRenderer();
 
     void init(const ModPathResolver* textureResolver);
+    void initGL();
 
     void draw(SpaceSystem* spaceSystem, const Camera* camera,
               OPT const MainMenuSystemViewer* systemViewer,

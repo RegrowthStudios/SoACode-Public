@@ -37,6 +37,7 @@ InputMapper::InputID INPUT_RANDOM_DEBUG = -1;
 InputMapper::InputID INPUT_RELOAD_BLOCKS = -1;
 InputMapper::InputID INPUT_RELOAD_SHADERS = -1;
 InputMapper::InputID INPUT_RELOAD_SYSTEM = -1;
+InputMapper::InputID INPUT_RELOAD_TARGET = -1;
 InputMapper::InputID INPUT_RELOAD_TEXTURES = -1;
 InputMapper::InputID INPUT_RELOAD_UI = -1;
 InputMapper::InputID INPUT_RIGHT = -1;
@@ -84,6 +85,7 @@ void initInputs(InputMapper* inputManager) {
     CREATE_INPUT(Reload System, VKEY_F10, INPUT_RELOAD_SYSTEM);
     CREATE_INPUT(Reload UI, VKEY_F5, INPUT_RELOAD_UI);
     CREATE_INPUT(Reload Night Vision, VKEY_F3, INPUT_NIGHT_VISION_RELOAD);
+    CREATE_INPUT(Reload Target, VKEY_F12, INPUT_RELOAD_TARGET);
 
     // Visual Debugging
     CREATE_INPUT(Grid Toggle, VKEY_G, INPUT_GRID);

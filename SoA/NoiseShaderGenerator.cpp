@@ -123,52 +123,73 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
             // Apply parent before clamping
             if (modifier.length()) {
                 fSource += h + getOpChar(fn.op) + "=" + TS(fn.low) + ";\n";
-            }
-            // Optional clamp if both fields are not 0.0f
-            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+                }
             }
             nextOp = op;
-        } else { // It's a noise function
-            fSource = fSource +
-                "total = 0.0;\n" +
-                "amplitude = 1.0;\n" +
-                "maxAmplitude = 0.0;\n" +
-                "frequency = " + TS(fn.frequency) + ";\n" +
+        } else if (fn.func == TerrainStage::SQUARED) {
+            h = modifier;
+            // Apply parent before clamping
+            if (modifier.length()) {
+                fSource += h + "*=" + h + ";\n";
 
-                "for (int i = 0; i < " + TS(fn.octaves) + "; i++) {\n";
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+                }
+            }
+            nextOp = fn.op;
+        } else if (fn.func == TerrainStage::CUBED) {
+            h = modifier;
+            // Apply parent before clamping
+            if (modifier.length()) {
+                fSource += h + "=" + h + "*" + h + "*" + h + ";\n";
+
+                // Optional clamp if both fields are not 0.0f
+                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+                    fSource += h + " = clamp(" + h + "," + TS(fn.clamp[0]) + "," + TS(fn.clamp[1]) + ");\n";
+                }
+            }
+            nextOp = fn.op;
+        } else { // It's a noise function
             switch (fn.func) {
-                case TerrainStage::NOISE:
-                    fSource += "total += snoise(pos * frequency) * amplitude;\n";
-                    break;
-                case TerrainStage::RIDGED_NOISE:
-                    fSource += "total += ((1.0 - abs(snoise(pos * frequency))) * 2.0 - 1.0) * amplitude;\n";
-                    break;
-                case TerrainStage::ABS_NOISE:
-                    fSource += "total += abs(snoise(pos * frequency)) * amplitude;\n";
+                case TerrainStage::CUBED_NOISE:
+                    fSource += "total = cubedNoise(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
                     break;
                 case TerrainStage::SQUARED_NOISE:
-                    fSource += "tmp = snoise(pos * frequency);\n";
-                    fSource += "total += tmp * tmp * amplitude;\n";
+                    fSource += "total = squaredNoise(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
                     break;
-                case TerrainStage::CUBED_NOISE:
-                    fSource += "tmp = snoise(pos * frequency);\n";
-                    fSource += "total += tmp * tmp * tmp * amplitude;\n";
+                case TerrainStage::NOISE:
+                    fSource += "total = noise(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
+                    break;
+                case TerrainStage::RIDGED_NOISE:
+                    fSource += "total = ridgedNoise(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
+                    break;
+                case TerrainStage::ABS_NOISE:
+                    fSource += "total = absNoise(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
+                    break;
+                case TerrainStage::CELLULAR_NOISE:
+                    fSource += "total = cellularFractal(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
+                    break;
+                case TerrainStage::CELLULAR_SQUARED_NOISE:
+                    fSource += "total = cellularSquared(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
+                    break;
+                case TerrainStage::CELLULAR_CUBED_NOISE:
+                    fSource += "total = cellularCubed(pos, " + TS(fn.octaves) + ", " + TS(fn.frequency) + ", " + TS(fn.persistence) + ");\n";
                     break;
             }
-            fSource = fSource +
-                "  frequency *= 2.0;\n" +
-                "  maxAmplitude += amplitude;\n" +
-                "  amplitude *= " + TS(fn.persistence) + ";\n" +
-                "}\n";
+
             // Conditional scaling. 
             fSource += "float " + h + " = ";
             if (fn.low != -1.0f || fn.high != 1.0f) {
                 // (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
-                fSource += "(total / maxAmplitude) * (" +
+                fSource += "total * (" +
                     TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n";
             } else {
-                fSource += "total / maxAmplitude;\n";
+                fSource += "total;\n";
             }
             // Optional clamp if both fields are not 0.0f
             if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
