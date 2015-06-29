@@ -180,6 +180,9 @@
     <Filter Include="SOA Files\Voxel\Texturing">
       <UniqueIdentifier>{29e1a60e-9cde-4091-b045-d6c803be19ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Console">
+      <UniqueIdentifier>{771788c4-8294-4b8d-b65c-616f4371e8c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -800,7 +803,7 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="Startup.h">
-      <Filter>SOA Files\Screens</Filter>
+      <Filter>SOA Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1296,7 +1299,7 @@
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="Startup.cpp">
-      <Filter>SOA Files\Screens</Filter>
+      <Filter>SOA Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
