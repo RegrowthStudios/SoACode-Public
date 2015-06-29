@@ -54,8 +54,6 @@ private:
     void disposeChunk(Chunk* chunk);
 
     bool trySetMeshDependencies(Chunk* chunk);
-
-    void tryRemoveMeshDependencies(Chunk* chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__
