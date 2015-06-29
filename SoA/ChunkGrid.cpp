@@ -41,22 +41,11 @@ void ChunkGrid::addChunk(Chunk* chunk) {
 
     connectNeighbors(chunk);
 
-    { // Add to linked list
-        if (m_activeChunks) {
-            chunk->m_nextActive = m_activeChunks;
-            m_activeChunks->m_prevActive = chunk;
-            chunk->m_prevActive = nullptr;
-            m_activeChunks = chunk;
-        } else {
-            chunk->m_nextActive = nullptr;
-            chunk->m_prevActive = nullptr;
-            m_activeChunks = chunk;
-        }
-        m_numActiveChunks++;
-    }
+    // Add to active list
+    m_activeChunks.push_back(chunk);
 }
 
-void ChunkGrid::removeChunk(Chunk* chunk) {
+void ChunkGrid::removeChunk(Chunk* chunk, int index) {
     const ChunkPosition3D& pos = chunk->getChunkPosition();
     // Remove from lookup hashmap
     m_chunkMap.erase(pos.pos);
@@ -74,15 +63,9 @@ void ChunkGrid::removeChunk(Chunk* chunk) {
 
     disconnectNeighbors(chunk);
 
-    { // Remove from linked list
-        if (chunk != m_activeChunks) {
-            chunk->m_prevActive->m_nextActive = chunk->m_nextActive;
-            if (chunk->m_nextActive) chunk->m_nextActive->m_prevActive = chunk->m_prevActive;
-        } else {
-            m_activeChunks = chunk->m_nextActive;
-            if (m_activeChunks) m_activeChunks->m_prevActive = nullptr;
-        }
-        m_numActiveChunks--;
+    { // Remove from active list
+        m_activeChunks[index] = m_activeChunks.back();
+        m_activeChunks.pop_back();
     }
 }
 
@@ -117,6 +100,10 @@ std::shared_ptr<ChunkGridData> ChunkGrid::getChunkGridData(const i32v2& gridPos)
     auto it = m_chunkGridDataMap.find(gridPos);
     if (it == m_chunkGridDataMap.end()) return nullptr;
     return it->second;
+}
+
+bool chunkSort(const Chunk* a, const Chunk* b) {
+    return a->getDistance2() > b->getDistance2();
 }
 
 void ChunkGrid::update() {
@@ -155,6 +142,9 @@ void ChunkGrid::update() {
         q->genTask.init(q, q->m_chunk->gridData->heightData, &m_generators[0]);
         m_generators[0].submitQuery(q);
     }
+
+    // Sort chunks
+    std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
 }
 
 void ChunkGrid::connectNeighbors(Chunk* chunk) {

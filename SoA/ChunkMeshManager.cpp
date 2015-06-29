@@ -6,7 +6,7 @@
 #include "RenderTask.h"
 #include "soaUtils.h"
 
-#define MAX_UPDATES_PER_FRAME 100
+#define MAX_UPDATES_PER_FRAME 500
 
 ChunkMeshManager::ChunkMeshManager(ui32 startMeshes /*= 128*/) {
     m_meshStorage.resize(startMeshes);
@@ -28,7 +28,7 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
     // TODO(Ben): This is redundant with the chunk manager! Find a way to share! (Pointer?)
     updateMeshDistances(cameraPosition);
     if (shouldSort) {
-        // TODO(Ben): std::sort
+        
     }
 }
 

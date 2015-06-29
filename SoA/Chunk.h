@@ -61,8 +61,6 @@ public:
     bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
     const bool& isInRange() const { return m_isInRange; }
     const f32& getDistance2() const { return m_distance2; }
-    ChunkPtr getNextActive() const { return m_nextActive; }
-    ChunkPtr getPrevActive() const { return m_prevActive; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
@@ -103,9 +101,6 @@ public:
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
-    // For ChunkGrid
-    ChunkPtr m_nextActive = nullptr;
-    ChunkPtr m_prevActive = nullptr;
 
     ui32 m_numNeighbors = 0u;
     ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible

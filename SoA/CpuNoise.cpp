@@ -26,16 +26,17 @@ f64v4 permute(f64v4 x) {
 }
 
 f64v4 taylorInvSqrt(f64v4 r) {
-    return 1.79284291400159f - 0.85373472095314f * r;
+    return 1.79284291400159 - 0.85373472095314f * r;
 }
 
 f64 CpuNoise::rawAshimaSimplex3D(const f64v3& v) {
     const f64v2 C = f64v2(1.0 / 6.0, 1.0 / 3.0);
     const f64v4 D = f64v4(0.0, 0.5, 1.0, 2.0);
 
-    // First corner
+    
     f64v3 cyyy(C.y, C.y, C.y);
     f64v3 cxxx(C.x, C.x, C.x);
+    // First corner
     f64v3 i = glm::floor(v + glm::dot(v, cyyy));
     f64v3 x0 = v - i + glm::dot(i, cxxx);
 
@@ -86,7 +87,7 @@ f64 CpuNoise::rawAshimaSimplex3D(const f64v3& v) {
     f64v4 sh = -glm::step(h, f64v4(0.0));
 
     f64v4 a0 = f64v4(b0.x, b0.z, b0.y, b0.w) + f64v4(s0.x, s0.z, s0.y, s0.w) * f64v4(sh.x, sh.x, sh.y, sh.y);
-    f64v4 a1 = f64v4(s1.x, s1.z, s1.y, s1.w) + f64v4(s1.x, s1.z, s1.y, s1.w) * f64v4(sh.z, sh.z, sh.w, sh.w);
+    f64v4 a1 = f64v4(b1.x, b1.z, b1.y, b1.w) + f64v4(s1.x, s1.z, s1.y, s1.w) * f64v4(sh.z, sh.z, sh.w, sh.w);
 
     f64v3 p0 = f64v3(a0.x, a0.y, h.x);
     f64v3 p1 = f64v3(a0.z, a0.w, h.y);

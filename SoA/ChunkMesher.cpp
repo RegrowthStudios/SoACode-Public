@@ -30,7 +30,7 @@ const int MAXLIGHT = 31;
 
 #define QUAD_SIZE 7
 
-#define USE_AO
+//#define USE_AO
 
 // Base texture index
 #define B_INDEX 0
@@ -320,7 +320,7 @@ void ChunkMesher::addBlock()
 }
 
 void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]) {
-
+#ifdef USE_AO
     // Ambient occlusion factor
 #define OCCLUSION_FACTOR 0.2f;
     // Helper macro
@@ -349,6 +349,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
 
     // Vertex 3
     CALCULATE_VERTEX(3, -, +)
+#endif
 }
 
 void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]) {

@@ -68,9 +68,9 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
 
     // Loop through all currently active chunks
     // TODO(Ben): Chunk should only become active after load?
-    Chunk* chunk = grid.getActiveChunks();
-    while (chunk != nullptr) {
-
+    const std::vector<Chunk*>& chunks = grid.getActiveChunks();
+    for (int i = (int)chunks.size() - 1; i >= 0; i--) {
+        Chunk* chunk = chunks[i];
         // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
         chunk->m_distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
 
@@ -83,12 +83,8 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
         if (chunk->m_distance2 > renderDist2) {
             if (chunk->refCount == 0) {
                 // Unload the chunk
-                Chunk* tmp = chunk;
-                chunk = chunk->getNextActive();
-                disposeChunk(tmp);
-                grid.removeChunk(tmp);
-            } else {
-                chunk = chunk->getNextActive();
+                disposeChunk(chunk);
+                grid.removeChunk(chunk, i);
             }
         } else {
             // Check for neighbor loading TODO(Ben): Don't keep redundantly checking edges? Distance threshold?
@@ -99,7 +95,6 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
             } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
                 requestChunkMesh(chunk);
             }
-            chunk = chunk->getNextActive();
         }
     }
 }
@@ -155,12 +150,8 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
 
     if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
 
-       
-
-        // Get a render task
-        // TODO(Ben): This is a purposeful, temporary memory leak. Don't freak out
         RenderTask* newRenderTask = new RenderTask;
-        
+
         newRenderTask->init(chunk, RenderTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
         chunk->refCount++;
