@@ -8,7 +8,6 @@
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
 #include "soaUtils.h"

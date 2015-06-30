@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "TerrainRpcDispatcher.h"
 
-#include "SphericalTerrainGpuGenerator.h"
-
 void TerrainGenDelegate::invoke(Sender sender, void* userData) {
     generator->generateTerrainPatch(this);
 }

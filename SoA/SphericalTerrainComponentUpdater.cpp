@@ -6,7 +6,6 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainCpuGenerator.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
 #include "PlanetLoader.h"
@@ -71,10 +70,6 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
             PlanetGenData* data = soaState->planetLoader->getRandomGenData((f32)stCmp.radius);
             stCmp.meshManager = new TerrainPatchMeshManager(data,
                                                             spaceSystem->normalMapRecycler.get());
-            stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
-                                                                  data,
-                                                                  &spaceSystem->normalMapGenProgram,
-                                                                  spaceSystem->normalMapRecycler.get());
             stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
             stCmp.cpuGenerator->init(data);
             stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);

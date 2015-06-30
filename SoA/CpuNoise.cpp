@@ -26,7 +26,7 @@ f64v4 permute(f64v4 x) {
 }
 
 f64v4 taylorInvSqrt(f64v4 r) {
-    return 1.79284291400159 - 0.85373472095314f * r;
+    return 1.79284291400159 - 0.85373472095314 * r;
 }
 
 f64 CpuNoise::rawAshimaSimplex3D(const f64v3& v) {

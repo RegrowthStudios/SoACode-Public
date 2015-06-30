@@ -6,7 +6,6 @@
 #include "Errors.h"
 #include "ShaderLoader.h"
 #include "SoaEngine.h"
-#include "NoiseShaderGenerator.h"
 #include <Vorb\graphics\GLProgram.h>
 #include <Vorb\graphics\GpuMemory.h>
 #include <Vorb\graphics\ImageIO.h>
@@ -65,7 +64,6 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
     m_state.spaceSystem->normalMapGenProgram = ShaderLoader::createProgramFromFile("Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag");
     SystemBodyKegProperties props;
     PlanetKegProperties pProps;
-    NoiseShaderGenerator generator;
     pProps.diameter = PLANET_RADIUS * 2.0;
     pProps.mass = 10000.0;
     PlanetGenData* genData = new PlanetGenData;
@@ -74,7 +72,6 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
     tprops.high = 10;
     genData->radius = PLANET_RADIUS;
     genData->baseTerrainFuncs.funcs.setData(&tprops, 1);
-    genData->program = generator.generateProgram(genData);
     pProps.planetGenData = genData;
 
     // Set up components

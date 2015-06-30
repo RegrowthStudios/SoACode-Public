@@ -569,9 +569,6 @@
     <ClInclude Include="SphericalTerrainCpuGenerator.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainGpuGenerator.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainGenTextures.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
@@ -606,9 +603,6 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClInclude>
     <ClInclude Include="TerrainPatch.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseShaderGenerator.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
     <ClInclude Include="soaUtils.h">
@@ -1126,9 +1120,6 @@
     <ClCompile Include="SphericalTerrainCpuGenerator.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainGpuGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
@@ -1160,9 +1151,6 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClCompile>
     <ClCompile Include="TerrainPatch.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseShaderGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="SystemARRenderer.cpp">

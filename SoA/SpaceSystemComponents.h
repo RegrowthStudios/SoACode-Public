@@ -186,7 +186,6 @@ struct SphericalTerrainComponent {
     TerrainPatchData* sphericalTerrainData = nullptr;
 
     TerrainPatchMeshManager* meshManager = nullptr;
-    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;

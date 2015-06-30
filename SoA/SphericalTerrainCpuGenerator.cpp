@@ -164,8 +164,8 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
         } else { // It's a noise function
             nextMod = &h;
             f64 total = 0.0;
-            f64 amplitude = 1.0;
             f64 maxAmplitude = 0.0;
+            f64 amplitude = 1.0;
             f64 frequency = fn.frequency;
             for (int i = 0; i < fn.octaves; i++) {
                 
@@ -176,22 +176,22 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                         total += CpuNoise::rawAshimaSimplex3D(pos * frequency) * amplitude;
                         break;
                     case TerrainStage::RIDGED_NOISE:
-                        total += ((1.0 - glm::abs(CpuNoise::rawAshimaSimplex3D(pos * frequency))) * 2.0 - 1.0) * amplitude;
+                        total += ((1.0 - glm::abs(CpuNoise::rawAshimaSimplex3D(pos * (f64)frequency))) * 2.0 - 1.0) * amplitude;
                         break;
                     case TerrainStage::ABS_NOISE:
-                        total += glm::abs(CpuNoise::rawAshimaSimplex3D(pos * frequency)) * amplitude;
+                        total += glm::abs(CpuNoise::rawAshimaSimplex3D(pos * (f64)frequency)) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_NOISE:
-                        ff = CpuNoise::cellular(pos * frequency);
+                        ff = CpuNoise::cellular(pos * (f64)frequency);
                         total += (ff.y - ff.x) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_SQUARED_NOISE:
-                        ff = CpuNoise::cellular(pos * frequency);
+                        ff = CpuNoise::cellular(pos * (f64)frequency);
                         tmp = ff.y - ff.x;
                         total += tmp * tmp * amplitude;
                         break;
                     case TerrainStage::CELLULAR_CUBED_NOISE:
-                        ff = CpuNoise::cellular(pos * frequency);
+                        ff = CpuNoise::cellular(pos * (f64)frequency);
                         tmp = ff.y - ff.x;
                         total += tmp * tmp * tmp * amplitude;
                         break;
