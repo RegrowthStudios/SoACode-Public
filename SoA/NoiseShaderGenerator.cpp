@@ -51,7 +51,8 @@ vg::GLProgram NoiseShaderGenerator::generateProgram(PlanetGenData* genData,
         dumpShaderCode(std::cout, fSource, true);
         std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
     }
-    //dumpShaderCode(std::cout, fSource, true);
+    if (genData->baseTerrainFuncs.funcs.size() == 1)
+         dumpShaderCode(std::cout, fSource, true);
 
     return gen.program;
 }
@@ -185,7 +186,6 @@ void NoiseShaderGenerator::addNoiseFunctions(OUT nString& fSource, const nString
             // Conditional scaling. 
             fSource += "float " + h + " = ";
             if (fn.low != -1.0f || fn.high != 1.0f) {
-                // (total / maxAmplitude) * (high - low) * 0.5 + (high + low) * 0.5;
                 fSource += "total * (" +
                     TS(fn.high) + " - " + TS(fn.low) + ") * 0.5 + (" + TS(fn.high) + " + " + TS(fn.low) + ") * 0.5;\n";
             } else {

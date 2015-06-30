@@ -134,6 +134,7 @@ void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData*
     cornerPos2D.pos.x = cornerPos3D.pos.x;
     cornerPos2D.pos.y = cornerPos3D.pos.z;
     cornerPos2D.face = cornerPos3D.face;
+
     for (int z = 0; z < CHUNK_WIDTH; z++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
             VoxelPosition2D pos = cornerPos2D;

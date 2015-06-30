@@ -98,8 +98,6 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                                                 f64* modifier,
                                                 const TerrainOp& op) const {
 
-#define SCALE_CODE rv += (total / maxAmplitude) * (fn.high - fn.low) * 0.5f + (fn.high + fn.low) * 0.5f
-
     f64 rv = 0.0f;
     f64 total;
     f64 amplitude;
@@ -216,7 +214,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
             }
             // Conditional scaling. 
             if (fn.low != -1.0f || fn.high != 1.0f) {
-                h = (total / maxAmplitude) * (fn.high - fn.low) * 0.5 + (fn.high + fn.low) * 0.5;
+                h = total * (fn.high - fn.low) * 0.5 + (fn.high + fn.low) * 0.5;
             } else {
                 h = total;
             }

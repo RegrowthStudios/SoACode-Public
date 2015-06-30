@@ -83,14 +83,10 @@ void TerrainPatch::update(const f64v3& cameraPos) {
         if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
                 requestMesh();
-
-                printf("r");
             } else if (hasMesh()) {
                 // Out of range, kill children
                 delete[] m_children;
                 m_children = nullptr;
-
-                printf("s");
             }
         } else if (m_mesh) {
             // In range, but we need to remove our mesh.
@@ -104,7 +100,6 @@ void TerrainPatch::update(const f64v3& cameraPos) {
             }
             
             if (deleteMesh) {
-                printf("d");
                 // Children are renderable, free mesh.
                 // Render thread will deallocate.
                 m_mesh->m_shouldDelete = true;
@@ -201,6 +196,7 @@ void TerrainPatch::requestMesh() {
 
 f64v3 TerrainPatch::calculateClosestPointAndDist(const f64v3& cameraPos) {
     f64v3 closestPoint;
+    // TODO(Ben): The 0 is a temporary oscillation fix
     if (0 && hasMesh()) {
         // If we have a mesh, we can use it's accurate bounding box    
         closestPoint = m_mesh->getClosestPoint(cameraPos);
