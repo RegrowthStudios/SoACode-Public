@@ -76,7 +76,7 @@ void ChunkMesher::init(const BlockPack* blocks) {
     m_textureMethodParams[Z_POS][O_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::pz) / sizeof(ui32) + NUM_FACES);
 }
 
-bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
+bool ChunkMesher::createChunkMesh(ChunkMeshTask *renderTask) {
     m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
@@ -203,7 +203,7 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
     return 0;
 }
 
-bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask) {
+bool ChunkMesher::createOnlyWaterMesh(ChunkMeshTask *renderTask) {
     /*if (chunkMeshData != NULL) {
         pError("Tried to create mesh with in use chunkMeshData!");
         return 0;

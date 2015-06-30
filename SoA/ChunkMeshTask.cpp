@@ -12,7 +12,7 @@
 #include "VoxelLightEngine.h"
 #include "VoxelUtils.h"
 
-void RenderTask::execute(WorkerData* workerData) {
+void ChunkMeshTask::execute(WorkerData* workerData) {
 
     // Make the mesh!
     if (!chunk->hasCreatedMesh) {
@@ -62,7 +62,7 @@ void RenderTask::execute(WorkerData* workerData) {
     workerData->chunkMesher->chunkMeshData = nullptr;
 }
 
-void RenderTask::init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void ChunkMeshTask::init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
     chunk = ch;
     chunk->queuedForMesh = true;
@@ -71,7 +71,7 @@ void RenderTask::init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPac
 }
 
 // TODO(Ben): uhh
-void RenderTask::updateLight(VoxelLightEngine* voxelLightEngine) {
+void ChunkMeshTask::updateLight(VoxelLightEngine* voxelLightEngine) {
     /* if (chunk->sunRemovalList.size()) {
          voxelLightEngine->calculateSunlightRemoval(chunk);
          }
@@ -84,7 +84,7 @@ void RenderTask::updateLight(VoxelLightEngine* voxelLightEngine) {
 // TODO(Ben): Temporary
 #define GETBLOCK(a) blockPack->operator[](a)
 
-void RenderTask::setupMeshData(ChunkMesher* chunkMesher) {
+void ChunkMeshTask::setupMeshData(ChunkMesher* chunkMesher) {
     int x, y, z, off1, off2;
 
     Chunk *ch1, *ch2;

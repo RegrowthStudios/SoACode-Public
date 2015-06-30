@@ -146,7 +146,7 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
 
     if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
 
-        RenderTask* newRenderTask = new RenderTask;
+        ChunkMeshTask* newRenderTask = new ChunkMeshTask;
 
         newRenderTask->init(chunk, RenderTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 

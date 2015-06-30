@@ -22,7 +22,7 @@ class Frustum;
 class GameSystem;
 class GenerateTask;
 class GeneratedTreeNodes;
-class RenderTask;
+class ChunkMeshTask;
 class ChunkGrid;
 struct SoaState;
 class SpaceSystem;

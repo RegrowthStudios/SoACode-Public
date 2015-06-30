@@ -7,7 +7,7 @@ class BlockPack;
 class BlockTextureLayer;
 class Chunk;
 class ChunkMeshData;
-class RenderTask;
+class ChunkMeshTask;
 struct BlockTexture;
 struct PlanetHeightData;
 
@@ -18,12 +18,12 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
 class ChunkMesher {
-    friend class RenderTask;
+    friend class ChunkMeshTask;
 public:
     void init(const BlockPack* blocks);
 
-    bool createChunkMesh(RenderTask* renderTask);
-    bool createOnlyWaterMesh(RenderTask* renderTask);
+    bool createChunkMesh(ChunkMeshTask* renderTask);
+    bool createOnlyWaterMesh(ChunkMeshTask* renderTask);
     void freeBuffers();
 
     static void bindVBOIndicesID();

@@ -19,7 +19,7 @@ ChunkMeshData::ChunkMeshData() : type(RenderTaskType::DEFAULT) {
     // Empty
 }
 
-ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), type(task->type) {
+ChunkMeshData::ChunkMeshData(ChunkMeshTask *task) : chunk(task->chunk), type(task->type) {
     // Empty
 }
 

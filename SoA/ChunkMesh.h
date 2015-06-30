@@ -21,7 +21,7 @@ class Block;
 class Chunk;
 class ChunkGridData;
 class ChunkMesh;
-class RenderTask;
+class ChunkMeshTask;
 
 class ChunkMeshRenderData {
 public:
@@ -69,7 +69,7 @@ class ChunkMeshData
 {
 public:
     ChunkMeshData::ChunkMeshData();
-    ChunkMeshData::ChunkMeshData(RenderTask *task);
+    ChunkMeshData::ChunkMeshData(ChunkMeshTask *task);
 
     void addTransQuad(const i8v3& pos);
 
