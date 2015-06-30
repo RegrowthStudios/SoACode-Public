@@ -83,11 +83,14 @@ void TerrainPatch::update(const f64v3& cameraPos) {
         if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
                 requestMesh();
-            }
-            if (hasMesh()) {
+
+                printf("r");
+            } else if (hasMesh()) {
                 // Out of range, kill children
                 delete[] m_children;
                 m_children = nullptr;
+
+                printf("s");
             }
         } else if (m_mesh) {
             // In range, but we need to remove our mesh.
@@ -101,6 +104,7 @@ void TerrainPatch::update(const f64v3& cameraPos) {
             }
             
             if (deleteMesh) {
+                printf("d");
                 // Children are renderable, free mesh.
                 // Render thread will deallocate.
                 m_mesh->m_shouldDelete = true;
@@ -116,7 +120,7 @@ void TerrainPatch::update(const f64v3& cameraPos) {
                                                 m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0,
                                                 m_dispatcher);
             }
-        } 
+        }
     } else if (!m_mesh) {
         requestMesh();
     }
@@ -171,7 +175,7 @@ bool TerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64
 
 void TerrainPatch::setQuality(int quality) {
     // Prevent infinite loop memory allocation due to bad input
-    if (quality < 0 || quality > 12) {
+    if (quality < 0 || quality > 6) {
         fprintf(stderr, "ERROR: Bad terrain quality: %d", quality);
         return;
     }
@@ -197,7 +201,7 @@ void TerrainPatch::requestMesh() {
 
 f64v3 TerrainPatch::calculateClosestPointAndDist(const f64v3& cameraPos) {
     f64v3 closestPoint;
-    if (hasMesh()) {
+    if (0 && hasMesh()) {
         // If we have a mesh, we can use it's accurate bounding box    
         closestPoint = m_mesh->getClosestPoint(cameraPos);
     } else {
