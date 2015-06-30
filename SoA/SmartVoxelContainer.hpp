@@ -133,7 +133,24 @@ namespace vorb {
                     }
                 }
             }
-
+            inline void initFromSortedArray(VoxelStorageState state,
+                                            const typename IntervalTree<T>::LNode data[], size_t size) {
+                _state = state;
+                _accessCount = 0;
+                _quietFrames = 0;
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    _dataTree.initFromSortedArray(data, size);
+                    _dataTree.checkTreeValidity();
+                } else {
+                    _dataArray = _arrayRecycler->create();
+                    int index = 0;
+                    for (int i = 0; i < size; i++) {
+                        for (int j = 0; j < data[i].length; j++) {
+                            _dataArray[index++] = data[i].data;
+                        }
+                    }
+                }
+            }
 
             inline void changeState(VoxelStorageState newState, std::mutex& dataLock) {
                 if (newState == _state) return;

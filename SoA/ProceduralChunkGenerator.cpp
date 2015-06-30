@@ -29,16 +29,18 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
     VoxelPosition3D voxPosition = chunk->getVoxelPosition();
     chunk->numBlocks = 0;
 
-    // Grab the handles to the arrays
-    // TODO(Ben): Stack arrays.
-    std::vector<IntervalTree<ui16>::LNode> blockDataArray;
-    std::vector<IntervalTree<ui16>::LNode> tertiaryDataArray;
+    // Generation data
+    IntervalTree<ui16>::LNode blockDataArray[CHUNK_SIZE];
+    IntervalTree<ui16>::LNode tertiaryDataArray[CHUNK_SIZE];
+    size_t blockDataSize = 0;
+    size_t tertiaryDataSize = 0;
+
     ui16 c = 0;
 
     ui32 layerIndices[CHUNK_LAYER];
 
     // First pass at y = 0. We separate it so we can getBlockLayerIndex a single
-    // time.
+    // time and cut out some comparisons.
     for (size_t z = 0; z < CHUNK_WIDTH; z++) {
         for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
             tertiaryData = 0;
@@ -60,29 +62,30 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             if (blockID != 0) chunk->numBlocks++;
 
             // Set up the data arrays
-            if (blockDataArray.empty()) {
-                blockDataArray.emplace_back(c, 1, blockID);
-                tertiaryDataArray.emplace_back(c, 1, tertiaryData);
+            if (blockDataSize == 0) {
+                blockDataArray[blockDataSize++].set(c, 1, blockID);
+                tertiaryDataArray[tertiaryDataSize++].set(c, 1, tertiaryData);
             } else {
-                if (blockID == blockDataArray.back().data) {
-                    blockDataArray.back().length++;
+                if (blockID == blockDataArray[blockDataSize - 1].data) {
+                    blockDataArray[blockDataSize - 1].length++;
                 } else {
-                    blockDataArray.emplace_back(c, 1, blockID);
+                    blockDataArray[blockDataSize++].set(c, 1, blockID);
                 }
-                if (tertiaryData == tertiaryDataArray.back().data) {
-                    tertiaryDataArray.back().length++;
+                if (tertiaryData == tertiaryDataArray[tertiaryDataSize - 1].data) {
+                    tertiaryDataArray[tertiaryDataSize - 1].length++;
                 } else {
-                    tertiaryDataArray.emplace_back(c, 1, tertiaryData);
+                    tertiaryDataArray[tertiaryDataSize++].set(c, 1, tertiaryData);
                 }
             }
         }
     }
 
+    // All the rest of the layers.
     for (size_t y = 1; y < CHUNK_WIDTH; y++) {
         for (size_t z = 0; z < CHUNK_WIDTH; z++) {
             for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
                 tertiaryData = 0;
-                hIndex = (c & 10); // Same as % CHUNK_LAYER
+                hIndex = (c & 0x3FF); // Same as % CHUNK_LAYER
 
                 mapHeight = heightData[hIndex].height;
                 temperature = heightData[hIndex].temperature;
@@ -107,22 +110,22 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 if (blockID != 0) chunk->numBlocks++;
 
                 // Add to the data arrays
-                if (blockID == blockDataArray.back().data) {
-                    blockDataArray.back().length++;
+                if (blockID == blockDataArray[blockDataSize - 1].data) {
+                    blockDataArray[blockDataSize - 1].length++;
                 } else {
-                    blockDataArray.emplace_back(c, 1, blockID);
+                    blockDataArray[blockDataSize++].set(c, 1, blockID);
                 }
-                if (tertiaryData == tertiaryDataArray.back().data) {
-                    tertiaryDataArray.back().length++;
+                if (tertiaryData == tertiaryDataArray[tertiaryDataSize - 1].data) {
+                    tertiaryDataArray[tertiaryDataSize - 1].length++;
                 } else {
-                    tertiaryDataArray.emplace_back(c, 1, tertiaryData);
-                }  
+                    tertiaryDataArray[tertiaryDataSize++].set(c, 1, tertiaryData);
+                }
             }
         }
     }
     // Set up interval trees
-    chunk->m_blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray);
-    chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray);
+    chunk->m_blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray, blockDataSize);
+    chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray, tertiaryDataSize);
 }
 
 void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const {
@@ -141,7 +144,7 @@ void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData*
     }
 }
 
-// TODO(Ben): Only need to do this once per col or even once per chunk
+// Gets layer in O(log(n)) where n is the number of layers
 ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
     auto& layers = m_genData->blockLayers;
 
@@ -153,7 +156,7 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
     while (lower <= upper) {
         if (layers[pos].start <= depth && layers[pos].start + layers[pos].width > depth) {
             // We are in this layer
-            return pos
+            return pos;
         } else if (layers[pos].start > depth) {
             upper = pos - 1;
         } else {
@@ -166,10 +169,10 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
 }
 
 ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, BlockLayer& layer) const {
-    ui16 blockID;
+    ui16 blockID = 0;
     if (depth >= 0) {
         // TODO(Ben): Optimize
-        blockID = layer.block;
+        blockID = 43;// layer.block;
         // Check for surface block replacement
         if (depth == 0) {
             if (blockID == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
