@@ -30,7 +30,7 @@ const int MAXLIGHT = 31;
 
 #define QUAD_SIZE 7
 
-#define USE_AO
+//#define USE_AO
 
 // Base texture index
 #define B_INDEX 0

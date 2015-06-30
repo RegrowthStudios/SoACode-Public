@@ -2,6 +2,8 @@
 #include "SsaoRenderStage.h"
 
 #include <Vorb/Random.h>
+#include <Vorb/graphics/SamplerState.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Errors.h"
 #include "ShaderLoader.h"
@@ -25,7 +27,7 @@ void SsaoRenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     glGenTextures(1, &m_texNoise.id);
     glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, m_texNoise.width, m_texNoise.height, 0, GL_RG, GL_FLOAT, data);
-    //vg::SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
+    vg::SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     delete[] data;
 
@@ -56,12 +58,13 @@ void SsaoRenderStage::render(const Camera* camera)
 
     { // SSAO pass      
         m_ssaoTarget.use();
+        glClear(GL_COLOR_BUFFER_BIT);
 
         // Bind textures
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_depthTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_colorTexture);
+        glBindTexture(GL_TEXTURE_2D, m_normalTexture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
 
@@ -70,11 +73,15 @@ void SsaoRenderStage::render(const Camera* camera)
         if (!m_ssaoShader.isCreated()) {
             m_ssaoShader = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/SSAO.frag");
             m_ssaoShader.use();
-            //  glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
-            //   glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
-            //  glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
-            //  glUniform3fv(m_ssaoShader.getUniform("unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel[0].x);
-        } else {
+            glUniform1i(m_ssaoShader.getUniform("unTexDepth"), 0);
+            glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
+            glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
+            glUniform3fv(glGetUniformLocation(m_ssaoShader.getID(), "unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel.data()->x);
+            glUniform2f(m_ssaoShader.getUniform("unSSAOTextureSize"), (float)m_ssaoTarget.getWidth(), (float)m_ssaoTarget.getHeight());
+            glUniformMatrix4fv(m_ssaoShader.getUniform("unProjectionMatrix"), 1, false, glm::value_ptr(m_projectionMatrix));
+            glUniformMatrix4fv(m_ssaoShader.getUniform("unInvProjectionMatrix"), 1, false, glm::value_ptr(glm::inverse(m_projectionMatrix)));
+        }
+        else {
             m_ssaoShader.use();
         }
 
@@ -96,7 +103,7 @@ void SsaoRenderStage::render(const Camera* camera)
             m_blurShader.use();
             glUniform1i(m_blurShader.getUniform("unTexColor"), 0);
             glUniform1i(m_blurShader.getUniform("unTexSSAO"), 1);
-            glUniform1f(m_blurShader.getUniform("unBlurAmount"), 1.0f);
+            glUniform1f(m_blurShader.getUniform("unBlurAmount"), (float)SSAO_BLUR_AMOUNT);
         } else {
             m_blurShader.use();
         }
@@ -108,4 +115,10 @@ void SsaoRenderStage::render(const Camera* camera)
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+}
+
+void SsaoRenderStage::reloadShaders()
+{
+    m_ssaoShader.dispose();
+    m_blurShader.dispose();
 }

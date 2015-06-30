@@ -88,6 +88,8 @@ void GameplayRenderer::reloadShaders() {
     StaticLoadContext context;
     stages.opaqueVoxel.dispose(context);
     m_commonState->stages.spaceSystem.reloadShaders();
+
+    stages.ssao.reloadShaders();
 }
 
 void GameplayRenderer::load(StaticLoadContext& context) {
@@ -233,7 +235,7 @@ void GameplayRenderer::render() {
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     if (stages.ssao.isActive()) {
-        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
+        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID(), m_state->localCamera.getProjectionMatrix());
         stages.ssao.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
