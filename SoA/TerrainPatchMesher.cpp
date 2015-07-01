@@ -115,7 +115,7 @@ void TerrainPatchMesher::destroyIndices() {
 void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                                           const f32v3& startPos, WorldCubeFace cubeFace, float width,
                                           f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
-                                          f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
+                                          f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
                                           f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
 
     assert(m_sharedIbo != 0);
@@ -207,7 +207,13 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
         for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
             auto& v = verts[(z - 1) * PATCH_WIDTH + x - 1];
-            v.normal = glm::normalize(v.position);
+            f64v3& pl = positionData[z][x - 1];
+            f64v3& pr = positionData[z][x + 1];
+            f64v3& pb = positionData[z - 1][x];
+            f64v3& pf = positionData[z + 1][x];
+            // Calculate smooth normal
+            v.normal = glm::normalize(glm::cross(pb, pl) + glm::cross(pl, pf) +
+                                      glm::cross(pf, pr) + glm::cross(pr, pb));
         }
     }
 

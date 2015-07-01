@@ -21,7 +21,7 @@ void TerrainPatchMeshTask::init(const TerrainPatchData* patchData,
 void TerrainPatchMeshTask::execute(WorkerData* workerData) {
 
     f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4];
-    f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
+    f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 pos;
     f32v3 tmpPos;
