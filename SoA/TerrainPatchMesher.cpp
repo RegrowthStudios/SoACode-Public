@@ -115,7 +115,8 @@ void TerrainPatchMesher::destroyIndices() {
 void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                                           const f32v3& startPos, WorldCubeFace cubeFace, float width,
                                           f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
-                                          f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
+                                          f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
+                                          f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
 
     assert(m_sharedIbo != 0);
 
@@ -174,7 +175,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
             }*/
 
             // Get data from heightmap 
-            h = heightData[z][x][0] * (f32)KM_PER_M;
+            h = heightData[z][x][0];
 
             // Water indexing
             if (h < 0) {
@@ -182,18 +183,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
             }
 
             // Spherify it!
-            f32v3 normal;
-            if (m_isSpherical) {
-                normal = glm::normalize(v.position);
-                v.position = normal * (m_radius + h);
-            } else {
-                const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
-                tmpPos[trueMapping.x] = v.position.x;
-                tmpPos[trueMapping.y] = m_radius * (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
-                tmpPos[trueMapping.z] = v.position.z;
-                normal = glm::normalize(tmpPos);
-                v.position.y += h;
-            }
+            f32v3 normal = worldNormalData[z][x];
 
             angle = computeAngleFromNormal(normal);
             // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
@@ -464,7 +454,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED
             normal = glm::normalize(tmpPos);
         }
 
-        float d = heightData[z + 1][x + 1][0];
+        float d = heightData[z + 1][x + 1][0] * M_PER_KM;
         if (d < 0) {
             v.depth = -d;
         } else {
