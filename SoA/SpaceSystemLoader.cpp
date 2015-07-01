@@ -173,7 +173,7 @@ bool SpaceSystemLoader::loadBodyProperties(SpaceSystemLoadParams& pr, const nStr
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
                 properties.planetGenData = nullptr;
-                //properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
+                // properties.planetGenData = pr.planetLoader->getRandomGenData(properties.density, pr.glrpc);
                 properties.atmosphere = pr.planetLoader->getRandomAtmosphere();
             }
 

@@ -16,8 +16,13 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
     SpaceSystem* spaceSystem = state->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
         SphericalTerrainComponent& stCmp = it.second;
+    
+        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
+        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
+        /// Calculate camera distance
+        f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
+        stCmp.distance = glm::length(relativeCameraPos);
 
-        // TODO(Ben): Completely unneeded
         // Lazy random planet loading
         if (stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
             PlanetGenData* data = state->planetLoader->getRandomGenData((f32)stCmp.radius);
@@ -28,13 +33,9 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
             // Do this last to prevent race condition with regular update
             data->radius = stCmp.radius;
             stCmp.planetGenData = data;
+            stCmp.sphericalTerrainData->generator = stCmp.cpuGenerator;
+            stCmp.sphericalTerrainData->meshManager = stCmp.meshManager;
         }
-      
-         const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
-        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
-        /// Calculate camera distance
-        f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
-        stCmp.distance = glm::length(relativeCameraPos);
 
         // Animation for fade
         if (stCmp.needsVoxelComponent) {
@@ -79,7 +80,7 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
         SphericalTerrainComponent& stCmp = it.second;
         
-        //if (stCmp.planetGenData && it.second.alpha > 0.0f) stCmp.gpuGenerator->update();
+        if (stCmp.meshManager && it.second.alpha > 0.0f) stCmp.meshManager->update();
     }
 }
 

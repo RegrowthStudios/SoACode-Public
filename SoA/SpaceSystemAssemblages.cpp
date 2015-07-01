@@ -283,8 +283,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
     svcmp.threadPool->init(hc);
 
-
-
     svcmp.chunkIo->beginThread();
     // Give some time for the threads to spin up
     SDL_Delay(100);

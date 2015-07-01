@@ -37,6 +37,9 @@ public:
         // Empty
     }
     ~TerrainPatchMeshManager();
+
+    void update();
+
     /// Draws the spherical meshes
     /// @param relativePos: Relative position of the camera
     /// @param Camera: The camera
@@ -75,8 +78,9 @@ public:
                        bool drawSkirts);
 
     /// Adds a mesh 
-    /// @param mesh: Mesh to add
-    void addMesh(TerrainPatchMesh* mesh, bool isSpherical);
+    void addMesh(TerrainPatchMesh* mesh);
+    /// Adds a mesh from a worker thread
+    void addMeshAsync(TerrainPatchMesh* mesh);
 
     /// Updates distances and Sorts meshes
     void sortSpericalMeshes(const f64v3& relPos);
@@ -86,6 +90,8 @@ public:
 
 private:
     void setScatterUniforms(vg::GLProgram& program, const f64v3& relPos, const AtmosphereComponent* aCmp);
+
+    moodycamel::ConcurrentQueue<TerrainPatchMesh*> m_meshesToAdd;
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
     vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps

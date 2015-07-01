@@ -81,6 +81,10 @@ void SoaEngine::initState(SoaState* state) {
         // Give some time for the threads to spin up
         SDL_Delay(100);
     }
+
+    // TODO(Ben): Maybe not here.
+    // Generate terrain patch indices
+    TerrainPatchMesher::generateIndices();
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {

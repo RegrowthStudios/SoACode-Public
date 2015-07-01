@@ -18,6 +18,17 @@
 #include "TerrainPatchMesh.h"
 #include "soaUtils.h"
 
+#define MAX_UPDATES_PER_FRAME 100
+
+void TerrainPatchMeshManager::update() {
+    TerrainPatchMesh* meshes[MAX_UPDATES_PER_FRAME];
+    if (size_t numUpdates = m_meshesToAdd.try_dequeue_bulk(meshes, MAX_UPDATES_PER_FRAME)) {
+        for (size_t i = 0; i < numUpdates; i++) {
+            addMesh(meshes[i]);
+        }
+    }
+}
+
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   const Camera* camera,
                                                   const f64q& orientation,
@@ -157,8 +168,13 @@ TerrainPatchMeshManager::~TerrainPatchMeshManager() {
     }
 }
 
-void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) {
-    if (isSpherical) {
+void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh) {
+    // Upload data
+    if (mesh->m_meshDataBuffer.size()) {
+        TerrainPatchMesher::uploadMeshData(mesh);
+    }
+    // Add to mesh list
+    if (mesh->getIsSpherical()) {
         m_meshes.push_back(mesh);
         if (mesh->m_wvbo) {
             m_waterMeshes.push_back(mesh);
@@ -170,7 +186,10 @@ void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) 
         }
     }
     mesh->m_isRenderable = true;
+}
 
+void TerrainPatchMeshManager::addMeshAsync(TerrainPatchMesh* mesh) {
+    m_meshesToAdd.enqueue(mesh);
 }
 
 bool meshComparator(TerrainPatchMesh* m1, TerrainPatchMesh* m2) {

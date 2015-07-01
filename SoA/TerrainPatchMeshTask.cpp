@@ -9,14 +9,12 @@ void TerrainPatchMeshTask::init(const TerrainPatchData* patchData,
                                 TerrainPatchMesh* mesh,
                                 const f32v3& startPos,
                                 float width,
-                                WorldCubeFace cubeFace,
-                                bool isSpherical) {
+                                WorldCubeFace cubeFace) {
     m_patchData = patchData;
     m_mesh = mesh;
     m_startPos = startPos;
     m_width = width;
     m_cubeFace = cubeFace;
-    m_isSpherical = isSpherical;
 }
 
 void TerrainPatchMeshTask::execute(WorkerData* workerData) {
@@ -45,9 +43,9 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
         }
     }
 
-    if (!workerData->terrainMesher) workerData->terrainMesher = new TerrainPatchMesher(generator->getGenData());
-    workerData->terrainMesher->buildMesh(m_mesh, m_startPos, m_cubeFace, m_width, heightData, m_isSpherical);
+    if (!workerData->terrainMesher) workerData->terrainMesher = new TerrainPatchMesher();
+    workerData->terrainMesher->buildMeshData(m_mesh, generator->getGenData(), m_startPos, m_cubeFace, m_width, heightData);
 
     // Finally, add to the mesh manager
-    m_patchData->meshManager->addMesh(m_mesh, m_isSpherical);
+    m_patchData->meshManager->addMeshAsync(m_mesh);
 }

@@ -53,7 +53,8 @@ public:
     friend class TerrainPatch;
     friend class TerrainPatchMesher;
     friend class FarTerrainPatch;
-    TerrainPatchMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
+    TerrainPatchMesh(WorldCubeFace cubeFace, bool isSpherical) :
+        m_cubeFace(cubeFace), m_isSpherical(isSpherical) {}
     ~TerrainPatchMesh();
 
     /// Recycles the normal map
@@ -82,6 +83,7 @@ public:
     /// @return the closest point on the aabb
     f32v3 getClosestPoint(const f32v3& camPos) const;
     f64v3 getClosestPoint(const f64v3& camPos) const;
+    const bool& getIsSpherical() const { return m_isSpherical; }
 
     f64 distance2 = 100000000000.0;
 private:
@@ -98,11 +100,15 @@ private:
     f32 m_boundingSphereRadius = 0.0f; ///< Radius of sphere for frustum checks
     WorldCubeFace m_cubeFace;
 
+    std::vector<ui8> m_meshDataBuffer; ///< Stores mesh data for terrain and water in bytes
+
     VGTexture m_normalMap = 0;
     int m_waterIndexCount = 0;
+    int m_waterVertexCount = 0;
 
     volatile bool m_shouldDelete = false; ///< True when the mesh should be deleted
     bool m_isRenderable = false; ///< True when there is a complete mesh
+    bool m_isSpherical = false;
 };
 
 #endif // TerrainPatchMesh_h__

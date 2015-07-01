@@ -23,9 +23,6 @@ class TerrainPatchMeshManager;
 
 class TerrainPatchMesher {
 public:
-    TerrainPatchMesher(const PlanetGenData* planetGenData);
-    ~TerrainPatchMesher();
-
     /// Generates shared index buffer.
     static void generateIndices();
     static void destroyIndices();
@@ -37,10 +34,13 @@ public:
     /// @param width: Width of the patch
     /// @param heightData: The heightmap data
     /// @param isSpherical: True when this is a spherical mesh
-    void buildMesh(TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace,
-                   float width, f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4],
-                   bool isSpherical);
+    void buildMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
+                       const f32v3& startPos, WorldCubeFace cubeFace,
+                   float width, f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4]);
 
+    static void uploadMeshData(TerrainPatchMesh* mesh);
+
+    static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4; ///< Number of vertices per patch
 private:
 
     /// Calculates temperature based on angle with equator
@@ -82,7 +82,7 @@ private:
     static VGIndexBuffer m_sharedIbo; ///< Reusable CCW IBO
 
     // PATCH_WIDTH * 4 is for skirts
-    static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4; ///< Number of vertices per patch
+
     TerrainVertex verts[VERTS_SIZE]; ///< Vertices for terrain mesh
     WaterVertex waterVerts[VERTS_SIZE]; ///< Vertices for water mesh
     ui16 waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH]; ///< Caches water indices for reuse

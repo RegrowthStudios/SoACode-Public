@@ -6,7 +6,7 @@
 #include "ChunkMeshTask.h"
 #include "soaUtils.h"
 
-#define MAX_UPDATES_PER_FRAME 500
+#define MAX_UPDATES_PER_FRAME 300
 
 ChunkMeshManager::ChunkMeshManager(ui32 startMeshes /*= 128*/) {
     m_meshStorage.resize(startMeshes);

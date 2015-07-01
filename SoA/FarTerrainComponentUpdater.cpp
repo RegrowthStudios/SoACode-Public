@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "FarTerrainComponentUpdater.h"
 
-
 #include "FarTerrainPatch.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainCpuGenerator.h"
+#include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
 #include "soaUtils.h"
 
@@ -96,7 +96,7 @@ void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp, const f64
 
 void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
     for (auto& it : spaceSystem->m_farTerrainCT) {
-        // if (it.second.gpuGenerator) it.second.gpuGenerator->update();
+        if (it.second.meshManager) it.second.meshManager->update();
     }
 }
 

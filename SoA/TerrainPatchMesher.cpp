@@ -22,18 +22,6 @@ const color3 DebugColors[6] {
 
 VGIndexBuffer TerrainPatchMesher::m_sharedIbo = 0; ///< Reusable CCW IBO
 
-TerrainPatchMesher::TerrainPatchMesher(const PlanetGenData* planetGenData) :
-    m_planetGenData(planetGenData) {
-    
-    m_radius = (f32)m_planetGenData->radius;
-
-}
-
-TerrainPatchMesher::~TerrainPatchMesher() {
-
-}
-
-
 void TerrainPatchMesher::generateIndices() {
     // Loop through each quad and set indices
     int vertIndex;
@@ -124,13 +112,16 @@ void TerrainPatchMesher::destroyIndices() {
     vg::GpuMemory::freeBuffer(m_sharedIbo);
 }
 
-void TerrainPatchMesher::buildMesh(TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                   f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4],
-                                   bool isSpherical) {
+void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
+                                       const f32v3& startPos, WorldCubeFace cubeFace, float width,
+                                       f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4]) {
 
     assert(m_sharedIbo != 0);
 
-    m_isSpherical = isSpherical;
+    m_planetGenData = planetGenData;
+    m_radius = (f32)m_planetGenData->radius;
+
+    m_isSpherical = mesh->getIsSpherical();
     m_cubeFace = cubeFace;
     // Grab mappings so we can rotate the 2D grid appropriately
     if (m_isSpherical) {
@@ -255,16 +246,50 @@ void TerrainPatchMesher::buildMesh(TerrainPatchMesh* mesh, const f32v3& startPos
             verts[i].position = f32v3(f64v3(verts[i].position) - f64v3(mesh->m_aabbPos));
         }
     }
+
+    mesh->m_waterIndexCount = m_waterIndexCount;
+    mesh->m_waterVertexCount = m_waterIndex;
+
+    std::vector<ui8>& data = mesh->m_meshDataBuffer;
+
+    data.resize(VERTS_SIZE * sizeof(TerrainVertex) +
+                mesh->m_waterVertexCount * sizeof(WaterVertex) +
+                mesh->m_waterIndexCount * sizeof(ui16));
+
+    // Copy buffer data
+    memcpy(data.data(), verts, VERTS_SIZE * sizeof(TerrainVertex));
+    ui32 offset = VERTS_SIZE * sizeof(TerrainVertex);
+
+    // Add water mesh
+    if (m_waterIndexCount) {
+        // Make all vertices relative to the aabb pos for far terrain
+        if (!m_isSpherical) {
+            for (int i = 0; i < m_index; i++) {
+                waterVerts[i].position -= mesh->m_aabbPos;
+            }
+        }
+        // Copy water data
+        memcpy(data.data() + offset, waterVerts, mesh->m_waterVertexCount * sizeof(WaterVertex));
+        offset += mesh->m_waterVertexCount * sizeof(WaterVertex);
+        memcpy(data.data() + offset, waterIndices, mesh->m_waterIndexCount * sizeof(ui16));
+    }
+}
+
+void TerrainPatchMesher::uploadMeshData(TerrainPatchMesh* mesh) {
     // Make VAO
     glGenVertexArrays(1, &mesh->m_vao);
     glBindVertexArray(mesh->m_vao);
+
+    ui32 offset;
 
     // Generate the buffers and upload data
     vg::GpuMemory::createBuffer(mesh->m_vbo);
     vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER,
                                     VERTS_SIZE * sizeof(TerrainVertex),
-                                    verts);
+                                    mesh->m_meshDataBuffer.data());
+    offset = VERTS_SIZE * sizeof(TerrainVertex);
+
     // Reusable IBO
     vg::GpuMemory::bindBuffer(m_sharedIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
 
@@ -291,28 +316,23 @@ void TerrainPatchMesher::buildMesh(TerrainPatchMesh* mesh, const f32v3& startPos
                           offsetptr(TerrainVertex, temperature));
 
     // Add water mesh
-    if (m_waterIndexCount) {
-        // Make all vertices relative to the aabb pos for far terrain
-        if (!m_isSpherical) {
-            for (int i = 0; i < m_index; i++) {
-                waterVerts[i].position -= mesh->m_aabbPos;
-            }
-        }
+    if (0 && mesh->m_waterIndexCount) {
+
         // Make VAO
         glGenVertexArrays(1, &mesh->m_wvao);
         glBindVertexArray(mesh->m_wvao);
 
-        mesh->m_waterIndexCount = m_waterIndexCount;
         vg::GpuMemory::createBuffer(mesh->m_wvbo);
         vg::GpuMemory::bindBuffer(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
         vg::GpuMemory::uploadBufferData(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER,
-                                        m_waterIndex * sizeof(WaterVertex),
-                                        waterVerts);
+                                        mesh->m_waterVertexCount * sizeof(WaterVertex),
+                                        mesh->m_meshDataBuffer.data() + offset);
+        offset += mesh->m_waterVertexCount * sizeof(WaterVertex);
         vg::GpuMemory::createBuffer(mesh->m_wibo);
         vg::GpuMemory::bindBuffer(mesh->m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
         vg::GpuMemory::uploadBufferData(mesh->m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
-                                        m_waterIndexCount * sizeof(ui16),
-                                        waterIndices);
+                                        mesh->m_waterIndexCount * sizeof(ui16),
+                                        mesh->m_meshDataBuffer.data() + offset);
         // Vertex attribute pointers
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
@@ -331,6 +351,8 @@ void TerrainPatchMesher::buildMesh(TerrainPatchMesh* mesh, const f32v3& startPos
                               sizeof(WaterVertex),
                               offsetptr(WaterVertex, depth));
     }
+    // Clear the data
+    std::vector<ui8>().swap(mesh->m_meshDataBuffer);
     glBindVertexArray(0);
 }
 

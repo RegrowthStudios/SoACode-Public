@@ -39,8 +39,7 @@ public:
               TerrainPatchMesh* mesh,
               const f32v3& startPos,
               float width,
-              WorldCubeFace cubeFace,
-              bool isSpherical);
+              WorldCubeFace cubeFace);
 
     // Executes the task
     void execute(WorkerData* workerData) override;
@@ -49,7 +48,6 @@ private:
     f32v3 m_startPos;
     WorldCubeFace m_cubeFace;
     float m_width;
-    bool m_isSpherical;
     TerrainPatchMesh* m_mesh = nullptr;
     const TerrainPatchData* m_patchData = nullptr;
 };

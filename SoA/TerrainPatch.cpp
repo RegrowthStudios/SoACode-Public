@@ -186,14 +186,13 @@ void TerrainPatch::requestMesh(bool isSpherical) {
     f32v3 startPos(m_gridPos.x,
                    m_terrainPatchData->radius,
                    m_gridPos.y);
-    m_mesh = new TerrainPatchMesh(m_cubeFace);
+    m_mesh = new TerrainPatchMesh(m_cubeFace, isSpherical);
     TerrainPatchMeshTask* meshTask = new TerrainPatchMeshTask();
     meshTask->init(m_terrainPatchData,
                    m_mesh,
                    startPos,
                    m_width,
-                   m_cubeFace,
-                   isSpherical);
+                   m_cubeFace);
     m_terrainPatchData->threadPool->addTask(meshTask);
 }
 
