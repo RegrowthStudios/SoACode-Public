@@ -114,8 +114,8 @@ void TerrainPatchMesher::destroyIndices() {
 
 void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                                           const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                          f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4],
-                                          f32v3 positionData[PATCH_WIDTH][PATCH_WIDTH]) {
+                                          f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
+                                          f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
 
     assert(m_sharedIbo != 0);
 
@@ -152,8 +152,8 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     m_vertWidth = width / (PATCH_WIDTH - 1);
     m_index = 0;
 
-    for (int z = 0; z < PATCH_WIDTH; z++) {
-        for (int x = 0; x < PATCH_WIDTH; x++) {
+    for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
+        for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
 
             auto& v = verts[m_index];
 
@@ -178,7 +178,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
 
             // Water indexing
             if (h < 0) {
-                addWater(z, x, heightData);
+                addWater(z - 1, x - 1, heightData);
             }
 
             // Spherify it!
@@ -214,9 +214,9 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     }
 
     // Second pass for normals TODO(Ben): Padding
-    for (int z = 0; z < PATCH_WIDTH; z++) {
-        for (int x = 0; x < PATCH_WIDTH; x++) {
-            auto& v = verts[z * PATCH_WIDTH + x];
+    for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
+        for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
+            auto& v = verts[(z - 1) * PATCH_WIDTH + x - 1];
             v.normal = glm::normalize(v.position);
         }
     }
@@ -417,7 +417,7 @@ void TerrainPatchMesher::buildSkirts() {
     }
 }
 
-void TerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_WIDTH][PATCH_WIDTH][4]) {
+void TerrainPatchMesher::addWater(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]) {
     // Try add all adjacent vertices if needed
     tryAddWaterVertex(z - 1, x - 1, heightData);
     tryAddWaterVertex(z - 1, x, heightData);
@@ -436,7 +436,7 @@ void TerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_WIDTH][PA
     tryAddWaterQuad(z, x);
 }
 
-void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_WIDTH][PATCH_WIDTH][4]) {
+void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]) {
     // TEMPORARY? Add slight offset so we don't need skirts
     f32 mvw = m_vertWidth * 1.005f;
     const f32 UV_SCALE = 0.04f;
@@ -464,14 +464,14 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
             normal = glm::normalize(tmpPos);
         }
 
-        float d = heightData[z][x][0];
+        float d = heightData[z + 1][x + 1][0];
         if (d < 0) {
             v.depth = -d;
         } else {
             v.depth = 0;
         }
 
-        v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), heightData[z][x][1]);
+        v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), heightData[z + 1][x + 1][1]);
 
         // Compute tangent
         f32v3 tmpPos;

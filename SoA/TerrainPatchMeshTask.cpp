@@ -20,8 +20,8 @@ void TerrainPatchMeshTask::init(const TerrainPatchData* patchData,
 
 void TerrainPatchMeshTask::execute(WorkerData* workerData) {
 
-    f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4];
-    f32v3 positionData[PATCH_WIDTH][PATCH_WIDTH];
+    f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4];
+    f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 pos;
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
     const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
@@ -36,11 +36,11 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
     SphericalTerrainCpuGenerator* generator = m_patchData->generator;
     m_startPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     memset(heightData, 0, sizeof(heightData));
-    for (int z = 0; z < PATCH_WIDTH; z++) {
-        for (int x = 0; x < PATCH_WIDTH; x++) {
-            pos[coordMapping.x] = (m_startPos.x + x * VERT_WIDTH) * coordMults.x;
+    for (int z = 0; z < PADDED_PATCH_WIDTH; z++) {
+        for (int x = 0; x < PADDED_PATCH_WIDTH; x++) {
+            pos[coordMapping.x] = (m_startPos.x + (x - 1) * VERT_WIDTH) * coordMults.x;
             pos[coordMapping.y] = m_startPos.y;
-            pos[coordMapping.z] = (m_startPos.z + z * VERT_WIDTH) * coordMults.y;
+            pos[coordMapping.z] = (m_startPos.z + (z - 1) * VERT_WIDTH) * coordMults.y;
             pos = glm::normalize(pos) * m_patchData->radius;
             heightData[z][x][0] = (f32)generator->getHeightValue(pos);
             heightData[z][x][1] = (f32)generator->getTemperatureValue(pos);

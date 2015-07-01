@@ -30,8 +30,8 @@ public:
     /// Generates mesh using heightmap
     void generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                           const f32v3& startPos, WorldCubeFace cubeFace,
-                          float width, f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4],
-                          f32v3 positionData[PATCH_WIDTH][PATCH_WIDTH]);
+                          float width, f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
+                          f32v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]);
 
     static void uploadMeshData(TerrainPatchMesh* mesh);
 
@@ -57,13 +57,13 @@ private:
     /// @param z: Z position
     /// @Param x: X position
     /// @param heightData: The heightmap data
-    void addWater(int z, int x, float heightData[PATCH_WIDTH][PATCH_WIDTH][4]);
+    void addWater(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]);
 
     /// Tries to add a water vertex at a given spot if one doesn't exist
     /// @param z: Z position
     /// @param x: X position
     /// @param heightData: The heightmap data
-    void tryAddWaterVertex(int z, int x, float heightData[PATCH_WIDTH][PATCH_WIDTH][4]);
+    void tryAddWaterVertex(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]);
 
     /// Tries to add a quad at a given spot if one doesnt exist
     /// @param z: Z position
