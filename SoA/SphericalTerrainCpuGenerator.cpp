@@ -50,15 +50,15 @@ f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition)
 }
 
 f64 SphericalTerrainCpuGenerator::getHeightValue(const f64v3& pos) const {
-    return getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
 f64 SphericalTerrainCpuGenerator::getTemperatureValue(const f64v3& pos) const {
-    return getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    return m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
 f64 SphericalTerrainCpuGenerator::getHumidityValue(const f64v3& pos) const {
-    return getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    return m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
 f64 doOperation(const TerrainOp& op, f64 a, f64 b) {
