@@ -183,6 +183,9 @@
     <Filter Include="SOA Files\Console">
       <UniqueIdentifier>{771788c4-8294-4b8d-b65c-616f4371e8c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Modding">
+      <UniqueIdentifier>{65cf4844-1033-4e01-a560-63f43e8b3660}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -811,6 +814,9 @@
     </ClInclude>
     <ClInclude Include="ConsoleFuncs.h">
       <Filter>SOA Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="DLLAPI.h">
+      <Filter>SOA Files\Modding</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

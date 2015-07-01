@@ -535,6 +535,7 @@ EXIT 0</Command>
     <ClInclude Include="AmbiencePlayer.h" />
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
     <ClInclude Include="AxisRotationComponentUpdater.h" />

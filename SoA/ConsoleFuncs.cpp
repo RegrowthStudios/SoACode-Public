@@ -3,7 +3,7 @@
 
 #include <Vorb/script/Environment.h>
 
-
+#include "DLLAPI.h"
 
 void registerFuncs(vscript::Environment& env) {
     env.addCRDelegate("loadDLL", makeRDelegate(loadDLL));
