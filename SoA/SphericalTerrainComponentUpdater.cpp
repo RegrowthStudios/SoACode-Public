@@ -26,8 +26,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
         // Lazy random planet loading
         if (stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
             PlanetGenData* data = state->planetLoader->getRandomGenData((f32)stCmp.radius);
-            stCmp.meshManager = new TerrainPatchMeshManager(data,
-                                                            spaceSystem->normalMapRecycler.get());
+            stCmp.meshManager = new TerrainPatchMeshManager(data);
             stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
             stCmp.cpuGenerator->init(data);
             // Do this last to prevent race condition with regular update

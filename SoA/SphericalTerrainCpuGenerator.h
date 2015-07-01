@@ -33,9 +33,9 @@ public:
 
     f64 getHeight(const VoxelPosition2D& facePosition) const;
 
-    f64 getHeightValue(const f64v3& pos);
-    f64 getTemperatureValue(const f64v3& pos);
-    f64 getHumidityValue(const f64v3& pos);
+    f64 getHeightValue(const f64v3& pos) const;
+    f64 getTemperatureValue(const f64v3& pos) const;
+    f64 getHumidityValue(const f64v3& pos) const;
 
     const PlanetGenData* getGenData() const { return m_genData; }
 private:

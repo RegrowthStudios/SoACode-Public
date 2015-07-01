@@ -62,7 +62,6 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                  properties->diameter * 0.5,
                                  properties->planetGenData,
                                  &spaceSystem->normalMapGenProgram,
-                                 spaceSystem->normalMapRecycler.get(),
                                  threadPool);
 
     f64 planetRadius = properties->diameter / 2.0;
@@ -325,7 +324,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
                                                                       f64 radius,
                                                                       PlanetGenData* planetGenData,
                                                                       vg::GLProgram* normalProgram,
-                                                                      vg::TextureRecycler* normalMapRecycler,
                                                                       vcore::ThreadPool<WorkerData>* threadPool) {
     vecs::ComponentID stCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
     auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(stCmpId);
@@ -335,8 +333,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
     stCmp.planetGenData = planetGenData;
 
     if (planetGenData) {
-        stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
-                                                        normalMapRecycler);
+        stCmp.meshManager = new TerrainPatchMeshManager(planetGenData);
         stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
         stCmp.cpuGenerator->init(planetGenData);
     }

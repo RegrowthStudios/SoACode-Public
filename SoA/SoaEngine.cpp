@@ -207,7 +207,6 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
                                                          radius,
                                                          genData,
                                                          &spaceSystem->normalMapGenProgram,
-                                                         spaceSystem->normalMapRecycler.get(),
                                                          state->threadPool);
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);

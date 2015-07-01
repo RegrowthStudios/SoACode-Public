@@ -28,15 +28,10 @@ public:
     static void destroyIndices();
 
     /// Generates mesh using heightmap
-    /// @param mesh: The mesh handle
-    /// @param startPos: Starting position
-    /// @param cubeFace: The world cube face
-    /// @param width: Width of the patch
-    /// @param heightData: The heightmap data
-    /// @param isSpherical: True when this is a spherical mesh
-    void buildMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
-                       const f32v3& startPos, WorldCubeFace cubeFace,
-                   float width, f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4]);
+    void generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
+                          const f32v3& startPos, WorldCubeFace cubeFace,
+                          float width, f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4],
+                          f32v3 positionData[PATCH_WIDTH][PATCH_WIDTH]);
 
     static void uploadMeshData(TerrainPatchMesh* mesh);
 

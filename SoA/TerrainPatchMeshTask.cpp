@@ -1,9 +1,10 @@
 #include "stdafx.h"
+#include "SphericalTerrainCpuGenerator.h"
+#include "TerrainPatchMesh.h"
+#include "TerrainPatchMeshManager.h"
 #include "TerrainPatchMeshTask.h"
 #include "TerrainPatchMesher.h"
-#include "TerrainPatchMeshManager.h"
 #include "VoxelSpaceConversions.h"
-#include "SphericalTerrainCpuGenerator.h"
 
 void TerrainPatchMeshTask::init(const TerrainPatchData* patchData,
                                 TerrainPatchMesh* mesh,
@@ -20,31 +21,40 @@ void TerrainPatchMeshTask::init(const TerrainPatchData* patchData,
 void TerrainPatchMeshTask::execute(WorkerData* workerData) {
 
     f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4];
-
+    f32v3 positionData[PATCH_WIDTH][PATCH_WIDTH];
     f64v3 pos;
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
     const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
     
-    const float VERT_WIDTH = m_width / PATCH_WIDTH;
+    const float VERT_WIDTH = m_width / (PATCH_WIDTH - 1);
 
+    // Check for early delete
+    if (m_mesh->m_shouldDelete) {
+        delete m_mesh;
+        return;
+    }
     SphericalTerrainCpuGenerator* generator = m_patchData->generator;
-
+    m_startPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
     memset(heightData, 0, sizeof(heightData));
     for (int z = 0; z < PATCH_WIDTH; z++) {
         for (int x = 0; x < PATCH_WIDTH; x++) {
-
-            pos[coordMapping.x] = m_startPos.x + x * VERT_WIDTH * coordMults.x;
+            pos[coordMapping.x] = (m_startPos.x + x * VERT_WIDTH) * coordMults.x;
             pos[coordMapping.y] = m_startPos.y;
-            pos[coordMapping.z] = m_startPos.z + z * VERT_WIDTH * coordMults.y;
-
-            heightData[z][x][0] = generator->getHeightValue(pos);
-            heightData[z][x][1] = generator->getTemperatureValue(pos);
-            heightData[z][x][2] = generator->getHumidityValue(pos);
+            pos[coordMapping.z] = (m_startPos.z + z * VERT_WIDTH) * coordMults.y;
+            pos = glm::normalize(pos) * m_patchData->radius;
+            heightData[z][x][0] = (f32)generator->getHeightValue(pos);
+            heightData[z][x][1] = (f32)generator->getTemperatureValue(pos);
+            heightData[z][x][2] = (f32)generator->getHumidityValue(pos);
+            positionData[z][x] = f32v3(pos); // So we don't have to calculate it twice
         }
     }
-
+    // Check for early delete
+    if (m_mesh->m_shouldDelete) {
+        delete m_mesh;
+        return;
+    }
     if (!workerData->terrainMesher) workerData->terrainMesher = new TerrainPatchMesher();
-    workerData->terrainMesher->buildMeshData(m_mesh, generator->getGenData(), m_startPos, m_cubeFace, m_width, heightData);
+    workerData->terrainMesher->generateMeshData(m_mesh, generator->getGenData(), m_startPos, m_cubeFace, m_width, heightData, positionData);
 
     // Finally, add to the mesh manager
     m_patchData->meshManager->addMeshAsync(m_mesh);

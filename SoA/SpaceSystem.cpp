@@ -20,14 +20,6 @@ SpaceSystem::SpaceSystem() : vecs::ECS() {
     addComponentTable(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, &m_atmosphereCT);
     addComponentTable(SPACE_SYSTEM_CT_PLANETRINGS_NAME, &m_planetRingCT);
     addComponentTable(SPACE_SYSTEM_CT_CLOUDS_NAME, &m_cloudsCT);
-    
-    #define MAX_NORMAL_MAPS 512U
-    normalMapRecycler = std::make_unique<vg::TextureRecycler>((ui32)PATCH_NORMALMAP_WIDTH,
-                                                  (ui32)PATCH_NORMALMAP_WIDTH,
-                                                  &vg::SamplerState::LINEAR_CLAMP,
-                                                  0,
-                                                  vg::TextureInternalFormat::RGB8,
-                                                  MAX_NORMAL_MAPS);
 }
 
 SpaceSystem::~SpaceSystem() {

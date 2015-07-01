@@ -24,13 +24,10 @@ void SphericalTerrainComponentRenderer::initGL() {
                                                            "Shaders/SphericalTerrain/SphericalTerrain.frag");
     // Set constant uniforms
     m_terrainProgram.use();
-    glUniform1i(m_terrainProgram.getUniform("unNormalMap"), 0);
     glUniform1i(m_terrainProgram.getUniform("unColorMap"), 1);
     glUniform1i(m_terrainProgram.getUniform("unGrassTexture"), 2);
     glUniform1i(m_terrainProgram.getUniform("unRockTexture"), 3);
-    glUniform1f(m_terrainProgram.getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
-    glUniform1f(m_terrainProgram.getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
-    m_terrainProgram.unuse();
+     m_terrainProgram.unuse();
 
     m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/SphericalTerrain/SphericalWater.vert",
                                                          "Shaders/SphericalTerrain/SphericalWater.frag");

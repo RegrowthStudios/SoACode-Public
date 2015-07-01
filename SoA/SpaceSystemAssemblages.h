@@ -119,7 +119,6 @@ namespace SpaceSystemAssemblages {
                                                            f64 radius,
                                                            PlanetGenData* planetGenData,
                                                            vg::GLProgram* normalProgram,
-                                                           vg::TextureRecycler* normalMapRecycler,
                                                            vcore::ThreadPool<WorkerData>* threadPool);
     extern void removeSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 

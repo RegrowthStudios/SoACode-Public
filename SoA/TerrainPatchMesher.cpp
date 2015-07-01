@@ -112,9 +112,10 @@ void TerrainPatchMesher::destroyIndices() {
     vg::GpuMemory::freeBuffer(m_sharedIbo);
 }
 
-void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
-                                       const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                       f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4]) {
+void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
+                                          const f32v3& startPos, WorldCubeFace cubeFace, float width,
+                                          f32 heightData[PATCH_WIDTH][PATCH_WIDTH][4],
+                                          f32v3 positionData[PATCH_WIDTH][PATCH_WIDTH]) {
 
     assert(m_sharedIbo != 0);
 
@@ -127,7 +128,6 @@ void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenDa
     if (m_isSpherical) {
         m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
         m_startPos = startPos;
-        m_startPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
         m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
     } else {
         m_coordMapping = i32v3(0, 1, 2);
@@ -158,9 +158,7 @@ void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenDa
             auto& v = verts[m_index];
 
             // Set the position based on which face we are on
-            v.position[m_coordMapping.x] = (x * m_vertWidth + m_startPos.x) * m_coordMults.x;
-            v.position[m_coordMapping.y] = m_startPos.y;
-            v.position[m_coordMapping.z] = (z * m_vertWidth + m_startPos.z) * m_coordMults.y;
+            v.position = positionData[z][x];
 
             // Set color
             v.color = m_planetGenData->terrainTint;
@@ -183,10 +181,6 @@ void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenDa
                 addWater(z, x, heightData);
             }
 
-            // Set normal map texture coordinates
-            v.normTexCoords.x = (ui8)(((float)x / (float)(PATCH_WIDTH - 1)) * 255.0f);
-            v.normTexCoords.y = (ui8)(((float)z / (float)(PATCH_WIDTH - 1)) * 255.0f);
-
             // Spherify it!
             f32v3 normal;
             if (m_isSpherical) {
@@ -204,19 +198,7 @@ void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenDa
             angle = computeAngleFromNormal(normal);
             // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
             v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[z][x][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
-            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[z][x][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));
-
-            // Compute tangent
-            tmpPos[m_coordMapping.x] = ((x + 1) * m_vertWidth + m_startPos.x) * m_coordMults.x;
-            tmpPos[m_coordMapping.y] = m_startPos.y;
-            tmpPos[m_coordMapping.z] = (z * m_vertWidth + m_startPos.z) * m_coordMults.y;
-            tmpPos = glm::normalize(tmpPos) * (m_radius + h);
-            v.tangent = glm::normalize(tmpPos - v.position);
-
-            // Make sure tangent is orthogonal
-            normal = glm::normalize(v.position);
-            f32v3 binormal = glm::normalize(glm::cross(normal, v.tangent));
-            v.tangent = glm::normalize(glm::cross(binormal, normal));
+            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[z][x][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));   
 
             // Check bounding box
             // TODO(Ben): Worry about water too!
@@ -228,6 +210,14 @@ void TerrainPatchMesher::buildMeshData(TerrainPatchMesh* mesh, const PlanetGenDa
             if (v.position.z > maxZ) maxZ = v.position.z;
 
             m_index++;
+        }
+    }
+
+    // Second pass for normals TODO(Ben): Padding
+    for (int z = 0; z < PATCH_WIDTH; z++) {
+        for (int x = 0; x < PATCH_WIDTH; x++) {
+            auto& v = verts[z * PATCH_WIDTH + x];
+            v.normal = glm::normalize(v.position);
         }
     }
 
@@ -301,7 +291,7 @@ void TerrainPatchMesher::uploadMeshData(TerrainPatchMesh* mesh) {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, tangent));
+                          offsetptr(TerrainVertex, normal));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
@@ -309,14 +299,10 @@ void TerrainPatchMesher::uploadMeshData(TerrainPatchMesh* mesh) {
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, normTexCoords));
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, temperature));
 
     // Add water mesh
-    if (0 && mesh->m_waterIndexCount) {
+    if (mesh->m_waterIndexCount) {
 
         // Make VAO
         glGenVertexArrays(1, &mesh->m_wvao);

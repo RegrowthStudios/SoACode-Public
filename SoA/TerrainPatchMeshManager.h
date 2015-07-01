@@ -30,10 +30,8 @@ DECL_VG(class TextureRecycler;
 
 class TerrainPatchMeshManager {
 public:
-    TerrainPatchMeshManager(const PlanetGenData* planetGenData,
-                                vg::TextureRecycler* normalMapRecycler) :
-        m_planetGenData(planetGenData),
-        m_normalMapRecycler(normalMapRecycler) {
+    TerrainPatchMeshManager(const PlanetGenData* planetGenData) :
+        m_planetGenData(planetGenData){
         // Empty
     }
     ~TerrainPatchMeshManager();
@@ -94,7 +92,6 @@ private:
     moodycamel::ConcurrentQueue<TerrainPatchMesh*> m_meshesToAdd;
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
-    vg::TextureRecycler* m_normalMapRecycler = nullptr; ///< Recycler for normal maps
     std::vector<TerrainPatchMesh*> m_meshes; ///< All meshes
     std::vector<TerrainPatchMesh*> m_waterMeshes; ///< Meshes with water active
     std::vector<TerrainPatchMesh*> m_farMeshes; ///< All meshes

@@ -122,8 +122,6 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
             auto& m = m_meshes[i];
 
             if (m->m_shouldDelete) {
-                m->recycleNormalMap(m_normalMapRecycler);
-
                 // [15] If m_wvbo is 1, then chunk was marked for delete between
                 // Drawing water and terrain. So we free m_wvbo to mark it
                 // for delete on the next pass through m_waterMeshes
@@ -299,8 +297,6 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         for (size_t i = 0; i < m_farMeshes.size();) {
             auto& m = m_farMeshes[i];
             if (m->m_shouldDelete) {
-                m->recycleNormalMap(m_normalMapRecycler);
-
                 // [15] If m_wvbo is 1, then chunk was marked for delete between
                 // Drawing water and terrain. So we free m_wvbo to mark it
                 // for delete on the next pass through m_farWaterMeshes
