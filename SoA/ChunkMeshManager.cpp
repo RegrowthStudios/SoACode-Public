@@ -3,7 +3,7 @@
 
 #include "ChunkMesh.h"
 #include "ChunkRenderer.h"
-#include "RenderTask.h"
+#include "ChunkMeshTask.h"
 #include "soaUtils.h"
 
 #define MAX_UPDATES_PER_FRAME 500

@@ -3,25 +3,25 @@
 
 #include <SDL/SDL_timer.h> // For SDL_GetTicks
 
+#include "Chunk.h"
 #include "ChunkAllocator.h"
+#include "ChunkGrid.h"
 #include "ChunkIOManager.h"
 #include "ChunkMeshManager.h"
+#include "ChunkMeshTask.h"
 #include "ChunkRenderer.h"
 #include "ChunkUpdater.h"
 #include "FloraTask.h"
 #include "GameSystem.h"
 #include "GenerateTask.h"
-#include "Chunk.h"
-#include "ChunkGrid.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "PlanetData.h"
-#include "RenderTask.h"
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainGpuGenerator.h"
+#include "VoxelSpaceConversions.h"
 #include "soaUtils.h"
 
 #include <Vorb/voxel/VoxCommon.h>

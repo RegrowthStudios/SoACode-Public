@@ -28,13 +28,16 @@ class SphericalTerrainCpuGenerator {
 public:
     void init(const PlanetGenData* planetGenData);
 
-    /// Generates a terrain patch: NOTE: This is only here for testing purposes. GPUgen is vastly superior
-    void generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) const;
-
     /// Gets the height at a specific face position.
     void generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
 
     f64 getHeight(const VoxelPosition2D& facePosition) const;
+
+    f64 getHeightValue(const f64v3& pos);
+    f64 getTemperatureValue(const f64v3& pos);
+    f64 getHumidityValue(const f64v3& pos);
+
+    const PlanetGenData* getGenData() const { return m_genData; }
 private:
     /// Gets noise value using terrainFuncs
     /// @return the noise value
@@ -43,7 +46,6 @@ private:
                       f64* modifier,
                       const TerrainOp& op) const;
 
-  //  TerrainPatchMesher m_mesher; ///< Creates patch meshes
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data
 };
 

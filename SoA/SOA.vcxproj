@@ -548,6 +548,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="ChunkHandle.h" />
     <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="ChunkMeshTask.h" />
     <ClInclude Include="CommonState.h" />
     <ClInclude Include="CloudsComponentRenderer.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
@@ -649,7 +650,6 @@ EXIT 0</Command>
     <ClInclude Include="TerrainPatchConstants.h" />
     <ClInclude Include="TerrainPatchMesh.h" />
     <ClInclude Include="TerrainPatchMeshTask.h" />
-    <ClInclude Include="TerrainRpcDispatcher.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
@@ -719,7 +719,6 @@ EXIT 0</Command>
     <ClInclude Include="GenerateTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
-    <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="Vertex.h" />
@@ -753,6 +752,7 @@ EXIT 0</Command>
     <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="ChunkMeshTask.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
@@ -842,7 +842,6 @@ EXIT 0</Command>
     <ClCompile Include="TerrainPatchMesher.cpp" />
     <ClCompile Include="TerrainPatchMesh.cpp" />
     <ClCompile Include="TerrainPatchMeshTask.cpp" />
-    <ClCompile Include="TerrainRpcDispatcher.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
@@ -879,7 +878,6 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
-    <ClCompile Include="RenderTask.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">Create</PrecompiledHeader>

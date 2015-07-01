@@ -8,6 +8,8 @@
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"
+#include "TerrainPatchMeshTask.h"
+#include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
 #include "soaUtils.h"
@@ -25,14 +27,12 @@ void TerrainPatch::init(const f64v2& gridPosition,
                                  WorldCubeFace cubeFace,
                                  int lod,
                                  const TerrainPatchData* sphericalTerrainData,
-                                 f64 width,
-                                 TerrainRpcDispatcher* dispatcher) {
+                                 f64 width) {
     m_gridPos = gridPosition;
     m_cubeFace = cubeFace;
     m_lod = lod;
     m_terrainPatchData = sphericalTerrainData;
     m_width = width;
-    m_dispatcher = dispatcher;
 
     // Construct an approximate AABB
     const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
@@ -81,7 +81,7 @@ void TerrainPatch::update(const f64v3& cameraPos) {
         // Check for out of range
         if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
-                requestMesh();
+                requestMesh(true);
             } else if (hasMesh()) {
                 // Out of range, kill children
                 delete[] m_children;
@@ -111,12 +111,11 @@ void TerrainPatch::update(const f64v3& cameraPos) {
         for (int z = 0; z < 2; z++) {
             for (int x = 0; x < 2; x++) {
                 m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                                m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0,
-                                                m_dispatcher);
+                                                m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0);
             }
         }
     } else if (!m_mesh) {
-        requestMesh();
+        requestMesh(true);
     }
     
     // Recursively update children if they exist
@@ -182,15 +181,20 @@ bool TerrainPatch::canSubdivide() const {
     return (m_lod < PATCH_MAX_LOD && m_distance < m_width * DIST_MIN && m_width > MIN_SIZE);
 }
 
-void TerrainPatch::requestMesh() {
+void TerrainPatch::requestMesh(bool isSpherical) {
    
     f32v3 startPos(m_gridPos.x,
                    m_terrainPatchData->radius,
                    m_gridPos.y);
-    m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
-                                              (f32)m_width,
-                                              m_lod,
-                                              m_cubeFace, true);
+    m_mesh = new TerrainPatchMesh(m_cubeFace);
+    TerrainPatchMeshTask* meshTask = new TerrainPatchMeshTask();
+    meshTask->init(m_terrainPatchData,
+                   m_mesh,
+                   startPos,
+                   m_width,
+                   m_cubeFace,
+                   isSpherical);
+    m_terrainPatchData->threadPool->addTask(meshTask);
 }
 
 f64v3 TerrainPatch::calculateClosestPointAndDist(const f64v3& cameraPos) {

@@ -27,7 +27,6 @@
 #include "SoaOptions.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
-#include "RenderTask.h"
 #include "SoaEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"

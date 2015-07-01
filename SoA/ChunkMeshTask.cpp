@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "RenderTask.h"
+#include "ChunkMeshTask.h"
 
 #include <Vorb/ThreadPool.h>
 

@@ -293,9 +293,6 @@
     <ClInclude Include="Rendering.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -581,9 +578,6 @@
     <ClInclude Include="FarTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainRpcDispatcher.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="FarTerrainComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClInclude>
@@ -797,6 +791,9 @@
     <ClInclude Include="TerrainPatchMeshTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkMeshTask.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -921,9 +918,6 @@
     </ClCompile>
     <ClCompile Include="ZipFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
     <ClCompile Include="ChunkMesh.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -1135,9 +1129,6 @@
     <ClCompile Include="FarTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainRpcDispatcher.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
     </ClCompile>
@@ -1302,6 +1293,9 @@
     </ClCompile>
     <ClCompile Include="TerrainPatchMeshTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMeshTask.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

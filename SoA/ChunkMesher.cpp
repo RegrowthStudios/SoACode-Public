@@ -15,7 +15,7 @@
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
-#include "RenderTask.h"
+#include "ChunkMeshTask.h"
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
 #include "VoxelBits.h"

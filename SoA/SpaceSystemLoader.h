@@ -17,6 +17,7 @@
 
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
+#include "VoxPool.h"
 
 struct GasGiantKegProperties;
 struct SystemBody;
@@ -33,6 +34,7 @@ struct SpaceSystemLoadParams {
     nString dirPath;
     PlanetLoader* planetLoader = nullptr;
     vcore::RPCManager* glrpc = nullptr;
+    vcore::ThreadPool<WorkerData>* threadpool = nullptr;
 
     std::map<nString, SystemBody*> barycenters; ///< Contains all barycenter objects
     std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies

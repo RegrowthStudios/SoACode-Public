@@ -63,6 +63,24 @@ void SoaEngine::initState(SoaState* state) {
     state->blockTextures = new BlockTexturePack;
     state->blockTextures->init(32, 4096);
     state->blockTextureLoader.init(&state->texturePathResolver, state->blockTextures);
+
+    { // Threadpool init
+        size_t hc = std::thread::hardware_concurrency();
+        // Remove two threads for the render thread and main thread
+        if (hc > 1) hc--;
+        if (hc > 1) hc--;
+
+        // Drop a thread so we don't steal the hardware on debug
+#ifdef DEBUG
+        if (hc > 1) hc--;
+#endif
+
+        // Initialize the threadpool with hc threads
+        state->threadPool = new vcore::ThreadPool<WorkerData>();
+        state->threadPool->init(hc);
+        // Give some time for the threads to spin up
+        SDL_Delay(100);
+    }
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
@@ -110,6 +128,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     spaceSystemLoadParams.spaceSystem = state->spaceSystem;
     spaceSystemLoadParams.ioManager = state->systemIoManager;
     spaceSystemLoadParams.planetLoader = state->planetLoader;
+    spaceSystemLoadParams.threadpool = state->threadPool;
 
     m_spaceSystemLoader.loadStarSystem(spaceSystemLoadParams);
 
@@ -184,7 +203,8 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
                                                          radius,
                                                          genData,
                                                          &spaceSystem->normalMapGenProgram,
-                                                         spaceSystem->normalMapRecycler.get());
+                                                         spaceSystem->normalMapRecycler.get(),
+                                                         state->threadPool);
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
         stCmp.farTerrainComponent = ftCmpID;

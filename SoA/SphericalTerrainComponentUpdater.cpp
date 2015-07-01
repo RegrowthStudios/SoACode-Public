@@ -15,9 +15,22 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
     SpaceSystem* spaceSystem = state->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
-      
         SphericalTerrainComponent& stCmp = it.second;
-        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
+
+        // TODO(Ben): Completely unneeded
+        // Lazy random planet loading
+        if (stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
+            PlanetGenData* data = state->planetLoader->getRandomGenData((f32)stCmp.radius);
+            stCmp.meshManager = new TerrainPatchMeshManager(data,
+                                                            spaceSystem->normalMapRecycler.get());
+            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
+            stCmp.cpuGenerator->init(data);
+            // Do this last to prevent race condition with regular update
+            data->radius = stCmp.radius;
+            stCmp.planetGenData = data;
+        }
+      
+         const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
         const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
@@ -65,19 +78,8 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
     auto& spaceSystem = soaState->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
         SphericalTerrainComponent& stCmp = it.second;
-        // Lazy random planet loading
-        if(stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
-            PlanetGenData* data = soaState->planetLoader->getRandomGenData((f32)stCmp.radius);
-            stCmp.meshManager = new TerrainPatchMeshManager(data,
-                                                            spaceSystem->normalMapRecycler.get());
-            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
-            stCmp.cpuGenerator->init(data);
-            stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
-            // Do this last to prevent race condition with regular update
-            data->radius = stCmp.radius;
-            stCmp.planetGenData = data;
-        }
-        if (stCmp.planetGenData && it.second.alpha > 0.0f) stCmp.gpuGenerator->update();
+        
+        //if (stCmp.planetGenData && it.second.alpha > 0.0f) stCmp.gpuGenerator->update();
     }
 }
 
@@ -99,8 +101,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;
                 p.init(gridPos, static_cast<WorldCubeFace>(face),
-                       0, cmp.sphericalTerrainData, patchWidth,
-                       cmp.rpcDispatcher);
+                       0, cmp.sphericalTerrainData, patchWidth);
             }
         }
     }

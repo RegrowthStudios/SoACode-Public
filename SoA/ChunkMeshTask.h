@@ -35,7 +35,7 @@ enum class RenderTaskType { DEFAULT, LIQUID };
 // Represents A Mesh Creation Task
 class ChunkMeshTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    ChunkMeshTask() : vcore::IThreadPoolTask<WorkerData>(true, RENDER_TASK_ID) {}
+    ChunkMeshTask() : vcore::IThreadPoolTask<WorkerData>(false, RENDER_TASK_ID) {}
 
     // Executes the task
     void execute(WorkerData* workerData) override;

@@ -17,40 +17,6 @@ void SphericalTerrainCpuGenerator::init(const PlanetGenData* planetGenData) {
     m_genData = planetGenData;
 }
 
-void SphericalTerrainCpuGenerator::generateTerrainPatch(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width) const {
-
-    //f32v3 pos;
-    //const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)cubeFace];
-    //const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)cubeFace]);
-    //
-    //const float VERT_WIDTH = width / PATCH_WIDTH;
-
-    //int zIndex;
-    //int xIndex;
-    //// TODO(Ben): If we want to do MT CPU gen we cant use static buffers
-    //static float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4];
-    //memset(heightData, 0, sizeof(heightData));
-    //for (int z = 0; z < PATCH_WIDTH; z++) {
-    //    for (int x = 0; x < PATCH_WIDTH; x++) {
-
-    //        pos[coordMapping.x] = startPos.x + x * VERT_WIDTH * coordMults.x;
-    //        pos[coordMapping.y] = startPos.y;
-    //        pos[coordMapping.z] = startPos.z + z * VERT_WIDTH * coordMults.y;
-
-    //        zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-    //        xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-
-    //        heightData[zIndex][xIndex][0] = getNoiseValue(pos, m_genData->baseTerrainFuncs);
-    //        heightData[zIndex][xIndex][1] = getNoiseValue(pos, m_genData->tempTerrainFuncs);
-    //        heightData[zIndex][xIndex][2] = getNoiseValue(pos, m_genData->humTerrainFuncs);
-    //        // TODO(Ben): Biome
-    //        heightData[zIndex][xIndex][3] = ;
-    //    }
-    //}
-
-    //m_mesher.buildMesh(mesh, startPos, cubeFace, width, heightData, true);
-}
-
 void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const {
     // Need to convert to world-space
     f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
@@ -81,6 +47,18 @@ f64 SphericalTerrainCpuGenerator::getHeight(const VoxelPosition2D& facePosition)
 
     pos = glm::normalize(pos) * m_genData->radius;
     return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+}
+
+f64 SphericalTerrainCpuGenerator::getHeightValue(const f64v3& pos) {
+    return getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+}
+
+f64 SphericalTerrainCpuGenerator::getTemperatureValue(const f64v3& pos) {
+    return getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+}
+
+f64 SphericalTerrainCpuGenerator::getHumidityValue(const f64v3& pos) {
+    return getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
 f64 doOperation(const TerrainOp& op, f64 a, f64 b) {

@@ -12,7 +12,6 @@
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalTerrainCpuGenerator.h"
-#include "SphericalTerrainGpuGenerator.h"
 
 #include "TerrainPatchMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -47,7 +46,8 @@ vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
 vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                     const SystemBodyKegProperties* sysProps,
                                     const PlanetKegProperties* properties,
-                                    SystemBody* body) {
+                                    SystemBody* body,
+                                    vcore::ThreadPool<WorkerData>* threadPool) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -62,7 +62,8 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                  properties->diameter * 0.5,
                                  properties->planetGenData,
                                  &spaceSystem->normalMapGenProgram,
-                                 spaceSystem->normalMapRecycler.get());
+                                 spaceSystem->normalMapRecycler.get(),
+                                 threadPool);
 
     f64 planetRadius = properties->diameter / 2.0;
     addSphericalGravityComponent(spaceSystem, id, npCmp, planetRadius, properties->mass);
@@ -259,7 +260,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.voxelRadius = ftcmp.sphericalTerrainData->radius * VOXELS_PER_KM;
 
-    svcmp.generator = ftcmp.gpuGenerator;
+    svcmp.generator = ftcmp.cpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
     svcmp.chunkAllocator = new PagedChunkAllocator();
     svcmp.chunkMeshManager = soaState->chunkMeshManager;
@@ -267,6 +268,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     // Set up threadpool
     // Check the hardware concurrency
+    // TODO(Ben): Not here.
     size_t hc = std::thread::hardware_concurrency();
     // Remove two threads for the render thread and main thread
     if (hc > 1) hc--;
@@ -280,6 +282,9 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Initialize the threadpool with hc threads
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
     svcmp.threadPool->init(hc);
+
+
+
     svcmp.chunkIo->beginThread();
     // Give some time for the threads to spin up
     SDL_Delay(100);
@@ -322,7 +327,8 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
                                                                       f64 radius,
                                                                       PlanetGenData* planetGenData,
                                                                       vg::GLProgram* normalProgram,
-                                                                      vg::TextureRecycler* normalMapRecycler) {
+                                                                      vg::TextureRecycler* normalMapRecycler,
+                                                                      vcore::ThreadPool<WorkerData>* threadPool) {
     vecs::ComponentID stCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
     auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(stCmpId);
     
@@ -333,19 +339,16 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
     if (planetGenData) {
         stCmp.meshManager = new TerrainPatchMeshManager(planetGenData,
                                                         normalMapRecycler);
-        stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
-                                                              planetGenData,
-                                                              normalProgram, normalMapRecycler);
         stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
         stCmp.cpuGenerator->init(planetGenData);
-        stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
     }
     
     stCmp.radius = radius;
     stCmp.alpha = 1.0f;
 
     f64 patchWidth = (radius * 2.0) / ST_PATCH_ROW;
-    stCmp.sphericalTerrainData = new TerrainPatchData(radius, patchWidth);
+    stCmp.sphericalTerrainData = new TerrainPatchData(radius, patchWidth, stCmp.cpuGenerator,
+                                                      stCmp.meshManager, threadPool);
 
     return stCmpId;
 }
@@ -409,9 +412,7 @@ vecs::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(SpaceSystem* sp
 
     ftCmp.planetGenData = parentCmp.planetGenData;
     ftCmp.meshManager = parentCmp.meshManager;
-    ftCmp.gpuGenerator = parentCmp.gpuGenerator;
     ftCmp.cpuGenerator = parentCmp.cpuGenerator;
-    ftCmp.rpcDispatcher = parentCmp.rpcDispatcher;
     ftCmp.sphericalTerrainData = parentCmp.sphericalTerrainData;
 
     ftCmp.face = face;
@@ -425,7 +426,6 @@ void SpaceSystemAssemblages::removeFarTerrainComponent(SpaceSystem* spaceSystem,
 
     if (ftcmp.patches) delete[] ftcmp.patches;
     ftcmp.patches = nullptr;
-    ftcmp.gpuGenerator = nullptr;
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_FARTERRAIN_NAME, entity);
 }
 

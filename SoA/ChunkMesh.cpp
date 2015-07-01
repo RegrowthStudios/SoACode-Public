@@ -3,7 +3,7 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "RenderTask.h"
+#include "ChunkMeshTask.h"
 
 KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("none", MeshType::NONE);

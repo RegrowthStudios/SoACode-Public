@@ -151,7 +151,7 @@ struct SphericalVoxelComponent {
     ChunkMeshManager* chunkMeshManager = nullptr;
     VoxelLightEngine voxelLightEngine;
 
-    SphericalTerrainGpuGenerator* generator = nullptr;
+    SphericalTerrainCpuGenerator* generator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
     const TerrainPatchData* sphericalTerrainData = nullptr;
@@ -179,8 +179,6 @@ struct SphericalTerrainComponent {
     vecs::ComponentID axisRotationComponent = 0;
     vecs::ComponentID sphericalVoxelComponent = 0;
     vecs::ComponentID farTerrainComponent = 0;
-
-    TerrainRpcDispatcher* rpcDispatcher = nullptr;
 
     TerrainPatch* patches = nullptr; ///< Buffer for top level patches
     TerrainPatchData* sphericalTerrainData = nullptr;
@@ -225,8 +223,8 @@ struct FarTerrainComponent {
     TerrainPatchData* sphericalTerrainData = nullptr;
 
     TerrainPatchMeshManager* meshManager = nullptr;
-    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+    vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 
     WorldCubeFace face = FACE_NONE;
 

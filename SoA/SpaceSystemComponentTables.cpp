@@ -12,10 +12,8 @@
 #include "PhysicsEngine.h"
 #include "PlanetData.h"
 #include "SphericalTerrainCpuGenerator.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
-#include "TerrainRpcDispatcher.h"
 
 void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
     SphericalVoxelComponent& cmp = _components[cID].second;
@@ -35,10 +33,9 @@ void SphericalTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vec
     }
     if (cmp.planetGenData) {
         delete cmp.meshManager;
-        delete cmp.gpuGenerator;
         delete cmp.cpuGenerator;
-        delete cmp.rpcDispatcher;
     }
+    // TODO(Ben): Memory leak
     delete cmp.sphericalTerrainData;
 }
 

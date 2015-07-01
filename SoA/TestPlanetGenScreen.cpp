@@ -75,7 +75,7 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
     pProps.planetGenData = genData;
 
     // Set up components
-    SpaceSystemAssemblages::createPlanet(m_state.spaceSystem, &props, &pProps, &body);
+    SpaceSystemAssemblages::createPlanet(m_state.spaceSystem, &props, &pProps, &body, m_state.threadPool);
 
     m_aCmp.radius = (f32)(PLANET_RADIUS * 1.025);
     m_aCmp.planetRadius = (f32)PLANET_RADIUS;

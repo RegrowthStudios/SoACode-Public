@@ -7,7 +7,6 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainCpuGenerator.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "VoxelCoordinateSpaces.h"
 #include "soaUtils.h"
 
@@ -16,7 +15,6 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
     for (auto& it : spaceSystem->m_farTerrainCT) {
 
         FarTerrainComponent& cmp = it.second;
-        if (!cmp.gpuGenerator) continue;
 
         /// Calculate camera distance
         f64 distance = glm::length(cameraPos);
@@ -68,12 +66,6 @@ void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& c
     }
 }
 
-void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
-    for (auto& it : spaceSystem->m_farTerrainCT) {
-        if (it.second.gpuGenerator) it.second.gpuGenerator->update();
-    }
-}
-
 void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp, const f64v3& cameraPos) {
     const f64& patchWidth = (cmp.sphericalTerrainData->radius * 2.000) / FT_PATCH_ROW;
 
@@ -97,9 +89,14 @@ void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp, const f64
             gridPos.x = (x - centerX) * patchWidth;
             gridPos.y = (z - centerZ) * patchWidth;
             p.init(gridPos, cmp.face,
-                   0, cmp.sphericalTerrainData, patchWidth,
-                   cmp.rpcDispatcher);
+                   0, cmp.sphericalTerrainData, patchWidth);
         }
+    }
+}
+
+void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
+    for (auto& it : spaceSystem->m_farTerrainCT) {
+        // if (it.second.gpuGenerator) it.second.gpuGenerator->update();
     }
 }
 
@@ -119,8 +116,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
             gridPos.x = (cmp.center.x + FT_PATCH_ROW / 2 - 1) * patchWidth;
             gridPos.y = (cmp.center.y + z - FT_PATCH_ROW / 2) * patchWidth;
             p.init(gridPos, cmp.face,
-                   0, cmp.sphericalTerrainData, patchWidth,
-                   cmp.rpcDispatcher);
+                   0, cmp.sphericalTerrainData, patchWidth);
         }
         // Shift origin
         cmp.origin.x++;
@@ -139,8 +135,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
             gridPos.x = (cmp.center.x - FT_PATCH_ROW / 2) * patchWidth;
             gridPos.y = (cmp.center.y + z - FT_PATCH_ROW / 2) * patchWidth;
             p.init(gridPos, cmp.face,
-                   0, cmp.sphericalTerrainData, patchWidth,
-                   cmp.rpcDispatcher);
+                   0, cmp.sphericalTerrainData, patchWidth);
         }
         // Shift origin
         cmp.origin.x--;
@@ -162,8 +157,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
             gridPos.x = (cmp.center.x + x - FT_PATCH_ROW / 2) * patchWidth;
             gridPos.y = (cmp.center.y + FT_PATCH_ROW / 2 - 1) * patchWidth;
             p.init(gridPos, cmp.face,
-                   0, cmp.sphericalTerrainData, patchWidth,
-                   cmp.rpcDispatcher);
+                   0, cmp.sphericalTerrainData, patchWidth);
         }
         // Shift origin
         cmp.origin.y++;
@@ -181,8 +175,7 @@ void FarTerrainComponentUpdater::checkGridShift(FarTerrainComponent& cmp, const 
             gridPos.x = (cmp.center.x + x - FT_PATCH_ROW / 2) * patchWidth;
             gridPos.y = (cmp.center.y - FT_PATCH_ROW / 2) * patchWidth;
             p.init(gridPos, cmp.face,
-                   0, cmp.sphericalTerrainData, patchWidth,
-                   cmp.rpcDispatcher);
+                   0, cmp.sphericalTerrainData, patchWidth);
         }
         // Shift origin
         cmp.origin.y--;
