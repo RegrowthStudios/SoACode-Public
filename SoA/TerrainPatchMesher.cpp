@@ -207,10 +207,11 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
         for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
             auto& v = verts[(z - 1) * PATCH_WIDTH + x - 1];
-            f64v3& pl = positionData[z][x - 1];
-            f64v3& pr = positionData[z][x + 1];
-            f64v3& pb = positionData[z - 1][x];
-            f64v3& pf = positionData[z + 1][x];
+            f64v3& p = positionData[z][x];
+            f64v3& pl = positionData[z][x - 1] - p;
+            f64v3& pr = positionData[z][x + 1] - p;
+            f64v3& pb = positionData[z - 1][x] - p;
+            f64v3& pf = positionData[z + 1][x] - p;
             // Calculate smooth normal
             v.normal = glm::normalize(glm::cross(pb, pl) + glm::cross(pl, pf) +
                                       glm::cross(pf, pr) + glm::cross(pr, pb));
@@ -447,6 +448,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED
         v.position[m_coordMapping.z] = (z * mvw + m_startPos.z) * m_coordMults.y;
 
         // Spherify it!
+        // TODO(Ben): Use normal data
         f32v3 normal;
         if (m_isSpherical) {
             normal = glm::normalize(v.position);
