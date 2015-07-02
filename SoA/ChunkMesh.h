@@ -93,6 +93,10 @@ public:
 class ChunkMesh
 {
 public:
+    ChunkMesh() : vboID(0), waterVboID(0),
+        cutoutVboID(0), transVboID(0),
+        vaoID(0), transVaoID(0),
+        cutoutVaoID(0), waterVaoID(0) {}
 
     typedef ui32 ID;
 

@@ -125,7 +125,7 @@ namespace vorb {
                 } else {
                     _dataArray = _arrayRecycler->create();
                     int index = 0;
-                    for (int i = 0; i < data.size(); i++) {
+                    for (size_t i = 0; i < data.size(); i++) {
                         for (int j = 0; j < data[i].length; j++) {
                             _dataArray[index++] = data[i].data;
                         }
@@ -143,7 +143,7 @@ namespace vorb {
                 } else {
                     _dataArray = _arrayRecycler->create();
                     int index = 0;
-                    for (int i = 0; i < size; i++) {
+                    for (size_t i = 0; i < size; i++) {
                         for (int j = 0; j < data[i].length; j++) {
                             _dataArray[index++] = data[i].data;
                         }

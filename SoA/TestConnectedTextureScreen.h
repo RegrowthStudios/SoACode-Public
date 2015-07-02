@@ -23,6 +23,8 @@
 #include "Camera.h"
 #include "Chunk.h"
 #include "CommonState.h"
+#include "ChunkMesher.h"
+#include "ChunkRenderer.h"
 
 class TestConnectedTextureScreen : public vui::IAppScreen<App> {
 public:
@@ -41,9 +43,14 @@ public:
 private:
     Camera m_camera;
     BlockPack m_blocks; ///< Block data
-    CommonState* m_state;
+    CommonState* m_commonState;
+    SoaState* m_soaState;
+    ChunkRenderer m_renderer;
+    ChunkMesher m_mesher;
 
     std::vector <Chunk*> m_chunks;
+    std::vector <ChunkMesh*> m_meshes;
+
     int m_activeChunk = 0;
 };
 

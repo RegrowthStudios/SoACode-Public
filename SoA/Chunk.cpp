@@ -14,6 +14,7 @@ void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
     refCount = 0;
     m_genQueryData.current = nullptr;
     remeshFlags = 1;
+    gridData = nullptr;
     // Maybe do this after its done being used in grid?
     std::vector<ChunkQuery*>().swap(m_genQueryData.pending);
     m_id = id;

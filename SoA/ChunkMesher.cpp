@@ -53,6 +53,8 @@ const int FACE_AXIS[6][2] = { { 2, 1 }, { 2, 1 }, { 0, 2 }, { 0, 2 }, { 0, 1 }, 
 
 const int FACE_AXIS_SIGN[6][2] = { { 1, 1 }, { -1, 1 }, { 1, 1 }, { -1, 1 }, { -1, 1 }, { 1, 1 } };
 
+ChunkGridData ChunkMesher::defaultChunkGridData = {};
+
 void ChunkMesher::init(const BlockPack* blocks) {
     this->blocks = blocks;
 
@@ -95,7 +97,10 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
 
     wSize = 0;
     chunk = chunk;
-    chunkGridData = chunk->gridData;
+    m_chunkGridDataHandle = chunk->gridData;
+    m_chunkGridData = m_chunkGridDataHandle.get();
+    // Use default when none is provided
+    if (!m_chunkGridData) m_chunkGridData = &defaultChunkGridData;
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
@@ -105,8 +110,8 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
         int s = 0;
         //block data
         auto& dataTree = chunk->blocks.getTree();
-        for (int i = 0; i < dataTree.size(); i++) {
-            for (int j = 0; j < dataTree[i].length; j++) {
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
@@ -139,8 +144,8 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
         //tertiary data
         c = 0;
         auto& dataTree = chunk->tertiary.getTree();
-        for (int i = 0; i < dataTree.size(); i++) {
-            for (int j = 0; j < dataTree[i].length; j++) {
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
@@ -255,7 +260,10 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
 
     wSize = 0;
     chunk = chunk;
-    chunkGridData = chunk->gridData;
+    m_chunkGridDataHandle = chunk->gridData;
+    m_chunkGridData = m_chunkGridDataHandle.get();
+    // Use default when none is provided
+    if (!m_chunkGridData) m_chunkGridData = &defaultChunkGridData;
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
@@ -438,7 +446,7 @@ CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
                 blockIndex = (by + 1) * PADDED_CHUNK_LAYER + (bz + 1) * PADDED_CHUNK_WIDTH + (bx + 1);
                 blockID = blockData[blockIndex];
                 if (blockID == 0) continue; // Skip air blocks
-                heightData = &chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
+                heightData = &m_chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
                 block = &blocks->operator[](blockID);
                 // TODO(Ben) Don't think bx needs to be member
                 voxelPosOffset = ui8v3(bx * QUAD_SIZE, by * QUAD_SIZE, bz * QUAD_SIZE);
@@ -514,6 +522,8 @@ CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
         renderData.highestZ = m_highestZ;
         renderData.lowestZ = m_lowestZ;
     }
+
+    m_chunkGridDataHandle.reset();
 
     return m_chunkMeshData;
 }

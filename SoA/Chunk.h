@@ -29,6 +29,7 @@ typedef ui32 ChunkID;
 
 class ChunkGridData {
 public:
+    ChunkGridData() {};
     ChunkGridData(const ChunkPosition3D& pos) {
         gridPosition.pos = i32v2(pos.pos.x, pos.pos.z);
         gridPosition.face = pos.face;

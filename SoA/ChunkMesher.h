@@ -1,11 +1,11 @@
 #pragma once
 #include "Vertex.h"
 #include "BlockData.h"
+#include "Chunk.h"
 #include "ChunkMesh.h"
 
 class BlockPack;
 class BlockTextureLayer;
-class Chunk;
 class ChunkMeshData;
 class ChunkMeshTask;
 struct BlockTexture;
@@ -21,10 +21,12 @@ class ChunkMesher {
 public:
     void init(const BlockPack* blocks);
 
-    // Creates chunk mesh data synchronously
-    CALLEE_DELETE ChunkMeshData* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
+    // Easily creates chunk mesh synchronously.
+    CALLEE_DELETE ChunkMesh* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
         prepareData(chunk);
-        return createChunkMeshData(type);
+        ChunkMesh* mesh = new ChunkMesh;
+        uploadMeshData(*mesh, createChunkMeshData(type));
+        return mesh;
     }
 
     // Call one of these before createChunkMesh
@@ -98,7 +100,10 @@ private:
     int m_lowestZ;
 
     Chunk* chunk; ///< The chunk we are currently meshing;
-    std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
+    std::shared_ptr<ChunkGridData> m_chunkGridDataHandle; ///< current grid data
+    ChunkGridData* m_chunkGridData;
+
+    static ChunkGridData defaultChunkGridData;
 
     int wSize;
 
