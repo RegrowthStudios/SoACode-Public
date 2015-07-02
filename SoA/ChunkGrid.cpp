@@ -154,8 +154,8 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
         chunk->left = getChunk(newPos);
         if (chunk->left) {
             chunk->left->right = chunk;
-            chunk->left->m_numNeighbors++;
-            chunk->m_numNeighbors++;
+            chunk->left->numNeighbors++;
+            chunk->numNeighbors++;
         }
     }
     { // Right
@@ -163,8 +163,8 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
         chunk->right = getChunk(newPos);
         if (chunk->right) {
             chunk->right->left = chunk;
-            chunk->right->m_numNeighbors++;
-            chunk->m_numNeighbors++;
+            chunk->right->numNeighbors++;
+            chunk->numNeighbors++;
         }
     }
     { // Bottom
@@ -172,8 +172,8 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
         chunk->bottom = getChunk(newPos);
         if (chunk->bottom) {
             chunk->bottom->top = chunk;
-            chunk->bottom->m_numNeighbors++;
-            chunk->m_numNeighbors++;
+            chunk->bottom->numNeighbors++;
+            chunk->numNeighbors++;
         }
     }
     { // Top
@@ -181,8 +181,8 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
         chunk->top = getChunk(newPos);
         if (chunk->top) {
             chunk->top->bottom = chunk;
-            chunk->top->m_numNeighbors++;
-            chunk->m_numNeighbors++;
+            chunk->top->numNeighbors++;
+            chunk->numNeighbors++;
         }
     }
     { // Back
@@ -190,8 +190,8 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
         chunk->back = getChunk(newPos);
         if (chunk->back) {
             chunk->back->front = chunk;
-            chunk->back->m_numNeighbors++;
-            chunk->m_numNeighbors++;
+            chunk->back->numNeighbors++;
+            chunk->numNeighbors++;
         }
     }
     { // Front
@@ -199,8 +199,8 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
         chunk->front = getChunk(newPos);
         if (chunk->front) {
             chunk->front->back = chunk;
-            chunk->front->m_numNeighbors++;
-            chunk->m_numNeighbors++;
+            chunk->front->numNeighbors++;
+            chunk->numNeighbors++;
         }
     } 
 }
@@ -208,28 +208,28 @@ void ChunkGrid::connectNeighbors(Chunk* chunk) {
 void ChunkGrid::disconnectNeighbors(Chunk* chunk) {
     if (chunk->left) {
         chunk->left->right = nullptr;
-        chunk->left->m_numNeighbors--;
+        chunk->left->numNeighbors--;
     }
     if (chunk->right) {
         chunk->right->left = nullptr;
-        chunk->right->m_numNeighbors--;
+        chunk->right->numNeighbors--;
     }
     if (chunk->bottom) {
         chunk->bottom->top = nullptr;
-        chunk->bottom->m_numNeighbors--;
+        chunk->bottom->numNeighbors--;
     }
     if (chunk->top) {
         chunk->top->bottom = nullptr;
-        chunk->top->m_numNeighbors--;
+        chunk->top->numNeighbors--;
     }
     if (chunk->back) {
         chunk->back->front = nullptr;
-        chunk->back->m_numNeighbors--;
+        chunk->back->numNeighbors--;
     }
     if (chunk->front) {
         chunk->front->back = nullptr;
-        chunk->front->m_numNeighbors--;
+        chunk->front->numNeighbors--;
     }
     memset(chunk->neighbors, 0, sizeof(chunk->neighbors));
-    chunk->m_numNeighbors = 0;
+    chunk->numNeighbors = 0;
 }

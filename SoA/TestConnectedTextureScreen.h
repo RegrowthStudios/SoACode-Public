@@ -20,6 +20,8 @@
 #include <Vorb/ui/IGameScreen.h>
 
 #include "BlockPack.h"
+#include "Camera.h"
+#include "Chunk.h"
 
 class TestConnectedTextureScreen : public vui::IGameScreen {
 public:
@@ -35,8 +37,11 @@ public:
     void update(const vui::GameTime& gameTime) override;
     void draw(const vui::GameTime& gameTime) override;
 private:
-
+    Camera m_camera;
     BlockPack m_blocks; ///< Block data
+
+    std::vector <Chunk*> m_chunks;
+    int m_activeChunk = 0;
 };
 
 #endif // TestConnectedTextureScreen_h__

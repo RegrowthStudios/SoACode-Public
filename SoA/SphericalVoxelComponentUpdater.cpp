@@ -72,7 +72,7 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
     for (int i = (int)chunks.size() - 1; i >= 0; i--) {
         Chunk* chunk = chunks[i];
         // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
-        chunk->m_distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
+        chunk->distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
 
         // Check container update
         if (chunk->genLevel == GEN_DONE) {
@@ -80,7 +80,7 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
         }
 
         // Check for unload
-        if (chunk->m_distance2 > renderDist2) {
+        if (chunk->distance2 > renderDist2) {
             if (chunk->refCount == 0) {
                 // Unload the chunk
                 disposeChunk(chunk);
@@ -140,7 +140,7 @@ void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(const VoxelPosition3D&
 void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
     // If it has no solid blocks, don't mesh it
     if (chunk->numBlocks <= 0) {
-        chunk->m_remeshFlags = 0;
+        chunk->remeshFlags = 0;
         return;
     }
 
@@ -153,7 +153,7 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
         chunk->refCount++;
         m_cmp->threadPool->addTask(newRenderTask);
 
-        chunk->m_remeshFlags = 0;
+        chunk->remeshFlags = 0;
     }
 }
 

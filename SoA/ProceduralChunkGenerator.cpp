@@ -124,8 +124,8 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
         }
     }
     // Set up interval trees
-    chunk->m_blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray, blockDataSize);
-    chunk->m_tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray, tertiaryDataSize);
+    chunk->blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray, blockDataSize);
+    chunk->tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray, tertiaryDataSize);
 }
 
 void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const {

@@ -59,22 +59,22 @@ public:
     /************************************************************************/
     const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
     const VoxelPosition3D& getVoxelPosition() const { return m_voxelPosition; }
-    bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
-    const bool& isInRange() const { return m_isInRange; }
-    const f32& getDistance2() const { return m_distance2; }
+    bool hasAllNeighbors() const { return numNeighbors == 6u; }
+    const bool& isInRange() const { return isInRange; }
+    const f32& getDistance2() const { return distance2; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
-        return m_blocks.get(c);
+        return blocks.get(c);
     }
     inline ui16 getTertiaryData(int c) const {
-        return m_tertiary.get(c);
+        return tertiary.get(c);
     }
 
     // True when the chunk needs to be meshed
-    bool needsRemesh() { return m_remeshFlags != 0; }
+    bool needsRemesh() { return remeshFlags != 0; }
     // Marks the chunks as dirty and flags for a re-mesh
-    void flagDirty() { m_isDirty = true; m_remeshFlags |= 1; }
+    void flagDirty() { isDirty = true; remeshFlags |= 1; }
 
     // TODO(Ben): This can be better
     void lock() { mutex.lock(); }
@@ -91,30 +91,33 @@ public:
         };
         ChunkPtr neighbors[6];
     };
-    std::mutex mutex;
-    int refCount;
-    int numBlocks;
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    bool hasCreatedMesh = false;
+    bool isDirty;
+    bool isInRange;
+    f32 distance2; //< Squared distance
+    int numBlocks;
+    int refCount;
+    std::mutex mutex;
+    ui32 numNeighbors = 0u;
+    ui8 remeshFlags;
     volatile bool isAccessible = false;
     volatile bool queuedForMesh = false;
-    bool hasCreatedMesh = false;
+
+    // TODO(Ben): Think about data locality.
+    vvox::SmartVoxelContainer<ui16> blocks;
+    vvox::SmartVoxelContainer<ui16> tertiary;
 
     static ui32 vboIndicesID;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
 
-    ui32 m_numNeighbors = 0u;
+ 
     ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
-    // TODO(Ben): Think about data locality.
-    vvox::SmartVoxelContainer<ui16> m_blocks;
-    vvox::SmartVoxelContainer<ui16> m_tertiary;
-    ui8 m_remeshFlags;
-    bool m_isInRange;
-    bool m_isDirty;
-    f32 m_distance2; //< Squared distance
+  
     ChunkID m_id;
 };
 

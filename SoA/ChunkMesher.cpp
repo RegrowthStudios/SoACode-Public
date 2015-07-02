@@ -100,11 +100,11 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
  
-    if (chunk->m_blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
         int s = 0;
         //block data
-        auto& dataTree = chunk->m_blocks.getTree();
+        auto& dataTree = chunk->blocks.getTree();
         for (int i = 0; i < dataTree.size(); i++) {
             for (int j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
@@ -126,7 +126,7 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    blockData[wc] = chunk->m_blocks[c];
+                    blockData[wc] = chunk->blocks[c];
                     if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
                         m_wvec[s++] = wc;
                     }
@@ -135,10 +135,10 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
         }
         wSize = s;
     }
-    if (chunk->m_tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data
         c = 0;
-        auto& dataTree = chunk->m_tertiary.getTree();
+        auto& dataTree = chunk->tertiary.getTree();
         for (int i = 0; i < dataTree.size(); i++) {
             for (int j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
@@ -156,7 +156,7 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    tertiaryData[wc] = chunk->m_tertiary.get(c);
+                    tertiaryData[wc] = chunk->tertiary.get(c);
                 }
             }
         }
@@ -261,11 +261,11 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
     // TODO(Ben): Dude macro this or something.
     chunk->lock();
     chunk->queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
-    if (chunk->m_blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
         int s = 0;
         //block data
-        auto& dataTree = chunk->m_blocks.getTree();
+        auto& dataTree = chunk->blocks.getTree();
         for (int i = 0; i < dataTree.size(); i++) {
             for (int j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
@@ -287,7 +287,7 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    blockData[wc] = chunk->m_blocks[c];
+                    blockData[wc] = chunk->blocks[c];
                     if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
                         m_wvec[s++] = wc;
                     }
@@ -296,10 +296,10 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
         wSize = s;
     }
-    if (chunk->m_tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    if (chunk->tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
         //tertiary data
         c = 0;
-        auto& dataTree = chunk->m_tertiary.getTree();
+        auto& dataTree = chunk->tertiary.getTree();
         for (int i = 0; i < dataTree.size(); i++) {
             for (int j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
@@ -317,7 +317,7 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
             for (z = 0; z < CHUNK_WIDTH; z++) {
                 for (x = 0; x < CHUNK_WIDTH; x++, c++) {
                     wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    tertiaryData[wc] = chunk->m_tertiary.get(c);
+                    tertiaryData[wc] = chunk->tertiary.get(c);
                 }
             }
         }
