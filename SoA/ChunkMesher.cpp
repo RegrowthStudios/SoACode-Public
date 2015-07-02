@@ -76,7 +76,7 @@ void ChunkMesher::init(const BlockPack* blocks) {
     m_textureMethodParams[Z_POS][O_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::pz) / sizeof(ui32) + NUM_FACES);
 }
 
-bool ChunkMesher::createChunkMesh(ChunkMeshTask *renderTask) {
+CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMesh(ChunkMeshTask *renderTask) {
     m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
@@ -101,14 +101,14 @@ bool ChunkMesher::createChunkMesh(ChunkMeshTask *renderTask) {
     _cutoutVerts.clear();
 
     //create a new chunk mesh data container
-    if (chunkMeshData != NULL) {
+    if (m_chunkMeshData != NULL) {
         pError("Tried to create mesh with in use chunkMeshData!");
         return 0;
     }
 
     //Stores the data for a chunk mesh
     // TODO(Ben): new is bad mkay
-    chunkMeshData = new ChunkMeshData(renderTask);
+    m_chunkMeshData = new ChunkMeshData(renderTask);
 
     // Init the mesh info
     // Redundant
@@ -145,10 +145,10 @@ bool ChunkMesher::createChunkMesh(ChunkMeshTask *renderTask) {
         }
     }
 
-    ChunkMeshRenderData& renderData = chunkMeshData->chunkMeshRenderData;
+    ChunkMeshRenderData& renderData = m_chunkMeshData->chunkMeshRenderData;
 
     // Get quad buffer to fill
-    std::vector<VoxelQuad>& finalQuads = chunkMeshData->opaqueQuads;
+    std::vector<VoxelQuad>& finalQuads = m_chunkMeshData->opaqueQuads;
 
     finalQuads.resize(m_numQuads);
     // Copy the data
@@ -203,7 +203,7 @@ bool ChunkMesher::createChunkMesh(ChunkMeshTask *renderTask) {
     return 0;
 }
 
-bool ChunkMesher::createOnlyWaterMesh(ChunkMeshTask *renderTask) {
+CALLEE_DELETE ChunkMeshData* ChunkMesher::createOnlyWaterMesh(ChunkMeshTask *renderTask) {
     /*if (chunkMeshData != NULL) {
         pError("Tried to create mesh with in use chunkMeshData!");
         return 0;
@@ -230,7 +230,7 @@ bool ChunkMesher::createOnlyWaterMesh(ChunkMeshTask *renderTask) {
         chunkMeshData->waterVertices.swap(_waterVboVerts);
         }*/
 
-    return false;
+    return nullptr;
 }
 
 void ChunkMesher::freeBuffers() {

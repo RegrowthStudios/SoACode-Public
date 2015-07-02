@@ -22,13 +22,11 @@ class ChunkMesher {
 public:
     void init(const BlockPack* blocks);
 
-    bool createChunkMesh(ChunkMeshTask* renderTask);
-    bool createOnlyWaterMesh(ChunkMeshTask* renderTask);
+    CALLEE_DELETE ChunkMeshData* createChunkMesh(ChunkMeshTask* renderTask);
+    CALLEE_DELETE ChunkMeshData* createOnlyWaterMesh(ChunkMeshTask* renderTask);
     void freeBuffers();
 
     static void bindVBOIndicesID();
-
-    ChunkMeshData* chunkMeshData = nullptr;
 
     int bx, by, bz; // Block iterators
     int blockIndex;
@@ -70,6 +68,8 @@ private:
     std::vector<BlockVertex> _transparentVerts;
     std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
+
+    ChunkMeshData* m_chunkMeshData = nullptr;
 
     int m_highestY;
     int m_lowestY;

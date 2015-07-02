@@ -148,7 +148,7 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
 
         ChunkMeshTask* newRenderTask = new ChunkMeshTask;
 
-        newRenderTask->init(chunk, RenderTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
+        newRenderTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
         chunk->refCount++;
         m_cmp->threadPool->addTask(newRenderTask);

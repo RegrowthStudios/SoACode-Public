@@ -46,23 +46,23 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
 
     // Mesh based on render job type
     switch (type) {
-        case RenderTaskType::DEFAULT:
+        case MeshTaskType::DEFAULT:
             workerData->chunkMesher->createChunkMesh(this);
             break;
-        case RenderTaskType::LIQUID:
+        case MeshTaskType::LIQUID:
             workerData->chunkMesher->createOnlyWaterMesh(this);
             break;
     }
    
     
     msg.messageID = ChunkMeshMessageID::UPDATE;
-    msg.data = workerData->chunkMesher->chunkMeshData;
+    msg.data = workerData->chunkMesher->m_chunkMeshData;
     meshManager->sendMessage(msg);
 
-    workerData->chunkMesher->chunkMeshData = nullptr;
+    workerData->chunkMesher->m_chunkMeshData = nullptr;
 }
 
-void ChunkMeshTask::init(Chunk* ch, RenderTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void ChunkMeshTask::init(Chunk* ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
     chunk = ch;
     chunk->queuedForMesh = true;

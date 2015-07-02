@@ -15,7 +15,7 @@ KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("flat", MeshType::FLAT);
 }
 
-ChunkMeshData::ChunkMeshData() : type(RenderTaskType::DEFAULT) {
+ChunkMeshData::ChunkMeshData() : type(MeshTaskType::DEFAULT) {
     // Empty
 }
 

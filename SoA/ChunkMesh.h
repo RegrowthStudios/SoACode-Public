@@ -15,7 +15,7 @@ enum class MeshType {
 };
 KEG_ENUM_DECL(MeshType);
 
-enum class RenderTaskType;
+enum class MeshTaskType;
 
 class Block;
 class Chunk;
@@ -81,7 +81,7 @@ public:
     std::vector <VoxelQuad> cutoutQuads;
     std::vector <LiquidVertex> waterVertices;
     Chunk *chunk = nullptr;
-    RenderTaskType type;
+    MeshTaskType type;
 
     //*** Transparency info for sorting ***
     ui32 transVertIndex = 0;

@@ -51,7 +51,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
         if (stCmp.distance <= LOAD_DIST) {
            
-            if (stCmp.planetGenData) {
+            if (stCmp.planetGenData && !stCmp.needsVoxelComponent) {
                 // Allocate if needed
                 if (!stCmp.patches) {
                     initPatches(stCmp);

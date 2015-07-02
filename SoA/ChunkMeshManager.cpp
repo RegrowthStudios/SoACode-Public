@@ -146,7 +146,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
     bool canRender = false;
 
     switch (meshData->type) {
-        case RenderTaskType::DEFAULT:
+        case MeshTaskType::DEFAULT:
             if (meshData->opaqueQuads.size()) {
 
                 mapBufferData(mesh.vboID, meshData->opaqueQuads.size() * sizeof(VoxelQuad), &(meshData->opaqueQuads[0]), GL_STATIC_DRAW);
@@ -207,7 +207,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
             }
             mesh.renderData = meshData->chunkMeshRenderData;
         //The missing break is deliberate!
-        case RenderTaskType::LIQUID:
+        case MeshTaskType::LIQUID:
 
             mesh.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
             if (meshData->waterVertices.size()) {
