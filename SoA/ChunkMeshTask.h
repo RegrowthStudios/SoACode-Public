@@ -30,12 +30,12 @@ class BlockPack;
 
 enum class MeshTaskType { DEFAULT, LIQUID };
 
-#define RENDER_TASK_ID 0
+#define CHUNK_MESH_TASK_ID 0
 
 // Represents A Mesh Creation Task
 class ChunkMeshTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    ChunkMeshTask() : vcore::IThreadPoolTask<WorkerData>(false, RENDER_TASK_ID) {}
+    ChunkMeshTask() : vcore::IThreadPoolTask<WorkerData>(false, CHUNK_MESH_TASK_ID) {}
 
     // Executes the task
     void execute(WorkerData* workerData) override;
@@ -49,7 +49,6 @@ public:
     const BlockPack* blockPack = nullptr;
 private:
     void updateLight(VoxelLightEngine* voxelLightEngine);
-    void setupMeshData(ChunkMesher* chunkMesher);
 };
 
 #endif // RenderTask_h__

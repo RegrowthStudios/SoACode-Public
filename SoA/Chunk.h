@@ -43,11 +43,12 @@ public:
 
 class Chunk {
     friend class ChunkGenerator;
-    friend class ProceduralChunkGenerator;
-    friend class PagedChunkAllocator;
-    friend class SphericalVoxelComponentUpdater;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
+    friend class ChunkMesher;
+    friend class PagedChunkAllocator;
+    friend class ProceduralChunkGenerator;
+    friend class SphericalVoxelComponentUpdater;
 public:
     void init(ChunkID id, const ChunkPosition3D& pos);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);

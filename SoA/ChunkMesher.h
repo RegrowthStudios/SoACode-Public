@@ -22,8 +22,14 @@ class ChunkMesher {
 public:
     void init(const BlockPack* blocks);
 
-    CALLEE_DELETE ChunkMeshData* createChunkMesh(ChunkMeshTask* renderTask);
-    CALLEE_DELETE ChunkMeshData* createOnlyWaterMesh(ChunkMeshTask* renderTask);
+    // Call one of these before createChunkMesh
+    void prepareData(const Chunk* chunk);
+    // For use with threadpool
+    void prepareDataAsync(Chunk* chunk);
+
+    // TODO(Ben): Unique ptr?
+    // Must call prepareData or prepareDataAsync first
+    CALLEE_DELETE ChunkMeshData* createChunkMesh(const Chunk* chunk, MeshTaskType type);
     void freeBuffers();
 
     static void bindVBOIndicesID();
