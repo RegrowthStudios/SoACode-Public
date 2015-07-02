@@ -102,7 +102,6 @@ namespace vorb {
                 return (getters[(size_t)_state])(this, index);
             }
 
-
             /// Initializes the container
             inline void init(VoxelStorageState state) {
                 _state = state;
@@ -206,7 +205,7 @@ namespace vorb {
             inline void uncompressIntoBuffer(T* buffer) { _dataTree.uncompressIntoBuffer(buffer); }
 
             /// Getters
-            VoxelStorageState getState() {
+            const VoxelStorageState& getState() const {
                 return _state;
             }
             T* getDataArray() {

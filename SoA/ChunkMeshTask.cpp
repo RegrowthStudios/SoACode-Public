@@ -46,7 +46,7 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     chunk->refCount--;
 
     // Create the actual mesh
-    workerData->chunkMesher->createChunkMesh(chunk, type);
+    workerData->chunkMesher->createChunkMesh(type);
 
     msg.messageID = ChunkMeshMessageID::UPDATE;
     msg.data = workerData->chunkMesher->m_chunkMeshData;

@@ -69,7 +69,7 @@ class ChunkMeshData
 {
 public:
     ChunkMeshData::ChunkMeshData();
-    ChunkMeshData::ChunkMeshData(const Chunk* chunk, MeshTaskType type);
+    ChunkMeshData::ChunkMeshData(MeshTaskType type);
 
     void addTransQuad(const i8v3& pos);
 
@@ -80,7 +80,6 @@ public:
     std::vector <VoxelQuad> transQuads;
     std::vector <VoxelQuad> cutoutQuads;
     std::vector <LiquidVertex> waterVertices;
-    const Chunk *chunk = nullptr;
     MeshTaskType type;
 
     //*** Transparency info for sorting ***

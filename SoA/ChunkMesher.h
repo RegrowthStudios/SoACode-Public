@@ -22,6 +22,12 @@ class ChunkMesher {
 public:
     void init(const BlockPack* blocks);
 
+    // Creates chunk mesh data synchronously
+    CALLEE_DELETE ChunkMeshData* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
+        prepareData(chunk);
+        return createChunkMesh(type);
+    }
+
     // Call one of these before createChunkMesh
     void prepareData(const Chunk* chunk);
     // For use with threadpool
@@ -29,7 +35,7 @@ public:
 
     // TODO(Ben): Unique ptr?
     // Must call prepareData or prepareDataAsync first
-    CALLEE_DELETE ChunkMeshData* createChunkMesh(const Chunk* chunk, MeshTaskType type);
+    CALLEE_DELETE ChunkMeshData* createChunkMesh(MeshTaskType type);
     void freeBuffers();
 
     static void bindVBOIndicesID();

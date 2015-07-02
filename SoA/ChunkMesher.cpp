@@ -161,86 +161,78 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
             }
         }
     }
-    chunk->unlock();
 
-    left->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+    if (left) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (z = 1; z < PADDED_WIDTH - 1; z++) {
+                off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+                off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+
+                blockData[off2] = left->getBlockData(off1 + CHUNK_WIDTH - 1);
+                tertiaryData[off2] = left->getTertiaryData(off1 + CHUNK_WIDTH - 1);
+            }
+        }
+    }
+
+    if (right) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (z = 1; z < PADDED_WIDTH - 1; z++) {
+                off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+                off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+
+                blockData[off2 + PADDED_WIDTH - 1] = (right->getBlockData(off1));
+                tertiaryData[off2 + PADDED_WIDTH - 1] = right->getTertiaryData(off1);
+            }
+        }
+    }
+
+    if (bottom) {
         for (z = 1; z < PADDED_WIDTH - 1; z++) {
-            off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
-            off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
-
-            blockData[off2] = left->getBlockData(off1 + CHUNK_WIDTH - 1);
-            tertiaryData[off2] = left->getTertiaryData(off1 + CHUNK_WIDTH - 1);
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (z - 1)*CHUNK_WIDTH + x - 1;
+                off2 = z*PADDED_WIDTH + x;
+                //data
+                blockData[off2] = (bottom->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
+                tertiaryData[off2] = bottom->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
+            }
         }
     }
-    left->refCount--;
-    left->unlock();
 
-    right->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+    if (top) {
         for (z = 1; z < PADDED_WIDTH - 1; z++) {
-            off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
-            off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (z - 1)*CHUNK_WIDTH + x - 1;
+                off2 = z*PADDED_WIDTH + x;
 
-            blockData[off2 + PADDED_WIDTH - 1] = (right->getBlockData(off1));
-            tertiaryData[off2 + PADDED_WIDTH - 1] = right->getTertiaryData(off1);
+                blockData[off2 + PADDED_SIZE - PADDED_LAYER] = (top->getBlockData(off1)); //top
+                tertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = top->getTertiaryData(off1);
+            }
         }
     }
-    right->refCount--;
-    right->unlock();
 
+    if (back) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
+                off2 = x + y*PADDED_LAYER;
 
-    bottom->lock();
-    for (z = 1; z < PADDED_WIDTH - 1; z++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            off1 = (z - 1)*CHUNK_WIDTH + x - 1;
-            off2 = z*PADDED_WIDTH + x;
-            //data
-            blockData[off2] = (bottom->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
-            tertiaryData[off2] = bottom->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
+                blockData[off2] = back->getBlockData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                tertiaryData[off2] = back->getTertiaryData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+            }
         }
     }
-    bottom->refCount--;
-    bottom->unlock();
 
-    top->lock();
-    for (z = 1; z < PADDED_WIDTH - 1; z++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            off1 = (z - 1)*CHUNK_WIDTH + x - 1;
-            off2 = z*PADDED_WIDTH + x;
+    if (front) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
+                off2 = x + y*PADDED_LAYER;
 
-            blockData[off2 + PADDED_SIZE - PADDED_LAYER] = (top->getBlockData(off1)); //top
-            tertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = top->getTertiaryData(off1);
+                blockData[off2 + PADDED_LAYER - PADDED_WIDTH] = (front->getBlockData(off1));
+                tertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = front->getTertiaryData(off1);
+            }
         }
     }
-    top->refCount--;
-    top->unlock();
-
-    back->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
-            off2 = x + y*PADDED_LAYER;
-
-            blockData[off2] = back->getBlockData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
-            tertiaryData[off2] = back->getTertiaryData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
-        }
-    }
-    back->refCount--;
-    back->unlock();
-
-    front->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
-            off2 = x + y*PADDED_LAYER;
-
-            blockData[off2 + PADDED_LAYER - PADDED_WIDTH] = (front->getBlockData(off1));
-            tertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = front->getTertiaryData(off1);
-        }
-    }
-    front->refCount--;
-    front->unlock();
 
 }
 
@@ -413,7 +405,7 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
 
 }
 
-CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMesh(const Chunk* chunk, MeshTaskType type) {
+CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMesh(MeshTaskType type) {
     m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
@@ -442,7 +434,7 @@ CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMesh(const Chunk* chunk, Me
 
     //Stores the data for a chunk mesh
     // TODO(Ben): new is bad mkay
-    m_chunkMeshData = new ChunkMeshData(chunk, MeshTaskType::DEFAULT);
+    m_chunkMeshData = new ChunkMeshData(MeshTaskType::DEFAULT);
 
     // Init the mesh info
     // Redundant

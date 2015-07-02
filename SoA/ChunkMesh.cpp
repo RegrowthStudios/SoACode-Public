@@ -19,7 +19,7 @@ ChunkMeshData::ChunkMeshData() : type(MeshTaskType::DEFAULT) {
     // Empty
 }
 
-ChunkMeshData::ChunkMeshData(const Chunk* chunk, MeshTaskType type) : chunk(chunk), type(type) {
+ChunkMeshData::ChunkMeshData(MeshTaskType type) : type(type) {
     // Empty
 }
 
