@@ -52,7 +52,7 @@ void SonarRenderStage::render(const Camera* camera) {
     glDepthMask(GL_FALSE);
 
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) {
-        ChunkRenderer::drawOpaque(chunkMeshes[i], m_program,
+        ChunkRenderer::drawOpaqueCustom(chunkMeshes[i], m_program,
                                        m_gameRenderParams->chunkCamera->getPosition(),
                                        m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
     }

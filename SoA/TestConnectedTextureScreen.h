@@ -22,9 +22,11 @@
 #include "BlockPack.h"
 #include "Camera.h"
 #include "Chunk.h"
+#include "CommonState.h"
 
-class TestConnectedTextureScreen : public vui::IGameScreen {
+class TestConnectedTextureScreen : public vui::IAppScreen<App> {
 public:
+    TestConnectedTextureScreen(const App* app, CommonState* state);
     /************************************************************************/
     /* IGameScreen functionality                                            */
     /************************************************************************/
@@ -39,6 +41,7 @@ public:
 private:
     Camera m_camera;
     BlockPack m_blocks; ///< Block data
+    CommonState* m_state;
 
     std::vector <Chunk*> m_chunks;
     int m_activeChunk = 0;

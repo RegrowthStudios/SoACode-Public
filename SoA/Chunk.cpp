@@ -21,7 +21,7 @@ void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
     hasCreatedMesh = false;
 }
 
-void Chunk::initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState = /*vvox::VoxelStorageState::INTERVAL_TREE*/) {
+void Chunk::initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
     init(id, pos);
     IntervalTree<ui16>::LNode blockNode;
     IntervalTree<ui16>::LNode tertiaryNode;

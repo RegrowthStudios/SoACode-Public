@@ -103,7 +103,7 @@ std::shared_ptr<ChunkGridData> ChunkGrid::getChunkGridData(const i32v2& gridPos)
 }
 
 bool chunkSort(const Chunk* a, const Chunk* b) {
-    return a->distance2() > b->distance2();
+    return a->distance2 > b->distance2;
 }
 
 void ChunkGrid::update() {

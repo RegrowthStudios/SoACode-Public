@@ -266,8 +266,8 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         int s = 0;
         //block data
         auto& dataTree = chunk->blocks.getTree();
-        for (int i = 0; i < dataTree.size(); i++) {
-            for (int j = 0; j < dataTree[i].length; j++) {
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
@@ -300,8 +300,8 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         //tertiary data
         c = 0;
         auto& dataTree = chunk->tertiary.getTree();
-        for (int i = 0; i < dataTree.size(); i++) {
-            for (int j = 0; j < dataTree[i].length; j++) {
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
                 c = dataTree[i].getStart() + j;
 
                 getPosFromBlockIndex(c, pos);
