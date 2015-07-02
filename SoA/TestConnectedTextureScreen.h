@@ -41,6 +41,9 @@ public:
     void update(const vui::GameTime& gameTime) override;
     void draw(const vui::GameTime& gameTime) override;
 private:
+    void initInput();
+
+    AutoDelegatePool m_hooks; ///< Input hooks reservoir
     Camera m_camera;
     BlockPack m_blocks; ///< Block data
     CommonState* m_commonState;
@@ -50,6 +53,16 @@ private:
 
     std::vector <Chunk*> m_chunks;
     std::vector <ChunkMesh*> m_meshes;
+
+    bool m_wireFrame = false;
+    bool m_mouseButtons[2];
+    bool m_movingForward = false;
+    bool m_movingBack = false;
+    bool m_movingLeft = false;
+    bool m_movingRight = false;
+    bool m_movingUp = false;
+    bool m_movingDown = false;
+    bool m_movingFast = false;
 
     int m_activeChunk = 0;
 };
