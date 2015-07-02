@@ -25,7 +25,7 @@ public:
     // Creates chunk mesh data synchronously
     CALLEE_DELETE ChunkMeshData* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
         prepareData(chunk);
-        return createChunkMesh(type);
+        return createChunkMeshData(type);
     }
 
     // Call one of these before createChunkMesh
@@ -35,7 +35,11 @@ public:
 
     // TODO(Ben): Unique ptr?
     // Must call prepareData or prepareDataAsync first
-    CALLEE_DELETE ChunkMeshData* createChunkMesh(MeshTaskType type);
+    CALLEE_DELETE ChunkMeshData* createChunkMeshData(MeshTaskType type);
+
+    // Returns true if the mesh is renderable
+    static bool uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData);
+
     void freeBuffers();
 
     static void bindVBOIndicesID();

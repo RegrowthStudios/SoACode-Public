@@ -4,6 +4,7 @@
 #include "ChunkMesh.h"
 #include "ChunkRenderer.h"
 #include "ChunkMeshTask.h"
+#include "ChunkMesher.h"
 #include "soaUtils.h"
 
 #define MAX_UPDATES_PER_FRAME 300
@@ -38,24 +39,6 @@ void ChunkMeshManager::destroy() {
     std::vector <ChunkMesh::ID>().swap(m_freeMeshes);
     std::vector <ChunkMesh>().swap(m_meshStorage);
     std::unordered_map<ChunkID, ChunkMesh::ID>().swap(m_activeChunks);
-}
-
-inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
-    // Block Vertices
-    if (vboID == 0) {
-        glGenBuffers(1, &(vboID)); // Create the buffer ID
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
-    glBufferData(GL_ARRAY_BUFFER, size, NULL, usage);
-
-    void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, size, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-    if (v == NULL) return false;
-
-    memcpy(v, src, size);
-    glUnmapBuffer(GL_ARRAY_BUFFER);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    return true;
 }
 
 void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
@@ -136,104 +119,16 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
     fflush(stdout);
 
     ChunkMesh &mesh = m_meshStorage[it->second];
-
     ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);
 
-    //store the index data for sorting in the chunk mesh
-    mesh.transQuadIndices.swap(meshData->transQuadIndices);
-    mesh.transQuadPositions.swap(meshData->transQuadPositions);
-
-    bool canRender = false;
-
-    switch (meshData->type) {
-        case MeshTaskType::DEFAULT:
-            if (meshData->opaqueQuads.size()) {
-
-                mapBufferData(mesh.vboID, meshData->opaqueQuads.size() * sizeof(VoxelQuad), &(meshData->opaqueQuads[0]), GL_STATIC_DRAW);
-                canRender = true;
-
-                if (!mesh.vaoID) ChunkRenderer::buildVao(mesh);
-            } else {
-                if (mesh.vboID != 0) {
-                    glDeleteBuffers(1, &(mesh.vboID));
-                    mesh.vboID = 0;
-                }
-                if (mesh.vaoID != 0) {
-                    glDeleteVertexArrays(1, &(mesh.vaoID));
-                    mesh.vaoID = 0;
-                }
-            }
-
-            if (meshData->transQuads.size()) {
-
-                //vertex data
-                mapBufferData(mesh.transVboID, meshData->transQuads.size() * sizeof(VoxelQuad), &(meshData->transQuads[0]), GL_STATIC_DRAW);
-
-                //index data
-                mapBufferData(mesh.transIndexID, mesh.transQuadIndices.size() * sizeof(ui32), &(mesh.transQuadIndices[0]), GL_STATIC_DRAW);
-                canRender = true;
-                mesh.needsSort = true; //must sort when changing the mesh
-
-                if (!mesh.transVaoID) ChunkRenderer::buildTransparentVao(mesh);
-            } else {
-                if (mesh.transVaoID != 0) {
-                    glDeleteVertexArrays(1, &(mesh.transVaoID));
-                    mesh.transVaoID = 0;
-                }
-                if (mesh.transVboID != 0) {
-                    glDeleteBuffers(1, &(mesh.transVboID));
-                    mesh.transVboID = 0;
-                }
-                if (mesh.transIndexID != 0) {
-                    glDeleteBuffers(1, &(mesh.transIndexID));
-                    mesh.transIndexID = 0;
-                }
-            }
-
-            if (meshData->cutoutQuads.size()) {
-
-                mapBufferData(mesh.cutoutVboID, meshData->cutoutQuads.size() * sizeof(VoxelQuad), &(meshData->cutoutQuads[0]), GL_STATIC_DRAW);
-                canRender = true;
-                if (!mesh.cutoutVaoID) ChunkRenderer::buildCutoutVao(mesh);
-            } else {
-                if (mesh.cutoutVaoID != 0) {
-                    glDeleteVertexArrays(1, &(mesh.cutoutVaoID));
-                    mesh.cutoutVaoID = 0;
-                }
-                if (mesh.cutoutVboID != 0) {
-                    glDeleteBuffers(1, &(mesh.cutoutVboID));
-                    mesh.cutoutVboID = 0;
-                }
-            }
-            mesh.renderData = meshData->chunkMeshRenderData;
-        //The missing break is deliberate!
-        case MeshTaskType::LIQUID:
-
-            mesh.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
-            if (meshData->waterVertices.size()) {
-                mapBufferData(mesh.waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
-                canRender = true;
-                if (!mesh.waterVaoID) ChunkRenderer::buildWaterVao(mesh);
-            } else {
-                if (mesh.waterVboID != 0) {
-                    glDeleteBuffers(1, &(mesh.waterVboID));
-                    mesh.waterVboID = 0;
-                }
-                if (mesh.waterVaoID != 0) {
-                    glDeleteVertexArrays(1, &(mesh.waterVaoID));
-                    mesh.waterVaoID = 0;
-                }
-            }
-            break;
-    }
-
-    // Manage the active list
-    if (canRender) {
+    if (ChunkMesher::uploadMeshData(mesh, meshData)) {
+        // Add to active list if its not there
         if (mesh.activeMeshesIndex == ACTIVE_MESH_INDEX_NONE) {
             mesh.activeMeshesIndex = m_activeChunkMeshes.size();
             m_activeChunkMeshes.push_back(&mesh);
         }
     } else {
+        // Remove from active list
         if (mesh.activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
             m_activeChunkMeshes[mesh.activeMeshesIndex] = m_activeChunkMeshes.back();
             m_activeChunkMeshes[mesh.activeMeshesIndex]->activeMeshesIndex = mesh.activeMeshesIndex;
