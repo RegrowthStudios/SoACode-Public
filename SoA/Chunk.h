@@ -45,12 +45,11 @@ class Chunk {
     friend class ChunkGenerator;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
-    friend class ChunkMesher;
-    friend class PagedChunkAllocator;
-    friend class ProceduralChunkGenerator;
-    friend class SphericalVoxelComponentUpdater;
 public:
+    // Initializes the chunk but does not set voxel data
     void init(ChunkID id, const ChunkPosition3D& pos);
+    // Initializes the chunk and sets all voxel data to 0
+    void initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
@@ -60,8 +59,6 @@ public:
     const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
     const VoxelPosition3D& getVoxelPosition() const { return m_voxelPosition; }
     bool hasAllNeighbors() const { return numNeighbors == 6u; }
-    const bool& isInRange() const { return isInRange; }
-    const f32& getDistance2() const { return distance2; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
@@ -113,7 +110,6 @@ private:
     // For generation
     ChunkGenQueryData m_genQueryData;
 
- 
     ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
