@@ -55,26 +55,28 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 positionData[z][x] = normal * (m_patchData->radius + heightData[z][x][0]);
             }
         }
-    } else {
+    } else { // Far terrain
         const i32v3& coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
         const f32v2& coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
 
         m_startPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
         for (int z = 0; z < PADDED_PATCH_WIDTH; z++) {
             for (int x = 0; x < PADDED_PATCH_WIDTH; x++) {
-                f32v2 spos;
-                spos.x = (m_startPos.x + (x - 1) * VERT_WIDTH) * coordMults.x;
-                spos.y = (m_startPos.z + (z - 1) * VERT_WIDTH) * coordMults.y;
-                pos[coordMapping.x] = spos.x;
+                f64v2 spos;
+                spos.x = (m_startPos.x + (x - 1) * VERT_WIDTH);
+                spos.y = (m_startPos.z + (z - 1) * VERT_WIDTH);
+                pos[coordMapping.x] = spos.x * coordMults.x;
                 pos[coordMapping.y] = m_startPos.y;
-                pos[coordMapping.z] = spos.y;
+                pos[coordMapping.z] = spos.y * coordMults.y;
                 f64v3 normal(glm::normalize(pos));
                 worldNormalData[z][x] = normal;
                 pos = normal * m_patchData->radius;
                 heightData[z][x][0] = (f32)generator->getHeightValue(pos) * KM_PER_M;
                 heightData[z][x][1] = (f32)generator->getTemperatureValue(pos);
                 heightData[z][x][2] = (f32)generator->getHumidityValue(pos);
-                positionData[z][x] = f32v3(spos.x, heightData[z][x][0], spos.y);   
+
+                // offset position by height;
+                positionData[z][x] = f64v3(spos.x, heightData[z][x][0], spos.y);
             }
         }
     }

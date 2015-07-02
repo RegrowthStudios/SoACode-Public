@@ -4,6 +4,7 @@
 #include "PlanetHeightData.h"
 #include "VoxelSpaceConversions.h"
 #include "CpuNoise.h"
+#include "SimplexNoise.h"
 
 //
 //SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
@@ -77,12 +78,6 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                                                 const TerrainOp& op) const {
 
     f64 rv = 0.0f;
-    f64 total;
-    f64 amplitude;
-    f64 maxAmplitude;
-    f64 frequency;
-    f64v2 ff;
-    f64 tmp;
     f64* nextMod;
 
     TerrainOp nextOp;
@@ -141,6 +136,8 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
             nextOp = op;
         } else { // It's a noise function
             nextMod = &h;
+            f64v2 ff;
+            f64 tmp;
             f64 total = 0.0;
             f64 maxAmplitude = 0.0;
             f64 amplitude = 1.0;
@@ -151,13 +148,13 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
                     case TerrainStage::CUBED_NOISE:
                     case TerrainStage::SQUARED_NOISE:
                     case TerrainStage::NOISE:
-                        total += CpuNoise::rawAshimaSimplex3D(pos * frequency) * amplitude;
+                        total += raw_noise_3d(pos.x * frequency, pos.y * frequency, pos.z * frequency) * amplitude;
                         break;
                     case TerrainStage::RIDGED_NOISE:
-                        total += ((1.0 - glm::abs(CpuNoise::rawAshimaSimplex3D(pos * (f64)frequency))) * 2.0 - 1.0) * amplitude;
+                        total += ((1.0 - glm::abs(raw_noise_3d(pos.x * frequency, pos.y * frequency, pos.z * frequency))) * 2.0 - 1.0) * amplitude;
                         break;
                     case TerrainStage::ABS_NOISE:
-                        total += glm::abs(CpuNoise::rawAshimaSimplex3D(pos * (f64)frequency)) * amplitude;
+                        total += glm::abs(raw_noise_3d(pos.x * frequency, pos.y * frequency, pos.z * frequency)) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_NOISE:
                         ff = CpuNoise::cellular(pos * (f64)frequency);
