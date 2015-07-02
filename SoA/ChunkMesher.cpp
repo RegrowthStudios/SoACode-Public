@@ -12,13 +12,14 @@
 
 #include "BlockPack.h"
 #include "Chunk.h"
+#include "ChunkMeshTask.h"
+#include "ChunkRenderer.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
-#include "ChunkMeshTask.h"
+#include "VoxelBits.h"
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
-#include "VoxelBits.h"
 
 #define GETBLOCK(a) blocks->operator[](a)
 
@@ -680,33 +681,6 @@ void ChunkMesher::freeBuffers() {
     vector<Vertex>().swap(finalBackVerts);
     vector<Vertex>().swap(finalBottomVerts);
     vector<Vertex>().swap(finalNbVerts);*/
-}
-
-// TODO(Ben): Better name and functionality please.
-void ChunkMesher::bindVBOIndicesID()
-{
-    std::vector<ui32> indices;
-    indices.resize(589824);
-
-    int j = 0;
-    for (size_t i = 0; i < indices.size()-12; i += 6){
-        indices[i] = j;
-        indices[i+1] = j+1;
-        indices[i+2] = j+2;
-        indices[i+3] = j+2;
-        indices[i+4] = j+3;
-        indices[i+5] = j;
-        j += 4;
-    }
-
-    if (Chunk::vboIndicesID != 0){
-        glDeleteBuffers(1, &(Chunk::vboIndicesID));
-    }
-    glGenBuffers(1, &(Chunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
-        
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0]));
 }
 
 #define CompareVertices(v1, v2) (!memcmp(&v1.color, &v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(&v1.lampColor, &v2.lampColor, 3)  \
@@ -1384,7 +1358,7 @@ void ChunkMesher::buildCutoutVao(ChunkMesh& cm) {
     glBindVertexArray(cm.cutoutVaoID);
 
     glBindBuffer(GL_ARRAY_BUFFER, cm.cutoutVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
@@ -1415,7 +1389,7 @@ void ChunkMesher::buildVao(ChunkMesh& cm) {
     glGenVertexArrays(1, &(cm.vaoID));
     glBindVertexArray(cm.vaoID);
     glBindBuffer(GL_ARRAY_BUFFER, cm.vboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
 
     for (int i = 0; i < 8; i++) {
         glEnableVertexAttribArray(i);
@@ -1445,7 +1419,7 @@ void ChunkMesher::buildWaterVao(ChunkMesh& cm) {
     glGenVertexArrays(1, &(cm.waterVaoID));
     glBindVertexArray(cm.waterVaoID);
     glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

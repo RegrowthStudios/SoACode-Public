@@ -105,8 +105,6 @@ public:
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
-
-    static ui32 vboIndicesID;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;

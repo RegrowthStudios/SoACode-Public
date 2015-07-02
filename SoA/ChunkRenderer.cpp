@@ -17,7 +17,32 @@
 volatile f32 ChunkRenderer::fadeDist = 1.0f;
 f32m4 ChunkRenderer::worldMatrix = f32m4(1.0f);
 
+VGIndexBuffer ChunkRenderer::sharedIBO = 0;
+
 void ChunkRenderer::init() {
+    // Not thread safe
+    if (!sharedIBO) { // Create shared IBO if needed
+        std::vector<ui32> indices;
+        const int NUM_INDICES = 589824;
+        indices.resize(NUM_INDICES);
+
+        ui32 j = 0u;
+        for (size_t i = 0; i < indices.size() - 12u; i += 6u) {
+            indices[i] = j;
+            indices[i + 1] = j + 1u;
+            indices[i + 2] = j + 2u;
+            indices[i + 3] = j + 2u;
+            indices[i + 4] = j + 3u;
+            indices[i + 5] = j;
+            j += 4u;
+        }
+
+        glGenBuffers(1, &sharedIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, NUM_INDICES * sizeof(ui32), NULL, GL_STATIC_DRAW);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, NUM_INDICES * sizeof(ui32), indices.data()); //arbitrarily set to 300000
+    }
+
     { // Opaque
         m_opaqueProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
                                                               "Shaders/BlockShading/standardShading.frag");
@@ -62,7 +87,7 @@ void ChunkRenderer::beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, con
     glUniform3fv(m_opaqueProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
     glUniform1f(m_opaqueProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
 }
 
 void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const f64v3 &PlayerPos, const f32m4 &VP) const {
@@ -161,7 +186,7 @@ void ChunkRenderer::beginTransparent(VGTexture textureAtlas, const f32v3& sunDir
     glUniform3fv(m_transparentProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
     glUniform1f(m_transparentProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
 }
 
 void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const f64v3 &playerPos, const f32m4 &VP) const {
@@ -197,7 +222,7 @@ void ChunkRenderer::beginCutout(VGTexture textureAtlas, const f32v3& sunDir, con
     glUniform3fv(m_cutoutProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
     glUniform1f(m_cutoutProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
 }
 
 void ChunkRenderer::drawCutout(const ChunkMesh *cm, const f64v3 &playerPos, const f32m4 &VP) const {
@@ -234,7 +259,7 @@ void ChunkRenderer::beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, con
     glUniform3fv(m_waterProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
     glUniform1f(m_waterProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
 }
 
 void ChunkRenderer::drawLiquid(const ChunkMesh *cm, const f64v3 &PlayerPos, const f32m4 &VP) const {

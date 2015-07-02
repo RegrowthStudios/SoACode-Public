@@ -69,8 +69,6 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
-    ChunkMesher::bindVBOIndicesID();
-
     m_soaState = m_mainMenuScreen->getSoAState();
 
     controller.startGame(m_soaState);

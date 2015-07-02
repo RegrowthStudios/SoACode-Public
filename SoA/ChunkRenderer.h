@@ -35,6 +35,7 @@ public:
     static void end();
 
     static volatile f32 fadeDist;
+    static VGIndexBuffer sharedIBO;
 private:
     static f32m4 worldMatrix; ///< Reusable world matrix for chunks
     vg::GLProgram m_opaqueProgram;

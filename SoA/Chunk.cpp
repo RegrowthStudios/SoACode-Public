@@ -3,7 +3,6 @@
 
 #include "VoxelSpaceConversions.h"
 
-ui32 Chunk::vboIndicesID = 0;
 
 void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
     memset(neighbors, 0, sizeof(neighbors));  

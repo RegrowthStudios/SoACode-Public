@@ -43,8 +43,6 @@ public:
 
     void freeBuffers();
 
-    static void bindVBOIndicesID();
-
     int bx, by, bz; // Block iterators
     int blockIndex;
     ui16 blockID;

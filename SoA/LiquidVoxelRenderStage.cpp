@@ -29,8 +29,6 @@ void LiquidVoxelRenderStage::render(const Camera* camera) {
     if (m_gameRenderParams->isUnderwater) glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) //they are sorted backwards??
     {
         m_renderer->drawLiquid(chunkMeshes[i],
