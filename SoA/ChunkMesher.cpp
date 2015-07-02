@@ -20,8 +20,6 @@
 #include "VoxelUtils.h"
 #include "VoxelBits.h"
 
-#include "ChunkRenderer.h" // TODO(Ben): Delete this as soon as its not needed
-
 #define GETBLOCK(a) blocks->operator[](a)
 
 const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
@@ -562,7 +560,7 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
                 mapBufferData(mesh.vboID, meshData->opaqueQuads.size() * sizeof(VoxelQuad), &(meshData->opaqueQuads[0]), GL_STATIC_DRAW);
                 canRender = true;
 
-                if (!mesh.vaoID) ChunkRenderer::buildVao(mesh);
+                if (!mesh.vaoID) buildVao(mesh);
             } else {
                 if (mesh.vboID != 0) {
                     glDeleteBuffers(1, &(mesh.vboID));
@@ -584,7 +582,7 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
                 canRender = true;
                 mesh.needsSort = true; //must sort when changing the mesh
 
-                if (!mesh.transVaoID) ChunkRenderer::buildTransparentVao(mesh);
+                if (!mesh.transVaoID) buildTransparentVao(mesh);
             } else {
                 if (mesh.transVaoID != 0) {
                     glDeleteVertexArrays(1, &(mesh.transVaoID));
@@ -604,7 +602,7 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
 
                 mapBufferData(mesh.cutoutVboID, meshData->cutoutQuads.size() * sizeof(VoxelQuad), &(meshData->cutoutQuads[0]), GL_STATIC_DRAW);
                 canRender = true;
-                if (!mesh.cutoutVaoID) ChunkRenderer::buildCutoutVao(mesh);
+                if (!mesh.cutoutVaoID) buildCutoutVao(mesh);
             } else {
                 if (mesh.cutoutVaoID != 0) {
                     glDeleteVertexArrays(1, &(mesh.cutoutVaoID));
@@ -623,7 +621,7 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
             if (meshData->waterVertices.size()) {
                 mapBufferData(mesh.waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
                 canRender = true;
-                if (!mesh.waterVaoID) ChunkRenderer::buildWaterVao(mesh);
+                if (!mesh.waterVaoID) buildWaterVao(mesh);
             } else {
                 if (mesh.waterVboID != 0) {
                     glDeleteBuffers(1, &(mesh.waterVboID));
@@ -1347,4 +1345,122 @@ ui8 ChunkMesher::getBlendMode(const BlendType& blendType) {
             break;
     }
     return blendMode;
+}
+
+
+void ChunkMesher::buildTransparentVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.transVaoID));
+    glBindVertexArray(cm.transVaoID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cm.transVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm.transIndexID);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    //position + texture type
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
+    //UV, animation, blendmode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
+    //textureAtlas_textureIndex
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
+    //Texture dimensions
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
+    //overlayColor
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
+    //lightcolor[3], sunlight,
+    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
+    //normal
+    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+
+    glBindVertexArray(0);
+}
+
+void ChunkMesher::buildCutoutVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.cutoutVaoID));
+    glBindVertexArray(cm.cutoutVaoID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cm.cutoutVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    //position + texture type
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
+    //UV, animation, blendmode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
+    //textureAtlas_textureIndex
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
+    //Texture dimensions
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
+    //overlayColor
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
+    //lightcolor[3], sunlight,
+    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
+    //normal
+    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+
+
+    glBindVertexArray(0);
+}
+
+void ChunkMesher::buildVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.vaoID));
+    glBindVertexArray(cm.vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.vboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    // vPosition_Face
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
+    // vTex_Animation_BlendMode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
+    // vTextureAtlas_TextureIndex
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
+    // vNDTextureAtlas
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));
+    // vNDTextureIndex
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normIndex));
+    // vTexDims
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
+    // vColor
+    glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
+    // vOverlayColor
+    glVertexAttribPointer(7, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
+
+    glBindVertexArray(0);
+}
+
+void ChunkMesher::buildWaterVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.waterVaoID));
+    glBindVertexArray(cm.waterVaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
+    //uvs_texUnit_texIndex
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
+    //light
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
+
+    glBindVertexArray(0);
 }

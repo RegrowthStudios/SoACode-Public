@@ -116,7 +116,6 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
     if (it == m_activeChunks.end()) return; /// The mesh was already released, so ignore! // TODO(Ben): MEMORY LEAK!!)(&@!%
-    fflush(stdout);
 
     ChunkMesh &mesh = m_meshStorage[it->second];
     ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);
