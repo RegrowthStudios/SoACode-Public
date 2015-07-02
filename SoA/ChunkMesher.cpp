@@ -421,24 +421,13 @@ CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
         m_quads[i].clear();
     }
 
-    // Here?
+    // TODO(Ben): Here?
     _waterVboVerts.clear();
-    _transparentVerts.clear();
     _cutoutVerts.clear();
 
-    //create a new chunk mesh data container
-    if (m_chunkMeshData != NULL) {
-        pError("Tried to create mesh with in use chunkMeshData!");
-        return 0;
-    }
-
-    //Stores the data for a chunk mesh
+    // Stores the data for a chunk mesh
     // TODO(Ben): new is bad mkay
     m_chunkMeshData = new ChunkMeshData(MeshTaskType::DEFAULT);
-
-    // Init the mesh info
-    // Redundant
-    //mi.init(m_blocks, m_dataWidth, m_dataLayer);
 
     // Loop through blocks
     for (by = 0; by < PADDED_CHUNK_WIDTH - 2; by++) {
@@ -526,7 +515,7 @@ CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
         renderData.lowestZ = m_lowestZ;
     }
 
-    return 0;
+    return m_chunkMeshData;
 }
 
 inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
@@ -549,6 +538,7 @@ inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usag
 
 bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
     bool canRender = false;
+
     //store the index data for sorting in the chunk mesh
     mesh.transQuadIndices.swap(meshData->transQuadIndices);
     mesh.transQuadPositions.swap(meshData->transQuadPositions);

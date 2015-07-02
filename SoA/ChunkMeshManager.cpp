@@ -91,6 +91,7 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
         m_pendingDestroy.insert(message.chunkID);
         return;
     }
+
     ChunkMesh::ID& id = it->second;
     ChunkMesh& mesh = m_meshStorage[id];
 
@@ -113,12 +114,16 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {   
+    ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
-    if (it == m_activeChunks.end()) return; /// The mesh was already released, so ignore! // TODO(Ben): MEMORY LEAK!!)(&@!%
+    if (it == m_activeChunks.end()) {
+        ChunkMesh &mesh = m_meshStorage[it->second];
+        delete meshData;
+        return; /// The mesh was already released, so ignore!
+    }
 
     ChunkMesh &mesh = m_meshStorage[it->second];
-    ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);
 
     if (ChunkMesher::uploadMeshData(mesh, meshData)) {
         // Add to active list if its not there

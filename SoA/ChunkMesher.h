@@ -85,8 +85,7 @@ private:
 
     BlockTextureMethodParams m_textureMethodParams[6][2];
 
-    std::vector<BlockVertex> _vboVerts;
-    std::vector<BlockVertex> _transparentVerts;
+    // TODO(Ben): Change this up a bit
     std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
 

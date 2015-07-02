@@ -118,7 +118,7 @@ public:
 
     f64 distance2 = 32.0;
     f64v3 position;
-    ui32 activeMeshesIndex; ///< Index into active meshes array
+    ui32 activeMeshesIndex = ACTIVE_MESH_INDEX_NONE; ///< Index into active meshes array
     bool inFrustum = false;
     bool needsSort = true;
     ID id;

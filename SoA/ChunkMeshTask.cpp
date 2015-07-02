@@ -20,6 +20,7 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
         msg.chunkID = chunk->getID();
         msg.data = &chunk->m_voxelPosition;
         msg.messageID = ChunkMeshMessageID::CREATE;
+
         meshManager->sendMessage(msg);
         chunk->hasCreatedMesh = true;
     }
@@ -42,17 +43,15 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     workerData->chunkMesher->prepareDataAsync(chunk);
 
     ChunkMeshMessage msg;
-    msg.chunkID = chunk->getID();
-    chunk->refCount--;
-
-    // Create the actual mesh
-    workerData->chunkMesher->createChunkMeshData(type);
-
     msg.messageID = ChunkMeshMessageID::UPDATE;
-    msg.data = workerData->chunkMesher->m_chunkMeshData;
-    meshManager->sendMessage(msg);
+    msg.chunkID = chunk->getID();
+    // We no longer care about chunk
+    chunk->refCount--;
+    // Create the actual mesh
+    msg.data = workerData->chunkMesher->createChunkMeshData(type);
 
-    workerData->chunkMesher->m_chunkMeshData = nullptr;
+    // Send it for update
+    meshManager->sendMessage(msg);
 }
 
 void ChunkMeshTask::init(Chunk* ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
