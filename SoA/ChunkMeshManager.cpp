@@ -107,7 +107,6 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
         m_activeChunkMeshes.pop_back();
         mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
     }
-
     // Release the mesh object
     m_freeMeshes.push_back(id);
     m_activeChunks.erase(it);
@@ -118,7 +117,6 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
     // Get the mesh object
     auto& it = m_activeChunks.find(message.chunkID);
     if (it == m_activeChunks.end()) {
-        ChunkMesh &mesh = m_meshStorage[it->second];
         delete meshData;
         return; /// The mesh was already released, so ignore!
     }

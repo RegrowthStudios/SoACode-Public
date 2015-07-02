@@ -18,7 +18,6 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
 class ChunkMesher {
-    friend class ChunkMeshTask;
 public:
     void init(const BlockPack* blocks);
 
