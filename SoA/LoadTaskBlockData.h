@@ -26,7 +26,7 @@ public:
         iom.setSearchDirectory("Data/Blocks/");
         // Load in .yml
         if (!BlockLoader::loadBlocks(iom, blockPack)) {
-            pError("Failed to load Data/BlockData.yml");
+            pError("Failed to load Data/Blocks/BlockData.yml");
             exit(123456);
         }
         context->addWorkCompleted(40);
@@ -38,6 +38,8 @@ public:
             }
         }
         context->addWorkCompleted(10);
+
+
         // Uncomment to Save in .yml
         BlockLoader::saveBlocks("Data/Blocks/SavedBlockData.yml", blockPack);
 

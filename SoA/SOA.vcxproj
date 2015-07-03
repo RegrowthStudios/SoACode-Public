@@ -582,6 +582,7 @@ EXIT 0</Command>
     <ClInclude Include="LenseFlareRenderer.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadContext.h" />
+    <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="ExposureCalcRenderStage.h" />

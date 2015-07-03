@@ -48,11 +48,13 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
+    // Save block textures TODO(Ben): Temporary
+    //m_soaState->blockTextures->save(&m_soaState->blocks);
 
     { // Create Chunks
         Chunk* chunk = new Chunk;
         chunk->initAndFillEmpty(0, ChunkPosition3D());
-        chunk->blocks.set(CHUNK_SIZE / 2, 43);
+        chunk->blocks.set(CHUNK_SIZE / 2, m_soaState->blocks.getBlockIndex("ruby"));
         m_chunks.emplace_back(chunk);
     }
 

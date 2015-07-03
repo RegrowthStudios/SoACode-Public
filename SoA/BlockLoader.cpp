@@ -127,7 +127,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
             }
         }
         COND_WRITE_KEG("moveMod", moveMod);
-        COND_WRITE_KEG("name", sID); // TEMPORARY
+        COND_WRITE_KEG("name", name);
         switch (b.occlude) {
             case BlockOcclusion::NONE:
                 writer.push(keg::WriterParam::KEY) << nString("occlusion");
