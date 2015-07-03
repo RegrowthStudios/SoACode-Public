@@ -58,8 +58,6 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
         m_chunks.emplace_back(chunk);
     }
 
-    Block& b = m_soaState->blocks["ruby"];
-
     // Create all chunk meshes
     m_mesher.init(&m_soaState->blocks);
     for (auto& chunk : m_chunks) {

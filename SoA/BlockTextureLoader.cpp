@@ -36,9 +36,6 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
 
     // Check for block mapping
     auto& it = m_blockMappings.find(block.sID);
-    if (block.sID == "ruby") {
-        std::cout << "LOL";
-    }
     if (it == m_blockMappings.end()) {
         printf("Warning: Could not load texture mapping for block %s\n", block.sID.c_str());
         for (int i = 0; i < 6; i++) {
