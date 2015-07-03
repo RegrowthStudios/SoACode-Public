@@ -212,7 +212,6 @@ void BlockTexturePack::save(BlockPack* blockPack) {
     std::map<BlockTextureLayer, nString> shittyLookup1;
     std::map<nString, BlockTextureLayer> shittyLookup2;
 
-
     { // TextureProperties.yml
         std::map<nString, std::pair<BlockTextureLayer, BlockTextureLayer> > matMap;
 
@@ -304,13 +303,9 @@ void BlockTexturePack::save(BlockPack* blockPack) {
         for (auto& it : m_textureLookup) {
             BlockTexture& b = m_textures[it.second];
             if (it.first.empty()) continue;
-            vio::Path path(it.first);
-            nString string = path.getLeaf();
-            while (string.back() != '.') string.pop_back();
-            string.pop_back();
 
             // Write the block name first
-            writer.push(keg::WriterParam::KEY) << string;
+            writer.push(keg::WriterParam::KEY) << it.first;
             // Write the block data now
             writer.push(keg::WriterParam::VALUE);
             writer.push(keg::WriterParam::BEGIN_MAP);
@@ -354,7 +349,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
              const Block& b = blockPack->operator[](i);
              nString name[6];
              if (b.active) {
-                 // Write the block name first
+                 // Write the block id first
                  writer.push(keg::WriterParam::KEY) << b.sID;
                  // Write the block data now
                  writer.push(keg::WriterParam::VALUE);
@@ -366,7 +361,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[0]->base && b2.overlay == b.textures[0]->overlay) {
-                             name[0] = getName(it.first);
+                             name[0] = it.first;
                              break;
                          }
                      }
@@ -377,7 +372,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[1]->base && b2.overlay == b.textures[1]->overlay) {
-                             name[1] = getName(it.first);
+                             name[1] = it.first;
                              break;
                          }
                      }
@@ -388,7 +383,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[2]->base && b2.overlay == b.textures[2]->overlay) {
-                             name[2] = getName(it.first);
+                             name[2] = it.first;
                              break;
                          }
                      }
@@ -399,7 +394,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[3]->base && b2.overlay == b.textures[3]->overlay) {
-                             name[3] = getName(it.first);
+                             name[3] = it.first;
                              break;
                          }
                      }
@@ -410,7 +405,7 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[4]->base && b2.overlay == b.textures[4]->overlay) {
-                             name[4] = getName(it.first);
+                             name[4] = it.first;
                              break;
                          }
                      }
@@ -421,65 +416,284 @@ void BlockTexturePack::save(BlockPack* blockPack) {
                      for (auto& it : m_textureLookup) {
                          BlockTexture& b2 = m_textures[it.second];
                          if (b2.base == b.textures[5]->base && b2.overlay == b.textures[5]->overlay) {
-                             name[5] = getName(it.first);
+                             name[5] = it.first;
                              break;
                          }
                      }
-                   
                  }
 
                  if (name[0] == name[1] && name[1] == name[2] && name[2] == name[3] && name[3] == name[4] && name[4] == name[5]) {
                      if (name[0].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("texture");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[0];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[0]->base];
+                         if (b.textures[0]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[0]->overlay];
+                         }
+                         if (b.textures[0]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[0]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                  } else if (name[0] == name[1] && name[1] == name[4] && name[4] == name[5]) {
                      if (name[0].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("texture");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[0];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[0]->base];
+                         if (b.textures[0]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[0]->overlay];
+                         }
+                         if (b.textures[0]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[0]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[2].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureBottom");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[2];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[2]->base];
+                         if (b.textures[2]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[2]->overlay];
+                         }
+                         if (b.textures[2]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[2]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[3].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureTop");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[3];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[3]->base];
+                         if (b.textures[3]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[3]->overlay];
+                         }
+                         if (b.textures[3]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[3]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                  } else {
                      if (name[0].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureLeft");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[0];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[0]->base];
+                         if (b.textures[0]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[0]->overlay];
+                         }
+                         if (b.textures[0]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[0]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[1].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureRight");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[1];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[1]->base];
+                         if (b.textures[1]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[1]->overlay];
+                         }
+                         if (b.textures[1]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[1]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[2].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureBottom");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[2];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[2]->base];
+                         if (b.textures[2]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[2]->overlay];
+                         }
+                         if (b.textures[2]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[2]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[3].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureTop");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[3];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[3]->base];
+                         if (b.textures[3]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[3]->overlay];
+                         }
+                         if (b.textures[3]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[3]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[4].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureBack");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[4];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[4]->base];
+                         if (b.textures[4]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[4]->overlay];
+                         }
+                         if (b.textures[4]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[4]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                      if (name[5].size()) {
                          writer.push(keg::WriterParam::KEY) << nString("textureFront");
                          // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[5];
+                         writer.push(keg::WriterParam::VALUE);
+                         writer.push(keg::WriterParam::BEGIN_MAP);
+                         writer.push(keg::WriterParam::KEY) << nString("base");
+                         writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[5]->base];
+                         if (b.textures[5]->overlay.index) {
+                             writer.push(keg::WriterParam::KEY) << nString("overlay");
+                             writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.textures[5]->overlay];
+                         }
+                         if (b.textures[5]->blendMode != BlendType::ALPHA) {
+                             writer.push(keg::WriterParam::KEY) << nString("blendMode");
+                             switch (b.textures[5]->blendMode) {
+                                 case BlendType::ADD:
+                                     writer.push(keg::WriterParam::VALUE) << nString("add");
+                                     break;
+                                 case BlendType::MULTIPLY:
+                                     writer.push(keg::WriterParam::VALUE) << nString("multiply");
+                                     break;
+                                 case BlendType::SUBTRACT:
+                                     writer.push(keg::WriterParam::VALUE) << nString("subtract");
+                                     break;
+                             }
+                         }
+                         writer.push(keg::WriterParam::END_MAP);
                      }
                  }
 

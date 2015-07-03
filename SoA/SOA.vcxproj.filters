@@ -797,6 +797,9 @@
     <ClInclude Include="TestConnectedTextureScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
+    <ClInclude Include="LoadTaskBlockData.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
