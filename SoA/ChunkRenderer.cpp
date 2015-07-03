@@ -49,17 +49,18 @@ void ChunkRenderer::init() {
         m_opaqueProgram.use();
         glUniform1i(m_opaqueProgram.getUniform("unTextures"), 0);
     }
+    // TODO(Ben): Fix the shaders
     { // Transparent
-        m_transparentProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
-                                                                   "Shaders/BlockShading/cutoutShading.frag");
+   //     m_transparentProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+     //                                                              "Shaders/BlockShading/cutoutShading.frag");
     }
     { // Cutout
-        m_cutoutProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
-                                                              "Shaders/BlockShading/cutoutShading.frag");
+     //   m_cutoutProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+    //                                                          "Shaders/BlockShading/cutoutShading.frag");
     }
     { // Water
-        m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/WaterShading/WaterShading.vert",
-                                                             "Shaders/WaterShading/WaterShading.frag");
+     //   m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/WaterShading/WaterShading.vert",
+     //                                                        "Shaders/WaterShading/WaterShading.frag");
     }
     vg::GLProgram::unuse();
 }
