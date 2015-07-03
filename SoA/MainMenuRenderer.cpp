@@ -168,7 +168,6 @@ void MainMenuRenderer::render() {
 
 	// TODO: More Effects?
 	if (stages.bloom.isActive()) {
-		m_swapChain.use(BLOOM_TEXTURE_SLOT_COLOR, false);
 		stages.bloom.render();
 		std::cout << "Bloom SwapChain Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
 		m_swapChain.swap();
@@ -185,8 +184,9 @@ void MainMenuRenderer::render() {
     static const f32 EXPOSURE_STEP = 0.005f;
     stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureID());
+    m_swapChain.use(0, false);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
     m_commonState->stages.hdr.render(&m_state->spaceCamera);
