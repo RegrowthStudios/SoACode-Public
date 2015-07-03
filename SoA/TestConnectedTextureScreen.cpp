@@ -48,8 +48,6 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
-    // Save block textures TODO(Ben): Temporary
-    //m_soaState->blockTextures->save(&m_soaState->blocks);
 
     { // Create Chunks
         Chunk* chunk = new Chunk;
