@@ -1,13 +1,13 @@
 #pragma once
 #include "Vertex.h"
 #include "BlockData.h"
+#include "Chunk.h"
 #include "ChunkMesh.h"
 
 class BlockPack;
 class BlockTextureLayer;
-class Chunk;
 class ChunkMeshData;
-class RenderTask;
+class ChunkMeshTask;
 struct BlockTexture;
 struct PlanetHeightData;
 
@@ -18,17 +18,30 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
 class ChunkMesher {
-    friend class RenderTask;
 public:
     void init(const BlockPack* blocks);
 
-    bool createChunkMesh(RenderTask* renderTask);
-    bool createOnlyWaterMesh(RenderTask* renderTask);
+    // Easily creates chunk mesh synchronously.
+    CALLEE_DELETE ChunkMesh* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
+        prepareData(chunk);
+        ChunkMesh* mesh = new ChunkMesh;
+        uploadMeshData(*mesh, createChunkMeshData(type));
+        return mesh;
+    }
+
+    // Call one of these before createChunkMesh
+    void prepareData(const Chunk* chunk);
+    // For use with threadpool
+    void prepareDataAsync(Chunk* chunk);
+
+    // TODO(Ben): Unique ptr?
+    // Must call prepareData or prepareDataAsync first
+    CALLEE_DELETE ChunkMeshData* createChunkMeshData(MeshTaskType type);
+
+    // Returns true if the mesh is renderable
+    static bool uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData);
+
     void freeBuffers();
-
-    static void bindVBOIndicesID();
-
-    ChunkMeshData* chunkMeshData = nullptr;
 
     int bx, by, bz; // Block iterators
     int blockIndex;
@@ -56,6 +69,11 @@ private:
 
     ui8 getBlendMode(const BlendType& blendType);
 
+    static void buildTransparentVao(ChunkMesh& cm);
+    static void buildCutoutVao(ChunkMesh& cm);
+    static void buildVao(ChunkMesh& cm);
+    static void buildWaterVao(ChunkMesh& cm);
+
     ui16 m_quadIndices[PADDED_CHUNK_SIZE][6];
     ui16 m_wvec[CHUNK_SIZE];
 
@@ -66,10 +84,11 @@ private:
 
     BlockTextureMethodParams m_textureMethodParams[6][2];
 
-    std::vector<BlockVertex> _vboVerts;
-    std::vector<BlockVertex> _transparentVerts;
+    // TODO(Ben): Change this up a bit
     std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
+
+    ChunkMeshData* m_chunkMeshData = nullptr;
 
     int m_highestY;
     int m_lowestY;
@@ -79,7 +98,10 @@ private:
     int m_lowestZ;
 
     Chunk* chunk; ///< The chunk we are currently meshing;
-    std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
+    std::shared_ptr<ChunkGridData> m_chunkGridDataHandle; ///< current grid data
+    ChunkGridData* m_chunkGridData;
+
+    static ChunkGridData defaultChunkGridData;
 
     int wSize;
 

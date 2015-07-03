@@ -293,9 +293,6 @@
     <ClInclude Include="Rendering.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
@@ -569,9 +566,6 @@
     <ClInclude Include="SphericalTerrainCpuGenerator.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
-    <ClInclude Include="SphericalTerrainGpuGenerator.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="TerrainGenTextures.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
@@ -583,9 +577,6 @@
     </ClInclude>
     <ClInclude Include="FarTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainRpcDispatcher.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
     <ClInclude Include="FarTerrainComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
@@ -606,9 +597,6 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClInclude>
     <ClInclude Include="TerrainPatch.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseShaderGenerator.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
     <ClInclude Include="soaUtils.h">
@@ -800,6 +788,15 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
+    <ClInclude Include="TerrainPatchMeshTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkMeshTask.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConnectedTextureScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -924,9 +921,6 @@
     </ClCompile>
     <ClCompile Include="ZipFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
     <ClCompile Include="ChunkMesh.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -1126,9 +1120,6 @@
     <ClCompile Include="SphericalTerrainCpuGenerator.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
-    <ClCompile Include="SphericalTerrainGpuGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
@@ -1140,9 +1131,6 @@
     </ClCompile>
     <ClCompile Include="FarTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainRpcDispatcher.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
@@ -1160,9 +1148,6 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClCompile>
     <ClCompile Include="TerrainPatch.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseShaderGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="SystemARRenderer.cpp">
@@ -1308,6 +1293,15 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPatchMeshTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMeshTask.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConnectedTextureScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

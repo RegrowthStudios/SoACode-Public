@@ -20,44 +20,115 @@ const color3 DebugColors[6] {
       color3(255, 0, 255) //BOTTOM
 };
 
-TerrainVertex TerrainPatchMesher::verts[TerrainPatchMesher::VERTS_SIZE];
-WaterVertex TerrainPatchMesher::waterVerts[TerrainPatchMesher::VERTS_SIZE];
-
-ui16 TerrainPatchMesher::waterIndexGrid[PATCH_WIDTH][PATCH_WIDTH];
-ui16 TerrainPatchMesher::waterIndices[PATCH_INDICES];
-bool TerrainPatchMesher::waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1];
-
 VGIndexBuffer TerrainPatchMesher::m_sharedIbo = 0; ///< Reusable CCW IBO
 
+void TerrainPatchMesher::generateIndices() {
+    // Loop through each quad and set indices
+    int vertIndex;
+    int index = 0;
+    int skirtIndex = PATCH_SIZE;
+    ui16 indices[PATCH_INDICES];
 
-TerrainPatchMesher::TerrainPatchMesher(TerrainPatchMeshManager* meshManager,
-                                       PlanetGenData* planetGenData) :
-    m_meshManager(meshManager),
-    m_planetGenData(planetGenData) {
-    
-    m_radius = (f32)m_planetGenData->radius;
+    // Main vertices
+    for (int z = 0; z < PATCH_WIDTH - 1; z++) {
+        for (int x = 0; x < PATCH_WIDTH - 1; x++) {
+            // Compute index of back left vertex
+            vertIndex = z * PATCH_WIDTH + x;
+            // Change triangle orientation based on odd or even
+            if ((x + z) % 2) {
+                indices[index++] = vertIndex;
+                indices[index++] = vertIndex + PATCH_WIDTH;
+                indices[index++] = vertIndex + PATCH_WIDTH + 1;
+                indices[index++] = vertIndex + PATCH_WIDTH + 1;
+                indices[index++] = vertIndex + 1;
+                indices[index++] = vertIndex;
+            } else {
+                indices[index++] = vertIndex + 1;
+                indices[index++] = vertIndex;
+                indices[index++] = vertIndex + PATCH_WIDTH;
+                indices[index++] = vertIndex + PATCH_WIDTH;
+                indices[index++] = vertIndex + PATCH_WIDTH + 1;
+                indices[index++] = vertIndex + 1;
+            }
+        }
+    }
+    // Skirt vertices
+    // Top Skirt
+    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+        vertIndex = i;
+        indices[index++] = skirtIndex;
+        indices[index++] = vertIndex;
+        indices[index++] = vertIndex + 1;
+        indices[index++] = vertIndex + 1;
+        indices[index++] = skirtIndex + 1;
+        indices[index++] = skirtIndex;
+        skirtIndex++;
+    }
+    skirtIndex++; // Skip last vertex
+    // Left Skirt
+    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+        vertIndex = i * PATCH_WIDTH;
+        indices[index++] = skirtIndex;
+        indices[index++] = skirtIndex + 1;
+        indices[index++] = vertIndex + PATCH_WIDTH;
+        indices[index++] = vertIndex + PATCH_WIDTH;
+        indices[index++] = vertIndex;
+        indices[index++] = skirtIndex;
+        skirtIndex++;
+    }
+    skirtIndex++; // Skip last vertex
+    // Right Skirt
+    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+        vertIndex = i * PATCH_WIDTH + PATCH_WIDTH - 1;
+        indices[index++] = vertIndex;
+        indices[index++] = vertIndex + PATCH_WIDTH;
+        indices[index++] = skirtIndex + 1;
+        indices[index++] = skirtIndex + 1;
+        indices[index++] = skirtIndex;
+        indices[index++] = vertIndex;
+        skirtIndex++;
+    }
+    skirtIndex++;
+    // Bottom Skirt
+    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
+        vertIndex = PATCH_SIZE - PATCH_WIDTH + i;
+        indices[index++] = vertIndex;
+        indices[index++] = skirtIndex;
+        indices[index++] = skirtIndex + 1;
+        indices[index++] = skirtIndex + 1;
+        indices[index++] = vertIndex + 1;
+        indices[index++] = vertIndex;
+        skirtIndex++;
+    }
 
+    vg::GpuMemory::createBuffer(m_sharedIbo);
+    vg::GpuMemory::bindBuffer(m_sharedIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    vg::GpuMemory::uploadBufferData(m_sharedIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
+                                    PATCH_INDICES * sizeof(ui16),
+                                    indices);
 }
 
-TerrainPatchMesher::~TerrainPatchMesher() {
+void TerrainPatchMesher::destroyIndices() {
     vg::GpuMemory::freeBuffer(m_sharedIbo);
 }
 
-void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                   float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4],
-                                   bool isSpherical) {
-    // Construct reusable index buffer object
-    if (m_sharedIbo == 0) {
-        generateIndices(m_sharedIbo);
-    }
+void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
+                                          const f32v3& startPos, WorldCubeFace cubeFace, float width,
+                                          f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
+                                          f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
+                                          f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
 
-    m_isSpherical = isSpherical;
+    assert(m_sharedIbo != 0);
+
+    m_planetGenData = planetGenData;
+    m_radius = (f32)m_planetGenData->radius;
+
+    m_isSpherical = mesh->getIsSpherical();
     m_cubeFace = cubeFace;
     // Grab mappings so we can rotate the 2D grid appropriately
     if (m_isSpherical) {
         m_coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
         m_startPos = startPos;
-        m_startPos.y *= (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
         m_coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)m_cubeFace]);
     } else {
         m_coordMapping = i32v3(0, 1, 2);
@@ -68,8 +139,6 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     f32 h;
     f32 angle;
     f32v3 tmpPos;
-    int xIndex;
-    int zIndex;
     f32 minX = (f32)INT_MAX, maxX = (f32)INT_MIN;
     f32 minY = (f32)INT_MAX, maxY = (f32)INT_MIN;
     f32 minZ = (f32)INT_MAX, maxZ = (f32)INT_MIN;
@@ -84,15 +153,13 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     m_vertWidth = width / (PATCH_WIDTH - 1);
     m_index = 0;
 
-    for (int z = 0; z < PATCH_WIDTH; z++) {
-        for (int x = 0; x < PATCH_WIDTH; x++) {
+    for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
+        for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
 
             auto& v = verts[m_index];
 
             // Set the position based on which face we are on
-            v.position[m_coordMapping.x] = (x * m_vertWidth + m_startPos.x) * m_coordMults.x;
-            v.position[m_coordMapping.y] = m_startPos.y;
-            v.position[m_coordMapping.z] = (z * m_vertWidth + m_startPos.z) * m_coordMults.y;
+            v.position = positionData[z][x];
 
             // Set color
             v.color = m_planetGenData->terrainTint;
@@ -108,49 +175,20 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             }*/
 
             // Get data from heightmap 
-            zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-            xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-            h = heightData[zIndex][xIndex][0] * (f32)KM_PER_M;
+            h = heightData[z][x][0];
 
             // Water indexing
             if (h < 0) {
-                addWater(z, x, heightData);
+                addWater(z - 1, x - 1, heightData);
             }
-
-            // Set normal map texture coordinates
-            v.normTexCoords.x = (ui8)(((float)x / (float)(PATCH_WIDTH - 1)) * 255.0f);
-            v.normTexCoords.y = (ui8)(((float)z / (float)(PATCH_WIDTH - 1)) * 255.0f);
 
             // Spherify it!
-            f32v3 normal;
-            if (m_isSpherical) {
-                normal = glm::normalize(v.position);
-                v.position = normal * (m_radius + h);
-            } else {
-                const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
-                tmpPos[trueMapping.x] = v.position.x;
-                tmpPos[trueMapping.y] = m_radius * (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
-                tmpPos[trueMapping.z] = v.position.z;
-                normal = glm::normalize(tmpPos);
-                v.position.y += h;
-            }
+            f32v3 normal = worldNormalData[z][x];
 
             angle = computeAngleFromNormal(normal);
             // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
-            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[zIndex][xIndex][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
-            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[zIndex][xIndex][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));
-
-            // Compute tangent
-            tmpPos[m_coordMapping.x] = ((x + 1) * m_vertWidth + m_startPos.x) * m_coordMults.x;
-            tmpPos[m_coordMapping.y] = m_startPos.y;
-            tmpPos[m_coordMapping.z] = (z * m_vertWidth + m_startPos.z) * m_coordMults.y;
-            tmpPos = glm::normalize(tmpPos) * (m_radius + h);
-            v.tangent = glm::normalize(tmpPos - v.position);
-
-            // Make sure tangent is orthogonal
-            normal = glm::normalize(v.position);
-            f32v3 binormal = glm::normalize(glm::cross(normal, v.tangent));
-            v.tangent = glm::normalize(glm::cross(binormal, normal));
+            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[z][x][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
+            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[z][x][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));   
 
             // Check bounding box
             // TODO(Ben): Worry about water too!
@@ -162,6 +200,21 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             if (v.position.z > maxZ) maxZ = v.position.z;
 
             m_index++;
+        }
+    }
+
+    // Second pass for normals TODO(Ben): Padding
+    for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
+        for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
+            auto& v = verts[(z - 1) * PATCH_WIDTH + x - 1];
+            f64v3& p = positionData[z][x];
+            f64v3& pl = positionData[z][x - 1] - p;
+            f64v3& pr = positionData[z][x + 1] - p;
+            f64v3& pb = positionData[z - 1][x] - p;
+            f64v3& pf = positionData[z + 1][x] - p;
+            // Calculate smooth normal
+            v.normal = glm::normalize(glm::cross(pb, pl) + glm::cross(pl, pf) +
+                                      glm::cross(pf, pr) + glm::cross(pr, pb));
         }
     }
 
@@ -180,16 +233,50 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
             verts[i].position = f32v3(f64v3(verts[i].position) - f64v3(mesh->m_aabbPos));
         }
     }
+
+    mesh->m_waterIndexCount = m_waterIndexCount;
+    mesh->m_waterVertexCount = m_waterIndex;
+
+    std::vector<ui8>& data = mesh->m_meshDataBuffer;
+
+    data.resize(VERTS_SIZE * sizeof(TerrainVertex) +
+                mesh->m_waterVertexCount * sizeof(WaterVertex) +
+                mesh->m_waterIndexCount * sizeof(ui16));
+
+    // Copy buffer data
+    memcpy(data.data(), verts, VERTS_SIZE * sizeof(TerrainVertex));
+    ui32 offset = VERTS_SIZE * sizeof(TerrainVertex);
+
+    // Add water mesh
+    if (m_waterIndexCount) {
+        // Make all vertices relative to the aabb pos for far terrain
+        if (!m_isSpherical) {
+            for (int i = 0; i < m_index; i++) {
+                waterVerts[i].position -= mesh->m_aabbPos;
+            }
+        }
+        // Copy water data
+        memcpy(data.data() + offset, waterVerts, mesh->m_waterVertexCount * sizeof(WaterVertex));
+        offset += mesh->m_waterVertexCount * sizeof(WaterVertex);
+        memcpy(data.data() + offset, waterIndices, mesh->m_waterIndexCount * sizeof(ui16));
+    }
+}
+
+void TerrainPatchMesher::uploadMeshData(TerrainPatchMesh* mesh) {
     // Make VAO
     glGenVertexArrays(1, &mesh->m_vao);
     glBindVertexArray(mesh->m_vao);
+
+    ui32 offset;
 
     // Generate the buffers and upload data
     vg::GpuMemory::createBuffer(mesh->m_vbo);
     vg::GpuMemory::bindBuffer(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER);
     vg::GpuMemory::uploadBufferData(mesh->m_vbo, vg::BufferTarget::ARRAY_BUFFER,
                                     VERTS_SIZE * sizeof(TerrainVertex),
-                                    verts);
+                                    mesh->m_meshDataBuffer.data());
+    offset = VERTS_SIZE * sizeof(TerrainVertex);
+
     // Reusable IBO
     vg::GpuMemory::bindBuffer(m_sharedIbo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
 
@@ -201,7 +288,7 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
                           sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, tangent));
+                          offsetptr(TerrainVertex, normal));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
@@ -209,35 +296,26 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 2, GL_UNSIGNED_BYTE, GL_TRUE,
                           sizeof(TerrainVertex),
-                          offsetptr(TerrainVertex, normTexCoords));
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 2, GL_UNSIGNED_BYTE, GL_TRUE,
-                          sizeof(TerrainVertex),
                           offsetptr(TerrainVertex, temperature));
 
     // Add water mesh
-    if (m_waterIndexCount) {
-        // Make all vertices relative to the aabb pos for far terrain
-        if (!m_isSpherical) {
-            for (int i = 0; i < m_index; i++) {
-                waterVerts[i].position -= mesh->m_aabbPos;
-            }
-        }
+    if (mesh->m_waterIndexCount) {
+
         // Make VAO
         glGenVertexArrays(1, &mesh->m_wvao);
         glBindVertexArray(mesh->m_wvao);
 
-        mesh->m_waterIndexCount = m_waterIndexCount;
         vg::GpuMemory::createBuffer(mesh->m_wvbo);
         vg::GpuMemory::bindBuffer(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER);
         vg::GpuMemory::uploadBufferData(mesh->m_wvbo, vg::BufferTarget::ARRAY_BUFFER,
-                                        m_waterIndex * sizeof(WaterVertex),
-                                        waterVerts);
+                                        mesh->m_waterVertexCount * sizeof(WaterVertex),
+                                        mesh->m_meshDataBuffer.data() + offset);
+        offset += mesh->m_waterVertexCount * sizeof(WaterVertex);
         vg::GpuMemory::createBuffer(mesh->m_wibo);
         vg::GpuMemory::bindBuffer(mesh->m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
         vg::GpuMemory::uploadBufferData(mesh->m_wibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
-                                        m_waterIndexCount * sizeof(ui16),
-                                        waterIndices);
+                                        mesh->m_waterIndexCount * sizeof(ui16),
+                                        mesh->m_meshDataBuffer.data() + offset);
         // Vertex attribute pointers
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
@@ -256,9 +334,9 @@ void TerrainPatchMesher::buildMesh(OUT TerrainPatchMesh* mesh, const f32v3& star
                               sizeof(WaterVertex),
                               offsetptr(WaterVertex, depth));
     }
+    // Clear the data
+    std::vector<ui8>().swap(mesh->m_meshDataBuffer);
     glBindVertexArray(0);
-    // Finally, add to the mesh manager
-    m_meshManager->addMesh(mesh, isSpherical);
 }
 
 // Thanks to tetryds for these
@@ -336,7 +414,7 @@ void TerrainPatchMesher::buildSkirts() {
     }
 }
 
-void TerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
+void TerrainPatchMesher::addWater(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]) {
     // Try add all adjacent vertices if needed
     tryAddWaterVertex(z - 1, x - 1, heightData);
     tryAddWaterVertex(z - 1, x, heightData);
@@ -355,12 +433,10 @@ void TerrainPatchMesher::addWater(int z, int x, float heightData[PATCH_HEIGHTMAP
     tryAddWaterQuad(z, x);
 }
 
-void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_HEIGHTMAP_WIDTH][PATCH_HEIGHTMAP_WIDTH][4]) {
+void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]) {
     // TEMPORARY? Add slight offset so we don't need skirts
     f32 mvw = m_vertWidth * 1.005f;
     const f32 UV_SCALE = 0.04f;
-    int xIndex;
-    int zIndex;
 
     if (z < 0 || x < 0 || z >= PATCH_WIDTH || x >= PATCH_WIDTH) return;
     if (waterIndexGrid[z][x] == 0) {
@@ -372,6 +448,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
         v.position[m_coordMapping.z] = (z * mvw + m_startPos.z) * m_coordMults.y;
 
         // Spherify it!
+        // TODO(Ben): Use normal data
         f32v3 normal;
         if (m_isSpherical) {
             normal = glm::normalize(v.position);
@@ -385,16 +462,14 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PATCH_
             normal = glm::normalize(tmpPos);
         }
 
-        zIndex = z * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-        xIndex = x * PATCH_NORMALMAP_PIXELS_PER_QUAD + 1;
-        float d = heightData[zIndex][xIndex][0];
+        float d = heightData[z + 1][x + 1][0] * M_PER_KM;
         if (d < 0) {
             v.depth = -d;
         } else {
             v.depth = 0;
         }
 
-        v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), heightData[zIndex][xIndex][1]);
+        v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), heightData[z + 1][x + 1][1]);
 
         // Compute tangent
         f32v3 tmpPos;
@@ -435,91 +510,6 @@ void TerrainPatchMesher::tryAddWaterQuad(int z, int x) {
     }
 }
 
-void TerrainPatchMesher::generateIndices(OUT VGIndexBuffer& ibo) {
-    // Loop through each quad and set indices
-    int vertIndex;
-    int index = 0;
-    int skirtIndex = PATCH_SIZE;
-    ui16 indices[PATCH_INDICES];
-    
-    // Main vertices
-    for (int z = 0; z < PATCH_WIDTH - 1; z++) {
-        for (int x = 0; x < PATCH_WIDTH - 1; x++) {
-            // Compute index of back left vertex
-            vertIndex = z * PATCH_WIDTH + x;
-            // Change triangle orientation based on odd or even
-            if ((x + z) % 2) {
-                indices[index++] = vertIndex;
-                indices[index++] = vertIndex + PATCH_WIDTH;
-                indices[index++] = vertIndex + PATCH_WIDTH + 1;
-                indices[index++] = vertIndex + PATCH_WIDTH + 1;
-                indices[index++] = vertIndex + 1;
-                indices[index++] = vertIndex;
-            } else {
-                indices[index++] = vertIndex + 1;
-                indices[index++] = vertIndex;
-                indices[index++] = vertIndex + PATCH_WIDTH;
-                indices[index++] = vertIndex + PATCH_WIDTH;
-                indices[index++] = vertIndex + PATCH_WIDTH + 1;
-                indices[index++] = vertIndex + 1;
-            }
-        }
-    }
-    // Skirt vertices
-    // Top Skirt
-    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
-        vertIndex = i;
-        indices[index++] = skirtIndex;
-        indices[index++] = vertIndex;
-        indices[index++] = vertIndex + 1;
-        indices[index++] = vertIndex + 1;
-        indices[index++] = skirtIndex + 1;
-        indices[index++] = skirtIndex;
-        skirtIndex++;
-    }
-    skirtIndex++; // Skip last vertex
-    // Left Skirt
-    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
-        vertIndex = i * PATCH_WIDTH;
-        indices[index++] = skirtIndex;
-        indices[index++] = skirtIndex + 1;
-        indices[index++] = vertIndex + PATCH_WIDTH;
-        indices[index++] = vertIndex + PATCH_WIDTH;
-        indices[index++] = vertIndex;
-        indices[index++] = skirtIndex;
-        skirtIndex++;
-    }
-    skirtIndex++; // Skip last vertex
-    // Right Skirt
-    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
-        vertIndex = i * PATCH_WIDTH + PATCH_WIDTH - 1;
-        indices[index++] = vertIndex;
-        indices[index++] = vertIndex + PATCH_WIDTH;
-        indices[index++] = skirtIndex + 1;
-        indices[index++] = skirtIndex + 1;
-        indices[index++] = skirtIndex;
-        indices[index++] = vertIndex;
-        skirtIndex++;
-    }
-    skirtIndex++;
-    // Bottom Skirt
-    for (int i = 0; i < PATCH_WIDTH - 1; i++) {
-        vertIndex = PATCH_SIZE - PATCH_WIDTH + i;
-        indices[index++] = vertIndex;
-        indices[index++] = skirtIndex;
-        indices[index++] = skirtIndex + 1;
-        indices[index++] = skirtIndex + 1;
-        indices[index++] = vertIndex + 1;
-        indices[index++] = vertIndex;
-        skirtIndex++;
-    }
-
-    vg::GpuMemory::createBuffer(ibo);
-    vg::GpuMemory::bindBuffer(ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
-    vg::GpuMemory::uploadBufferData(ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER,
-                                    PATCH_INDICES * sizeof(ui16),
-                                    indices);
-}
 
 f32 TerrainPatchMesher::computeAngleFromNormal(const f32v3& normal) {
     // Compute angle

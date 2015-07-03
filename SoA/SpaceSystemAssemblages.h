@@ -19,6 +19,7 @@ class SpaceSystem;
 
 #include "VoxelCoordinateSpaces.h"
 #include "SpaceSystemLoadStructs.h"
+#include "VoxPool.h"
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
@@ -54,7 +55,8 @@ namespace SpaceSystemAssemblages {
     extern vecs::EntityID createPlanet(SpaceSystem* spaceSystem,
                                         const SystemBodyKegProperties* sysProps,
                                         const PlanetKegProperties* properties,
-                                        SystemBody* body);
+                                        SystemBody* body,
+                                        vcore::ThreadPool<WorkerData>* threadPool);
     extern void destroyPlanet(SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// Star entity
@@ -117,7 +119,7 @@ namespace SpaceSystemAssemblages {
                                                            f64 radius,
                                                            PlanetGenData* planetGenData,
                                                            vg::GLProgram* normalProgram,
-                                                           vg::TextureRecycler* normalMapRecycler);
+                                                           vcore::ThreadPool<WorkerData>* threadPool);
     extern void removeSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Star Component

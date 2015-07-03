@@ -31,7 +31,7 @@ public:
         }
         context->addWorkCompleted(40);
 
-        for (int i = 0; i < blockPack->size(); i++) {
+        for (size_t i = 0; i < blockPack->size(); i++) {
             Block& b = blockPack->operator[](i);
             if (b.active) {
                 loader->loadBlockTextures(b);

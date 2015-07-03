@@ -40,7 +40,7 @@ void SonarRenderStage::render(const Camera* camera) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blockTexturePack->getAtlasTexture());
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
 
     glUniform1f(m_program.getUniform("sonarDistance"), SONAR_DISTANCE);
     glUniform1f(m_program.getUniform("waveWidth"), SONAR_WIDTH);
@@ -52,7 +52,7 @@ void SonarRenderStage::render(const Camera* camera) {
     glDepthMask(GL_FALSE);
 
     for (unsigned int i = 0; i < chunkMeshes.size(); i++) {
-        ChunkRenderer::drawOpaque(chunkMeshes[i], m_program,
+        ChunkRenderer::drawOpaqueCustom(chunkMeshes[i], m_program,
                                        m_gameRenderParams->chunkCamera->getPosition(),
                                        m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
     }

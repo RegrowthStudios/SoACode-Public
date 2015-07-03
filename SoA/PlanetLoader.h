@@ -24,7 +24,6 @@
 
 #include "PlanetGenerator.h"
 #include "SpaceSystemLoadStructs.h"
-#include "NoiseShaderGenerator.h"
 
 DECL_VIO(class IOManager);
 DECL_VCORE(class RPCManager);
@@ -102,8 +101,6 @@ private:
     vio::IOManager* m_iom = nullptr; ///< IOManager handle
 
     vg::TextureCache m_textureCache; ///< Texture cache for re-using textures
-
-    NoiseShaderGenerator m_shaderGenerator; ///< Generates the generation shaders
 
     vcore::RPCManager* m_glRpc = nullptr;
 

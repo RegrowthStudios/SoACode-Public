@@ -73,16 +73,8 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     });
     context.reader.forAllInMap(node, f);
     context.reader.dispose();
-    
-    // Generate the program
-    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
 
-    if (genData->program.isLinked()) {
-        genData->filePath = filePath;
-        return genData;
-    } 
-    delete genData;
-    return nullptr;
+    return genData;
 }
 
 PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
@@ -90,9 +82,6 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     if (!m_defaultGenData) {
         // Allocate data
         m_defaultGenData = new PlanetGenData;
-
-        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram(glrpc);
-
     }
     return m_defaultGenData;
 }
@@ -122,14 +111,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
         genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
 
-    // Generate the program
-    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
-
-    if (genData->program.isLinked()) {
-        return genData;
-    }
-    delete genData;
-    return nullptr;
+    return genData;
 }
 
 AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {

@@ -84,31 +84,6 @@ void GameManager::savePlayerState() {
    // fileManager.savePlayerFile(player);
 }
 
-void BindVBOIndicesID() {
-    std::vector<GLuint> indices;
-    indices.resize(589824);
-
-    int j = 0;
-    for (Uint32 i = 0; i < indices.size() - 12; i += 6) {
-        indices[i] = j;
-        indices[i + 1] = j + 1;
-        indices[i + 2] = j + 2;
-        indices[i + 3] = j + 2;
-        indices[i + 4] = j + 3;
-        indices[i + 5] = j;
-        j += 4;
-    }
-
-    if (Chunk::vboIndicesID != 0) {
-        glDeleteBuffers(1, &(Chunk::vboIndicesID));
-    }
-    glGenBuffers(1, &(Chunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
-
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
-}
-
 bool isSolidBlock(const i32& blockID) {
     return true; // return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
