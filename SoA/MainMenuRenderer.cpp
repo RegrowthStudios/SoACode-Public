@@ -17,6 +17,7 @@
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "soaUtils.h"
+#include "BloomRenderStage.h"
 
 void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
                             MainMenuScreen* mainMenuScreen, CommonState* commonState) {
@@ -39,6 +40,10 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     m_commonState->stages.hdr.init(window, context);
     stages.colorFilter.init(window, context);
     stages.exposureCalc.init(window, context);
+	stages.bloom.init(window, context);
+
+	stages.bloom.setActive(true);
+
 }
 
 void MainMenuRenderer::dispose(StaticLoadContext& context) {
@@ -52,6 +57,7 @@ void MainMenuRenderer::dispose(StaticLoadContext& context) {
     // TODO(Ben): Dispose common stages
     stages.colorFilter.dispose(context);
     stages.exposureCalc.dispose(context);
+	stages.bloom.dispose(context);
 
     // Dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -95,6 +101,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
         m_commonState->stages.hdr.load(context);
         stages.colorFilter.load(context);
         stages.exposureCalc.load(context);
+		stages.bloom.load(context);
 
         context.blockUntilFinished();
 
@@ -109,6 +116,7 @@ void MainMenuRenderer::hook() {
     m_commonState->stages.hdr.hook(&m_commonState->quad);
     stages.colorFilter.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
+	stages.bloom.hook(&m_commonState->quad);
 }
 
 void MainMenuRenderer::render() {
@@ -158,8 +166,15 @@ void MainMenuRenderer::render() {
     // Post processing
     m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
-    // TODO: More Effects?
-
+	// TODO: More Effects?
+	if (stages.bloom.isActive()) {
+		m_swapChain.use(BLOOM_TEXTURE_SLOT_COLOR, false);
+		stages.bloom.render();
+		std::cout << "Bloom SwapChain Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
+		m_swapChain.swap();
+		m_swapChain.use(0, false);
+	}
+	
     // Draw to backbuffer for the last effect
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);

@@ -788,6 +788,7 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="TerrainPatchMeshTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
@@ -799,6 +800,9 @@
     </ClInclude>
     <ClInclude Include="LoadTaskBlockData.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1297,6 +1301,7 @@
     <ClCompile Include="Biome.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="TerrainPatchMeshTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
@@ -1305,6 +1310,9 @@
     </ClCompile>
     <ClCompile Include="TestConnectedTextureScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
