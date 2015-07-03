@@ -25,6 +25,7 @@
 #include "ColorFilterRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "HdrRenderStage.h"
+#include "BloomRenderStage.h"
 #include "LoadContext.h"
 
 /// Forward declarations
@@ -67,6 +68,7 @@ public:
     struct {    
         ColorFilterRenderStage colorFilter;
         ExposureCalcRenderStage exposureCalc;    
+		BloomRenderStage bloom;
     } stages;
 
 private:
