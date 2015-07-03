@@ -21,6 +21,7 @@
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"
+#include "ChunkRenderer.h"
 #include "ColoredFullQuadRenderer.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
@@ -34,8 +35,8 @@
 #include "PhysicsBlockRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
-#include "TransparentVoxelRenderStage.h"
 #include "SsaoRenderStage.h"
+#include "TransparentVoxelRenderStage.h"
 
 /// Forward declarations
 class App;
@@ -120,6 +121,8 @@ public:
 private:
     void updateCameras();
     void dumpScreenshot();
+
+    ChunkRenderer m_chunkRenderer;
 
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
 

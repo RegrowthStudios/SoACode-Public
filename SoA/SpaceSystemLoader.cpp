@@ -173,7 +173,7 @@ bool SpaceSystemLoader::loadBodyProperties(SpaceSystemLoadParams& pr, const nStr
                 properties.planetGenData = pr.planetLoader->loadPlanet(properties.generation, pr.glrpc);
             } else {
                 properties.planetGenData = nullptr;
-                //properties.planetGenData = pr.planetLoader->getRandomGenData(pr.glrpc);
+                // properties.planetGenData = pr.planetLoader->getRandomGenData(properties.density, pr.glrpc);
                 properties.atmosphere = pr.planetLoader->getRandomAtmosphere();
             }
 
@@ -182,7 +182,7 @@ bool SpaceSystemLoader::loadBodyProperties(SpaceSystemLoadParams& pr, const nStr
                 properties.planetGenData->radius = properties.diameter / 2.0;
             }
 
-            SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body);
+            SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body, pr.threadpool);
             body->type = SpaceBodyType::PLANET;
         } else if (type == "star") {
             StarKegProperties properties;

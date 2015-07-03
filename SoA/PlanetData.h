@@ -118,7 +118,6 @@ struct PlanetGenData {
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;
     ui32 surfaceBlock = 0;
-    vg::GLProgram program;
     f64 radius = 0.0;
 
     NoiseBase baseTerrainFuncs;

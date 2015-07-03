@@ -31,8 +31,7 @@ public:
               WorldCubeFace cubeFace,
               int lod,
               const TerrainPatchData* sphericalTerrainData,
-              f64 width,
-              TerrainRpcDispatcher* dispatcher) override;
+              f64 width) override;
 
     /// Updates the patch
     /// @param cameraPos: Position of the camera
@@ -43,9 +42,6 @@ public:
     /// @param point: The point to check
     /// @param planetRadius: Radius of the planet
     static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
-protected:
-    /// Requests a mesh via RPC
-    void requestMesh() override;
 };
 
 #endif // FarTerrainPatch_h__

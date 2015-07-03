@@ -15,13 +15,13 @@ enum class MeshType {
 };
 KEG_ENUM_DECL(MeshType);
 
-enum class RenderTaskType;
+enum class MeshTaskType;
 
 class Block;
 class Chunk;
 class ChunkGridData;
 class ChunkMesh;
-class RenderTask;
+class ChunkMeshTask;
 
 class ChunkMeshRenderData {
 public:
@@ -69,7 +69,7 @@ class ChunkMeshData
 {
 public:
     ChunkMeshData::ChunkMeshData();
-    ChunkMeshData::ChunkMeshData(RenderTask *task);
+    ChunkMeshData::ChunkMeshData(MeshTaskType type);
 
     void addTransQuad(const i8v3& pos);
 
@@ -80,8 +80,7 @@ public:
     std::vector <VoxelQuad> transQuads;
     std::vector <VoxelQuad> cutoutQuads;
     std::vector <LiquidVertex> waterVertices;
-    Chunk *chunk = nullptr;
-    RenderTaskType type;
+    MeshTaskType type;
 
     //*** Transparency info for sorting ***
     ui32 transVertIndex = 0;
@@ -94,6 +93,10 @@ public:
 class ChunkMesh
 {
 public:
+    ChunkMesh() : vboID(0), waterVboID(0),
+        cutoutVboID(0), transVboID(0),
+        vaoID(0), transVaoID(0),
+        cutoutVaoID(0), waterVaoID(0) {}
 
     typedef ui32 ID;
 
@@ -119,7 +122,7 @@ public:
 
     f64 distance2 = 32.0;
     f64v3 position;
-    ui32 activeMeshesIndex; ///< Index into active meshes array
+    ui32 activeMeshesIndex = ACTIVE_MESH_INDEX_NONE; ///< Index into active meshes array
     bool inFrustum = false;
     bool needsSort = true;
     ID id;

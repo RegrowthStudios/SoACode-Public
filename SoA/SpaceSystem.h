@@ -77,7 +77,6 @@ public:
     
     f32 age = 0.0f; ///< age of the system
     nString systemDescription = "No description"; ///< textual description of the system
-    std::unique_ptr<vg::TextureRecycler> normalMapRecycler = nullptr; ///< For recycling normal maps
     vg::GLProgram normalMapGenProgram; ///< For generating normal maps
     
     std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors

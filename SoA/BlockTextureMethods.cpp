@@ -8,7 +8,6 @@
 #include "Chunk.h"
 #include "ChunkMesh.h"
 #include "ChunkMesher.h"
-#include "RenderTask.h"
 #include "VoxelBits.h"
 
 #define GETBLOCK(a) (((*blocks)[((a) & 0x0FFF)]))

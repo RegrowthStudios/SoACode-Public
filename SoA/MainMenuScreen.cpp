@@ -155,7 +155,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
         }
     }
 
-    m_soaState->time += m_soaState->timeStep;
+    //m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState, m_soaState->spaceCamera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState);
     m_mainMenuSystemViewer->update();

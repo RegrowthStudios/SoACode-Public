@@ -29,12 +29,12 @@ DECL_VG(class GLProgram);
 class TerrainVertex {
 public:
     f32v3 position; //12
-    f32v3 tangent; //24
+    f32v3 normal; //24
     ColorRGB8 color; //27
     ui8 padding; //28
-    ui8v2 normTexCoords; //30
-    ui8 temperature; //31
-    ui8 humidity; //32
+    ui8 temperature; //29
+    ui8 humidity; //30
+    ui8 padding2[2]; //32
 };
 /// Water vertex for terrain patch
 class WaterVertex {
@@ -48,12 +48,13 @@ public:
 
 class TerrainPatchMesh {
 public:
-    friend class SphericalTerrainGpuGenerator;
-    friend class TerrainPatchMeshManager;
-    friend class TerrainPatch;
-    friend class TerrainPatchMesher;
     friend class FarTerrainPatch;
-    TerrainPatchMesh(WorldCubeFace cubeFace) : m_cubeFace(cubeFace) {}
+    friend class TerrainPatch;
+    friend class TerrainPatchMeshManager;
+    friend class TerrainPatchMeshTask;
+    friend class TerrainPatchMesher;
+    TerrainPatchMesh(WorldCubeFace cubeFace, bool isSpherical) :
+        m_cubeFace(cubeFace), m_isSpherical(isSpherical) {}
     ~TerrainPatchMesh();
 
     /// Recycles the normal map
@@ -82,6 +83,7 @@ public:
     /// @return the closest point on the aabb
     f32v3 getClosestPoint(const f32v3& camPos) const;
     f64v3 getClosestPoint(const f64v3& camPos) const;
+    const bool& getIsSpherical() const { return m_isSpherical; }
 
     f64 distance2 = 100000000000.0;
 private:
@@ -98,11 +100,14 @@ private:
     f32 m_boundingSphereRadius = 0.0f; ///< Radius of sphere for frustum checks
     WorldCubeFace m_cubeFace;
 
-    VGTexture m_normalMap = 0;
+    std::vector<ui8> m_meshDataBuffer; ///< Stores mesh data for terrain and water in bytes
+
     int m_waterIndexCount = 0;
+    int m_waterVertexCount = 0;
 
     volatile bool m_shouldDelete = false; ///< True when the mesh should be deleted
     bool m_isRenderable = false; ///< True when there is a complete mesh
+    bool m_isSpherical = false;
 };
 
 #endif // TerrainPatchMesh_h__

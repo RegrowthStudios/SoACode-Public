@@ -112,6 +112,37 @@ bool BlockTextureLoader::loadLayerProperties() {
     return true;
 }
 
+// For parsing a block texture
+#define TEXTURE_PARSE_CODE \
+if (key == "base") { \
+    if (keg::getType(value) == keg::NodeType::MAP) { \
+    } else { \
+        nString base = keg::convert<nString>(value); \
+       auto& it = m_layers.find(base); \
+       if (it != m_layers.end()) { \
+            texture->base = it->second; \
+       } \
+    } \
+} else if (key == "overlay") { \
+    if (keg::getType(value) == keg::NodeType::MAP) { \
+    } else { \
+      nString overlay = keg::convert<nString>(value); \
+      auto& it = m_layers.find(overlay); \
+        if (it != m_layers.end()) { \
+            texture->overlay = it->second; \
+        } \
+    } \
+} else if (key == "blendMode") { \
+    nString v = keg::convert<nString>(value); \
+    if (v == "add") { \
+        texture->blendMode = BlendType::ADD; \
+    } else if (v == "multiply") { \
+    texture->blendMode = BlendType::MULTIPLY; \
+    } else if (v == "subtract") { \
+    texture->blendMode = BlendType::SUBTRACT; \
+    } \
+} \
+
 bool BlockTextureLoader::loadTextureProperties() {
     vio::Path path;
     if (!m_texturePathResolver->resolvePath("Textures.yml", path)) return nullptr;
@@ -133,37 +164,7 @@ bool BlockTextureLoader::loadTextureProperties() {
 
     BlockTexture* texture;
     auto valf = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        
-        if (key == "base") {
-            if (keg::getType(value) == keg::NodeType::MAP) {
-                // TODO(Ben): Handle map
-            } else {
-                nString base = keg::convert<nString>(value);
-                auto& it = m_layers.find(base);
-                if (it != m_layers.end()) {
-                    texture->base = it->second;
-                }
-            }
-        } else if (key == "overlay") {
-            if (keg::getType(value) == keg::NodeType::MAP) {
-                // TODO(Ben): Handle map
-            } else {
-                nString overlay = keg::convert<nString>(value);
-                auto& it = m_layers.find(overlay);
-                if (it != m_layers.end()) {
-                    texture->overlay = it->second;
-                }
-            }
-        } else if (key == "blendMode") {
-            nString v = keg::convert<nString>(value);
-            if (v == "add") {
-                texture->blendMode = BlendType::ADD;
-            } else if (v == "multiply") {
-                texture->blendMode = BlendType::MULTIPLY;
-            } else if (v == "subtract") {
-                texture->blendMode = BlendType::SUBTRACT;
-            }
-        }
+        TEXTURE_PARSE_CODE;
     });
 
     // Load all layers
@@ -179,14 +180,6 @@ bool BlockTextureLoader::loadTextureProperties() {
     return true;
 }
 
-nString getBlockTextureName(const keg::Node& value) {
-    if (keg::getType(value) == keg::NodeType::MAP) {
-        // TODO(Ben): Handle map
-    } else {
-        return keg::convert<nString>(value);
-    }
-}
-
 bool BlockTextureLoader::loadBlockTextureMapping() {
 
     vio::Path path;
@@ -194,6 +187,8 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
 
     // Read file
     nString data;
+    const nString* blockName;
+    BlockTexture* texture;
     m_iom.readFileToString(path, data);
     if (data.empty()) return false;
 
@@ -207,9 +202,62 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         return false;
     }
 
+    // For parsing textures
+    auto texParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "base") {
+
+            if (keg::getType(value) == keg::NodeType::MAP) {
+
+            } else {
+
+                nString base = keg::convert<nString>(value);
+                auto& it = m_layers.find(base);
+                if (it != m_layers.end()) {
+
+                    texture->base = it->second;
+                }
+            }
+        } else if (key == "overlay") {
+
+            if (keg::getType(value) == keg::NodeType::MAP) {
+
+            } else {
+
+                nString overlay = keg::convert<nString>(value);
+                auto& it = m_layers.find(overlay);
+                if (it != m_layers.end()) {
+
+                    texture->overlay = it->second;
+                }
+            }
+        } else if (key == "blendMode") {
+
+            nString v = keg::convert<nString>(value);
+            if (v == "add") {
+
+                texture->blendMode = BlendType::ADD;
+            } else if (v == "multiply") {
+
+                texture->blendMode = BlendType::MULTIPLY;
+            } else if (v == "subtract") {
+
+                texture->blendMode = BlendType::SUBTRACT;
+            }
+        }
+    });
+
     BlockTextureNames* names;
-    auto valf = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        nString name = getBlockTextureName(value);
+    auto valParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        nString name;
+        // Conditional parsing, map vs value
+        if (keg::getType(value) == keg::NodeType::MAP) {
+            name = *blockName + std::to_string(m_generatedTextureCounter++);
+            texture = m_texturePack->getNextFreeTexture(name);
+            context.reader.forAllInMap(value, texParseFunctor);
+        } else {
+            name = keg::convert<nString>(value);
+        }
+
         if (key == "texture") {
             for (int i = 0; i < 6; i++) {
                 names->names[i] = name;
@@ -242,13 +290,15 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         BlockTextureNames tNames = {};
         names = &tNames;
-        context.reader.forAllInMap(value, valf);
+        blockName = &key;
+        context.reader.forAllInMap(value, valParseFunctor);
         m_blockMappings[key] = tNames;
     });
     context.reader.forAllInMap(node, f);
     delete f;
     context.reader.dispose();
-    delete valf;
+    delete valParseFunctor;
+    delete texParseFunctor;
 
     return true;
 }

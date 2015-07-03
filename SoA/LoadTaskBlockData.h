@@ -26,18 +26,20 @@ public:
         iom.setSearchDirectory("Data/Blocks/");
         // Load in .yml
         if (!BlockLoader::loadBlocks(iom, blockPack)) {
-            pError("Failed to load Data/BlockData.yml");
+            pError("Failed to load Data/Blocks/BlockData.yml");
             exit(123456);
         }
         context->addWorkCompleted(40);
 
-        for (int i = 0; i < blockPack->size(); i++) {
+        for (size_t i = 0; i < blockPack->size(); i++) {
             Block& b = blockPack->operator[](i);
             if (b.active) {
                 loader->loadBlockTextures(b);
             }
         }
         context->addWorkCompleted(10);
+
+
         // Uncomment to Save in .yml
         BlockLoader::saveBlocks("Data/Blocks/SavedBlockData.yml", blockPack);
 
