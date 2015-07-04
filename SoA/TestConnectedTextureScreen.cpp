@@ -52,7 +52,12 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
     { // Create Chunks
         Chunk* chunk = new Chunk;
         chunk->initAndFillEmpty(0, ChunkPosition3D());
-        chunk->blocks.set(CHUNK_SIZE / 2, m_soaState->blocks.getBlockIndex("grass"));
+     //   for (int i = 0; i < CHUNK_LAYER; i++) {
+     //       chunk->blocks.set(CHUNK_LAYER * 15 + i, m_soaState->blocks.getBlockIndex("grass"));
+     //   }
+
+        chunk->blocks.set(CHUNK_LAYER * 15 + CHUNK_LAYER / 2, m_soaState->blocks.getBlockIndex("grass"));
+
         m_chunks.emplace_back(chunk);
     }
 
@@ -64,7 +69,7 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 
     { // Init the camera
         m_camera.init(m_commonState->window->getAspectRatio());
-        m_camera.setPosition(f64v3(16.0, 16.0, 30.0));
+        m_camera.setPosition(f64v3(16.0, 17.0, 33.0));
         m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
         m_camera.setRight(f32v3(1.0f, 0.0f, 0.0f));
         m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
@@ -179,6 +184,15 @@ void TestConnectedTextureScreen::initInput() {
             case VKEY_RIGHT:
                 m_activeChunk++;
                 if (m_activeChunk >= m_chunks.size()) m_activeChunk = 0;
+                break;
+            case VKEY_F10:
+                // Reload meshes
+                // TODO(Ben): Destroy meshes
+                for (int i = 0; i < m_chunks.size(); i++) {
+                    Chunk* chunk = m_chunks[i];
+                    delete m_meshes[i];
+                    m_meshes[i] = m_mesher.easyCreateChunkMesh(chunk, MeshTaskType::DEFAULT);
+                }
                 break;
             case VKEY_F11:
                 // Reload shaders

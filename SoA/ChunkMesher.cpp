@@ -784,6 +784,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
     BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
 
+    // TEMP
+    baseTextureIndex = texture->base.index;
+    overlayTextureIndex = texture->overlay.index;
+   
     // TODO(Ben): Bitwise ops?
     ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
     ui8 baseNormTextureAtlas = (ui8)(baseNormTextureIndex / ATLAS_SIZE);
@@ -801,12 +805,17 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     int uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
     int vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
 
+    // TEMP
+    uOffset = 0;
+    vOffset = 0;
+
     // Construct the quad
     i16 quadIndex = quads.size();
     quads.emplace_back();
     m_numQuads++;
     VoxelQuad* quad = &quads.back();
     quad->v0.mesherFlags = MESH_FLAG_ACTIVE;
+
     for (int i = 0; i < 4; i++) {
         BlockVertex& v = quad->verts[i];
         v.position = VoxelMesher::VOXEL_POSITIONS[face][i] + voxelPosOffset;
@@ -863,7 +872,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
     { // Look-Behind Greedy Merging(tm)
-        if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        if (0 && quad->v0 == quad->v3 && quad->v1 == quad->v2) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
             ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
             // Check left merge
@@ -887,7 +896,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
             }
         }
         // Check back merge
-        if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        if (0 && quad->v0 == quad->v1 && quad->v2 == quad->v3) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
             int backIndex = m_quadIndices[blockIndex + backOffset][face];
             if (backIndex != NO_QUAD_INDEX) {

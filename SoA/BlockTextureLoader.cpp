@@ -246,7 +246,8 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         }
     });
 
-    BlockTextureNames* names;
+    nString *texNames;
+
     auto valParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         nString name;
         // Conditional parsing, map vs value
@@ -259,39 +260,76 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         }
 
         if (key == "texture") {
-            for (int i = 0; i < 6; i++) {
-                names->names[i] = name;
-            }
+            texNames[0] = name;
         } else if (key == "textureOpX") {
-            names->names[(int)vvox::Cardinal::X_NEG] = name;
-            names->names[(int)vvox::Cardinal::X_POS] = name;
+            texNames[1] = name;
         } else if (key == "textureOpY") {
-            names->names[(int)vvox::Cardinal::Y_NEG] = name;
-            names->names[(int)vvox::Cardinal::Y_POS] = name;
+            texNames[2] = name;
         } else if (key == "textureOpZ") {
-            names->names[(int)vvox::Cardinal::Z_NEG] = name;
-            names->names[(int)vvox::Cardinal::Z_POS] = name;
+            texNames[3] = name;
         } else if (key == "textureTop") {
-            names->names[(int)vvox::Cardinal::Y_POS] = name;
+            texNames[4] = name;
         } else if (key == "textureBottom") {
-            names->names[(int)vvox::Cardinal::Y_NEG] = name;
+            texNames[5] = name;
         } else if (key == "textureFront") {
-            names->names[(int)vvox::Cardinal::Z_POS] = name;
+            texNames[6] = name;
         } else if (key == "textureBack") {
-            names->names[(int)vvox::Cardinal::Z_NEG] = name;
+            texNames[7] = name;
         } else if (key == "textureLeft") {
-            names->names[(int)vvox::Cardinal::X_NEG] = name;
+            texNames[8] = name;
         } else if (key == "textureRight") {
-            names->names[(int)vvox::Cardinal::X_POS] = name;
+            texNames[9] = name;
         }
     });
 
     // Load all layers
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         BlockTextureNames tNames = {};
-        names = &tNames;
+        // So we can prioritize.
+        nString textureNames[10];
+        texNames = textureNames;
+
         blockName = &key;
         context.reader.forAllInMap(value, valParseFunctor);
+
+        // Set textures based on names
+        if (texNames[0].size()) {
+            for (int i = 0; i < 6; i++) {
+                tNames.names[i] = texNames[0];
+            }
+        }
+        if (texNames[1].size()) {
+            tNames.names[(int)vvox::Cardinal::X_NEG] = texNames[1];
+            tNames.names[(int)vvox::Cardinal::X_POS] = texNames[1];
+        }
+        if (texNames[2].size()) {
+            tNames.names[(int)vvox::Cardinal::Y_NEG] = texNames[2];
+            tNames.names[(int)vvox::Cardinal::Y_POS] = texNames[2];
+        }
+        if (texNames[3].size()) {
+            tNames.names[(int)vvox::Cardinal::Z_NEG] = texNames[3];
+            tNames.names[(int)vvox::Cardinal::Z_POS] = texNames[3];
+        }
+        if (texNames[4].size()) {
+            tNames.names[(int)vvox::Cardinal::Y_POS] = texNames[4];
+        }
+        if (texNames[5].size()) {
+            tNames.names[(int)vvox::Cardinal::Y_NEG] = texNames[5];
+        }
+        if (texNames[6].size()) {
+            tNames.names[(int)vvox::Cardinal::Z_POS] = texNames[6];
+        }
+        if (texNames[7].size()) {
+            tNames.names[(int)vvox::Cardinal::Z_NEG] = texNames[7];
+        }
+        if (texNames[8].size()) {
+            tNames.names[(int)vvox::Cardinal::X_NEG] = texNames[8];
+        }
+        if (texNames[9].size()) {
+            tNames.names[(int)vvox::Cardinal::X_POS] = texNames[9];
+        }
+
+        // Set mappings
         m_blockMappings[key] = tNames;
     });
     context.reader.forAllInMap(node, f);
