@@ -26,17 +26,18 @@ void SsaoRenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     // Build noise texture
     glGenTextures(1, &m_texNoise.id);
     glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, m_texNoise.width, m_texNoise.height, 0, GL_RG, GL_FLOAT, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, m_texNoise.width, m_texNoise.height, 0, GL_RG, GL_FLOAT, data);
     vg::SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     delete[] data;
 
     m_ssaoTarget.setSize(width, height);
-    m_ssaoTarget.init(vg::TextureInternalFormat::R8);
+    m_ssaoTarget.init(vg::TextureInternalFormat::R32F);
     
     for (unsigned int i = 0; i < SSAO_SAMPLE_KERNEL_SIZE; i++) {
-        m_sampleKernel.emplace_back((f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f), (f32)r.genMT());
-        m_sampleKernel[i] = glm::normalize(m_sampleKernel[i]) * r.genMT();
+		m_sampleKernel.emplace_back((f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f), (f32)r.genMT());
+        float random = r.genMT();
+        m_sampleKernel[i] = glm::normalize(m_sampleKernel[i]) * (random * random + 0.1f);
     }
 }
 

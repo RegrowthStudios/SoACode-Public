@@ -3,8 +3,8 @@
 #include "IRenderStage.h"
 
 #define SSAO_NOISE_TEXTURE_SIZE 32
-#define SSAO_SAMPLE_KERNEL_SIZE 16
-#define SSAO_BLUR_AMOUNT 0
+#define SSAO_SAMPLE_KERNEL_SIZE 64
+#define SSAO_BLUR_AMOUNT 1
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
