@@ -171,7 +171,7 @@ void MainMenuRenderer::render() {
 		stages.bloom.render();
 		std::cout << "Bloom SwapChain Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
 		m_swapChain.swap();
-		m_swapChain.use(0, false);
+//		m_swapChain.use(0, false);
 	}
 	
     // Draw to backbuffer for the last effect
@@ -184,8 +184,7 @@ void MainMenuRenderer::render() {
     static const f32 EXPOSURE_STEP = 0.005f;
     stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
-    m_swapChain.use(0, false);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	m_swapChain.bindPreviousTexture(0);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
