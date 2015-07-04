@@ -285,9 +285,6 @@ bool BlockLoader::saveBinary(const vio::IOManager& iom, const cString filePath, 
     for (auto& b : pack->getBlockMap()) {
         const Block& block = blockList[b.second];
         fs.write("%s", block.name.c_str()); fs.write(1, 1, "\0");
-        for (int i = 0; i < 6; i++) {
-            fs.write("%s\0", block.texturePaths[i].c_str()); fs.write(1, 1, "\0");
-        }
         fs.write(1, sizeof(bool), &block.powderMove);
         fs.write(1, sizeof(bool), &block.collide);
         fs.write(1, sizeof(bool), &block.waterBreak);
@@ -326,10 +323,6 @@ bool BlockLoader::loadBinary(const vio::IOManager& iom, const cString filePath, 
         Block b;
         readStr(fs, buf);
         b.name = buf;
-        for (int i = 0; i < 6; i++) {
-            readStr(fs, buf);
-            b.texturePaths[i] = buf;
-        }
         fs.read(1, sizeof(bool), &b.powderMove);
         fs.read(1, sizeof(bool), &b.collide);
         fs.read(1, sizeof(bool), &b.waterBreak);

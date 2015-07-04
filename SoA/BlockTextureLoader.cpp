@@ -27,13 +27,6 @@ void BlockTextureLoader::loadTextureData() {
 }
 
 void BlockTextureLoader::loadBlockTextures(Block& block) {
-    // Default values for texture indices
-    for (i32 i = 0; i < 6; i++) {
-        block.base[i] = 0;
-        block.normal[i] = 0;
-        block.overlay[i] = 0;
-    }
-
     // Check for block mapping
     auto& it = m_blockMappings.find(block.sID);
     if (it == m_blockMappings.end()) {
@@ -55,7 +48,6 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
             }
             block.textures[i] = texture;
         } else {
-            printf("Warning: Could not load texture %d for block %s\n", i, block.sID.c_str());
             block.textures[i] = m_texturePack->getDefaultTexture();
             return;
         }

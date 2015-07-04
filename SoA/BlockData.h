@@ -112,14 +112,6 @@ public:
     bool active;
 
     BlockTexture* textures[6];
-    nString texturePaths[6];
-   
-    // TODO(BEN): a bit redudant isn't it?
-    // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
-    BlockTextureFaces base;
-    BlockTextureFaces overlay;
-    BlockTextureFaces normal;
-    // END
 
     // TODO(Ben): NOPE
     nString particleTexName;

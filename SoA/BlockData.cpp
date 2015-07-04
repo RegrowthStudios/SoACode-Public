@@ -45,12 +45,6 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("allowsLight", keg::Value::basic(offsetof(Block, allowLight), keg::BasicType::BOOL));
     kt.addValue("crushable", keg::Value::basic(offsetof(Block, isCrushable), keg::BasicType::BOOL));
     kt.addValue("supportive", keg::Value::basic(offsetof(Block, isSupportive), keg::BasicType::BOOL));
-    kt.addValue("textureLeft", keg::Value::basic(offsetof(Block, texturePaths[0]), keg::BasicType::STRING));
-    kt.addValue("textureRight", keg::Value::basic(offsetof(Block, texturePaths[1]), keg::BasicType::STRING));
-    kt.addValue("textureBottom", keg::Value::basic(offsetof(Block, texturePaths[2]), keg::BasicType::STRING));
-    kt.addValue("textureTop", keg::Value::basic(offsetof(Block, texturePaths[3]), keg::BasicType::STRING));
-    kt.addValue("textureBack", keg::Value::basic(offsetof(Block, texturePaths[4]), keg::BasicType::STRING));
-    kt.addValue("textureFront", keg::Value::basic(offsetof(Block, texturePaths[5]), keg::BasicType::STRING));
 }
 
 /// "less than" operator for inserting into sets in TexturePackLoader
@@ -87,10 +81,7 @@ lightColor(0, 0, 0) {
     allowLight = false;
     ID = 0;
     name = particleTexName = "";
-    for (int i = 0; i < 6; i++) {
-        texturePaths[i] = "";
-        textures[i] = nullptr;
-    }
+    memset(textures, 0, sizeof(textures));
     particleTex = 0;
     collide = true;
     occlude = BlockOcclusion::ALL;

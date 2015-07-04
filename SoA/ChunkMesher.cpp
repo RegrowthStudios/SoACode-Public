@@ -60,23 +60,23 @@ void ChunkMesher::init(const BlockPack* blocks) {
     this->blocks = blocks;
 
     // Set up the texture params
-    m_textureMethodParams[X_NEG][B_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, offsetof(BlockTextureFaces, BlockTextureFaces::nx) / sizeof(ui32));
-    m_textureMethodParams[X_NEG][O_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, offsetof(BlockTextureFaces, BlockTextureFaces::nx) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[X_NEG][B_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, X_NEG, B_INDEX);
+    m_textureMethodParams[X_NEG][O_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, X_NEG, O_INDEX);
 
-    m_textureMethodParams[X_POS][B_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, offsetof(BlockTextureFaces, BlockTextureFaces::px) / sizeof(ui32));
-    m_textureMethodParams[X_POS][O_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, offsetof(BlockTextureFaces, BlockTextureFaces::px) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[X_POS][B_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, X_POS, B_INDEX);
+    m_textureMethodParams[X_POS][O_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, X_POS, O_INDEX);
 
-    m_textureMethodParams[Y_NEG][B_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::ny) / sizeof(ui32));
-    m_textureMethodParams[Y_NEG][O_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::ny) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Y_NEG][B_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, Y_NEG, B_INDEX);
+    m_textureMethodParams[Y_NEG][O_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, Y_NEG, O_INDEX);
 
-    m_textureMethodParams[Y_POS][B_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::py) / sizeof(ui32));
-    m_textureMethodParams[Y_POS][O_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::py) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Y_POS][B_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, Y_POS, B_INDEX);
+    m_textureMethodParams[Y_POS][O_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, Y_POS, O_INDEX);
 
-    m_textureMethodParams[Z_NEG][B_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::nz) / sizeof(ui32));
-    m_textureMethodParams[Z_NEG][O_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::nz) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Z_NEG][B_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, Z_NEG, B_INDEX);
+    m_textureMethodParams[Z_NEG][O_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, Z_NEG, O_INDEX);
 
-    m_textureMethodParams[Z_POS][B_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::pz) / sizeof(ui32));
-    m_textureMethodParams[Z_POS][O_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::pz) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Z_POS][B_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, Z_POS, B_INDEX);
+    m_textureMethodParams[Z_POS][O_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, Z_POS, O_INDEX);
 }
 
 void ChunkMesher::prepareData(const Chunk* chunk) {
@@ -783,11 +783,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[1]);
     BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
     BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-
-    // TEMP
-    baseTextureIndex = texture->base.index;
-    overlayTextureIndex = texture->overlay.index;
    
+    blockColor[0] = color3(255, 255, 255);
+    blockColor[1] = color3(255, 255, 255);
+
     // TODO(Ben): Bitwise ops?
     ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
     ui8 baseNormTextureAtlas = (ui8)(baseNormTextureIndex / ATLAS_SIZE);
@@ -804,10 +803,6 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     i32v3 pos(bx, by, bz);
     int uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
     int vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
-
-    // TEMP
-    uOffset = 0;
-    vOffset = 0;
 
     // Construct the quad
     i16 quadIndex = quads.size();
@@ -872,7 +867,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
     { // Look-Behind Greedy Merging(tm)
-        if (0 && quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
             ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
             // Check left merge
@@ -896,7 +891,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
             }
         }
         // Check back merge
-        if (0 && quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
             int backIndex = m_quadIndices[blockIndex + backOffset][face];
             if (backIndex != NO_QUAD_INDEX) {

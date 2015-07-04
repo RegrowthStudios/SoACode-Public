@@ -86,8 +86,10 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
 void GameplayRenderer::reloadShaders() {
     // TODO(Ben): More
     StaticLoadContext context;
-    stages.opaqueVoxel.dispose(context);
+    m_chunkRenderer.dispose();
+    m_chunkRenderer.init();
     m_commonState->stages.spaceSystem.reloadShaders();
+    
 }
 
 void GameplayRenderer::load(StaticLoadContext& context) {

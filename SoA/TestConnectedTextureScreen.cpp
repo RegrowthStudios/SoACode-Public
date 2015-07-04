@@ -52,11 +52,9 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
     { // Create Chunks
         Chunk* chunk = new Chunk;
         chunk->initAndFillEmpty(0, ChunkPosition3D());
-     //   for (int i = 0; i < CHUNK_LAYER; i++) {
-     //       chunk->blocks.set(CHUNK_LAYER * 15 + i, m_soaState->blocks.getBlockIndex("grass"));
-     //   }
-
-        chunk->blocks.set(CHUNK_LAYER * 15 + CHUNK_LAYER / 2, m_soaState->blocks.getBlockIndex("grass"));
+        for (int i = 0; i < CHUNK_LAYER; i++) {
+            chunk->blocks.set(CHUNK_LAYER * 15 + i, m_soaState->blocks.getBlockIndex("grass"));
+        }
 
         m_chunks.emplace_back(chunk);
     }
@@ -121,7 +119,7 @@ void TestConnectedTextureScreen::update(const vui::GameTime& gameTime) {
 
 void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
+    if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     m_renderer.beginOpaque(m_soaState->blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),

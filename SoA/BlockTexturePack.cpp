@@ -250,7 +250,7 @@ void BlockTexturePack::allocatePages() {
     float anisotropy;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
     glActiveTexture(GL_TEXTURE0);
-    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    //glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 
     // Unbind
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);

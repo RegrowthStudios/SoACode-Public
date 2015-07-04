@@ -41,6 +41,8 @@ public:
     void loadBlockTextures(Block& block);
 
     void dispose();
+
+    BlockTexturePack* getTexturePack() const { return m_texturePack; }
 private:
     bool loadLayerProperties();
     bool loadTextureProperties();
