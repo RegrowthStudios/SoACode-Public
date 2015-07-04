@@ -53,6 +53,9 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
         Chunk* chunk = new Chunk;
         chunk->initAndFillEmpty(0, ChunkPosition3D());
         for (int i = 0; i < CHUNK_LAYER; i++) {
+            chunk->blocks.set(CHUNK_LAYER * 14 + i, m_soaState->blocks.getBlockIndex("grass"));
+        }
+        for (int i = CHUNK_WIDTH; i < CHUNK_LAYER - CHUNK_WIDTH; i++) {
             chunk->blocks.set(CHUNK_LAYER * 15 + i, m_soaState->blocks.getBlockIndex("grass"));
         }
 

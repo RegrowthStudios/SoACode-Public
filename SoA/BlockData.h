@@ -111,7 +111,17 @@ public:
     bool isSupportive;
     bool active;
 
-    BlockTexture* textures[6];
+    union {
+        struct {
+            BlockTexture* textureLeft;
+            BlockTexture* textureRight;
+            BlockTexture* textureBottom;
+            BlockTexture* textureTop;
+            BlockTexture* textureBack;
+            BlockTexture* textureFront;
+        };
+        BlockTexture* textures[6];
+    };
 
     // TODO(Ben): NOPE
     nString particleTexName;
