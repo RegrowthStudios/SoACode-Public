@@ -262,8 +262,8 @@ void GameplayRenderer::render() {
     m_commonState->stages.hdr.render();
 
     // UI
-   // stages.devHud.render();
-   // stages.pda.render();
+    // stages.devHud.render();
+    // stages.pda.render();
     stages.pauseMenu.render();
 
     // Cube face fade animation

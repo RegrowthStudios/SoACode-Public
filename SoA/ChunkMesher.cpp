@@ -767,10 +767,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     // TODO(Ben): Flags?
     color3 blockColor[2];
     block->getBlockColor(blockColor[0], blockColor[1],
-                           0,
-                           heightData->temperature,
-                           heightData->rainfall,
-                           texture);
+                         0,
+                         heightData->temperature,
+                         heightData->rainfall,
+                         texture);
 
     std::vector<VoxelQuad>& quads = m_quads[face];
 
@@ -1399,7 +1399,7 @@ void ChunkMesher::buildVao(ChunkMesh& cm) {
     glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
     // vTex_Animation_BlendMode
     glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
-    // vTextureAtlas_TextureIndex
+    // .0
     glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
     // vNDTextureAtlas
     glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));

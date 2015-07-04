@@ -52,7 +52,7 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
     { // Create Chunks
         Chunk* chunk = new Chunk;
         chunk->initAndFillEmpty(0, ChunkPosition3D());
-        chunk->blocks.set(CHUNK_SIZE / 2, m_soaState->blocks.getBlockIndex("ruby"));
+        chunk->blocks.set(CHUNK_SIZE / 2, m_soaState->blocks.getBlockIndex("grass"));
         m_chunks.emplace_back(chunk);
     }
 

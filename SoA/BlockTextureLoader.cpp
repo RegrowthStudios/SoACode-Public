@@ -393,6 +393,7 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             }
             break;
         case ConnectedTextureMethods::GRASS:
+            layer.size = ui32v2(1);
             DIM_CHECK(width, GRASS_WIDTH, bitmap.height, GRASS_HEIGHT, GRASS);
             break;
         case ConnectedTextureMethods::HORIZONTAL:
