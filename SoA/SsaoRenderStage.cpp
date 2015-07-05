@@ -79,7 +79,7 @@ void SsaoRenderStage::render(const Camera* camera)
             glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
             glUniform3fv(glGetUniformLocation(m_ssaoShader.getID(), "unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel.data()->x);
             glUniform2f(m_ssaoShader.getUniform("unSSAOTextureSize"), (float)m_ssaoTarget.getWidth(), (float)m_ssaoTarget.getHeight());
-            glUniformMatrix4fv(m_ssaoShader.getUniform("unProjectionMatrix"), 1, false, glm::value_ptr(m_projectionMatrix));
+			glUniformMatrix4fv(m_ssaoShader.getUniform("unProjectionMatrix"), 1, false, glm::value_ptr(m_projectionMatrix));
             glUniformMatrix4fv(m_ssaoShader.getUniform("unInvProjectionMatrix"), 1, false, glm::value_ptr(glm::inverse(m_projectionMatrix)));
         }
         else {
