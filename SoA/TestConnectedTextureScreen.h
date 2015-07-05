@@ -18,6 +18,8 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/graphics/SpriteFont.h>
+#include <Vorb/graphics/SpriteBatch.h>
 
 #include "BlockPack.h"
 #include "Camera.h"
@@ -43,6 +45,7 @@ public:
 private:
     void initChunks();
     void initInput();
+    Chunk* addChunk(const nString& name);
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     Camera m_camera;
@@ -52,6 +55,10 @@ private:
     ChunkRenderer m_renderer;
     ChunkMesher m_mesher;
 
+    vg::SpriteBatch m_sb;
+    vg::SpriteFont m_font;
+
+    std::vector <nString> m_names;
     std::vector <Chunk*> m_chunks;
     std::vector <ChunkMesh*> m_meshes;
 

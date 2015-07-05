@@ -2,6 +2,7 @@
 #include "TestConnectedTextureScreen.h"
 
 #include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/colors.h>
 
 #include "SoaState.h"
 #include "SoaEngine.h"
@@ -34,6 +35,9 @@ void TestConnectedTextureScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
+    // Init spritebatch and font
+    m_sb.init();
+    m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
     // Init game state
     SoaEngine::initState(m_commonState->state);
 
@@ -120,27 +124,50 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     m_renderer.end();
 
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Draw UI
+    m_sb.begin();
+    m_sb.drawString(&m_font, m_names[m_activeChunk].c_str(), f32v2(30.0f), f32v2(1.0f), color::White);
+    m_sb.end();
+    m_sb.render(f32v2(m_commonState->window->getViewportDims()));
+    vg::DepthState::FULL.set(); // Have to restore depth
 }
 
 void TestConnectedTextureScreen::initChunks() {
     ui16 grass = m_soaState->blocks.getBlockIndex("grass");
-    // Grass 1
-    Chunk* chunk = new Chunk;
-    chunk->initAndFillEmpty(0, ChunkPosition3D());
-    chunk->setBlock(15, 16, 16, grass);
-    chunk->setBlock(16, 16, 16, grass);
-    chunk->setBlock(17, 16, 16, grass);
-    chunk->setBlock(15, 15, 17, grass);
-    chunk->setBlock(16, 15, 17, grass);
-    chunk->setBlock(17, 15, 17, grass);
-    chunk->setBlock(15, 15, 18, grass);
-    chunk->setBlock(16, 14, 18, grass);
-    chunk->setBlock(17, 14, 18, grass);
-    chunk->setBlock(15, 13, 19, grass);
-    chunk->setBlock(16, 13, 19, grass);
-    chunk->setBlock(17, 14, 19, grass);
-
-    m_chunks.emplace_back(chunk);
+    // TODO(Ben): Allow users to pick block
+    { // Grass 1
+        Chunk* chunk = addChunk("Grass 1");
+        chunk->setBlock(15, 16, 16, grass);
+        chunk->setBlock(16, 16, 16, grass);
+        chunk->setBlock(17, 16, 16, grass);
+        chunk->setBlock(15, 15, 17, grass);
+        chunk->setBlock(16, 15, 17, grass);
+        chunk->setBlock(17, 15, 17, grass);
+        chunk->setBlock(15, 15, 18, grass);
+        chunk->setBlock(16, 14, 18, grass);
+        chunk->setBlock(17, 14, 18, grass);
+        chunk->setBlock(15, 13, 19, grass);
+        chunk->setBlock(16, 13, 19, grass);
+        chunk->setBlock(17, 14, 19, grass);
+    }
+    { // Hourglass
+        Chunk* chunk = addChunk("Hourglass");
+        for (int y = 0; y < 16; y++) {
+            for (int z = y; z < CHUNK_WIDTH - y; z++) {
+                for (int x = y; x < CHUNK_WIDTH - y; x++) {
+                    chunk->setBlock(x, y, z, grass);
+                    chunk->setBlock(x, CHUNK_WIDTH - y - 1, z, grass);
+                }
+            }
+        }
+    }
+    { // Flat
+        Chunk* chunk = addChunk("Flat");
+        for (int i = 0; i < CHUNK_LAYER; i++) {
+            chunk->blocks.set(CHUNK_LAYER * 15 + i, grass);
+        }
+    }
 }
 
 void TestConnectedTextureScreen::initInput() {
@@ -234,4 +261,13 @@ void TestConnectedTextureScreen::initInput() {
                 break;
         }
     });
+}
+
+
+Chunk* TestConnectedTextureScreen::addChunk(const nString& name) {
+    Chunk* chunk = new Chunk;
+    chunk->initAndFillEmpty(0, ChunkPosition3D());
+    m_chunks.emplace_back(chunk);
+    m_names.push_back(name);
+    return chunk;
 }
