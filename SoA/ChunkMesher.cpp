@@ -812,7 +812,7 @@ void ChunkMesher::addBlock()
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
         computeAmbientOcclusion(-PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, -1, ao);
-        addQuad(Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ui8v2(1, 1), ao);
+        addQuad(Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ui8v2(-1, 1), ao);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
