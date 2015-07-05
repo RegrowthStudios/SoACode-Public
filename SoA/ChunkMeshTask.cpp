@@ -41,12 +41,13 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
 
     // Pre-processing
     workerData->chunkMesher->prepareDataAsync(chunk);
+    
 
     ChunkMeshMessage msg;
     msg.messageID = ChunkMeshMessageID::UPDATE;
     msg.chunkID = chunk->getID();
     // We no longer care about chunk
-    chunk->refCount--;
+    depFlushList->enqueue(chunk);
     // Create the actual mesh
     msg.data = workerData->chunkMesher->createChunkMeshData(type);
 
@@ -54,12 +55,13 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     meshManager->sendMessage(msg);
 }
 
-void ChunkMeshTask::init(Chunk* ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void ChunkMeshTask::init(Chunk* ch, MeshTaskType cType, moodycamel::ConcurrentQueue<Chunk*>* depFlushList, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
     chunk = ch;
     chunk->queuedForMesh = true;
     this->blockPack = blockPack;
     this->meshManager = meshManager;
+    this->depFlushList = depFlushList;
 }
 
 // TODO(Ben): uhh

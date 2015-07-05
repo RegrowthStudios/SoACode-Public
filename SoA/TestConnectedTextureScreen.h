@@ -41,6 +41,7 @@ public:
     void update(const vui::GameTime& gameTime) override;
     void draw(const vui::GameTime& gameTime) override;
 private:
+    void initChunks();
     void initInput();
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir

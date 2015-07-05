@@ -68,6 +68,9 @@ public:
     inline ui16 getTertiaryData(int c) const {
         return tertiary.get(c);
     }
+    void setBlock(int x, int y, int z, ui16 id) {
+        blocks.set(x + y * CHUNK_LAYER + z * CHUNK_WIDTH, id);
+    }
 
     // True when the chunk needs to be meshed
     bool needsRemesh() { return remeshFlags != 0; }
@@ -95,8 +98,9 @@ public:
     bool isInRange;
     f32 distance2; //< Squared distance
     int numBlocks;
-    int refCount;
+    volatile int refCount; ///< Only change on main thread
     std::mutex mutex;
+    
     ui32 numNeighbors = 0u;
     ui8 remeshFlags;
     volatile bool isAccessible = false;

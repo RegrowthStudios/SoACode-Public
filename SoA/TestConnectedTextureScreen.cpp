@@ -49,18 +49,7 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
 
-    { // Create Chunks
-        Chunk* chunk = new Chunk;
-        chunk->initAndFillEmpty(0, ChunkPosition3D());
-        for (int i = 0; i < CHUNK_LAYER; i++) {
-            chunk->blocks.set(CHUNK_LAYER * 14 + i, m_soaState->blocks.getBlockIndex("grass"));
-        }
-        for (int i = CHUNK_WIDTH; i < CHUNK_LAYER - CHUNK_WIDTH; i++) {
-            chunk->blocks.set(CHUNK_LAYER * 15 + i, m_soaState->blocks.getBlockIndex("grass"));
-        }
-
-        m_chunks.emplace_back(chunk);
-    }
+    initChunks();
 
     // Create all chunk meshes
     m_mesher.init(&m_soaState->blocks);
@@ -131,6 +120,27 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     m_renderer.end();
 
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void TestConnectedTextureScreen::initChunks() {
+    ui16 grass = m_soaState->blocks.getBlockIndex("grass");
+    // Grass 1
+    Chunk* chunk = new Chunk;
+    chunk->initAndFillEmpty(0, ChunkPosition3D());
+    chunk->setBlock(15, 16, 16, grass);
+    chunk->setBlock(16, 16, 16, grass);
+    chunk->setBlock(17, 16, 16, grass);
+    chunk->setBlock(15, 15, 17, grass);
+    chunk->setBlock(16, 15, 17, grass);
+    chunk->setBlock(17, 15, 17, grass);
+    chunk->setBlock(15, 15, 18, grass);
+    chunk->setBlock(16, 14, 18, grass);
+    chunk->setBlock(17, 14, 18, grass);
+    chunk->setBlock(15, 13, 19, grass);
+    chunk->setBlock(16, 13, 19, grass);
+    chunk->setBlock(17, 14, 19, grass);
+
+    m_chunks.emplace_back(chunk);
 }
 
 void TestConnectedTextureScreen::initInput() {
