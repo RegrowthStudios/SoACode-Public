@@ -35,7 +35,7 @@ void SsaoRenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     m_ssaoTarget.init(vg::TextureInternalFormat::R32F);
     
     for (unsigned int i = 0; i < SSAO_SAMPLE_KERNEL_SIZE; i++) {
-		m_sampleKernel.emplace_back((f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f), (f32)r.genMT());
+		m_sampleKernel.emplace_back((f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f));
         float random = r.genMT();
         m_sampleKernel[i] = glm::normalize(m_sampleKernel[i]) * (random * random + 0.1f);
     }
