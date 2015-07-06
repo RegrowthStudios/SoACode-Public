@@ -13,6 +13,20 @@
 // 
 // Converted to C++ by Ben Arnold
 
+inline f64v3& fastfloor(f64v3& x) {
+    x.x = x.x > 0 ? (int)x.x : (int)x.x - 1;
+    x.y = x.y > 0 ? (int)x.y : (int)x.y - 1;
+    x.x = x.z > 0 ? (int)x.z : (int)x.z - 1;
+    return x;
+}
+inline f64v3 fastfloor(const f64v3& x) {
+    f64v3 rv;
+    rv.x = x.x > 0 ? (int)x.x : (int)x.x - 1;
+    rv.y = x.y > 0 ? (int)x.y : (int)x.y - 1;
+    rv.x = x.z > 0 ? (int)x.z : (int)x.z - 1;
+    return rv;
+}
+
 f64v3 mod289(f64v3 x) {
     return x - glm::floor(x * (1.0 / 289.0)) * 289.0;
 }
@@ -26,16 +40,16 @@ f64v4 permute(f64v4 x) {
 }
 
 f64v4 taylorInvSqrt(f64v4 r) {
-    return 1.79284291400159f - 0.85373472095314f * r;
+    return 1.79284291400159 - 0.85373472095314 * r;
 }
 
 f64 CpuNoise::rawAshimaSimplex3D(const f64v3& v) {
     const f64v2 C = f64v2(1.0 / 6.0, 1.0 / 3.0);
     const f64v4 D = f64v4(0.0, 0.5, 1.0, 2.0);
-
-    // First corner
+    
     f64v3 cyyy(C.y, C.y, C.y);
     f64v3 cxxx(C.x, C.x, C.x);
+    // First corner
     f64v3 i = glm::floor(v + glm::dot(v, cyyy));
     f64v3 x0 = v - i + glm::dot(i, cxxx);
 
@@ -86,7 +100,7 @@ f64 CpuNoise::rawAshimaSimplex3D(const f64v3& v) {
     f64v4 sh = -glm::step(h, f64v4(0.0));
 
     f64v4 a0 = f64v4(b0.x, b0.z, b0.y, b0.w) + f64v4(s0.x, s0.z, s0.y, s0.w) * f64v4(sh.x, sh.x, sh.y, sh.y);
-    f64v4 a1 = f64v4(s1.x, s1.z, s1.y, s1.w) + f64v4(s1.x, s1.z, s1.y, s1.w) * f64v4(sh.z, sh.z, sh.w, sh.w);
+    f64v4 a1 = f64v4(b1.x, b1.z, b1.y, b1.w) + f64v4(s1.x, s1.z, s1.y, s1.w) * f64v4(sh.z, sh.z, sh.w, sh.w);
 
     f64v3 p0 = f64v3(a0.x, a0.y, h.x);
     f64v3 p1 = f64v3(a0.z, a0.w, h.y);
@@ -120,7 +134,7 @@ f64v2 CpuNoise::cellular(const f64v3& P) {
 #define Kzo 0.416666666667 // 1/2-1/6*2
 #define jitter 1.0 // smaller jitter gives more regular pattern
 
-    f64v3 Pi = glm::mod(glm::floor(P), 289.0);
+    f64v3 Pi = glm::mod(fastfloor(P), 289.0);
     f64v3 Pf = glm::fract(P) - 0.5;
 
     f64v3 Pfx = Pf.x + f64v3(1.0, 0.0, -1.0);
@@ -145,40 +159,40 @@ f64v2 CpuNoise::cellular(const f64v3& P) {
     f64v3 p33 = permute(p3 + Pi.z + 1.0);
 
     f64v3 ox11 = glm::fract(p11*K) - Ko;
-    f64v3 oy11 = glm::mod(glm::floor(p11*K), 7.0)*K - Ko;
-    f64v3 oz11 = glm::floor(p11*K2)*Kz - Kzo; // p11 < 289 guaranteed
+    f64v3 oy11 = glm::mod(fastfloor(p11*K), 7.0)*K - Ko;
+    f64v3 oz11 = fastfloor(p11*K2)*Kz - Kzo; // p11 < 289 guaranteed
 
     f64v3 ox12 = glm::fract(p12*K) - Ko;
-    f64v3 oy12 = glm::mod(glm::floor(p12*K), 7.0)*K - Ko;
-    f64v3 oz12 = glm::floor(p12*K2)*Kz - Kzo;
+    f64v3 oy12 = glm::mod(fastfloor(p12*K), 7.0)*K - Ko;
+    f64v3 oz12 = fastfloor(p12*K2)*Kz - Kzo;
 
     f64v3 ox13 = glm::fract(p13*K) - Ko;
-    f64v3 oy13 = glm::mod(glm::floor(p13*K), 7.0)*K - Ko;
-    f64v3 oz13 = glm::floor(p13*K2)*Kz - Kzo;
+    f64v3 oy13 = glm::mod(fastfloor(p13*K), 7.0)*K - Ko;
+    f64v3 oz13 = fastfloor(p13*K2)*Kz - Kzo;
 
     f64v3 ox21 = glm::fract(p21*K) - Ko;
-    f64v3 oy21 = glm::mod(glm::floor(p21*K), 7.0)*K - Ko;
-    f64v3 oz21 = glm::floor(p21*K2)*Kz - Kzo;
+    f64v3 oy21 = glm::mod(fastfloor(p21*K), 7.0)*K - Ko;
+    f64v3 oz21 = fastfloor(p21*K2)*Kz - Kzo;
 
     f64v3 ox22 = glm::fract(p22*K) - Ko;
-    f64v3 oy22 = glm::mod(glm::floor(p22*K), 7.0)*K - Ko;
-    f64v3 oz22 = glm::floor(p22*K2)*Kz - Kzo;
+    f64v3 oy22 = glm::mod(fastfloor(p22*K), 7.0)*K - Ko;
+    f64v3 oz22 = fastfloor(p22*K2)*Kz - Kzo;
 
     f64v3 ox23 = glm::fract(p23*K) - Ko;
-    f64v3 oy23 = glm::mod(glm::floor(p23*K), 7.0)*K - Ko;
-    f64v3 oz23 = glm::floor(p23*K2)*Kz - Kzo;
+    f64v3 oy23 = glm::mod(fastfloor(p23*K), 7.0)*K - Ko;
+    f64v3 oz23 = fastfloor(p23*K2)*Kz - Kzo;
 
     f64v3 ox31 = glm::fract(p31*K) - Ko;
-    f64v3 oy31 = glm::mod(glm::floor(p31*K), 7.0)*K - Ko;
-    f64v3 oz31 = glm::floor(p31*K2)*Kz - Kzo;
+    f64v3 oy31 = glm::mod(fastfloor(p31*K), 7.0)*K - Ko;
+    f64v3 oz31 = fastfloor(p31*K2)*Kz - Kzo;
 
     f64v3 ox32 = glm::fract(p32*K) - Ko;
-    f64v3 oy32 = glm::mod(glm::floor(p32*K), 7.0)*K - Ko;
-    f64v3 oz32 = glm::floor(p32*K2)*Kz - Kzo;
+    f64v3 oy32 = glm::mod(fastfloor(p32*K), 7.0)*K - Ko;
+    f64v3 oz32 = fastfloor(p32*K2)*Kz - Kzo;
 
     f64v3 ox33 = glm::fract(p33*K) - Ko;
-    f64v3 oy33 = glm::mod(glm::floor(p33*K), 7.0)*K - Ko;
-    f64v3 oz33 = glm::floor(p33*K2)*Kz - Kzo;
+    f64v3 oy33 = glm::mod(fastfloor(p33*K), 7.0)*K - Ko;
+    f64v3 oz33 = fastfloor(p33*K2)*Kz - Kzo;
 
     f64v3 dx11 = Pfx + jitter*ox11;
     f64v3 dy11 = Pfy.x + jitter*oy11;

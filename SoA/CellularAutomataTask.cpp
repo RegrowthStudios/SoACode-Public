@@ -4,7 +4,6 @@
 #include "CAEngine.h"
 #include "Chunk.h"
 #include "ChunkMeshManager.h"
-#include "RenderTask.h"
 #include "VoxPool.h"
 
 CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,

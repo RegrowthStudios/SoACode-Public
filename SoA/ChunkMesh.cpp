@@ -3,7 +3,7 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
-#include "RenderTask.h"
+#include "ChunkMeshTask.h"
 
 KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("none", MeshType::NONE);
@@ -15,11 +15,11 @@ KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("flat", MeshType::FLAT);
 }
 
-ChunkMeshData::ChunkMeshData() : type(RenderTaskType::DEFAULT) {
+ChunkMeshData::ChunkMeshData() : type(MeshTaskType::DEFAULT) {
     // Empty
 }
 
-ChunkMeshData::ChunkMeshData(RenderTask *task) : chunk(task->chunk), type(task->type) {
+ChunkMeshData::ChunkMeshData(MeshTaskType type) : type(type) {
     // Empty
 }
 

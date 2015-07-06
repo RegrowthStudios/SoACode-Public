@@ -16,9 +16,10 @@
 #define PlanetData_h__
 
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/Texture.h>
 #include <Vorb/io/Keg.h>
-#include <Vorb/graphics/GLProgram.h>
 
 #include "Biome.h"
 
@@ -84,12 +85,6 @@ struct NoiseBase {
 };
 KEG_TYPE_DECL(NoiseBase);
 
-// For storing color maps
-struct ColorMaps {
-    std::map <nString, vg::BitmapResource*> colorMapTable; ///< For looking up block color maps by name
-    std::vector <vg::BitmapResource*> colorMaps; ///< Storage for the block color maps
-};
-
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
     std::vector<nString> blockLayerNames;
@@ -103,6 +98,8 @@ struct PlanetGenData {
     vg::Texture grassTexture = 0;
     vg::Texture rockTexture = 0;
     vg::Texture liquidTexture = 0;
+    vg::BitmapResource terrainColorPixels;
+    vg::BitmapResource liquidColorPixels;
     color3 liquidTint = color3(255, 255, 255);
     color3 terrainTint = color3(255, 255, 255);
     f32 liquidDepthScale = 1000.0f;
@@ -118,14 +115,12 @@ struct PlanetGenData {
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;
     ui32 surfaceBlock = 0;
-    vg::GLProgram program;
     f64 radius = 0.0;
 
     NoiseBase baseTerrainFuncs;
     NoiseBase tempTerrainFuncs;
     NoiseBase humTerrainFuncs;
 
-    static ColorMaps colorMaps;
     nString filePath;
 };
 

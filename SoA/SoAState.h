@@ -53,6 +53,8 @@ struct SoaState {
     vio::IOManager* systemIoManager = nullptr;
     PlanetLoader* planetLoader = nullptr;
 
+    vcore::ThreadPool<WorkerData>* threadPool = nullptr;
+
     SoaOptions* options = nullptr; // Lives in App
 
     BlockPack blocks;

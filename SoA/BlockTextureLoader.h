@@ -41,6 +41,8 @@ public:
     void loadBlockTextures(Block& block);
 
     void dispose();
+
+    BlockTexturePack* getTexturePack() const { return m_texturePack; }
 private:
     bool loadLayerProperties();
     bool loadTextureProperties();
@@ -54,6 +56,7 @@ private:
     ModPathResolver* m_texturePathResolver = nullptr;
     BlockTexturePack* m_texturePack = nullptr;
     vio::IOManager m_iom;
+    int m_generatedTextureCounter = 0;
 };
 
 #endif // BlockTextureLoader_h__

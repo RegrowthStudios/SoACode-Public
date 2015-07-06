@@ -26,16 +26,18 @@ typedef ui32 BlockTextureIndex;
 class BlockTextureMethodParams {
 public:
 
-    void init(ChunkMesher* cm, i32 RightDir, i32 UpDir, i32 FrontDir, i32 Offset) {
+    void init(ChunkMesher* cm, i32 RightDir, i32 UpDir, i32 FrontDir, ui32 face, ui32 layerIndex) {
         chunkMesher = cm;
         rightDir = RightDir;
         upDir = UpDir;
         frontDir = FrontDir;
-        offset = Offset;
+        faceIndex = face;
+        this->layerIndex = layerIndex;
     }
 
-    void set(const BlockTextureLayer* blockTextureLayer, ColorRGB8& Color) {
+    void set(const BlockTextureLayer* blockTextureLayer, ui32 typeIndex, ColorRGB8& Color) {
         blockTexInfo = blockTextureLayer;
+        this->typeIndex = typeIndex;
         color = &Color;
     }
 
@@ -44,7 +46,9 @@ public:
     i32 rightDir;
     i32 upDir;
     i32 frontDir;
-    ui32 offset;
+    ui32 faceIndex;
+    ui32 layerIndex;
+    ui32 typeIndex;
     ColorRGB8* color = nullptr;
 };
 

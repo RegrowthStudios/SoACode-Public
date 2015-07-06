@@ -73,16 +73,8 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     });
     context.reader.forAllInMap(node, f);
     context.reader.dispose();
-    
-    // Generate the program
-    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
 
-    if (genData->program.isLinked()) {
-        genData->filePath = filePath;
-        return genData;
-    } 
-    delete genData;
-    return nullptr;
+    return genData;
 }
 
 PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
@@ -90,9 +82,6 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     if (!m_defaultGenData) {
         // Allocate data
         m_defaultGenData = new PlanetGenData;
-
-        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram(glrpc);
-
     }
     return m_defaultGenData;
 }
@@ -122,14 +111,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
         genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
 
-    // Generate the program
-    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
-
-    if (genData->program.isLinked()) {
-        return genData;
-    }
-    delete genData;
-    return nullptr;
+    return genData;
 }
 
 AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
@@ -277,41 +259,30 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
     }
 
     if (kegProps.colorPath.size()) {
-        vg::BitmapResource pixelData;
-        // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
                 genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                    pixelData,
+                                                                    genData->liquidColorPixels,
                                                                     vg::ImageIOFormat::RGB_UI8,
                                                                     vg::TextureTarget::TEXTURE_2D,
                                                                     &vg::SamplerState::LINEAR_CLAMP,
                                                                     vg::TextureInternalFormat::RGB8,
-                                                                    vg::TextureFormat::RGB);
+                                                                    vg::TextureFormat::RGB, true);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
             genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                pixelData,
+                                                                genData->liquidColorPixels,
                                                                 vg::ImageIOFormat::RGB_UI8,
                                                                 vg::TextureTarget::TEXTURE_2D,
                                                                 &vg::SamplerState::LINEAR_CLAMP,
                                                                 vg::TextureInternalFormat::RGB8,
-                                                                vg::TextureFormat::RGB);
+                                                                vg::TextureFormat::RGB, true);
         }
         // Turn into a color map
-        if (genData->liquidColorMap.id) {
-            if (genData->liquidColorMap.width != 256 ||
-                genData->liquidColorMap.height != 256) {
-                std::cerr << "Liquid color map needs to be 256x256";
-            } else {
-                genData->colorMaps.colorMaps.emplace_back(new vg::BitmapResource);
-                *genData->colorMaps.colorMaps.back() = pixelData;
-                genData->colorMaps.colorMapTable["liquid"] = genData->colorMaps.colorMaps.back();
-            }
-        } else {
-            vg::ImageIO::free(pixelData);
+        if (genData->liquidColorMap.id == 0) {
+            vg::ImageIO::free(genData->liquidColorPixels);
         }
     }
     if (kegProps.texturePath.size()) {
@@ -347,42 +318,31 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
     }
 
     if (kegProps.colorPath.size()) {
-        // TODO(Ben): "biome" color map will conflict with other planets
-        vg::BitmapResource pixelData;
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
                 genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                     pixelData,
+                                                                     genData->terrainColorPixels,
                                                                      vg::ImageIOFormat::RGB_UI8,
                                                                      vg::TextureTarget::TEXTURE_2D,
                                                                      &vg::SamplerState::LINEAR_CLAMP,
                                                                      vg::TextureInternalFormat::RGB8,
-                                                                     vg::TextureFormat::RGB);
+                                                                     vg::TextureFormat::RGB, true);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
             genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                 pixelData,
+                                                                 genData->terrainColorPixels,
                                                                  vg::ImageIOFormat::RGB_UI8,
                                                                  vg::TextureTarget::TEXTURE_2D,
                                                                  &vg::SamplerState::LINEAR_CLAMP,
                                                                  vg::TextureInternalFormat::RGB8,
-                                                                 vg::TextureFormat::RGB);
+                                                                 vg::TextureFormat::RGB, true);
         }
         // Turn into a color map
-        if (genData->terrainColorMap.id) {
-            if (genData->terrainColorMap.width != 256 ||
-                genData->terrainColorMap.height != 256) {
-                std::cerr << "Terrain color map needs to be 256x256";
-            } else {
-                genData->colorMaps.colorMaps.emplace_back(new vg::BitmapResource);
-                *genData->colorMaps.colorMaps.back() = pixelData;
-                genData->colorMaps.colorMapTable["biome"] = genData->colorMaps.colorMaps.back();
-            }
-        } else {
-            vg::ImageIO::free(pixelData);
+        if (genData->terrainColorMap.id == 0) {
+            vg::ImageIO::free(genData->terrainColorPixels);
         }
     }
     // TODO(Ben): stop being lazy and copy pasting

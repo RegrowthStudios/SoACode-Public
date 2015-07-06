@@ -16,8 +16,9 @@
 #include "soaUtils.h"
 #include "ShaderLoader.h"
 
-void OpaqueVoxelRenderStage::hook(const GameRenderParams* gameRenderParams) {
+void OpaqueVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
+    m_renderer = renderer;
 }
 
 void OpaqueVoxelRenderStage::render(const Camera* camera) {
@@ -27,33 +28,9 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
 
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
 
-    if (!m_program.isCreated()) {
-        m_program = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
-                                                        "Shaders/BlockShading/standardShading.frag");
-        m_program.use();
-        glUniform1i(m_program.getUniform("unTextures"), 0);
-    }
-    m_program.use();
-    m_program.enableVertexAttribArrays();
-
-    glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &(m_gameRenderParams->sunlightDirection[0]));
-    glUniform1f(m_program.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
-    glUniform1f(m_program.getUniform("unSpecularIntensity"), soaOptions.get(OPT_SPECULAR_INTENSITY).value.f * 0.3f);
-
-    // Bind the block textures
-    glActiveTexture(GL_TEXTURE0);
-    glUniform1i(m_program.getUniform("unTextures"), 0); // TODO(Ben): Temporary
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_gameRenderParams->blockTexturePack->getAtlasTexture());
-
-    //glUniform1f(m_program.getUniform("unSunVal"), m_gameRenderParams->sunlightIntensity);
-
-    f32 blockAmbient = 0.000f;
-    glUniform3f(m_program.getUniform("unAmbientLight"), blockAmbient, blockAmbient, blockAmbient);
-    glUniform3fv(m_program.getUniform("unSunColor"), 1, &(m_gameRenderParams->sunlightColor[0]));
-
-    glUniform1f(m_program.getUniform("unFadeDist"), 1000.0f/*ChunkRenderer::fadeDist*/);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
+    m_renderer->beginOpaque(m_gameRenderParams->blockTexturePack->getAtlasTexture(), m_gameRenderParams->sunlightDirection,
+                            m_gameRenderParams->sunlightColor);
+    
     f64v3 closestPoint;
     static const f64v3 boxDims(CHUNK_WIDTH);
     static const f64v3 boxDims_2(CHUNK_WIDTH / 2);
@@ -64,16 +41,12 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
         if (m_gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
             // TODO(Ben): Implement perfect fade
             cm->inFrustum = 1;
-            ChunkRenderer::drawOpaque(cm, m_program, position,
-                                      m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+            m_renderer->drawOpaque(cm, position,
+                                   m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
         } else {
             cm->inFrustum = 0;
         }
     }
-    m_program.disableVertexAttribArrays();
-    m_program.unuse();
-}
-
-void OpaqueVoxelRenderStage::dispose(StaticLoadContext& context) {
-    m_program.dispose();
+    
+    m_renderer->end();
 }

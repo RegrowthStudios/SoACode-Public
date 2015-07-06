@@ -21,14 +21,15 @@
 
 class MeshManager;
 class GameRenderParams;
+class ChunkRenderer;
 
 class LiquidVoxelRenderStage : public IRenderStage {
 public:
-    void hook(const GameRenderParams* gameRenderParams);
+    void hook(ChunkRenderer* renderer, const GameRenderParams* gameRenderParams);
     /// Draws the render stage
     virtual void render(const Camera* camera) override;
 private:
-    vg::GLProgram m_program;
+    ChunkRenderer* m_renderer;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Some shared rendering parameters
 };
 

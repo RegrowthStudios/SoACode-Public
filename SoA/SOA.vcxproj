@@ -548,6 +548,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="ChunkHandle.h" />
     <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="ChunkMeshTask.h" />
     <ClInclude Include="CommonState.h" />
     <ClInclude Include="CloudsComponentRenderer.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
@@ -581,6 +582,7 @@ EXIT 0</Command>
     <ClInclude Include="LenseFlareRenderer.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadContext.h" />
+    <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="ExposureCalcRenderStage.h" />
@@ -599,7 +601,6 @@ EXIT 0</Command>
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
-    <ClInclude Include="NoiseShaderGenerator.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OptionsController.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
@@ -639,7 +640,6 @@ EXIT 0</Command>
     <ClInclude Include="SphericalTerrainComponentRenderer.h" />
     <ClInclude Include="SphericalTerrainComponentUpdater.h" />
     <ClInclude Include="SphericalTerrainCpuGenerator.h" />
-    <ClInclude Include="SphericalTerrainGpuGenerator.h" />
     <ClInclude Include="SsaoRenderStage.h" />
     <ClInclude Include="StarComponentRenderer.h" />
     <ClInclude Include="SystemARRenderer.h" />
@@ -650,8 +650,9 @@ EXIT 0</Command>
     <ClInclude Include="TerrainPatchMesher.h" />
     <ClInclude Include="TerrainPatchConstants.h" />
     <ClInclude Include="TerrainPatchMesh.h" />
-    <ClInclude Include="TerrainRpcDispatcher.h" />
+    <ClInclude Include="TerrainPatchMeshTask.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
+    <ClInclude Include="TestConnectedTextureScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
     <ClInclude Include="TestDisplacementMappingScreen.h" />
@@ -720,7 +721,6 @@ EXIT 0</Command>
     <ClInclude Include="GenerateTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
-    <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="Vertex.h" />
@@ -754,6 +754,7 @@ EXIT 0</Command>
     <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="ChunkMeshTask.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
@@ -798,7 +799,6 @@ EXIT 0</Command>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
-    <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
@@ -834,7 +834,6 @@ EXIT 0</Command>
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
     <ClCompile Include="SphericalTerrainCpuGenerator.cpp" />
-    <ClCompile Include="SphericalTerrainGpuGenerator.cpp" />
     <ClCompile Include="SsaoRenderStage.cpp" />
     <ClCompile Include="StarComponentRenderer.cpp" />
     <ClCompile Include="SystemARRenderer.cpp" />
@@ -844,8 +843,9 @@ EXIT 0</Command>
     <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="TerrainPatchMesher.cpp" />
     <ClCompile Include="TerrainPatchMesh.cpp" />
-    <ClCompile Include="TerrainRpcDispatcher.cpp" />
+    <ClCompile Include="TerrainPatchMeshTask.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
+    <ClCompile Include="TestConnectedTextureScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
     <ClCompile Include="TestDisplacementMappingScreen.cpp" />
@@ -881,7 +881,6 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
-    <ClCompile Include="RenderTask.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">Create</PrecompiledHeader>

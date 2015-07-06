@@ -66,12 +66,9 @@ void FarTerrainComponentRenderer::buildShaders() {
                                                               "Shaders/SphericalTerrain/SphericalTerrain.frag");
     // Set constant uniforms
     m_farTerrainProgram.use();
-    glUniform1i(m_farTerrainProgram.getUniform("unNormalMap"), 0);
     glUniform1i(m_farTerrainProgram.getUniform("unColorMap"), 1);
     glUniform1i(m_farTerrainProgram.getUniform("unGrassTexture"), 2);
     glUniform1i(m_farTerrainProgram.getUniform("unRockTexture"), 3);
-    glUniform1f(m_farTerrainProgram.getUniform("unTexelWidth"), 1.0f / (float)PATCH_NORMALMAP_WIDTH);
-    glUniform1f(m_farTerrainProgram.getUniform("unNormalmapWidth"), (float)(PATCH_NORMALMAP_WIDTH - 2) / (float)PATCH_NORMALMAP_WIDTH);
     m_farTerrainProgram.unuse();
 
     // Build water shader 

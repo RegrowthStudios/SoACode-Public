@@ -22,7 +22,7 @@ class Frustum;
 class GameSystem;
 class GenerateTask;
 class GeneratedTreeNodes;
-class RenderTask;
+class ChunkMeshTask;
 class ChunkGrid;
 struct SoaState;
 class SpaceSystem;
@@ -55,7 +55,7 @@ private:
 
     bool trySetMeshDependencies(Chunk* chunk);
 
-    void tryRemoveMeshDependencies(Chunk* chunk);
+    void removeMeshDependencies(Chunk* chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

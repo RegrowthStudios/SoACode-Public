@@ -72,6 +72,9 @@ public:
     const Block& operator[](const BlockIdentifier& sid) const {
         return m_blockList[m_blockMap.at(sid)];
     }
+    const ui16& getBlockIndex(const BlockIdentifier& sid) const {
+        return m_blockMap.at(sid);
+    }
 
     const std::unordered_map<BlockIdentifier, ui16>& getBlockMap() const { return m_blockMap; }
     const std::vector<Block>& getBlockList() const { return m_blockList; }

@@ -12,15 +12,16 @@
 
 #include "BlockPack.h"
 #include "Chunk.h"
+#include "ChunkMeshTask.h"
+#include "ChunkRenderer.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
-#include "RenderTask.h"
+#include "VoxelBits.h"
 #include "VoxelMesher.h"
 #include "VoxelUtils.h"
-#include "VoxelBits.h"
 
-#define GETBLOCK(a) (((*m_blocks)[((a) & 0x0FFF)]))
+#define GETBLOCK(a) blocks->operator[](a)
 
 const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
@@ -53,30 +54,461 @@ const int FACE_AXIS[6][2] = { { 2, 1 }, { 2, 1 }, { 0, 2 }, { 0, 2 }, { 0, 1 }, 
 
 const int FACE_AXIS_SIGN[6][2] = { { 1, 1 }, { -1, 1 }, { 1, 1 }, { -1, 1 }, { -1, 1 }, { 1, 1 } };
 
+ChunkGridData ChunkMesher::defaultChunkGridData = {};
+
 void ChunkMesher::init(const BlockPack* blocks) {
     this->blocks = blocks;
 
     // Set up the texture params
-    m_textureMethodParams[X_NEG][B_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, offsetof(BlockTextureFaces, BlockTextureFaces::nx) / sizeof(ui32));
-    m_textureMethodParams[X_NEG][O_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, offsetof(BlockTextureFaces, BlockTextureFaces::nx) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[X_NEG][B_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, X_NEG, B_INDEX);
+    m_textureMethodParams[X_NEG][O_INDEX].init(this, PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, -1, X_NEG, O_INDEX);
 
-    m_textureMethodParams[X_POS][B_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, offsetof(BlockTextureFaces, BlockTextureFaces::px) / sizeof(ui32));
-    m_textureMethodParams[X_POS][O_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, offsetof(BlockTextureFaces, BlockTextureFaces::px) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[X_POS][B_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, X_POS, B_INDEX);
+    m_textureMethodParams[X_POS][O_INDEX].init(this, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, 1, X_POS, O_INDEX);
 
-    m_textureMethodParams[Y_NEG][B_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::ny) / sizeof(ui32));
-    m_textureMethodParams[Y_NEG][O_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::ny) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Y_NEG][B_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, Y_NEG, B_INDEX);
+    m_textureMethodParams[Y_NEG][O_INDEX].init(this, -1, -PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, Y_NEG, O_INDEX);
 
-    m_textureMethodParams[Y_POS][B_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::py) / sizeof(ui32));
-    m_textureMethodParams[Y_POS][O_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, offsetof(BlockTextureFaces, BlockTextureFaces::py) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Y_POS][B_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, Y_POS, B_INDEX);
+    m_textureMethodParams[Y_POS][O_INDEX].init(this, 1, -PADDED_CHUNK_WIDTH, PADDED_CHUNK_LAYER, Y_POS, O_INDEX);
 
-    m_textureMethodParams[Z_NEG][B_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::nz) / sizeof(ui32));
-    m_textureMethodParams[Z_NEG][O_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::nz) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Z_NEG][B_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, Z_NEG, B_INDEX);
+    m_textureMethodParams[Z_NEG][O_INDEX].init(this, -1, PADDED_CHUNK_LAYER, -PADDED_CHUNK_WIDTH, Z_NEG, O_INDEX);
 
-    m_textureMethodParams[Z_POS][B_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::pz) / sizeof(ui32));
-    m_textureMethodParams[Z_POS][O_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, offsetof(BlockTextureFaces, BlockTextureFaces::pz) / sizeof(ui32) + NUM_FACES);
+    m_textureMethodParams[Z_POS][B_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, Z_POS, B_INDEX);
+    m_textureMethodParams[Z_POS][O_INDEX].init(this, 1, PADDED_CHUNK_LAYER, PADDED_CHUNK_WIDTH, Z_POS, O_INDEX);
 }
 
-bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
+void ChunkMesher::prepareData(const Chunk* chunk) {
+    int x, y, z, off1, off2;
+
+    const Chunk* left = chunk->left;
+    const Chunk* right = chunk->right;
+    const Chunk* bottom = chunk->bottom;
+    const Chunk* top = chunk->top;
+    const Chunk* back = chunk->back;
+    const Chunk* front = chunk->front;
+    int wc;
+    int c = 0;
+
+    i32v3 pos;
+
+    wSize = 0;
+    chunk = chunk;
+    m_chunkGridDataHandle = chunk->gridData;
+    m_chunkGridData = m_chunkGridDataHandle.get();
+    // Use default when none is provided
+    if (!m_chunkGridData) m_chunkGridData = &defaultChunkGridData;
+
+    // TODO(Ben): Do this last so we can be queued for mesh longer?
+    // TODO(Ben): Dude macro this or something.
+ 
+    if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+
+        int s = 0;
+        //block data
+        auto& dataTree = chunk->blocks.getTree();
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
+
+                getPosFromBlockIndex(c, pos);
+
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+                blockData[wc] = dataTree[i].data;
+                if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
+                    m_wvec[s++] = wc;
+                }
+
+            }
+        }
+        wSize = s;
+    } else {
+        int s = 0;
+        for (y = 0; y < CHUNK_WIDTH; y++) {
+            for (z = 0; z < CHUNK_WIDTH; z++) {
+                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
+                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                    blockData[wc] = chunk->blocks[c];
+                    if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
+                        m_wvec[s++] = wc;
+                    }
+                }
+            }
+        }
+        wSize = s;
+    }
+    if (chunk->tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+        //tertiary data
+        c = 0;
+        auto& dataTree = chunk->tertiary.getTree();
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
+
+                getPosFromBlockIndex(c, pos);
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+
+                tertiaryData[wc] = dataTree[i].data;
+            }
+        }
+
+    } else {
+        c = 0;
+        for (y = 0; y < CHUNK_WIDTH; y++) {
+            for (z = 0; z < CHUNK_WIDTH; z++) {
+                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
+                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                    tertiaryData[wc] = chunk->tertiary.get(c);
+                }
+            }
+        }
+    }
+
+    if (left) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (z = 1; z < PADDED_WIDTH - 1; z++) {
+                off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+                off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+
+                blockData[off2] = left->getBlockData(off1 + CHUNK_WIDTH - 1);
+                tertiaryData[off2] = left->getTertiaryData(off1 + CHUNK_WIDTH - 1);
+            }
+        }
+    }
+
+    if (right) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (z = 1; z < PADDED_WIDTH - 1; z++) {
+                off1 = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+                off2 = z*PADDED_WIDTH + y*PADDED_LAYER;
+
+                blockData[off2 + PADDED_WIDTH - 1] = (right->getBlockData(off1));
+                tertiaryData[off2 + PADDED_WIDTH - 1] = right->getTertiaryData(off1);
+            }
+        }
+    }
+
+    if (bottom) {
+        for (z = 1; z < PADDED_WIDTH - 1; z++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (z - 1)*CHUNK_WIDTH + x - 1;
+                off2 = z*PADDED_WIDTH + x;
+                //data
+                blockData[off2] = (bottom->getBlockData(CHUNK_SIZE - CHUNK_LAYER + off1)); //bottom
+                tertiaryData[off2] = bottom->getTertiaryData(CHUNK_SIZE - CHUNK_LAYER + off1);
+            }
+        }
+    }
+
+    if (top) {
+        for (z = 1; z < PADDED_WIDTH - 1; z++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (z - 1)*CHUNK_WIDTH + x - 1;
+                off2 = z*PADDED_WIDTH + x;
+
+                blockData[off2 + PADDED_SIZE - PADDED_LAYER] = (top->getBlockData(off1)); //top
+                tertiaryData[off2 + PADDED_SIZE - PADDED_LAYER] = top->getTertiaryData(off1);
+            }
+        }
+    }
+
+    if (back) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
+                off2 = x + y*PADDED_LAYER;
+
+                blockData[off2] = back->getBlockData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+                tertiaryData[off2] = back->getTertiaryData(off1 + CHUNK_LAYER - CHUNK_WIDTH);
+            }
+        }
+    }
+
+    if (front) {
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                off1 = (x - 1) + (y - 1)*CHUNK_LAYER;
+                off2 = x + y*PADDED_LAYER;
+
+                blockData[off2 + PADDED_LAYER - PADDED_WIDTH] = (front->getBlockData(off1));
+                tertiaryData[off2 + PADDED_LAYER - PADDED_WIDTH] = front->getTertiaryData(off1);
+            }
+        }
+    }
+}
+
+#define GET_EDGE_X(ch, sy, sz, dy, dz) \
+    ch->lock(); \
+    for (int x = 0; x < CHUNK_WIDTH; x++) { \
+        srcIndex = (sy) * CHUNK_LAYER + (sz) * CHUNK_WIDTH + x; \
+        destIndex = (dy) * PADDED_LAYER + (dz) * PADDED_WIDTH + (x + 1); \
+        blockData[destIndex] = ch->getBlockData(srcIndex); \
+        tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
+                } \
+    ch->unlock();
+
+#define GET_EDGE_Y(ch, sx, sz, dx, dz) \
+    ch->lock(); \
+    for (int y = 0; y < CHUNK_WIDTH; y++) { \
+        srcIndex = y * CHUNK_LAYER + (sz) * CHUNK_WIDTH + (sx); \
+        destIndex = (y + 1) * PADDED_LAYER + (dz) * PADDED_WIDTH + (dx); \
+        blockData[destIndex] = ch->getBlockData(srcIndex); \
+        tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
+            } \
+    ch->unlock();
+
+#define GET_EDGE_Z(ch, sx, sy, dx, dy) \
+    ch->lock(); \
+    for (int z = 0; z < CHUNK_WIDTH; z++) { \
+        srcIndex = z * CHUNK_WIDTH + (sy) * CHUNK_LAYER + (sx); \
+        destIndex = (z + 1) * PADDED_WIDTH + (dy) * PADDED_LAYER + (dx); \
+        blockData[destIndex] = ch->getBlockData(srcIndex); \
+        tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
+        } \
+    ch->unlock();
+
+#define GET_CORNER(ch, sx, sy, sz, dx, dy, dz) \
+    srcIndex = (sy) * CHUNK_LAYER + (sz) * CHUNK_WIDTH + (sx); \
+    destIndex = (dy) * PADDED_LAYER + (dz) * PADDED_WIDTH + (dx); \
+    ch->lock(); \
+    blockData[destIndex] = ch->getBlockData(srcIndex); \
+    tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
+    ch->unlock();
+
+void ChunkMesher::prepareDataAsync(Chunk* chunk) {
+    int x, y, z, srcIndex, destIndex;
+
+    Chunk* left = chunk->left;
+    Chunk* right = chunk->right;
+    Chunk* bottom = chunk->bottom;
+    Chunk* top = chunk->top;
+    Chunk* back = chunk->back;
+    Chunk* front = chunk->front;
+    int wc;
+    int c = 0;
+
+    i32v3 pos;
+
+    memset(blockData, 0, sizeof(blockData));
+    memset(tertiaryData, 0, sizeof(tertiaryData));
+
+    wSize = 0;
+    chunk = chunk;
+    m_chunkGridDataHandle = chunk->gridData;
+    m_chunkGridData = m_chunkGridDataHandle.get();
+    // Use default when none is provided
+    if (!m_chunkGridData) m_chunkGridData = &defaultChunkGridData;
+
+    // TODO(Ben): Do this last so we can be queued for mesh longer?
+    // TODO(Ben): Dude macro this or something.
+    chunk->lock();
+    chunk->queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
+    if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+
+        int s = 0;
+        //block data
+        auto& dataTree = chunk->blocks.getTree();
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
+
+                getPosFromBlockIndex(c, pos);
+
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+                blockData[wc] = dataTree[i].data;
+                if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
+                    m_wvec[s++] = wc;
+                }
+
+            }
+        }
+        wSize = s;
+    } else {
+        int s = 0;
+        for (y = 0; y < CHUNK_WIDTH; y++) {
+            for (z = 0; z < CHUNK_WIDTH; z++) {
+                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
+                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                    blockData[wc] = chunk->blocks[c];
+                    if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
+                        m_wvec[s++] = wc;
+                    }
+                }
+            }
+        }
+        wSize = s;
+    }
+    if (chunk->tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+        //tertiary data
+        c = 0;
+        auto& dataTree = chunk->tertiary.getTree();
+        for (size_t i = 0; i < dataTree.size(); i++) {
+            for (size_t j = 0; j < dataTree[i].length; j++) {
+                c = dataTree[i].getStart() + j;
+
+                getPosFromBlockIndex(c, pos);
+                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+
+                tertiaryData[wc] = dataTree[i].data;
+            }
+        }
+
+    } else {
+        c = 0;
+        for (y = 0; y < CHUNK_WIDTH; y++) {
+            for (z = 0; z < CHUNK_WIDTH; z++) {
+                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
+                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                    tertiaryData[wc] = chunk->tertiary.get(c);
+                }
+            }
+        }
+    }
+    chunk->unlock();
+
+    left->lock();
+    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+        for (z = 1; z < PADDED_WIDTH - 1; z++) {
+            srcIndex = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+            destIndex = z*PADDED_WIDTH + y*PADDED_LAYER;
+
+            blockData[destIndex] = left->getBlockData(srcIndex + CHUNK_WIDTH - 1);
+            tertiaryData[destIndex] = left->getTertiaryData(srcIndex + CHUNK_WIDTH - 1);
+        }
+    }
+    left->unlock();
+
+    right->lock();
+    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+        for (z = 1; z < PADDED_WIDTH - 1; z++) {
+            srcIndex = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+            destIndex = z*PADDED_WIDTH + y*PADDED_LAYER + PADDED_WIDTH - 1;
+
+            blockData[destIndex] = (right->getBlockData(srcIndex));
+            tertiaryData[destIndex] = right->getTertiaryData(srcIndex);
+        }
+    }
+    right->unlock();
+
+    bottom->lock();
+    for (z = 1; z < PADDED_WIDTH - 1; z++) {
+        for (x = 1; x < PADDED_WIDTH - 1; x++) {
+            srcIndex = (z - 1)*CHUNK_WIDTH + x - 1 + CHUNK_SIZE - CHUNK_LAYER;
+            destIndex = z*PADDED_WIDTH + x;
+            //data
+            blockData[destIndex] = (bottom->getBlockData(srcIndex)); //bottom
+            tertiaryData[destIndex] = bottom->getTertiaryData(srcIndex);
+        }
+    }
+    bottom->unlock();
+
+    top->lock();
+    for (z = 1; z < PADDED_WIDTH - 1; z++) {
+        for (x = 1; x < PADDED_WIDTH - 1; x++) {
+            srcIndex = (z - 1)*CHUNK_WIDTH + x - 1;
+            destIndex = z*PADDED_WIDTH + x + PADDED_SIZE - PADDED_LAYER;
+
+            blockData[destIndex] = (top->getBlockData(srcIndex)); //top
+            tertiaryData[destIndex] = top->getTertiaryData(srcIndex);
+        }
+    }
+    top->unlock();
+
+    back->lock();
+    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+        for (x = 1; x < PADDED_WIDTH - 1; x++) {
+            srcIndex = (x - 1) + (y - 1)*CHUNK_LAYER + CHUNK_LAYER - CHUNK_WIDTH;
+            destIndex = x + y*PADDED_LAYER;
+
+            blockData[destIndex] = back->getBlockData(srcIndex);
+            tertiaryData[destIndex] = back->getTertiaryData(srcIndex);
+        }
+    }
+    back->unlock();
+
+    front->lock();
+    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+        for (x = 1; x < PADDED_WIDTH - 1; x++) {
+            srcIndex = (x - 1) + (y - 1)*CHUNK_LAYER;
+            destIndex = x + y*PADDED_LAYER + PADDED_LAYER - PADDED_WIDTH;
+
+            blockData[destIndex] = front->getBlockData(srcIndex);
+            tertiaryData[destIndex] = front->getTertiaryData(srcIndex);
+        }
+    }
+    front->unlock();
+
+    // Top Back
+    Chunk* topBack = top->back;
+    GET_EDGE_X(topBack, 0, CHUNK_WIDTH - 1, PADDED_WIDTH - 1, 0);
+    // Top Front
+    Chunk* topFront = top->front;
+    GET_EDGE_X(topFront, 0, 0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
+
+    // Bottom Back
+    Chunk* bottomBack = bottom->back;
+    GET_EDGE_X(bottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
+    // Bottom Front
+    Chunk* bottomFront = bottom->front;
+    GET_EDGE_X(bottomFront, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
+
+    // Left half
+    int srcXOff = CHUNK_WIDTH - 1;
+    int dstXOff = 0;
+    Chunk* leftBack = left->back;
+    GET_EDGE_Y(leftBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
+    Chunk* leftFront = left->front;
+    GET_EDGE_Y(leftFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
+
+    Chunk* leftTop = left->top;
+    GET_EDGE_Z(leftTop, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
+    Chunk* leftBot = left->bottom;
+    GET_EDGE_Z(leftBot, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
+
+    // Right half
+    srcXOff = 0;
+    dstXOff = PADDED_WIDTH - 1;
+    Chunk* rightBack = right->back;
+    GET_EDGE_Y(rightBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
+    Chunk* rightFront = right->front;
+    GET_EDGE_Y(rightFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
+
+    Chunk* rightTop = right->top;
+    GET_EDGE_Z(rightTop, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
+    Chunk* rightBot = right->bottom;
+    GET_EDGE_Z(rightBot, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
+
+    // 8 Corners
+    // Left Corners
+    Chunk* leftTopBack = leftTop->back;
+    GET_CORNER(leftTopBack, CHUNK_WIDTH - 1, 0, CHUNK_WIDTH - 1,
+               0, PADDED_WIDTH - 1, 0);
+    Chunk* leftTopFront = leftTop->front;
+    GET_CORNER(leftTopFront, CHUNK_WIDTH - 1, 0, 0,
+               0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
+    Chunk* leftBottomBack = leftBot->back;
+    GET_CORNER(leftBottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
+               0, 0, 0);
+    Chunk* leftBottomFront = leftBot->front;
+    GET_CORNER(leftBottomFront, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0,
+               0, 0, PADDED_WIDTH - 1);
+    // Right Corners
+    Chunk* rightTopBack = rightTop->back;
+    GET_CORNER(rightTopBack, 0, 0, CHUNK_WIDTH - 1,
+               PADDED_WIDTH - 1, PADDED_WIDTH - 1, 0);
+    Chunk* rightTopFront = rightTop->front;
+    GET_CORNER(rightTopFront, 0, 0, 0,
+               PADDED_WIDTH - 1, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
+    Chunk* rightBottomBack = rightBot->back;
+    GET_CORNER(rightBottomBack, 0, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
+               PADDED_WIDTH - 1, 0, 0);
+    Chunk* rightBottomFront = rightBot->front;
+    GET_CORNER(rightBottomFront, 0, CHUNK_WIDTH - 1, 0,
+               PADDED_WIDTH - 1, 0, PADDED_WIDTH - 1);
+}
+
+CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type) {
     m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
@@ -92,38 +524,24 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
         m_quads[i].clear();
     }
 
-    // CONST?
-    Chunk* chunk = renderTask->chunk;
-
-    // Here?
+    // TODO(Ben): Here?
     _waterVboVerts.clear();
-    _transparentVerts.clear();
     _cutoutVerts.clear();
 
-    //create a new chunk mesh data container
-    if (chunkMeshData != NULL) {
-        pError("Tried to create mesh with in use chunkMeshData!");
-        return 0;
-    }
-
-    //Stores the data for a chunk mesh
+    // Stores the data for a chunk mesh
     // TODO(Ben): new is bad mkay
-    chunkMeshData = new ChunkMeshData(renderTask);
-
-    // Init the mesh info
-    // Redundant
-    //mi.init(m_blocks, m_dataWidth, m_dataLayer);
+    m_chunkMeshData = new ChunkMeshData(MeshTaskType::DEFAULT);
 
     // Loop through blocks
-    for (by = 0; by < PADDED_CHUNK_WIDTH - 2; by++) {
-        for (bz = 0; bz < PADDED_CHUNK_WIDTH - 2; bz++) {
-            for (bx = 0; bx < PADDED_CHUNK_WIDTH - 2; bx++) {
+    for (by = 0; by < CHUNK_WIDTH; by++) {
+        for (bz = 0; bz < CHUNK_WIDTH; bz++) {
+            for (bx = 0; bx < CHUNK_WIDTH; bx++) {
                 // Get data for this voxel
                 // TODO(Ben): Could optimize out -1
                 blockIndex = (by + 1) * PADDED_CHUNK_LAYER + (bz + 1) * PADDED_CHUNK_WIDTH + (bx + 1);
                 blockID = blockData[blockIndex];
                 if (blockID == 0) continue; // Skip air blocks
-                heightData = &chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
+                heightData = &m_chunkGridData->heightData[bz * CHUNK_WIDTH + bx];
                 block = &blocks->operator[](blockID);
                 // TODO(Ben) Don't think bx needs to be member
                 voxelPosOffset = ui8v3(bx * QUAD_SIZE, by * QUAD_SIZE, bz * QUAD_SIZE);
@@ -145,10 +563,10 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
         }
     }
 
-    ChunkMeshRenderData& renderData = chunkMeshData->chunkMeshRenderData;
+    ChunkMeshRenderData& renderData = m_chunkMeshData->chunkMeshRenderData;
 
     // Get quad buffer to fill
-    std::vector<VoxelQuad>& finalQuads = chunkMeshData->opaqueQuads;
+    std::vector<VoxelQuad>& finalQuads = m_chunkMeshData->opaqueQuads;
 
     finalQuads.resize(m_numQuads);
     // Copy the data
@@ -200,38 +618,193 @@ bool ChunkMesher::createChunkMesh(RenderTask *renderTask) {
         renderData.lowestZ = m_lowestZ;
     }
 
-    return 0;
+    m_chunkGridDataHandle.reset();
+
+    return m_chunkMeshData;
 }
 
-bool ChunkMesher::createOnlyWaterMesh(RenderTask *renderTask) {
-    /*if (chunkMeshData != NULL) {
-        pError("Tried to create mesh with in use chunkMeshData!");
-        return 0;
-        }
-        chunkMeshData = new ChunkMeshData(renderTask);
+inline bool mapBufferData(GLuint& vboID, GLsizeiptr size, void* src, GLenum usage) {
+    // Block Vertices
+    if (vboID == 0) {
+        glGenBuffers(1, &(vboID)); // Create the buffer ID
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    glBufferData(GL_ARRAY_BUFFER, size, NULL, usage);
 
-        _waterVboVerts.clear();
+    void *v = glMapBufferRange(GL_ARRAY_BUFFER, 0, size, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-        mi.task = renderTask;
+    if (v == NULL) return false;
 
-        for (int i = 0; i < wSize; i++) {
-        mi.wc = m_wvec[i];
-        mi.btype = GETBLOCKID(blockData[mi.wc]);
-        mi.x = (mi.wc % PADDED_CHUNK_WIDTH) - 1;
-        mi.y = (mi.wc / PADDED_CHUNK_LAYER) - 1;
-        mi.z = ((mi.wc % PADDED_CHUNK_LAYER) / PADDED_CHUNK_WIDTH) - 1;
-
-        addLiquid(mi);
-        }
-
-
-        if (mi.liquidIndex) {
-        chunkMeshData->chunkMeshRenderData.waterIndexSize = (mi.liquidIndex * 6) / 4;
-        chunkMeshData->waterVertices.swap(_waterVboVerts);
-        }*/
-
-    return false;
+    memcpy(v, src, size);
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    return true;
 }
+
+bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
+    bool canRender = false;
+
+    //store the index data for sorting in the chunk mesh
+    mesh.transQuadIndices.swap(meshData->transQuadIndices);
+    mesh.transQuadPositions.swap(meshData->transQuadPositions);
+
+    switch (meshData->type) {
+        case MeshTaskType::DEFAULT:
+            if (meshData->opaqueQuads.size()) {
+
+                mapBufferData(mesh.vboID, meshData->opaqueQuads.size() * sizeof(VoxelQuad), &(meshData->opaqueQuads[0]), GL_STATIC_DRAW);
+                canRender = true;
+
+                if (!mesh.vaoID) buildVao(mesh);
+            } else {
+                if (mesh.vboID != 0) {
+                    glDeleteBuffers(1, &(mesh.vboID));
+                    mesh.vboID = 0;
+                }
+                if (mesh.vaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.vaoID));
+                    mesh.vaoID = 0;
+                }
+            }
+
+            if (meshData->transQuads.size()) {
+
+                //vertex data
+                mapBufferData(mesh.transVboID, meshData->transQuads.size() * sizeof(VoxelQuad), &(meshData->transQuads[0]), GL_STATIC_DRAW);
+
+                //index data
+                mapBufferData(mesh.transIndexID, mesh.transQuadIndices.size() * sizeof(ui32), &(mesh.transQuadIndices[0]), GL_STATIC_DRAW);
+                canRender = true;
+                mesh.needsSort = true; //must sort when changing the mesh
+
+                if (!mesh.transVaoID) buildTransparentVao(mesh);
+            } else {
+                if (mesh.transVaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.transVaoID));
+                    mesh.transVaoID = 0;
+                }
+                if (mesh.transVboID != 0) {
+                    glDeleteBuffers(1, &(mesh.transVboID));
+                    mesh.transVboID = 0;
+                }
+                if (mesh.transIndexID != 0) {
+                    glDeleteBuffers(1, &(mesh.transIndexID));
+                    mesh.transIndexID = 0;
+                }
+            }
+
+            if (meshData->cutoutQuads.size()) {
+
+                mapBufferData(mesh.cutoutVboID, meshData->cutoutQuads.size() * sizeof(VoxelQuad), &(meshData->cutoutQuads[0]), GL_STATIC_DRAW);
+                canRender = true;
+                if (!mesh.cutoutVaoID) buildCutoutVao(mesh);
+            } else {
+                if (mesh.cutoutVaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.cutoutVaoID));
+                    mesh.cutoutVaoID = 0;
+                }
+                if (mesh.cutoutVboID != 0) {
+                    glDeleteBuffers(1, &(mesh.cutoutVboID));
+                    mesh.cutoutVboID = 0;
+                }
+            }
+            mesh.renderData = meshData->chunkMeshRenderData;
+            //The missing break is deliberate!
+        case MeshTaskType::LIQUID:
+
+            mesh.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
+            if (meshData->waterVertices.size()) {
+                mapBufferData(mesh.waterVboID, meshData->waterVertices.size() * sizeof(LiquidVertex), &(meshData->waterVertices[0]), GL_STREAM_DRAW);
+                canRender = true;
+                if (!mesh.waterVaoID) buildWaterVao(mesh);
+            } else {
+                if (mesh.waterVboID != 0) {
+                    glDeleteBuffers(1, &(mesh.waterVboID));
+                    mesh.waterVboID = 0;
+                }
+                if (mesh.waterVaoID != 0) {
+                    glDeleteVertexArrays(1, &(mesh.waterVaoID));
+                    mesh.waterVaoID = 0;
+                }
+            }
+            break;
+    }
+    return canRender;
+}
+
+void ChunkMesher::freeChunkMesh(CALLER_DELETE ChunkMesh* mesh) {
+    // Opaque
+    if (mesh->vboID != 0) {
+        glDeleteBuffers(1, &(mesh->vboID));
+        mesh->vboID = 0;
+    }
+    if (mesh->vaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->vaoID));
+        mesh->vaoID = 0;
+    }
+    // Transparent
+    if (mesh->transVaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->transVaoID));
+        mesh->transVaoID = 0;
+    }
+    if (mesh->transVboID != 0) {
+        glDeleteBuffers(1, &(mesh->transVboID));
+        mesh->transVboID = 0;
+    }
+    if (mesh->transIndexID != 0) {
+        glDeleteBuffers(1, &(mesh->transIndexID));
+        mesh->transIndexID = 0;
+    }
+    // Cutout
+    if (mesh->cutoutVaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->cutoutVaoID));
+        mesh->cutoutVaoID = 0;
+    }
+    if (mesh->cutoutVboID != 0) {
+        glDeleteBuffers(1, &(mesh->cutoutVboID));
+        mesh->cutoutVboID = 0;
+    }
+    // Liquid
+    if (mesh->waterVboID != 0) {
+        glDeleteBuffers(1, &(mesh->waterVboID));
+        mesh->waterVboID = 0;
+    }
+    if (mesh->waterVaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->waterVaoID));
+        mesh->waterVaoID = 0;
+    }
+    delete mesh;
+}
+//
+//CALLEE_DELETE ChunkMeshData* ChunkMesher::createOnlyWaterMesh(const Chunk* chunk) {
+//    /*if (chunkMeshData != NULL) {
+//        pError("Tried to create mesh with in use chunkMeshData!");
+//        return 0;
+//        }
+//        chunkMeshData = new ChunkMeshData(renderTask);
+//
+//        _waterVboVerts.clear();
+//
+//        mi.task = renderTask;
+//
+//        for (int i = 0; i < wSize; i++) {
+//        mi.wc = m_wvec[i];
+//        mi.btype = GETBLOCKID(blockData[mi.wc]);
+//        mi.x = (mi.wc % PADDED_CHUNK_WIDTH) - 1;
+//        mi.y = (mi.wc / PADDED_CHUNK_LAYER) - 1;
+//        mi.z = ((mi.wc % PADDED_CHUNK_LAYER) / PADDED_CHUNK_WIDTH) - 1;
+//
+//        addLiquid(mi);
+//        }
+//
+//
+//        if (mi.liquidIndex) {
+//        chunkMeshData->chunkMeshRenderData.waterIndexSize = (mi.liquidIndex * 6) / 4;
+//        chunkMeshData->waterVertices.swap(_waterVboVerts);
+//        }*/
+//
+//    return nullptr;
+//}
 
 void ChunkMesher::freeBuffers() {
     //free memory
@@ -246,33 +819,6 @@ void ChunkMesher::freeBuffers() {
     vector<Vertex>().swap(finalBackVerts);
     vector<Vertex>().swap(finalBottomVerts);
     vector<Vertex>().swap(finalNbVerts);*/
-}
-
-// TODO(Ben): Better name and functionality please.
-void ChunkMesher::bindVBOIndicesID()
-{
-    std::vector<ui32> indices;
-    indices.resize(589824);
-
-    int j = 0;
-    for (size_t i = 0; i < indices.size()-12; i += 6){
-        indices[i] = j;
-        indices[i+1] = j+1;
-        indices[i+2] = j+2;
-        indices[i+3] = j+2;
-        indices[i+4] = j+3;
-        indices[i+5] = j;
-        j += 4;
-    }
-
-    if (Chunk::vboIndicesID != 0){
-        glDeleteBuffers(1, &(Chunk::vboIndicesID));
-    }
-    glGenBuffers(1, &(Chunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
-        
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0]));
 }
 
 #define CompareVertices(v1, v2) (!memcmp(&v1.color, &v2.color, 3) && v1.sunlight == v2.sunlight && !memcmp(&v1.lampColor, &v2.lampColor, 3)  \
@@ -310,7 +856,7 @@ void ChunkMesher::addBlock()
     // Back
     if (shouldRenderFace(-PADDED_CHUNK_WIDTH)) {
         computeAmbientOcclusion(-PADDED_CHUNK_WIDTH, -PADDED_CHUNK_LAYER, -1, ao);
-        addQuad(Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ui8v2(1, 1), ao);
+        addQuad(Z_NEG, (int)vvox::Axis::X, (int)vvox::Axis::Y, -1, -PADDED_CHUNK_LAYER, 0, ui8v2(-1, 1), ao);
     }
     // Front
     if (shouldRenderFace(PADDED_CHUNK_WIDTH)) {
@@ -320,7 +866,7 @@ void ChunkMesher::addBlock()
 }
 
 void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]) {
-
+#ifdef USE_AO
     // Ambient occlusion factor
 #define OCCLUSION_FACTOR 0.2f;
     // Helper macro
@@ -349,31 +895,33 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
 
     // Vertex 3
     CALCULATE_VERTEX(3, -, +)
+#endif
 }
 
 void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]) {
     // Get texture TODO(Ben): Null check?
     const BlockTexture* texture = block->textures[face];
-    // Get color
-    // TODO(Ben): Flags?
+    // Get colors
+    // TODO(Ben): altColors
     color3 blockColor[2];
-    block->getBlockColor(blockColor[0], blockColor[1],
-                           0,
-                           heightData->temperature,
-                           heightData->rainfall,
-                           texture);
+    texture->base.getFinalColor(blockColor[B_INDEX],
+                                heightData->temperature,
+                                heightData->rainfall, 0);
+    texture->base.getFinalColor(blockColor[O_INDEX],
+                                heightData->temperature,
+                                heightData->rainfall, 0);
 
     std::vector<VoxelQuad>& quads = m_quads[face];
 
     // Get texturing parameters
     ui8 blendMode = getBlendMode(texture->blendMode);
     // TODO(Ben): Make this better
-    BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex baseNormTextureIndex = texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex baseDispTextureIndex = texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[1]);
-    BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
+    BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    BlockTextureIndex baseNormTextureIndex = texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    BlockTextureIndex baseDispTextureIndex = texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
 
     // TODO(Ben): Bitwise ops?
     ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
@@ -398,6 +946,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     m_numQuads++;
     VoxelQuad* quad = &quads.back();
     quad->v0.mesherFlags = MESH_FLAG_ACTIVE;
+
     for (int i = 0; i < 4; i++) {
         BlockVertex& v = quad->verts[i];
         v.position = VoxelMesher::VOXEL_POSITIONS[face][i] + voxelPosOffset;
@@ -410,8 +959,8 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.overlayColor.g = (ui8)(blockColor[O_INDEX].g * ao);
         v.overlayColor.b = (ui8)(blockColor[O_INDEX].b * ao);
 #else
-        v.color = blockColor[0];
-        v.overlayColor = blockColor[1];
+        v.color = blockColor[B_INDEX];
+        v.overlayColor = blockColor[O_INDEX];
 #endif
         // TODO(Ben) array?
         v.textureIndex = baseTextureIndex;
@@ -910,4 +1459,122 @@ ui8 ChunkMesher::getBlendMode(const BlendType& blendType) {
             break;
     }
     return blendMode;
+}
+
+
+void ChunkMesher::buildTransparentVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.transVaoID));
+    glBindVertexArray(cm.transVaoID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cm.transVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm.transIndexID);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    //position + texture type
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
+    //UV, animation, blendmode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
+    //textureAtlas_textureIndex
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
+    //Texture dimensions
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
+    //overlayColor
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
+    //lightcolor[3], sunlight,
+    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
+    //normal
+    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+
+    glBindVertexArray(0);
+}
+
+void ChunkMesher::buildCutoutVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.cutoutVaoID));
+    glBindVertexArray(cm.cutoutVaoID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cm.cutoutVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    //position + texture type
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
+    //UV, animation, blendmode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
+    //textureAtlas_textureIndex
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
+    //Texture dimensions
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
+    //overlayColor
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
+    //lightcolor[3], sunlight,
+    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
+    //normal
+    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+
+
+    glBindVertexArray(0);
+}
+
+void ChunkMesher::buildVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.vaoID));
+    glBindVertexArray(cm.vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.vboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
+
+    for (int i = 0; i < 8; i++) {
+        glEnableVertexAttribArray(i);
+    }
+
+    // vPosition_Face
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
+    // vTex_Animation_BlendMode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
+    // .0
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
+    // vNDTextureAtlas
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));
+    // vNDTextureIndex
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normIndex));
+    // vTexDims
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
+    // vColor
+    glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
+    // vOverlayColor
+    glVertexAttribPointer(7, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
+
+    glBindVertexArray(0);
+}
+
+void ChunkMesher::buildWaterVao(ChunkMesh& cm) {
+    glGenVertexArrays(1, &(cm.waterVaoID));
+    glBindVertexArray(cm.waterVaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ChunkRenderer::sharedIBO);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
+    //uvs_texUnit_texIndex
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (12)));
+    //color
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
+    //light
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
+
+    glBindVertexArray(0);
 }

@@ -26,6 +26,7 @@ public:
 
     // Each thread gets its own generators
     class ChunkMesher* chunkMesher = nullptr;
+    class TerrainPatchMesher* terrainMesher = nullptr;
     class FloraGenerator* floraGenerator = nullptr;
     class VoxelLightEngine* voxelLightEngine = nullptr;
     class CAEngine* caEngine = nullptr;

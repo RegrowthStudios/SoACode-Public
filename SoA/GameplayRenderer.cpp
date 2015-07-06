@@ -86,9 +86,9 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
 void GameplayRenderer::reloadShaders() {
     // TODO(Ben): More
     StaticLoadContext context;
-    stages.opaqueVoxel.dispose(context);
+    m_chunkRenderer.dispose();
+    m_chunkRenderer.init();
     m_commonState->stages.spaceSystem.reloadShaders();
-
     stages.ssao.reloadShaders();
 }
 
@@ -97,7 +97,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
 
     m_loadThread = new std::thread([&]() {
         
-        vcore::GLRPC so[3];
+        vcore::GLRPC so[4];
         size_t i = 0;
         // Create the HDR target     
         so[i].set([&](Sender, void*) {
@@ -132,6 +132,12 @@ void GameplayRenderer::load(StaticLoadContext& context) {
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
         });
         m_glrpc.invoke(&so[i++], false);
+
+        // Initialize the chunk renderer
+        so[i].set([&](Sender, void*) {
+            m_chunkRenderer.init();
+        });
+        m_glrpc.invoke(&so[i++], false);
         // Wait for the last command to complete
         so[i - 1].block();
 
@@ -155,11 +161,12 @@ void GameplayRenderer::hook() {
     // Note: Common stages are hooked in MainMenuRenderer, no need to re-hook
     // Grab mesh manager handle
     m_meshManager = m_state->chunkMeshManager;
-    stages.opaqueVoxel.hook(&m_gameRenderParams);
-    stages.cutoutVoxel.hook(&m_gameRenderParams);
+    stages.opaqueVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
+    stages.cutoutVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
+    stages.transparentVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
+    stages.liquidVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
     stages.chunkGrid.hook(&m_gameRenderParams);
-    stages.transparentVoxel.hook(&m_gameRenderParams);
-    stages.liquidVoxel.hook(&m_gameRenderParams);
+ 
     //stages.devHud.hook();
     //stages.pda.hook();
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
@@ -257,8 +264,8 @@ void GameplayRenderer::render() {
     m_commonState->stages.hdr.render();
 
     // UI
-   // stages.devHud.render();
-   // stages.pda.render();
+    // stages.devHud.render();
+    // stages.pda.render();
     stages.pauseMenu.render();
 
     // Cube face fade animation
