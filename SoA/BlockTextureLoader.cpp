@@ -87,10 +87,15 @@ bool BlockTextureLoader::loadLayerProperties() {
         return false;
     }
 
+    // Layer handle for lf
     BlockTextureLayer* lp;
+    // Types for parsing
     keg::Type colorType;
     colorType.addValue("color", keg::Value::basic(0, keg::BasicType::UI8_V3));
+    keg::Type methodType;
+    methodType.addValue("method", keg::Value::custom(0, "ConnectedTextureMethods", true));
 
+    // Custom layer parse
     auto lf = makeFunctor<Sender, const nString&, keg::Node>([&, this](Sender, const nString& key, keg::Node value) {
         if (key == "path") {
             lp->path = keg::convert<nString>(value);
@@ -107,6 +112,12 @@ bool BlockTextureLoader::loadLayerProperties() {
                     keg::parse((ui8*)&lp->color, value, context, &colorType);
                     break;
             }
+        } else if (key == "altColors") {
+            // TODO(Ben): Implement
+        } else if (key == "method") {
+            keg::parse((ui8*)&lp->method, value, context, &methodType);
+        } else if (key == "coupling") {
+            // TODO(Ben): Implement
         }
     });
     // Load all layers

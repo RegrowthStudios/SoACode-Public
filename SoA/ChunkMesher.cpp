@@ -857,29 +857,27 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
 void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]) {
     // Get texture TODO(Ben): Null check?
     const BlockTexture* texture = block->textures[face];
-    // Get color
-    // TODO(Ben): Flags?
+    // Get colors
+    // TODO(Ben): altColors
     color3 blockColor[2];
-    block->getBlockColor(blockColor[0], blockColor[1],
-                         0,
-                         heightData->temperature,
-                         heightData->rainfall,
-                         texture);
+    texture->base.getFinalColor(blockColor[B_INDEX],
+                                heightData->temperature,
+                                heightData->rainfall, 0);
+    texture->base.getFinalColor(blockColor[O_INDEX],
+                                heightData->temperature,
+                                heightData->rainfall, 0);
 
     std::vector<VoxelQuad>& quads = m_quads[face];
 
     // Get texturing parameters
     ui8 blendMode = getBlendMode(texture->blendMode);
     // TODO(Ben): Make this better
-    BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex baseNormTextureIndex = texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex baseDispTextureIndex = texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[1]);
-    BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-    BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[0]);
-   
-    blockColor[0] = color3(255, 255, 255);
-    blockColor[1] = color3(255, 255, 255);
+    BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    BlockTextureIndex baseNormTextureIndex = texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    BlockTextureIndex baseDispTextureIndex = texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
 
     // TODO(Ben): Bitwise ops?
     ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
@@ -917,8 +915,8 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.overlayColor.g = (ui8)(blockColor[O_INDEX].g * ao);
         v.overlayColor.b = (ui8)(blockColor[O_INDEX].b * ao);
 #else
-        v.color = blockColor[0];
-        v.overlayColor = blockColor[1];
+        v.color = blockColor[B_INDEX];
+        v.overlayColor = blockColor[O_INDEX];
 #endif
         // TODO(Ben) array?
         v.textureIndex = baseTextureIndex;

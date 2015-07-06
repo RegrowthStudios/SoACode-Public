@@ -23,6 +23,8 @@
 #define NORM_TYPE_INDEX 1
 #define DISP_TYPE_INDEX 2
 
+struct BlockColorMap;
+
 enum class ConnectedTextureMethods {
     NONE,
     CONNECTED,
@@ -108,6 +110,8 @@ public:
         return index;
     }
 
+    void getFinalColor(OUT color3& color, ui8 temperature, ui8 rainfall, ui32 altColor) const;
+
     ConnectedTextureMethods method = ConnectedTextureMethods::NONE;
     ui32v2 size = ui32v2(1);
     ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
@@ -135,16 +139,17 @@ public:
     BlockTextureFunc blockTextureFunc = BlockTextureMethods::getDefaultTextureIndex;
 
     /// "less than" operator for inserting into sets in TexturePackLoader
+    // TODO(Ben): Are these operators needed?
     bool operator<(const BlockTextureLayer& b) const;
     bool operator==(const BlockTextureLayer& b) const {
         return method == b.method && size == b.size && symmetry == b.symmetry &&
-            reducedMethod == b.reducedMethod && useMapColor == b.useMapColor &&
+            reducedMethod == b.reducedMethod && colorMap == b.colorMap &&
+            color == b.color && 
             averageColor == b.averageColor && floraHeight == b.floraHeight &&
             totalWeight == b.totalWeight && numTiles == b.numTiles && index == b.index &&
             innerSeams == b.innerSeams && transparency == b.transparency && path == b.path;
     }
 };
-KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
     union {

@@ -59,9 +59,6 @@ class Block
 public:
     Block();
 
-    void getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
-    void getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
-
     void SetAvgTexColors();
 
     i32 temp;
@@ -129,6 +126,3 @@ public:
 };
 KEG_TYPE_DECL(Block);
 
-void SetBlockAvgTexColors();
-
-void DrawHeadBlock(glm::dvec3 position, glm::mat4 &VP, Block *block, int flags, float light, float sunlight);

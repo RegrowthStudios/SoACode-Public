@@ -20,6 +20,9 @@
 #include <map>
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/voxel/VoxelTextureStitcher.h>
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VG(class BitmapResource);
 
 struct AtlasTextureDescription {
     BlockTextureLayer temp;
