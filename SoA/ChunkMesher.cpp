@@ -508,7 +508,7 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
                PADDED_WIDTH - 1, 0, PADDED_WIDTH - 1);
 }
 
-CALLEE_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type) {
+CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type) {
     m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
@@ -730,6 +730,50 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
             break;
     }
     return canRender;
+}
+
+void ChunkMesher::freeChunkMesh(CALLER_DELETE ChunkMesh* mesh) {
+    // Opaque
+    if (mesh->vboID != 0) {
+        glDeleteBuffers(1, &(mesh->vboID));
+        mesh->vboID = 0;
+    }
+    if (mesh->vaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->vaoID));
+        mesh->vaoID = 0;
+    }
+    // Transparent
+    if (mesh->transVaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->transVaoID));
+        mesh->transVaoID = 0;
+    }
+    if (mesh->transVboID != 0) {
+        glDeleteBuffers(1, &(mesh->transVboID));
+        mesh->transVboID = 0;
+    }
+    if (mesh->transIndexID != 0) {
+        glDeleteBuffers(1, &(mesh->transIndexID));
+        mesh->transIndexID = 0;
+    }
+    // Cutout
+    if (mesh->cutoutVaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->cutoutVaoID));
+        mesh->cutoutVaoID = 0;
+    }
+    if (mesh->cutoutVboID != 0) {
+        glDeleteBuffers(1, &(mesh->cutoutVboID));
+        mesh->cutoutVboID = 0;
+    }
+    // Liquid
+    if (mesh->waterVboID != 0) {
+        glDeleteBuffers(1, &(mesh->waterVboID));
+        mesh->waterVboID = 0;
+    }
+    if (mesh->waterVaoID != 0) {
+        glDeleteVertexArrays(1, &(mesh->waterVaoID));
+        mesh->waterVaoID = 0;
+    }
+    delete mesh;
 }
 //
 //CALLEE_DELETE ChunkMeshData* ChunkMesher::createOnlyWaterMesh(const Chunk* chunk) {

@@ -57,8 +57,8 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Create all chunk meshes
     m_mesher.init(&m_soaState->blocks);
-    for (auto& chunk : m_chunks) {
-        m_meshes.emplace_back(m_mesher.easyCreateChunkMesh(chunk, MeshTaskType::DEFAULT));
+    for (auto& cv : m_chunks) {
+        cv.chunkMesh = m_mesher.easyCreateChunkMesh(cv.chunk, MeshTaskType::DEFAULT);
     }
 
     { // Init the camera
@@ -78,8 +78,8 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 }
 
 void TestConnectedTextureScreen::onExit(const vui::GameTime& gameTime) {
-    for (auto& cm : m_meshes) {
-        delete cm;
+    for (auto& cv : m_chunks) {
+        m_mesher.freeChunkMesh(cv.chunkMesh);
     }
 }
 
@@ -120,14 +120,14 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     m_renderer.beginOpaque(m_soaState->blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
-    m_renderer.drawOpaque(m_meshes[m_activeChunk], m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+    m_renderer.drawOpaque(m_chunks[m_activeChunk].chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
     m_renderer.end();
 
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Draw UI
     m_sb.begin();
-    m_sb.drawString(&m_font, m_names[m_activeChunk].c_str(), f32v2(30.0f), f32v2(1.0f), color::White);
+    m_sb.drawString(&m_font, (std::to_string(m_activeChunk) + ". " + m_chunks[m_activeChunk].name).c_str(), f32v2(30.0f), f32v2(1.0f), color::White);
     m_sb.end();
     m_sb.render(f32v2(m_commonState->window->getViewportDims()));
     vg::DepthState::FULL.set(); // Have to restore depth
@@ -226,10 +226,9 @@ void TestConnectedTextureScreen::initInput() {
             case VKEY_F10:
                 // Reload meshes
                 // TODO(Ben): Destroy meshes
-                for (int i = 0; i < m_chunks.size(); i++) {
-                    Chunk* chunk = m_chunks[i];
-                    delete m_meshes[i];
-                    m_meshes[i] = m_mesher.easyCreateChunkMesh(chunk, MeshTaskType::DEFAULT);
+                for (auto& cv : m_chunks) {
+                    m_mesher.freeChunkMesh(cv.chunkMesh);
+                    cv.chunkMesh = m_mesher.easyCreateChunkMesh(cv.chunk, MeshTaskType::DEFAULT);
                 }
                 break;
             case VKEY_F11:
@@ -267,7 +266,9 @@ Chunk* TestConnectedTextureScreen::addChunk(const nString& name) {
     Chunk* chunk = new Chunk;
     chunk->initAndFillEmpty(0, ChunkPosition3D());
     // TODO(Ben): AOS
-    m_chunks.push_back(chunk);
-    m_names.push_back(name);
+    ViewableChunk viewable;
+    viewable.chunk = chunk;
+    viewable.name = name;
+    m_chunks.push_back(viewable);
     return chunk;
 }

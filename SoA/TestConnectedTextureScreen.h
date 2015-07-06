@@ -47,6 +47,12 @@ private:
     void initInput();
     Chunk* addChunk(const nString& name);
 
+    struct ViewableChunk {
+        Chunk* chunk;
+        ChunkMesh* chunkMesh;
+        nString name;
+    };
+
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     Camera m_camera;
     BlockPack m_blocks; ///< Block data
@@ -58,9 +64,7 @@ private:
     vg::SpriteBatch m_sb;
     vg::SpriteFont m_font;
 
-    std::vector <nString> m_names;
-    std::vector <Chunk*> m_chunks;
-    std::vector <ChunkMesh*> m_meshes;
+    std::vector <ViewableChunk> m_chunks;
 
     bool m_wireFrame = false;
     bool m_mouseButtons[2];

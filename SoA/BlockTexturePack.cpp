@@ -25,7 +25,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     m_nextFree = 0;
     // Calculate max mipmap level
     m_mipLevels = 0;
-    int width = m_pageWidthPixels;
+    ui32 width = m_pageWidthPixels;
     while (width > m_stitcher.getTilesPerRow()) {
         width >>= 1;
         m_mipLevels++;
@@ -191,7 +191,7 @@ void BlockTexturePack::update() {
         needsMipmapGen = true;
         // Upload all pages
         glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
-        for (int i = 0; i < m_pages.size(); i++) {
+        for (size_t i = 0; i < m_pages.size(); i++) {
             uploadPage(i);
         }
         std::vector<int>().swap(m_dirtyPages);
@@ -220,7 +220,7 @@ void BlockTexturePack::writeDebugAtlases() {
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    for (int i = 0; i < m_pages.size(); i++) {
+    for (size_t i = 0; i < m_pages.size(); i++) {
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, m_resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
         SDL_SaveBMP(surface, ("atlas" + std::to_string(i) + ".bmp").c_str());
     }
@@ -254,7 +254,7 @@ nString getName(nString name) {
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {
     // If we need to allocate new pages, do so
     if (pageIndex >= m_pages.size()) {
-        int i = m_pages.size();
+        size_t i = m_pages.size();
         m_pages.resize(pageIndex + 1);
         for (; i < m_pages.size(); i++) {
             m_pages[i].pixels = new color4[m_pageWidthPixels * m_pageWidthPixels];

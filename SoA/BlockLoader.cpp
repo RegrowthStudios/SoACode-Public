@@ -70,7 +70,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
 
     std::map<nString, const Block*> sortMap;
     const std::vector<Block>& blockList = blocks.getBlockList();
-    for (int i = 0; i < blockList.size(); i++) {
+    for (size_t i = 0; i < blockList.size(); i++) {
         const Block& b = blockList[i];
         if (b.active) {
             sortMap[b.sID] = &b;
