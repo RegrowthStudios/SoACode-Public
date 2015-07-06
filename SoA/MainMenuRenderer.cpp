@@ -176,29 +176,31 @@ void MainMenuRenderer::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
-    //m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
+    m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
 	// TODO: More Effects?
 	if (stages.bloom.isActive()) {
-		m_fbo1.use();
+		m_swapChain.use(0);
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_LUMA);
 		stages.bloom.render();
-		std::cout << "Bloom Luma FBO Texture ID: " << m_fbo1.getTextureID() << std::endl;
-		std::cout << "Bloom Luma FBO ID: " << m_fbo1.getID() << std::endl;
+		std::cout << "Bloom Luma FBO Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
+		std::cout << "Bloom Luma FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_fbo1.unuse(m_window->getWidth(), m_window->getHeight());
 
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_FIRST);
-		m_fbo2.use();
+		m_swapChain.swap();
+		m_swapChain.use(0);
 		stages.bloom.render();
-		std::cout << "Bloom Blur First FBO Texture ID: " << m_fbo2.getTextureID() << std::endl;
-		std::cout << "Bloom Blur First FBO ID: " << m_fbo2.getID() << std::endl;
+		std::cout << "Bloom Blur First FBO Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
+		std::cout << "Bloom Blur First FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_fbo2.unuse(m_window->getWidth(), m_window->getHeight());
 
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_SECOND);
-		m_fbo3.use();
+		m_swapChain.swap();
+		m_swapChain.use(0);
 		stages.bloom.render();
-		std::cout << "Bloom Blur Second SwapChain Texture ID: " << m_fbo3.getTextureID() << std::endl;
-		std::cout << "Bloom Blur Second SwapChain FBO ID: " << m_fbo3.getID() << std::endl;
+		std::cout << "Bloom Blur Second SwapChain Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
+		std::cout << "Bloom Blur Second SwapChain FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_fbo3.unuse(m_window->getWidth(), m_window->getHeight());
 
 	}	
