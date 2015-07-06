@@ -541,7 +541,7 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
                 blockIndex = (by + 1) * PADDED_CHUNK_LAYER + (bz + 1) * PADDED_CHUNK_WIDTH + (bx + 1);
                 blockID = blockData[blockIndex];
                 if (blockID == 0) continue; // Skip air blocks
-                heightData = &m_chunkGridData->heightData[(bz - 1) * CHUNK_WIDTH + bx - 1];
+                heightData = &m_chunkGridData->heightData[bz * CHUNK_WIDTH + bx];
                 block = &blocks->operator[](blockID);
                 // TODO(Ben) Don't think bx needs to be member
                 voxelPosOffset = ui8v3(bx * QUAD_SIZE, by * QUAD_SIZE, bz * QUAD_SIZE);
