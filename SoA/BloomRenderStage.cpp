@@ -8,7 +8,9 @@
 #include "ShaderLoader.h"
 #include "LoadContext.h"
 #include "Errors.h"
-#include <sstream>
+#include "Vorb/ui/GameWindow.h"
+
+
 float BloomRenderStage::gauss(int i, float sigma2) {
 		return 1.0 / std::sqrt(2 * 3.14159265 * sigma2) * std::exp(-(i*i) / (2 * sigma2));
 }
@@ -26,7 +28,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 	context.addTask([&](Sender, void*) {
 		m_program_luma = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomLuma.frag");
 		m_program_luma.use();
-		//glUniform1i(m_program_luma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
+		glUniform1i(m_program_luma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
 		m_program_luma.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, false);
@@ -35,7 +37,8 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 	context.addTask([&](Sender, void*) {
 		m_program_gaussian_first = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianFirst.frag");
 		m_program_gaussian_first.use();
-		//glUniform1i(m_program_gaussian_first.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
+		glUniform1i(m_program_gaussian_first.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
+		glUniform1i(m_program_gaussian_first.getUniform("Height"), m_window->getHeight());
 		m_program_gaussian_first.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, true);
@@ -44,8 +47,9 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 	context.addTask([&](Sender, void*) {
 		m_program_gaussian_second = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianSecond.frag");
 		m_program_gaussian_second.use();
-		//glUniform1i(m_program_gaussian_second.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
-		//glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
+		glUniform1i(m_program_gaussian_second.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
+		glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
+		glUniform1i(m_program_gaussian_second.getUniform("Width"), m_window->getWidth());
 		m_program_gaussian_second.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, true);

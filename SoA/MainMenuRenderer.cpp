@@ -88,15 +88,6 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
 
         // Create the swap chain for post process effects (HDR-capable)
         context.addTask([&](Sender, void*) { 
-			m_fbo1.setSize(m_window->getWidth(), m_window->getHeight());
-			m_fbo2.setSize(m_window->getWidth(), m_window->getHeight());
-			m_fbo3.setSize(m_window->getWidth(), m_window->getHeight());
-			m_fbo1.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
-			m_fbo2.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
-			m_fbo3.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
-
-
-
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
             context.addWorkCompleted(1);
         }, false);
@@ -180,29 +171,30 @@ void MainMenuRenderer::render() {
 
 	// TODO: More Effects?
 	if (stages.bloom.isActive()) {
-		m_swapChain.use(0);
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_LUMA);
 		stages.bloom.render();
 		std::cout << "Bloom Luma FBO Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
 		std::cout << "Bloom Luma FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
-		m_fbo1.unuse(m_window->getWidth(), m_window->getHeight());
+		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
 
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_FIRST);
 		m_swapChain.swap();
-		m_swapChain.use(0);
+		m_swapChain.use(BLOOM_TEXTURE_SLOT_LUMA, false);
 		stages.bloom.render();
 		std::cout << "Bloom Blur First FBO Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
 		std::cout << "Bloom Blur First FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
-		m_fbo2.unuse(m_window->getWidth(), m_window->getHeight());
+		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
 
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_SECOND);
 		m_swapChain.swap();
-		m_swapChain.use(0);
+		glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_COLOR);
+		m_hdrTarget.bindTexture();
+		m_swapChain.use(BLOOM_TEXTURE_SLOT_BLUR, false);
 		stages.bloom.render();
 		std::cout << "Bloom Blur Second SwapChain Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
 		std::cout << "Bloom Blur Second SwapChain FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
-		m_fbo3.unuse(m_window->getWidth(), m_window->getHeight());
-
+		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+		m_swapChain.swap();
 	}	
 
     // Draw to backbuffer for the last effect
@@ -215,7 +207,10 @@ void MainMenuRenderer::render() {
     static const f32 EXPOSURE_STEP = 0.005f;
     stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
-	
+	if (!stages.bloom.isActive()) {
+		glActiveTexture(GL_TEXTURE0);
+		m_hdrTarget.bindTexture();
+	}
 	// original depth texture
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
