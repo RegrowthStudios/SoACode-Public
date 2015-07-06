@@ -34,8 +34,22 @@ public:
     f64 getHeight(const VoxelPosition2D& facePosition) const;
 
     f64 getHeightValue(const f64v3& pos) const;
-    f64 getTemperatureValue(const f64v3& pos) const;
-    f64 getHumidityValue(const f64v3& pos) const;
+    f64 getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const;
+    f64 getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const;
+
+    /// Calculates temperature based on angle with equator
+    /// @param range: The range to scale between
+    /// @angle: Angle from equator
+    /// @param baseTemp: Base temperature at equator
+    static f64 calculateTemperature(f64 range, f64 angle, f64 baseTemp);
+    /// Calculates humidity based on angle with equator
+    /// @param range: The range to scale between
+    /// @angle: Angle from equator
+    /// @param baseTemp: Base humidity at equator
+    static f64 calculateHumidity(f64 range, f64 angle, f64 baseHum);
+
+    // Computes angle from normalized position
+    static f64 computeAngleFromNormal(const f64v3& normal);
 
     const PlanetGenData* getGenData() const { return m_genData; }
 private:

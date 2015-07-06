@@ -57,6 +57,15 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
 
     updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition);
 
+    // Clear mesh dependencies
+#define MAX_MESH_DEPS_CHUNKS 200
+    Chunk* buffer[MAX_MESH_DEPS_CHUNKS];
+    if (size_t numFlushed = m_cmp->meshDepsFlushList->try_dequeue_bulk(buffer, MAX_MESH_DEPS_CHUNKS)) {
+        for (size_t i = 0; i < numFlushed; i++) {
+            removeMeshDependencies(buffer[i]);
+        }
+    }
+
     // TODO(Ben): This doesn't scale for multiple agents
     m_cmp->chunkGrids[agentPosition.face].update();
 }
@@ -148,7 +157,7 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
 
         ChunkMeshTask* newRenderTask = new ChunkMeshTask;
 
-        newRenderTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
+        newRenderTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->meshDepsFlushList, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
         chunk->refCount++;
         m_cmp->threadPool->addTask(newRenderTask);
@@ -170,17 +179,133 @@ void SphericalVoxelComponentUpdater::disposeChunk(Chunk* chunk) {
 
 bool SphericalVoxelComponentUpdater::trySetMeshDependencies(Chunk* chunk) {
 
-    //// Check that neighbors are loaded
-    if (!chunk->left->isAccessible || !chunk->right->isAccessible ||
-        !chunk->front->isAccessible || !chunk->back->isAccessible ||
-        !chunk->top->isAccessible || !chunk->bottom->isAccessible) return false;
+    Chunk* left = chunk->left;
+    Chunk* right = chunk->right;
+    Chunk* bottom = chunk->bottom;
+    Chunk* top = chunk->top;
+    Chunk* back = chunk->back;
+    Chunk* front = chunk->front;
 
-    //// Neighbors
-    chunk->left->refCount++;
-    chunk->right->refCount++;
-    chunk->front->refCount++;
-    chunk->back->refCount++;
-    chunk->top->refCount++;
-    chunk->bottom->refCount++;
+    //// Check that neighbors are loaded
+    if (!left->isAccessible || !right->isAccessible ||
+        !front->isAccessible || !back->isAccessible ||
+        !top->isAccessible || !bottom->isAccessible) return false;
+    
+    // Left half
+    if (!left->back || !left->back->isAccessible) return false;
+    if (!left->front || !left->front->isAccessible) return false;
+
+    Chunk* leftTop = left->top;
+    Chunk* leftBot = left->bottom;
+    if (!leftTop || !leftTop->isAccessible) return false;
+    if (!leftBot || !leftBot->isAccessible) return false;
+    if (!leftTop->back || !leftTop->back->isAccessible) return false;
+    if (!leftTop->front || !leftTop->front->isAccessible) return false;
+    if (!leftBot->back || !leftBot->back->isAccessible) return false;
+    if (!leftBot->front || !leftBot->front->isAccessible) return false;
+
+    // right half
+    if (!right->back || !right->back->isAccessible) return false;
+    if (!right->front || !right->front->isAccessible) return false;
+
+    Chunk* rightTop = right->top;
+    Chunk* rightBot = right->bottom;
+    if (!rightTop || !rightTop->isAccessible) return false;
+    if (!rightBot || !rightBot->isAccessible) return false;
+    if (!rightTop->back || !rightTop->back->isAccessible) return false;
+    if (!rightTop->front || !rightTop->front->isAccessible) return false;
+    if (!rightBot->back || !rightBot->back->isAccessible) return false;
+    if (!rightBot->front || !rightBot->front->isAccessible) return false;
+
+    if (!top->back || !top->back->isAccessible) return false;
+    if (!top->front || !top->front->isAccessible) return false;
+
+    if (!bottom->back || !bottom->back->isAccessible) return false;
+    if (!bottom->front || !bottom->front->isAccessible) return false;
+
+    // Set dependencies
+    ++chunk->left->refCount;
+    ++chunk->right->refCount;
+    ++chunk->front->refCount;
+    ++chunk->back->refCount;
+    ++chunk->top->refCount;
+    ++chunk->bottom->refCount;
+
+    ++left->back->refCount;
+    ++left->front->refCount;
+
+    ++leftTop->refCount;
+    ++leftBot->refCount;
+    ++leftTop->back->refCount;
+    ++leftTop->front->refCount;
+    ++leftBot->back->refCount;
+    ++leftBot->front->refCount;
+
+    ++right->back->refCount;
+    ++right->front->refCount;
+
+    ++rightTop->refCount;
+    ++rightBot->refCount;
+    ++rightTop->back->refCount;
+    ++rightTop->front->refCount;
+    ++rightBot->back->refCount;
+    ++rightBot->front->refCount;
+
+    ++top->back->refCount;
+    ++top->front->refCount;
+
+    ++bottom->back->refCount;
+    ++bottom->front->refCount;
+
     return true;
+}
+
+void SphericalVoxelComponentUpdater::removeMeshDependencies(Chunk* chunk) {
+
+    Chunk* left = chunk->left;
+    Chunk* right = chunk->right;
+    Chunk* bottom = chunk->bottom;
+    Chunk* top = chunk->top;
+    Chunk* back = chunk->back;
+    Chunk* front = chunk->front;
+    Chunk* leftTop = left->top;
+    Chunk* leftBot = left->bottom;
+    Chunk* rightTop = right->top;
+    Chunk* rightBot = right->bottom;
+
+    --chunk->refCount;
+
+    // Remove dependencies
+    --chunk->left->refCount;
+    --chunk->right->refCount;
+    --chunk->front->refCount;
+    --chunk->back->refCount;
+    --chunk->top->refCount;
+    --chunk->bottom->refCount;
+
+    --left->back->refCount;
+    --left->front->refCount;
+
+    --leftTop->refCount;
+    --leftBot->refCount;
+    --leftTop->back->refCount;
+    --leftTop->front->refCount;
+    --leftBot->back->refCount;
+    --leftBot->front->refCount;
+
+    --right->back->refCount;
+    --right->front->refCount;
+
+    --rightTop->refCount;
+    --rightBot->refCount;
+    --rightTop->back->refCount;
+    --rightTop->front->refCount;
+    --rightBot->back->refCount;
+    --rightBot->front->refCount;
+
+    --top->back->refCount;
+    --top->front->refCount;
+
+    --bottom->back->refCount;
+    --bottom->front->refCount;
 }

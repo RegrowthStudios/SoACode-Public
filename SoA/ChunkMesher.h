@@ -22,7 +22,7 @@ public:
     void init(const BlockPack* blocks);
 
     // Easily creates chunk mesh synchronously.
-    CALLEE_DELETE ChunkMesh* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
+    CALLER_DELETE ChunkMesh* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
         prepareData(chunk);
         ChunkMesh* mesh = new ChunkMesh;
         uploadMeshData(*mesh, createChunkMeshData(type));
@@ -36,10 +36,13 @@ public:
 
     // TODO(Ben): Unique ptr?
     // Must call prepareData or prepareDataAsync first
-    CALLEE_DELETE ChunkMeshData* createChunkMeshData(MeshTaskType type);
+    CALLER_DELETE ChunkMeshData* createChunkMeshData(MeshTaskType type);
 
     // Returns true if the mesh is renderable
     static bool uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData);
+
+    // Frees buffers AND deletes memory. mesh Pointer is invalid after calling.
+    static void freeChunkMesh(CALLEE_DELETE ChunkMesh* mesh);
 
     void freeBuffers();
 

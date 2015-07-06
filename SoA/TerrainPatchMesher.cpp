@@ -3,6 +3,7 @@
 
 #include "VoxelSpaceConversions.h"
 #include "SphericalTerrainComponentUpdater.h"
+#include "SphericalTerrainCpuGenerator.h"
 #include "TerrainPatchMeshManager.h"
 #include "PlanetData.h"
 
@@ -115,8 +116,7 @@ void TerrainPatchMesher::destroyIndices() {
 void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                                           const f32v3& startPos, WorldCubeFace cubeFace, float width,
                                           f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
-                                          f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
-                                          f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
+                                          f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
 
     assert(m_sharedIbo != 0);
 
@@ -137,7 +137,6 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     }
     
     f32 h;
-    f32 angle;
     f32v3 tmpPos;
     f32 minX = (f32)INT_MAX, maxX = (f32)INT_MIN;
     f32 minY = (f32)INT_MAX, maxY = (f32)INT_MIN;
@@ -182,13 +181,9 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
                 addWater(z - 1, x - 1, heightData);
             }
 
-            // Spherify it!
-            f32v3 normal = worldNormalData[z][x];
-
-            angle = computeAngleFromNormal(normal);
             // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
-            v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, angle, heightData[z][x][1] - glm::max(0.0f, m_planetGenData->tempHeightFalloff * h));
-            v.humidity = calculateHumidity(m_planetGenData->humLatitudeFalloff, angle, heightData[z][x][2] - glm::max(0.0f, m_planetGenData->humHeightFalloff * h));   
+            v.temperature = (ui8)heightData[z][x][1];
+            v.humidity = (ui8)heightData[z][x][2];
 
             // Check bounding box
             // TODO(Ben): Worry about water too!
@@ -339,21 +334,6 @@ void TerrainPatchMesher::uploadMeshData(TerrainPatchMesh* mesh) {
     glBindVertexArray(0);
 }
 
-// Thanks to tetryds for these
-ui8 TerrainPatchMesher::calculateTemperature(float range, float angle, float baseTemp) {
-    float tempFalloff = 1.0f - pow(cos(angle), 2.0f * angle);
-    float temp = baseTemp - tempFalloff * range;
-    return (ui8)(glm::clamp(temp, 0.0f, 255.0f));
-}
-
-// Thanks to tetryds for these
-ui8 TerrainPatchMesher::calculateHumidity(float range, float angle, float baseHum) {
-    float cos3x = cos(3.0f * angle);
-    float humFalloff = 1.0f - (-0.25f * angle + 1.0f) * (cos3x * cos3x);
-    float hum = baseHum - humFalloff * range;
-    return (ui8)(255.0f - glm::clamp(hum, 0.0f, 255.0f));
-}
-
 void TerrainPatchMesher::buildSkirts() {
     const float SKIRT_DEPTH = m_vertWidth * 3.0f;
     // Top Skirt
@@ -462,14 +442,14 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED
             normal = glm::normalize(tmpPos);
         }
 
-        float d = heightData[z + 1][x + 1][0] * M_PER_KM;
+        f32 d = heightData[z + 1][x + 1][0] * (f32)M_PER_KM;
         if (d < 0) {
             v.depth = -d;
         } else {
             v.depth = 0;
         }
 
-        v.temperature = calculateTemperature(m_planetGenData->tempLatitudeFalloff, computeAngleFromNormal(normal), heightData[z + 1][x + 1][1]);
+        v.temperature = (ui8)heightData[z + 1][x + 1][1];
 
         // Compute tangent
         f32v3 tmpPos;
@@ -507,19 +487,5 @@ void TerrainPatchMesher::tryAddWaterQuad(int z, int x) {
         waterIndices[m_waterIndexCount++] = waterIndexGrid[z + 1][x + 1] - 1;
         waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x + 1] - 1;
         waterIndices[m_waterIndexCount++] = waterIndexGrid[z][x] - 1;
-    }
-}
-
-
-f32 TerrainPatchMesher::computeAngleFromNormal(const f32v3& normal) {
-    // Compute angle
-    if (normal.y == 1.0f || normal.y == -1.0f) {
-        return (f32)(M_PI / 2.0);
-    } else if (abs(normal.y) < 0.001) {
-        // Need to do this to fix an equator bug
-        return 0.0f;
-    } else {
-        f32v3 equator = glm::normalize(f32v3(normal.x, 0.0f, normal.z));
-        return acos(glm::dot(equator, normal));
     }
 }

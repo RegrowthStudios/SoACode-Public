@@ -1,11 +1,12 @@
 #pragma once
 #include "BlockPack.h"
 #include "BlockLoader.h"
+#include "BlockTextureLoader.h"
+#include "BlockTexturePack.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "LoadMonitor.h"
-#include "BlockTextureLoader.h"
 #include "LoadContext.h"
+#include "LoadMonitor.h"
 
 #include <Vorb/io/IOManager.h>
 
@@ -36,6 +37,11 @@ public:
             if (b.active) {
                 loader->loadBlockTextures(b);
             }
+        }
+        // Set the none textures so we dont get a crash later
+        Block& b = blockPack->operator[]("none");
+        for (int i = 0; i < 6; i++) {
+            b.textures[i] = loader->getTexturePack()->getDefaultTexture();
         }
         context->addWorkCompleted(10);
 

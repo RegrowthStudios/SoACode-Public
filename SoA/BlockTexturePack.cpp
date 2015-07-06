@@ -25,7 +25,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     m_nextFree = 0;
     // Calculate max mipmap level
     m_mipLevels = 0;
-    int width = m_pageWidthPixels;
+    ui32 width = m_pageWidthPixels;
     while (width > m_stitcher.getTilesPerRow()) {
         width >>= 1;
         m_mipLevels++;
@@ -33,6 +33,12 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 
     // Set up first page for default textures
     flagDirtyPage(0);
+
+    // Allocate biome and liquid maps and init to white
+    BlockColorMap& bmap = m_colorMaps["biome"];
+    memset(bmap.pixels, 255, sizeof(bmap.pixels));
+    BlockColorMap& lmap = m_colorMaps["liquid"];
+    memset(lmap.pixels, 255, sizeof(lmap.pixels));
 }
 
 // TODO(Ben): Lock?
@@ -139,6 +145,44 @@ BlockTexture* BlockTexturePack::getNextFreeTexture(const nString& filePath) {
     return &m_textures[m_nextFree++];
 }
 
+BlockColorMap* BlockTexturePack::getColorMap(const nString& path) {
+    auto& it = m_colorMaps.find(path);
+    if (it != m_colorMaps.end()) return &it->second;
+
+    // Load it
+    vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGB_UI8);
+    if (!rs.data) {
+        fprintf(stderr, "Warning: Could not find color map %s\n", path.c_str());
+        return nullptr;
+    }
+   
+    // Add it
+    return setColorMap(path, &rs);
+}
+
+BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const vg::BitmapResource* rs) {
+    // Error check
+    if (rs->width != BLOCK_COLOR_MAP_WIDTH || rs->height != BLOCK_COLOR_MAP_WIDTH) {
+        fprintf(stderr, "Warning: Color map %s is not %d x %d\n", name.c_str(), BLOCK_COLOR_MAP_WIDTH, BLOCK_COLOR_MAP_WIDTH);
+        fflush(stderr);
+    }
+    return setColorMap(name, rs->bytesUI8v3);
+}
+
+BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const ui8v3* pixels) {
+    // Allocate the color map
+    BlockColorMap* colorMap = &m_colorMaps[name];
+    // Set its pixels
+    for (int y = 0; y < BLOCK_COLOR_MAP_WIDTH; y++) {
+        for (int x = 0; x < BLOCK_COLOR_MAP_WIDTH; x++) {
+            colorMap->pixels[y][x].r = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].r;
+            colorMap->pixels[y][x].g = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].g;
+            colorMap->pixels[y][x].b = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].b;
+        }
+    }
+    return colorMap;
+}
+
 void BlockTexturePack::update() {
     bool needsMipmapGen = false;
     if (m_needsRealloc) {
@@ -147,7 +191,7 @@ void BlockTexturePack::update() {
         needsMipmapGen = true;
         // Upload all pages
         glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
-        for (int i = 0; i < m_pages.size(); i++) {
+        for (size_t i = 0; i < m_pages.size(); i++) {
             uploadPage(i);
         }
         std::vector<int>().swap(m_dirtyPages);
@@ -176,7 +220,7 @@ void BlockTexturePack::writeDebugAtlases() {
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    for (int i = 0; i < m_pages.size(); i++) {
+    for (size_t i = 0; i < m_pages.size(); i++) {
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, m_resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
         SDL_SaveBMP(surface, ("atlas" + std::to_string(i) + ".bmp").c_str());
     }
@@ -210,7 +254,7 @@ nString getName(nString name) {
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {
     // If we need to allocate new pages, do so
     if (pageIndex >= m_pages.size()) {
-        int i = m_pages.size();
+        size_t i = m_pages.size();
         m_pages.resize(pageIndex + 1);
         for (; i < m_pages.size(); i++) {
             m_pages[i].pixels = new color4[m_pageWidthPixels * m_pageWidthPixels];
@@ -239,14 +283,19 @@ void BlockTexturePack::allocatePages() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LOD, (int)m_mipLevels);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 
+   
     // Anisotropic filtering
     float anisotropy;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
     glActiveTexture(GL_TEXTURE0);
-    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    // Smooth texture params
+//    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ //   glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+ //   glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 
     // Unbind
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);

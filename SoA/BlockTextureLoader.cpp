@@ -27,13 +27,6 @@ void BlockTextureLoader::loadTextureData() {
 }
 
 void BlockTextureLoader::loadBlockTextures(Block& block) {
-    // Default values for texture indices
-    for (i32 i = 0; i < 6; i++) {
-        block.base[i] = 0;
-        block.normal[i] = 0;
-        block.overlay[i] = 0;
-    }
-
     // Check for block mapping
     auto& it = m_blockMappings.find(block.sID);
     if (it == m_blockMappings.end()) {
@@ -55,7 +48,6 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
             }
             block.textures[i] = texture;
         } else {
-            printf("Warning: Could not load texture %d for block %s\n", i, block.sID.c_str());
             block.textures[i] = m_texturePack->getDefaultTexture();
             return;
         }
@@ -95,18 +87,51 @@ bool BlockTextureLoader::loadLayerProperties() {
         return false;
     }
 
+    // Layer handle for lf
+    BlockTextureLayer* lp;
+    // Custom values for parsing
+    keg::Value colorVal = keg::Value::basic(0, keg::BasicType::UI8_V3);
+    keg::Value methodVal = keg::Value::custom(0, "ConnectedTextureMethods", true);
+ 
+    // Custom layer parse
+    auto lf = makeFunctor<Sender, const nString&, keg::Node>([&, this](Sender, const nString& key, keg::Node value) {
+        if (key == "path") {
+            lp->path = keg::convert<nString>(value);
+        } else if (key == "normalMap") {
+            lp->normalPath = keg::convert<nString>(value);
+        } else if (key == "dispMap") {
+            lp->dispPath = keg::convert<nString>(value);
+        } else if (key == "color") {
+            switch (keg::getType(value)) {
+                case keg::NodeType::VALUE:
+                    lp->colorMap = this->getTexturePack()->getColorMap(keg::convert<nString>(value));
+                    break;
+                case keg::NodeType::SEQUENCE:
+                    keg::evalData((ui8*)&lp->color, &colorVal, value, context);
+                    break;
+            }
+        } else if (key == "altColors") {
+            // TODO(Ben): Implement
+        } else if (key == "method") {
+            keg::evalData((ui8*)&lp->method, &methodVal, value, context);
+        } else if (key == "coupling") {
+            // TODO(Ben): Implement
+        }
+    });
     // Load all layers
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         BlockTextureLayer layer;
+        lp = &layer;
 
-        // Load data
-        keg::parse((ui8*)&layer, value, context, &KEG_GLOBAL_TYPE(BlockTextureLayer));
- 
+        // Manual parse
+        context.reader.forAllInMap(value, lf);
+
         // Cache the layer
         m_layers[key] = layer;
     });
     context.reader.forAllInMap(node, f);
     delete f;
+    delete lf;
     context.reader.dispose();
 
     return true;
@@ -246,7 +271,8 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         }
     });
 
-    BlockTextureNames* names;
+    nString *texNames;
+
     auto valParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         nString name;
         // Conditional parsing, map vs value
@@ -259,39 +285,76 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         }
 
         if (key == "texture") {
-            for (int i = 0; i < 6; i++) {
-                names->names[i] = name;
-            }
+            texNames[0] = name;
         } else if (key == "textureOpX") {
-            names->names[(int)vvox::Cardinal::X_NEG] = name;
-            names->names[(int)vvox::Cardinal::X_POS] = name;
+            texNames[1] = name;
         } else if (key == "textureOpY") {
-            names->names[(int)vvox::Cardinal::Y_NEG] = name;
-            names->names[(int)vvox::Cardinal::Y_POS] = name;
+            texNames[2] = name;
         } else if (key == "textureOpZ") {
-            names->names[(int)vvox::Cardinal::Z_NEG] = name;
-            names->names[(int)vvox::Cardinal::Z_POS] = name;
+            texNames[3] = name;
         } else if (key == "textureTop") {
-            names->names[(int)vvox::Cardinal::Y_POS] = name;
+            texNames[4] = name;
         } else if (key == "textureBottom") {
-            names->names[(int)vvox::Cardinal::Y_NEG] = name;
+            texNames[5] = name;
         } else if (key == "textureFront") {
-            names->names[(int)vvox::Cardinal::Z_POS] = name;
+            texNames[6] = name;
         } else if (key == "textureBack") {
-            names->names[(int)vvox::Cardinal::Z_NEG] = name;
+            texNames[7] = name;
         } else if (key == "textureLeft") {
-            names->names[(int)vvox::Cardinal::X_NEG] = name;
+            texNames[8] = name;
         } else if (key == "textureRight") {
-            names->names[(int)vvox::Cardinal::X_POS] = name;
+            texNames[9] = name;
         }
     });
 
     // Load all layers
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         BlockTextureNames tNames = {};
-        names = &tNames;
+        // So we can prioritize.
+        nString textureNames[10];
+        texNames = textureNames;
+
         blockName = &key;
         context.reader.forAllInMap(value, valParseFunctor);
+
+        // Set textures based on names
+        if (texNames[0].size()) {
+            for (int i = 0; i < 6; i++) {
+                tNames.names[i] = texNames[0];
+            }
+        }
+        if (texNames[1].size()) {
+            tNames.names[(int)vvox::Cardinal::X_NEG] = texNames[1];
+            tNames.names[(int)vvox::Cardinal::X_POS] = texNames[1];
+        }
+        if (texNames[2].size()) {
+            tNames.names[(int)vvox::Cardinal::Y_NEG] = texNames[2];
+            tNames.names[(int)vvox::Cardinal::Y_POS] = texNames[2];
+        }
+        if (texNames[3].size()) {
+            tNames.names[(int)vvox::Cardinal::Z_NEG] = texNames[3];
+            tNames.names[(int)vvox::Cardinal::Z_POS] = texNames[3];
+        }
+        if (texNames[4].size()) {
+            tNames.names[(int)vvox::Cardinal::Y_POS] = texNames[4];
+        }
+        if (texNames[5].size()) {
+            tNames.names[(int)vvox::Cardinal::Y_NEG] = texNames[5];
+        }
+        if (texNames[6].size()) {
+            tNames.names[(int)vvox::Cardinal::Z_POS] = texNames[6];
+        }
+        if (texNames[7].size()) {
+            tNames.names[(int)vvox::Cardinal::Z_NEG] = texNames[7];
+        }
+        if (texNames[8].size()) {
+            tNames.names[(int)vvox::Cardinal::X_NEG] = texNames[8];
+        }
+        if (texNames[9].size()) {
+            tNames.names[(int)vvox::Cardinal::X_POS] = texNames[9];
+        }
+
+        // Set mappings
         m_blockMappings[key] = tNames;
     });
     context.reader.forAllInMap(node, f);
@@ -393,6 +456,7 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             }
             break;
         case ConnectedTextureMethods::GRASS:
+            layer.size = ui32v2(1);
             DIM_CHECK(width, GRASS_WIDTH, bitmap.height, GRASS_HEIGHT, GRASS);
             break;
         case ConnectedTextureMethods::HORIZONTAL:

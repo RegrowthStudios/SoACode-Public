@@ -22,7 +22,6 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
 
     f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4];
     f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
-    f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 pos;
     f32v3 tmpPos;
 
@@ -45,11 +44,11 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 pos[coordMapping.y] = m_startPos.y;
                 pos[coordMapping.z] = (m_startPos.z + (z - 1) * VERT_WIDTH) * coordMults.y;
                 f64v3 normal(glm::normalize(pos));
-                worldNormalData[z][x] = normal;
                 pos = normal * m_patchData->radius;
-                heightData[z][x][0] = (f32)generator->getHeightValue(pos) * KM_PER_M;
-                heightData[z][x][1] = (f32)generator->getTemperatureValue(pos);
-                heightData[z][x][2] = (f32)generator->getHumidityValue(pos);
+                f64 height = generator->getHeightValue(pos) * KM_PER_M;
+                heightData[z][x][0] = (f32)height;
+                heightData[z][x][1] = (f32)generator->getTemperatureValue(pos, normal, height);
+                heightData[z][x][2] = (f32)generator->getHumidityValue(pos, normal, height);
 
                 // offset position by height;
                 positionData[z][x] = normal * (m_patchData->radius + heightData[z][x][0]);
@@ -69,11 +68,11 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 pos[coordMapping.y] = m_startPos.y;
                 pos[coordMapping.z] = spos.y * coordMults.y;
                 f64v3 normal(glm::normalize(pos));
-                worldNormalData[z][x] = normal;
                 pos = normal * m_patchData->radius;
-                heightData[z][x][0] = (f32)generator->getHeightValue(pos) * KM_PER_M;
-                heightData[z][x][1] = (f32)generator->getTemperatureValue(pos);
-                heightData[z][x][2] = (f32)generator->getHumidityValue(pos);
+                f64 height = generator->getHeightValue(pos) * KM_PER_M;
+                heightData[z][x][0] = (f32)height;
+                heightData[z][x][1] = (f32)generator->getTemperatureValue(pos, normal, height);
+                heightData[z][x][2] = (f32)generator->getHumidityValue(pos, normal, height);
 
                 // offset position by height;
                 positionData[z][x] = f64v3(spos.x, heightData[z][x][0], spos.y);
@@ -87,7 +86,7 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
     }
     if (!workerData->terrainMesher) workerData->terrainMesher = new TerrainPatchMesher();
     workerData->terrainMesher->generateMeshData(m_mesh, generator->getGenData(), m_startPos, m_cubeFace, m_width,
-                                                heightData, positionData, worldNormalData);
+                                                heightData, positionData);
 
     // Finally, add to the mesh manager
     m_patchData->meshManager->addMeshAsync(m_mesh);

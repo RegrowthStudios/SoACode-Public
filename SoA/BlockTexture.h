@@ -19,6 +19,12 @@
 
 #include "BlockTextureMethods.h"
 
+#define BASE_TYPE_INDEX 0
+#define NORM_TYPE_INDEX 1
+#define DISP_TYPE_INDEX 2
+
+struct BlockColorMap;
+
 enum class ConnectedTextureMethods {
     NONE,
     CONNECTED,
@@ -55,6 +61,8 @@ KEG_ENUM_DECL(BlendType);
 
 class BlockTextureLayer {
 public:
+    BlockTextureLayer() : index(0), normalIndex(0), dispIndex(0) {};
+
     static ui32 getFloraRows(ui32 floraMaxHeight) {
         return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
     }
@@ -88,33 +96,41 @@ public:
 
     // TODO(Ben): should it be ref color?
     inline BlockTextureIndex getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
-        return getTextureIndex(params, this->index, color);
+        return getTextureIndex(params, BASE_TYPE_INDEX, this->index, color);
     }
     inline BlockTextureIndex getNormalTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
-        return getTextureIndex(params, this->normalIndex, color);
+        return getTextureIndex(params, NORM_TYPE_INDEX, this->normalIndex, color);
     }
     inline BlockTextureIndex getDispTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
-        return getTextureIndex(params, this->dispIndex, color);
+        return getTextureIndex(params, DISP_TYPE_INDEX, this->dispIndex, color);
     }
-    inline BlockTextureIndex getTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex index, ColorRGB8& color) const {
-        params.set(this, color);
+    inline BlockTextureIndex getTextureIndex(BlockTextureMethodParams& params, ui32 typeIndex, BlockTextureIndex index, ColorRGB8& color) const {
+        params.set(this, typeIndex, color);
         blockTextureFunc(params, index);
         return index;
     }
+
+    void getFinalColor(OUT color3& color, ui8 temperature, ui8 rainfall, ui32 altColor) const;
 
     ConnectedTextureMethods method = ConnectedTextureMethods::NONE;
     ui32v2 size = ui32v2(1);
     ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
     ConnectedTextureReducedMethod reducedMethod = ConnectedTextureReducedMethod::NONE;
-    nString useMapColor = "";
-    color4 averageColor = color4(0, 0, 0, 0); // Lowest mipmap pixel
+    BlockColorMap* colorMap = nullptr;
+    color3 averageColor = color3(255, 255, 255); // Average texture color combined with color (for terrain)
+    color3 color = color3(255, 255, 255);
     ui32 floraHeight = 0;
     Array<i32> weights;
     ui32 totalWeight = 0;
     ui32 numTiles = 1;
-    BlockTextureIndex index = 0;
-    BlockTextureIndex normalIndex = 0;
-    BlockTextureIndex dispIndex = 0;
+    union {
+        struct {
+            BlockTextureIndex index;
+            BlockTextureIndex normalIndex;
+            BlockTextureIndex dispIndex;
+        };
+        BlockTextureIndex indices[3];
+    };
     bool innerSeams = false;
     bool transparency = false;
     nString path = "";
@@ -123,16 +139,17 @@ public:
     BlockTextureFunc blockTextureFunc = BlockTextureMethods::getDefaultTextureIndex;
 
     /// "less than" operator for inserting into sets in TexturePackLoader
+    // TODO(Ben): Are these operators needed?
     bool operator<(const BlockTextureLayer& b) const;
     bool operator==(const BlockTextureLayer& b) const {
         return method == b.method && size == b.size && symmetry == b.symmetry &&
-            reducedMethod == b.reducedMethod && useMapColor == b.useMapColor &&
+            reducedMethod == b.reducedMethod && colorMap == b.colorMap &&
+            color == b.color && 
             averageColor == b.averageColor && floraHeight == b.floraHeight &&
             totalWeight == b.totalWeight && numTiles == b.numTiles && index == b.index &&
             innerSeams == b.innerSeams && transparency == b.transparency && path == b.path;
     }
 };
-KEG_TYPE_DECL(BlockTextureLayer);
 
 struct BlockTexture {
     union {

@@ -191,7 +191,7 @@ void TerrainPatch::requestMesh(bool isSpherical) {
     meshTask->init(m_terrainPatchData,
                    m_mesh,
                    startPos,
-                   m_width,
+                   (f32)m_width,
                    m_cubeFace);
     m_terrainPatchData->threadPool->addTask(meshTask);
 }

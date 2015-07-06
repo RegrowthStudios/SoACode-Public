@@ -28,11 +28,14 @@ void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, 
     pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
     pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
 
-    pos = glm::normalize(pos) * m_genData->radius;
+    f64v3 normal = glm::normalize(pos);
+    pos = normal * m_genData->radius;
 
-    height.height = (m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD)) * VOXELS_PER_M;
-    height.temperature = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
-    height.rainfall = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    f64 h = getHeightValue(pos);
+    height.height = (i32)(h * VOXELS_PER_M);
+    h *= KM_PER_M;
+    height.temperature = (ui8)getTemperatureValue(pos, normal, h);
+    height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
 }
 
@@ -54,12 +57,40 @@ f64 SphericalTerrainCpuGenerator::getHeightValue(const f64v3& pos) const {
     return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 
-f64 SphericalTerrainCpuGenerator::getTemperatureValue(const f64v3& pos) const {
-    return m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+f64 SphericalTerrainCpuGenerator::getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const {
+    f32 temp = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    return calculateTemperature(m_genData->tempLatitudeFalloff, computeAngleFromNormal(normal), temp - glm::max(0.0, m_genData->tempHeightFalloff * height));
 }
 
-f64 SphericalTerrainCpuGenerator::getHumidityValue(const f64v3& pos) const {
-    return m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+f64 SphericalTerrainCpuGenerator::getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const {
+    f32 hum = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    return SphericalTerrainCpuGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), hum - glm::max(0.0, m_genData->humHeightFalloff * height));
+}
+
+// Thanks to tetryds for these
+f64 SphericalTerrainCpuGenerator::calculateTemperature(f64 range, f64 angle, f64 baseTemp) {
+    f64 tempFalloff = 1.0 - pow(cos(angle), 2.0 * angle);
+    f64 temp = baseTemp - tempFalloff * range;
+    return glm::clamp(temp, 0.0, 255.0);
+}
+
+// Thanks to tetryds for these
+f64 SphericalTerrainCpuGenerator::calculateHumidity(f64 range, f64 angle, f64 baseHum) {
+    f64 cos3x = cos(3.0 * angle);
+    f64 humFalloff = 1.0 - (-0.25 * angle + 1.0) * (cos3x * cos3x);
+    f64 hum = baseHum - humFalloff * range;
+    return glm::clamp(hum, 0.0, 255.0);
+}
+
+f64 SphericalTerrainCpuGenerator::computeAngleFromNormal(const f64v3& normal) {
+    // Compute angle
+    if (abs(normal.y) <= 0.000000001) {
+        // Need to do this to fix an equator bug
+        return 0.0;
+    } else {
+        f64v3 equator = glm::normalize(f64v3(normal.x, 0.000000001, normal.z));
+        return acos(glm::dot(equator, normal));
+    }
 }
 
 f64 doOperation(const TerrainOp& op, f64 a, f64 b) {

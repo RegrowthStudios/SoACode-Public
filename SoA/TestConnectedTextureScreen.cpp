@@ -2,6 +2,7 @@
 #include "TestConnectedTextureScreen.h"
 
 #include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/colors.h>
 
 #include "SoaState.h"
 #include "SoaEngine.h"
@@ -34,6 +35,9 @@ void TestConnectedTextureScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
+    // Init spritebatch and font
+    m_sb.init();
+    m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
     // Init game state
     SoaEngine::initState(m_commonState->state);
 
@@ -49,22 +53,17 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
 
-    { // Create Chunks
-        Chunk* chunk = new Chunk;
-        chunk->initAndFillEmpty(0, ChunkPosition3D());
-        chunk->blocks.set(CHUNK_SIZE / 2, m_soaState->blocks.getBlockIndex("ruby"));
-        m_chunks.emplace_back(chunk);
-    }
+    initChunks();
 
     // Create all chunk meshes
     m_mesher.init(&m_soaState->blocks);
-    for (auto& chunk : m_chunks) {
-        m_meshes.emplace_back(m_mesher.easyCreateChunkMesh(chunk, MeshTaskType::DEFAULT));
+    for (auto& cv : m_chunks) {
+        cv.chunkMesh = m_mesher.easyCreateChunkMesh(cv.chunk, MeshTaskType::DEFAULT);
     }
 
     { // Init the camera
         m_camera.init(m_commonState->window->getAspectRatio());
-        m_camera.setPosition(f64v3(16.0, 16.0, 30.0));
+        m_camera.setPosition(f64v3(16.0, 17.0, 33.0));
         m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
         m_camera.setRight(f32v3(1.0f, 0.0f, 0.0f));
         m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
@@ -79,8 +78,8 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 }
 
 void TestConnectedTextureScreen::onExit(const vui::GameTime& gameTime) {
-    for (auto& cm : m_meshes) {
-        delete cm;
+    for (auto& cv : m_chunks) {
+        m_mesher.freeChunkMesh(cv.chunkMesh);
     }
 }
 
@@ -116,15 +115,59 @@ void TestConnectedTextureScreen::update(const vui::GameTime& gameTime) {
 
 void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
+    if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     m_renderer.beginOpaque(m_soaState->blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
-    m_renderer.drawOpaque(m_meshes[m_activeChunk], m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+    m_renderer.drawOpaque(m_chunks[m_activeChunk].chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
     m_renderer.end();
 
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Draw UI
+    m_sb.begin();
+    m_sb.drawString(&m_font, (std::to_string(m_activeChunk) + ". " + m_chunks[m_activeChunk].name).c_str(), f32v2(30.0f), f32v2(1.0f), color::White);
+    m_sb.end();
+    m_sb.render(f32v2(m_commonState->window->getViewportDims()));
+    vg::DepthState::FULL.set(); // Have to restore depth
+}
+
+void TestConnectedTextureScreen::initChunks() {
+    ui16 grass = m_soaState->blocks.getBlockIndex("grass");
+    // TODO(Ben): Allow users to pick block
+    { // Grass 1
+        Chunk* chunk = addChunk("Grass 1");
+        chunk->setBlock(15, 16, 16, grass);
+        chunk->setBlock(16, 16, 16, grass);
+        chunk->setBlock(17, 16, 16, grass);
+        chunk->setBlock(15, 15, 17, grass);
+        chunk->setBlock(16, 15, 17, grass);
+        chunk->setBlock(17, 15, 17, grass);
+        chunk->setBlock(15, 15, 18, grass);
+        chunk->setBlock(16, 14, 18, grass);
+        chunk->setBlock(17, 14, 18, grass);
+        chunk->setBlock(15, 13, 19, grass);
+        chunk->setBlock(16, 13, 19, grass);
+        chunk->setBlock(17, 14, 19, grass);
+    }
+    { // Hourglass
+        Chunk* chunk = addChunk("Hourglass");
+        for (int y = 0; y < 16; y++) {
+            for (int z = y; z < CHUNK_WIDTH - y; z++) {
+                for (int x = y; x < CHUNK_WIDTH - y; x++) {
+                    chunk->setBlock(x, y, z, grass);
+                    chunk->setBlock(x, CHUNK_WIDTH - y - 1, z, grass);
+                }
+            }
+        }
+    }
+    { // Flat
+        Chunk* chunk = addChunk("Flat");
+        for (int i = 0; i < CHUNK_LAYER; i++) {
+            chunk->blocks.set(CHUNK_LAYER * 15 + i, grass);
+        }
+    }
 }
 
 void TestConnectedTextureScreen::initInput() {
@@ -180,6 +223,14 @@ void TestConnectedTextureScreen::initInput() {
                 m_activeChunk++;
                 if (m_activeChunk >= m_chunks.size()) m_activeChunk = 0;
                 break;
+            case VKEY_F10:
+                // Reload meshes
+                // TODO(Ben): Destroy meshes
+                for (auto& cv : m_chunks) {
+                    m_mesher.freeChunkMesh(cv.chunkMesh);
+                    cv.chunkMesh = m_mesher.easyCreateChunkMesh(cv.chunk, MeshTaskType::DEFAULT);
+                }
+                break;
             case VKEY_F11:
                 // Reload shaders
                 m_renderer.dispose();
@@ -209,4 +260,15 @@ void TestConnectedTextureScreen::initInput() {
                 break;
         }
     });
+}
+
+Chunk* TestConnectedTextureScreen::addChunk(const nString& name) {
+    Chunk* chunk = new Chunk;
+    chunk->initAndFillEmpty(0, ChunkPosition3D());
+    // TODO(Ben): AOS
+    ViewableChunk viewable;
+    viewable.chunk = chunk;
+    viewable.name = name;
+    m_chunks.push_back(viewable);
+    return chunk;
 }

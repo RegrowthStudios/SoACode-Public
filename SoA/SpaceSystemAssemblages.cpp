@@ -281,6 +281,8 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Initialize the threadpool with hc threads
     svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
     svcmp.threadPool->init(hc);
+    
+    svcmp.meshDepsFlushList = new moodycamel::ConcurrentQueue<Chunk*>();
 
     svcmp.chunkIo->beginThread();
     // Give some time for the threads to spin up
@@ -294,7 +296,15 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.planetGenData = ftcmp.planetGenData;
     svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
-
+    
+    // Set color maps
+    // TODO(Ben): This assumes a single SVC!
+    if (svcmp.planetGenData->terrainColorMap.id) {
+        soaState->blockTextures->setColorMap("biome", &svcmp.planetGenData->terrainColorPixels);
+    }
+    if (svcmp.planetGenData->liquidColorMap.id) {
+        soaState->blockTextures->setColorMap("liquid", &svcmp.planetGenData->liquidColorPixels);
+    }
     return svCmpId;
 }
 

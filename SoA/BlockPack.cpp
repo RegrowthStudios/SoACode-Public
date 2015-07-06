@@ -6,7 +6,7 @@ BlockPack::BlockPack() :
     
     { // Create "None" block
         Block b;
-        b.sID = "None";
+        b.sID = "none";
         b.name = "None";
         b.allowLight = true;
         b.collide = false;

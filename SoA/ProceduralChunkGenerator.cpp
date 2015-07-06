@@ -174,11 +174,13 @@ ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, 
     if (depth >= 0) {
         // TODO(Ben): Optimize
         blockID = layer.block;
+      //  blockID = 55;
         // Check for surface block replacement
         if (depth == 0) {
-            if (blockID == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
-                blockID = 43/*m_genData->surfaceBlock*/;
-            }
+            blockID = 55;
+        //    if (blockID == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
+        //        blockID = 43/*m_genData->surfaceBlock*/;
+        //    }
         }
     } else {
         // Liquid

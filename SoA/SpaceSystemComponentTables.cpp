@@ -21,6 +21,7 @@ void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs:
     while (cmp.threadPool->getTasksSizeApprox() > 0);
     delete cmp.chunkAllocator;
     delete cmp.chunkIo;
+    delete cmp.meshDepsFlushList;
     delete[] cmp.chunkGrids;
     cmp = _components[0].second;
 }

@@ -15,6 +15,7 @@
 #include <Vorb/RPC.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ImageIO.h>
+#include <Vorb/graphics/Texture.h>
 #include <Vorb/io/keg.h>
 #include <Vorb/ui/GameWindow.h>
 
