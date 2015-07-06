@@ -449,7 +449,6 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED
             v.depth = 0;
         }
 
-   
         v.temperature = (ui8)heightData[z + 1][x + 1][1];
 
         // Compute tangent

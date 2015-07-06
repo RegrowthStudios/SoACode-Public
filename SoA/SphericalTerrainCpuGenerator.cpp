@@ -31,8 +31,9 @@ void SphericalTerrainCpuGenerator::generateHeight(OUT PlanetHeightData& height, 
     f64v3 normal = glm::normalize(pos);
     pos = normal * m_genData->radius;
 
-    f64 h = getHeightValue(pos) * VOXELS_PER_M;
-    height.height = (i32)h;
+    f64 h = getHeightValue(pos);
+    height.height = (i32)(h * VOXELS_PER_M);
+    h *= KM_PER_M;
     height.temperature = (ui8)getTemperatureValue(pos, normal, h);
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
