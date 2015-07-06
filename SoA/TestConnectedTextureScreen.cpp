@@ -135,6 +135,7 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
 
 void TestConnectedTextureScreen::initChunks() {
     ui16 grass = m_soaState->blocks.getBlockIndex("grass");
+    ui16 dirt = m_soaState->blocks.getBlockIndex("dirt");
     // TODO(Ben): Allow users to pick block
     { // Grass 1
         Chunk* chunk = addChunk("Grass 1");
@@ -153,7 +154,7 @@ void TestConnectedTextureScreen::initChunks() {
     }
     { // Hourglass
         Chunk* chunk = addChunk("Hourglass");
-        for (int y = 0; y < 16; y++) {
+        for (int y = 0; y < HALF_CHUNK_WIDTH; y++) {
             for (int z = y; z < CHUNK_WIDTH - y; z++) {
                 for (int x = y; x < CHUNK_WIDTH - y; x++) {
                     chunk->setBlock(x, y, z, grass);
@@ -161,6 +162,11 @@ void TestConnectedTextureScreen::initChunks() {
                 }
             }
         }
+        for (int y = 0; y < CHUNK_WIDTH; y++) {
+            chunk->setBlock(0, y, 0, dirt);
+            chunk->setBlock(CHUNK_WIDTH_M1, y, CHUNK_WIDTH_M1, dirt);
+        }
+
     }
     { // Flat
         Chunk* chunk = addChunk("Flat");

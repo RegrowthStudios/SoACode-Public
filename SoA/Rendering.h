@@ -30,6 +30,8 @@ extern GLfloat flatSpriteVertices[8];
 
 //constants analogous to CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_SIZE for padded chunks.
 const int PADDED_WIDTH = CHUNK_WIDTH+2;
+// PADDED_WIDTH minus 1
+const int PADDED_WIDTH_M1 = PADDED_WIDTH - 1;
 const int PADDED_LAYER = PADDED_WIDTH*PADDED_WIDTH;
 const int PADDED_SIZE = PADDED_WIDTH*PADDED_LAYER;
 
