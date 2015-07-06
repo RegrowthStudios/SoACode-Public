@@ -63,7 +63,7 @@ void BlockTextureLayer::getFinalColor(OUT color3& resColor, ui8 temperature, ui8
     // TODO(Ben): Alternate colors
     if (colorMap) {
         // TODO(Ben): Store as floats to prevent cast overhead?
-        const color3& mapColor = colorMap->pixels[temperature][255 - rainfall];
+        const color3& mapColor = colorMap->pixels[temperature][rainfall];
         //Average the map color with the base color
         resColor.r = (ui8)(((f32)color.r * (f32)mapColor.r) / 255.0f);
         resColor.g = (ui8)(((f32)color.g * (f32)mapColor.g) / 255.0f);

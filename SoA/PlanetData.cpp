@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "PlanetData.h"
 
-ColorMaps PlanetGenData::colorMaps;
-
 KEG_TYPE_DEF_SAME_NAME(LiquidColorKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, LiquidColorKegProperties, colorPath, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, LiquidColorKegProperties, texturePath, STRING);

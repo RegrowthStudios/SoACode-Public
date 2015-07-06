@@ -22,7 +22,7 @@
 #include <Vorb/voxel/VoxelTextureStitcher.h>
 #include <Vorb/VorbPreDecl.inl>
 
-DECL_VG(class BitmapResource);
+DECL_VG(class BitmapResource; class Texture);
 
 struct AtlasTextureDescription {
     BlockTextureLayer temp;

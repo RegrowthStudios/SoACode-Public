@@ -351,7 +351,7 @@ ui8 TerrainPatchMesher::calculateHumidity(float range, float angle, float baseHu
     float cos3x = cos(3.0f * angle);
     float humFalloff = 1.0f - (-0.25f * angle + 1.0f) * (cos3x * cos3x);
     float hum = baseHum - humFalloff * range;
-    return (ui8)(255.0f - glm::clamp(hum, 0.0f, 255.0f));
+    return (ui8)(glm::clamp(hum, 0.0f, 255.0f));
 }
 
 void TerrainPatchMesher::buildSkirts() {
