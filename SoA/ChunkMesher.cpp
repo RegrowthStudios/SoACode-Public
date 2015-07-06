@@ -533,9 +533,9 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
     m_chunkMeshData = new ChunkMeshData(MeshTaskType::DEFAULT);
 
     // Loop through blocks
-    for (by = 0; by < PADDED_CHUNK_WIDTH - 2; by++) {
-        for (bz = 0; bz < PADDED_CHUNK_WIDTH - 2; bz++) {
-            for (bx = 0; bx < PADDED_CHUNK_WIDTH - 2; bx++) {
+    for (by = 0; by < CHUNK_WIDTH; by++) {
+        for (bz = 0; bz < CHUNK_WIDTH; bz++) {
+            for (bx = 0; bx < CHUNK_WIDTH; bx++) {
                 // Get data for this voxel
                 // TODO(Ben): Could optimize out -1
                 blockIndex = (by + 1) * PADDED_CHUNK_LAYER + (bz + 1) * PADDED_CHUNK_WIDTH + (bx + 1);

@@ -31,25 +31,12 @@ public:
     void generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                           const f32v3& startPos, WorldCubeFace cubeFace,
                           float width, f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
-                          f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
-                          f32v3 worldNormalData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]);
+                          f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]);
 
     static void uploadMeshData(TerrainPatchMesh* mesh);
 
     static const int VERTS_SIZE = PATCH_SIZE + PATCH_WIDTH * 4; ///< Number of vertices per patch
 private:
-
-    /// Calculates temperature based on angle with equator
-    /// @param range: The range to scale between
-    /// @angle: Angle from equator
-    /// @param baseTemp: Base temperature at equator
-    ui8 calculateTemperature(float range, float angle, float baseTemp);
-
-    /// Calculates humidity based on angle with equator
-    /// @param range: The range to scale between
-    /// @angle: Angle from equator
-    /// @param baseTemp: Base humidity at equator
-    ui8 calculateHumidity(float range, float angle, float baseHum);
 
     /// Builds the skirts for a patch
     void buildSkirts();
@@ -70,10 +57,6 @@ private:
     /// @param z: Z position
     /// @param x: X position
     void tryAddWaterQuad(int z, int x);
-
-    /// Computes angle with the equator based on the normal of position
-    /// @param normal: Normalized position on sphere
-    f32 computeAngleFromNormal(const f32v3& normal);
 
     static VGIndexBuffer m_sharedIbo; ///< Reusable CCW IBO
 
