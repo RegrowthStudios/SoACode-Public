@@ -3,12 +3,19 @@
 
 #include <Vorb/Random.h>
 #include <Vorb/graphics/SamplerState.h>
+#include <Vorb/utils.h>
+
 #include <glm/gtc/type_ptr.hpp>
+#include <random>
 
 #include "Errors.h"
 #include "ShaderLoader.h"
 
 void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height) {
+    std::mt19937 randGenerator;
+    std::uniform_real_distribution<f32> range1(-1.0f, 1.0f);
+    std::uniform_real_distribution<f32> range2(0.0f, 1.0f);
+    
     m_quad = quad;
     m_texNoise.width = SSAO_NOISE_TEXTURE_SIZE;
     m_texNoise.height = SSAO_NOISE_TEXTURE_SIZE;
@@ -18,8 +25,9 @@ void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     f32v2* data = new f32v2[pixCount];
     Random r(clock());
     for (i32 i = 0; i < pixCount; i++) {
-        data[i].x = (f32)(r.genMT() * 2.0f - 1.0f);
-        data[i].y = (f32)(r.genMT() * 2.0f - 1.0f);
+        // TODO(Ben): vec3?
+        data[i].x = range1(randGenerator);
+        data[i].y = range1(randGenerator);
         data[i] = glm::normalize(data[i]);
     }
 
@@ -34,10 +42,15 @@ void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     m_ssaoTarget.setSize(width, height);
     m_ssaoTarget.init(vg::TextureInternalFormat::R32F);
     
+    m_sampleKernel.resize(SSAO_SAMPLE_KERNEL_SIZE);
     for (unsigned int i = 0; i < SSAO_SAMPLE_KERNEL_SIZE; i++) {
-		m_sampleKernel.emplace_back((f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f), (f32)(r.genMT() * 2.0f - 1.0f));
-        float random = r.genMT();
-        m_sampleKernel[i] = glm::normalize(m_sampleKernel[i]) * (random * random + 0.1f);
+        m_sampleKernel[i] = glm::normalize(f32v3(range1(randGenerator),
+                                           range1(randGenerator),
+                                           range2(randGenerator)));
+        // Use accelerating interpolation
+        f32 scale = (f32)i / (f32)SSAO_SAMPLE_KERNEL_SIZE;
+        scale = lerp(0.1f, 1.0f, scale * scale);
+        m_sampleKernel[i] *= scale;
     }
 }
 
