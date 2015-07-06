@@ -87,18 +87,42 @@ bool BlockTextureLoader::loadLayerProperties() {
         return false;
     }
 
+    BlockTextureLayer* lp;
+    keg::Type colorType;
+    colorType.addValue("color", keg::Value::basic(0, keg::BasicType::UI8_V3));
+
+    auto lf = makeFunctor<Sender, const nString&, keg::Node>([&, this](Sender, const nString& key, keg::Node value) {
+        if (key == "path") {
+            lp->path = keg::convert<nString>(value);
+        } else if (key == "normalMap") {
+            lp->normalPath = keg::convert<nString>(value);
+        } else if (key == "dispMap") {
+            lp->dispPath = keg::convert<nString>(value);
+        } else if (key == "color") {
+            switch (keg::getType(value)) {
+                case keg::NodeType::VALUE:
+                    lp->colorMap = this->getTexturePack()->getColorMap(keg::convert<nString>(value));
+                    break;
+                case keg::NodeType::SEQUENCE:
+                    keg::parse((ui8*)&lp->color, value, context, &colorType);
+                    break;
+            }
+        }
+    });
     // Load all layers
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         BlockTextureLayer layer;
+        lp = &layer;
 
-        // Load data
-        keg::parse((ui8*)&layer, value, context, &KEG_GLOBAL_TYPE(BlockTextureLayer));
- 
+        // Manual parse
+        context.reader.forAllInMap(value, lf);
+
         // Cache the layer
         m_layers[key] = layer;
     });
     context.reader.forAllInMap(node, f);
     delete f;
+    delete lf;
     context.reader.dispose();
 
     return true;

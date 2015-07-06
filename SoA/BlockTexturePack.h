@@ -27,6 +27,12 @@ struct AtlasTextureDescription {
     ui32v2 size;
 };
 
+#define BLOCK_COLOR_MAP_WIDTH 256
+
+struct BlockColorMap {
+    color3 pixels[BLOCK_COLOR_MAP_WIDTH][BLOCK_COLOR_MAP_WIDTH];
+};
+
 class BlockTexturePack {
 public:
     BlockTexturePack() {};
@@ -45,6 +51,12 @@ public:
     BlockTexture* getNextFreeTexture(const nString& filePath);
 
     BlockTexture* getDefaultTexture() { return &m_defaultTexture; }
+
+    // Gets existing color map or loads from file
+    BlockColorMap* getColorMap(const nString& path);
+
+    BlockColorMap* setColorMap(const nString& name, const vg::BitmapResource* rs);
+    BlockColorMap* setColorMap(const nString& name, const ui8v3* pixels);
 
     // Call on GL thread. Will upload any textures that aren't yet uploaded.
     void update();
@@ -86,6 +98,7 @@ private:
 
     // For cache friendly caching of textures
     std::map<nString, ui32> m_textureLookup;
+    std::map<nString, BlockColorMap> m_colorMaps;
     BlockTexture* m_textures = nullptr; ///< Storage of all block textures
     BlockTexture m_defaultTexture;
     ui32 m_nextFree = 0;

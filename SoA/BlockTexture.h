@@ -112,8 +112,9 @@ public:
     ui32v2 size = ui32v2(1);
     ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
     ConnectedTextureReducedMethod reducedMethod = ConnectedTextureReducedMethod::NONE;
-    nString useMapColor = "";
-    color4 averageColor = color4(0, 0, 0, 0); // Lowest mipmap pixel
+    BlockColorMap* colorMap = nullptr;
+    color3 averageColor = color3(255, 255, 255); // Average texture color combined with color (for terrain)
+    color3 color = color3(255, 255, 255);
     ui32 floraHeight = 0;
     Array<i32> weights;
     ui32 totalWeight = 0;

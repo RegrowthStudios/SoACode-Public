@@ -35,7 +35,6 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("flammability", keg::Value::basic(offsetof(Block, flammability), keg::BasicType::F32));
     kt.addValue("explosionPowerLoss", keg::Value::basic(offsetof(Block, explosionPowerLoss), keg::BasicType::F32));
     kt.addValue("lightColorFilter", keg::Value::basic(offsetof(Block, colorFilter), keg::BasicType::F32_V3));
-    kt.addValue("color", keg::Value::basic(offsetof(Block, color), keg::BasicType::UI8_V3));
     kt.addValue("emitter", keg::Value::basic(offsetof(Block, emitterName), keg::BasicType::STRING));
     kt.addValue("movesPowder", keg::Value::basic(offsetof(Block, powderMove), keg::BasicType::BOOL));
     kt.addValue("collide", keg::Value::basic(offsetof(Block, collide), keg::BasicType::BOOL));
@@ -75,8 +74,6 @@ emitter(nullptr),
 emitterOnBreak(nullptr),
 emitterRandom(nullptr),
 emitterRandomName(""),
-color(255, 255, 255),
-overlayColor(255, 255, 255),
 lightColor(0, 0, 0) {
     allowLight = false;
     ID = 0;

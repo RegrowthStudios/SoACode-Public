@@ -263,11 +263,11 @@ void TestConnectedTextureScreen::initInput() {
     });
 }
 
-
 Chunk* TestConnectedTextureScreen::addChunk(const nString& name) {
     Chunk* chunk = new Chunk;
     chunk->initAndFillEmpty(0, ChunkPosition3D());
-    m_chunks.emplace_back(chunk);
+    // TODO(Ben): AOS
+    m_chunks.push_back(chunk);
     m_names.push_back(name);
     return chunk;
 }

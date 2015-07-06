@@ -33,6 +33,12 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 
     // Set up first page for default textures
     flagDirtyPage(0);
+
+    // Allocate biome and liquid maps and init to white
+    BlockColorMap& bmap = m_colorMaps["biome"];
+    memset(bmap.pixels, 255, sizeof(bmap.pixels));
+    BlockColorMap& lmap = m_colorMaps["liquid"];
+    memset(lmap.pixels, 255, sizeof(lmap.pixels));
 }
 
 // TODO(Ben): Lock?
@@ -139,6 +145,44 @@ BlockTexture* BlockTexturePack::getNextFreeTexture(const nString& filePath) {
     return &m_textures[m_nextFree++];
 }
 
+BlockColorMap* BlockTexturePack::getColorMap(const nString& path) {
+    auto& it = m_colorMaps.find(path);
+    if (it != m_colorMaps.end()) return &it->second;
+
+    // Load it
+    vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGB_UI8);
+    if (!rs.data) {
+        fprintf(stderr, "Warning: Could not find color map %s\n", path.c_str());
+        return nullptr;
+    }
+   
+    // Add it
+    return setColorMap(path, &rs);
+}
+
+BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const vg::BitmapResource* rs) {
+    // Error check
+    if (rs->width != BLOCK_COLOR_MAP_WIDTH || rs->height != BLOCK_COLOR_MAP_WIDTH) {
+        fprintf(stderr, "Warning: Color map %s is not %d x %d\n", name.c_str(), BLOCK_COLOR_MAP_WIDTH, BLOCK_COLOR_MAP_WIDTH);
+        fflush(stderr);
+    }
+    return setColorMap(name, rs->bytesUI8v3);
+}
+
+BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const ui8v3* pixels) {
+    // Allocate the color map
+    BlockColorMap* colorMap = &m_colorMaps[name];
+    // Set its pixels
+    for (int y = 0; y < BLOCK_COLOR_MAP_WIDTH; y++) {
+        for (int x = 0; x < BLOCK_COLOR_MAP_WIDTH; x++) {
+            colorMap->pixels[y][x].r = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].r;
+            colorMap->pixels[y][x].g = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].g;
+            colorMap->pixels[y][x].b = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].b;
+        }
+    }
+    return colorMap;
+}
+
 void BlockTexturePack::update() {
     bool needsMipmapGen = false;
     if (m_needsRealloc) {
@@ -243,14 +287,15 @@ void BlockTexturePack::allocatePages() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 
-    //glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
+   
     // Anisotropic filtering
     float anisotropy;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
     glActiveTexture(GL_TEXTURE0);
-    //glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    // Smooth texture params
+//    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ //   glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+ //   glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 
     // Unbind
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);

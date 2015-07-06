@@ -96,9 +96,6 @@ public:
     CA_ALGORITHM caAlg = CA_ALGORITHM::NONE;
     nString caFilePath = "";
 
-    ColorRGB8 color;
-    ColorRGB8 overlayColor;
-    ColorRGB8 averageColor;
     ColorRGB8 lightColor;
     ui8 particleTex;
     bool powderMove;
