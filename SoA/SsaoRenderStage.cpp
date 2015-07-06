@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SsaoRenderStage.h"
+#include "SSAORenderStage.h"
 
 #include <Vorb/Random.h>
 #include <Vorb/graphics/SamplerState.h>
@@ -8,7 +8,7 @@
 #include "Errors.h"
 #include "ShaderLoader.h"
 
-void SsaoRenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height) {
+void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height) {
     m_quad = quad;
     m_texNoise.width = SSAO_NOISE_TEXTURE_SIZE;
     m_texNoise.height = SSAO_NOISE_TEXTURE_SIZE;
@@ -41,7 +41,7 @@ void SsaoRenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     }
 }
 
-void SsaoRenderStage::dispose(StaticLoadContext& context)
+void SSAORenderStage::dispose(StaticLoadContext& context)
 {
     if (m_texNoise.id) {
         glDeleteTextures(1, &m_texNoise.id);
@@ -52,7 +52,7 @@ void SsaoRenderStage::dispose(StaticLoadContext& context)
     m_blurShader.dispose();
 }
 
-void SsaoRenderStage::render(const Camera* camera)
+void SSAORenderStage::render(const Camera* camera)
 {
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
@@ -118,7 +118,7 @@ void SsaoRenderStage::render(const Camera* camera)
     glEnable(GL_BLEND);
 }
 
-void SsaoRenderStage::reloadShaders()
+void SSAORenderStage::reloadShaders()
 {
     m_ssaoShader.dispose();
     m_blurShader.dispose();

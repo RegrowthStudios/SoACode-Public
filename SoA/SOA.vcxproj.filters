@@ -743,9 +743,6 @@
     <ClInclude Include="TestPlanetGenScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
-    <ClInclude Include="SsaoRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
     <ClInclude Include="ModPathResolver.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClInclude>
@@ -799,6 +796,9 @@
     </ClInclude>
     <ClInclude Include="LoadTaskBlockData.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAORenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1267,9 +1267,6 @@
     <ClCompile Include="BlockTextureLoader.cpp">
       <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClCompile>
-    <ClCompile Include="SsaoRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
     <ClCompile Include="LenseFlareRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -1305,6 +1302,9 @@
     </ClCompile>
     <ClCompile Include="TestConnectedTextureScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAORenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

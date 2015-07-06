@@ -117,8 +117,6 @@ void GameplayRenderer::load(StaticLoadContext& context) {
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
             m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
             
-            checkGlError("HELLO");
-            
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
             } else {
@@ -194,7 +192,7 @@ void GameplayRenderer::render() {
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
-    // TODO(Ben): Is this causing the camera slide descrepency? SHouldn't we use MTRenderState?
+    // TODO(Ben): Is this causing the camera slide discrepancy? SHouldn't we use MTRenderState?
     m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
                                        pos, 100, m_meshManager, &m_state->blocks, m_state->blockTextures, false);
     // Bind the FBO
@@ -256,6 +254,7 @@ void GameplayRenderer::render() {
     }
 
     // Draw to backbuffer for the last effect
+    // TODO(Ben): Do we really need to clear depth here...
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

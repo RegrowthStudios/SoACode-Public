@@ -14,7 +14,7 @@
 
 #include <vector>
 
-class SsaoRenderStage : public IRenderStage
+class SSAORenderStage : public IRenderStage
 {
 public:
     void hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height);

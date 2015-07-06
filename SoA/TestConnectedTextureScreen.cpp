@@ -44,6 +44,39 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
     // Init renderer
     m_renderer.init();
 
+    { // Init post processing
+        Array<vg::GBufferAttachment> attachments;
+        vg::GBufferAttachment att[2];
+        // Color
+        att[0].format = vg::TextureInternalFormat::RGBA16F;
+        att[0].pixelFormat = vg::TextureFormat::RGBA;
+        att[0].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+        att[0].number = 1;
+        // Normals
+        att[1].format = vg::TextureInternalFormat::RGBA16F;
+        att[1].pixelFormat = vg::TextureFormat::RGBA;
+        att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+        att[1].number = 2;
+        m_hdrTarget.setSize(m_commonState->window->getWidth(), m_commonState->window->getHeight());
+        m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
+    
+        // Swapchain
+        m_swapChain.init(m_commonState->window->getWidth(), m_commonState->window->getHeight(), vg::TextureInternalFormat::RGBA16F);
+   
+        // Init the FullQuadVBO
+        m_commonState->quad.init();
+
+        // SSAO
+        m_ssaoStage.init(m_commonState->window, m_commonState->loadContext);
+        m_ssaoStage.load(m_commonState->loadContext);
+        m_ssaoStage.hook(&m_commonState->quad, m_commonState->window->getWidth(), m_commonState->window->getHeight());
+
+        // HDR
+        m_hdrStage.init(m_commonState->window, m_commonState->loadContext);
+        m_hdrStage.load(m_commonState->loadContext);
+        m_hdrStage.hook(&m_commonState->quad);
+    }
+
     // Load blocks
     LoadTaskBlockData blockLoader(&m_soaState->blocks,
                                   &m_soaState->blockTextureLoader,
@@ -81,6 +114,8 @@ void TestConnectedTextureScreen::onExit(const vui::GameTime& gameTime) {
     for (auto& cv : m_chunks) {
         m_mesher.freeChunkMesh(cv.chunkMesh);
     }
+    m_hdrTarget.dispose();
+    m_swapChain.dispose();
 }
 
 void TestConnectedTextureScreen::update(const vui::GameTime& gameTime) {
@@ -114,6 +149,9 @@ void TestConnectedTextureScreen::update(const vui::GameTime& gameTime) {
 }
 
 void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
+    // Bind the FBO
+    m_hdrTarget.useGeometry();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -124,6 +162,24 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     m_renderer.end();
 
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Post processing
+    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
+
+    // Render SSAO
+    m_ssaoStage.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID(), m_camera.getProjectionMatrix());
+    m_ssaoStage.render();
+    m_swapChain.swap();
+    m_swapChain.use(0, false);
+
+    // Draw to backbuffer for the last effect
+    // TODO(Ben): Do we really need to clear depth here...
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getDepthTexture());
+    m_hdrStage.render();
 
     // Draw UI
     m_sb.begin();
@@ -227,7 +283,7 @@ void TestConnectedTextureScreen::initInput() {
                 break;
             case VKEY_RIGHT:
                 m_activeChunk++;
-                if (m_activeChunk >= m_chunks.size()) m_activeChunk = 0;
+                if (m_activeChunk >= (int)m_chunks.size()) m_activeChunk = 0;
                 break;
             case VKEY_F10:
                 // Reload meshes
@@ -241,6 +297,7 @@ void TestConnectedTextureScreen::initInput() {
                 // Reload shaders
                 m_renderer.dispose();
                 m_renderer.init();
+                m_ssaoStage.reloadShaders();
                 break;
         }
     });
