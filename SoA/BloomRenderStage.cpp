@@ -103,24 +103,14 @@ void BloomRenderStage::render(const Camera* camera) {
 	// luma
 	if (m_stage == BLOOM_RENDER_STAGE_LUMA) {
 		m_program_luma.use();
-		checkGlError("MainMenuRenderPipeline::render()");
-
 		m_program_luma.enableVertexAttribArrays();
-		checkGlError("MainMenuRenderPipeline::render()");
 
 		glDisable(GL_DEPTH_TEST);
-
-		checkGlError("MainMenuRenderPipeline::render()");
 		m_quad->draw();
-		checkGlError("MainMenuRenderPipeline::render()");
-
 		glEnable(GL_DEPTH_TEST);
-		checkGlError("MainMenuRenderPipeline::render()");
-
+		
 		m_program_luma.disableVertexAttribArrays();
-		checkGlError("MainMenuRenderPipeline::render()");
 		m_program_luma.unuse();
-		checkGlError("MainMenuRenderPipeline::render()");
 	}
 	// first gaussian pass
 	if (m_stage == BLOOM_RENDER_STAGE_GAUSSIAN_FIRST) {
