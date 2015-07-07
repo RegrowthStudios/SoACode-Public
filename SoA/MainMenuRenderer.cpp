@@ -42,7 +42,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.exposureCalc.init(window, context);
 	stages.bloom.init(window, context);
 
-	stages.bloom.setActive(false);
+	stages.bloom.setActive(true);
 
 }
 
@@ -173,16 +173,12 @@ void MainMenuRenderer::render() {
 	if (stages.bloom.isActive()) {
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_LUMA);
 		stages.bloom.render();
-		std::cout << "Bloom Luma FBO Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
-		std::cout << "Bloom Luma FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
 
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_FIRST);
 		m_swapChain.swap();
 		m_swapChain.use(BLOOM_TEXTURE_SLOT_LUMA, false);
 		stages.bloom.render();
-		std::cout << "Bloom Blur First FBO Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
-		std::cout << "Bloom Blur First FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
 
 		stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_SECOND);
@@ -191,8 +187,6 @@ void MainMenuRenderer::render() {
 		m_hdrTarget.bindTexture();
 		m_swapChain.use(BLOOM_TEXTURE_SLOT_BLUR, false);
 		stages.bloom.render();
-		std::cout << "Bloom Blur Second SwapChain Texture ID: " << m_swapChain.getCurrent().getTextureID() << std::endl;
-		std::cout << "Bloom Blur Second SwapChain FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
 		m_swapChain.swap();
 		m_swapChain.bindPreviousTexture(0);
