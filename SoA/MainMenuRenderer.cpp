@@ -170,21 +170,6 @@ void MainMenuRenderer::render() {
 
     // TODO: More Effects?
     if (stages.bloom.isActive()) {
-        stages.bloom.setStage(BLOOM_RENDER_STAGE_LUMA);
-        stages.bloom.render();
-        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
-
-        stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_FIRST);
-        m_swapChain.swap();
-        m_swapChain.use(BLOOM_TEXTURE_SLOT_LUMA, false);
-        stages.bloom.render();
-        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
-
-        stages.bloom.setStage(BLOOM_RENDER_STAGE_GAUSSIAN_SECOND);
-        m_swapChain.swap();
-        glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_COLOR);
-        m_hdrTarget.bindTexture();
-        m_swapChain.use(BLOOM_TEXTURE_SLOT_BLUR, false);
         stages.bloom.render();
         m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
         m_swapChain.swap();

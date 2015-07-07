@@ -21,6 +21,12 @@ void BloomRenderStage::init(vui::GameWindow* window, StaticLoadContext& context)
     IRenderStage::init(window, context);
     context.addAnticipatedWork(TOTAL_WORK, TOTAL_TASK);
 
+    // initialize FBOs
+    m_fbo1.setSize(m_window->getWidth(), m_window->getHeight());
+    m_fbo2.setSize(m_window->getWidth(), m_window->getHeight());
+    m_fbo1.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
+    m_fbo2.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
+
 }
 
 void BloomRenderStage::load(StaticLoadContext& context) {
@@ -32,6 +38,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         glUniform1i(m_program_luma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
         glUniform1f(m_program_luma.getUniform("unLumaThresh"), BLOOM_LUMA_THRESHOLD);
         m_program_luma.unuse();
+
         context.addWorkCompleted(TOTAL_TASK);
     }, false);
 
@@ -90,10 +97,6 @@ void BloomRenderStage::hook(vg::FullQuadVBO* quad) {
 
 }
 
-void BloomRenderStage::setStage(BloomRenderStagePass stage) {
-    m_stage = stage;
-}
-
 void BloomRenderStage::dispose(StaticLoadContext& context) {
     m_program_luma.dispose();
     m_program_gaussian_first.dispose();
@@ -101,9 +104,40 @@ void BloomRenderStage::dispose(StaticLoadContext& context) {
 }
 
 void BloomRenderStage::render(const Camera* camera) {
+    // get initial bound FBO and bound color texture to use it on final pass
+    GLint initial_fbo, initial_texture;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &initial_fbo);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &initial_texture);
 
+    // color texture should be bound on GL_TEXTURE0 slot
+
+    // luma pass rendering on temporary FBO 1
+    m_fbo1.use();
+    glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_COLOR);
+    glBindTexture(GL_TEXTURE_2D, initial_texture);
+    render(BLOOM_RENDER_STAGE_LUMA);
+    m_fbo1.unuse(m_window->getWidth(), m_window->getHeight());
+    
+    // first gaussian blur pass rendering on temporary FBO 2
+    m_fbo2.use();
+    glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_LUMA);
+    m_fbo1.bindTexture();
+    render(BLOOM_RENDER_STAGE_GAUSSIAN_FIRST);
+    m_fbo2.unuse(m_window->getWidth(), m_window->getHeight());
+
+    // second gaussian blur pass rendering on initially FBO
+    glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_COLOR);
+    glBindTexture(GL_TEXTURE_2D, initial_texture);
+    glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_BLUR);
+    m_fbo2.bindTexture();
+    glBindFramebuffer(GL_FRAMEBUFFER, initial_fbo);
+    render(BLOOM_RENDER_STAGE_GAUSSIAN_SECOND);
+    
+}
+
+void BloomRenderStage::render(BloomRenderStagePass stage) {
     // luma
-    if (m_stage == BLOOM_RENDER_STAGE_LUMA) {
+    if (stage == BLOOM_RENDER_STAGE_LUMA) {
         m_program_luma.use();
         m_program_luma.enableVertexAttribArrays();
 
@@ -115,7 +149,7 @@ void BloomRenderStage::render(const Camera* camera) {
         m_program_luma.unuse();
     }
     // first gaussian pass
-    if (m_stage == BLOOM_RENDER_STAGE_GAUSSIAN_FIRST) {
+    if (stage == BLOOM_RENDER_STAGE_GAUSSIAN_FIRST) {
         m_program_gaussian_first.use();
         m_program_gaussian_first.enableVertexAttribArrays();
 
@@ -127,7 +161,7 @@ void BloomRenderStage::render(const Camera* camera) {
         m_program_gaussian_first.unuse();
     }
     // second gaussian pass
-    if (m_stage == BLOOM_RENDER_STAGE_GAUSSIAN_SECOND) {
+    if (stage == BLOOM_RENDER_STAGE_GAUSSIAN_SECOND) {
         m_program_gaussian_second.use();
         m_program_gaussian_second.enableVertexAttribArrays();
 

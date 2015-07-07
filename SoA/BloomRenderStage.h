@@ -50,18 +50,17 @@ public:
 
     void hook(vg::FullQuadVBO* quad);
 
-    void setStage(BloomRenderStagePass stage);
-
     void dispose(StaticLoadContext& context) override;
 
     /// Draws the render stage
-    void render(const Camera* camera = nullptr);
+    void render(const Camera* camera = nullptr) override;
+
 private:
     vg::GLProgram m_program_luma, m_program_gaussian_first, m_program_gaussian_second;
     vg::FullQuadVBO* m_quad; ///< For use in processing through data
-    BloomRenderStagePass m_stage;
-
+    vg::GLRenderTarget m_fbo1, m_fbo2;
     float gauss(int i, float sigma2);
+    void render(BloomRenderStagePass stage);
 
 };
 
