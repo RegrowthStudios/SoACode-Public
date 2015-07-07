@@ -36,32 +36,32 @@
 #define BLOOM_TEXTURE_SLOT_BLUR 1  // texture slot to bind color texture which luma info will be extracted
 
 typedef enum {
-	BLOOM_RENDER_STAGE_LUMA,
-	BLOOM_RENDER_STAGE_GAUSSIAN_FIRST,
-	BLOOM_RENDER_STAGE_GAUSSIAN_SECOND
+    BLOOM_RENDER_STAGE_LUMA,
+    BLOOM_RENDER_STAGE_GAUSSIAN_FIRST,
+    BLOOM_RENDER_STAGE_GAUSSIAN_SECOND
 } BloomRenderStagePass;
 
 class BloomRenderStage : public IRenderStage {
 public:
 
-	void init(vui::GameWindow* window, StaticLoadContext& context) override;
+    void init(vui::GameWindow* window, StaticLoadContext& context) override;
 
-	void load(StaticLoadContext& context) override;
+    void load(StaticLoadContext& context) override;
 
-	void hook(vg::FullQuadVBO* quad);
+    void hook(vg::FullQuadVBO* quad);
 
-	void setStage(BloomRenderStagePass stage);
+    void setStage(BloomRenderStagePass stage);
 
-	void dispose(StaticLoadContext& context) override;
+    void dispose(StaticLoadContext& context) override;
 
-	/// Draws the render stage
-	void render(const Camera* camera = nullptr);
+    /// Draws the render stage
+    void render(const Camera* camera = nullptr);
 private:
-	vg::GLProgram m_program_luma, m_program_gaussian_first, m_program_gaussian_second;
-	vg::FullQuadVBO* m_quad; ///< For use in processing through data
-	BloomRenderStagePass m_stage;
+    vg::GLProgram m_program_luma, m_program_gaussian_first, m_program_gaussian_second;
+    vg::FullQuadVBO* m_quad; ///< For use in processing through data
+    BloomRenderStagePass m_stage;
 
-	float gauss(int i, float sigma2);
+    float gauss(int i, float sigma2);
 };
 
 #endif // BloomRenderStage_h__
