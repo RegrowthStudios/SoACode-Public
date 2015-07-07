@@ -29,6 +29,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 		m_program_luma = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomLuma.frag");
 		m_program_luma.use();
 		glUniform1i(m_program_luma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
+		glUniform1f(m_program_luma.getUniform("unLumaThresh"), BLOOM_LUMA_THRESHOLD);
 		m_program_luma.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, false);
@@ -38,7 +39,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 		m_program_gaussian_first = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianFirst.frag");
 		m_program_gaussian_first.use();
 		glUniform1i(m_program_gaussian_first.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
-		glUniform1i(m_program_gaussian_first.getUniform("Height"), m_window->getHeight());
+		glUniform1i(m_program_gaussian_first.getUniform("unHeight"), m_window->getHeight());
 		m_program_gaussian_first.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, true);
@@ -49,7 +50,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 		m_program_gaussian_second.use();
 		glUniform1i(m_program_gaussian_second.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
 		glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
-		glUniform1i(m_program_gaussian_second.getUniform("Width"), m_window->getWidth());
+		glUniform1i(m_program_gaussian_second.getUniform("unWidth"), m_window->getWidth());
 		m_program_gaussian_second.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, true);
@@ -57,22 +58,22 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 	// calculate gaussian weights
 	
 	context.addTask([&](Sender, void*) {
-		float weights[20], sum, sigma2 = 25.0f;
-		weights[0] = gauss(0, sigma2);
+		float weights[BLOOM_GAUSSIAN_N], sum;
+		weights[0] = gauss(0, BLOOM_GAUSSIAN_VARIANCE);
 		sum = weights[0];
-		for (int i = 0; i < 20; i++) {
-			weights[i] = gauss(i, sigma2);
+		for (int i = 0; i < BLOOM_GAUSSIAN_N; i++) {
+			weights[i] = gauss(i, BLOOM_GAUSSIAN_VARIANCE);
 			sum += 2 * weights[i];
 		}
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < BLOOM_GAUSSIAN_N; i++) {
 			weights[i] = weights[i] / sum;
 
 		}
 		m_program_gaussian_first.use();
-		glUniform1fv(m_program_gaussian_first.getUniform("Weight[0]"), 20, weights);
+		glUniform1fv(m_program_gaussian_first.getUniform("unWeight[0]"), BLOOM_GAUSSIAN_N, weights);
 		m_program_gaussian_first.unuse();
 		m_program_gaussian_second.use();
-		glUniform1fv(m_program_gaussian_second.getUniform("Weight[0]"), 20, weights);
+		glUniform1fv(m_program_gaussian_second.getUniform("unWeight[0]"), BLOOM_GAUSSIAN_N, weights);
 		m_program_gaussian_second.unuse();
 
 		context.addWorkCompleted(TOTAL_TASK);
