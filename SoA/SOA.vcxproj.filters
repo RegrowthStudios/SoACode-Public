@@ -818,6 +818,12 @@
     <ClInclude Include="DLLAPI.h">
       <Filter>SOA Files\Modding</Filter>
     </ClInclude>
+    <ClInclude Include="DLLLoader.h">
+      <Filter>SOA Files\Modding</Filter>
+    </ClInclude>
+    <ClInclude Include="ModInformation.h">
+      <Filter>SOA Files\Modding</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">

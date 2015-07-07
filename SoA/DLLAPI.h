@@ -7,9 +7,9 @@
 #ifndef DLLAPI_h__
 
 namespace DLLAPI {
-    struct DLLInformation {
-        const cString name;
-        const cString friendlyName;
+    struct Information {
+        const cString name; ///< The name of the DLL
+        const cString friendlyName; ///< A human readable form of the DLL
 
         union {
             struct {
@@ -18,10 +18,12 @@ namespace DLLAPI {
                 i32 revision : 12;
             };
             i32 id;
-        } version;
+        } version; ///< Versioning information
     };
 
-    typedef DLLInformation (*FuncRetrieveInformation)();
+    typedef void (*FuncRetrieveInformation)(DLLAPI::Information* info);
+    typedef void (*FuncFillFuntionTable)(void*** table, size_t* count);
+
 }
 
 #endif // DLLAPI_h__
