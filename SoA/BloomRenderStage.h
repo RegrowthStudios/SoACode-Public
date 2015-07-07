@@ -23,17 +23,17 @@
 
 #include "IRenderStage.h"
 
-#define BLOOM_LUMA_THRESHOLD 0.85f	// Threshold for filtering image luma for bloom bluring
-#define BLOOM_GAUSSIAN_N 10	// Radius number for gaussian blur. Has to be less than 50.
-#define BLOOM_GAUSSIAN_VARIANCE 16.0f	// Gaussian variance for blur pass
+#define BLOOM_LUMA_THRESHOLD 0.75f	// Threshold for filtering image luma for bloom bluring
+#define BLOOM_GAUSSIAN_N 20	// Radius number for gaussian blur. Has to be less than 50.
+#define BLOOM_GAUSSIAN_VARIANCE 36.0f	// Gaussian variance for blur pass
 
 #define TASK_WORK 4		// (arbitrary) weight of task
 #define TOTAL_TASK 4	// number of tasks
 #define TOTAL_WORK TOTAL_TASK * TASK_WORK
 
 #define BLOOM_TEXTURE_SLOT_COLOR 0  // texture slot to bind color texture which luma info will be extracted
-#define BLOOM_TEXTURE_SLOT_LUMA 0  // texture slot to bind color texture which luma info will be extracted
-#define BLOOM_TEXTURE_SLOT_BLUR 1  // texture slot to bind color texture which luma info will be extracted
+#define BLOOM_TEXTURE_SLOT_LUMA 0  // texture slot to bind luma texture
+#define BLOOM_TEXTURE_SLOT_BLUR 1  // texture slot to bind blur texture
 
 typedef enum {
     BLOOM_RENDER_STAGE_LUMA,
@@ -62,6 +62,7 @@ private:
     BloomRenderStagePass m_stage;
 
     float gauss(int i, float sigma2);
+
 };
 
 #endif // BloomRenderStage_h__

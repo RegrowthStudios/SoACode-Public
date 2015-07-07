@@ -788,6 +788,9 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
+    <ClInclude Include="BloomRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+	</ClInclude>
     <ClInclude Include="TerrainPatchMeshTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
@@ -1299,6 +1302,9 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
     <ClCompile Include="TerrainPatchMeshTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>

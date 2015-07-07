@@ -24,6 +24,7 @@ void BloomRenderStage::init(vui::GameWindow* window, StaticLoadContext& context)
 }
 
 void BloomRenderStage::load(StaticLoadContext& context) {
+
     // luma
     context.addTask([&](Sender, void*) {
         m_program_luma = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomLuma.frag");
@@ -79,6 +80,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 
         context.addWorkCompleted(TOTAL_TASK);
     }, false);
+
 
 }
 

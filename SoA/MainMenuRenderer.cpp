@@ -40,8 +40,8 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     m_commonState->stages.hdr.init(window, context);
     stages.colorFilter.init(window, context);
     stages.exposureCalc.init(window, context);
-    stages.bloom.init(window, context);
 
+    stages.bloom.init(window, context);
     stages.bloom.setActive(true);
 
 }
@@ -73,7 +73,6 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
         vcore::GLRPC so[4];
         size_t i = 0;
 
-        
         // Create the HDR target  
         context.addTask([&](Sender, void*) {
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
