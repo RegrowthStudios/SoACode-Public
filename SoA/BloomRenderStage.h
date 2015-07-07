@@ -23,9 +23,9 @@
 
 #include "IRenderStage.h"
 
-#define BLOOM_GAUSSIAN_N 20
-#define BLOOM_LUMA_THRESHOLD 0.7f
-#define BLOOM_GAUSSIAN_VARIANCE 25.0f
+#define BLOOM_GAUSSIAN_N 10
+#define BLOOM_LUMA_THRESHOLD 0.85f
+#define BLOOM_GAUSSIAN_VARIANCE 16.0f
 
 #define TASK_WORK 4  // (arbitrary) weight of task
 #define TOTAL_TASK 4
