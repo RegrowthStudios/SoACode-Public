@@ -9,6 +9,7 @@
 #include <random>
 
 #include "Errors.h"
+#include "Camera.h"
 #include "ShaderLoader.h"
 
 void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned int height) {
@@ -70,6 +71,9 @@ void SSAORenderStage::render(const Camera* camera)
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
+    const glm::mat4& projectionMatrix = camera->getProjectionMatrix();
+    const glm::mat4& viewMatrix = camera->getViewMatrix();
+
     { // SSAO pass      
         m_ssaoTarget.use();
         glClear(GL_COLOR_BUFFER_BIT);
@@ -91,13 +95,18 @@ void SSAORenderStage::render(const Camera* camera)
             glUniform1i(m_ssaoShader.getUniform("unTexNormal"), 1);
             glUniform1i(m_ssaoShader.getUniform("unTexNoise"), 2);
             glUniform3fv(glGetUniformLocation(m_ssaoShader.getID(), "unSampleKernel"), m_sampleKernel.size(), &m_sampleKernel.data()->x);
-            glUniform2f(m_ssaoShader.getUniform("unSSAOTextureSize"), (float)m_ssaoTarget.getWidth(), (float)m_ssaoTarget.getHeight());
-			glUniformMatrix4fv(m_ssaoShader.getUniform("unProjectionMatrix"), 1, false, glm::value_ptr(m_projectionMatrix));
-            glUniformMatrix4fv(m_ssaoShader.getUniform("unInvProjectionMatrix"), 1, false, glm::value_ptr(glm::inverse(m_projectionMatrix)));
+            glUniform2f(m_ssaoShader.getUniform("unNoiseScale"),
+                        (f32)m_ssaoTarget.getWidth() / SSAO_NOISE_TEXTURE_SIZE,
+                        (f32)m_ssaoTarget.getHeight() / SSAO_NOISE_TEXTURE_SIZE);
+            
         }
         else {
             m_ssaoShader.use();
         }
+
+        glUniformMatrix4fv(m_ssaoShader.getUniform("unViewMatrix"), 1, false, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(m_ssaoShader.getUniform("unProjectionMatrix"), 1, false, glm::value_ptr(projectionMatrix));
+        glUniformMatrix4fv(m_ssaoShader.getUniform("unInvProjectionMatrix"), 1, false, glm::value_ptr(glm::inverse(projectionMatrix)));
 
         m_quad->draw();
     }

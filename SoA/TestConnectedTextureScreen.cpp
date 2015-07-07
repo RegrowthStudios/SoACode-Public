@@ -167,8 +167,8 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     // Render SSAO
-    m_ssaoStage.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID(), m_camera.getProjectionMatrix());
-    m_ssaoStage.render();
+    m_ssaoStage.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
+    m_ssaoStage.render(&m_camera);
     m_swapChain.swap();
     m_swapChain.use(0, false);
 

@@ -2,8 +2,8 @@
 
 #include "IRenderStage.h"
 
-#define SSAO_NOISE_TEXTURE_SIZE 32
-#define SSAO_SAMPLE_KERNEL_SIZE 64
+#define SSAO_NOISE_TEXTURE_SIZE 4
+#define SSAO_SAMPLE_KERNEL_SIZE 32
 #define SSAO_BLUR_AMOUNT 2
 
 #include <Vorb/graphics/FullQuadVBO.h>
@@ -24,12 +24,11 @@ public:
     /// Draws the render stage
     virtual void render(const Camera* camera = nullptr) override;
 
-	inline void set(VGTexture depthTexture, VGTexture normalTexture, VGTexture colorTexture, VGFramebuffer hdrFrameBuffer, const f32m4& projectionMatrix) {
+	inline void set(VGTexture depthTexture, VGTexture normalTexture, VGTexture colorTexture, VGFramebuffer hdrFrameBuffer) {
         m_depthTexture = depthTexture;
         m_normalTexture = normalTexture;
         m_colorTexture = colorTexture;
         m_hdrFrameBuffer = hdrFrameBuffer;
-        m_projectionMatrix = projectionMatrix;
     }
     void reloadShaders();
 private:
@@ -43,5 +42,4 @@ private:
     VGTexture m_colorTexture;
     VGFramebuffer m_hdrFrameBuffer;
     std::vector<f32v3> m_sampleKernel;
-    f32m4 m_projectionMatrix;
 };

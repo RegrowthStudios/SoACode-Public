@@ -240,8 +240,8 @@ void GameplayRenderer::render() {
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     if (stages.ssao.isActive()) {
-        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID(), m_state->localCamera.getProjectionMatrix());
-        stages.ssao.render();
+        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
+        stages.ssao.render(&m_state->localCamera);
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
