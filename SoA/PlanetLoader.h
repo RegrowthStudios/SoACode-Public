@@ -55,6 +55,7 @@ public:
     /// @return planet gen data
     PlanetGenData* getRandomGenData(f32 radius, vcore::RPCManager* glrpc = nullptr);
     AtmosphereKegProperties getRandomAtmosphere();
+
 private:
     /// Loads the biomes from file
     /// @param filePath: Path to the biome file

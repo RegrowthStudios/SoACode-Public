@@ -7,129 +7,124 @@
 //SOURCE
 // http://www.6by9.net/simplex-noise-for-c-and-python/
 
-double ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double x, const double y );
+f64 ridged_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y );
 
-double ridged_octave_noise_3d_1(const double octaves,
-                    const double persistence,
-                    const double freq,
-                    const double x,
-                    const double y,
-                    const double z);
+f64 ridged_octave_noise_3d_1(const f64 octaves,
+                    const f64 persistence,
+                    const f64 freq,
+                    const f64 x,
+                    const f64 y,
+                    const f64 z);
 
-double ridged_octave_noise_3d_2(const double octaves,
-                    const double persistence,
-                    const double freq,
-                    const double x,
-                    const double y,
-                    const double z);
+f64 ridged_octave_noise_3d_2(const f64 octaves,
+                    const f64 persistence,
+                    const f64 freq,
+                    const f64 x,
+                    const f64 y,
+                    const f64 z);
 
-double reverse_ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double x, const double y );
+f64 reverse_ridged_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y );
 
-inline double octave_noise_2d(const double octaves,
-                    const double persistence,
-                    const double freq,
-                    const double x,
-                    const double y);
-inline double octave_noise_3d(const double octaves,
-                    const double persistence,
-                    const double freq,
-                    const double x,
-                    const double y,
-                    const double z);
-double octave_noise_4d(const double octaves,
-                    const double persistence,
-                    const double freq,
-                    const double x,
-                    const double y,
-                    const double z,
-                    const double w);
+inline f64 octave_noise_2d(const f64 octaves,
+                    const f64 persistence,
+                    const f64 freq,
+                    const f64 x,
+                    const f64 y);
+inline f64 octave_noise_3d(const f64 octaves,
+                    const f64 persistence,
+                    const f64 freq,
+                    const f64 x,
+                    const f64 y,
+                    const f64 z);
+f64 octave_noise_4d(const f64 octaves,
+                    const f64 persistence,
+                    const f64 freq,
+                    const f64 x,
+                    const f64 y,
+                    const f64 z,
+                    const f64 w);
 
 
 // Scaled Multi-octave Simplex noise
 // The result will be between the two parameters passed.
-double scaled_ridged_octave_noise_2d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y);
-double scaled_reverse_ridged_octave_noise_2d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y);
-double scaled_octave_noise_2d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y);
-double scaled_ridged_octave_noise_3d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y,
-                            const double z);
-double scaled_reverse_ridged_octave_noise_3d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y,
-                            const double z);
-double scaled_octave_noise_3d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y,
-                            const double z);
-double scaled_octave_noise_4d(  const double octaves,
-                            const double persistence,
-                            const double freq,
-                            const double loBound,
-                            const double hiBound,
-                            const double x,
-                            const double y,
-                            const double z,
-                            const double w);
+f64 scaled_ridged_octave_noise_2d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y);
+f64 scaled_reverse_ridged_octave_noise_2d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y);
+f64 scaled_octave_noise_2d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y);
+f64 scaled_ridged_octave_noise_3d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y,
+                            const f64 z);
+f64 scaled_reverse_ridged_octave_noise_3d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y,
+                            const f64 z);
+f64 scaled_octave_noise_3d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y,
+                            const f64 z);
+f64 scaled_octave_noise_4d(  const f64 octaves,
+                            const f64 persistence,
+                            const f64 freq,
+                            const f64 loBound,
+                            const f64 hiBound,
+                            const f64 x,
+                            const f64 y,
+                            const f64 z,
+                            const f64 w);
 
 // Scaled Raw Simplex noise
 // The result will be between the two parameters passed.
-inline double scaled_raw_noise_2d( const double loBound,
-                        const double hiBound,
-                        const double x,
-                        const double y);
-inline double scaled_raw_noise_3d( const double loBound,
-                        const double hiBound,
-                        const double x,
-                        const double y,
-                        const double z);
-double scaled_raw_noise_4d( const double loBound,
-                        const double hiBound,
-                        const double x,
-                        const double y,
-                        const double z,
-                        const double w);
+inline f64 scaled_raw_noise_2d( const f64 loBound,
+                        const f64 hiBound,
+                        const f64 x,
+                        const f64 y);
+inline f64 scaled_raw_noise_3d( const f64 loBound,
+                        const f64 hiBound,
+                        const f64 x,
+                        const f64 y,
+                        const f64 z);
+f64 scaled_raw_noise_4d( const f64 loBound,
+                        const f64 hiBound,
+                        const f64 x,
+                        const f64 y,
+                        const f64 z,
+                        const f64 w);
 
 
 // Raw Simplex noise - a single noise value.
-extern double raw_noise_2d(const double x, const double y);
-extern double raw_noise_3d(const double x, const double y, const double z);
-extern double raw_noise_4d(const double x, const double y, const double, const double w);
-
-inline double dot(const int* g, const double x, const double y);
-inline double dot(const int* g, const double x, const double y, const double z);
-inline double dot(const int* g, const double x, const double y, const double z, const double w);
-
+extern f64 raw_noise_2d(const f64 x, const f64 y);
+extern f64 raw_noise_3d(const f64 x, const f64 y, const f64 z);
+extern f64 raw_noise_4d(const f64 x, const f64 y, const f64, const f64 w);
 
 // The gradients are the midpoints of the vertices of a cube.
 static const int grad3[12][3] = {

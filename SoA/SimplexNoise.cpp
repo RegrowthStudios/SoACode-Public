@@ -5,17 +5,25 @@
 
 #define offsetfmult 1.45
 
+
+inline int fastfloor(const f64 x) { return x > 0 ? (int)x : (int)x - 1; }
+
+inline f64 dot(const int* g, const f64 x, const f64 y) { return g[0] * x + g[1] * y; }
+inline f64 dot(const int* g, const f64 x, const f64 y, const f64 z) { return g[0] * x + g[1] * y + g[2] * z; }
+inline f64 dot(const int* g, const f64 x, const f64 y, const f64 z, const f64 w) { return g[0] * x + g[1] * y + g[2] * z + g[3] * w; }
+
+
 // For each octave, a higher frequency/lower amplitude function will be added to the original.
 // The higher the persistence [0-1], the more of each succeeding octave will be added.
-double ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double x, const double y ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
-    double d;
+f64 ridged_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
+    f64 d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         d = raw_noise_2d( x * frequency, y * frequency );
@@ -35,15 +43,15 @@ double ridged_octave_noise_2d( const double octaves, const double persistence, c
     return total / maxAmplitude;
 }
 
-double reverse_ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double x, const double y ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
-    double d;
+f64 reverse_ridged_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
+    f64 d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         d = raw_noise_2d( x * frequency, y * frequency );
@@ -63,15 +71,15 @@ double reverse_ridged_octave_noise_2d( const double octaves, const double persis
     return total / maxAmplitude;
 }
 
-double ridged_octave_noise_3d( const double octaves, const double persistence, const double freq, const double x, const double y,  const double z ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
-    double d;
+f64 ridged_octave_noise_3d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y,  const f64 z ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
+    f64 d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         d = raw_noise_3d( x * frequency, y * frequency, z * frequency );
@@ -91,15 +99,15 @@ double ridged_octave_noise_3d( const double octaves, const double persistence, c
     return total / maxAmplitude;
 }
 
-double reverse_ridged_octave_noise_3d( const double octaves, const double persistence, const double freq, const double x, const double y, const double z) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
-    double d;
+f64 reverse_ridged_octave_noise_3d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
+    f64 d;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         d = raw_noise_3d( x * frequency, y * frequency, z * frequency );
@@ -119,23 +127,23 @@ double reverse_ridged_octave_noise_3d( const double octaves, const double persis
     return total / maxAmplitude;
 }
 
-double scaled_ridged_octave_noise_3d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y, const double z ) {
+f64 scaled_ridged_octave_noise_3d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y, const f64 z ) {
     return ridged_octave_noise_3d(octaves, persistence, freq, x, y, z) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
-double scaled_reverse_ridged_octave_noise_3d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y, const double z ) {
+f64 scaled_reverse_ridged_octave_noise_3d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y, const f64 z ) {
     return reverse_ridged_octave_noise_3d(octaves, persistence, freq, x, y, z) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
 
-double octave_noise_2d( const double octaves, const double persistence, const double freq, const double x, const double y ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
+f64 octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         total += raw_noise_2d( x * frequency, y * frequency ) * amplitude;
@@ -148,15 +156,15 @@ double octave_noise_2d( const double octaves, const double persistence, const do
     return total / maxAmplitude;
 }
 
-double ridged_octave_noise_3d_1( const double octaves, const double persistence, const double freq, const double x, const double y, const double z ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
-    double d;
-    double mult = 4;
+f64 ridged_octave_noise_3d_1( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
+    f64 d;
+    f64 mult = 4;
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     //******************** Make it so that successive noise cannot delete cave, and can only create it?
     for( int i=0; i < octaves; i++ ) {
@@ -178,15 +186,15 @@ double ridged_octave_noise_3d_1( const double octaves, const double persistence,
     return total / maxAmplitude;
 }
 
-double ridged_octave_noise_3d_2( const double octaves, const double persistence, const double freq, const double x, const double y, const double z ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
-    double d;
-    double mult = 4;
+f64 ridged_octave_noise_3d_2( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
+    f64 d;
+    f64 mult = 4;
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     //******************** Make it so that successive noise cannot delete cave, and can only create it?
     for( int i=0; i < octaves; i++ ) {    
@@ -212,14 +220,14 @@ double ridged_octave_noise_3d_2( const double octaves, const double persistence,
     return total / maxAmplitude;
 }
 
-double octave_noise_3d( const double octaves, const double persistence, const double freq, const double x, const double y, const double z ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
+f64 octave_noise_3d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         total += raw_noise_3d( x * frequency, y * frequency, z * frequency ) * amplitude;
@@ -232,14 +240,14 @@ double octave_noise_3d( const double octaves, const double persistence, const do
     return total / maxAmplitude;
 }
 
-double octave_noise_4d( const double octaves, const double persistence, const double freq, const double x, const double y, const double z, const double w ) {
-    double total = 0;
-    double frequency = freq;
-    double amplitude = 1;
+f64 octave_noise_4d( const f64 octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z, const f64 w ) {
+    f64 total = 0;
+    f64 frequency = freq;
+    f64 amplitude = 1;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
-    double maxAmplitude = 0;
+    f64 maxAmplitude = 0;
 
     for( int i=0; i < octaves; i++ ) {
         total += raw_noise_4d( x * frequency, y * frequency, z * frequency, w * frequency ) * amplitude;
@@ -252,60 +260,60 @@ double octave_noise_4d( const double octaves, const double persistence, const do
     return total / maxAmplitude;
 }
 
-double scaled_ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y ) {
+f64 scaled_ridged_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y ) {
     return ridged_octave_noise_2d(octaves, persistence, freq, x, y) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
-double scaled_reverse_ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y ) {
+f64 scaled_reverse_ridged_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y ) {
     return reverse_ridged_octave_noise_2d(octaves, persistence, freq, x, y) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
 
-double scaled_octave_noise_2d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y ) {
+f64 scaled_octave_noise_2d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y ) {
     return octave_noise_2d(octaves, persistence, freq, x, y) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
-double scaled_octave_noise_3d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y, const double z ) {
+f64 scaled_octave_noise_3d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y, const f64 z ) {
     return octave_noise_3d(octaves, persistence, freq, x, y, z) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
-double scaled_octave_noise_4d( const double octaves, const double persistence, const double freq, const double loBound, const double hiBound, const double x, const double y, const double z, const double w ) {
+f64 scaled_octave_noise_4d( const f64 octaves, const f64 persistence, const f64 freq, const f64 loBound, const f64 hiBound, const f64 x, const f64 y, const f64 z, const f64 w ) {
     return octave_noise_4d(octaves, persistence, freq, x, y, z, w) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
 
-double scaled_raw_noise_2d( const double loBound, const double hiBound, const double x, const double y ) {
+f64 scaled_raw_noise_2d( const f64 loBound, const f64 hiBound, const f64 x, const f64 y ) {
     return raw_noise_2d(x, y) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
-double scaled_raw_noise_3d( const double loBound, const double hiBound, const double x, const double y, const double z ) {
+f64 scaled_raw_noise_3d( const f64 loBound, const f64 hiBound, const f64 x, const f64 y, const f64 z ) {
     return raw_noise_3d(x, y, z) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
-double scaled_raw_noise_4d( const double loBound, const double hiBound, const double x, const double y, const double z, const double w ) {
+f64 scaled_raw_noise_4d( const f64 loBound, const f64 hiBound, const f64 x, const f64 y, const f64 z, const f64 w ) {
     return raw_noise_4d(x, y, z, w) * (hiBound - loBound) / 2 + (hiBound + loBound) / 2;
 }
 
 // 2D raw Simplex noise
-double raw_noise_2d( const double x, const double y ) {
+f64 raw_noise_2d( const f64 x, const f64 y ) {
     // Noise contributions from the three corners
-    double n0, n1, n2;
+    f64 n0, n1, n2;
 
     // Skew the input space to determine which simplex cell we're in
-    double F2 = 0.5 * (sqrtf(3.0) - 1.0);
+    f64 F2 = 0.5 * (sqrtf(3.0) - 1.0);
     // Hairy factor for 2D
-    double s = (x + y) * F2;
+    f64 s = (x + y) * F2;
     int i = fastFloor( x + s );
     int j = fastFloor(y + s);
 
-    double G2 = (3.0 - sqrtf(3.0)) / 6.0;
-    double t = (i + j) * G2;
+    f64 G2 = (3.0 - sqrtf(3.0)) / 6.0;
+    f64 t = (i + j) * G2;
     // Unskew the cell origin back to (x,y) space
-    double X0 = i-t;
-    double Y0 = j-t;
+    f64 X0 = i-t;
+    f64 Y0 = j-t;
     // The x,y distances from the cell origin
-    double x0 = x-X0;
-    double y0 = y-Y0;
+    f64 x0 = x-X0;
+    f64 y0 = y-Y0;
 
     // For the 2D case, the simplex shape is an equilateral triangle.
     // Determine which simplex we are in.
@@ -316,10 +324,10 @@ double raw_noise_2d( const double x, const double y ) {
     // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
     // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
     // c = (3-sqrt(3))/6
-    double x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords
-    double y1 = y0 - j1 + G2;
-    double x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords
-    double y2 = y0 - 1.0 + 2.0 * G2;
+    f64 x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords
+    f64 y1 = y0 - j1 + G2;
+    f64 x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords
+    f64 y2 = y0 - 1.0 + 2.0 * G2;
 
     // Work out the hashed gradient indices of the three simplex corners
     int ii = i & 255;
@@ -329,21 +337,21 @@ double raw_noise_2d( const double x, const double y ) {
     int gi2 = perm[ii+1+perm[jj+1]] % 12;
 
     // Calculate the contribution from the three corners
-    double t0 = 0.5 - x0*x0-y0*y0;
+    f64 t0 = 0.5 - x0*x0-y0*y0;
     if(t0<0) n0 = 0.0;
     else {
         t0 *= t0;
         n0 = t0 * t0 * dot(grad3[gi0], x0, y0); // (x,y) of grad3 used for 2D gradient
     }
 
-    double t1 = 0.5 - x1*x1-y1*y1;
+    f64 t1 = 0.5 - x1*x1-y1*y1;
     if(t1<0) n1 = 0.0;
     else {
         t1 *= t1;
         n1 = t1 * t1 * dot(grad3[gi1], x1, y1);
     }
 
-    double t2 = 0.5 - x2*x2-y2*y2;
+    f64 t2 = 0.5 - x2*x2-y2*y2;
     if(t2<0) n2 = 0.0;
     else {
         t2 *= t2;
@@ -447,24 +455,24 @@ float raw_noise_3df(const float x, const float y, const float z) {
 }
 
 // 3D raw Simplex noise
-double raw_noise_3d( const double x, const double y, const double z ) {
-    double n0, n1, n2, n3; // Noise contributions from the four corners
+f64 raw_noise_3d( const f64 x, const f64 y, const f64 z ) {
+    f64 n0, n1, n2, n3; // Noise contributions from the four corners
 
     // Skew the input space to determine which simplex cell we're in
-    const double F3 = 1.0/3.0;
-    double s = (x+y+z)*F3; // Very nice and simple skew factor for 3D
+    const f64 F3 = 1.0/3.0;
+    f64 s = (x+y+z)*F3; // Very nice and simple skew factor for 3D
     int i = fastFloor(x + s);
     int j = fastFloor(y + s);
     int k = fastFloor(z + s);
 
-    const double G3 = 1.0/6.0; // Very nice and simple unskew factor, too
-    double t = (i+j+k)*G3;
-    double X0 = i-t; // Unskew the cell origin back to (x,y,z) space
-    double Y0 = j-t;
-    double Z0 = k-t;
-    double x0 = x-X0; // The x,y,z distances from the cell origin
-    double y0 = y-Y0;
-    double z0 = z-Z0;
+    const f64 G3 = 1.0/6.0; // Very nice and simple unskew factor, too
+    f64 t = (i+j+k)*G3;
+    f64 X0 = i-t; // Unskew the cell origin back to (x,y,z) space
+    f64 Y0 = j-t;
+    f64 Z0 = k-t;
+    f64 x0 = x-X0; // The x,y,z distances from the cell origin
+    f64 y0 = y-Y0;
+    f64 z0 = z-Z0;
 
     // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
     // Determine which simplex we are in.
@@ -486,15 +494,15 @@ double raw_noise_3d( const double x, const double y, const double z ) {
     // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
     // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
     // c = 1/6.
-    double x1 = x0 - i1 + G3; // Offsets for second corner in (x,y,z) coords
-    double y1 = y0 - j1 + G3;
-    double z1 = z0 - k1 + G3;
-    double x2 = x0 - i2 + 2.0*G3; // Offsets for third corner in (x,y,z) coords
-    double y2 = y0 - j2 + 2.0*G3;
-    double z2 = z0 - k2 + 2.0*G3;
-    double x3 = x0 - 1.0 + 3.0*G3; // Offsets for last corner in (x,y,z) coords
-    double y3 = y0 - 1.0 + 3.0*G3;
-    double z3 = z0 - 1.0 + 3.0*G3;
+    f64 x1 = x0 - i1 + G3; // Offsets for second corner in (x,y,z) coords
+    f64 y1 = y0 - j1 + G3;
+    f64 z1 = z0 - k1 + G3;
+    f64 x2 = x0 - i2 + 2.0*G3; // Offsets for third corner in (x,y,z) coords
+    f64 y2 = y0 - j2 + 2.0*G3;
+    f64 z2 = z0 - k2 + 2.0*G3;
+    f64 x3 = x0 - 1.0 + 3.0*G3; // Offsets for last corner in (x,y,z) coords
+    f64 y3 = y0 - 1.0 + 3.0*G3;
+    f64 z3 = z0 - 1.0 + 3.0*G3;
 
     // Work out the hashed gradient indices of the four simplex corners
     int ii = i & 255;
@@ -506,28 +514,28 @@ double raw_noise_3d( const double x, const double y, const double z ) {
     int gi3 = perm[ii+1+perm[jj+1+perm[kk+1]]] % 12;
 
     // Calculate the contribution from the four corners
-    double t0 = 0.6 - x0*x0 - y0*y0 - z0*z0;
+    f64 t0 = 0.6 - x0*x0 - y0*y0 - z0*z0;
     if(t0<0) n0 = 0.0;
     else {
         t0 *= t0;
         n0 = t0 * t0 * dot(grad3[gi0], x0, y0, z0);
     }
 
-    double t1 = 0.6 - x1*x1 - y1*y1 - z1*z1;
+    f64 t1 = 0.6 - x1*x1 - y1*y1 - z1*z1;
     if(t1<0) n1 = 0.0;
     else {
         t1 *= t1;
         n1 = t1 * t1 * dot(grad3[gi1], x1, y1, z1);
     }
 
-    double t2 = 0.6 - x2*x2 - y2*y2 - z2*z2;
+    f64 t2 = 0.6 - x2*x2 - y2*y2 - z2*z2;
     if(t2<0) n2 = 0.0;
     else {
         t2 *= t2;
         n2 = t2 * t2 * dot(grad3[gi2], x2, y2, z2);
     }
 
-    double t3 = 0.6 - x3*x3 - y3*y3 - z3*z3;
+    f64 t3 = 0.6 - x3*x3 - y3*y3 - z3*z3;
     if(t3<0) n3 = 0.0;
     else {
         t3 *= t3;
@@ -540,28 +548,28 @@ double raw_noise_3d( const double x, const double y, const double z ) {
 }
 
 // 4D raw Simplex noise
-double raw_noise_4d( const double x, const double y, const double z, const double w ) {
+f64 raw_noise_4d( const f64 x, const f64 y, const f64 z, const f64 w ) {
     // The skewing and unskewing factors are hairy again for the 4D case
-    double F4 = (sqrtf(5.0)-1.0)/4.0;
-    double G4 = (5.0-sqrtf(5.0))/20.0;
-    double n0, n1, n2, n3, n4; // Noise contributions from the five corners
+    f64 F4 = (sqrtf(5.0)-1.0)/4.0;
+    f64 G4 = (5.0-sqrtf(5.0))/20.0;
+    f64 n0, n1, n2, n3, n4; // Noise contributions from the five corners
 
     // Skew the (x,y,z,w) space to determine which cell of 24 simplices we're in
-    double s = (x + y + z + w) * F4; // Factor for 4D skewing
+    f64 s = (x + y + z + w) * F4; // Factor for 4D skewing
     int i = fastFloor(x + s);
     int j = fastFloor(y + s);
     int k = fastFloor(z + s);
     int l = fastFloor(w + s);
-    double t = (i + j + k + l) * G4; // Factor for 4D unskewing
-    double X0 = i - t; // Unskew the cell origin back to (x,y,z,w) space
-    double Y0 = j - t;
-    double Z0 = k - t;
-    double W0 = l - t;
+    f64 t = (i + j + k + l) * G4; // Factor for 4D unskewing
+    f64 X0 = i - t; // Unskew the cell origin back to (x,y,z,w) space
+    f64 Y0 = j - t;
+    f64 Z0 = k - t;
+    f64 W0 = l - t;
 
-    double x0 = x - X0; // The x,y,z,w distances from the cell origin
-    double y0 = y - Y0;
-    double z0 = z - Z0;
-    double w0 = w - W0;
+    f64 x0 = x - X0; // The x,y,z,w distances from the cell origin
+    f64 y0 = y - Y0;
+    f64 z0 = z - Z0;
+    f64 w0 = w - W0;
 
     // For the 4D case, the simplex is a 4D shape I won't even try to describe.
     // To find out which of the 24 possible simplices we're in, we need to
@@ -604,22 +612,22 @@ double raw_noise_4d( const double x, const double y, const double z, const doubl
     l3 = simplex[c][3]>=1 ? 1 : 0;
     // The fifth corner has all coordinate offsets = 1, so no need to look that up.
 
-    double x1 = x0 - i1 + G4; // Offsets for second corner in (x,y,z,w) coords
-    double y1 = y0 - j1 + G4;
-    double z1 = z0 - k1 + G4;
-    double w1 = w0 - l1 + G4;
-    double x2 = x0 - i2 + 2.0*G4; // Offsets for third corner in (x,y,z,w) coords
-    double y2 = y0 - j2 + 2.0*G4;
-    double z2 = z0 - k2 + 2.0*G4;
-    double w2 = w0 - l2 + 2.0*G4;
-    double x3 = x0 - i3 + 3.0*G4; // Offsets for fourth corner in (x,y,z,w) coords
-    double y3 = y0 - j3 + 3.0*G4;
-    double z3 = z0 - k3 + 3.0*G4;
-    double w3 = w0 - l3 + 3.0*G4;
-    double x4 = x0 - 1.0 + 4.0*G4; // Offsets for last corner in (x,y,z,w) coords
-    double y4 = y0 - 1.0 + 4.0*G4;
-    double z4 = z0 - 1.0 + 4.0*G4;
-    double w4 = w0 - 1.0 + 4.0*G4;
+    f64 x1 = x0 - i1 + G4; // Offsets for second corner in (x,y,z,w) coords
+    f64 y1 = y0 - j1 + G4;
+    f64 z1 = z0 - k1 + G4;
+    f64 w1 = w0 - l1 + G4;
+    f64 x2 = x0 - i2 + 2.0*G4; // Offsets for third corner in (x,y,z,w) coords
+    f64 y2 = y0 - j2 + 2.0*G4;
+    f64 z2 = z0 - k2 + 2.0*G4;
+    f64 w2 = w0 - l2 + 2.0*G4;
+    f64 x3 = x0 - i3 + 3.0*G4; // Offsets for fourth corner in (x,y,z,w) coords
+    f64 y3 = y0 - j3 + 3.0*G4;
+    f64 z3 = z0 - k3 + 3.0*G4;
+    f64 w3 = w0 - l3 + 3.0*G4;
+    f64 x4 = x0 - 1.0 + 4.0*G4; // Offsets for last corner in (x,y,z,w) coords
+    f64 y4 = y0 - 1.0 + 4.0*G4;
+    f64 z4 = z0 - 1.0 + 4.0*G4;
+    f64 w4 = w0 - 1.0 + 4.0*G4;
 
     // Work out the hashed gradient indices of the five simplex corners
     int ii = i & 255;
@@ -633,35 +641,35 @@ double raw_noise_4d( const double x, const double y, const double z, const doubl
     int gi4 = perm[ii+1+perm[jj+1+perm[kk+1+perm[ll+1]]]] % 32;
 
     // Calculate the contribution from the five corners
-    double t0 = 0.6 - x0*x0 - y0*y0 - z0*z0 - w0*w0;
+    f64 t0 = 0.6 - x0*x0 - y0*y0 - z0*z0 - w0*w0;
     if(t0<0) n0 = 0.0;
     else {
         t0 *= t0;
         n0 = t0 * t0 * dot(grad4[gi0], x0, y0, z0, w0);
     }
 
-    double t1 = 0.6 - x1*x1 - y1*y1 - z1*z1 - w1*w1;
+    f64 t1 = 0.6 - x1*x1 - y1*y1 - z1*z1 - w1*w1;
     if(t1<0) n1 = 0.0;
     else {
         t1 *= t1;
         n1 = t1 * t1 * dot(grad4[gi1], x1, y1, z1, w1);
     }
 
-    double t2 = 0.6 - x2*x2 - y2*y2 - z2*z2 - w2*w2;
+    f64 t2 = 0.6 - x2*x2 - y2*y2 - z2*z2 - w2*w2;
     if(t2<0) n2 = 0.0;
     else {
         t2 *= t2;
         n2 = t2 * t2 * dot(grad4[gi2], x2, y2, z2, w2);
     }
 
-    double t3 = 0.6 - x3*x3 - y3*y3 - z3*z3 - w3*w3;
+    f64 t3 = 0.6 - x3*x3 - y3*y3 - z3*z3 - w3*w3;
     if(t3<0) n3 = 0.0;
     else {
         t3 *= t3;
         n3 = t3 * t3 * dot(grad4[gi3], x3, y3, z3, w3);
     }
 
-    double t4 = 0.6 - x4*x4 - y4*y4 - z4*z4 - w4*w4;
+    f64 t4 = 0.6 - x4*x4 - y4*y4 - z4*z4 - w4*w4;
     if(t4<0) n4 = 0.0;
     else {
         t4 *= t4;
@@ -671,9 +679,3 @@ double raw_noise_4d( const double x, const double y, const double z, const doubl
     // Sum up and scale the result to cover the range [-1,1]
     return 27.0 * (n0 + n1 + n2 + n3 + n4);
 }
-
-inline int fastfloor( const double x ) { return x > 0 ? (int) x : (int) x - 1; }
-
-double dot( const int* g, const double x, const double y ) { return g[0]*x + g[1]*y; }
-double dot( const int* g, const double x, const double y, const double z ) { return g[0]*x + g[1]*y + g[2]*z; }
-double dot( const int* g, const double x, const double y, const double z, const double w ) { return g[0]*x + g[1]*y + g[2]*z + g[3]*w; }

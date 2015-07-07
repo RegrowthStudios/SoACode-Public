@@ -236,8 +236,7 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
         }
 
         if (fn.children.size()) {
-            getNoiseValue(pos, fn.children, nextMod, nextOp);
-            rv += h;
+            rv += getNoiseValue(pos, fn.children, nextMod, nextOp);
         } else {
             rv = doOperation(fn.op, rv, h);
         }

@@ -131,6 +131,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadTarget) {
         m_reloadLock.lock();
         printf("Reloading Target\n");
+        m_soaState->threadPool->clearTasks();
+        Sleep(200);
         SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, nullptr);
         m_shouldReloadTarget = false;
         m_reloadLock.unlock();

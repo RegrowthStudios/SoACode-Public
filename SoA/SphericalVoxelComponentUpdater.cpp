@@ -45,7 +45,7 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
 }
 
 void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agentPosition) { 
-
+    return;
     // Always make a chunk at camera location
     i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition.pos);
     if (m_cmp->chunkGrids[agentPosition.face].getChunk(chunkPosition) == nullptr) {

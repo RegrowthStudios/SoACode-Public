@@ -38,6 +38,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     }
 
     PlanetGenData* genData = new PlanetGenData;
+    genData->filePath = filePath;
 
     nString biomePath = "";
 
@@ -73,7 +74,7 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     });
     context.reader.forAllInMap(node, f);
     context.reader.dispose();
-
+    delete f;
     return genData;
 }
 
@@ -262,6 +263,7 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                m_textureCache.freeTexture(kegProps.colorPath);
                 genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                     genData->liquidColorPixels,
                                                                     vg::ImageIOFormat::RGB_UI8,
@@ -272,6 +274,7 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
             });
             m_glRpc->invoke(&rpc, true);
         } else {
+            m_textureCache.freeTexture(kegProps.colorPath);
             genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                 genData->liquidColorPixels,
                                                                 vg::ImageIOFormat::RGB_UI8,
@@ -322,6 +325,7 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                m_textureCache.freeTexture(kegProps.colorPath);
                 genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                      genData->terrainColorPixels,
                                                                      vg::ImageIOFormat::RGB_UI8,
@@ -332,6 +336,7 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
             });
             m_glRpc->invoke(&rpc, true);
         } else {
+            m_textureCache.freeTexture(kegProps.colorPath);
             genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
                                                                  genData->terrainColorPixels,
                                                                  vg::ImageIOFormat::RGB_UI8,
