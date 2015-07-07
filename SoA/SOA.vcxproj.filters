@@ -788,7 +788,6 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="TerrainPatchMeshTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
@@ -1301,7 +1300,6 @@
     <ClCompile Include="Biome.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="TerrainPatchMeshTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
