@@ -40,6 +40,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 		m_program_gaussian_first.use();
 		glUniform1i(m_program_gaussian_first.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
 		glUniform1i(m_program_gaussian_first.getUniform("unHeight"), m_window->getHeight());
+		glUniform1i(m_program_gaussian_first.getUniform("unGaussianN"), BLOOM_GAUSSIAN_N);
 		m_program_gaussian_first.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, true);
@@ -51,6 +52,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 		glUniform1i(m_program_gaussian_second.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
 		glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
 		glUniform1i(m_program_gaussian_second.getUniform("unWidth"), m_window->getWidth());
+		glUniform1i(m_program_gaussian_second.getUniform("unGaussianN"), BLOOM_GAUSSIAN_N);
 		m_program_gaussian_second.unuse();
 		context.addWorkCompleted(TOTAL_TASK);
 	}, true);
@@ -67,7 +69,6 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 		}
 		for (int i = 0; i < BLOOM_GAUSSIAN_N; i++) {
 			weights[i] = weights[i] / sum;
-
 		}
 		m_program_gaussian_first.use();
 		glUniform1fv(m_program_gaussian_first.getUniform("unWeight[0]"), BLOOM_GAUSSIAN_N, weights);

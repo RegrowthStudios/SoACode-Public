@@ -42,7 +42,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.exposureCalc.init(window, context);
 	stages.bloom.init(window, context);
 
-	stages.bloom.setActive(true);
+	stages.bloom.setActive(false);
 
 }
 
@@ -123,51 +123,51 @@ void MainMenuRenderer::hook() {
 }
 
 void MainMenuRenderer::render() {
-    
-    // Check for window resize
-    if (m_shouldResize) resize();
 
-    // Bind the FBO
-    m_hdrTarget.use();
-    // Clear depth buffer. Don't have to clear color since skybox will overwrite it
-    glClear(GL_DEPTH_BUFFER_BIT);
+	// Check for window resize
+	if (m_shouldResize) resize();
 
-    // Main render passes
-    m_commonState->stages.skybox.render(&m_state->spaceCamera);
+	// Bind the FBO
+	m_hdrTarget.use();
+	// Clear depth buffer. Don't have to clear color since skybox will overwrite it
+	glClear(GL_DEPTH_BUFFER_BIT);
 
-    // Check fore wireframe mode
-    if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// Main render passes
+	m_commonState->stages.skybox.render(&m_state->spaceCamera);
 
-    m_commonState->stages.spaceSystem.setShowAR(m_showAR);
-    m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
+	// Check fore wireframe mode
+	if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // Restore fill
-    if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	m_commonState->stages.spaceSystem.setShowAR(m_showAR);
+	m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
 
-    f32v3 colorFilter(1.0);
-    // Color filter rendering
-    if (m_colorFilter != 0) {
-        switch (m_colorFilter) {
-            case 1:
-                colorFilter = f32v3(0.66f);
-                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
-            case 2:
-                colorFilter = f32v3(0.3f);
-                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
-            case 3:
-                colorFilter = f32v3(0.0f);
-                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
-        }
-        stages.colorFilter.render();
-    }
+	// Restore fill
+	if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    // Render last
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_commonState->stages.spaceSystem.renderStarGlows(colorFilter);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	f32v3 colorFilter(1.0);
+	// Color filter rendering
+	if (m_colorFilter != 0) {
+		switch (m_colorFilter) {
+		case 1:
+			colorFilter = f32v3(0.66f);
+			stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
+		case 2:
+			colorFilter = f32v3(0.3f);
+			stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
+		case 3:
+			colorFilter = f32v3(0.0f);
+			stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
+		}
+		stages.colorFilter.render();
+	}
 
-    // Post processing
-    m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
+	// Render last
+	glBlendFunc(GL_ONE, GL_ONE);
+	m_commonState->stages.spaceSystem.renderStarGlows(colorFilter);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Post processing
+	m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
 	// TODO: More Effects?
 	if (stages.bloom.isActive()) {
@@ -195,21 +195,24 @@ void MainMenuRenderer::render() {
 		std::cout << "Bloom Blur Second SwapChain FBO ID: " << m_swapChain.getCurrent().getID() << std::endl;
 		m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
 		m_swapChain.swap();
-	}	
+		m_swapChain.bindPreviousTexture(0);
+	}
 
-    // Draw to backbuffer for the last effect
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDrawBuffer(GL_BACK);
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	// Draw to backbuffer for the last effect
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDrawBuffer(GL_BACK);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    stages.exposureCalc.render();
-    // Move exposure towards target
-    static const f32 EXPOSURE_STEP = 0.005f;
-    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
+	stages.exposureCalc.render();
+	// Move exposure towards target
+	static const f32 EXPOSURE_STEP = 0.005f;
+	stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
 	if (!stages.bloom.isActive()) {
 		glActiveTexture(GL_TEXTURE0);
 		m_hdrTarget.bindTexture();
+	} else {
+		m_swapChain.bindPreviousTexture(0);
 	}
 	// original depth texture
     glActiveTexture(GL_TEXTURE1);
