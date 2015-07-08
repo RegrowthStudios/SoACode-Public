@@ -48,9 +48,12 @@ KEG_TYPE_DECL(BlockLayer);
 // TODO(Ben): Add more
 enum class BIOME_AXIS_TYPE { HEIGHT, NOISE };
 
+typedef nString BiomeID;
+
 struct Biome {
-    nString displayName;
-    ColorRGB8 mapColor; ///< For debugging
+    BiomeID id = "default";
+    nString displayName = "Default";
+    ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     Array<BlockLayer> blockLayers; ///< Overrides base layers
     struct BiomeMap* biomeMap = nullptr; ///< Optional sub-biome map
     BIOME_AXIS_TYPE axisTypes[2];
@@ -60,14 +63,11 @@ struct Biome {
 };
 KEG_TYPE_DECL(Biome);
 
-struct BiomeInfluence {
-    Biome* biome;
-    f32 influence; ///< For interpolation
-};
+static const Biome DEFAULT_BIOME;
 
 // TODO(Ben): This could be super cache friendly with a bit of work
 struct BiomeMap {
-    std::vector<BiomeInfluence> biomes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
+    Biome* biomes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
 };
 
 #endif // Biome_h__

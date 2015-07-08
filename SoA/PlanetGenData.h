@@ -66,18 +66,25 @@ struct PlanetGenData {
     f32 tempHeightFalloff = 0.0f;
     f32 humLatitudeFalloff = 0.0f;
     f32 humHeightFalloff = 0.0f;
-    VGTexture biomeArrayTexture = 0;
-    VGTexture baseBiomeLookupTexture = 0;
     PlanetBlockInitInfo blockInfo;
-    std::vector<Biome> biomes;
     std::vector<BlockLayer> blockLayers;
     ui32 liquidBlock = 0;
     ui32 surfaceBlock = 0;
     f64 radius = 0.0;
 
+    /************************************************************************/
+    /* Base Noise                                                           */
+    /************************************************************************/
     NoiseBase baseTerrainFuncs;
     NoiseBase tempTerrainFuncs;
     NoiseBase humTerrainFuncs;
+
+    /************************************************************************/
+    /* Biomes                                                               */
+    /************************************************************************/
+    const Biome* baseBiomeLookup[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
+    // TODO(Ben): Make it cache friendly
+    std::vector<Biome*> biomes; ///< Biome object storage
 
     nString filePath;
 };

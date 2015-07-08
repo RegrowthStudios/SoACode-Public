@@ -173,6 +173,9 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
                 v.color.b = 0;
             }*/
 
+            // TODO(Ben): This is temporary biome debugging
+            v.color = heightData[z][x].biome->mapColor;
+
             // Get data from heightmap 
             h = heightData[z][x].height;
 

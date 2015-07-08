@@ -22,29 +22,34 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     f64v3 normal = glm::normalize(pos);
     pos = normal * m_genData->radius;
 
-    f64 h = getHeightValue(pos);
+    f64 h = getBaseHeightValue(pos);
     height.height = (f32)(h * VOXELS_PER_M);
     h *= KM_PER_M;
     height.temperature = (ui8)getTemperatureValue(pos, normal, h);
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
 
+    // Biomes
+    height.biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
     // TODO(Ben) Custom generation
 }
 
 void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const {
     f64v3 pos = normal * m_genData->radius;
-    f64 h = getHeightValue(pos);
+    f64 h = getBaseHeightValue(pos);
     height.height = (f32)(h * VOXELS_PER_M);
     h *= KM_PER_M;
     height.temperature = (ui8)getTemperatureValue(pos, normal, h);
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock;
 
+    // Biomes
+    height.biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
+
     // TODO(Ben) Custom generation
 }
 
-f64 SphericalHeightmapGenerator::getHeightValue(const f64v3& pos) const {
+f64 SphericalHeightmapGenerator::getBaseHeightValue(const f64v3& pos) const {
     return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
 }
 

@@ -18,7 +18,7 @@
 struct Biome;
 
 struct PlanetHeightData {
-    Biome* biome;
+    const Biome* biome;
     f32 height; ///< Height in voxels
     ui16 surfaceBlock;
     ui8 temperature;

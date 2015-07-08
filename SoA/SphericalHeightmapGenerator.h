@@ -46,7 +46,7 @@ private:
                       f64* modifier,
                       const TerrainOp& op) const;
 
-    f64 getHeightValue(const f64v3& pos) const;
+    f64 getBaseHeightValue(const f64v3& pos) const;
     f64 getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const;
     f64 getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const;
 

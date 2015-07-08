@@ -41,10 +41,12 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     genData->filePath = filePath;
 
     nString biomePath = "";
+    bool didLoadBiomes = false;
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
+            didLoadBiomes = true;
             loadBiomes(keg::convert<nString>(value), genData);
         } else if (type == "terrainColor") {
             parseTerrainColor(context, value, genData);
@@ -75,6 +77,15 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     context.reader.forAllInMap(node, f);
     context.reader.dispose();
     delete f;
+
+    if (!didLoadBiomes) {
+        // Set default biome
+        for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+            for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+                genData->baseBiomeLookup[y][x] = &DEFAULT_BIOME;
+            }
+        }
+    }
     return genData;
 }
 
@@ -112,6 +123,13 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
         genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
 
+    // Set default biome
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            genData->baseBiomeLookup[y][x] = &DEFAULT_BIOME;
+        }
+    }
+
     return genData;
 }
 
@@ -126,9 +144,11 @@ AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
 }
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
+    // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
+    // Get the read context and error check
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data.c_str());
@@ -139,95 +159,59 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
-    m_baseBiomeLookupTextureData.resize(LOOKUP_TEXTURE_SIZE, 0);
-
-    keg::Error error;
+    typedef ui32 BiomeColorCode;
+    // Lookup Maps
+    std::map<BiomeColorCode, Biome*> m_baseBiomeLookupMap; ///< To lookup biomes via color code
+    BiomeColorCode colorCodes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
 
     // Load yaml data
     int i = 0;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         // Parse based on type
-        if (type == "baseLookupMap") {
+        if (key == "baseLookupMap") {
             vpath texPath;
             m_iom->resolvePath(keg::convert<nString>(value), texPath);
-            vg::BitmapResource bitmap = vg::ImageIO().load(texPath.getString());
+            vg::BitmapResource bitmap = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
             if (!bitmap.data) {
                 pError("Failed to load " + keg::convert<nString>(value));
             }
-            if (bitmap.width != 256 || bitmap.height != 256) {
-                pError("loadBiomes() error: width and height of " + keg::convert<nString>(value) + " must be 256");
+            if (bitmap.width != BIOME_MAP_WIDTH || bitmap.height != BIOME_MAP_WIDTH) {
+                pError("loadBiomes() error: width and height of " + keg::convert<nString>(value) +" must be " + std::to_string(BIOME_MAP_WIDTH));
             }
 
-            for (int i = 0; i < LOOKUP_TEXTURE_SIZE; i++) {
-                int index = i * 4;
-                ui32 colorCode = ((ui32)bitmap.bytesUI8[index] << 16) | ((ui32)bitmap.bytesUI8[index + 1] << 8) | (ui32)bitmap.bytesUI8[index + 2];
-                addBiomePixel(colorCode, i);
+            for (int i = 0; i < BIOME_MAP_WIDTH * BIOME_MAP_WIDTH; i++) {
+                ui8v3& color = bitmap.bytesUI8v3[i];
+                BiomeColorCode colorCode = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
+                colorCodes[i / BIOME_MAP_WIDTH][i % BIOME_MAP_WIDTH] = colorCode;
             }
-        } else {
-            // It is a biome
-            genData->biomes.emplace_back();
-            
-            error = keg::parse((ui8*)&genData->biomes.back(), value, context, &KEG_GLOBAL_TYPE(Biome));
+        } else { // It is a base biome
+            Biome* biome = new Biome;
+            genData->biomes.push_back(biome);
+            biome->id = key;
+            // Parse it
+            keg::Error error = keg::parse((ui8*)biome, value, context, &KEG_GLOBAL_TYPE(Biome));
             if (error != keg::Error::NONE) {
                 fprintf(stderr, "Keg error %d in loadBiomes()\n", (int)error);
                 return;
             }
+            // Get the color code
+            BiomeColorCode colorCode = ((ui32)biome->mapColor.r << 16) | ((ui32)biome->mapColor.g << 8) | (ui32)biome->mapColor.b;
+            m_baseBiomeLookupMap[colorCode] = biome;
         }
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, baseParser);
+    delete baseParser;
     context.reader.dispose();
 
-    // Code for uploading biome texture
-#define BIOME_TEX_CODE \
-    genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),\
-                                                                   LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
-                                                                   vg::TexturePixelType::UNSIGNED_BYTE,\
-                                                                   vg::TextureTarget::TEXTURE_2D,\
-                                                                   &vg::SamplerState::POINT_CLAMP,\
-                                                                   vg::TextureInternalFormat::R8,\
-                                                                   vg::TextureFormat::RED, 0);\
-    glGenTextures(1, &genData->biomeArrayTexture); \
-    glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);\
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);\
-    for (auto& it : m_biomeLookupMap) {\
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
-                        1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());\
-    }\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    if (m_biomeLookupMap.size()) {
-        // Handle RPC for texture upload
-        if (m_glRpc) {
-            vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                BIOME_TEX_CODE
-            });
-            m_glRpc->invoke(&rpc, true);
-        } else {
-            BIOME_TEX_CODE
-        }     
-    }
-    // Free memory
-    std::map<ui32, BiomeLookupTexture>().swap(m_biomeLookupMap);
-    std::vector<ui8>().swap(m_baseBiomeLookupTextureData);
-    m_biomeCount = 0;
-}
-
-void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
-    auto& it = m_biomeLookupMap.find(colorCode);
-    if (it == m_biomeLookupMap.end()) {
-        BiomeLookupTexture& tex = m_biomeLookupMap[colorCode];
-        tex.index = m_biomeCount;
-        m_baseBiomeLookupTextureData[index] = m_biomeCount;
-        tex.data[index] = 255;
-        m_biomeCount++;
-    } else {
-        m_baseBiomeLookupTextureData[index] = m_biomeCount - 1;
-        it->second.data[index] = 255;
+    // Set base biomes
+    memset(genData->baseBiomeLookup, 0, sizeof(genData->baseBiomeLookup));
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            auto& it = m_baseBiomeLookupMap.find(colorCodes[y][x]);
+            if (it != m_baseBiomeLookupMap.end()) {
+                genData->baseBiomeLookup[y][x] = it->second;
+            }
+        }
     }
 }
 
