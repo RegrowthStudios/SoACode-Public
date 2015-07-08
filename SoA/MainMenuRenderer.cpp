@@ -42,7 +42,8 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.exposureCalc.init(window, context);
 
     stages.bloom.init(window, context);
-    stages.bloom.setActive(false);
+    stages.bloom.setParams();
+    stages.bloom.setActive(true);
 
 }
 

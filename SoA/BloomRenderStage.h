@@ -23,17 +23,6 @@
 
 #include "IRenderStage.h"
 
-#define BLOOM_LUMA_THRESHOLD 0.75f	// Threshold for filtering image luma for bloom bluring
-#define BLOOM_GAUSSIAN_N 20	// Radius number for gaussian blur. Has to be less than 50.
-#define BLOOM_GAUSSIAN_VARIANCE 36.0f	// Gaussian variance for blur pass
-
-#define TASK_WORK 4		// (arbitrary) weight of task
-#define TOTAL_TASK 4	// number of tasks
-#define TOTAL_WORK TOTAL_TASK * TASK_WORK
-
-#define BLOOM_TEXTURE_SLOT_COLOR 0  // texture slot to bind color texture which luma info will be extracted
-#define BLOOM_TEXTURE_SLOT_LUMA 0  // texture slot to bind luma texture
-#define BLOOM_TEXTURE_SLOT_BLUR 1  // texture slot to bind blur texture
 
 typedef enum {
     BLOOM_RENDER_STAGE_LUMA,
@@ -46,6 +35,8 @@ public:
 
     void init(vui::GameWindow* window, StaticLoadContext& context) override;
 
+    void setParams(ui32 gaussianN = 20, float gaussian_variance = 36.0f, float luma_threshold = 0.75f);
+
     void load(StaticLoadContext& context) override;
 
     void hook(vg::FullQuadVBO* quad);
@@ -56,12 +47,15 @@ public:
     void render(const Camera* camera = nullptr) override;
 
 private:
-    vg::GLProgram m_program_luma, m_program_gaussian_first, m_program_gaussian_second;
-    vg::FullQuadVBO* m_quad; ///< For use in processing through data
-    vg::GLRenderTarget m_fbo1, m_fbo2;
     float gauss(int i, float sigma2);
     void render(BloomRenderStagePass stage);
 
+    vg::GLProgram m_program_luma, m_program_gaussian_first, m_program_gaussian_second;
+    vg::FullQuadVBO* m_quad;    ///< For use in processing through data
+    vg::GLRenderTarget m_fbo1, m_fbo2;
+    ui32 m_gaussianN;           ///< Threshold for filtering image luma for bloom bluring
+    float m_gaussian_variance;  ///< Radius number for gaussian blur. Must be less than 50.
+    float m_luma_threshold;     ///< Gaussian variance for blur pass
 };
 
 #endif // BloomRenderStage_h__

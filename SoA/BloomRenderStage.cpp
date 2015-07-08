@@ -10,9 +10,17 @@
 #include "Errors.h"
 #include "Vorb/ui/GameWindow.h"
 
+#define TASK_WORK  4                     // (arbitrary) weight of task
+#define TOTAL_TASK 4                    // number of tasks
+#define TOTAL_WORK TOTAL_TASK * TASK_WORK
+
+#define BLOOM_TEXTURE_SLOT_COLOR  0      // texture slot to bind color texture which luma info will be extracted
+#define BLOOM_TEXTURE_SLOT_LUMA   0       // texture slot to bind luma texture
+#define BLOOM_TEXTURE_SLOT_BLUR   1       // texture slot to bind blur texture
+
 
 float BloomRenderStage::gauss(int i, float sigma2) {
-        return 1.0 / std::sqrt(2 * 3.14159265 * sigma2) * std::exp(-(i*i) / (2 * sigma2));
+    return 1.0 / std::sqrt(2 * 3.14159265 * sigma2) * std::exp(-(i*i) / (2 * sigma2));
 }
 
 
@@ -29,6 +37,15 @@ void BloomRenderStage::init(vui::GameWindow* window, StaticLoadContext& context)
 
 }
 
+void BloomRenderStage::setParams(ui32 gaussianN /* = 20 */, float gaussian_variance /* = 36.0f */, float luma_threshold /* = 0.75f */) {
+    if (gaussianN > 50)
+        // if a bigger radius than 50 is desired, change the size of weights array in this file and the blur shaders
+        throw "Gaussian Radius for BloomRenderStage::setParams has to be less than 50.";
+    m_gaussianN = gaussianN;
+    m_gaussian_variance = gaussian_variance;
+    m_luma_threshold = luma_threshold;
+}
+
 void BloomRenderStage::load(StaticLoadContext& context) {
 
     // luma
@@ -36,7 +53,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         m_program_luma = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomLuma.frag");
         m_program_luma.use();
         glUniform1i(m_program_luma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
-        glUniform1f(m_program_luma.getUniform("unLumaThresh"), BLOOM_LUMA_THRESHOLD);
+        glUniform1f(m_program_luma.getUniform("unLumaThresh"), m_luma_threshold);
         m_program_luma.unuse();
 
         context.addWorkCompleted(TOTAL_TASK);
@@ -48,7 +65,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         m_program_gaussian_first.use();
         glUniform1i(m_program_gaussian_first.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
         glUniform1i(m_program_gaussian_first.getUniform("unHeight"), m_window->getHeight());
-        glUniform1i(m_program_gaussian_first.getUniform("unGaussianN"), BLOOM_GAUSSIAN_N);
+        glUniform1i(m_program_gaussian_first.getUniform("unGaussianN"), m_gaussianN);
         m_program_gaussian_first.unuse();
         context.addWorkCompleted(TOTAL_TASK);
     }, true);
@@ -60,7 +77,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         glUniform1i(m_program_gaussian_second.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
         glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
         glUniform1i(m_program_gaussian_second.getUniform("unWidth"), m_window->getWidth());
-        glUniform1i(m_program_gaussian_second.getUniform("unGaussianN"), BLOOM_GAUSSIAN_N);
+        glUniform1i(m_program_gaussian_second.getUniform("unGaussianN"), m_gaussianN);
         m_program_gaussian_second.unuse();
         context.addWorkCompleted(TOTAL_TASK);
     }, true);
@@ -68,21 +85,21 @@ void BloomRenderStage::load(StaticLoadContext& context) {
     // calculate gaussian weights
     
     context.addTask([&](Sender, void*) {
-        float weights[BLOOM_GAUSSIAN_N], sum;
-        weights[0] = gauss(0, BLOOM_GAUSSIAN_VARIANCE);
+        float weights[50], sum;
+        weights[0] = gauss(0, m_gaussian_variance);
         sum = weights[0];
-        for (int i = 0; i < BLOOM_GAUSSIAN_N; i++) {
-            weights[i] = gauss(i, BLOOM_GAUSSIAN_VARIANCE);
+        for (int i = 0; i < m_gaussianN; i++) {
+            weights[i] = gauss(i, m_gaussian_variance);
             sum += 2 * weights[i];
         }
-        for (int i = 0; i < BLOOM_GAUSSIAN_N; i++) {
+        for (int i = 0; i < m_gaussianN; i++) {
             weights[i] = weights[i] / sum;
         }
         m_program_gaussian_first.use();
-        glUniform1fv(m_program_gaussian_first.getUniform("unWeight[0]"), BLOOM_GAUSSIAN_N, weights);
+        glUniform1fv(m_program_gaussian_first.getUniform("unWeight[0]"), m_gaussianN, weights);
         m_program_gaussian_first.unuse();
         m_program_gaussian_second.use();
-        glUniform1fv(m_program_gaussian_second.getUniform("unWeight[0]"), BLOOM_GAUSSIAN_N, weights);
+        glUniform1fv(m_program_gaussian_second.getUniform("unWeight[0]"), m_gaussianN, weights);
         m_program_gaussian_second.unuse();
 
         context.addWorkCompleted(TOTAL_TASK);
@@ -136,20 +153,22 @@ void BloomRenderStage::render(const Camera* camera) {
 }
 
 void BloomRenderStage::render(BloomRenderStagePass stage) {
-    // luma
-    if (stage == BLOOM_RENDER_STAGE_LUMA) {
+    switch (stage) {
+        // luma
+    case BLOOM_RENDER_STAGE_LUMA:
         m_program_luma.use();
         m_program_luma.enableVertexAttribArrays();
 
         glDisable(GL_DEPTH_TEST);
         m_quad->draw();
         glEnable(GL_DEPTH_TEST);
-        
+
         m_program_luma.disableVertexAttribArrays();
         m_program_luma.unuse();
-    }
-    // first gaussian pass
-    if (stage == BLOOM_RENDER_STAGE_GAUSSIAN_FIRST) {
+        break;
+
+        // first gaussian pass
+    case BLOOM_RENDER_STAGE_GAUSSIAN_FIRST:
         m_program_gaussian_first.use();
         m_program_gaussian_first.enableVertexAttribArrays();
 
@@ -159,9 +178,10 @@ void BloomRenderStage::render(BloomRenderStagePass stage) {
 
         m_program_gaussian_first.disableVertexAttribArrays();
         m_program_gaussian_first.unuse();
-    }
-    // second gaussian pass
-    if (stage == BLOOM_RENDER_STAGE_GAUSSIAN_SECOND) {
+        break;
+
+        // second gaussian pass
+    case BLOOM_RENDER_STAGE_GAUSSIAN_SECOND:
         m_program_gaussian_second.use();
         m_program_gaussian_second.enableVertexAttribArrays();
 
@@ -171,6 +191,7 @@ void BloomRenderStage::render(BloomRenderStagePass stage) {
 
         m_program_gaussian_second.disableVertexAttribArrays();
         m_program_gaussian_second.unuse();
+        break;
     }
 
 }
