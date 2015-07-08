@@ -13,6 +13,39 @@
 
 #include "Errors.h"
 
+struct BiomeKegProperties {
+    Array<BiomeKegProperties> children;
+    Array<BlockLayer> blockLayers;
+    BiomeAxisType xAxis = BiomeAxisType::NOISE;
+    BiomeAxisType yAxis = BiomeAxisType::NOISE;
+    TerrainFuncKegProperties xNoise;
+    TerrainFuncKegProperties yNoise;
+    BiomeID id = "";
+    ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
+    NoiseBase biomeMapNoise; ///< For sub biome determination
+    NoiseBase terrainNoise; ///< Modifies terrain directly
+    f32v2 heightScale = f32v2(0.0f, 200.0f); ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
+    nString displayName = "Unknown";
+    nString childColorMap = "";
+};
+KEG_TYPE_DECL(BiomeKegProperties);
+KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
+    using namespace keg;
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, id, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, displayName, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, childColorMap, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, mapColor, UI8_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightScale, F32_V2);
+    kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
+    kt.addValue("xAxis", keg::Value::custom(offsetof(BiomeKegProperties, xAxis), "BiomeAxisType", true));
+    kt.addValue("yAxis", keg::Value::custom(offsetof(BiomeKegProperties, yAxis), "BiomeAxisType", true));
+    kt.addValue("xNoise", keg::Value::custom(offsetof(BiomeKegProperties, xNoise), "TerrainFuncKegProperties", false));
+    kt.addValue("yNoise", keg::Value::custom(offsetof(BiomeKegProperties, yNoise), "TerrainFuncKegProperties", false));
+    kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
+    kt.addValue("biomeMapNoise", Value::custom(offsetof(BiomeKegProperties, biomeMapNoise), "NoiseBase", false));
+    kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
+}
+
 PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
     m_iom(ioManager),
     m_textureCache(m_iom) {
@@ -143,6 +176,31 @@ AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
     return props;
 }
 
+// Helper function for loadBiomes
+ui32 recursiveCountBiomes(BiomeKegProperties& props) {
+    ui32 rv = 1;
+    for (size_t i = 0; i < props.children.size(); i++) {
+        rv += recursiveCountBiomes(props.children[i]);
+    }
+    return rv;
+}
+
+// Helper function to copy keg property data into biome
+void copyBiomeData(Biome& biome, BiomeKegProperties& kp) {
+    biome.id = kp.id;
+    biome.blockLayers.resize(kp.blockLayers.size());
+    for (size_t i = 0; i < kp.blockLayers.size(); i++) {
+        biome.blockLayers[i] = kp.blockLayers[i];
+    }
+    biome.displayName = kp.displayName;
+    biome.mapColor = kp.mapColor;
+    biome.heightScale = kp.heightScale;
+    biome.terrainNoise = kp.terrainNoise;
+    biome.biomeMapNoise = kp.biomeMapNoise;
+    biome.axisTypes[0] = kp.xAxis;
+    biome.axisTypes[1] = kp.yAxis;
+}
+
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
@@ -163,6 +221,8 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Lookup Maps
     std::map<BiomeColorCode, Biome*> m_baseBiomeLookupMap; ///< To lookup biomes via color code
     BiomeColorCode colorCodes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
+
+    std::vector<BiomeKegProperties> baseBiomes;
 
     // Load yaml data
     int i = 0;
@@ -185,23 +245,42 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
                 colorCodes[i / BIOME_MAP_WIDTH][i % BIOME_MAP_WIDTH] = colorCode;
             }
         } else { // It is a base biome
-            Biome* biome = new Biome;
-            genData->biomes.push_back(biome);
-            biome->id = key;
+            baseBiomes.emplace_back();
+            BiomeKegProperties& props = baseBiomes.back();
+            props.id = key;
             // Parse it
-            keg::Error error = keg::parse((ui8*)biome, value, context, &KEG_GLOBAL_TYPE(Biome));
+            keg::Error error = keg::parse((ui8*)&props, value, context, &KEG_GLOBAL_TYPE(BiomeKegProperties));
             if (error != keg::Error::NONE) {
                 fprintf(stderr, "Keg error %d in loadBiomes()\n", (int)error);
                 return;
             }
-            // Get the color code
-            BiomeColorCode colorCode = ((ui32)biome->mapColor.r << 16) | ((ui32)biome->mapColor.g << 8) | (ui32)biome->mapColor.b;
-            m_baseBiomeLookupMap[colorCode] = biome;
         }
     });
     context.reader.forAllInMap(node, baseParser);
     delete baseParser;
     context.reader.dispose();
+
+    // Get number of biomes
+    ui32 numBiomes = 0;
+    for (auto& kp : baseBiomes) {
+        numBiomes += recursiveCountBiomes(kp);
+    }
+    // Set biome storage
+    genData->biomes.resize(numBiomes);
+    
+    ui32 biomeCounter = 0;
+    for (size_t i = 0; i < baseBiomes.size(); i++) {
+        auto& kp = baseBiomes[i];
+        // Get the color code
+        BiomeColorCode colorCode = ((ui32)kp.mapColor.r << 16) | ((ui32)kp.mapColor.g << 8) | (ui32)kp.mapColor.b;
+        // Get the biome
+        Biome& biome = genData->biomes[biomeCounter++];
+
+        // Copy all the data over
+        copyBiomeData(biome, kp);
+
+        m_baseBiomeLookupMap[colorCode] = &biome;
+    }
 
     // Set base biomes
     memset(genData->baseBiomeLookup, 0, sizeof(genData->baseBiomeLookup));
