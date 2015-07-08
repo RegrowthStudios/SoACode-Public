@@ -46,10 +46,13 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.pauseMenu.init(window, context);
     stages.nightVision.init(window, context);
     stages.ssao.init(window, context);
+    stages.bloom.init(window, context);
+    stages.bloom.setParams();
 
     loadNightVision();
 
     // No post-process effects to begin with
+    stages.bloom.setActive(true);
     stages.nightVision.setActive(false);
     stages.chunkGrid.setActive(true); // TODO(Ben): Temporary
     //stages.chunkGrid.setActive(false);
@@ -77,6 +80,7 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
     stages.pauseMenu.dispose(context);
     stages.nightVision.dispose(context);
     stages.ssao.dispose(context);
+    stages.bloom.dispose(context);
 
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -152,6 +156,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         stages.pauseMenu.load(context);
         stages.nightVision.load(context);
         stages.ssao.load(context);
+        stages.bloom.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -172,6 +177,7 @@ void GameplayRenderer::hook() {
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
     stages.nightVision.hook(&m_commonState->quad);
     stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
+    stages.bloom.hook(&m_commonState->quad);
 }
 
 void GameplayRenderer::updateGL() {
@@ -244,6 +250,13 @@ void GameplayRenderer::render() {
     if (stages.ssao.isActive()) {
         stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
         stages.ssao.render();
+        m_swapChain.swap();
+        m_swapChain.use(0, false);
+    }
+
+    if (stages.bloom.isActive()) {
+        stages.bloom.render();
+        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }

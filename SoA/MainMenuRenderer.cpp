@@ -43,7 +43,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
 
     stages.bloom.init(window, context);
     stages.bloom.setParams();
-    stages.bloom.setActive(true);
+    stages.bloom.setActive(false);
 
 }
 
