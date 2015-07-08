@@ -293,9 +293,6 @@
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="SimplexNoise.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
     </ClInclude>
@@ -554,13 +551,7 @@
     <ClInclude Include="ProgramGenDelegate.h">
       <Filter>SOA Files\Rendering\Delegates</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetData.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="NoiseShaderCode.hpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainCpuGenerator.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
     <ClInclude Include="TerrainGenTextures.h">
@@ -568,9 +559,6 @@
     </ClInclude>
     <ClInclude Include="PlanetLoader.h">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="CpuNoise.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
     <ClInclude Include="FarTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
@@ -794,6 +782,15 @@
     <ClInclude Include="LoadTaskBlockData.h">
       <Filter>SOA Files\Screens\Load\Tasks</Filter>
     </ClInclude>
+    <ClInclude Include="SphericalHeightmapGenerator.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Noise.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetGenData.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -885,9 +882,6 @@
     </ClCompile>
     <ClCompile Include="Rendering.cpp">
       <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="SimplexNoise.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
@@ -1111,20 +1105,11 @@
     <ClCompile Include="VoxelSpaceUtils.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetData.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainCpuGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
     <ClCompile Include="PlanetLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="CpuNoise.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
     <ClCompile Include="FarTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
@@ -1299,6 +1284,15 @@
     </ClCompile>
     <ClCompile Include="TestConnectedTextureScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalHeightmapGenerator.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Noise.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetGenData.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

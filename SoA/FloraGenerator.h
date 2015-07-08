@@ -5,6 +5,7 @@
 class Chunk;
 class TreeType;
 class TreeData;
+struct Biome;
 
 //This node is used in tree generation
 class TreeNode {
@@ -17,6 +18,7 @@ public:
 };
 
 //static flora generation class. Both trees and plants are considered flora
+// TODO(Ben): Rewrite completly
 class FloraGenerator {
 public:
 

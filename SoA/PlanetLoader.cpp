@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 
 #include <random>
 

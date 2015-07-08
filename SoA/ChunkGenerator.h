@@ -17,7 +17,7 @@
 
 #include "VoxPool.h"
 #include "ProceduralChunkGenerator.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 #include "GenerateTask.h"
 #include <Vorb/ThreadPool.h>
 

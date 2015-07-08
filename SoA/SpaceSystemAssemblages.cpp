@@ -11,7 +11,7 @@
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 
 #include "TerrainPatchMeshManager.h"
 #include "SpaceSystemAssemblages.h"
@@ -19,7 +19,7 @@
 
 // TEMPORARY
 #include "GameManager.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 
 #include <glm/gtx/quaternion.hpp>
 

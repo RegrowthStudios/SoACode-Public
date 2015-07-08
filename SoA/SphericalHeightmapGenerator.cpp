@@ -1,10 +1,9 @@
 #include "stdafx.h"
-#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 
 #include "PlanetHeightData.h"
 #include "VoxelSpaceConversions.h"
-#include "CpuNoise.h"
-#include "SimplexNoise.h"
+#include "Noise.h"
 
 //
 //SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
@@ -174,30 +173,30 @@ f64 SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             f64 amplitude = 1.0;
             f64 frequency = fn.frequency;
             for (int i = 0; i < fn.octaves; i++) {
-                
+                // TODO(Ben): Could cut branching
                 switch (fn.func) {
                     case TerrainStage::CUBED_NOISE:
                     case TerrainStage::SQUARED_NOISE:
                     case TerrainStage::NOISE:
-                        total += raw_noise_3d(pos.x * frequency, pos.y * frequency, pos.z * frequency) * amplitude;
+                        total += Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency) * amplitude;
                         break;
                     case TerrainStage::RIDGED_NOISE:
-                        total += ((1.0 - glm::abs(raw_noise_3d(pos.x * frequency, pos.y * frequency, pos.z * frequency))) * 2.0 - 1.0) * amplitude;
+                        total += ((1.0 - glm::abs(Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency))) * 2.0 - 1.0) * amplitude;
                         break;
                     case TerrainStage::ABS_NOISE:
-                        total += glm::abs(raw_noise_3d(pos.x * frequency, pos.y * frequency, pos.z * frequency)) * amplitude;
+                        total += glm::abs(Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency)) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_NOISE:
-                        ff = CpuNoise::cellular(pos * (f64)frequency);
+                        ff = Noise::cellular(pos * (f64)frequency);
                         total += (ff.y - ff.x) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_SQUARED_NOISE:
-                        ff = CpuNoise::cellular(pos * (f64)frequency);
+                        ff = Noise::cellular(pos * (f64)frequency);
                         tmp = ff.y - ff.x;
                         total += tmp * tmp * amplitude;
                         break;
                     case TerrainStage::CELLULAR_CUBED_NOISE:
-                        ff = CpuNoise::cellular(pos * (f64)frequency);
+                        ff = Noise::cellular(pos * (f64)frequency);
                         tmp = ff.y - ff.x;
                         total += tmp * tmp * tmp * amplitude;
                         break;

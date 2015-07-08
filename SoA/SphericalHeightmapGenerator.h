@@ -19,7 +19,7 @@
 #include "TerrainPatch.h"
 #include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 
 struct NoiseBase;
 struct PlanetHeightData;
@@ -48,9 +48,6 @@ public:
     /// @param baseTemp: Base humidity at equator
     static f64 calculateHumidity(f64 range, f64 angle, f64 baseHum);
 
-    // Computes angle from normalized position
-    static f64 computeAngleFromNormal(const f64v3& normal);
-
     const PlanetGenData* getGenData() const { return m_genData; }
 private:
     /// Gets noise value using terrainFuncs
@@ -60,7 +57,10 @@ private:
                       f64* modifier,
                       const TerrainOp& op) const;
 
-    const PlanetGenData* m_genData = nullptr; ///< Planet generation data
+    // Computes angle from normalized position
+    static f64 computeAngleFromNormal(const f64v3& normal);
+
+    const PlanetGenData* m_genData = nullptr; ///< Planet generation data for this generator
 };
 
 #endif // SphericalTerrainCpuGenerator_h__

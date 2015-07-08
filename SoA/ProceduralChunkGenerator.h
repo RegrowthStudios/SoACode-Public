@@ -20,7 +20,7 @@ struct PlanetHeightData;
 struct BlockLayer;
 class Chunk;
 
-#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 
 class ProceduralChunkGenerator {
 public:

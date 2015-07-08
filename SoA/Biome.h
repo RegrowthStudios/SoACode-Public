@@ -16,6 +16,8 @@
 
 #include <Vorb/io/Keg.h>
 
+#include "Noise.h"
+
 class BiomeTree {
 public:
     BiomeTree(f32 prob, i32 index) : probability(prob),
@@ -50,7 +52,7 @@ struct Biome {
     nString displayName;
     ColorRGB8 mapColor; ///< For debugging
     Array<BlockLayer> blockLayers; ///< Overrides base layers
-    BiomeMap* biomeMap = nullptr; ///< Optional sub-biome map
+    struct BiomeMap* biomeMap = nullptr; ///< Optional sub-biome map
     BIOME_AXIS_TYPE axisTypes[2];
     f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
     NoiseBase terrainNoise; ///< Modifies terrain directly

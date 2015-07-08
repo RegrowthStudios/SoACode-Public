@@ -21,6 +21,7 @@
 #include <Vorb/graphics/Texture.h>
 #include <Vorb/io/Keg.h>
 
+#include "Noise.h"
 #include "Biome.h"
 
 DECL_VG(class GLProgram; class BitmapResource);
@@ -41,49 +42,6 @@ struct TerrainColorKegProperties {
     ColorRGB8 tint = ColorRGB8(255, 255, 255);
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
-
-enum class TerrainStage {
-    NOISE,
-    SQUARED,
-    CUBED,
-    RIDGED_NOISE,
-    ABS_NOISE,
-    SQUARED_NOISE,
-    CUBED_NOISE,
-    CELLULAR_NOISE,
-    CELLULAR_SQUARED_NOISE,
-    CELLULAR_CUBED_NOISE,
-    CONSTANT,
-    PASS_THROUGH
-};
-KEG_ENUM_DECL(TerrainStage);
-
-enum class TerrainOp {
-    ADD = 0,
-    SUB,
-    MUL,
-    DIV
-};
-KEG_ENUM_DECL(TerrainOp);
-
-struct TerrainFuncKegProperties {
-    TerrainStage func = TerrainStage::NOISE;
-    TerrainOp op = TerrainOp::ADD;
-    int octaves = 1;
-    f32 persistence = 1.0f;
-    f32 frequency = 1.0f;
-    f32 low = -1.0f;
-    f32 high = 1.0f;
-    f32v2 clamp = f32v2(0.0f);
-    Array<TerrainFuncKegProperties> children;
-};
-KEG_TYPE_DECL(TerrainFuncKegProperties);
-
-struct NoiseBase {
-    f32 base = 0.0f;
-    Array<TerrainFuncKegProperties> funcs;
-};
-KEG_TYPE_DECL(NoiseBase);
 
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {

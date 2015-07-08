@@ -5,7 +5,7 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 #include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
 #include "soaUtils.h"

@@ -3,9 +3,9 @@
 
 #include "VoxelSpaceConversions.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 #include "TerrainPatchMeshManager.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/GraphicsDevice.h>

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SphericalTerrainCpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 #include "TerrainPatchMesh.h"
 #include "TerrainPatchMeshManager.h"
 #include "TerrainPatchMeshTask.h"

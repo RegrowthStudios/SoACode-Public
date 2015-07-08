@@ -15,7 +15,7 @@
 #ifndef PlanetGenerator_h__
 #define PlanetGenerator_h__
 
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 #include "SpaceSystemLoadStructs.h"
 
 #include <Vorb/RPC.h>

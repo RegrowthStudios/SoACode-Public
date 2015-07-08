@@ -11,7 +11,7 @@
 #include <Vorb/TextureRecycler.hpp>
 
 #include "FarTerrainPatch.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
