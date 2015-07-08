@@ -25,7 +25,7 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
     f64v3 pos;
     f32v3 tmpPos;
 
-    SphericalTerrainCpuGenerator* generator = m_patchData->generator;
+    SphericalHeightmapGenerator* generator = m_patchData->generator;
     if (m_mesh->m_shouldDelete) {
         delete m_mesh;
         return;

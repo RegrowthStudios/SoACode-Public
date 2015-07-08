@@ -733,7 +733,6 @@ EXIT 0</Command>
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
-    <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>

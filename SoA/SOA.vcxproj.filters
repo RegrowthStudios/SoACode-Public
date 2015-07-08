@@ -227,9 +227,6 @@
     <ClInclude Include="DevConsoleView.h">
       <Filter>SOA Files\Rendering\Dev</Filter>
     </ClInclude>
-    <ClInclude Include="EditorVariables.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>

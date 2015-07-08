@@ -24,7 +24,7 @@
 struct NoiseBase;
 struct PlanetHeightData;
 
-class SphericalTerrainCpuGenerator {
+class SphericalHeightmapGenerator {
 public:
     void init(const PlanetGenData* planetGenData);
 

@@ -344,7 +344,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
 
     if (planetGenData) {
         stCmp.meshManager = new TerrainPatchMeshManager(planetGenData);
-        stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
+        stCmp.cpuGenerator = new SphericalHeightmapGenerator;
         stCmp.cpuGenerator->init(planetGenData);
     }
     

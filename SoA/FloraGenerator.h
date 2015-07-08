@@ -5,7 +5,6 @@
 class Chunk;
 class TreeType;
 class TreeData;
-class Biome;
 
 //This node is used in tree generation
 class TreeNode {
