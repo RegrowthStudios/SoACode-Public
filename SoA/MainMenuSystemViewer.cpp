@@ -229,85 +229,37 @@ void MainMenuSystemViewer::pickStartLocation(vecs::EntityID eid) {
 
     f32v2 ndc = f32v2((m_mouseCoords.x / m_viewport.x) * 2.0f - 1.0f,
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
-    f32v3 pickRay = m_camera->getPickRay(ndc);
+    f64v3 pickRay(m_camera->getPickRay(ndc));
 
     vecs::ComponentID cid = m_spaceSystem->m_namePositionCT.getComponentID(eid);
     if (!cid) return;
     f64v3 centerPos = m_spaceSystem->m_namePositionCT.get(cid).position;
-    f32v3 pos = f32v3(centerPos - m_camera->getPosition());
+    f64v3 pos = f64v3(centerPos - m_camera->getPosition());
 
     cid = m_spaceSystem->m_sphericalGravityCT.getComponentID(eid);
     if (!cid) return;
-    f32 radius = (f32)m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
+    f64 radius = m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
 
     // Compute the intersection
-    f32v3 normal, hitpoint;
-    f32 distance;
-    if (IntersectionUtils::sphereIntersect(pickRay, f32v3(0.0f), pos, radius, hitpoint, distance, normal)) {
+    f64v3 normal, hitpoint;
+    f64 distance;
+    if (IntersectionUtils::sphereIntersect(pickRay, f64v3(0.0f), pos, radius, hitpoint, distance, normal)) {
         hitpoint -= pos;
         cid = m_spaceSystem->m_axisRotationCT.getComponentID(eid);
         if (cid) {
             f64q rot = m_spaceSystem->m_axisRotationCT.get(cid).currentOrientation;
-            hitpoint = f32v3(glm::inverse(rot) * f64v3(hitpoint));
+            hitpoint = glm::inverse(rot) * hitpoint;
         }
 
         // Compute face and grid position
-        f32 rheight;
-        computeGridPosition(hitpoint, radius, rheight);
+        PlanetHeightData heightData;
+        m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->generateHeightData(heightData, glm::normalize(hitpoint));
+        f64 height = heightData.height * KM_PER_VOXEL;
 
-        m_clickPos = f64v3(hitpoint + glm::normalize(hitpoint) * rheight);
+        m_clickPos = f64v3(hitpoint + glm::normalize(hitpoint) * height);
 
         auto& data = bodyArData[eid];
         data.selectedPos = hitpoint;
         data.isLandSelected = true;
     }
-}
-
-void MainMenuSystemViewer::computeGridPosition(const f32v3& hitpoint, f32 radius, OUT f32& height) {
-    f32v3 cornerPos[2];
-    f32 min;
-    f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
-    f32v3 dir = -glm::normalize(hitpoint);
-    cornerPos[0] = f32v3(-radius, -radius, -radius);
-    cornerPos[1] = f32v3(radius, radius, radius);
-    if (!IntersectionUtils::boxIntersect(cornerPos, dir,
-        start, min)) {
-        std::cerr << "Failed to find grid position from click\n";
-    }
-
-    f32v3 gridHit = start + dir * min;
-    const f32 eps = 0.01f;
-
-    if (abs(gridHit.x - (-radius)) < eps) { //-X
-        m_selectedCubeFace = WorldCubeFace::FACE_LEFT;
-        m_selectedGridPos.x = gridHit.z;
-        m_selectedGridPos.z = gridHit.y;
-    } else if (abs(gridHit.x - radius) < eps) { //X
-        m_selectedCubeFace = WorldCubeFace::FACE_RIGHT;
-        m_selectedGridPos.x = gridHit.z;
-        m_selectedGridPos.z = gridHit.y;
-    } else if (abs(gridHit.y - (-radius)) < eps) { //-Y
-        m_selectedCubeFace = WorldCubeFace::FACE_BOTTOM;
-        m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.z = gridHit.z;
-    } else if (abs(gridHit.y - radius) < eps) { //Y
-        m_selectedCubeFace = WorldCubeFace::FACE_TOP;
-        m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.z = gridHit.z;
-    } else if (abs(gridHit.z - (-radius)) < eps) { //-Z
-        m_selectedCubeFace = WorldCubeFace::FACE_BACK;
-        m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.z = gridHit.y;
-    } else if (abs(gridHit.z - radius) < eps) { //Z
-        m_selectedCubeFace = WorldCubeFace::FACE_FRONT;
-        m_selectedGridPos.x = gridHit.x;
-        m_selectedGridPos.z = gridHit.y;
-    }
-
-    // Get height at click
-    VoxelPosition2D facePos;
-    facePos.pos = f64v2(gridHit);
-    facePos.face = m_selectedCubeFace;
-    height = (f32)(m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->getHeight(facePos) * KM_PER_VOXEL);
-    m_selectedGridPos.y = height;
 }

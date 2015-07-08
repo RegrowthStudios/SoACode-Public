@@ -5,14 +5,6 @@
 #include "VoxelSpaceConversions.h"
 #include "Noise.h"
 
-//
-//SphericalTerrainCpuGenerator::SphericalTerrainCpuGenerator(TerrainPatchMeshManager* meshManager,
-//                                                           PlanetGenData* planetGenData) :
-//    m_mesher(meshManager, planetGenData),
-//    m_genData(planetGenData) {
-//    // Empty
-//}
-
 void SphericalHeightmapGenerator::init(const PlanetGenData* planetGenData) {
     m_genData = planetGenData;
 }
@@ -31,35 +23,25 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     pos = normal * m_genData->radius;
 
     f64 h = getHeightValue(pos);
-    height.height = (i32)(h * VOXELS_PER_M);
+    height.height = (f32)(h * VOXELS_PER_M);
     h *= KM_PER_M;
     height.temperature = (ui8)getTemperatureValue(pos, normal, h);
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
+
+    // TODO(Ben) Custom generation
 }
 
 void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const {
     f64v3 pos = normal * m_genData->radius;
     f64 h = getHeightValue(pos);
-    height.height = (i32)(h * VOXELS_PER_M);
+    height.height = (f32)(h * VOXELS_PER_M);
     h *= KM_PER_M;
     height.temperature = (ui8)getTemperatureValue(pos, normal, h);
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock;
-}
 
-f64 SphericalHeightmapGenerator::getHeight(const VoxelPosition2D& facePosition) const {
-    // Need to convert to world-space
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
-    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
-
-    f64v3 pos;
-    pos[coordMapping.x] = facePosition.pos.x * M_PER_VOXEL * coordMults.x;
-    pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
-    pos[coordMapping.z] = facePosition.pos.y * M_PER_VOXEL * coordMults.y;
-
-    pos = glm::normalize(pos) * m_genData->radius;
-    return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    // TODO(Ben) Custom generation
 }
 
 f64 SphericalHeightmapGenerator::getHeightValue(const f64v3& pos) const {

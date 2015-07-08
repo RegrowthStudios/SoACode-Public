@@ -226,8 +226,15 @@ void MainMenuScreen::newGame(const nString& fileName) {
     }
 
     m_soaState->isNewGame = true;
-    m_soaState->startFace = m_mainMenuSystemViewer->getSelectedCubeFace();
     m_soaState->startSpacePos = m_mainMenuSystemViewer->getClickPos();
+    f64v3 normal = glm::normalize(m_soaState->startSpacePos);
+    // Don't spawn underwater
+    if (glm::length(m_soaState->startSpacePos) < m_mainMenuSystemViewer->getTargetRadius()) {
+        m_soaState->startSpacePos = normal * m_mainMenuSystemViewer->getTargetRadius();
+    }
+    // Push out by 5 voxels
+    m_soaState->startSpacePos += glm::normalize(m_soaState->startSpacePos) * 5.0 * KM_PER_VOXEL;
+
     m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
 
     std::cout << "Making new game: " << fileName << std::endl;
