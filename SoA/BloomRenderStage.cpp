@@ -18,11 +18,9 @@
 #define BLOOM_TEXTURE_SLOT_LUMA   0       // texture slot to bind luma texture
 #define BLOOM_TEXTURE_SLOT_BLUR   1       // texture slot to bind blur texture
 
-
 float BloomRenderStage::gauss(int i, float sigma2) {
     return 1.0 / std::sqrt(2 * 3.14159265 * sigma2) * std::exp(-(i*i) / (2 * sigma2));
 }
-
 
 void BloomRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
     
@@ -105,13 +103,10 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         context.addWorkCompleted(TOTAL_TASK);
     }, false);
 
-
 }
 
 void BloomRenderStage::hook(vg::FullQuadVBO* quad) {
-
     m_quad = quad;
-
 }
 
 void BloomRenderStage::dispose(StaticLoadContext& context) {
