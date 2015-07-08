@@ -76,6 +76,7 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
         glUniform1i(m_program_gaussian_second.getUniform("unWidth"), m_window->getWidth());
         glUniform1i(m_program_gaussian_second.getUniform("unGaussianN"), m_gaussianN);
+        glUniform1f(m_program_gaussian_second.getUniform("unFinalWeight"), 1.0);
         m_program_gaussian_second.unuse();
         context.addWorkCompleted(TOTAL_TASK);
     }, true);
@@ -113,6 +114,12 @@ void BloomRenderStage::dispose(StaticLoadContext& context) {
     m_program_luma.dispose();
     m_program_gaussian_first.dispose();
     m_program_gaussian_second.dispose();
+}
+
+void BloomRenderStage::setIntensity(float intensity /* = 1.0f */) {
+    m_program_gaussian_second.use();
+    glUniform1f(m_program_gaussian_second.getUniform("unFinalWeight"), intensity);
+    m_program_gaussian_second.unuse();
 }
 
 void BloomRenderStage::render(const Camera* camera) {

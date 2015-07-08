@@ -19,7 +19,7 @@ ExposureCalcRenderStage::~ExposureCalcRenderStage() {
     delete m_scripts;
 }
 
-void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GBuffer* hdrFrameBuffer,
                                    const ui32v4* viewPort, ui32 resolution) {
     if (!m_scripts) m_scripts = new vscript::Environment;
     m_quad = quad;
@@ -89,14 +89,17 @@ void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
 
         prog = &m_program;
-        m_hdrFrameBuffer->bindTexture();
+//        m_hdrFrameBuffer->bindTexture();
+
+        m_hdrFrameBuffer->getGeometryTexture(0);
     } else if (m_mipStep > 0) {
         prog = &m_downsampleProgram;
         m_renderTargets[m_mipStep].bindTexture();
         m_mipStep++;
     } else {
         prog = &m_program;
-        m_hdrFrameBuffer->bindTexture();
+//        m_hdrFrameBuffer->bindTexture();
+        m_hdrFrameBuffer->getGeometryTexture(0);
         m_mipStep++;
     }
 

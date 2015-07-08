@@ -48,6 +48,7 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.ssao.init(window, context);
     stages.bloom.init(window, context);
     stages.bloom.setParams();
+    stages.exposureCalc.init(window, context);
 
     loadNightVision();
 
@@ -81,6 +82,7 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
     stages.nightVision.dispose(context);
     stages.ssao.dispose(context);
     stages.bloom.dispose(context);
+    stages.exposureCalc.dispose(context);
 
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -157,6 +159,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         stages.nightVision.load(context);
         stages.ssao.load(context);
         stages.bloom.load(context);
+        stages.exposureCalc.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -178,6 +181,7 @@ void GameplayRenderer::hook() {
     stages.nightVision.hook(&m_commonState->quad);
     stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
     stages.bloom.hook(&m_commonState->quad);
+    stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
 }
 
 void GameplayRenderer::updateGL() {
@@ -255,6 +259,7 @@ void GameplayRenderer::render() {
     }
 
     if (stages.bloom.isActive()) {
+//        stages.bloom.setIntensity(0.0);
         stages.bloom.render();
         m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
         m_swapChain.swap();

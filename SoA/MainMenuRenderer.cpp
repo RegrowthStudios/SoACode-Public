@@ -75,12 +75,28 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
         size_t i = 0;
 
         // Create the HDR target  
+        // Create the HDR target     
         context.addTask([&](Sender, void*) {
+            Array<vg::GBufferAttachment> attachments;
+            vg::GBufferAttachment att[2];
+            // TODO(Ben): Don't think this is right.
+            // Color
+            att[0].format = vg::TextureInternalFormat::RGBA16F;
+            att[0].pixelFormat = vg::TextureFormat::RGBA;
+            att[0].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+            att[0].number = 1;
+            // Normals
+            att[1].format = vg::TextureInternalFormat::RGBA16F;
+            att[1].pixelFormat = vg::TextureFormat::RGBA;
+            att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+            att[1].number = 2;
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
-            m_hdrTarget.init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
+
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
-            } else {
+            }
+            else {
                 glDisable(GL_MULTISAMPLE);
             }
             context.addWorkCompleted(1);
@@ -128,7 +144,7 @@ void MainMenuRenderer::render() {
     if (m_shouldResize) resize();
 
     // Bind the FBO
-    m_hdrTarget.use();
+    m_hdrTarget.useGeometry();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -167,7 +183,7 @@ void MainMenuRenderer::render() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Post processing
-    m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
+    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
     // TODO: More Effects?
     if (stages.bloom.isActive()) {
@@ -189,13 +205,13 @@ void MainMenuRenderer::render() {
 
     if (!stages.bloom.isActive()) {
         glActiveTexture(GL_TEXTURE0);
-        m_hdrTarget.bindTexture();
+        m_hdrTarget.bindGeometryTexture(0);
     } else {
         m_swapChain.bindPreviousTexture(0);
     }
     // original depth texture
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
+    m_hdrTarget.bindDepthTexture();
     m_commonState->stages.hdr.render(&m_state->spaceCamera);
 
     if (m_showUI) m_mainMenuUI->draw();

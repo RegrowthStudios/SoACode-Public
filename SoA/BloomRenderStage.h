@@ -46,6 +46,8 @@ public:
     /// Draws the render stage
     void render(const Camera* camera = nullptr) override;
 
+    void setIntensity(float intensity = 1.0f);
+
 private:
     float gauss(int i, float sigma2);
     void render(BloomRenderStagePass stage);
