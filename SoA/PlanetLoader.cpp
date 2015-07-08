@@ -13,6 +13,8 @@
 
 #include "Errors.h"
 
+typedef ui32 BiomeColorCode;
+
 struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
@@ -185,8 +187,17 @@ ui32 recursiveCountBiomes(BiomeKegProperties& props) {
     return rv;
 }
 
-// Helper function to copy keg property data into biome
-void copyBiomeData(Biome& biome, BiomeKegProperties& kp) {
+void recursiveInitBiomes(Biome& biome,
+                         BiomeKegProperties& kp,
+                         ui32& biomeCounter,
+                         PlanetGenData* genData,
+                         std::map<BiomeColorCode, Biome*>& biomeLookup,
+                         vio::IOManager* iom) {
+    // Get the color code and add to map
+    BiomeColorCode colorCode = ((ui32)kp.mapColor.r << 16) | ((ui32)kp.mapColor.g << 8) | (ui32)kp.mapColor.b;
+    biomeLookup[colorCode] = &biome;
+
+    // Copy all biome data
     biome.id = kp.id;
     biome.blockLayers.resize(kp.blockLayers.size());
     for (size_t i = 0; i < kp.blockLayers.size(); i++) {
@@ -199,7 +210,45 @@ void copyBiomeData(Biome& biome, BiomeKegProperties& kp) {
     biome.biomeMapNoise = kp.biomeMapNoise;
     biome.axisTypes[0] = kp.xAxis;
     biome.axisTypes[1] = kp.yAxis;
+
+    // Recurse children
+    for (size_t i = 0; i < kp.children.size(); i++) {
+        std::map<BiomeColorCode, Biome*> nextBiomeLookup;
+        Biome& nextBiome = genData->biomes[biomeCounter++];
+        recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData, nextBiomeLookup, iom);
+
+        // Load and parse child lookup map
+        if (kp.childColorMap.size()) {
+            vpath texPath;
+            iom->resolvePath(kp.childColorMap, texPath);
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
+            if (!rs.data) {
+                pError("Failed to load " + kp.childColorMap);
+            }
+            // Check for 1D biome map
+            if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
+                // Fill color code map
+                std::vector<BiomeColorCode> colorCodes(BIOME_MAP_WIDTH);
+                for (int i = 0; i < BIOME_MAP_WIDTH; i++) {
+                    ui8v3& color = rs.bytesUI8v3[i];
+                    colorCodes[i] = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
+                }
+            } else {
+                // Error check
+                if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
+                    pError("loadBiomes() error: width and height of " + kp.childColorMap + " must be " + std::to_string(BIOME_MAP_WIDTH));
+                }
+                // Fill color code map
+                std::vector<BiomeColorCode> colorCodes(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
+                for (int i = 0; i < BIOME_MAP_WIDTH * BIOME_MAP_WIDTH; i++) {
+                    ui8v3& color = rs.bytesUI8v3[i];
+                    colorCodes[i] = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
+                }
+            }
+        }
+    }
 }
+
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
@@ -217,7 +266,6 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
-    typedef ui32 BiomeColorCode;
     // Lookup Maps
     std::map<BiomeColorCode, Biome*> m_baseBiomeLookupMap; ///< To lookup biomes via color code
     BiomeColorCode colorCodes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
@@ -231,16 +279,16 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         if (key == "baseLookupMap") {
             vpath texPath;
             m_iom->resolvePath(keg::convert<nString>(value), texPath);
-            vg::BitmapResource bitmap = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
-            if (!bitmap.data) {
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
+            if (!rs.data) {
                 pError("Failed to load " + keg::convert<nString>(value));
             }
-            if (bitmap.width != BIOME_MAP_WIDTH || bitmap.height != BIOME_MAP_WIDTH) {
+            if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
                 pError("loadBiomes() error: width and height of " + keg::convert<nString>(value) +" must be " + std::to_string(BIOME_MAP_WIDTH));
             }
 
             for (int i = 0; i < BIOME_MAP_WIDTH * BIOME_MAP_WIDTH; i++) {
-                ui8v3& color = bitmap.bytesUI8v3[i];
+                ui8v3& color = rs.bytesUI8v3[i];
                 BiomeColorCode colorCode = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
                 colorCodes[i / BIOME_MAP_WIDTH][i % BIOME_MAP_WIDTH] = colorCode;
             }
@@ -271,16 +319,14 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     ui32 biomeCounter = 0;
     for (size_t i = 0; i < baseBiomes.size(); i++) {
         auto& kp = baseBiomes[i];
-        // Get the color code
-        BiomeColorCode colorCode = ((ui32)kp.mapColor.r << 16) | ((ui32)kp.mapColor.g << 8) | (ui32)kp.mapColor.b;
+      
         // Get the biome
         Biome& biome = genData->biomes[biomeCounter++];
-
+       
         // Copy all the data over
-        copyBiomeData(biome, kp);
-
-        m_baseBiomeLookupMap[colorCode] = &biome;
+        recursiveInitBiomes(biome, kp, biomeCounter, genData, m_baseBiomeLookupMap, m_iom);
     }
+    assert(biomeCounter == genData->biomes.size());
 
     // Set base biomes
     memset(genData->baseBiomeLookup, 0, sizeof(genData->baseBiomeLookup));

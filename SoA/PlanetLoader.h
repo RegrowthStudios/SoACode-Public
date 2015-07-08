@@ -30,6 +30,9 @@ DECL_VCORE(class RPCManager);
 
 struct NoiseBase;
 struct PlanetGenData;
+struct BiomeKegProperties;
+
+typedef ui32 BiomeColorCode;
 
 class PlanetLoader {
 public:
