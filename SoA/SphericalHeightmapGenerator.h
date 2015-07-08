@@ -29,7 +29,8 @@ public:
     void init(const PlanetGenData* planetGenData);
 
     /// Gets the height at a specific face position.
-    void generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
+    void generateHeightData(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
+    void generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const;
 
     f64 getHeight(const VoxelPosition2D& facePosition) const;
 

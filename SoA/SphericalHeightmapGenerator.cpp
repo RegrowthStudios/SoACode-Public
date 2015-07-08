@@ -17,7 +17,7 @@ void SphericalHeightmapGenerator::init(const PlanetGenData* planetGenData) {
     m_genData = planetGenData;
 }
 
-void SphericalHeightmapGenerator::generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const {
+void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const {
     // Need to convert to world-space
     f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
     i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
@@ -36,6 +36,16 @@ void SphericalHeightmapGenerator::generateHeight(OUT PlanetHeightData& height, c
     height.temperature = (ui8)getTemperatureValue(pos, normal, h);
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
+}
+
+void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const {
+    f64v3 pos = normal * m_genData->radius;
+    f64 h = getHeightValue(pos);
+    height.height = (i32)(h * VOXELS_PER_M);
+    h *= KM_PER_M;
+    height.temperature = (ui8)getTemperatureValue(pos, normal, h);
+    height.rainfall = (ui8)getHumidityValue(pos, normal, h);
+    height.surfaceBlock = m_genData->surfaceBlock;
 }
 
 f64 SphericalHeightmapGenerator::getHeight(const VoxelPosition2D& facePosition) const {

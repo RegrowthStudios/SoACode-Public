@@ -115,7 +115,7 @@ void TerrainPatchMesher::destroyIndices() {
 
 void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGenData* planetGenData,
                                           const f32v3& startPos, WorldCubeFace cubeFace, float width,
-                                          f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4],
+                                          PlanetHeightData heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH],
                                           f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
 
     assert(m_sharedIbo != 0);
@@ -174,7 +174,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
             }*/
 
             // Get data from heightmap 
-            h = heightData[z][x][0];
+            h = heightData[z][x].height;
 
             // Water indexing
             if (h < 0) {
@@ -182,8 +182,8 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
             }
 
             // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
-            v.temperature = (ui8)heightData[z][x][1];
-            v.humidity = (ui8)heightData[z][x][2];
+            v.temperature = heightData[z][x].temperature;
+            v.humidity = heightData[z][x].rainfall;
 
             // Check bounding box
             // TODO(Ben): Worry about water too!
@@ -394,7 +394,7 @@ void TerrainPatchMesher::buildSkirts() {
     }
 }
 
-void TerrainPatchMesher::addWater(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]) {
+void TerrainPatchMesher::addWater(int z, int x, PlanetHeightData heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
     // Try add all adjacent vertices if needed
     tryAddWaterVertex(z - 1, x - 1, heightData);
     tryAddWaterVertex(z - 1, x, heightData);
@@ -413,7 +413,7 @@ void TerrainPatchMesher::addWater(int z, int x, float heightData[PADDED_PATCH_WI
     tryAddWaterQuad(z, x);
 }
 
-void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4]) {
+void TerrainPatchMesher::tryAddWaterVertex(int z, int x, PlanetHeightData heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
     // TEMPORARY? Add slight offset so we don't need skirts
     f32 mvw = m_vertWidth * 1.005f;
     const f32 UV_SCALE = 0.04f;
@@ -442,14 +442,14 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, float heightData[PADDED
             normal = glm::normalize(tmpPos);
         }
 
-        f32 d = heightData[z + 1][x + 1][0] * (f32)M_PER_KM;
+        f32 d = heightData[z + 1][x + 1].height * (f32)M_PER_VOXEL;
         if (d < 0) {
             v.depth = -d;
         } else {
             v.depth = 0;
         }
 
-        v.temperature = (ui8)heightData[z + 1][x + 1][1];
+        v.temperature = heightData[z + 1][x + 1].temperature;
 
         // Compute tangent
         f32v3 tmpPos;

@@ -20,7 +20,7 @@ void TerrainPatchMeshTask::init(const TerrainPatchData* patchData,
 
 void TerrainPatchMeshTask::execute(WorkerData* workerData) {
 
-    f32 heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH][4];
+    PlanetHeightData heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 pos;
     f32v3 tmpPos;
@@ -44,14 +44,10 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 pos[coordMapping.y] = m_startPos.y;
                 pos[coordMapping.z] = (m_startPos.z + (z - 1) * VERT_WIDTH) * coordMults.y;
                 f64v3 normal(glm::normalize(pos));
-                pos = normal * m_patchData->radius;
-                f64 height = generator->getHeightValue(pos) * KM_PER_M;
-                heightData[z][x][0] = (f32)height;
-                heightData[z][x][1] = (f32)generator->getTemperatureValue(pos, normal, height);
-                heightData[z][x][2] = (f32)generator->getHumidityValue(pos, normal, height);
-
+                generator->generateHeightData(heightData[z][x], normal);
+                
                 // offset position by height;
-                positionData[z][x] = normal * (m_patchData->radius + heightData[z][x][0]);
+                positionData[z][x] = normal * (m_patchData->radius + heightData[z][x].height * KM_PER_VOXEL);
             }
         }
     } else { // Far terrain
@@ -68,14 +64,10 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 pos[coordMapping.y] = m_startPos.y;
                 pos[coordMapping.z] = spos.y * coordMults.y;
                 f64v3 normal(glm::normalize(pos));
-                pos = normal * m_patchData->radius;
-                f64 height = generator->getHeightValue(pos) * KM_PER_M;
-                heightData[z][x][0] = (f32)height;
-                heightData[z][x][1] = (f32)generator->getTemperatureValue(pos, normal, height);
-                heightData[z][x][2] = (f32)generator->getHumidityValue(pos, normal, height);
+                generator->generateHeightData(heightData[z][x], normal);
 
                 // offset position by height;
-                positionData[z][x] = f64v3(spos.x, heightData[z][x][0], spos.y);
+                positionData[z][x] = f64v3(spos.x, heightData[z][x].height * KM_PER_VOXEL, spos.y);
             }
         }
     }
