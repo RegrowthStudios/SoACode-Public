@@ -728,9 +728,6 @@
     <ClInclude Include="BlockTexturePack.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="HeightData.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="Chunk.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>

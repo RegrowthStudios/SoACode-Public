@@ -236,7 +236,10 @@ f64 SphericalTerrainCpuGenerator::getNoiseValue(const f64v3& pos,
         }
 
         if (fn.children.size()) {
-            rv += getNoiseValue(pos, fn.children, nextMod, nextOp);
+            // Early exit for speed
+            if (!(nextOp == TerrainOp::MUL && *nextMod == 0.0)) {
+                rv += getNoiseValue(pos, fn.children, nextMod, nextOp);
+            }
         } else {
             rv = doOperation(fn.op, rv, h);
         }
