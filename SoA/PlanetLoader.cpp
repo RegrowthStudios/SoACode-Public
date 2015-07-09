@@ -224,7 +224,7 @@ void recursiveInitBiomes(Biome& biome,
     if (kp.childColorMap.size()) {
         vpath texPath;
         iom->resolvePath(kp.childColorMap, texPath);
-        vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
+        vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true);
         if (!rs.data) {
             fprintf(stderr, "Warning: Failed to load %s\n", kp.childColorMap.c_str());
             return;
@@ -283,7 +283,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         if (key == "baseLookupMap") {
             vpath texPath;
             m_iom->resolvePath(keg::convert<nString>(value), texPath);
-            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true);
             if (!rs.data) {
                 pError("Failed to load " + keg::convert<nString>(value));
             }

@@ -115,7 +115,7 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
 
     // Base Biome
     const Biome* biome;
-    biome = m_genData->baseBiomeLookup[height.humidity][128];
+    biome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
 
     BiomeContribution cornerBiomes[4];
     ui32 numBiomes;
