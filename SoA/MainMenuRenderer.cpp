@@ -91,7 +91,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
             att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
             att[1].number = 2;
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
-            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA32F).initDepth();
 
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
@@ -104,7 +104,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
 
         // Create the swap chain for post process effects (HDR-capable)
         context.addTask([&](Sender, void*) { 
-            m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
+            m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA32F);
             context.addWorkCompleted(1);
         }, false);
 
@@ -177,41 +177,36 @@ void MainMenuRenderer::render() {
         stages.colorFilter.render();
     }
 
+    stages.exposureCalc.render();
+    // Move exposure towards target
+    static const f32 EXPOSURE_STEP = 0.005f;
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
+
+    // Post processing
+    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
+
+    // TODO: More Effects?
+
+    // last effect should not swap swapChain
+    if (stages.bloom.isActive()) {
+        stages.bloom.render();
+    }
+
     // Render last
     glBlendFunc(GL_ONE, GL_ONE);
     m_commonState->stages.spaceSystem.renderStarGlows(colorFilter);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    stages.exposureCalc.render();
-    // Move exposure towards target
-    static const f32 EXPOSURE_STEP = 0.005f;
-    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
-    std::cout << soaOptions.get(OPT_HDR_EXPOSURE).value.f << std::endl;
-
-    // Post processing
-    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
-
-    if (stages.bloom.isActive()) {
-        stages.bloom.setIntensity(1.0f - soaOptions.get(OPT_HDR_EXPOSURE).value.f);
-        stages.bloom.render();
-        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
-        m_swapChain.swap();
-        m_swapChain.bindPreviousTexture(0);
-    }
-    // TODO: More Effects?
+    m_swapChain.swap();
+    m_swapChain.bindPreviousTexture(0);
 
     // Draw to backbuffer for the last effect
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    if (!stages.bloom.isActive()) {
-        m_hdrTarget.bindGeometryTexture(0, GL_TEXTURE0);
-    } else {
-        m_swapChain.bindPreviousTexture(0);
-    }
     // original depth texture
-    m_hdrTarget.bindDepthTexture(GL_TEXTURE1);
+    m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render(&m_state->spaceCamera);
 
     if (m_showUI) m_mainMenuUI->draw();

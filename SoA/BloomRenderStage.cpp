@@ -23,15 +23,15 @@ float BloomRenderStage::gauss(int i, float sigma2) {
 }
 
 void BloomRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
-    
+
     IRenderStage::init(window, context);
     context.addAnticipatedWork(TOTAL_WORK, TOTAL_TASK);
 
     // initialize FBOs
     m_fbo1.setSize(m_window->getWidth(), m_window->getHeight());
     m_fbo2.setSize(m_window->getWidth(), m_window->getHeight());
-    m_fbo1.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
-    m_fbo2.init(vorb::graphics::TextureInternalFormat::RGBA16, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::UNSIGNED_BYTE);
+    m_fbo1.init(vorb::graphics::TextureInternalFormat::RGBA32F, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::FLOAT);
+    m_fbo2.init(vorb::graphics::TextureInternalFormat::RGBA32F, 0, vorb::graphics::TextureFormat::RGBA, vorb::graphics::TexturePixelType::FLOAT);
 
 }
 
@@ -76,18 +76,17 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
         glUniform1i(m_program_gaussian_second.getUniform("unWidth"), m_window->getWidth());
         glUniform1i(m_program_gaussian_second.getUniform("unGaussianN"), m_gaussianN);
-        glUniform1f(m_program_gaussian_second.getUniform("unFinalWeight"), 1.0);
         m_program_gaussian_second.unuse();
         context.addWorkCompleted(TOTAL_TASK);
     }, true);
 
     // calculate gaussian weights
-    
+
     context.addTask([&](Sender, void*) {
         float weights[50], sum;
         weights[0] = gauss(0, m_gaussian_variance);
         sum = weights[0];
-        for (int i = 0; i < m_gaussianN; i++) {
+        for (int i = 1; i < m_gaussianN; i++) {
             weights[i] = gauss(i, m_gaussian_variance);
             sum += 2 * weights[i];
         }
@@ -116,12 +115,6 @@ void BloomRenderStage::dispose(StaticLoadContext& context) {
     m_program_gaussian_second.dispose();
 }
 
-void BloomRenderStage::setIntensity(float intensity /* = 1.0f */) {
-    m_program_gaussian_second.use();
-    glUniform1f(m_program_gaussian_second.getUniform("unFinalWeight"), intensity);
-    m_program_gaussian_second.unuse();
-}
-
 void BloomRenderStage::render(const Camera* camera) {
     // get initial bound FBO and bound color texture to use it on final pass
     GLint initial_fbo, initial_texture;
@@ -136,7 +129,7 @@ void BloomRenderStage::render(const Camera* camera) {
     glBindTexture(GL_TEXTURE_2D, initial_texture);
     render(BLOOM_RENDER_STAGE_LUMA);
     m_fbo1.unuse(m_window->getWidth(), m_window->getHeight());
-    
+
     // first gaussian blur pass rendering on temporary FBO 2
     m_fbo2.use();
     glActiveTexture(GL_TEXTURE0 + BLOOM_TEXTURE_SLOT_LUMA);
@@ -151,7 +144,6 @@ void BloomRenderStage::render(const Camera* camera) {
     m_fbo2.bindTexture();
     glBindFramebuffer(GL_FRAMEBUFFER, initial_fbo);
     render(BLOOM_RENDER_STAGE_GAUSSIAN_SECOND);
-    
 }
 
 void BloomRenderStage::render(BloomRenderStagePass stage) {

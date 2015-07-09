@@ -47,6 +47,7 @@ public:
     void setFrameBuffer(vg::GBuffer* hdrFrameBuffer) { m_hdrFrameBuffer = hdrFrameBuffer; }
 
     const f32& getExposure() const { return m_exposure; }
+    const f32& getHighExposure() const { return m_highExposure; }
 
 private:
     vg::GLProgram m_downsampleProgram;
@@ -58,6 +59,7 @@ private:
     ui32 m_mipLevels = 1;
     int m_mipStep = -1;
     f32 m_exposure = 0.0005f;
+    f32 m_highExposure;
     vg::GLProgram m_program;
 
     // Script for exposure calc

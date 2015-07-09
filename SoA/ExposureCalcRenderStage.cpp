@@ -85,18 +85,21 @@ void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
         f32v4 pixel;
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &pixel[0]);
 
+        // highest luminance of image
+        m_highExposure = pixel.b;
+        
         // LUA SCRIPT
         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
 
         prog = &m_program;
-        m_hdrFrameBuffer->bindGeometryTexture(0, GL_TEXTURE0);
+        m_hdrFrameBuffer->bindGeometryTexture(0, 0);
     } else if (m_mipStep > 0) {
         prog = &m_downsampleProgram;
         m_renderTargets[m_mipStep].bindTexture();
         m_mipStep++;
     } else {
         prog = &m_program;
-        m_hdrFrameBuffer->bindGeometryTexture(0, GL_TEXTURE0);
+        m_hdrFrameBuffer->bindGeometryTexture(0, 0);
         m_mipStep++;
     }
 

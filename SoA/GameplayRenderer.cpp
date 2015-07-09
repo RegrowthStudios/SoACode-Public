@@ -121,10 +121,8 @@ void GameplayRenderer::load(StaticLoadContext& context) {
             att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
             att[1].number = 2;
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
-            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
-            
-            checkGlError("HELLO");
-            
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA16F).initDepth();
+                        
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
             } else {
@@ -243,11 +241,6 @@ void GameplayRenderer::render() {
         m_coloredQuadAlpha = 0.0f;
     }
 
-    // Render last
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     stages.exposureCalc.render();
     // Move exposure towards target
     static const f32 EXPOSURE_STEP = 0.005f;
@@ -263,27 +256,38 @@ void GameplayRenderer::render() {
         m_swapChain.use(0, false);
     }
 
+
+    // last effect should not swap swapChain
+    if (stages.nightVision.isActive()) {
+        stages.nightVision.render();
+        m_swapChain.swap();
+        m_swapChain.use(0, false);
+    }
+
     if (stages.bloom.isActive()) {
-        stages.bloom.setIntensity(1.0f - soaOptions.get(OPT_HDR_EXPOSURE).value.f);
         stages.bloom.render();
         m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
 
-    if (stages.nightVision.isActive()) {
-        stages.nightVision.render();
-        m_swapChain.swap();
-        m_swapChain.use(0, false);
-    }
     // TODO: More Effects
 
+    m_swapChain.swap();
+    m_swapChain.use(0, false);
+    // Render last
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    m_swapChain.swap();
+    m_swapChain.bindPreviousTexture(0);
+
     // Draw to backbuffer for the last effect
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getDepthTexture());
+    m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render();
 
     // UI
