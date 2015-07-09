@@ -122,7 +122,6 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
     if (t < 15.0f) {
         Sleep(16 - (int)t);
     }
-   
 }
 
 void TestNoiseScreen::onNoiseChange()

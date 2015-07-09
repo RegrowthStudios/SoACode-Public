@@ -37,6 +37,8 @@
 #include "SpaceSystemRenderStage.h"
 #include "SsaoRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
+#include "BloomRenderStage.h"
+#include "ExposureCalcRenderStage.h"
 
 /// Forward declarations
 class App;
@@ -116,6 +118,8 @@ public:
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
         SsaoRenderStage ssao; ///< Renders SSAO
+        BloomRenderStage bloom; ///< Renders Bloom effect
+        ExposureCalcRenderStage exposureCalc; ///< Calculate exposure
     } stages;
 
 private:
