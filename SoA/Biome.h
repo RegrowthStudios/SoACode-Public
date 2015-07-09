@@ -50,13 +50,24 @@ enum class BiomeAxisType { HEIGHT, NOISE };
 KEG_ENUM_DECL(BiomeAxisType);
 
 typedef nString BiomeID;
+struct Biome;
+
+struct BiomeInfluence {
+    BiomeInfluence() {};
+    BiomeInfluence(const Biome* b, f32 weight) : b(b), weight(weight) {}
+    const Biome* b;
+    f32 weight;
+};
+
+// TODO(Ben): Make the memory one contiguous block
+typedef std::vector<std::vector<BiomeInfluence>> BiomeInfluenceMap;
 
 struct Biome {
     BiomeID id = "default";
     nString displayName = "Default";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
-    std::vector<const Biome*> biomeMap; ///< Optional sub-biome map
+    BiomeInfluenceMap biomeMap; ///< Optional sub-biome map
     BiomeAxisType axisTypes[2];
     f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
     NoiseBase biomeMapNoise; ///< For sub biome determination

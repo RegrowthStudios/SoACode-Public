@@ -245,9 +245,7 @@ void recursiveInitBiomes(Biome& biome,
             BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
             auto& it = nextBiomeLookup.find(code);
             if (it != nextBiomeLookup.end()) {
-                biome.biomeMap[i] = it->second;
-            } else {
-                biome.biomeMap[i] = nullptr;
+                biome.biomeMap[i].emplace_back(it->second, 1.0f);
             }
         }
     }
