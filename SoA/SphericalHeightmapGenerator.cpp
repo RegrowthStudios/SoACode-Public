@@ -28,6 +28,81 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     generateHeightData(height, normal * m_genData->radius, normal);
 }
 
+struct BiomeContribution {
+    const Biome* b;
+    f64 weight;
+};
+
+inline bool biomeContSort(const BiomeContribution& a, const BiomeContribution& b) {
+    return a.weight > b.weight;
+}
+
+void getBiomes(const std::vector<const Biome*>& biomeMap, f64 x, f64 y, OUT BiomeContribution rvBiomes[4], OUT ui32& numBiomes) {
+    int ix = (int)x;
+    int iy = (int)y;
+
+    //0 1
+    //2 3
+
+    // TODO(Ben): Padding to ditch ifs?
+    // Top Left
+    rvBiomes[0].b = biomeMap[iy * BIOME_MAP_WIDTH + ix];
+    // Top Right
+    if (ix < BIOME_MAP_WIDTH - 1) {
+        rvBiomes[1].b = biomeMap[iy * BIOME_MAP_WIDTH + ix + 1];
+    } else {
+        rvBiomes[1].b = rvBiomes[0].b;
+    }
+    // Bottom left
+    if (iy < BIOME_MAP_WIDTH - 1) {
+        rvBiomes[2].b = biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix];
+        // Bottom right
+        if (ix < BIOME_MAP_WIDTH - 1) {
+            rvBiomes[3].b = biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix + 1];
+        } else {
+            rvBiomes[3].b = rvBiomes[2].b;
+        }
+    } else {
+        rvBiomes[2].b = rvBiomes[0].b;
+        rvBiomes[3].b = rvBiomes[1].b;
+    }
+
+    /* Interpolate */
+    // Get weights
+    f64 fx = x - (f64)ix;
+    f64 fy = y - (f64)iy;
+    f64 fx1 = 1.0 - fx;
+    f64 fy1 = 1.0 - fy;
+    rvBiomes[0].weight = fx1 * fy1;
+    rvBiomes[1].weight = fx * fy1;
+    rvBiomes[2].weight = fx1 * fy;
+    rvBiomes[3].weight = fx * fy;
+
+    numBiomes = 4;
+    // Remove duplicates
+    for (int i = 0; i < 3; i++) {
+        if (rvBiomes[i].b) {
+            for (int j = i + 1; j < 4; j++) {
+                if (rvBiomes[i].b == rvBiomes[j].b) {
+                    rvBiomes[i].weight += rvBiomes[j].weight;
+                    rvBiomes[j].b = nullptr;
+                }
+            }
+        } else {
+            rvBiomes[i].weight = -1.0;
+            --numBiomes;
+        }
+    }
+    // Check last biome for null so we don't have to iterate to 4
+    if (!rvBiomes[3].b) {
+        rvBiomes[3].weight = -1.0;
+        --numBiomes;
+    }
+
+    // Sort based on weight
+    std::sort(rvBiomes, rvBiomes + 4, biomeContSort);
+}
+
 inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const {
     f64 h = getBaseHeightValue(pos);
     f64 temperature = getTemperatureValue(pos, normal, h);
@@ -41,22 +116,29 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     // Base Biome
     const Biome* biome;
     biome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
+
+    BiomeContribution cornerBiomes[4];
+    ui32 numBiomes;
     // Sub biomes
     while (biome->biomeMap.size()) {
         if (biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
             f64 xVal = biome->xNoise.base + getNoiseValue(pos, biome->xNoise.funcs, nullptr, TerrainOp::ADD);
-            int xPos = (int)glm::clamp(xVal, 0.0, 255.0);
+            xVal = glm::clamp(xVal, 0.0, 255.0);
             f64 yVal = (height.height - biome->heightScale.x) / biome->heightScale.y;
-            int yPos = 255 - (int)glm::clamp(yVal, 0.0, 255.0);
-            const Biome* nextBiome = biome->biomeMap[yPos * BIOME_MAP_WIDTH + xPos];
-            // If the biome is nullptr, that means we use the current biome.
-            if (!nextBiome) break;
-            biome = nextBiome;
+            yVal = 255.0 - glm::clamp(yVal, 0.0, 255.0);
+
+            getBiomes(biome->biomeMap, xVal, yVal, cornerBiomes, numBiomes);
+            if (numBiomes == 0) break;
+           
         } else { // 1D
             throw new nString("Not implemented");
         }
         // Apply sub biome terrain contribution
-        height.height += biome->terrainNoise.base + getNoiseValue(pos, biome->terrainNoise.funcs, nullptr, TerrainOp::ADD);
+        for (ui32 i = 0; i < numBiomes; i++) {
+            height.height += cornerBiomes[i].weight * (cornerBiomes[i].b->terrainNoise.base + getNoiseValue(pos, cornerBiomes[i].b->terrainNoise.funcs, nullptr, TerrainOp::ADD));
+        }
+        // Next biome is the one with the most weight
+        biome = cornerBiomes[0].b;
     }
     height.biome = biome;
 }
