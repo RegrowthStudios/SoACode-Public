@@ -105,17 +105,17 @@ void getBiomes(const std::vector<const Biome*>& biomeMap, f64 x, f64 y, OUT Biom
 
 inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const {
     f64 h = getBaseHeightValue(pos);
-    f64 temperature = getTemperatureValue(pos, normal, h);
-    f64 humidity = getHumidityValue(pos, normal, h);
     height.height = (f32)(h * VOXELS_PER_M);
     h *= KM_PER_M;
+    f64 temperature = getTemperatureValue(pos, normal, h);
+    f64 humidity = getHumidityValue(pos, normal, h);
     height.temperature = (ui8)temperature;
     height.humidity = (ui8)humidity;
     height.surfaceBlock = m_genData->surfaceBlock;
 
     // Base Biome
     const Biome* biome;
-    biome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
+    biome = m_genData->baseBiomeLookup[height.humidity][128];
 
     BiomeContribution cornerBiomes[4];
     ui32 numBiomes;
