@@ -77,25 +77,21 @@ void getBiomes(const BiomeInfluenceMap& biomeMap, f64 x, f64 y, OUT BiomeContrib
         rvBiomes[0].weight = fx1 * fy1;
     } else {
         rvBiomes[0].biomes = nullptr;
-        rvBiomes[0].weight = 0.0;
     }
     if (rvBiomes[1].biomes->size()) {
-        rvBiomes[1].weight = 0.0;
+        rvBiomes[1].weight = fx * fy1;
     } else {
         rvBiomes[1].biomes = nullptr;
-        rvBiomes[1].weight = 0.0;
     }
     if (rvBiomes[2].biomes->size()) {
-        rvBiomes[2].weight = 0.0;
+        rvBiomes[2].weight = fx1 * fy;
     } else {
         rvBiomes[2].biomes = nullptr;
-        rvBiomes[2].weight = 0.0;
     }
     if (rvBiomes[3].biomes->size()) {
         rvBiomes[3].weight = fx * fy;
     } else {
         rvBiomes[3].biomes = nullptr;
-        rvBiomes[3].weight = 0.0;
     }
 
     numBiomes = 4;
@@ -160,7 +156,7 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
                 f64 newHeight = inf.b->terrainNoise.base + getNoiseValue(pos, inf.b->terrainNoise.funcs, nullptr, TerrainOp::ADD);
                 const f64& weight = cornerBiomes[i].weight;
                 // Add height with squared interpolation
-                height.height += (f32)(weight * weight * newHeight);
+                height.height += (f32)(weight * newHeight);
             }
         }
         // Next biome is the one with the most weight
