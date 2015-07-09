@@ -35,48 +35,48 @@ void BloomRenderStage::init(vui::GameWindow* window, StaticLoadContext& context)
 
 }
 
-void BloomRenderStage::setParams(ui32 gaussianN /* = 20 */, float gaussian_variance /* = 36.0f */, float luma_threshold /* = 0.75f */) {
+void BloomRenderStage::setParams(ui32 gaussianN /* = 20 */, float gaussianVariance /* = 36.0f */, float lumaThreshold /* = 0.75f */) {
     if (gaussianN > 50)
         // if a bigger radius than 50 is desired, change the size of weights array in this file and the blur shaders
         throw "Gaussian Radius for BloomRenderStage::setParams has to be less than 50.";
     m_gaussianN = gaussianN;
-    m_gaussian_variance = gaussian_variance;
-    m_luma_threshold = luma_threshold;
+    m_gaussianVariance = gaussianVariance;
+    m_lumaThreshold = lumaThreshold;
 }
 
 void BloomRenderStage::load(StaticLoadContext& context) {
 
     // luma
     context.addTask([&](Sender, void*) {
-        m_program_luma = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomLuma.frag");
-        m_program_luma.use();
-        glUniform1i(m_program_luma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
-        glUniform1f(m_program_luma.getUniform("unLumaThresh"), m_luma_threshold);
-        m_program_luma.unuse();
+        m_programLuma = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomLuma.frag");
+        m_programLuma.use();
+        glUniform1i(m_programLuma.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
+        glUniform1f(m_programLuma.getUniform("unLumaThresh"), m_lumaThreshold);
+        m_programLuma.unuse();
 
         context.addWorkCompleted(TOTAL_TASK);
     }, false);
 
     // gaussian first pass
     context.addTask([&](Sender, void*) {
-        m_program_gaussian_first = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianFirst.frag");
-        m_program_gaussian_first.use();
-        glUniform1i(m_program_gaussian_first.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
-        glUniform1i(m_program_gaussian_first.getUniform("unHeight"), m_window->getHeight());
-        glUniform1i(m_program_gaussian_first.getUniform("unGaussianN"), m_gaussianN);
-        m_program_gaussian_first.unuse();
+        m_programGaussianFirst = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianFirst.frag");
+        m_programGaussianFirst.use();
+        glUniform1i(m_programGaussianFirst.getUniform("unTexLuma"), BLOOM_TEXTURE_SLOT_LUMA);
+        glUniform1i(m_programGaussianFirst.getUniform("unHeight"), m_window->getHeight());
+        glUniform1i(m_programGaussianFirst.getUniform("unGaussianN"), m_gaussianN);
+        m_programGaussianFirst.unuse();
         context.addWorkCompleted(TOTAL_TASK);
     }, true);
 
     // gaussian second pass
     context.addTask([&](Sender, void*) {
-        m_program_gaussian_second = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianSecond.frag");
-        m_program_gaussian_second.use();
-        glUniform1i(m_program_gaussian_second.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
-        glUniform1i(m_program_gaussian_second.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
-        glUniform1i(m_program_gaussian_second.getUniform("unWidth"), m_window->getWidth());
-        glUniform1i(m_program_gaussian_second.getUniform("unGaussianN"), m_gaussianN);
-        m_program_gaussian_second.unuse();
+        m_programGaussianSecond = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert", "Shaders/PostProcessing/BloomGaussianSecond.frag");
+        m_programGaussianSecond.use();
+        glUniform1i(m_programGaussianSecond.getUniform("unTexColor"), BLOOM_TEXTURE_SLOT_COLOR);
+        glUniform1i(m_programGaussianSecond.getUniform("unTexBlur"), BLOOM_TEXTURE_SLOT_BLUR);
+        glUniform1i(m_programGaussianSecond.getUniform("unWidth"), m_window->getWidth());
+        glUniform1i(m_programGaussianSecond.getUniform("unGaussianN"), m_gaussianN);
+        m_programGaussianSecond.unuse();
         context.addWorkCompleted(TOTAL_TASK);
     }, true);
 
@@ -84,21 +84,21 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 
     context.addTask([&](Sender, void*) {
         float weights[50], sum;
-        weights[0] = gauss(0, m_gaussian_variance);
+        weights[0] = gauss(0, m_gaussianVariance);
         sum = weights[0];
         for (int i = 1; i < m_gaussianN; i++) {
-            weights[i] = gauss(i, m_gaussian_variance);
+            weights[i] = gauss(i, m_gaussianVariance);
             sum += 2 * weights[i];
         }
         for (int i = 0; i < m_gaussianN; i++) {
             weights[i] = weights[i] / sum;
         }
-        m_program_gaussian_first.use();
-        glUniform1fv(m_program_gaussian_first.getUniform("unWeight[0]"), m_gaussianN, weights);
-        m_program_gaussian_first.unuse();
-        m_program_gaussian_second.use();
-        glUniform1fv(m_program_gaussian_second.getUniform("unWeight[0]"), m_gaussianN, weights);
-        m_program_gaussian_second.unuse();
+        m_programGaussianFirst.use();
+        glUniform1fv(m_programGaussianFirst.getUniform("unWeight[0]"), m_gaussianN, weights);
+        m_programGaussianFirst.unuse();
+        m_programGaussianSecond.use();
+        glUniform1fv(m_programGaussianSecond.getUniform("unWeight[0]"), m_gaussianN, weights);
+        m_programGaussianSecond.unuse();
 
         context.addWorkCompleted(TOTAL_TASK);
     }, false);
@@ -110,9 +110,9 @@ void BloomRenderStage::hook(vg::FullQuadVBO* quad) {
 }
 
 void BloomRenderStage::dispose(StaticLoadContext& context) {
-    m_program_luma.dispose();
-    m_program_gaussian_first.dispose();
-    m_program_gaussian_second.dispose();
+    m_programLuma.dispose();
+    m_programGaussianFirst.dispose();
+    m_programGaussianSecond.dispose();
 }
 
 void BloomRenderStage::render(const Camera* camera) {
@@ -150,41 +150,41 @@ void BloomRenderStage::render(BloomRenderStagePass stage) {
     switch (stage) {
         // luma
     case BLOOM_RENDER_STAGE_LUMA:
-        m_program_luma.use();
-        m_program_luma.enableVertexAttribArrays();
+        m_programLuma.use();
+        m_programLuma.enableVertexAttribArrays();
 
         glDisable(GL_DEPTH_TEST);
         m_quad->draw();
         glEnable(GL_DEPTH_TEST);
 
-        m_program_luma.disableVertexAttribArrays();
-        m_program_luma.unuse();
+        m_programLuma.disableVertexAttribArrays();
+        m_programLuma.unuse();
         break;
 
         // first gaussian pass
     case BLOOM_RENDER_STAGE_GAUSSIAN_FIRST:
-        m_program_gaussian_first.use();
-        m_program_gaussian_first.enableVertexAttribArrays();
+        m_programGaussianFirst.use();
+        m_programGaussianFirst.enableVertexAttribArrays();
 
         glDisable(GL_DEPTH_TEST);
         m_quad->draw();
         glEnable(GL_DEPTH_TEST);
 
-        m_program_gaussian_first.disableVertexAttribArrays();
-        m_program_gaussian_first.unuse();
+        m_programGaussianFirst.disableVertexAttribArrays();
+        m_programGaussianFirst.unuse();
         break;
 
         // second gaussian pass
     case BLOOM_RENDER_STAGE_GAUSSIAN_SECOND:
-        m_program_gaussian_second.use();
-        m_program_gaussian_second.enableVertexAttribArrays();
+        m_programGaussianSecond.use();
+        m_programGaussianSecond.enableVertexAttribArrays();
 
         glDisable(GL_DEPTH_TEST);
         m_quad->draw();
         glEnable(GL_DEPTH_TEST);
 
-        m_program_gaussian_second.disableVertexAttribArrays();
-        m_program_gaussian_second.unuse();
+        m_programGaussianSecond.disableVertexAttribArrays();
+        m_programGaussianSecond.unuse();
         break;
     }
 

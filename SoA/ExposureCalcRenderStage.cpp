@@ -85,9 +85,6 @@ void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
         f32v4 pixel;
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &pixel[0]);
 
-        // highest luminance of image
-        m_highExposure = pixel.b;
-        
         // LUA SCRIPT
         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
 
