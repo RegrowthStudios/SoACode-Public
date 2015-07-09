@@ -56,18 +56,15 @@ struct Biome {
     nString displayName = "Default";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
-    struct BiomeMap* biomeMap = nullptr; ///< Optional sub-biome map
+    std::vector<const Biome*> biomeMap; ///< Optional sub-biome map
     BiomeAxisType axisTypes[2];
     f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
-    NoiseBase terrainNoise; ///< Modifies terrain directly
     NoiseBase biomeMapNoise; ///< For sub biome determination
+    NoiseBase terrainNoise; ///< Modifies terrain directly
+    NoiseBase xNoise;
+    NoiseBase yNoise;
 };
 
 static const Biome DEFAULT_BIOME;
-
-// TODO(Ben): This could be super cache friendly with a bit of work
-struct BiomeMap {
-    Biome* biomes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
-};
 
 #endif // Biome_h__

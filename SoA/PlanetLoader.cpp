@@ -20,12 +20,12 @@ struct BiomeKegProperties {
     Array<BlockLayer> blockLayers;
     BiomeAxisType xAxis = BiomeAxisType::NOISE;
     BiomeAxisType yAxis = BiomeAxisType::NOISE;
-    TerrainFuncKegProperties xNoise;
-    TerrainFuncKegProperties yNoise;
     BiomeID id = "";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
     NoiseBase biomeMapNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
+    NoiseBase xNoise;
+    NoiseBase yNoise;
     f32v2 heightScale = f32v2(0.0f, 200.0f); ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
     nString displayName = "Unknown";
     nString childColorMap = "";
@@ -41,8 +41,8 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
     kt.addValue("xAxis", keg::Value::custom(offsetof(BiomeKegProperties, xAxis), "BiomeAxisType", true));
     kt.addValue("yAxis", keg::Value::custom(offsetof(BiomeKegProperties, yAxis), "BiomeAxisType", true));
-    kt.addValue("xNoise", keg::Value::custom(offsetof(BiomeKegProperties, xNoise), "TerrainFuncKegProperties", false));
-    kt.addValue("yNoise", keg::Value::custom(offsetof(BiomeKegProperties, yNoise), "TerrainFuncKegProperties", false));
+    kt.addValue("xNoise", keg::Value::custom(offsetof(BiomeKegProperties, xNoise), "NoiseBase", false));
+    kt.addValue("yNoise", keg::Value::custom(offsetof(BiomeKegProperties, yNoise), "NoiseBase", false));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
     kt.addValue("biomeMapNoise", Value::custom(offsetof(BiomeKegProperties, biomeMapNoise), "NoiseBase", false));
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
@@ -208,42 +208,46 @@ void recursiveInitBiomes(Biome& biome,
     biome.heightScale = kp.heightScale;
     biome.terrainNoise = kp.terrainNoise;
     biome.biomeMapNoise = kp.biomeMapNoise;
+    biome.xNoise = kp.xNoise;
+    biome.yNoise = kp.yNoise;
     biome.axisTypes[0] = kp.xAxis;
     biome.axisTypes[1] = kp.yAxis;
 
     // Recurse children
+    std::map<BiomeColorCode, Biome*> nextBiomeLookup;
     for (size_t i = 0; i < kp.children.size(); i++) {
-        std::map<BiomeColorCode, Biome*> nextBiomeLookup;
         Biome& nextBiome = genData->biomes[biomeCounter++];
         recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData, nextBiomeLookup, iom);
+    }
 
-        // Load and parse child lookup map
-        if (kp.childColorMap.size()) {
-            vpath texPath;
-            iom->resolvePath(kp.childColorMap, texPath);
-            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
-            if (!rs.data) {
-                pError("Failed to load " + kp.childColorMap);
+    // Load and parse child lookup map
+    if (kp.childColorMap.size()) {
+        vpath texPath;
+        iom->resolvePath(kp.childColorMap, texPath);
+        vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8);
+        if (!rs.data) {
+            fprintf(stderr, "Warning: Failed to load %s\n", kp.childColorMap.c_str());
+            return;
+        }
+        // Check for 1D biome map
+        if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
+            biome.biomeMap.resize(BIOME_MAP_WIDTH);
+        } else {
+            // Error check
+            if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
+                pError("loadBiomes() error: width and height of " + kp.childColorMap + " must be " + std::to_string(BIOME_MAP_WIDTH));
             }
-            // Check for 1D biome map
-            if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
-                // Fill color code map
-                std::vector<BiomeColorCode> colorCodes(BIOME_MAP_WIDTH);
-                for (int i = 0; i < BIOME_MAP_WIDTH; i++) {
-                    ui8v3& color = rs.bytesUI8v3[i];
-                    colorCodes[i] = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
-                }
+            biome.biomeMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
+        }
+        // Fill biome map
+        for (int i = 0; i < biome.biomeMap.size(); i++) {
+            ui8v3& color = rs.bytesUI8v3[i];
+            BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
+            auto& it = nextBiomeLookup.find(code);
+            if (it != nextBiomeLookup.end()) {
+                biome.biomeMap[i] = it->second;
             } else {
-                // Error check
-                if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
-                    pError("loadBiomes() error: width and height of " + kp.childColorMap + " must be " + std::to_string(BIOME_MAP_WIDTH));
-                }
-                // Fill color code map
-                std::vector<BiomeColorCode> colorCodes(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
-                for (int i = 0; i < BIOME_MAP_WIDTH * BIOME_MAP_WIDTH; i++) {
-                    ui8v3& color = rs.bytesUI8v3[i];
-                    colorCodes[i] = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
-                }
+                biome.biomeMap[i] = nullptr;
             }
         }
     }

@@ -29,8 +29,16 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
 
-    // Biomes
+    // Base Biome
     height.biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
+    // Sub biomes
+    while (height.biome->biomeMap.size()) {
+        if (height.biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
+            throw new nString("Not implemented");
+        } else { // 1D
+            throw new nString("Not implemented");
+        }
+    }
     // TODO(Ben) Custom generation
 }
 
@@ -43,9 +51,25 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     height.rainfall = (ui8)getHumidityValue(pos, normal, h);
     height.surfaceBlock = m_genData->surfaceBlock;
 
-    // Biomes
-    height.biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
-
+    // Base Biome
+    const Biome* biome;
+    biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
+    // Sub biomes
+    while (biome->biomeMap.size()) {
+        if (biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
+            f64 xVal = biome->xNoise.base + getNoiseValue(pos, biome->xNoise.funcs, nullptr, TerrainOp::ADD);
+            int xPos = (int)glm::clamp(xVal, 0.0, 255.0);
+            f64 yVal = (height.height - biome->heightScale.x) / biome->heightScale.y;
+            int yPos = 255 - (int)glm::clamp(yVal, 0.0, 255.0);
+            const Biome* nextBiome = biome->biomeMap[yPos * BIOME_MAP_WIDTH + xPos];
+            // If the biome is nullptr, that means we use the current biome.
+            if (!nextBiome) break;
+            biome = nextBiome;
+        } else { // 1D
+            throw new nString("Not implemented");
+        }
+    }
+    height.biome = biome;
     // TODO(Ben) Custom generation
 }
 
