@@ -124,8 +124,8 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
         if (biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
             f64 xVal = biome->xNoise.base + getNoiseValue(pos, biome->xNoise.funcs, nullptr, TerrainOp::ADD);
             xVal = glm::clamp(xVal, 0.0, 255.0);
-            f64 yVal = (height.height - biome->heightScale.x) / biome->heightScale.y;
-            yVal = 255.0 - glm::clamp(yVal, 0.0, 255.0);
+            f64 yVal = ((height.height - biome->heightScale.x) / biome->heightScale.y) * 255.0;
+            yVal = glm::clamp(yVal, 0.0, 255.0);
 
             getBiomes(biome->biomeMap, xVal, yVal, cornerBiomes, numBiomes);
             if (numBiomes == 0) break;
@@ -133,9 +133,12 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
         } else { // 1D
             throw new nString("Not implemented");
         }
-        // Apply sub biome terrain contribution
+
         for (ui32 i = 0; i < numBiomes; i++) {
-            height.height += cornerBiomes[i].weight * (cornerBiomes[i].b->terrainNoise.base + getNoiseValue(pos, cornerBiomes[i].b->terrainNoise.funcs, nullptr, TerrainOp::ADD));
+            f64 newHeight = cornerBiomes[i].b->terrainNoise.base + getNoiseValue(pos, cornerBiomes[i].b->terrainNoise.funcs, nullptr, TerrainOp::ADD);
+            const f64& weight = cornerBiomes[i].weight;
+            // Add height with squared interpolation
+            height.height += (f32)(weight * weight * newHeight);
         }
         // Next biome is the one with the most weight
         biome = cornerBiomes[0].b;

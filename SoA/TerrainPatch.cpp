@@ -174,7 +174,7 @@ void TerrainPatch::setQuality(int quality) {
     }
     DIST_MIN = (f32)quality;
     DIST_MAX = DIST_MIN + 0.1f;
-    PATCH_MAX_LOD = 18 + quality * 2;
+    PATCH_MAX_LOD = 22 + quality * 2;
 }
 
 bool TerrainPatch::canSubdivide() const {
