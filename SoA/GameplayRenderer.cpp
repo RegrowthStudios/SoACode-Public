@@ -248,6 +248,11 @@ void GameplayRenderer::render() {
     m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    stages.exposureCalc.render();
+    // Move exposure towards target
+    static const f32 EXPOSURE_STEP = 0.005f;
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
+
     // Post processing
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
@@ -259,19 +264,19 @@ void GameplayRenderer::render() {
     }
 
     if (stages.bloom.isActive()) {
-//        stages.bloom.setIntensity(0.0);
+        stages.bloom.setIntensity(1.0f - soaOptions.get(OPT_HDR_EXPOSURE).value.f);
         stages.bloom.render();
         m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
 
-    // TODO: More Effects
     if (stages.nightVision.isActive()) {
         stages.nightVision.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
+    // TODO: More Effects
 
     // Draw to backbuffer for the last effect
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

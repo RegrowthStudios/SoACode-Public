@@ -89,17 +89,14 @@ void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
 
         prog = &m_program;
-//        m_hdrFrameBuffer->bindTexture();
-
-        m_hdrFrameBuffer->getGeometryTexture(0);
+        m_hdrFrameBuffer->bindGeometryTexture(0, GL_TEXTURE0);
     } else if (m_mipStep > 0) {
         prog = &m_downsampleProgram;
         m_renderTargets[m_mipStep].bindTexture();
         m_mipStep++;
     } else {
         prog = &m_program;
-//        m_hdrFrameBuffer->bindTexture();
-        m_hdrFrameBuffer->getGeometryTexture(0);
+        m_hdrFrameBuffer->bindGeometryTexture(0, GL_TEXTURE0);
         m_mipStep++;
     }
 
