@@ -224,7 +224,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
         block = &GETBLOCK(blockIDData[blockIndex]);
         result = block->textureTop->base.index;
         block->textureTop->base.blockTextureFunc(params, result);
-        block->textureTop->base.getFinalColor(*params.color, cm->heightData->temperature, cm->heightData->rainfall, 0);
+        block->textureTop->base.getFinalColor(*params.color, cm->heightData->temperature, cm->heightData->humidity, 0);
         return;
     }
 

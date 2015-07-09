@@ -20,40 +20,27 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
 
     f64v3 normal = glm::normalize(pos);
-    pos = normal * m_genData->radius;
 
-    f64 h = getBaseHeightValue(pos);
-    height.height = (f32)(h * VOXELS_PER_M);
-    h *= KM_PER_M;
-    height.temperature = (ui8)getTemperatureValue(pos, normal, h);
-    height.rainfall = (ui8)getHumidityValue(pos, normal, h);
-    height.surfaceBlock = m_genData->surfaceBlock; // TODO(Ben): Naw dis is bad mkay
-
-    // Base Biome
-    height.biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
-    // Sub biomes
-    while (height.biome->biomeMap.size()) {
-        if (height.biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
-            throw new nString("Not implemented");
-        } else { // 1D
-            throw new nString("Not implemented");
-        }
-    }
-    // TODO(Ben) Custom generation
+    generateHeightData(height, normal * m_genData->radius, normal);
 }
 
 void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const {
-    f64v3 pos = normal * m_genData->radius;
+    generateHeightData(height, normal * m_genData->radius, normal);
+}
+
+inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const {
     f64 h = getBaseHeightValue(pos);
+    f64 temperature = getTemperatureValue(pos, normal, h);
+    f64 humidity = getHumidityValue(pos, normal, h);
     height.height = (f32)(h * VOXELS_PER_M);
     h *= KM_PER_M;
-    height.temperature = (ui8)getTemperatureValue(pos, normal, h);
-    height.rainfall = (ui8)getHumidityValue(pos, normal, h);
+    height.temperature = (ui8)temperature;
+    height.humidity = (ui8)humidity;
     height.surfaceBlock = m_genData->surfaceBlock;
 
     // Base Biome
     const Biome* biome;
-    biome = m_genData->baseBiomeLookup[height.rainfall][height.temperature];
+    biome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
     // Sub biomes
     while (biome->biomeMap.size()) {
         if (biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
@@ -68,9 +55,10 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
         } else { // 1D
             throw new nString("Not implemented");
         }
+        // Apply sub biome terrain contribution
+        height.height += biome->terrainNoise.base + getNoiseValue(pos, biome->terrainNoise.funcs, nullptr, TerrainOp::ADD);
     }
     height.biome = biome;
-    // TODO(Ben) Custom generation
 }
 
 f64 SphericalHeightmapGenerator::getBaseHeightValue(const f64v3& pos) const {
@@ -129,16 +117,14 @@ f64 SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                                                 const TerrainOp& op) const {
 
     f64 rv = 0.0f;
-    f64* nextMod;
-
-    TerrainOp nextOp;
-
+   
     // NOTE: Make sure this implementation matches NoiseShaderGenerator::addNoiseFunctions()
-    for (size_t f = 0; f < funcs.size(); f++) {
+    for (size_t f = 0; f < funcs.size(); ++f) {
         auto& fn = funcs[f];
 
         f64 h = 0.0f;
-
+        f64* nextMod;
+        TerrainOp nextOp;
         // Check if its not a noise function
         if (fn.func == TerrainStage::CONSTANT) {
             nextMod = &h;

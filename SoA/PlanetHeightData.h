@@ -22,7 +22,7 @@ struct PlanetHeightData {
     f32 height; ///< Height in voxels
     ui16 surfaceBlock;
     ui8 temperature;
-    ui8 rainfall;
+    ui8 humidity;
     ui8 depth; // For water, but is this needed?
     ui8 flags; // TODO(Ben): Bitfield
 };

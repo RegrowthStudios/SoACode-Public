@@ -906,10 +906,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     color3 blockColor[2];
     texture->base.getFinalColor(blockColor[B_INDEX],
                                 heightData->temperature,
-                                heightData->rainfall, 0);
+                                heightData->humidity, 0);
     texture->base.getFinalColor(blockColor[O_INDEX],
                                 heightData->temperature,
-                                heightData->rainfall, 0);
+                                heightData->humidity, 0);
 
     std::vector<VoxelQuad>& quads = m_quads[face];
 

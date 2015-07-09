@@ -186,7 +186,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
 
             // TODO(Ben): Only update when not in frustum. Use double frustum method to start loading at frustum 2 and force in frustum 1
             v.temperature = heightData[z][x].temperature;
-            v.humidity = heightData[z][x].rainfall;
+            v.humidity = heightData[z][x].humidity;
 
             // Check bounding box
             // TODO(Ben): Worry about water too!

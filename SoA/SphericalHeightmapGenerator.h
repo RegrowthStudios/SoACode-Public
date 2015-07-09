@@ -39,6 +39,7 @@ public:
 
     const PlanetGenData* getGenData() const { return m_genData; }
 private:
+    void generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const;
     /// Gets noise value using terrainFuncs
     /// @return the noise value
     f64 getNoiseValue(const f64v3& pos,
