@@ -95,7 +95,7 @@ void GameplayRenderer::reloadShaders() {
     m_chunkRenderer.dispose();
     m_chunkRenderer.init();
     m_commonState->stages.spaceSystem.reloadShaders();
-    
+    stages.ssao.reloadShaders();
 }
 
 void GameplayRenderer::load(StaticLoadContext& context) {
@@ -202,7 +202,7 @@ void GameplayRenderer::render() {
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
-    // TODO(Ben): Is this causing the camera slide descrepency? SHouldn't we use MTRenderState?
+    // TODO(Ben): Is this causing the camera slide discrepancy? SHouldn't we use MTRenderState?
     m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
                                        pos, 100, m_meshManager, &m_state->blocks, m_state->blockTextures, false);
     // Bind the FBO
@@ -251,8 +251,8 @@ void GameplayRenderer::render() {
 
     // TODO(Ben): This is broken
     if (stages.ssao.isActive()) {
-        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
-        stages.ssao.render();
+        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
+        stages.ssao.render(&m_state->localCamera);
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
@@ -283,9 +283,12 @@ void GameplayRenderer::render() {
     // TODO: More Effects
 
     // Draw to backbuffer for the last effect
+
    // m_swapChain.bindPreviousTexture(0);
     m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
+    // TODO(Ben): Do we really need to clear depth here...
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render();

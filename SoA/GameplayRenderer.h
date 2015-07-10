@@ -35,7 +35,7 @@
 #include "PhysicsBlockRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
-#include "SsaoRenderStage.h"
+#include "SSAORenderStage.h"
 #include "TransparentVoxelRenderStage.h"
 #include "BloomRenderStage.h"
 #include "ExposureCalcRenderStage.h"
@@ -117,7 +117,7 @@ public:
         PdaRenderStage pda; ///< Renders the PDA
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
-        SsaoRenderStage ssao; ///< Renders SSAO
+        SSAORenderStage ssao; ///< Renders SSAO
         BloomRenderStage bloom; ///< Renders Bloom effect
         ExposureCalcRenderStage exposureCalc; ///< Calculate exposure
     } stages;

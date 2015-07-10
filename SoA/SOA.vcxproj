@@ -646,7 +646,7 @@ EXIT 0</Command>
     <ClInclude Include="SphericalTerrainComponentRenderer.h" />
     <ClInclude Include="SphericalTerrainComponentUpdater.h" />
     <ClInclude Include="SphericalHeightmapGenerator.h" />
-    <ClInclude Include="SsaoRenderStage.h" />
+    <ClInclude Include="SSAORenderStage.h" />
     <ClInclude Include="StarComponentRenderer.h" />
     <ClInclude Include="svd.h" />
     <ClInclude Include="SystemARRenderer.h" />
@@ -851,7 +851,7 @@ EXIT 0</Command>
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
     <ClCompile Include="SphericalHeightmapGenerator.cpp" />
-    <ClCompile Include="SsaoRenderStage.cpp" />
+    <ClCompile Include="SSAORenderStage.cpp" />
     <ClCompile Include="StarComponentRenderer.cpp" />
     <ClCompile Include="svd.cpp" />
     <ClCompile Include="SystemARRenderer.cpp" />

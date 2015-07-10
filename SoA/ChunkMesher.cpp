@@ -102,6 +102,9 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
+
+    memset(blockData, 0, sizeof(blockData));
+    memset(tertiaryData, 0, sizeof(tertiaryData));
  
     if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
@@ -289,9 +292,6 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
     int c = 0;
 
     i32v3 pos;
-
-    memset(blockData, 0, sizeof(blockData));
-    memset(tertiaryData, 0, sizeof(tertiaryData));
 
     wSize = 0;
     chunk = chunk;
