@@ -95,7 +95,7 @@ void GameplayRenderer::reloadShaders() {
     m_chunkRenderer.dispose();
     m_chunkRenderer.init();
     m_commonState->stages.spaceSystem.reloadShaders();
-    
+    stages.ssao.reloadShaders();
 }
 
 void GameplayRenderer::load(StaticLoadContext& context) {
@@ -202,7 +202,7 @@ void GameplayRenderer::render() {
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
-    // TODO(Ben): Is this causing the camera slide descrepency? SHouldn't we use MTRenderState?
+    // TODO(Ben): Is this causing the camera slide discrepancy? SHouldn't we use MTRenderState?
     m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
                                        pos, 100, m_meshManager, &m_state->blocks, m_state->blockTextures, false);
     // Bind the FBO
@@ -249,13 +249,13 @@ void GameplayRenderer::render() {
     // Post processing
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
+    // TODO(Ben): This is broken
     if (stages.ssao.isActive()) {
-        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
-        stages.ssao.render();
+        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
+        stages.ssao.render(&m_state->localCamera);
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
-
 
     // last effect should not swap swapChain
     if (stages.nightVision.isActive()) {
@@ -266,26 +266,29 @@ void GameplayRenderer::render() {
 
     if (stages.bloom.isActive()) {
         stages.bloom.render();
-        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+
+        // Render star glow into same framebuffer for performance
+        glBlendFunc(GL_ONE, GL_ONE);
+        m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         m_swapChain.swap();
         m_swapChain.use(0, false);
+    } else {
+        glBlendFunc(GL_ONE, GL_ONE);
+        m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     // TODO: More Effects
 
-    m_swapChain.swap();
-    m_swapChain.use(0, false);
-    // Render last
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    m_swapChain.swap();
-    m_swapChain.bindPreviousTexture(0);
-
     // Draw to backbuffer for the last effect
+
+   // m_swapChain.bindPreviousTexture(0);
     m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
+    // TODO(Ben): Do we really need to clear depth here...
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render();
@@ -303,10 +306,10 @@ void GameplayRenderer::render() {
             m_coloredQuadAlpha = 3.5f;
             m_increaseQuadAlpha = false;
         }
-        m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+      //  m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
     } else if (m_coloredQuadAlpha > 0.0f) {
         static const float FADE_DEC = 0.01f;  
-        m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+   //     m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
         m_coloredQuadAlpha -= FADE_DEC;
     }
 
@@ -375,7 +378,6 @@ void GameplayRenderer::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_state->localCamera.setIsDynamic(false);
         m_state->localCamera.setFocalLength(0.0f);
         m_state->localCamera.setClippingPlane(0.1f, 10000.0f);
         m_state->localCamera.setPosition(vpcmp.gridPosition.pos);

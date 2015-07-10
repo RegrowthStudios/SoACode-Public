@@ -42,6 +42,7 @@ struct SoaState {
     SpaceSystem* spaceSystem = nullptr;
     GameSystem* gameSystem = nullptr;
 
+    // TODO(Ben): BAD!
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
 
@@ -63,13 +64,12 @@ struct SoaState {
 
     // TODO(Ben): This is temporary?
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
-    CinematicCamera localCamera; ///< Camera for voxels and far terrain
+    Camera localCamera; ///< Camera for voxels and far terrain
 
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f);
-    int startFace = 0;
     f64 time = 0.0;
     bool isInputEnabled = true;
     float timeStep = 0.016f;

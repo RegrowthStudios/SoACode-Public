@@ -102,6 +102,9 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
+
+    memset(blockData, 0, sizeof(blockData));
+    memset(tertiaryData, 0, sizeof(tertiaryData));
  
     if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
@@ -289,9 +292,6 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
     int c = 0;
 
     i32v3 pos;
-
-    memset(blockData, 0, sizeof(blockData));
-    memset(tertiaryData, 0, sizeof(tertiaryData));
 
     wSize = 0;
     chunk = chunk;
@@ -906,10 +906,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     color3 blockColor[2];
     texture->base.getFinalColor(blockColor[B_INDEX],
                                 heightData->temperature,
-                                heightData->rainfall, 0);
+                                heightData->humidity, 0);
     texture->base.getFinalColor(blockColor[O_INDEX],
                                 heightData->temperature,
-                                heightData->rainfall, 0);
+                                heightData->humidity, 0);
 
     std::vector<VoxelQuad>& quads = m_quads[face];
 

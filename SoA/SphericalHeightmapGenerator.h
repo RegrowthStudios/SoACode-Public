@@ -19,40 +19,27 @@
 #include "TerrainPatch.h"
 #include "TerrainPatchMesher.h"
 #include "VoxelCoordinateSpaces.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
+
+#include <Vorb/Events.hpp>
 
 struct NoiseBase;
 struct PlanetHeightData;
 
-class SphericalTerrainCpuGenerator {
+// TODO(Ben): Implement this
+typedef Delegate<PlanetHeightData&, f64v3, PlanetGenData> heightmapGenFunction;
+
+class SphericalHeightmapGenerator {
 public:
     void init(const PlanetGenData* planetGenData);
 
     /// Gets the height at a specific face position.
-    void generateHeight(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
-
-    f64 getHeight(const VoxelPosition2D& facePosition) const;
-
-    f64 getHeightValue(const f64v3& pos) const;
-    f64 getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const;
-    f64 getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const;
-
-    /// Calculates temperature based on angle with equator
-    /// @param range: The range to scale between
-    /// @angle: Angle from equator
-    /// @param baseTemp: Base temperature at equator
-    static f64 calculateTemperature(f64 range, f64 angle, f64 baseTemp);
-    /// Calculates humidity based on angle with equator
-    /// @param range: The range to scale between
-    /// @angle: Angle from equator
-    /// @param baseTemp: Base humidity at equator
-    static f64 calculateHumidity(f64 range, f64 angle, f64 baseHum);
-
-    // Computes angle from normalized position
-    static f64 computeAngleFromNormal(const f64v3& normal);
+    void generateHeightData(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
+    void generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const;
 
     const PlanetGenData* getGenData() const { return m_genData; }
 private:
+    void generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const;
     /// Gets noise value using terrainFuncs
     /// @return the noise value
     f64 getNoiseValue(const f64v3& pos,
@@ -60,7 +47,25 @@ private:
                       f64* modifier,
                       const TerrainOp& op) const;
 
-    const PlanetGenData* m_genData = nullptr; ///< Planet generation data
+    f64 getBaseHeightValue(const f64v3& pos) const;
+    f64 getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const;
+    f64 getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const;
+
+    /// Calculates temperature based on angle with equator
+    /// @param range: The range to scale between
+    /// @angle: Angle from equator
+    /// @param baseTemp: Base temperature
+    static f64 calculateTemperature(f64 range, f64 angle, f64 baseTemp);
+    /// Calculates humidity based on angle with equator
+    /// @param range: The range to scale between
+    /// @angle: Angle from equator
+    /// @param baseTemp: Base humidity
+    static f64 calculateHumidity(f64 range, f64 angle, f64 baseHum);
+
+    // Computes angle from normalized position
+    static f64 computeAngleFromNormal(const f64v3& normal);
+
+    const PlanetGenData* m_genData = nullptr; ///< Planet generation data for this generator
 };
 
 #endif // SphericalTerrainCpuGenerator_h__

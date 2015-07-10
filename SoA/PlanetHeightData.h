@@ -15,13 +15,16 @@
 #ifndef PlanetHeightData_h__
 #define PlanetHeightData_h__
 
+struct Biome;
+
 struct PlanetHeightData {
-    i32 height;
+    const Biome* biome;
+    f32 height; ///< Height in voxels
     ui16 surfaceBlock;
     ui8 temperature;
-    ui8 rainfall;
-    ui8 depth;
-    ui8 flags;  
+    ui8 humidity;
+    ui8 depth; // For water, but is this needed?
+    ui8 flags; // TODO(Ben): Bitfield
 };
 
 #endif // PlanetHeightData_h__

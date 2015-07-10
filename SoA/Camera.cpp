@@ -34,8 +34,6 @@ void Camera::update() {
         setFieldOfView(optFov);
     }
 
-    m_up = glm::normalize(glm::cross(m_right, m_direction));
-
     bool updateFrustum = false;
     if (m_viewChanged) {
         updateView();
@@ -66,14 +64,14 @@ void Camera::updateProjection() {
 void Camera::applyRotation(const f32q& rot) {
     m_direction = rot * m_direction;
     m_right = rot * m_right;
+    m_up = glm::normalize(glm::cross(m_right, m_direction));
 
     m_viewChanged = true;
 }
 
 void Camera::rotateFromMouse(float dx, float dy, float speed) {
     f32q upQuat = glm::angleAxis(dy * speed, m_right);
-    f32v3 targetUp = glm::normalize(glm::cross(m_right, m_direction));
-    f32q rightQuat = glm::angleAxis(dx * speed, targetUp);
+    f32q rightQuat = glm::angleAxis(dx * speed, m_up);
  
     applyRotation(upQuat * rightQuat);
 }

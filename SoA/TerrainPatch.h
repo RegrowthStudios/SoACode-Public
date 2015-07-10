@@ -23,7 +23,7 @@
 
 class TerrainPatchMesh;
 class TerrainPatchMesher;
-class SphericalTerrainCpuGenerator;
+class SphericalHeightmapGenerator;
 class TerrainPatchMeshManager;
 
 // Shared data for terrain patches
@@ -31,7 +31,7 @@ struct TerrainPatchData { // TODO(Ben): probably dont need this
     friend struct SphericalTerrainComponent;
 
     TerrainPatchData(f64 radius, f64 patchWidth,
-                     SphericalTerrainCpuGenerator* generator,
+                     SphericalHeightmapGenerator* generator,
                      TerrainPatchMeshManager* meshManager,
                      vcore::ThreadPool<WorkerData>* threadPool) :
         radius(radius),
@@ -44,7 +44,7 @@ struct TerrainPatchData { // TODO(Ben): probably dont need this
 
     f64 radius; ///< Radius of the planet in KM
     f64 patchWidth; ///< Width of a patch in KM
-    SphericalTerrainCpuGenerator* generator;
+    SphericalHeightmapGenerator* generator;
     TerrainPatchMeshManager* meshManager;
     vcore::ThreadPool<WorkerData>* threadPool;
 };

@@ -16,7 +16,7 @@
 #include "GenerateTask.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
@@ -45,7 +45,6 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
 }
 
 void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agentPosition) { 
-
     // Always make a chunk at camera location
     i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition.pos);
     if (m_cmp->chunkGrids[agentPosition.face].getChunk(chunkPosition) == nullptr) {

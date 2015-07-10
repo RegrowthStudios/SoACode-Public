@@ -25,7 +25,7 @@ struct TerrainPatchData;
 class TerrainPatchMesh;
 class TerrainPatchMesher;
 class TerrainPatchMeshManager;
-class SphericalTerrainCpuGenerator;
+class SphericalHeightmapGenerator;
 
 #define TERRAIN_MESH_TASK_ID 6
 

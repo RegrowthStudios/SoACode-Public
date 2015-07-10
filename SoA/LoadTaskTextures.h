@@ -2,7 +2,7 @@
 #include "LoadMonitor.h"
 #include "GameManager.h"
 #include "SoaOptions.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 
 // TODO(Ben): Multiple loader threads
 class LoadTaskTextures : public ILoadTask {

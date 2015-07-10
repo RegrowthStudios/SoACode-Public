@@ -102,9 +102,9 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
     f32v4* points = new f32v4[(matrix.size.x + 1) * (matrix.size.y + 1) * (matrix.size.z + 1)];
     int index = 0;
     // + 1 since its the corner points intead of the actual voxels (for smoother mesh)
-    for (i32 x = 0; x < matrix.size.x + 1; x++) {
-        for (i32 y = 0; y < matrix.size.y + 1; y++) {
-            for (i32 z = 0; z < matrix.size.z + 1; z++) {
+    for (ui32 x = 0; x < matrix.size.x + 1; x++) {
+        for (ui32 y = 0; y < matrix.size.y + 1; y++) {
+            for (ui32 z = 0; z < matrix.size.z + 1; z++) {
                 f32v4 vert(x, y, z, 0);
                 // Gets the potential
                 vert.w = getMarchingPotential(matrix, x, y, z);
@@ -255,13 +255,13 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
 // This gets color for marching cubes vertices by averaging nearby voxel colors
 // TODO: Figure out a metter method?
 color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
-    i32v3 ipos(glm::round(pos));
+    ui32v3 ipos(glm::round(pos));
     if (ipos.x >= matrix.size.x) ipos.x = matrix.size.x - 1;
     if (ipos.y >= matrix.size.y) ipos.y = matrix.size.y - 1;
     if (ipos.z >= matrix.size.z) ipos.z = matrix.size.z - 1;
-    int x = ipos.x;
-    int y = ipos.y;
-    int z = ipos.z;
+    ui32 x = ipos.x;
+    ui32 y = ipos.y;
+    ui32 z = ipos.z;
 
     int numColors = 0;
     i32v3 fColor(0);

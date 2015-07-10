@@ -10,8 +10,8 @@
 #include "ChunkGrid.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
-#include "PlanetData.h"
-#include "SphericalTerrainCpuGenerator.h"
+#include "PlanetGenData.h"
+#include "SphericalHeightmapGenerator.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
 

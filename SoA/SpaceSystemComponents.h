@@ -35,7 +35,7 @@ class FarTerrainPatch;
 class PagedChunkAllocator;
 class ParticleEngine;
 class PhysicsEngine;
-class SphericalTerrainCpuGenerator;
+class SphericalHeightmapGenerator;
 class SphericalTerrainGpuGenerator;
 class TerrainPatch;
 class TerrainPatchMeshManager;
@@ -152,7 +152,7 @@ struct SphericalVoxelComponent {
     ChunkMeshManager* chunkMeshManager = nullptr;
     VoxelLightEngine voxelLightEngine;
 
-    SphericalTerrainCpuGenerator* generator = nullptr;
+    SphericalHeightmapGenerator* generator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
     const TerrainPatchData* sphericalTerrainData = nullptr;
@@ -187,7 +187,7 @@ struct SphericalTerrainComponent {
     TerrainPatchData* sphericalTerrainData = nullptr;
 
     TerrainPatchMeshManager* meshManager = nullptr;
-    SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+    SphericalHeightmapGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
     VoxelPosition3D startVoxelPosition;
@@ -226,7 +226,7 @@ struct FarTerrainComponent {
     TerrainPatchData* sphericalTerrainData = nullptr;
 
     TerrainPatchMeshManager* meshManager = nullptr;
-    SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+    SphericalHeightmapGenerator* cpuGenerator = nullptr;
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 
     WorldCubeFace face = FACE_NONE;

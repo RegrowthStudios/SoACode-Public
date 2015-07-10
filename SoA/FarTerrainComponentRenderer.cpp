@@ -2,7 +2,7 @@
 #include "FarTerrainComponentRenderer.h"
 
 #include "Camera.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 #include "ShaderLoader.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatchMeshManager.h"

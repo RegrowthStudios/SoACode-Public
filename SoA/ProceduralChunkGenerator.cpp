@@ -45,9 +45,9 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
         for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
             tertiaryData = 0;
 
-            mapHeight = heightData[c].height;
+            mapHeight = (int)heightData[c].height;
             temperature = heightData[c].temperature;
-            rainfall = heightData[c].rainfall;
+            rainfall = heightData[c].humidity;
 
             //tooSteep = (flags & TOOSTEEP) != 0;
 
@@ -89,7 +89,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
                 mapHeight = heightData[hIndex].height;
                 temperature = heightData[hIndex].temperature;
-                rainfall = heightData[hIndex].rainfall;
+                rainfall = heightData[hIndex].humidity;
 
                 height = y + voxPosition.pos.y;
                 depth = mapHeight - height; // Get depth of voxel
@@ -140,7 +140,7 @@ void ProceduralChunkGenerator::generateHeightmap(Chunk* chunk, PlanetHeightData*
             VoxelPosition2D pos = cornerPos2D;
             pos.pos.x += x;
             pos.pos.y += z;
-            m_heightGenerator.generateHeight(heightData[z * CHUNK_WIDTH + x], pos);
+            m_heightGenerator.generateHeightData(heightData[z * CHUNK_WIDTH + x], pos);
         }
     }
 }

@@ -16,10 +16,12 @@
 #define TestConnectedTextureScreen_h__
 
 #include <Vorb/Events.hpp>
+#include <Vorb/graphics/GBuffer.h>
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/ui/IGameScreen.h>
-#include <Vorb/graphics/SpriteFont.h>
+#include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/graphics/SpriteFont.h>
+#include <Vorb/ui/IGameScreen.h>
 
 #include "BlockPack.h"
 #include "Camera.h"
@@ -27,6 +29,8 @@
 #include "CommonState.h"
 #include "ChunkMesher.h"
 #include "ChunkRenderer.h"
+#include "SSAORenderStage.h"
+#include "HdrRenderStage.h"
 
 class TestConnectedTextureScreen : public vui::IAppScreen<App> {
 public:
@@ -65,6 +69,12 @@ private:
     vg::SpriteFont m_font;
 
     std::vector <ViewableChunk> m_chunks;
+
+    vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
+    vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
+
+    SSAORenderStage m_ssaoStage;
+    HdrRenderStage m_hdrStage;
 
     bool m_wireFrame = false;
     bool m_mouseButtons[2];

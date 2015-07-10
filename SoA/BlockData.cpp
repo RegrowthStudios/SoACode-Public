@@ -18,15 +18,15 @@ KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
 KEG_TYPE_DEF_SAME_NAME(Block, kt) {
     kt.addValue("ID", keg::Value::basic(offsetof(Block, temp), keg::BasicType::I32));
     kt.addValue("name", keg::Value::basic(offsetof(Block, name), keg::BasicType::STRING));
-    kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::UI16));
+    kt.addValue("burnTransformID", keg::Value::basic(offsetof(Block, burnTransformID), keg::BasicType::STRING));
     kt.addValue("waveEffect", keg::Value::basic(offsetof(Block, waveEffect), keg::BasicType::I16));
     kt.addValue("lightColor", keg::Value::basic(offsetof(Block, lightColor), keg::BasicType::UI8_V3));
     kt.addValue("caPhysics", keg::Value::basic(offsetof(Block, caFilePath), keg::BasicType::STRING));
     kt.addValue("waterMeshLevel", keg::Value::basic(offsetof(Block, waterMeshLevel), keg::BasicType::I16));
     kt.addValue("floatingAction", keg::Value::basic(offsetof(Block, floatingAction), keg::BasicType::I16));
     kt.addValue("occlusion", keg::Value::custom(offsetof(Block, occlude), "BlockOcclusion", true));
-    kt.addValue("spawnerVal", keg::Value::basic(offsetof(Block, spawnerVal), keg::BasicType::UI16));
-    kt.addValue("sinkVal", keg::Value::basic(offsetof(Block, sinkVal), keg::BasicType::UI16));
+    kt.addValue("spawnID", keg::Value::basic(offsetof(Block, spawnerID), keg::BasicType::STRING));
+    kt.addValue("sinkID", keg::Value::basic(offsetof(Block, sinkID), keg::BasicType::STRING));
     kt.addValue("explosionRays", keg::Value::basic(offsetof(Block, explosionRays), keg::BasicType::UI16));
     kt.addValue("meshType", keg::Value::custom(offsetof(Block, meshType), "MeshType", true));
     kt.addValue("moveMod", keg::Value::basic(offsetof(Block, moveMod), keg::BasicType::F32));
@@ -78,7 +78,7 @@ lightColor(0, 0, 0) {
     explosionRays = 0;
     powderMove = true;
     moveMod = 1.0f;
-    spawnerVal = 0;
-    sinkVal = 0;
+    spawnerID = "";
+    sinkID = "";
     colorFilter = f32v3(1.0f);
 }

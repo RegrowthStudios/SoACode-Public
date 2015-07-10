@@ -131,6 +131,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadTarget) {
         m_reloadLock.lock();
         printf("Reloading Target\n");
+        m_soaState->threadPool->clearTasks();
+        Sleep(200);
         SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, nullptr);
         m_shouldReloadTarget = false;
         m_reloadLock.unlock();
@@ -180,6 +182,7 @@ void GameplayScreen::updateMTRenderState() {
 
     // Debug chunk grid
     if (m_renderer.stages.chunkGrid.isActive()) {
+        // TODO(Ben): This doesn't let you go to different planets!!!
         auto& svcmp = m_soaState->spaceSystem->m_sphericalVoxelCT.getFromEntity(m_soaState->startingPlanet);
         auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
         state->debugChunkData.clear();

@@ -182,9 +182,9 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     SpaceSystem* spaceSystem = state->spaceSystem;
     auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(eid);
     f64 radius = stCmp.radius;
-    auto& npCmpID = stCmp.namePositionComponent;
-    auto& arCmpID = stCmp.axisRotationComponent;
-    auto& ftCmpID = stCmp.farTerrainComponent;
+    auto npCmpID = stCmp.namePositionComponent;
+    auto arCmpID = stCmp.axisRotationComponent;
+    auto ftCmpID = stCmp.farTerrainComponent;
     WorldCubeFace face;
     PlanetGenData* genData = stCmp.planetGenData;
     nString filePath = genData->filePath;
@@ -198,8 +198,8 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     }
 
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
-    
-
+    //state->planetLoader->textureCache.freeTexture(genData->liquidColorMap);
+   // state->planetLoader->textureCache.freeTexture(genData->terrainColorMap);
     genData = state->planetLoader->loadPlanet(filePath, glRPC);
     genData->radius = radius;
 
@@ -211,6 +211,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
         stCmp.farTerrainComponent = ftCmpID;
+       
     }
 
     // TODO(Ben): this doesn't work too well.
