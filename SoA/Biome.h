@@ -57,6 +57,11 @@ struct BiomeInfluence {
     BiomeInfluence(const Biome* b, f32 weight) : b(b), weight(weight) {}
     const Biome* b;
     f32 weight;
+
+    bool operator<(const BiomeInfluence& rhs) const {
+        if (weight < rhs.weight) return true;
+        return b < rhs.b;
+    }
 };
 
 // TODO(Ben): Make the memory one contiguous block

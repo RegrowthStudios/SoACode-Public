@@ -28,95 +28,87 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     generateHeightData(height, normal * m_genData->radius, normal);
 }
 
-struct BiomeContribution {
-    const std::vector<BiomeInfluence>* biomes;
-    f64 weight;
-};
-
-inline bool biomeContSort(const BiomeContribution& a, const BiomeContribution& b) {
-    return a.weight > b.weight;
-}
-
-void getBiomes(const BiomeInfluenceMap& biomeMap, f64 x, f64 y, OUT BiomeContribution rvBiomes[4], OUT ui32& numBiomes) {
+void getBiomes(const BiomeInfluenceMap& biomeMap, f64 x, f64 y, OUT std::map<BiomeInfluence, f64>& rvBiomes) {
     int ix = (int)x;
     int iy = (int)y;
 
     //0 1
     //2 3
-
-    // TODO(Ben): Padding to ditch ifs?
-    // Top Left
-    rvBiomes[0].biomes = &biomeMap[iy * BIOME_MAP_WIDTH + ix];
-    // Top Right
-    if (ix < BIOME_MAP_WIDTH - 1) {
-        rvBiomes[1].biomes = &biomeMap[iy * BIOME_MAP_WIDTH + ix + 1];
-    } else {
-        rvBiomes[1].biomes = rvBiomes[0].biomes;
-    }
-    // Bottom left
-    if (iy < BIOME_MAP_WIDTH - 1) {
-        rvBiomes[2].biomes = &biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix];
-        // Bottom right
-        if (ix < BIOME_MAP_WIDTH - 1) {
-            rvBiomes[3].biomes = &biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix + 1];
-        } else {
-            rvBiomes[3].biomes = rvBiomes[2].biomes;
-        }
-    } else {
-        rvBiomes[2].biomes = rvBiomes[0].biomes;
-        rvBiomes[3].biomes = rvBiomes[1].biomes;
-    }
-
     /* Interpolate */
     // Get weights
     f64 fx = x - (f64)ix;
     f64 fy = y - (f64)iy;
     f64 fx1 = 1.0 - fx;
     f64 fy1 = 1.0 - fy;
-    if (rvBiomes[0].biomes->size()) {
-        rvBiomes[0].weight = fx1 * fy1;
-    } else {
-        rvBiomes[0].biomes = nullptr;
-    }
-    if (rvBiomes[1].biomes->size()) {
-        rvBiomes[1].weight = fx * fy1;
-    } else {
-        rvBiomes[1].biomes = nullptr;
-    }
-    if (rvBiomes[2].biomes->size()) {
-        rvBiomes[2].weight = fx1 * fy;
-    } else {
-        rvBiomes[2].biomes = nullptr;
-    }
-    if (rvBiomes[3].biomes->size()) {
-        rvBiomes[3].weight = fx * fy;
-    } else {
-        rvBiomes[3].biomes = nullptr;
-    }
+    f64 w0 = fx1 * fy1;
+    f64 w1 = fx * fy1;
+    f64 w2 = fx1 * fy;
+    f64 w3 = fx * fy;
 
-    numBiomes = 4;
-    // Remove duplicates
-    for (int i = 0; i < 3; i++) {
-        if (rvBiomes[i].biomes) {
-            for (int j = i + 1; j < 4; j++) {
-                if (rvBiomes[i].biomes == rvBiomes[j].biomes) {
-                    rvBiomes[i].weight += rvBiomes[j].weight;
-                    rvBiomes[j].biomes = nullptr;
+    // Shorter handles
+#define BLIST_0 biomeMap[iy * BIOME_MAP_WIDTH + ix]
+#define BLIST_1  biomeMap[iy * BIOME_MAP_WIDTH + ix + 1]
+#define BLIST_2 biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix]
+#define BLIST_3 biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix + 1]
+
+    // TODO(Ben): Padding to ditch ifs?
+    // Top Left
+    for (auto& b : BLIST_0) {
+        auto& it = rvBiomes.find(b);
+        if (it == rvBiomes.end()) {
+            rvBiomes[b] = w0;
+        } else {
+            it->second += w0;
+        }
+    }
+    // Top Right
+    if (ix < BIOME_MAP_WIDTH - 1) {
+        for (auto& b : BLIST_1) {
+            auto& it = rvBiomes.find(b);
+            if (it == rvBiomes.end()) {
+                rvBiomes[b] = w1;
+            } else {
+                it->second += w1;
+            }
+        }
+    } else {
+        for (auto& b : BLIST_0) {
+            rvBiomes[b] += w1; 
+        }
+    }
+    // Bottom left
+    if (iy < BIOME_MAP_WIDTH - 1) {
+        for (auto& b : BLIST_2) {
+            auto& it = rvBiomes.find(b);
+            if (it == rvBiomes.end()) {
+                rvBiomes[b] = w2;
+            } else {
+                it->second += w2;
+            }
+        }
+        // Bottom right
+        if (ix < BIOME_MAP_WIDTH - 1) {
+            for (auto& b : BLIST_3) {
+                auto& it = rvBiomes.find(b);
+                if (it == rvBiomes.end()) {
+                    rvBiomes[b] = w3;
+                } else {
+                    it->second += w3;
                 }
             }
         } else {
-            rvBiomes[i].weight = -1.0;
-            --numBiomes;
+            for (auto& b : BLIST_2) {
+                rvBiomes[b] += w3;
+            }
+        }
+    } else {
+        for (auto& b : BLIST_0) {
+            rvBiomes[b] += w2;
+        }
+        for (auto& b : BLIST_1) {
+            rvBiomes[b] += w3;
         }
     }
-    // Check last biome for null so we don't have to iterate to 4
-    if (!rvBiomes[3].biomes) {
-        rvBiomes[3].weight = -1.0;
-        --numBiomes;
-    }
-
-    // Sort based on weight
-    std::sort(rvBiomes, rvBiomes + 4, biomeContSort);
 }
 
 inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const {
@@ -133,7 +125,7 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     const Biome* biome;
     biome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
 
-    BiomeContribution cornerBiomes[4];
+    std::map<BiomeInfluence, f64> biomes;
     ui32 numBiomes;
     // Sub biomes
     while (biome->biomeMap.size()) {
@@ -143,24 +135,25 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
             f64 yVal = ((height.height - biome->heightScale.x) / biome->heightScale.y) * 255.0;
             yVal = glm::clamp(yVal, 0.0, 255.0);
 
-            getBiomes(biome->biomeMap, xVal, yVal, cornerBiomes, numBiomes);
-            if (numBiomes == 0) break;
+            getBiomes(biome->biomeMap, xVal, yVal, biomes);
+            if (biomes.size() == 0) break;
            
         } else { // 1D
             throw new nString("Not implemented");
         }
-
-        for (ui32 i = 0; i < numBiomes; i++) {
-            for (size_t j = 0; j < cornerBiomes[i].biomes->size(); j++) {
-                const BiomeInfluence& inf = cornerBiomes[i].biomes->operator[](j);
-                f64 newHeight = inf.b->terrainNoise.base + getNoiseValue(pos, inf.b->terrainNoise.funcs, nullptr, TerrainOp::ADD);
-                const f64& weight = cornerBiomes[i].weight;
-                // Add height with squared interpolation
-                height.height += (f32)(weight * newHeight);
+        f64 biggestWeight = -1.0;
+        for (auto& bInf : biomes) {
+            f64 newHeight = bInf.first.b->terrainNoise.base + getNoiseValue(pos, bInf.first.b->terrainNoise.funcs, nullptr, TerrainOp::ADD);
+            const f64& weight = bInf.first.weight * bInf.second;
+            // Biggest weight biome is the next biome
+            if (weight > biggestWeight) {
+                biggestWeight = weight;
+                biome = bInf.first.b;
             }
+            // Add height with squared interpolation
+            height.height += (f32)(weight * newHeight);
         }
-        // Next biome is the one with the most weight
-        biome = cornerBiomes[0].biomes->front().b;
+        biomes.clear();
     }
     height.biome = biome;
 }
