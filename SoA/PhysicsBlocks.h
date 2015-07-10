@@ -5,7 +5,7 @@
 #include <Vorb/graphics/GLProgram.h>
 
 #include "WorldStructs.h"
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 
 class Chunk;
 class ChunkManager;

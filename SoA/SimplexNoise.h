@@ -7,8 +7,6 @@
 //SOURCE
 // http://www.6by9.net/simplex-noise-for-c-and-python/
 
-//4747
-//5324
 double ridged_octave_noise_2d( const double octaves, const double persistence, const double freq, const double x, const double y );
 
 double ridged_octave_noise_3d_1(const double octaves,
@@ -124,9 +122,9 @@ double scaled_raw_noise_4d( const double loBound,
 
 
 // Raw Simplex noise - a single noise value.
-inline double raw_noise_2d(const double x, const double y);
-inline double raw_noise_3d(const double x, const double y, const double z);
-double raw_noise_4d(const double x, const double y, const double, const double w);
+extern double raw_noise_2d(const double x, const double y);
+extern double raw_noise_3d(const double x, const double y, const double z);
+extern double raw_noise_4d(const double x, const double y, const double, const double w);
 
 inline double dot(const int* g, const double x, const double y);
 inline double dot(const int* g, const double x, const double y, const double z);

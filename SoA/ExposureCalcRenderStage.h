@@ -20,6 +20,7 @@
 #include <Vorb/script/Function.h>
 #include <Vorb/script/Environment.h>
 #include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/GBuffer.h>
 
 #include "IRenderStage.h"
 
@@ -32,7 +33,7 @@ public:
     ~ExposureCalcRenderStage();
 
     /// resolution should be power of 2
-    void hook(vg::FullQuadVBO* quad, vg::GLRenderTarget* hdrFrameBuffer,
+    void hook(vg::FullQuadVBO* quad, vg::GBuffer* hdrFrameBuffer,
               const ui32v4* viewPort, ui32 resolution);
 
     /// Disposes and deletes the shader and turns off visibility
@@ -43,7 +44,7 @@ public:
     /// @pre no FBO is bound
     virtual void render(const Camera* camera = nullptr) override;
 
-    void setFrameBuffer(vg::GLRenderTarget* hdrFrameBuffer) { m_hdrFrameBuffer = hdrFrameBuffer; }
+    void setFrameBuffer(vg::GBuffer* hdrFrameBuffer) { m_hdrFrameBuffer = hdrFrameBuffer; }
 
     const f32& getExposure() const { return m_exposure; }
 
@@ -51,7 +52,7 @@ private:
     vg::GLProgram m_downsampleProgram;
     std::vector<vg::GLRenderTarget> m_renderTargets; ///< All render targets
     vg::FullQuadVBO* m_quad = nullptr;
-    vg::GLRenderTarget* m_hdrFrameBuffer = nullptr;
+    vg::GBuffer* m_hdrFrameBuffer = nullptr;
     const ui32v4* m_restoreViewport;
     ui32 m_resolution;
     ui32 m_mipLevels = 1;

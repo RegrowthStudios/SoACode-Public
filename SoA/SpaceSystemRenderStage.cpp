@@ -56,8 +56,8 @@ void SpaceSystemRenderStage::init(vui::GameWindow* window, StaticLoadContext& co
 
 void SpaceSystemRenderStage::hook(SoaState* state, const Camera* spaceCamera, const Camera* farTerrainCamera /*= nullptr*/) {
     m_viewport = m_window->getViewportDims();
-    m_spaceSystem = state->spaceSystem.get();
-    m_mainMenuSystemViewer = state->systemViewer.get();
+    m_spaceSystem = state->spaceSystem;
+    m_mainMenuSystemViewer = state->systemViewer;
     m_lensFlareRenderer.init(&state->texturePathResolver);
     m_starRenderer.init(&state->texturePathResolver);
     m_systemARRenderer.init(&state->texturePathResolver);
@@ -125,6 +125,21 @@ void SpaceSystemRenderStage::render(const Camera* camera) {
     if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                                           m_mainMenuSystemViewer,
                                           m_viewport);
+}
+
+void SpaceSystemRenderStage::reloadShaders() {
+    StaticLoadContext tmp;
+    dispose(tmp);
+
+    m_lensFlareRenderer.initGL();
+    m_starRenderer.initGL();
+    m_systemARRenderer.initGL();
+    m_sphericalTerrainComponentRenderer.initGL();
+    m_gasGiantComponentRenderer.initGL();
+    m_cloudsComponentRenderer.initGL();
+    m_atmosphereComponentRenderer.initGL();
+    m_ringsRenderer.initGL();
+    m_farTerrainComponentRenderer.initGL();
 }
 
 void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
@@ -206,7 +221,7 @@ void SpaceSystemRenderStage::drawBodies() {
     }
 
     // Render clouds
-    glDisable(GL_CULL_FACE);
+  /*  glDisable(GL_CULL_FACE);
     for (auto& it : m_spaceSystem->m_cloudsCT) {
         auto& cCmp = it.second;
         auto& npCmp = m_spaceSystem->m_namePositionCT.get(cCmp.namePositionComponent);
@@ -221,7 +236,7 @@ void SpaceSystemRenderStage::drawBodies() {
                                        m_spaceSystem->m_axisRotationCT.getFromEntity(it.first), 
                                        m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
     }
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);*/
 
     // Render atmospheres
     for (auto& it : m_spaceSystem->m_atmosphereCT) {

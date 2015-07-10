@@ -37,13 +37,16 @@ void GameplayLoadScreen::destroy(const vui::GameTime& gameTime) {
 
 void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
-    addLoadTask("BlockData", new LoadTaskBlockData);
+    addLoadTask("BlockData", new LoadTaskBlockData(&m_commonState->state->blocks,
+        &m_commonState->state->blockTextureLoader,
+        &m_commonState->loadContext));
 
   //  addLoadTask("Textures", new LoadTaskTextures);
   //  m_monitor.setDep("Textures", "BlockData");
 
     m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen, m_commonState);
     m_gameplayScreen->m_renderer.hook();
+    m_commonState->loadContext.begin();
     m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
 
     // Start the tasks
@@ -55,46 +58,25 @@ void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
     m_mainMenuScreen->m_renderer.dispose(m_commonState->loadContext);
     // Disable main menu viewer
     m_commonState->stages.spaceSystem.setSystemViewer(nullptr);
+    m_commonState->loadContext.end();
 }
 
 void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 
     // Perform OpenGL calls
     m_glrpc.processRequests(1);
+    m_commonState->loadContext.processRequests(1);
     m_gameplayScreen->m_renderer.updateGL();
 
     // Defer texture loading
     static bool loadedTextures = false;
     // End condition
     if (!loadedTextures && m_gameplayScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("BlockData")) {
-        //GameManager::texturePackLoader->uploadTextures();
-        //GameManager::texturePackLoader->writeDebugAtlases();
-        //GameManager::texturePackLoader->setBlockTextures(Blocks);
-
-        //GameManager::getTextureHandles();
-
-        //SetBlockAvgTexColors();
-
-        ////load the emitters
-        //for (size_t i = 0; i < Blocks.size(); i++) {
-        //    if (Blocks[i].active) {
-        //        if (Blocks[i].emitterName.size()) {
-        //        //    Blocks[i].emitter = fileManager.loadEmitter(Blocks[i].emitterName);
-        //        }
-        //        if (Blocks[i].emitterOnBreakName.size()) {
-        //       //     Blocks[i].emitterOnBreak = fileManager.loadEmitter(Blocks[i].emitterOnBreakName);
-        //        }
-        //        if (Blocks[i].emitterRandomName.size()) {
-        //        //    Blocks[i].emitterRandom = fileManager.loadEmitter(Blocks[i].emitterRandomName);
-        //        }
-        //    }
-        //}
-
-        //// It has no texture
-        //for (i32 i = 0; i < 6; i++) Blocks[0].base[i] = -1;
-
         // Post process the planets
         SoaEngine::setPlanetBlocks(m_commonState->state);
+        m_commonState->state->blockTextures->update();
+        m_commonState->state->blockTextures->writeDebugAtlases();
+        //m_commonState->state->blockTextures->save(&m_commonState->state->blocks);
         m_state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
     }

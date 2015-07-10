@@ -63,7 +63,7 @@ void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
 void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Get the state handle
-    m_mainMenuSystemViewer = m_soaState->systemViewer.get();
+    m_mainMenuSystemViewer = m_soaState->systemViewer;
 
     m_soaState->spaceCamera.init(m_window->getAspectRatio());
     
@@ -71,8 +71,8 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     initInput();
 
     m_soaState->systemViewer->init(m_window->getViewportDims(),
-                                                                      &m_soaState->spaceCamera, m_soaState->spaceSystem.get(), m_inputMapper);
-    m_mainMenuSystemViewer = m_soaState->systemViewer.get();
+                                                                      &m_soaState->spaceCamera, m_soaState->spaceSystem, m_inputMapper);
+    m_mainMenuSystemViewer = m_soaState->systemViewer;
 
     m_ambLibrary = new AmbienceLibrary;
     m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
@@ -155,7 +155,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
         }
     }
 
-    m_soaState->time += m_soaState->timeStep;
+    //m_soaState->time += m_soaState->timeStep;
     m_spaceSystemUpdater->update(m_soaState, m_soaState->spaceCamera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState);
     m_mainMenuSystemViewer->update();
@@ -267,7 +267,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::loadSpaceSystem(m_soaState, loadData);
     CinematicCamera tmp = m_soaState->spaceCamera; // Store camera so the view doesn't change
     m_soaState->systemViewer->init(m_window->getViewportDims(),
-                                   &m_soaState->spaceCamera, m_soaState->spaceSystem.get(),
+                                   &m_soaState->spaceCamera, m_soaState->spaceSystem,
                                    m_inputMapper);
     m_soaState->spaceCamera = tmp; // Restore old camera
     m_renderer.dispose(m_commonState->loadContext);

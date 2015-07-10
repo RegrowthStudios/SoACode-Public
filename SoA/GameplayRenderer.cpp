@@ -5,7 +5,6 @@
 #include <Vorb/ui/GameWindow.h>
 #include <Vorb/AssetLoader.h>
 
-#include "ChunkMemoryManager.h"
 #include "ChunkMeshManager.h"
 #include "CommonState.h"
 #include "Errors.h"
@@ -46,10 +45,15 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.pda.init(window, context);
     stages.pauseMenu.init(window, context);
     stages.nightVision.init(window, context);
+    stages.ssao.init(window, context);
+    stages.bloom.init(window, context);
+    stages.bloom.setParams();
+    stages.exposureCalc.init(window, context);
 
     loadNightVision();
 
     // No post-process effects to begin with
+    stages.bloom.setActive(true);
     stages.nightVision.setActive(false);
     stages.chunkGrid.setActive(true); // TODO(Ben): Temporary
     //stages.chunkGrid.setActive(false);
@@ -76,10 +80,22 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
     stages.pda.dispose(context);
     stages.pauseMenu.dispose(context);
     stages.nightVision.dispose(context);
+    stages.ssao.dispose(context);
+    stages.bloom.dispose(context);
+    stages.exposureCalc.dispose(context);
 
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
     m_swapChain.dispose();
+}
+
+void GameplayRenderer::reloadShaders() {
+    // TODO(Ben): More
+    StaticLoadContext context;
+    m_chunkRenderer.dispose();
+    m_chunkRenderer.init();
+    m_commonState->stages.spaceSystem.reloadShaders();
+    
 }
 
 void GameplayRenderer::load(StaticLoadContext& context) {
@@ -87,12 +103,26 @@ void GameplayRenderer::load(StaticLoadContext& context) {
 
     m_loadThread = new std::thread([&]() {
         
-        vcore::GLRPC so[3];
+        vcore::GLRPC so[4];
         size_t i = 0;
         // Create the HDR target     
         so[i].set([&](Sender, void*) {
+            Array<vg::GBufferAttachment> attachments;
+            vg::GBufferAttachment att[2];
+            // TODO(Ben): Don't think this is right.
+            // Color
+            att[0].format = vg::TextureInternalFormat::RGBA16F;
+            att[0].pixelFormat = vg::TextureFormat::RGBA;
+            att[0].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+            att[0].number = 1;
+            // Normals
+            att[1].format = vg::TextureInternalFormat::RGBA16F;
+            att[1].pixelFormat = vg::TextureFormat::RGBA;
+            att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+            att[1].number = 2;
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
-            m_hdrTarget.init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA16F).initDepth();
+                        
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
             } else {
@@ -104,6 +134,12 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         // Create the swap chain for post process effects (HDR-capable)
         so[i].set([&](Sender, void*) {
             m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
+        });
+        m_glrpc.invoke(&so[i++], false);
+
+        // Initialize the chunk renderer
+        so[i].set([&](Sender, void*) {
+            m_chunkRenderer.init();
         });
         m_glrpc.invoke(&so[i++], false);
         // Wait for the last command to complete
@@ -119,6 +155,9 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         stages.pda.load(context);
         stages.pauseMenu.load(context);
         stages.nightVision.load(context);
+        stages.ssao.load(context);
+        stages.bloom.load(context);
+        stages.exposureCalc.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -127,16 +166,20 @@ void GameplayRenderer::load(StaticLoadContext& context) {
 void GameplayRenderer::hook() {
     // Note: Common stages are hooked in MainMenuRenderer, no need to re-hook
     // Grab mesh manager handle
-    m_meshManager = m_state->chunkMeshManager.get();
-    stages.opaqueVoxel.hook(&m_gameRenderParams);
-    stages.cutoutVoxel.hook(&m_gameRenderParams);
+    m_meshManager = m_state->chunkMeshManager;
+    stages.opaqueVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
+    stages.cutoutVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
+    stages.transparentVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
+    stages.liquidVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
     stages.chunkGrid.hook(&m_gameRenderParams);
-    stages.transparentVoxel.hook(&m_gameRenderParams);
-    stages.liquidVoxel.hook(&m_gameRenderParams);
+ 
     //stages.devHud.hook();
     //stages.pda.hook();
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
     stages.nightVision.hook(&m_commonState->quad);
+    stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
+    stages.bloom.hook(&m_commonState->quad);
+    stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
 }
 
 void GameplayRenderer::updateGL() {
@@ -146,12 +189,12 @@ void GameplayRenderer::updateGL() {
 
 
 void GameplayRenderer::render() {
-    const GameSystem* gameSystem = m_state->gameSystem.get();
-    const SpaceSystem* spaceSystem = m_state->spaceSystem.get();
+    const GameSystem* gameSystem = m_state->gameSystem;
+    const SpaceSystem* spaceSystem = m_state->spaceSystem;
 
     updateCameras();
     // Set up the gameRenderParams
-    const GameSystem* gs = m_state->gameSystem.get();
+    const GameSystem* gs = m_state->gameSystem;
 
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
@@ -159,10 +202,11 @@ void GameplayRenderer::render() {
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
+    // TODO(Ben): Is this causing the camera slide descrepency? SHouldn't we use MTRenderState?
     m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
-                                       pos, 100, m_meshManager, false);
+                                       pos, 100, m_meshManager, &m_state->blocks, m_state->blockTextures, false);
     // Bind the FBO
-    m_hdrTarget.use();
+    m_hdrTarget.useGeometry();
   
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -178,7 +222,7 @@ void GameplayRenderer::render() {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      //  stages.opaqueVoxel.render(&m_state->localCamera);
+        stages.opaqueVoxel.render(&m_state->localCamera);
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
@@ -197,32 +241,58 @@ void GameplayRenderer::render() {
         m_coloredQuadAlpha = 0.0f;
     }
 
-    // Render last
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    stages.exposureCalc.render();
+    // Move exposure towards target
+    static const f32 EXPOSURE_STEP = 0.005f;
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
     // Post processing
-    m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
+    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
-    // TODO: More Effects
+    if (stages.ssao.isActive()) {
+        stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
+        stages.ssao.render();
+        m_swapChain.swap();
+        m_swapChain.use(0, false);
+    }
+
+
+    // last effect should not swap swapChain
     if (stages.nightVision.isActive()) {
         stages.nightVision.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
 
+    if (stages.bloom.isActive()) {
+        stages.bloom.render();
+        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+        m_swapChain.swap();
+        m_swapChain.use(0, false);
+    }
+
+    // TODO: More Effects
+
+    m_swapChain.swap();
+    m_swapChain.use(0, false);
+    // Render last
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    m_swapChain.swap();
+    m_swapChain.bindPreviousTexture(0);
+
     // Draw to backbuffer for the last effect
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
+    m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render();
 
     // UI
-   // stages.devHud.render();
-   // stages.pda.render();
+    // stages.devHud.render();
+    // stages.pda.render();
     stages.pauseMenu.render();
 
     // Cube face fade animation
@@ -298,8 +368,8 @@ void GameplayRenderer::toggleChunkGrid() {
 }
 
 void GameplayRenderer::updateCameras() {
-    const GameSystem* gs = m_state->gameSystem.get();
-    const SpaceSystem* ss = m_state->spaceSystem.get();
+    const GameSystem* gs = m_state->gameSystem;
+    const SpaceSystem* ss = m_state->spaceSystem;
 
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);

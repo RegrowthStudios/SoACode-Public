@@ -25,8 +25,8 @@ void SoaController::startGame(OUT SoaState* state) {
     SoaEngine::GameSystemLoadData loadData;
     SoaEngine::loadGameSystem(state, loadData);
 
-    GameSystem* gameSystem = state->gameSystem.get();
-    SpaceSystem* spaceSystem = state->spaceSystem.get();
+    GameSystem* gameSystem = state->gameSystem;
+    SpaceSystem* spaceSystem = state->spaceSystem;
 
     if (state->isNewGame) {
  
@@ -37,7 +37,7 @@ void SoaController::startGame(OUT SoaState* state) {
         auto& np2 = spaceSystem->m_namePositionCT.get(spaceSystem->m_sphericalGravityCT.get(spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet)).namePositionComponent);
 
         // Create the player entity and make the initial planet his parent
-        state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem.get(), state->startSpacePos,
+        state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
                                                                   f64q(), 73.0f,
                                                                   f64v3(0.0), soaOptions.get(OPT_FOV).value.f, m_app->getWindow().getAspectRatio(),
                                                                   state->startingPlanet,

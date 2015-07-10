@@ -18,20 +18,21 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
+#include <concurrentqueue.h>
 
 #include "Constants.h"
 #include "SpaceSystemLoadStructs.h"
 #include "VoxPool.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelLightEngine.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 
+class BlockPack;
 class ChunkIOManager;
-class ChunkListManager;
 class ChunkManager;
-class PagedChunkAllocator;
 class ChunkMeshManager;
 class FarTerrainPatch;
+class PagedChunkAllocator;
 class ParticleEngine;
 class PhysicsEngine;
 class SphericalTerrainCpuGenerator;
@@ -88,7 +89,7 @@ struct AxisRotationComponent {
 };
 
 struct NamePositionComponent {
-    f64v3 position; ///< Position in space, in KM
+    f64v3 position = f64v3(0.0); ///< Position in space, in KM
     nString name; ///< Name of the entity
 };
 
@@ -145,24 +146,26 @@ struct SphericalGravityComponent {
 };
 
 struct SphericalVoxelComponent {
-    NChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
-    ChunkListManager* chunkListManager = nullptr;
+    ChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
     PagedChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
     VoxelLightEngine voxelLightEngine;
 
-    SphericalTerrainGpuGenerator* generator = nullptr;
+    SphericalTerrainCpuGenerator* generator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
     const TerrainPatchData* sphericalTerrainData = nullptr;
 
     const vio::IOManager* saveFileIom = nullptr;
+    const BlockPack* blockPack = nullptr;
 
     vecs::ComponentID sphericalTerrainComponent = 0;
     vecs::ComponentID farTerrainComponent = 0;
     vecs::ComponentID namePositionComponent = 0;
     vecs::ComponentID axisRotationComponent = 0;
+
+    moodycamel::ConcurrentQueue<Chunk*>* meshDepsFlushList = nullptr;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
@@ -180,13 +183,10 @@ struct SphericalTerrainComponent {
     vecs::ComponentID sphericalVoxelComponent = 0;
     vecs::ComponentID farTerrainComponent = 0;
 
-    TerrainRpcDispatcher* rpcDispatcher = nullptr;
-
     TerrainPatch* patches = nullptr; ///< Buffer for top level patches
     TerrainPatchData* sphericalTerrainData = nullptr;
 
     TerrainPatchMeshManager* meshManager = nullptr;
-    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
 
     PlanetGenData* planetGenData = nullptr;
@@ -226,8 +226,8 @@ struct FarTerrainComponent {
     TerrainPatchData* sphericalTerrainData = nullptr;
 
     TerrainPatchMeshManager* meshManager = nullptr;
-    SphericalTerrainGpuGenerator* gpuGenerator = nullptr;
     SphericalTerrainCpuGenerator* cpuGenerator = nullptr;
+    vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 
     WorldCubeFace face = FACE_NONE;
 

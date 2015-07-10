@@ -16,35 +16,53 @@
 #ifndef ChunkMeshManager_h__
 #define ChunkMeshManager_h__
 
-class ChunkMesh;
-class ChunkMeshData;
-
 #include "concurrentqueue.h"
+#include "Chunk.h"
+#include "ChunkMesh.h"
+#include <mutex>
+
+enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
+
+struct ChunkMeshMessage {
+    ChunkID chunkID;
+    ChunkMeshMessageID messageID;
+    void* data;
+};
 
 class ChunkMeshManager {
 public:
-    ChunkMeshManager();
-    ~ChunkMeshManager();
+    ChunkMeshManager(ui32 startMeshes = 128);
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
-    /// Deletes and removes a mesh
-    void deleteMesh(ChunkMesh* mesh, int index = -1);
     /// Adds a mesh for updating
-    void addMeshForUpdate(ChunkMeshData* meshData);
+    void sendMessage(const ChunkMeshMessage& message) { m_messages.enqueue(message); }
     /// Destroys all meshes
     void destroy();
 
-    const std::vector <ChunkMesh *>& getChunkMeshes() { return m_chunkMeshes; }
+    const std::vector <ChunkMesh *>& getChunkMeshes() { return m_activeChunkMeshes; }
 
 private:
+    VORB_NON_COPYABLE(ChunkMeshManager);
+
+    void processMessage(ChunkMeshMessage& message);
+
+    void createMesh(ChunkMeshMessage& message);
+
+    void destroyMesh(ChunkMeshMessage& message);
     /// Uploads a mesh and adds to list if needed
-    void updateMesh(ChunkMeshData* meshData);
+    void updateMesh(ChunkMeshMessage& message);
 
     void updateMeshDistances(const f64v3& cameraPosition);
 
-    std::vector <ChunkMesh*> m_chunkMeshes;
-    std::vector <ChunkMeshData*> m_updateBuffer;
-    moodycamel::ConcurrentQueue<ChunkMeshData*> m_meshQueue;
+    void updateMeshStorage();
+
+    std::vector <ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
+    moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
+
+    std::vector <ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
+    std::vector <ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
+    std::unordered_map<ChunkID, ChunkMesh::ID> m_activeChunks; ///< Stores chunk IDs that have meshes
+    std::set<ChunkID> m_pendingDestroy;
 };
 
 #endif // ChunkMeshManager_h__

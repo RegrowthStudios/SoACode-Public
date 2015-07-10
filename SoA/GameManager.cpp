@@ -18,8 +18,6 @@
 #include "Particles.h"
 #include "PhysicsEngine.h"
 #include "Rendering.h"
-#include "TerrainGenerator.h"
-#include "TexturePackLoader.h"
 #include "VRayHelper.h"
 #include "WSO.h"
 #include "WSOAtlas.h"
@@ -35,7 +33,6 @@ float GameManager::fogStart, GameManager::fogEnd;
 VoxelEditor* GameManager::voxelEditor = nullptr;
 WSOAtlas* GameManager::wsoAtlas = nullptr;
 WSOScanner* GameManager::wsoScanner = nullptr;
-TexturePackLoader* GameManager::texturePackLoader = nullptr;
 vg::TextureCache* GameManager::textureCache = nullptr;
 
 void GameManager::initializeSystems() {
@@ -45,7 +42,6 @@ void GameManager::initializeSystems() {
         wsoAtlas->load("Data\\WSO\\test.wso");
         wsoScanner = new WSOScanner(wsoAtlas);
         textureCache = new vg::TextureCache();
-        texturePackLoader = new TexturePackLoader(textureCache);
 
         _systemsInitialized = true;
     }
@@ -53,25 +49,25 @@ void GameManager::initializeSystems() {
 
 void GameManager::registerTexturesForLoad() {
 
-    texturePackLoader->registerTexture("FarTerrain/location_marker.png");
-    texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-    texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
-    texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
-    texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
-    texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
-    texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    //texturePackLoader->registerTexture("FarTerrain/location_marker.png");
+    //texturePackLoader->registerTexture("FarTerrain/terrain_texture.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    //texturePackLoader->registerTexture("FarTerrain/normal_leaves_billboard.png");
+    //texturePackLoader->registerTexture("FarTerrain/pine_leaves_billboard.png");
+    //texturePackLoader->registerTexture("FarTerrain/mushroom_cap_billboard.png");
+    //texturePackLoader->registerTexture("FarTerrain/tree_trunk_1.png");
+    //texturePackLoader->registerTexture("Blocks/Liquids/water_normal_map.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
 
-    texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
-    texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/front.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/right.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/top.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/left.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/bottom.png");
+    //texturePackLoader->registerTexture("Sky/StarSkybox/back.png");
 
-    texturePackLoader->registerTexture("FarTerrain/water_noise.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-    texturePackLoader->registerTexture("Particle/ball_mask.png");
+    //texturePackLoader->registerTexture("FarTerrain/water_noise.png", &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+    //texturePackLoader->registerTexture("Particle/ball_mask.png");
 
-    texturePackLoader->registerTexture("GUI/crosshair.png");
+    //texturePackLoader->registerTexture("GUI/crosshair.png");
 }
 
 void GameManager::getTextureHandles() {
@@ -88,33 +84,8 @@ void GameManager::savePlayerState() {
    // fileManager.savePlayerFile(player);
 }
 
-void BindVBOIndicesID() {
-    std::vector<GLuint> indices;
-    indices.resize(589824);
-
-    int j = 0;
-    for (Uint32 i = 0; i < indices.size() - 12; i += 6) {
-        indices[i] = j;
-        indices[i + 1] = j + 1;
-        indices[i + 2] = j + 2;
-        indices[i + 3] = j + 2;
-        indices[i + 4] = j + 3;
-        indices[i + 5] = j;
-        j += 4;
-    }
-
-    if (Chunk::vboIndicesID != 0) {
-        glDeleteBuffers(1, &(Chunk::vboIndicesID));
-    }
-    glGenBuffers(1, &(Chunk::vboIndicesID));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (Chunk::vboIndicesID));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 500000 * sizeof(GLuint), NULL, GL_STATIC_DRAW);
-
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 500000 * sizeof(GLuint), &(indices[0])); //arbitrarily set to 300000
-}
-
 bool isSolidBlock(const i32& blockID) {
-    return blockID && (blockID < LOWWATER || blockID > FULLWATER);
+    return true; // return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
 
 void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay) {

@@ -243,7 +243,7 @@ void TestBlockView::draw(const vui::GameTime& gameTime) {
 
 void TestBlockView::loadBlocks(const cString file) {
     vio::IOManager iom;
-    BlockLoader::load(&iom, file, &m_blocks);
+    BlockLoader::load(iom, file, &m_blocks);
 }
 
 void TestBlockView::genBlockMesh() {

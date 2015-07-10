@@ -14,19 +14,34 @@ class PhysicsBlockMesh;
 
 class ChunkRenderer {
 public:
-    static void buildTransparentVao(ChunkMesh *cm);
-    static void buildCutoutVao(ChunkMesh *cm);
-    static void buildVao(ChunkMesh *cm);
-    static void buildWaterVao(ChunkMesh *cm);
+    // Loads the shaders. Call on render thread.
+    void init();
+    void dispose();
 
-    static void drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP);
-    static void drawTransparent(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawCutout(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP);
-    static void drawWater(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP);
+    void beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor = f32v3(1.0f), const f32v3& ambient = f32v3(0.0f));
+    void drawOpaque(const ChunkMesh* cm, const f64v3& PlayerPos, const f32m4& VP) const;
+    static void drawOpaqueCustom(const ChunkMesh* cm, vg::GLProgram& m_program, const f64v3& PlayerPos, const f32m4& VP);
+
+    void beginTransparent(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor = f32v3(1.0f), const f32v3& ambient = f32v3(0.0f));
+    void drawTransparent(const ChunkMesh* cm, const f64v3& playerPos, const f32m4& VP) const;
+    
+    void beginCutout(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor = f32v3(1.0f), const f32v3& ambient = f32v3(0.0f));
+    void drawCutout(const ChunkMesh* cm, const f64v3& playerPos, const f32m4& VP) const;
+
+    void beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor = f32v3(1.0f), const f32v3& ambient = f32v3(0.0f));
+    void drawLiquid(const ChunkMesh* cm, const f64v3& PlayerPos, const f32m4& VP) const;
+
+    // Unbinds the shader
+    static void end();
 
     static volatile f32 fadeDist;
+    static VGIndexBuffer sharedIBO;
 private:
     static f32m4 worldMatrix; ///< Reusable world matrix for chunks
+    vg::GLProgram m_opaqueProgram;
+    vg::GLProgram m_transparentProgram;
+    vg::GLProgram m_cutoutProgram;
+    vg::GLProgram m_waterProgram;
 };
 
 #endif // ChunkRenderer_h__

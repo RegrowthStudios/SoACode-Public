@@ -6,25 +6,22 @@
 
 #include "ChunkAllocator.h"
 #include "ChunkIOManager.h"
-#include "ChunkListManager.h"
 #include "FarTerrainPatch.h"
-#include "NChunkGrid.h"
+#include "ChunkGrid.h"
 #include "ParticleEngine.h"
 #include "PhysicsEngine.h"
 #include "PlanetData.h"
 #include "SphericalTerrainCpuGenerator.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
-#include "TerrainRpcDispatcher.h"
 
 void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
     SphericalVoxelComponent& cmp = _components[cID].second;
-    cmp.threadPool->destroy();
-    delete cmp.threadPool;
-    delete cmp.chunkListManager;
+    // Let the threadpool finish
+    while (cmp.threadPool->getTasksSizeApprox() > 0);
     delete cmp.chunkAllocator;
     delete cmp.chunkIo;
+    delete cmp.meshDepsFlushList;
     delete[] cmp.chunkGrids;
     cmp = _components[0].second;
 }
@@ -37,10 +34,9 @@ void SphericalTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vec
     }
     if (cmp.planetGenData) {
         delete cmp.meshManager;
-        delete cmp.gpuGenerator;
         delete cmp.cpuGenerator;
-        delete cmp.rpcDispatcher;
     }
+    // TODO(Ben): Memory leak
     delete cmp.sphericalTerrainData;
 }
 

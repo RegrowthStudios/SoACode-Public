@@ -21,7 +21,7 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-class NChunkGrid;
+class ChunkGrid;
 class GameRenderParams;
 class ChunkMemoryManager;
 

@@ -2,10 +2,8 @@
 #include "WorldStructs.h"
 
 #include "BlockData.h"
-#include "Chunk.h"
 #include "SoaOptions.h"
 #include "GameManager.h"
-#include "RenderTask.h"
 
 MultiplePreciseTimer globalMultiplePreciseTimer; ///< for easy global benchmarking
 AccumulationTimer globalAccumulationTimer; ///< for easy global benchmarking

@@ -15,7 +15,7 @@
 #ifndef ChunkAllocator_h__
 #define ChunkAllocator_h__
 
-#include "NChunk.h"
+#include "Chunk.h"
 #include "Constants.h"
 #include <vector>
 #include <Vorb/FixedSizeArrayRecycler.hpp>
@@ -23,8 +23,8 @@
 
 class ChunkAllocator {
 public:
-    virtual NChunk* getNewChunk() = 0;
-    virtual void freeChunk(NChunk* chunk) = 0;
+    virtual Chunk* getNewChunk() = 0;
+    virtual void freeChunk(Chunk* chunk) = 0;
 };
 
 class PagedChunkAllocator : public ChunkAllocator {
@@ -35,19 +35,18 @@ public:
     ~PagedChunkAllocator();
 
     /// Gets a new chunk ID
-    NChunk* getNewChunk() override;
+    Chunk* getNewChunk() override;
     /// Frees a chunk
-    void freeChunk(NChunk* chunk) override;
+    void freeChunk(Chunk* chunk) override;
 protected:
     static const size_t CHUNK_PAGE_SIZE = 2048;
     struct ChunkPage {
-        NChunk chunks[CHUNK_PAGE_SIZE];
+        Chunk chunks[CHUNK_PAGE_SIZE];
     };
 
-    std::vector<NChunk*> m_freeChunks; ///< List of inactive chunks
+    std::vector<Chunk*> m_freeChunks; ///< List of inactive chunks
     std::vector<ChunkPage*> m_chunkPages; ///< All pages
     vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_shortFixedSizeArrayRecycler; ///< For recycling voxel data
-    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui8> m_byteFixedSizeArrayRecycler; ///< For recycling voxel data
 };
 
 #endif // ChunkAllocator_h__

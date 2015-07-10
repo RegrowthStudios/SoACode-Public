@@ -22,7 +22,12 @@
 #include "SoaFileSystem.h"
 #include "SoaState.h"
 
-#include "TexturePackLoader.h"
+// TMP
+#include "SimplexNoise.h"
+#include "CpuNoise.h"
+
+
+#include "SmartVoxelContainer.hpp"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
@@ -106,6 +111,34 @@ void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
+
+    //PreciseTimer timer;
+    //f64v3 pos(6500 , 3344 , 6633 );
+    //f32v3 pos2(6500, 3344, 6633);
+    //timer.start();
+    //volatile f64 total = 0.0;
+    //timer.start();
+    //f64 freq = 0.01;
+    //f32 freq2 = 0.01;
+    //f64 tot1 = 0.0;
+    //f32 tot2 = 0.0f; 
+    //for (int i = 0; i < 20000000; i++) {
+    //    f64 a = raw_noise_3d(pos.x * freq, pos.y * freq, pos.z * freq);
+    //    f32 b = raw_noise_3df(pos2.x * freq2, pos2.y * freq2, pos2.z * freq2);
+    //    total += a + b;
+    //    freq *= 2.0;
+    //    freq2 *= 2.0f;
+    //    tot1 += a;
+    //    tot2 += b;
+    //    if ((f32)tot1 != tot2) {
+    //        printf("%d, %f, %f\n", i, (f32)tot1, tot2);
+    //    }
+    //}
+    //std::cout << tot1 << " " << tot2 << std::endl;
+    //printf("%lf ms\n", timer.stop());
+    //std::cout << total;
+
+
     SoaFileSystem fs;
     fs.init();
     MusicPlayer mp;

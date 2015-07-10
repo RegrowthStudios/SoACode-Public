@@ -136,6 +136,7 @@ private:
 
     std::mutex m_reloadLock;
     bool m_shouldReloadTarget = false;
+    bool m_shouldReloadShaders = false;
 };
 
 #endif // GAMEPLAYSCREEN_H_

@@ -16,7 +16,7 @@
 #ifndef MTRenderState_h__
 #define MTRenderState_h__
 
-#include "NChunk.h" // for DebugChunkData
+#include "Chunk.h" // for DebugChunkData
 
 #include <Vorb/ecs/ECS.h>
 #include <map>

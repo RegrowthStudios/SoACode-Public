@@ -3,7 +3,7 @@
 enum itemType {
     ITEM_BLOCK, ITEM_WEAPON, ITEM_ARMOR, ITEM_CONSUMABLE, ITEM_MATERIAL, ITEM_MISC
 };
-const nString itemTypeNames[] = { "Block", "Weapon", "Armor", "Consumable", "Material", "Misc" };
+const nString itemTypeNames[] = { "Block", "Weapon", "Armor", "Consumable", "Texture", "Misc" };
 class Item {
 public:
     Item() {}

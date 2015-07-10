@@ -27,13 +27,11 @@
 #include "SoaOptions.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
-#include "RenderTask.h"
 #include "SoaEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
-#include "TexturePackLoader.h"
 #include "VoxelEditor.h"
 
 GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
@@ -67,9 +65,9 @@ void GameplayScreen::destroy(const vui::GameTime& gameTime) {
 
 void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
-    initInput();
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
-    ChunkMesher::bindVBOIndicesID();
+    initInput();
 
     m_soaState = m_mainMenuScreen->getSoAState();
 
@@ -111,12 +109,17 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 /// This update function runs on the render thread
 void GameplayScreen::update(const vui::GameTime& gameTime) {
 
+    if (m_shouldReloadShaders) {
+        m_renderer.reloadShaders();
+        m_shouldReloadShaders = false;
+    }
+
     m_spaceSystemUpdater->glUpdate(m_soaState);
 
     // TODO(Ben): Move to glUpdate for voxel component
     // TODO(Ben): Don't hardcode for a single player
     auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
-    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, false);
+    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, true);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -135,8 +138,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 }
 
 void GameplayScreen::updateECS() {
-    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
-    GameSystem* gameSystem = m_soaState->gameSystem.get();
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+    GameSystem* gameSystem = m_soaState->gameSystem;
 
     // Time warp
     const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 1000.0;
@@ -165,7 +168,7 @@ void GameplayScreen::updateECS() {
 void GameplayScreen::updateMTRenderState() {
     MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
 
-    SpaceSystem* spaceSystem = m_soaState->spaceSystem.get();
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem;
     // Set all space positions
     for (auto& it : spaceSystem->m_namePositionCT) {
         state->spaceBodyPositions[it.first] = it.second.position;
@@ -181,10 +184,12 @@ void GameplayScreen::updateMTRenderState() {
         auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
         state->debugChunkData.clear();
         if (svcmp.chunkGrids) {
-            for (NChunk* chunk = svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks(); chunk != nullptr; chunk = chunk->getNextActive()) {
+            for (Chunk* chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks()) {
                 state->debugChunkData.emplace_back();
                 state->debugChunkData.back().genLevel = chunk->genLevel;
                 state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
+                // Temporary
+                if (chunk->hasCreatedMesh) state->debugChunkData.back().genLevel = GEN_FLORA;
             }
         }
     } else {
@@ -314,8 +319,8 @@ void GameplayScreen::initRenderPipeline() {
     ui32v4 viewport(0, 0, m_app->getWindow().getViewportDims());
    /* m_renderPipeline.init(viewport, m_soaState,
                           m_app, &m_pda,
-                          m_soaState->spaceSystem.get(),
-                          m_soaState->gameSystem.get(),
+                          m_soaState->spaceSystem,
+                          m_soaState->gameSystem,
                           &m_pauseMenu);*/
 }
 
@@ -346,6 +351,7 @@ void GameplayScreen::initRenderPipeline() {
 /// This is the update thread
 void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(60.0f);
@@ -372,7 +378,7 @@ void GameplayScreen::updateThreadFunc() {
 
 void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Reloading Shaders\n");
-    //m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
+    m_shouldReloadShaders = true;
 }
 void GameplayScreen::onReloadTarget(Sender s, ui32 a) {
     m_shouldReloadTarget = true;

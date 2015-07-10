@@ -1,6 +1,7 @@
 #pragma once
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 #include "BlockTextureMethods.h"
+#include <Vorb/io/Keg.h>
 #include <Vorb/graphics/gtypes.h>
 
 enum class MeshType {
@@ -12,58 +13,19 @@ enum class MeshType {
     LIQUID,
     FLAT 
 };
+KEG_ENUM_DECL(MeshType);
 
-enum class RenderTaskType;
+enum class MeshTaskType;
 
 class Block;
 class Chunk;
 class ChunkGridData;
 class ChunkMesh;
-class RenderTask;
-
-// Stores Chunk Mesh Information
-class MesherInfo {
-public:
-
-    void init(int dataWidth, int dataLayer);
-
-    i32 index, topIndex, leftIndex, rightIndex, botIndex, backIndex, frontIndex, liquidIndex;
-    i32 pLayerFrontIndex, pLayerBackIndex, pLayerLeftIndex, pLayerRightIndex;
-    i32 wsize;
-    i32 pyVboSize, nxVboSize, pxVboSize, nzVboSize, pzVboSize, nyVboSize, transparentIndex, cutoutIndex;
-    i32 y, z, x;
-    i32 y2, z2, x2; //used for transparent positions. == y*2,z*2,x*2
-    i32 nx, ny, nz; //normal positions, as if it was at LOD 1.
-    i32 wc;
-    i32 btype;
-    i32 pbtype;
-    i32 pupIndex, pfrontIndex, pbackIndex, pbotIndex;
-    i32 temperature, rainfall;
-    i32 levelOfDetail;
-    MeshType meshType;
-    bool mergeUp, mergeBot, mergeFront, mergeBack;
-    const Block* currentBlock;
-
-    // Pointers to the voxel data
-    ui16* blockIDData;
-    ui16* lampLightData;
-    ui8* sunlightData;
-    ui16* tertiaryData;
-
-    BlockTextureMethodParams pyBaseMethodParams, pyOverlayMethodParams;
-    BlockTextureMethodParams nyBaseMethodParams, nyOverlayMethodParams;
-    BlockTextureMethodParams pxBaseMethodParams, pxOverlayMethodParams;
-    BlockTextureMethodParams nxBaseMethodParams, nxOverlayMethodParams;
-    BlockTextureMethodParams pzBaseMethodParams, pzOverlayMethodParams;
-    BlockTextureMethodParams nzBaseMethodParams, nzOverlayMethodParams;
-
-    RenderTask* task;
-    std::shared_ptr<ChunkGridData> chunkGridData;
-    i32v3 position;
-};
+class ChunkMeshTask;
 
 class ChunkMeshRenderData {
 public:
+    // TODO(Ben): These can be ui16
     i32 pxVboOff = 0;
     i32 pxVboSize = 0; 
     i32 nxVboOff = 0;
@@ -88,23 +50,37 @@ public:
     ui32 waterIndexSize = 0;
 };
 
+struct VoxelQuad {
+    union {
+        struct {
+            BlockVertex v0;
+            BlockVertex v1;
+            BlockVertex v2;
+            union {
+                UNIONIZE(BlockVertex v3);
+                ui16 replaceQuad; // Quad that replaces this quad
+            };
+        };
+        UNIONIZE(BlockVertex verts[4]);
+    };
+};
+
 class ChunkMeshData
 {
 public:
-    ChunkMeshData(ChunkMesh *cm);
-    ChunkMeshData(RenderTask *task);
+    ChunkMeshData::ChunkMeshData();
+    ChunkMeshData::ChunkMeshData(MeshTaskType type);
 
     void addTransQuad(const i8v3& pos);
 
     ChunkMeshRenderData chunkMeshRenderData;
 
-    std::vector <BlockVertex> vertices;
-    std::vector <BlockVertex> transVertices;
-    std::vector <BlockVertex> cutoutVertices;
+    // TODO(Ben): Could use a contiguous buffer for this?
+    std::vector <VoxelQuad> opaqueQuads;
+    std::vector <VoxelQuad> transQuads;
+    std::vector <VoxelQuad> cutoutQuads;
     std::vector <LiquidVertex> waterVertices;
-    Chunk *chunk = nullptr;
-    class ChunkMesh *chunkMesh = nullptr;
-    RenderTaskType type;
+    MeshTaskType type;
 
     //*** Transparency info for sorting ***
     ui32 transVertIndex = 0;
@@ -112,29 +88,44 @@ public:
     std::vector <ui32> transQuadIndices;
 };
 
+#define ACTIVE_MESH_INDEX_NONE UINT_MAX
+
 class ChunkMesh
 {
 public:
-    ChunkMesh(const Chunk *ch);
-    ~ChunkMesh();
+    ChunkMesh() : vboID(0), waterVboID(0),
+        cutoutVboID(0), transVboID(0),
+        vaoID(0), transVaoID(0),
+        cutoutVaoID(0), waterVaoID(0) {}
 
-    ChunkMeshRenderData meshInfo;
+    typedef ui32 ID;
 
-    VGVertexBuffer vboID = 0;
-    VGVertexArray vaoID = 0;
-    VGVertexBuffer transVboID = 0;
-    VGVertexArray transVaoID = 0;
-    VGVertexBuffer cutoutVboID = 0;
-    VGVertexArray cutoutVaoID = 0;
-    VGVertexBuffer waterVboID = 0;
-    VGVertexArray waterVaoID = 0;
-    f64 distance2 = 32.0f;
+    ChunkMeshRenderData renderData;
+    union {
+        struct {
+            VGVertexBuffer vboID;
+            VGVertexBuffer waterVboID;
+            VGVertexBuffer cutoutVboID;
+            VGVertexBuffer transVboID;
+        };
+        VGVertexBuffer vbos[4];
+    };
+    union {
+        struct {
+            VGVertexArray vaoID;
+            VGVertexArray transVaoID;
+            VGVertexArray cutoutVaoID;
+            VGVertexArray waterVaoID;
+        };
+        VGVertexArray vaos[4];
+    };
+
+    f64 distance2 = 32.0;
     f64v3 position;
+    ui32 activeMeshesIndex = ACTIVE_MESH_INDEX_NONE; ///< Index into active meshes array
     bool inFrustum = false;
     bool needsSort = true;
-    bool needsDestroy = false;
-    volatile int refCount = 0;
-    bool inMeshList = false;
+    ID id;
 
     //*** Transparency info for sorting ***
     VGIndexBuffer transIndexID = 0;

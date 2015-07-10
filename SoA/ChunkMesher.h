@@ -1,13 +1,15 @@
 #pragma once
-#include "OpenGLStructs.h"
+#include "Vertex.h"
 #include "BlockData.h"
+#include "Chunk.h"
 #include "ChunkMesh.h"
 
-class RenderTask;
-class Chunk;
-class ChunkMeshData;
-class BlockTexture;
+class BlockPack;
 class BlockTextureLayer;
+class ChunkMeshData;
+class ChunkMeshTask;
+struct BlockTexture;
+struct PlanetHeightData;
 
 // Sizes For A Padded Chunk
 const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
@@ -17,89 +19,97 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 // each worker thread gets one of these
 class ChunkMesher {
 public:
+    void init(const BlockPack* blocks);
 
-    friend class Chunk;
+    // Easily creates chunk mesh synchronously.
+    CALLER_DELETE ChunkMesh* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
+        prepareData(chunk);
+        ChunkMesh* mesh = new ChunkMesh;
+        uploadMeshData(*mesh, createChunkMeshData(type));
+        return mesh;
+    }
 
-    ChunkMesher();
-    ~ChunkMesher();
-    
-    bool createChunkMesh(RenderTask* renderTask);
-    bool createOnlyWaterMesh(RenderTask* renderTask);
+    // Call one of these before createChunkMesh
+    void prepareData(const Chunk* chunk);
+    // For use with threadpool
+    void prepareDataAsync(Chunk* chunk);
+
+    // TODO(Ben): Unique ptr?
+    // Must call prepareData or prepareDataAsync first
+    CALLER_DELETE ChunkMeshData* createChunkMeshData(MeshTaskType type);
+
+    // Returns true if the mesh is renderable
+    static bool uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData);
+
+    // Frees buffers AND deletes memory. mesh Pointer is invalid after calling.
+    static void freeChunkMesh(CALLEE_DELETE ChunkMesh* mesh);
+
     void freeBuffers();
 
-    static void bindVBOIndicesID();
+    int bx, by, bz; // Block iterators
+    int blockIndex;
+    ui16 blockID;
+    const Block* block;
+    const PlanetHeightData* heightData;
+    ui8v3 voxelPosOffset;
 
-    ChunkMeshData* chunkMeshData;
+    // Voxel data arrays
+    ui16 blockData[PADDED_CHUNK_SIZE];
+    ui16 tertiaryData[PADDED_CHUNK_SIZE];
+
+    const BlockPack* blocks = nullptr;
 private:
-    enum FACES { XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS };
-
-    void mergeTopVerts(MesherInfo& mi);
-    void mergeFrontVerts(MesherInfo& mi);
-    void mergeBackVerts(MesherInfo& mi);
-    void mergeRightVerts(MesherInfo& mi);
-    void mergeLeftVerts(MesherInfo& mi);
-    void mergeBottomVerts(MesherInfo& mi);
-
-    void addBlockToMesh(MesherInfo& mi);
-    void addFloraToMesh(MesherInfo& mi);
-    void addLiquidToMesh(MesherInfo& mi);
+    void addBlock();
+    void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]);
+    void computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
+    void addFlora();
+    void addLiquid();
 
     int getLiquidLevel(int blockIndex, const Block& block);
 
-    bool checkBlockFaces(bool faces[6], const RenderTask* task, const BlockOcclusion occlude, const i32 btype, const i32 wc);
-    GLubyte calculateSmoothLighting(int accumulatedLight, int numAdjacentBlocks);
-    void calculateLampColor(ColorRGB8& dst, ui16 src0, ui16 src1, ui16 src2, ui16 src3, ui8 numAdj);
-    void calculateFaceLight(BlockVertex* face, int blockIndex, int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
+    bool shouldRenderFace(int offset);
+    int getOcclusion(const Block& block);
 
-    void computeLODData(int levelOfDetail);
+    ui8 getBlendMode(const BlendType& blendType);
 
-    std::vector<BlockVertex> _finalTopVerts;
-    std::vector<BlockVertex> _finalLeftVerts;
-    std::vector<BlockVertex> _finalRightVerts;
-    std::vector<BlockVertex> _finalFrontVerts;
-    std::vector<BlockVertex> _finalBackVerts;
-    std::vector<BlockVertex> _finalBottomVerts;
+    static void buildTransparentVao(ChunkMesh& cm);
+    static void buildCutoutVao(ChunkMesh& cm);
+    static void buildVao(ChunkMesh& cm);
+    static void buildWaterVao(ChunkMesh& cm);
 
-    std::vector<BlockVertex> _vboVerts;
-    std::vector<BlockVertex> _transparentVerts;
+    ui16 m_quadIndices[PADDED_CHUNK_SIZE][6];
+    ui16 m_wvec[CHUNK_SIZE];
+
+    std::vector<BlockVertex> m_finalVerts[6];
+
+    std::vector<VoxelQuad> m_quads[6];
+    ui32 m_numQuads;
+
+    BlockTextureMethodParams m_textureMethodParams[6][2];
+
+    // TODO(Ben): Change this up a bit
     std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
 
-    //Dimensions of the voxel data, based on LOD
-    int dataWidth;
-    int dataLayer;
-    int dataSize;
+    ChunkMeshData* m_chunkMeshData = nullptr;
+
+    int m_highestY;
+    int m_lowestY;
+    int m_highestX;
+    int m_lowestX;
+    int m_highestZ;
+    int m_lowestZ;
 
     Chunk* chunk; ///< The chunk we are currently meshing;
-    std::shared_ptr<ChunkGridData> chunkGridData; ///< current grid data
+    std::shared_ptr<ChunkGridData> m_chunkGridDataHandle; ///< current grid data
+    ChunkGridData* m_chunkGridData;
+
+    static ChunkGridData defaultChunkGridData;
 
     int wSize;
-    // Voxel data arrays
-    ui16 _wvec[CHUNK_SIZE];
-    ui16 _blockIDData[PADDED_CHUNK_SIZE];
-    ui16 _lampLightData[PADDED_CHUNK_SIZE];
-    ui8 _sunlightData[PADDED_CHUNK_SIZE];
-    ui16 _tertiaryData[PADDED_CHUNK_SIZE];
 
-    ui32 _finalQuads[7000];
+    ui32 m_finalQuads[7000];
 
-    BlockVertex _topVerts[4100];
+    BlockVertex m_topVerts[4100];
 
-    BlockVertex _leftVerts[4100];
-    i32 _currPrevLeftQuads;
-    i32 _prevLeftQuads[2][1024];
-
-    BlockVertex _rightVerts[4100];
-    i32 _currPrevRightQuads;
-    i32 _prevRightQuads[2][1024];
-
-    BlockVertex _frontVerts[4100];
-    i32 _currPrevFrontQuads;
-    i32 _prevFrontQuads[2][1024];
-
-    BlockVertex _backVerts[4100];
-    i32 _currPrevBackQuads;
-    i32 _prevBackQuads[2][1024];
-
-    BlockVertex _bottomVerts[4100];
 };

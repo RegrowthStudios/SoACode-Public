@@ -17,10 +17,10 @@
 
 #include <mutex>
 
-#include "VoxelIntervalTree.h"
 #include "Constants.h"
 
 #include <Vorb/FixedSizeArrayRecycler.hpp>
+#include <Vorb/Voxel/IntervalTree.h>
 
 #define QUIET_FRAMES_UNTIL_COMPRESS 60
 #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
@@ -43,6 +43,11 @@ namespace vorb {
             SmartHandle& operator= (T data);
             SmartHandle& operator= (const SmartHandle& o);
 
+            SmartHandle(SmartHandle&& o) :
+                m_container(o.m_container),
+                m_index(o.m_index) {
+                // TODO: Empty for now try to null it out
+            }
             SmartHandle(const SmartHandle& o) = delete;
             SmartHandle& operator= (SmartHandle&& o) = delete;
         private:
@@ -90,14 +95,12 @@ namespace vorb {
                 _arrayRecycler = arrayRecycler;
             }
 
-            SmartHandle<T, SIZE>&& operator[] (size_t index) {
-                SmartHandle<T, SIZE> hnd(*this, index);
-                return std::move(hnd);
+            SmartHandle<T, SIZE> operator[] (size_t index) {
+                return std::move(SmartHandle<T, SIZE>(*this, index));
             }
             const T& operator[] (size_t index) const {
                 return (getters[(size_t)_state])(this, index);
             }
-
 
             /// Initializes the container
             inline void init(VoxelStorageState state) {
@@ -112,24 +115,41 @@ namespace vorb {
             /// @param state: Initial state of the container
             /// @param data: The sorted array used to populate the container
             inline void initFromSortedArray(VoxelStorageState state,
-                                            const std::vector <typename VoxelIntervalTree<T>::LightweightNode>& data) {
+                                            const std::vector <typename IntervalTree<T>::LNode>& data) {
                 _state = state;
                 _accessCount = 0;
                 _quietFrames = 0;
                 if (_state == VoxelStorageState::INTERVAL_TREE) {
-                    _dataTree.createFromSortedArray(data);
+                    _dataTree.initFromSortedArray(data);
                     _dataTree.checkTreeValidity();
                 } else {
                     _dataArray = _arrayRecycler->create();
                     int index = 0;
-                    for (int i = 0; i < data.size(); i++) {
+                    for (size_t i = 0; i < data.size(); i++) {
                         for (int j = 0; j < data[i].length; j++) {
                             _dataArray[index++] = data[i].data;
                         }
                     }
                 }
             }
-
+            inline void initFromSortedArray(VoxelStorageState state,
+                                            const typename IntervalTree<T>::LNode data[], size_t size) {
+                _state = state;
+                _accessCount = 0;
+                _quietFrames = 0;
+                if (_state == VoxelStorageState::INTERVAL_TREE) {
+                    _dataTree.initFromSortedArray(data, size);
+                    _dataTree.checkTreeValidity();
+                } else {
+                    _dataArray = _arrayRecycler->create();
+                    int index = 0;
+                    for (size_t i = 0; i < size; i++) {
+                        for (int j = 0; j < data[i].length; j++) {
+                            _dataArray[index++] = data[i].data;
+                        }
+                    }
+                }
+            }
 
             inline void changeState(VoxelStorageState newState, std::mutex& dataLock) {
                 if (newState == _state) return;
@@ -185,7 +205,7 @@ namespace vorb {
             inline void uncompressIntoBuffer(T* buffer) { _dataTree.uncompressIntoBuffer(buffer); }
 
             /// Getters
-            VoxelStorageState getState() {
+            const VoxelStorageState& getState() const {
                 return _state;
             }
             T* getDataArray() {
@@ -194,11 +214,25 @@ namespace vorb {
             const T* getDataArray() const {
                 return _dataArray;
             }
-            VoxelIntervalTree<T>& getTree() {
+            IntervalTree<T>& getTree() {
                 return _dataTree;
             }
-            const VoxelIntervalTree<T>& getTree() const {
+            const IntervalTree<T>& getTree() const {
                 return _dataTree;
+            }
+
+            /// Gets the element at index
+            /// @param index: must be (0, SIZE]
+            /// @return The element
+            inline const T& get(size_t index) const {
+                return (getters[(size_t)_state])(this, index);
+            }
+            /// Sets the element at index
+            /// @param index: must be (0, SIZE]
+            /// @param value: The value to set at index
+            inline void set(size_t index, T value) {
+                _accessCount++;
+                (setters[(size_t)_state])(this, index, value);
             }
         private:
             typedef const T& (*Getter)(const SmartVoxelContainer*, size_t);
@@ -220,20 +254,6 @@ namespace vorb {
             static Getter getters[2];
             static Setter setters[2];
 
-            /// Gets the element at index
-            /// @param index: must be (0, SIZE]
-            /// @return The element
-            inline const T& get(size_t index) const {
-                return (getters[(size_t)_state])(this, index);
-            }
-            /// Sets the element at index
-            /// @param index: must be (0, SIZE]
-            /// @param value: The value to set at index
-            inline void set(size_t index, T value) {
-                _accessCount++;
-                (setters[(size_t)_state])(this, index, value);
-            }
-
             inline void uncompress(std::mutex& dataLock) {
                 dataLock.lock();
                 _dataArray = _arrayRecycler->create();
@@ -248,7 +268,7 @@ namespace vorb {
                 dataLock.lock();
                 // Sorted array for creating the interval tree
                 // Using stack array to avoid allocations, beware stack overflow
-                VoxelIntervalTree<T>::LightweightNode data[CHUNK_SIZE];
+                IntervalTree<T>::LNode data[CHUNK_SIZE];
                 int index = 0;
                 data[0].set(0, 1, _dataArray[0]);
                 // Set the data
@@ -262,7 +282,7 @@ namespace vorb {
                 // Set new state
                 _state = VoxelStorageState::INTERVAL_TREE;
                 // Create the tree
-                _dataTree.createFromSortedArray(data, index + 1);
+                _dataTree.initFromSortedArray(data, index + 1);
 
                 dataLock.unlock();
 
@@ -273,7 +293,7 @@ namespace vorb {
                 totalContainerCompressions++;
             }
 
-            VoxelIntervalTree<T> _dataTree; ///< Interval tree of voxel data
+            IntervalTree<T> _dataTree; ///< Interval tree of voxel data
 
             T* _dataArray = nullptr; ///< pointer to an array of voxel data
             int _accessCount = 0; ///< Number of times the container was accessed this frame
@@ -284,9 +304,13 @@ namespace vorb {
             vcore::FixedSizeArrayRecycler<CHUNK_SIZE, T>* _arrayRecycler = nullptr; ///< For recycling the voxel arrays
         };
 
-        template<typename T, size_t SIZE>
+        /*template<typename T, size_t SIZE>
         inline SmartHandle<T, SIZE>::operator const T&() const {
             return m_container[m_index];
+        }*/
+        template<typename T, size_t SIZE>
+        inline SmartHandle<T, SIZE>::operator const T&() const {
+            return (m_container.getters[(size_t)m_container.getState()])(&m_container, m_index);
         }
         template<typename T, size_t SIZE>
         inline SmartHandle<T, SIZE>& SmartHandle<T, SIZE>::operator= (T data) {

@@ -17,7 +17,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* space
         auto& physcmp = gameSystem->physics.get(fmcmp.physicsComponent);
 
         f64q* orientation;
-        f64 acceleration = (f64)fmcmp.speed;
+        f64 acceleration = (f64)fmcmp.speed * 0.01;
         // If there is a voxel component, we use voxel position
         if (physcmp.voxelPositionComponent) {
             // No acceleration on voxels

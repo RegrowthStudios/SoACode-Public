@@ -17,16 +17,20 @@
 
 struct PlanetGenData;
 struct PlanetHeightData;
-class NChunk;
+struct BlockLayer;
+class Chunk;
 
 #include "SphericalTerrainCpuGenerator.h"
 
 class ProceduralChunkGenerator {
 public:
     void init(PlanetGenData* genData);
-    void generateChunk(NChunk* chunk, PlanetHeightData* heightData) const;
-    void generateHeightmap(NChunk* chunk, PlanetHeightData* heightData) const;
+    void generateChunk(Chunk* chunk, PlanetHeightData* heightData) const;
+    void generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const;
 private:
+    ui32 getBlockLayerIndex(ui32 depth) const;
+    ui16 getBlockID(int depth, int mapHeight, int height, BlockLayer& layer) const;
+
     PlanetGenData* m_genData = nullptr;
     SphericalTerrainCpuGenerator m_heightGenerator;
 };

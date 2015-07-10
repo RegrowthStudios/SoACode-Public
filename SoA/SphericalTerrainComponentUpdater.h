@@ -20,7 +20,6 @@ struct SoaState;
 struct SphericalTerrainComponent;
 
 #include "TerrainPatch.h"
-#include "TerrainRpcDispatcher.h"
 #include "VoxelCoordinateSpaces.h"
 #include <Vorb/RPC.h>
 #include <Vorb/ecs/ECS.h>

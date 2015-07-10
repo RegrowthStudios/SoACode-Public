@@ -2,7 +2,7 @@
 #include "ChunkGenerator.h"
 
 #include "ChunkAllocator.h"
-#include "NChunk.h"
+#include "Chunk.h"
 
 void ChunkGenerator::init(ChunkAllocator* chunkAllocator,
                           vcore::ThreadPool<WorkerData>* threadPool,
@@ -13,7 +13,7 @@ void ChunkGenerator::init(ChunkAllocator* chunkAllocator,
 }
 
 void ChunkGenerator::submitQuery(ChunkQuery* query) {
-    NChunk* chunk = query->getChunk();
+    Chunk* chunk = query->getChunk();
     if (!chunk->gridData->isLoaded) {
         // If this heightmap isn't already loading, send it
         if (!chunk->gridData->isLoading) {
@@ -22,7 +22,7 @@ void ChunkGenerator::submitQuery(ChunkQuery* query) {
             m_threadPool->addTask(&query->genTask);
         }
         // Store as a pending query
-        m_pendingQueries[chunk->gridData].push_back(query);
+        m_pendingQueries[chunk->gridData.get()].push_back(query);
     } else {
         if (chunk->m_genQueryData.current) {
             // Only one gen query should be active at a time so just store this one
@@ -46,7 +46,7 @@ void ChunkGenerator::update() {
     size_t numQueries = m_finishedQueries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
-        NChunk* chunk = q->getChunk();
+        Chunk* chunk = q->getChunk();
         chunk->m_genQueryData.current = nullptr;
         // Check if it was a heightmap gen
         if (chunk->gridData->isLoading) {
@@ -54,7 +54,7 @@ void ChunkGenerator::update() {
             chunk->gridData->isLoading = false;
 
             // Submit all the pending queries on this grid data
-            auto& it = m_pendingQueries.find(chunk->gridData);
+            auto& it = m_pendingQueries.find(chunk->gridData.get()); // TODO(Ben): Should this be shared?
             for (auto& p : it->second) {
                 submitQuery(p);
             }
@@ -66,6 +66,7 @@ void ChunkGenerator::update() {
                 q2->m_isFinished = true;
                 q2->m_cond.notify_one();
                 q2->m_chunk->refCount--;
+                q->m_chunk->isAccessible = true;
                 if (q2->shouldDelete) delete q;
             }
             std::vector<ChunkQuery*>().swap(chunk->m_genQueryData.pending);
@@ -79,6 +80,7 @@ void ChunkGenerator::update() {
                     q->m_isFinished = true;
                     q->m_cond.notify_one();
                     q->m_chunk->refCount--;
+                    q->m_chunk->isAccessible = true;
                     if (q->shouldDelete) delete q;
                     // TODO(Ben): Do we care about order?
                     chunk->m_genQueryData.pending[i] = chunk->m_genQueryData.pending.back();

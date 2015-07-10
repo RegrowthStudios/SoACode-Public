@@ -19,19 +19,20 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-class GameRenderParams;
 class Camera;
+class ChunkRenderer;
+class GameRenderParams;
 class MeshManager;
 
 class OpaqueVoxelRenderStage : public IRenderStage
 {
 public:
-    void hook(const GameRenderParams* gameRenderParams);
+    void hook(ChunkRenderer* renderer, const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
     virtual void render(const Camera* camera) override;
 private:
-    vg::GLProgram m_program;
+    ChunkRenderer* m_renderer;
     const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
 };
 

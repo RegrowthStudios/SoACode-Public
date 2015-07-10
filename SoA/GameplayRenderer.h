@@ -15,12 +15,13 @@
 #define GamePlayRenderer_h__
 
 #include <Vorb/graphics/FullQuadVBO.h>
-#include <Vorb/graphics/GLRenderTarget.h>
+#include <Vorb/graphics/GBuffer.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/RPC.h>
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"
+#include "ChunkRenderer.h"
 #include "ColoredFullQuadRenderer.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
@@ -28,14 +29,16 @@
 #include "HdrRenderStage.h"
 #include "LiquidVoxelRenderStage.h"
 #include "NightVisionRenderStage.h"
-#include "NightVisionRenderStage.h"
 #include "OpaqueVoxelRenderStage.h"
 #include "PauseMenuRenderStage.h"
 #include "PdaRenderStage.h"
 #include "PhysicsBlockRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
+#include "SsaoRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
+#include "BloomRenderStage.h"
+#include "ExposureCalcRenderStage.h"
 
 /// Forward declarations
 class App;
@@ -80,6 +83,8 @@ public:
 
     void dispose(StaticLoadContext& context);
 
+    void reloadShaders();
+
     void updateGL();
 
     /// Renders the pipeline.
@@ -112,15 +117,20 @@ public:
         PdaRenderStage pda; ///< Renders the PDA
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
+        SsaoRenderStage ssao; ///< Renders SSAO
+        BloomRenderStage bloom; ///< Renders Bloom effect
+        ExposureCalcRenderStage exposureCalc; ///< Calculate exposure
     } stages;
 
 private:
     void updateCameras();
     void dumpScreenshot();
 
+    ChunkRenderer m_chunkRenderer;
+
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
 
-    vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
+    vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
 
     GameRenderParams m_gameRenderParams; ///< Shared rendering parameters for voxels

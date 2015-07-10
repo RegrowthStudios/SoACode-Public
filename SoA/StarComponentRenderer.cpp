@@ -281,6 +281,7 @@ void StarComponentRenderer::dispose() {
     if (m_tempColorMap.data) {
         vg::ImageIO().free(m_tempColorMap);
         m_tempColorMap.data = nullptr;
+        m_tempColorMap.width = -1;
     }
 }
 

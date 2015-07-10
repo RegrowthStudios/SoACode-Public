@@ -112,6 +112,9 @@ bool checkGlError(const nString& errorLocation) {
         case GL_OUT_OF_MEMORY:
             pError("At " + errorLocation + ". Error code 1285: GL_OUT_OF_MEMORY");
             break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            pError("At " + errorLocation + ". Error code 1285: GL_INVALID_FRAMEBUFFER_OPERATION");
+            break;
         default:
             pError("At " + errorLocation + ". Error code " + std::to_string(error) + ": UNKNOWN");
             break;
