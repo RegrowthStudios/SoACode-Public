@@ -19,12 +19,14 @@
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/Events.hpp>
+#include <Vorb/graphics/GBuffer.h>
 
 #include "ExposureCalcRenderStage.h"
 #include "SpaceSystemRenderStage.h"
 #include "ColorFilterRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "HdrRenderStage.h"
+#include "BloomRenderStage.h"
 #include "LoadContext.h"
 
 /// Forward declarations
@@ -67,6 +69,7 @@ public:
     struct {    
         ColorFilterRenderStage colorFilter;
         ExposureCalcRenderStage exposureCalc;    
+        BloomRenderStage bloom;
     } stages;
 
 private:
@@ -78,7 +81,7 @@ private:
     SoaState* m_state = nullptr;
     MainMenuScreen* m_mainMenuScreen = nullptr;
 
-    vg::GLRenderTarget m_hdrTarget; ///< Framebuffer needed for the HDR rendering
+    vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
     MainMenuScriptedUI* m_mainMenuUI; ///< The main menu UI
 

@@ -46,6 +46,7 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_gameplayScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_gameplayScreen, m_commonState);
     m_gameplayScreen->m_renderer.hook();
+    m_commonState->loadContext.begin();
     m_gameplayScreen->m_renderer.load(m_commonState->loadContext);
 
     // Start the tasks
@@ -57,12 +58,14 @@ void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
     m_mainMenuScreen->m_renderer.dispose(m_commonState->loadContext);
     // Disable main menu viewer
     m_commonState->stages.spaceSystem.setSystemViewer(nullptr);
+    m_commonState->loadContext.end();
 }
 
 void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 
     // Perform OpenGL calls
     m_glrpc.processRequests(1);
+    m_commonState->loadContext.processRequests(1);
     m_gameplayScreen->m_renderer.updateGL();
 
     // Defer texture loading

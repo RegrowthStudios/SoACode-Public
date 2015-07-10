@@ -46,10 +46,14 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.pauseMenu.init(window, context);
     stages.nightVision.init(window, context);
     stages.ssao.init(window, context);
+    stages.bloom.init(window, context);
+    stages.bloom.setParams();
+    stages.exposureCalc.init(window, context);
 
     loadNightVision();
 
     // No post-process effects to begin with
+    stages.bloom.setActive(true);
     stages.nightVision.setActive(false);
     stages.chunkGrid.setActive(true); // TODO(Ben): Temporary
     //stages.chunkGrid.setActive(false);
@@ -77,6 +81,8 @@ void GameplayRenderer::dispose(StaticLoadContext& context) {
     stages.pauseMenu.dispose(context);
     stages.nightVision.dispose(context);
     stages.ssao.dispose(context);
+    stages.bloom.dispose(context);
+    stages.exposureCalc.dispose(context);
 
     // dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -115,10 +121,8 @@ void GameplayRenderer::load(StaticLoadContext& context) {
             att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
             att[1].number = 2;
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
-            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA8).initDepth();
-            
-            checkGlError("HELLO");
-            
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA16F).initDepth();
+                        
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
             } else {
@@ -152,6 +156,8 @@ void GameplayRenderer::load(StaticLoadContext& context) {
         stages.pauseMenu.load(context);
         stages.nightVision.load(context);
         stages.ssao.load(context);
+        stages.bloom.load(context);
+        stages.exposureCalc.load(context);
         m_isLoaded = true;
     });
     m_loadThread->detach();
@@ -172,6 +178,8 @@ void GameplayRenderer::hook() {
     stages.pauseMenu.hook(&m_gameplayScreen->m_pauseMenu);
     stages.nightVision.hook(&m_commonState->quad);
     stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
+    stages.bloom.hook(&m_commonState->quad);
+    stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
 }
 
 void GameplayRenderer::updateGL() {
@@ -233,10 +241,10 @@ void GameplayRenderer::render() {
         m_coloredQuadAlpha = 0.0f;
     }
 
-    // Render last
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    stages.exposureCalc.render();
+    // Move exposure towards target
+    static const f32 EXPOSURE_STEP = 0.005f;
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
 
     // Post processing
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
@@ -248,19 +256,38 @@ void GameplayRenderer::render() {
         m_swapChain.use(0, false);
     }
 
-    // TODO: More Effects
+
+    // last effect should not swap swapChain
     if (stages.nightVision.isActive()) {
         stages.nightVision.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
 
+    if (stages.bloom.isActive()) {
+        stages.bloom.render();
+        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+        m_swapChain.swap();
+        m_swapChain.use(0, false);
+    }
+
+    // TODO: More Effects
+
+    m_swapChain.swap();
+    m_swapChain.use(0, false);
+    // Render last
+    glBlendFunc(GL_ONE, GL_ONE);
+    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    m_swapChain.swap();
+    m_swapChain.bindPreviousTexture(0);
+
     // Draw to backbuffer for the last effect
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getDepthTexture());
+    m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render();
 
     // UI
