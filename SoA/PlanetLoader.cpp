@@ -240,7 +240,7 @@ void recursiveInitBiomes(Biome& biome,
             biome.biomeMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
         }
         // Fill biome map
-        for (int i = 0; i < biome.biomeMap.size(); i++) {
+        for (size_t i = 0; i < biome.biomeMap.size(); i++) {
             ui8v3& color = rs.bytesUI8v3[i];
             BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
             auto& it = nextBiomeLookup.find(code);

@@ -180,6 +180,9 @@
     <Filter Include="SOA Files\Voxel\Texturing">
       <UniqueIdentifier>{29e1a60e-9cde-4091-b045-d6c803be19ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Models">
+      <UniqueIdentifier>{57f94b81-194d-4aa7-91bb-c4855307dd0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -791,6 +794,48 @@
     <ClInclude Include="PlanetGenData.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelModelLoader.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModel.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelRenderer.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelMatrix.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="DualContouringMesher.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="Density.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="MarchingCubesTable.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMesher.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelMesh.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="svd.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="qef.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="TestVoxelModelScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1293,6 +1338,45 @@
     </ClCompile>
     <ClCompile Include="PlanetGenData.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="Density.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="DualContouringMesher.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMesher.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelMesh.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModel.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelMatrix.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelLoader.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelRenderer.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="svd.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="qef.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="TestVoxelModelScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

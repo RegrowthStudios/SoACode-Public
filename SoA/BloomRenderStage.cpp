@@ -86,11 +86,11 @@ void BloomRenderStage::load(StaticLoadContext& context) {
         float weights[50], sum;
         weights[0] = gauss(0, m_gaussianVariance);
         sum = weights[0];
-        for (int i = 1; i < m_gaussianN; i++) {
+        for (ui32 i = 1; i < m_gaussianN; i++) {
             weights[i] = gauss(i, m_gaussianVariance);
             sum += 2 * weights[i];
         }
-        for (int i = 0; i < m_gaussianN; i++) {
+        for (ui32 i = 0; i < m_gaussianN; i++) {
             weights[i] = weights[i] / sum;
         }
         m_programGaussianFirst.use();
