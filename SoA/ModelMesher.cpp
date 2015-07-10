@@ -98,12 +98,15 @@ VoxelModelMesh ModelMesher::createMarchingCubesMesh(const VoxelModel* model) {
 
     auto& matrix = model->getMatrix();
 
+    // This constructs a potential (density) field from our voxel data, with points at the corner of each voxel
     f32v4* points = new f32v4[(matrix.size.x + 1) * (matrix.size.y + 1) * (matrix.size.z + 1)];
     int index = 0;
+    // + 1 since its the corner points intead of the actual voxels (for smoother mesh)
     for (i32 x = 0; x < matrix.size.x + 1; x++) {
         for (i32 y = 0; y < matrix.size.y + 1; y++) {
             for (i32 z = 0; z < matrix.size.z + 1; z++) {
                 f32v4 vert(x, y, z, 0);
+                // Gets the potential
                 vert.w = getMarchingPotential(matrix, x, y, z);
                
                 points[x * (matrix.size.y + 1) * (matrix.size.z + 1) + y * (matrix.size.z + 1) + z] = vert;
@@ -180,20 +183,28 @@ VoxelModelMesh ModelMesher::createDualContouringMesh(const VoxelModel* model) {
     return rv;
 }
 
-
+// Gets the potential at voxel corners
 f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, int z) {
+
+    // TODO: This could all be written from scratch. Not sure the best way to go about it.
+
     f32 potential = 0.0f;
-    int filterSize = 2;
-    int halfFilterSize = filterSize / 2;
-    x -= halfFilterSize;
-    y -= halfFilterSize;
-    z -= halfFilterSize;
-    for (int i = 0; i < filterSize; i++) {
-        for (int j = 0; j < filterSize; j++) {
-            for (int k = 0; k < filterSize; k++) {
+    const int FILTER_SIZE = 2; ///< Should be at least 2
+    const int HALF_FILTER_SIZE = FILTER_SIZE / 2;
+    x -= HALF_FILTER_SIZE;
+    y -= HALF_FILTER_SIZE;
+    z -= HALF_FILTER_SIZE;
+
+    // We use a 2x2x2 filter of voxels around a given voxel corner point
+    for (int i = 0; i < FILTER_SIZE; i++) {
+        for (int j = 0; j < FILTER_SIZE; j++) {
+            for (int k = 0; k < FILTER_SIZE; k++) {
+                // TODO: Play with this!
+
                 if (matrix.getColorAndCheckBounds(x + i, y + j, z + k).a != 0) {
                     potential += 1.0f;
                 }
+                // Interesting effect:
                 /* float dx = abs(i - 1.5f);
                  float dy = abs(j - 1.5f);
                  float dz = abs(k - 1.5f);
@@ -209,13 +220,15 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
             }
         }
     }
-
-    return potential / (filterSize * filterSize * filterSize);
+    // Average the samples
+    return potential / (FILTER_SIZE * FILTER_SIZE * FILTER_SIZE);
 
     if (matrix.getColor(x, y, z).a != 0.0) {
         potential += 2.0f;
     }
 
+    // Add extra potential from neighbors ( makes it smoother )
+    // When .a is 0.0, that is an air block
     if (matrix.getColorAndCheckBounds(x - 1, y, z).a != 0.0) {
         potential += 0.25f;
     }
@@ -235,10 +248,12 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
         potential += 0.25f;
     }
 
-    // Check 2x2 sample
+    // Divide by 7 to average with neighbors a bit
     return potential / 7.0f;
 }
 
+// This gets color for marching cubes vertices by averaging nearby voxel colors
+// TODO: Figure out a metter method?
 color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
     i32v3 ipos(glm::round(pos));
     if (ipos.x >= matrix.size.x) ipos.x = matrix.size.x - 1;
@@ -440,6 +455,9 @@ f32v3 linearInterp(const f32v4& p1, const f32v4& p2, float value) {
         return p13;
 }
 
+
+// Source: http://www.angelfire.com/linux/myp/MC/
+// With Improvements: http://www.angelfire.com/linux/myp/MCAdvanced/MCImproved.html
 void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                                 float gradFactorX, float gradFactorY, float gradFactorZ,
                                 float minValue, f32v4 * points, std::vector<VoxelModelVertex>& vertices) {
@@ -666,7 +684,7 @@ void ModelMesher::marchingCubes(const VoxelMatrix& matrix,
                     int startVertex = vertices.size();
                     vertices.resize(vertices.size() + 3);
                     for (int h = 0; h < 3; h++) {
-                        vertices[startVertex + h].color = color3(points[ind].w, points[ind].w, points[ind].w);
+                        vertices[startVertex + h].color = getColor(intVerts[index[h]], matrix);
                         vertices[startVertex + h].pos = intVerts[index[h]] + mainOffset;
                         vertices[startVertex + h].normal = grads[index[h]];
                     }

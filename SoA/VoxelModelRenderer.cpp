@@ -18,7 +18,7 @@ void VoxelModelRenderer::dispose() {
     if (m_program.isCreated()) m_program.dispose();
 }
 
-void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, const f64v3& relativePos, const f64q& orientation) {
+void VoxelModelRenderer::draw(VoxelModelMesh* mesh, f32m4 mVP, const f64v3& relativePos, const f64q& orientation) {
 
     // Convert f64q to f32q
     f32q orientationF32;
@@ -39,18 +39,18 @@ void VoxelModelRenderer::draw(VoxelModel* model, f32m4 mVP, const f64v3& relativ
     f32v3 lightDir = glm::normalize(f32v3(1.0f, 0.0f, 1.0f));
     glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &lightDir[0]);
 
-    model->getMesh().bind();
+    mesh->bind();
     m_program.enableVertexAttribArrays();
     glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, pos));
     glVertexAttribPointer(m_program.getAttribute("vNormal"), 3, GL_FLOAT, false, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, normal));
     glVertexAttribPointer(m_program.getAttribute("vColor"), 3, GL_UNSIGNED_BYTE, true, sizeof(VoxelModelVertex), offsetptr(VoxelModelVertex, color));
     
-    if (model->getMesh().getIndexCount() == 0) {
-        glDrawArrays(GL_TRIANGLES, 0, model->getMesh().getTriCount() * 3);
+    if (mesh->getIndexCount() == 0) {
+        glDrawArrays(GL_TRIANGLES, 0, mesh->getTriCount() * 3);
     } else {
-        glDrawElements(GL_TRIANGLES, model->getMesh().getIndexCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, mesh->getIndexCount(), GL_UNSIGNED_INT, nullptr);
     }
-    model->getMesh().unbind();
+    mesh->unbind();
 
     m_program.unuse();
 }

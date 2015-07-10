@@ -133,41 +133,36 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
 
 
     m_currentMesh = 0;
-    MeshDebugInfo info;
-    PreciseTimer timer;
-    m_model = new VoxelModel();
-    info.name = "Models/human_female.qb";
-    m_model->loadFromFile(info.name);
-    info.size = m_model->getMatrix().size.x * m_model->getMatrix().size.y * m_model->getMatrix().size.z * sizeof(color4);
 
-    timer.start();
-    m_meshes.push_back(ModelMesher::createMesh(m_model));
-    info.buildTime = timer.stop();
-    info.numPolygons = m_meshes.back().getTriCount();
-    m_meshInfos.push_back(info);
+    /************************************************************************/
+    /* Mesh Creation                                                        */
+    /************************************************************************/
+    { // Female model
+        nString path = "Models/human_female.qb";
+        VoxelModel* model = new VoxelModel();
+        model->loadFromFile(path);
+        
+        addMesh(path, VoxelMeshType::BASIC, model);
+        addMesh(path, VoxelMeshType::MARCHING_CUBES, model);
+        // You can add DUAL_COUNTOURING too, but beware: The implementation is very slow.
+        // addMesh("Models/human_female.qb", VoxelMeshType::DUAL_CONTOURING, model);
+    }
 
-    timer.start();
-    m_meshes.push_back(ModelMesher::createDualContouringMesh(m_model));
-    info.buildTime = timer.stop();
-    info.numPolygons = m_meshes.back().getTriCount();
-    m_meshInfos.push_back(info);
+    { // Male model
+        nString path = "Models/human_male.qb";
+        VoxelModel* model = new VoxelModel;
+        model->loadFromFile(path);
+        
+        addMesh(path, VoxelMeshType::BASIC, model);
+        addMesh(path, VoxelMeshType::MARCHING_CUBES, model);
+        // You can add DUAL_COUNTOURING too, but beware: The implementation is very slow.
+        // addMesh("Models/human_female.qb", VoxelMeshType::DUAL_CONTOURING, model);
+    }
+    /************************************************************************/
+    /*                                                                      */
+    /************************************************************************/
 
-    /*  info.name = "Models/human_male.qb";
-      m_model->loadFromFile(info.name);
-      info.size = m_model->getMatrix().size.x * m_model->getMatrix().size.y * m_model->getMatrix().size.z * sizeof(color4);
-
-      timer.start();
-      m_meshes.push_back(ModelMesher::createMesh(m_model));
-      info.buildTime = timer.stop();
-      info.numPolygons = m_meshes.back().getTriCount();
-      m_meshInfos.push_back(info);
-
-      timer.start();
-      m_meshes.push_back(ModelMesher::createMarchingCubesMesh(m_model));
-      info.buildTime = timer.stop();
-      info.numPolygons = m_meshes.back().getTriCount();
-      m_meshInfos.push_back(info);*/
-
+    // init GL
     m_renderer.initGL();
 
     m_mouseButtons[0] = false;
@@ -216,27 +211,74 @@ void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     vg::DepthState::FULL.set();
-    if (m_currentMesh == 1) {
+
+    // The winding is backwards for some reason on dual contouring...
+    if (m_meshInfos[m_currentMesh].meshType == VoxelMeshType::DUAL_CONTOURING) {
         vg::RasterizerState::CULL_COUNTER_CLOCKWISE.set();
     } else {
         vg::RasterizerState::CULL_CLOCKWISE.set();
     }
+
+    // Draw the mesh
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    m_model->setMesh(m_meshes[m_currentMesh]);
-    m_renderer.draw(m_model, m_camera.getViewProjectionMatrix(), m_camera.getPosition(), f64q());
+    m_renderer.draw(&m_meshes[m_currentMesh], m_camera.getViewProjectionMatrix(), m_camera.getPosition(), f64q());
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     m_sb.begin();
     char buf[512];
-    sprintf(buf, "Name: %s\nTriangles: %d\nBuild Time: %.4lf ms\nsize: %f mb", m_meshInfos[m_currentMesh].name.c_str(),
+    // Get a string name
+    nString typeString = "UNKNOWN";
+    switch (m_meshInfos[m_currentMesh].meshType) {
+        case VoxelMeshType::BASIC:
+            typeString = "Basic";
+            break;
+        case VoxelMeshType::MARCHING_CUBES:
+            typeString = "Marching Cubes";
+            break;
+        case VoxelMeshType::DUAL_CONTOURING:
+            typeString = "Dual Contouring";
+            break;
+    }
+
+    // Build the string to draw
+    sprintf(buf, "Name: %s\nType: %s\nTriangles: %d\nBuild Time: %.4lf ms\nsize: %f mb",
+            m_meshInfos[m_currentMesh].name.c_str(),
+            typeString.c_str(),
             m_meshInfos[m_currentMesh].numPolygons,
             m_meshInfos[m_currentMesh].buildTime,
             m_meshInfos[m_currentMesh].size / 1000.0f / 1000.0f);
+
+    // Draw the string
     m_sb.drawString(&m_sf, buf, f32v2(30.0f), f32v2(1.0f), color::White);
 
+    // Flush to screen
     m_sb.end();
     m_sb.render(f32v2(m_game->getWindow().getViewportDims()));
 
-
     checkGlError("TestVoxelModelScreen::draw");
+}
+
+void TestVoxelModelScreen::addMesh(const nString& name, VoxelMeshType meshType, VoxelModel* model) {
+    MeshDebugInfo info;
+    info.name = name;
+    info.meshType = meshType;
+    info.model = model;
+    info.size = model->getMatrix().size.x * model->getMatrix().size.y * model->getMatrix().size.z * sizeof(color4);
+    PreciseTimer timer;
+    timer.start();
+    // TODO(Ben): Move the switch inside ModelMesher
+    switch (meshType) {
+        case VoxelMeshType::BASIC:
+            m_meshes.push_back(ModelMesher::createMesh(model));
+            break;
+        case VoxelMeshType::MARCHING_CUBES:
+            m_meshes.push_back(ModelMesher::createMarchingCubesMesh(model));
+            break;
+        case VoxelMeshType::DUAL_CONTOURING:
+            m_meshes.push_back(ModelMesher::createDualContouringMesh(model));
+            break;
+    }
+    info.buildTime = timer.stop();
+    info.numPolygons = m_meshes.back().getTriCount();
+    m_meshInfos.push_back(info);
 }

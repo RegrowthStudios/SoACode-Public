@@ -31,8 +31,12 @@ class App;
 class VoxelMatrix;
 class VoxelModelVertex;
 
+enum class VoxelMeshType { BASIC, MARCHING_CUBES, DUAL_CONTOURING };
+
 struct MeshDebugInfo {
     nString name;
+    VoxelMeshType meshType;
+    VoxelModel* model;
     ui32 numPolygons;
     f64 buildTime;
     f32 size;
@@ -53,11 +57,11 @@ public:
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
+    void addMesh(const nString& name, VoxelMeshType meshType, VoxelModel* model);
     Camera m_camera;
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     bool m_mouseButtons[3];
 
-    VoxelModel* m_model;
     ui32 m_currentMesh = 0;
     std::vector<VoxelModelMesh> m_meshes;
     std::vector<MeshDebugInfo> m_meshInfos;

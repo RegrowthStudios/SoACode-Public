@@ -20,6 +20,8 @@
 
 class VoxelMatrix;
 
+// TODO(Ben): I don't understand this
+// Source: http://ngildea.blogspot.com/2014/11/implementing-dual-contouring.html
 class DualContouringMesher {
 public:
     static void genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices);

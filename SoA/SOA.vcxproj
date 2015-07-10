@@ -605,8 +605,6 @@ EXIT 0</Command>
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
-    <ClInclude Include="NoiseShaderCode.hpp" />
-    <ClInclude Include="NoiseShaderGenerator.h" />
     <ClInclude Include="Octree.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OptionsController.h" />
@@ -818,7 +816,6 @@ EXIT 0</Command>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
-    <ClCompile Include="NoiseShaderGenerator.cpp" />
     <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OptionsController.cpp" />

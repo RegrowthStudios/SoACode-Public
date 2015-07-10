@@ -1,1430 +1,419 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="SOA Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="SOA Files\Voxel">
-      <UniqueIdentifier>{525edd3f-153d-4d7e-b2c5-811fe8ece78b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Generation">
-      <UniqueIdentifier>{2c08331c-74a3-41e5-a2ae-d7f834b44a9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Meshing">
-      <UniqueIdentifier>{47d2e9d3-5782-498b-8946-54c76c398ccd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Tasking">
-      <UniqueIdentifier>{a64b4a4f-cf12-45af-bea5-915fe1edb71f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Utils">
-      <UniqueIdentifier>{3b6faecb-6048-43b9-b958-0ec1519bcfd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\WSO">
-      <UniqueIdentifier>{8004f8be-0c9d-4b46-8de3-95f601224cb7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Ext">
-      <UniqueIdentifier>{16458b45-378f-4940-9d6b-22626b459c7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Ext\Input">
-      <UniqueIdentifier>{bdc5c7ad-0882-4888-bf85-a2b6df8ca6c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Ext\ADT">
-      <UniqueIdentifier>{69183acd-97b7-4ccf-8b3d-bf869213d785}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering">
-      <UniqueIdentifier>{6ed11451-4fd0-4e0b-bb3d-7c837c30e6b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\UI">
-      <UniqueIdentifier>{c500d35d-e264-4ecb-91ae-63e32462a5f5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Wrappers">
-      <UniqueIdentifier>{28e31f12-788f-4d75-83c4-90578c32fd26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Images">
-      <UniqueIdentifier>{944280de-51d1-4204-8783-de9d490e0597}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game">
-      <UniqueIdentifier>{006799fc-14f6-4bb3-9ba5-ce6e1a519f66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Objects">
-      <UniqueIdentifier>{cf258b53-3a8a-47e2-bff3-cfe5f3bcd843}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Objects\Materials">
-      <UniqueIdentifier>{b2f9c117-3cdf-4c36-9025-eab0f43b9857}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Physics">
-      <UniqueIdentifier>{66e53e02-b172-41ff-9611-8bc3bb0cc2e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Particles">
-      <UniqueIdentifier>{41066a19-1d18-4603-a153-87d0e8ee97c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Data">
-      <UniqueIdentifier>{d0120966-37e8-471d-bdce-519b4af45baf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Sound">
-      <UniqueIdentifier>{a6444217-9b9d-47d7-93ef-b7677b135940}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Data\IO Utils">
-      <UniqueIdentifier>{f13fbb0d-44a4-47c5-ab3e-37ea49ff2371}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens">
-      <UniqueIdentifier>{f1c18989-f573-4fa6-ba8b-ebcaa46f53d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Load">
-      <UniqueIdentifier>{6da0d3a4-a60f-4ed2-804e-c655cc23292d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS">
-      <UniqueIdentifier>{27b0b7c0-0ccd-46a8-be5f-bace1ed61570}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Dev">
-      <UniqueIdentifier>{f94617d8-52f7-4073-97a5-2d26439a6c08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Dev">
-      <UniqueIdentifier>{a8613ee5-a6ad-4b60-8567-0a15bb9ae82c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Mapping">
-      <UniqueIdentifier>{f10c4941-dfe2-4bfb-a029-a82ec2a097dd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Init">
-      <UniqueIdentifier>{27507245-c888-4a05-b0ca-9890d99db1a2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Menu">
-      <UniqueIdentifier>{0d210193-9560-40f1-a16b-af80064b7293}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Tools">
-      <UniqueIdentifier>{da75023d-4b8b-4790-af72-c6535569b583}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\RenderPipelines">
-      <UniqueIdentifier>{09cebf8a-9329-4dea-aac4-4d56d9dd2f37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\RenderPipelines\RenderStages">
-      <UniqueIdentifier>{ed09a071-ec97-4fd2-922b-f2c36eba05dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Tools\AR">
-      <UniqueIdentifier>{853856ea-242e-44d2-8339-eaf88777864f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Universe">
-      <UniqueIdentifier>{22a36be7-1c86-4e53-bdde-77f979115e26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Dev">
-      <UniqueIdentifier>{877c328b-8bd7-4523-952d-f4bbb6408408}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Test">
-      <UniqueIdentifier>{07d56bf0-8858-45a6-bcf5-6fe4f58dc323}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\StarSystem">
-      <UniqueIdentifier>{1c1faa8a-6bbf-4bd3-a594-ba162a1a31a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\Components">
-      <UniqueIdentifier>{9ca22bd9-7b16-4f82-914d-635a6afa8e69}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\Updaters">
-      <UniqueIdentifier>{85765d6e-8575-45fa-82db-357787c61b39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\Systems">
-      <UniqueIdentifier>{73eeb8a0-c66a-4fc2-bd59-edcbe41b3993}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Sound\Music">
-      <UniqueIdentifier>{70862515-6514-4574-9caf-db361861ced8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Sound\Ambience">
-      <UniqueIdentifier>{29e314c8-5ae6-4581-9595-811643a15e11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\ComponentTables">
-      <UniqueIdentifier>{f52bd506-1a48-4733-81fd-e5ccf12ec387}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\Assemblages">
-      <UniqueIdentifier>{5a883327-0095-495a-b35f-f80c5fec3f94}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\Updaters\GameSystem">
-      <UniqueIdentifier>{3786d69c-53eb-4f18-9fa3-f5b24d8dbfa1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\ECS\Updaters\SpaceSystem">
-      <UniqueIdentifier>{04e223d6-921c-418a-8fef-01869cbc81d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Delegates">
-      <UniqueIdentifier>{8ba56a3b-89be-47d4-a283-21b82f6ebbfa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Game\Universe\Generation">
-      <UniqueIdentifier>{f35809b6-67de-47ce-990b-6b313f00bfac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Universe">
-      <UniqueIdentifier>{cbcce115-6609-45f8-8bf5-9f86d0c7358f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Load\Tasks">
-      <UniqueIdentifier>{3d4b1864-12e0-42f6-93e0-9dd41f775f53}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Screens\Gameplay">
-      <UniqueIdentifier>{67ff73ec-bf0a-46da-a71d-8821a7acbd76}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Rendering\Components">
-      <UniqueIdentifier>{452e9a89-0e3d-42af-827a-14a1b726bc20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Client">
-      <UniqueIdentifier>{05a33879-3c8f-4d59-a153-cc3c410fcc98}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Client\Asset">
-      <UniqueIdentifier>{c4cbe6c3-81db-48d5-9680-8b949bc631a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\API">
-      <UniqueIdentifier>{705cf454-4163-4629-a5a8-b8f21eceeea7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Allocation">
-      <UniqueIdentifier>{548ab1e5-861c-44a6-9081-0769265688b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Meshing\MarchingCubes">
-      <UniqueIdentifier>{47627022-6e4d-4945-87e5-1cfa8d7dd0d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Meshing\DualContouring">
-      <UniqueIdentifier>{31bb11bc-8842-4671-a2f4-30a929f241ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SOA Files\Voxel\Texturing">
-      <UniqueIdentifier>{29e1a60e-9cde-4091-b045-d6c803be19ca}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="AmbienceLibrary.cpp" />
+    <ClCompile Include="AmbiencePlayer.cpp" />
+    <ClCompile Include="AmbienceStream.cpp" />
+    <ClCompile Include="ARProcessor.cpp" />
+    <ClCompile Include="AtmosphereComponentRenderer.cpp" />
+    <ClCompile Include="AxisRotationComponentUpdater.cpp" />
+    <ClCompile Include="Biome.cpp" />
+    <ClCompile Include="BlockPack.cpp" />
+    <ClCompile Include="BlockTexture.cpp" />
+    <ClCompile Include="BlockTextureLoader.cpp" />
+    <ClCompile Include="BlockTextureMethods.cpp" />
+    <ClCompile Include="BlockTexturePack.cpp" />
+    <ClCompile Include="BloomRenderStage.cpp" />
+    <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkAllocator.cpp" />
+    <ClCompile Include="ChunkGridRenderStage.cpp" />
+    <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="ChunkMeshTask.cpp" />
+    <ClCompile Include="CloudsComponentRenderer.cpp" />
+    <ClCompile Include="CollisionComponentUpdater.cpp" />
+    <ClCompile Include="ColoredFullQuadRenderer.cpp" />
+    <ClCompile Include="ColorFilterRenderStage.cpp" />
+    <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="CpuNoise.cpp" />
+    <ClCompile Include="CutoutVoxelRenderStage.cpp" />
+    <ClCompile Include="Density.cpp" />
+    <ClCompile Include="DevHudRenderStage.cpp" />
+    <ClCompile Include="DevScreen.cpp" />
+    <ClCompile Include="DualContouringMesher.cpp" />
+    <ClCompile Include="FarTerrainComponentRenderer.cpp" />
+    <ClCompile Include="FarTerrainComponentUpdater.cpp" />
+    <ClCompile Include="FarTerrainPatch.cpp" />
+    <ClCompile Include="FloraTask.cpp" />
+    <ClCompile Include="FrustumComponentUpdater.cpp" />
+    <ClCompile Include="GameplayLoadScreen.cpp" />
+    <ClCompile Include="GameplayRenderer.cpp" />
+    <ClCompile Include="GameplayScreen.cpp" />
+    <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GameSystem.cpp" />
+    <ClCompile Include="GameSystemAssemblages.cpp" />
+    <ClCompile Include="GameSystemEvents.cpp" />
+    <ClCompile Include="GameSystemUpdater.cpp" />
+    <ClCompile Include="GasGiantComponentRenderer.cpp" />
+    <ClCompile Include="GenerateTask.cpp" />
+    <ClCompile Include="HdrRenderStage.cpp" />
+    <ClCompile Include="BlockLoader.cpp" />
+    <ClCompile Include="ImageAssetLoader.cpp" />
+    <ClCompile Include="LenseFlareRenderer.cpp" />
+    <ClCompile Include="LiquidVoxelRenderStage.cpp" />
+    <ClCompile Include="ExposureCalcRenderStage.cpp" />
+    <ClCompile Include="MainMenuRenderer.cpp" />
+    <ClCompile Include="MainMenuScreen.cpp" />
+    <ClCompile Include="InitScreen.cpp" />
+    <ClCompile Include="LoadMonitor.cpp" />
+    <ClCompile Include="MainMenuScriptedUI.cpp" />
+    <ClCompile Include="MainMenuSystemViewer.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="ModelMesher.cpp" />
+    <ClCompile Include="MetaSection.cpp" />
+    <ClCompile Include="ModPathResolver.cpp" />
+    <ClCompile Include="MTRenderStateManager.cpp" />
+    <ClCompile Include="MusicPlayer.cpp" />
+    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="ChunkGrid.cpp" />
+    <ClCompile Include="NightVisionRenderStage.cpp" />
+    <ClCompile Include="Octree.cpp" />
+    <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
+    <ClCompile Include="OptionsController.cpp" />
+    <ClCompile Include="OrbitComponentRenderer.cpp" />
+    <ClCompile Include="OrbitComponentUpdater.cpp" />
+    <ClCompile Include="ParkourComponentUpdater.cpp" />
+    <ClCompile Include="PauseMenu.cpp" />
+    <ClCompile Include="PauseMenuRenderStage.cpp" />
+    <ClCompile Include="PDA.cpp" />
+    <ClCompile Include="PdaRenderStage.cpp" />
+    <ClCompile Include="PhysicsBlockRenderStage.cpp" />
+    <ClCompile Include="PhysicsComponentUpdater.cpp" />
+    <ClCompile Include="PlanetData.cpp" />
+    <ClCompile Include="PlanetGenerator.cpp" />
+    <ClCompile Include="PlanetLoader.cpp" />
+    <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
+    <ClCompile Include="ProceduralChunkGenerator.cpp" />
+    <ClCompile Include="qef.cpp" />
+    <ClCompile Include="ShaderAssetLoader.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
+    <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SoaController.cpp" />
+    <ClCompile Include="SoaEngine.cpp" />
+    <ClCompile Include="SoaState.cpp" />
+    <ClCompile Include="SoaFileSystem.cpp" />
+    <ClCompile Include="SonarRenderStage.cpp" />
+    <ClCompile Include="SkyboxRenderStage.cpp" />
+    <ClCompile Include="FreeMoveComponentUpdater.cpp" />
+    <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="SpaceSystemAssemblages.cpp" />
+    <ClCompile Include="SpaceSystemLoader.cpp" />
+    <ClCompile Include="SpaceSystemLoadStructs.cpp" />
+    <ClCompile Include="SpaceSystemRenderStage.cpp" />
+    <ClCompile Include="SpaceSystemUpdater.cpp" />
+    <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
+    <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
+    <ClCompile Include="SphericalTerrainCpuGenerator.cpp" />
+    <ClCompile Include="SsaoRenderStage.cpp" />
+    <ClCompile Include="StarComponentRenderer.cpp" />
+    <ClCompile Include="svd.cpp" />
+    <ClCompile Include="SystemARRenderer.cpp" />
+    <ClCompile Include="TerrainPatchMeshManager.cpp" />
+    <ClCompile Include="SpaceSystemComponentTables.cpp" />
+    <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
+    <ClCompile Include="TerrainGenTextures.cpp" />
+    <ClCompile Include="TerrainPatchMesher.cpp" />
+    <ClCompile Include="TerrainPatchMesh.cpp" />
+    <ClCompile Include="TerrainPatchMeshTask.cpp" />
+    <ClCompile Include="TestBlockViewScreen.cpp" />
+    <ClCompile Include="TestConnectedTextureScreen.cpp" />
+    <ClCompile Include="TestConsoleScreen.cpp" />
+    <ClCompile Include="TestDeferredScreen.cpp" />
+    <ClCompile Include="TestDisplacementMappingScreen.cpp" />
+    <ClCompile Include="TestGasGiantScreen.cpp" />
+    <ClCompile Include="TestMappingScreen.cpp" />
+    <ClCompile Include="TestVoxelModelScreen.cpp" />
+    <ClCompile Include="TestNoiseScreen.cpp" />
+    <ClCompile Include="TestNewBlockAPIScreen.cpp" />
+    <ClCompile Include="TestPlanetGenScreen.cpp" />
+    <ClCompile Include="TestStarScreen.cpp" />
+    <ClCompile Include="TransparentVoxelRenderStage.cpp" />
+    <ClCompile Include="VoxelMatrix.cpp" />
+    <ClCompile Include="VoxelMesher.cpp" />
+    <ClCompile Include="ChunkGenerator.cpp" />
+    <ClCompile Include="ChunkMesh.cpp" />
+    <ClCompile Include="ChunkRenderer.cpp" />
+    <ClCompile Include="ChunkUpdater.cpp" />
+    <ClCompile Include="DevConsole.cpp" />
+    <ClCompile Include="DevConsoleView.cpp" />
+    <ClCompile Include="GeometrySorter.cpp" />
+    <ClCompile Include="LoadBar.cpp" />
+    <ClCompile Include="MainMenuLoadScreen.cpp" />
+    <ClCompile Include="CAEngine.cpp" />
+    <ClCompile Include="DebugRenderer.cpp" />
+    <ClCompile Include="FragFile.cpp" />
+    <ClCompile Include="InputMapper.cpp" />
+    <ClCompile Include="BlockData.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Inputs.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="ParticleBatch.cpp" />
+    <ClCompile Include="ParticleEmitter.cpp" />
+    <ClCompile Include="ParticleEngine.cpp" />
+    <ClCompile Include="PhysicsBlocks.cpp" />
+    <ClCompile Include="PhysicsEngine.cpp" />
+    <ClCompile Include="FloraGenerator.cpp" />
+    <ClCompile Include="RegionFileManager.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="VoxelEditor.cpp" />
+    <ClCompile Include="VoxelLightEngine.cpp" />
+    <ClCompile Include="VoxelModel.cpp" />
+    <ClCompile Include="VoxelModelLoader.cpp" />
+    <ClCompile Include="VoxelModelMesh.cpp" />
+    <ClCompile Include="VoxelModelRenderer.cpp" />
+    <ClCompile Include="VoxelRay.cpp" />
+    <ClCompile Include="VoxelSpaceConversions.cpp" />
+    <ClCompile Include="VoxelSpaceUtils.cpp" />
+    <ClCompile Include="VoxPool.cpp" />
+    <ClCompile Include="VRayHelper.cpp" />
+    <ClCompile Include="ChunkIOManager.cpp" />
+    <ClCompile Include="ChunkMesher.cpp" />
+    <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="TerrainPatch.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SoaOptions.cpp" />
+    <ClCompile Include="Rendering.cpp" />
+    <ClCompile Include="SimplexNoise.cpp" />
+    <ClCompile Include="WorldStructs.cpp" />
+    <ClCompile Include="WSO.cpp" />
+    <ClCompile Include="WSOAtlas.cpp" />
+    <ClCompile Include="WSOScanner.cpp" />
+    <ClCompile Include="ZipFile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="App.h">
-      <Filter>SOA Files\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="atomicops.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockData.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="CAEngine.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkIOManager.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkMesher.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkUpdater.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="Collision.h">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Constants.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="DevConsole.h">
-      <Filter>SOA Files\Game\Dev</Filter>
-    </ClInclude>
-    <ClInclude Include="DevConsoleView.h">
-      <Filter>SOA Files\Rendering\Dev</Filter>
-    </ClInclude>
-    <ClInclude Include="EditorVariables.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="Errors.h">
-      <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="FloraGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="FragFile.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Frustum.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="GameManager.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometrySorter.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Inputs.h">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>SOA Files\Game\Objects\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="LiquidData.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadBar.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="Particle.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleBatch.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEngine.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleMesh.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsBlocks.h">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsEngine.h">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="readerwriterqueue.h">
-      <Filter>SOA Files\Ext\ADT</Filter>
-    </ClInclude>
-    <ClInclude Include="RegionFileManager.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderUtils.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="SimplexNoise.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelEditor.h">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelLightEngine.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelRay.h">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelUtils.h">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="VRayHelper.h">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldStructs.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="WSO.h">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClInclude>
-    <ClInclude Include="WSOAtlas.h">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClInclude>
-    <ClInclude Include="WSOData.h">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClInclude>
-    <ClInclude Include="WSOScanner.h">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClInclude>
-    <ClInclude Include="ZipFile.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkMesh.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelMesher.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadMonitor.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="InitScreen.h">
-      <Filter>SOA Files\Screens\Init</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuScreen.h">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockLoader.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshManager.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="PDA.h">
-      <Filter>SOA Files\Game\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="Computer.h">
-      <Filter>SOA Files\Game\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="TransparentVoxelRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="SonarRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="OpaqueVoxelRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="LiquidVoxelRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="CutoutVoxelRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="GameRenderParams.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="HdrRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyboxRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="PdaRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="DevHudRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelBits.h">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockTextureMethods.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="NightVisionRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="ARProcessor.h">
-      <Filter>SOA Files\Game\Tools\AR</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsBlockRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="GenerateTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkGridRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelNavigation.inl">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="FloraTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
-    <ClInclude Include="CellularAutomataTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
-    <ClInclude Include="FloraTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
-    <ClInclude Include="PauseMenu.h">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="PauseMenuRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxPool.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="DevScreen.h">
-      <Filter>SOA Files\Screens\Dev</Filter>
-    </ClInclude>
-    <ClInclude Include="TestConsoleScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="TestMappingScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="TestDeferredScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="TestBlockViewScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockPack.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelMesh.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelVertices.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="SmartVoxelContainer.hpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuSystemViewer.h">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystem.h">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSystem.h">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaController.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaEngine.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaState.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSystemComponents.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicPlayer.h">
-      <Filter>SOA Files\Sound\Music</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaFileSystem.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="AmbienceLibrary.h">
-      <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClInclude>
-    <ClInclude Include="AmbienceStream.h">
-      <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClInclude>
-    <ClInclude Include="AmbiencePlayer.h">
-      <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemComponents.h">
-      <Filter>SOA Files\ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemLoadStructs.h">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSystemAssemblages.h">
-      <Filter>SOA Files\ECS\Assemblages</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemAssemblages.h">
-      <Filter>SOA Files\ECS\Assemblages</Filter>
-    </ClInclude>
-    <ClInclude Include="AxisRotationComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="FrustumComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSystemUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="OrbitComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="ParkourComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalVoxelComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelSpaceConversions.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelCoordinateSpaces.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelSpaceUtils.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
-    <ClInclude Include="ProgramGenDelegate.h">
-      <Filter>SOA Files\Rendering\Delegates</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetData.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseShaderCode.hpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainCpuGenerator.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainGenTextures.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetLoader.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="CpuNoise.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="FarTerrainPatch.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="FarTerrainComponentUpdater.h">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainPatchMesh.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyboxRenderer.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainPatchConstants.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainPatchMesher.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainPatchMeshManager.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainPatch.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="soaUtils.h">
-      <Filter>SOA Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemARRenderer.h">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="MTRenderState.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="MTRenderStateManager.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkMeshManager.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="TestGasGiantScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskStarSystem.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskTextures.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayScreen.h">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="ColoredFullQuadRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSystemEvents.h">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="TestVoxelModelScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelModelLoader.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderLoader.h">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="AtmosphereComponentRenderer.h">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="FarTerrainComponentRenderer.h">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="GasGiantComponentRenderer.h">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="OrbitComponentRenderer.h">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainComponentRenderer.h">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemComponentTables.h">
-      <Filter>SOA Files\ECS\ComponentTables</Filter>
-    </ClInclude>
-    <ClInclude Include="SoaOptions.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelMatrix.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelModel.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelModelMesh.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelModelRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelMesher.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetRingsComponentRenderer.h">
-    </ClInclude>
-    <ClInclude Include="TestDisplacementMappingScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="TestStarScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="CloudsComponentRenderer.h">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SpaceSystemLoader.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadContext.h">
-      <Filter>SOA Files\Screens</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageAssetLoader.h">
-      <Filter>SOA Files\Client\Asset</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderAssetLoader.h">
-      <Filter>SOA Files\Client\Asset</Filter>
-    </ClInclude>
-    <ClInclude Include="IRenderStage.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ExposureCalcRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorFilterRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonState.h">
-      <Filter>SOA Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuRenderer.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayRenderer.h">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuLoadScreen.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="GameplayLoadScreen.h">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="TestNoiseScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkHandle.h">
-      <Filter>SOA Files\Voxel\API</Filter>
-    </ClInclude>
-    <ClInclude Include="MetaSection.h">
-      <Filter>SOA Files\Voxel\API</Filter>
-    </ClInclude>
-    <ClInclude Include="TestNewBlockAPIScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="Positional.h">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetHeightData.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkAllocator.h">
-      <Filter>SOA Files\Voxel\Allocation</Filter>
-    </ClInclude>
-    <ClInclude Include="ProceduralChunkGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="MarchingCubesTable.h">
-      <Filter>SOA Files\Voxel\Meshing\MarchingCubes</Filter>
-    </ClInclude>
-    <ClInclude Include="DualContouringMesher.h">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClInclude>
-    <ClInclude Include="Octree.h">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClInclude>
-    <ClInclude Include="qef.h">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClInclude>
-    <ClInclude Include="svd.h">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClInclude>
-    <ClInclude Include="Density.h">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockTexturePack.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="HeightData.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="Chunk.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkGrid.h">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="Vertex.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="TestPlanetGenScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="SsaoRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
-    <ClInclude Include="ModPathResolver.h">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="InputMapper.h">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="OptionsController.h">
-      <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetGenerator.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="StarComponentRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="LenseFlareRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockTexture.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockTextureLoader.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureAtlas.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureData.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureStack.h">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuScriptedUI.h">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanetRingsComponentRenderer.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Biome.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="BloomRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-	</ClInclude>
-    <ClInclude Include="TerrainPatchMeshTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkMeshTask.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
-    <ClInclude Include="TestConnectedTextureScreen.h">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="LoadTaskBlockData.h">
-      <Filter>SOA Files\Screens\Load\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="BloomRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClInclude>
+    <ClInclude Include="AmbienceLibrary.h" />
+    <ClInclude Include="AmbiencePlayer.h" />
+    <ClInclude Include="AmbienceStream.h" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="ARProcessor.h" />
+    <ClInclude Include="AtmosphereComponentRenderer.h" />
+    <ClInclude Include="AxisRotationComponentUpdater.h" />
+    <ClInclude Include="Biome.h" />
+    <ClInclude Include="BlockPack.h" />
+    <ClInclude Include="BlockTexture.h" />
+    <ClInclude Include="BlockTextureMethods.h" />
+    <ClInclude Include="BlockTexturePack.h" />
+    <ClInclude Include="BloomRenderStage.h" />
+    <ClInclude Include="CellularAutomataTask.h" />
+    <ClInclude Include="ChunkAllocator.h" />
+    <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="ChunkHandle.h" />
+    <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="ChunkMeshTask.h" />
+    <ClInclude Include="CommonState.h" />
+    <ClInclude Include="CloudsComponentRenderer.h" />
+    <ClInclude Include="CollisionComponentUpdater.h" />
+    <ClInclude Include="ColoredFullQuadRenderer.h" />
+    <ClInclude Include="ColorFilterRenderStage.h" />
+    <ClInclude Include="Computer.h" />
+    <ClInclude Include="CpuNoise.h" />
+    <ClInclude Include="Density.h" />
+    <ClInclude Include="DevScreen.h" />
+    <ClInclude Include="DualContouringMesher.h" />
+    <ClInclude Include="FarTerrainComponentRenderer.h" />
+    <ClInclude Include="FarTerrainComponentUpdater.h" />
+    <ClInclude Include="FarTerrainPatch.h" />
+    <ClInclude Include="FloraTask.h" />
+    <ClInclude Include="FrustumComponentUpdater.h" />
+    <ClInclude Include="CutoutVoxelRenderStage.h" />
+    <ClInclude Include="DevHudRenderStage.h" />
+    <ClInclude Include="GameplayLoadScreen.h" />
+    <ClInclude Include="GameplayRenderer.h" />
+    <ClInclude Include="GameplayScreen.h" />
+    <ClInclude Include="GameRenderParams.h" />
+    <ClInclude Include="GameSystem.h" />
+    <ClInclude Include="GameSystemComponents.h" />
+    <ClInclude Include="GameSystemAssemblages.h" />
+    <ClInclude Include="GameSystemEvents.h" />
+    <ClInclude Include="GameSystemUpdater.h" />
+    <ClInclude Include="GasGiantComponentRenderer.h" />
+    <ClInclude Include="HdrRenderStage.h" />
+    <ClInclude Include="BlockLoader.h" />
+    <ClInclude Include="HeightData.h" />
+    <ClInclude Include="ImageAssetLoader.h" />
+    <ClInclude Include="IRenderStage.h" />
+    <ClInclude Include="LenseFlareRenderer.h" />
+    <ClInclude Include="LiquidVoxelRenderStage.h" />
+    <ClInclude Include="LoadContext.h" />
+    <ClInclude Include="LoadTaskBlockData.h" />
+    <ClInclude Include="LoadTaskStarSystem.h" />
+    <ClInclude Include="LoadTaskTextures.h" />
+    <ClInclude Include="ExposureCalcRenderStage.h" />
+    <ClInclude Include="MainMenuRenderer.h" />
+    <ClInclude Include="MainMenuScreen.h" />
+    <ClInclude Include="MainMenuScriptedUI.h" />
+    <ClInclude Include="MainMenuSystemViewer.h" />
+    <ClInclude Include="MarchingCubesTable.h" />
+    <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="ModelMesher.h" />
+    <ClInclude Include="MetaSection.h" />
+    <ClInclude Include="ModPathResolver.h" />
+    <ClInclude Include="MTRenderState.h" />
+    <ClInclude Include="MTRenderStateManager.h" />
+    <ClInclude Include="MusicPlayer.h" />
+    <ClInclude Include="BlockTextureLoader.h" />
+    <ClInclude Include="Chunk.h" />
+    <ClInclude Include="ChunkGrid.h" />
+    <ClInclude Include="NightVisionRenderStage.h" />
+    <ClInclude Include="Octree.h" />
+    <ClInclude Include="OpaqueVoxelRenderStage.h" />
+    <ClInclude Include="OptionsController.h" />
+    <ClInclude Include="OrbitComponentRenderer.h" />
+    <ClInclude Include="OrbitComponentUpdater.h" />
+    <ClInclude Include="ParkourComponentUpdater.h" />
+    <ClInclude Include="PauseMenu.h" />
+    <ClInclude Include="PauseMenuRenderStage.h" />
+    <ClInclude Include="PDA.h" />
+    <ClInclude Include="PdaRenderStage.h" />
+    <ClInclude Include="PhysicsBlockRenderStage.h" />
+    <ClInclude Include="PhysicsComponentUpdater.h" />
+    <ClInclude Include="PlanetData.h" />
+    <ClInclude Include="PlanetGenerator.h" />
+    <ClInclude Include="PlanetHeightData.h" />
+    <ClInclude Include="PlanetLoader.h" />
+    <ClInclude Include="PlanetRingsComponentRenderer.h" />
+    <ClInclude Include="Positional.h" />
+    <ClInclude Include="ProceduralChunkGenerator.h" />
+    <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="qef.h" />
+    <ClInclude Include="ShaderAssetLoader.h" />
+    <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SoaController.h" />
+    <ClInclude Include="SoaEngine.h" />
+    <ClInclude Include="SoaState.h" />
+    <ClInclude Include="SoaFileSystem.h" />
+    <ClInclude Include="soaUtils.h" />
+    <ClInclude Include="SonarRenderStage.h" />
+    <ClInclude Include="SkyboxRenderStage.h" />
+    <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemComponents.h" />
+    <ClInclude Include="SpaceSystemAssemblages.h" />
+    <ClInclude Include="SpaceSystemLoader.h" />
+    <ClInclude Include="SpaceSystemLoadStructs.h" />
+    <ClInclude Include="SpaceSystemRenderStage.h" />
+    <ClInclude Include="SpaceSystemUpdater.h" />
+    <ClInclude Include="SphericalTerrainComponentRenderer.h" />
+    <ClInclude Include="SphericalTerrainComponentUpdater.h" />
+    <ClInclude Include="SphericalTerrainCpuGenerator.h" />
+    <ClInclude Include="SsaoRenderStage.h" />
+    <ClInclude Include="StarComponentRenderer.h" />
+    <ClInclude Include="svd.h" />
+    <ClInclude Include="SystemARRenderer.h" />
+    <ClInclude Include="TerrainPatchMeshManager.h" />
+    <ClInclude Include="SpaceSystemComponentTables.h" />
+    <ClInclude Include="SphericalVoxelComponentUpdater.h" />
+    <ClInclude Include="TerrainGenTextures.h" />
+    <ClInclude Include="TerrainPatchMesher.h" />
+    <ClInclude Include="TerrainPatchConstants.h" />
+    <ClInclude Include="TerrainPatchMesh.h" />
+    <ClInclude Include="TerrainPatchMeshTask.h" />
+    <ClInclude Include="TestBlockViewScreen.h" />
+    <ClInclude Include="TestConnectedTextureScreen.h" />
+    <ClInclude Include="TestConsoleScreen.h" />
+    <ClInclude Include="TestDeferredScreen.h" />
+    <ClInclude Include="TestDisplacementMappingScreen.h" />
+    <ClInclude Include="TestGasGiantScreen.h" />
+    <ClInclude Include="TestMappingScreen.h" />
+    <ClInclude Include="TestVoxelModelScreen.h" />
+    <ClInclude Include="TestNoiseScreen.h" />
+    <ClInclude Include="TestNewBlockAPIScreen.h" />
+    <ClInclude Include="TestPlanetGenScreen.h" />
+    <ClInclude Include="TestStarScreen.h" />
+    <ClInclude Include="TransparentVoxelRenderStage.h" />
+    <ClInclude Include="InitScreen.h" />
+    <ClInclude Include="LoadMonitor.h" />
+    <ClInclude Include="VoxelBits.h" />
+    <ClInclude Include="VoxelCoordinateSpaces.h" />
+    <ClInclude Include="VoxelMatrix.h" />
+    <ClInclude Include="VoxelMesh.h" />
+    <ClInclude Include="VoxelMesher.h" />
+    <ClInclude Include="ChunkGenerator.h" />
+    <ClInclude Include="ChunkMesh.h" />
+    <ClInclude Include="ChunkRenderer.h" />
+    <ClInclude Include="DevConsole.h" />
+    <ClInclude Include="DevConsoleView.h" />
+    <ClInclude Include="ChunkUpdater.h" />
+    <ClInclude Include="GeometrySorter.h" />
+    <ClInclude Include="SmartVoxelContainer.hpp" />
+    <ClInclude Include="LiquidData.h" />
+    <ClInclude Include="LoadBar.h" />
+    <ClInclude Include="MainMenuLoadScreen.h" />
+    <ClInclude Include="CAEngine.h" />
+    <ClInclude Include="ChunkMesher.h" />
+    <ClInclude Include="DebugRenderer.h" />
+    <ClInclude Include="FragFile.h" />
+    <ClInclude Include="Item.h" />
+    <ClInclude Include="TextureAtlas.h" />
+    <ClInclude Include="TextureData.h" />
+    <ClInclude Include="TextureStack.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="ParticleBatch.h" />
+    <ClInclude Include="ParticleEmitter.h" />
+    <ClInclude Include="ParticleEngine.h" />
+    <ClInclude Include="ParticleMesh.h" />
+    <ClInclude Include="RegionFileManager.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="App.h" />
+    <ClInclude Include="VoxelEditor.h" />
+    <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelModel.h" />
+    <ClInclude Include="VoxelModelLoader.h" />
+    <ClInclude Include="VoxelModelMesh.h" />
+    <ClInclude Include="VoxelModelRenderer.h" />
+    <ClInclude Include="VoxelNavigation.inl" />
+    <ClInclude Include="VoxelSpaceConversions.h" />
+    <ClInclude Include="VoxelSpaceUtils.h" />
+    <ClInclude Include="VoxelUtils.h" />
+    <ClInclude Include="VoxelVertices.h" />
+    <ClInclude Include="VoxPool.h" />
+    <ClInclude Include="WSO.h" />
+    <ClInclude Include="WSOAtlas.h" />
+    <ClInclude Include="WSOScanner.h" />
+    <ClInclude Include="WSOData.h" />
+    <ClInclude Include="Inputs.h" />
+    <ClInclude Include="InputMapper.h" />
+    <ClInclude Include="atomicops.h" />
+    <ClInclude Include="BlockData.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Errors.h" />
+    <ClInclude Include="Frustum.h" />
+    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="GenerateTask.h" />
+    <ClInclude Include="PhysicsBlocks.h" />
+    <ClInclude Include="PhysicsEngine.h" />
+    <ClInclude Include="RenderUtils.h" />
+    <ClInclude Include="TerrainPatch.h" />
+    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="SoaOptions.h" />
+    <ClInclude Include="Particles.h" />
+    <ClInclude Include="readerwriterqueue.h" />
+    <ClInclude Include="Rendering.h" />
+    <ClInclude Include="SimplexNoise.h" />
+    <ClInclude Include="FloraGenerator.h" />
+    <ClInclude Include="VoxelRay.h" />
+    <ClInclude Include="VRayHelper.h" />
+    <ClInclude Include="ChunkIOManager.h" />
+    <ClInclude Include="WorldStructs.h" />
+    <ClInclude Include="EditorVariables.h" />
+    <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.cpp">
-      <Filter>SOA Files\Screens</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockData.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="CAEngine.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkIOManager.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkMesher.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkUpdater.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="Collision.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="DevConsole.cpp">
-      <Filter>SOA Files\Game\Dev</Filter>
-    </ClCompile>
-    <ClCompile Include="DevConsoleView.cpp">
-      <Filter>SOA Files\Rendering\Dev</Filter>
-    </ClCompile>
-    <ClCompile Include="Errors.cpp">
-      <Filter>SOA Files\Ext</Filter>
-    </ClCompile>
-    <ClCompile Include="FloraGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="FragFile.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Frustum.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="GameManager.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="GeometrySorter.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Inputs.cpp">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadBar.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Particle.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleBatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEngine.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsBlocks.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsEngine.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="RegionFileManager.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="SimplexNoise.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>SOA Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelEditor.cpp">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelLightEngine.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelRay.cpp">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="VRayHelper.cpp">
-      <Filter>SOA Files\Voxel\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldStructs.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="WSO.cpp">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClCompile>
-    <ClCompile Include="WSOAtlas.cpp">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClCompile>
-    <ClCompile Include="WSOScanner.cpp">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </ClCompile>
-    <ClCompile Include="ZipFile.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkMesh.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelMesher.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="InitScreen.cpp">
-      <Filter>SOA Files\Screens\Init</Filter>
-    </ClCompile>
-    <ClCompile Include="LoadMonitor.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuScreen.cpp">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockLoader.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="PDA.cpp">
-      <Filter>SOA Files\Game\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="Computer.cpp">
-      <Filter>SOA Files\Game\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="CutoutVoxelRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="LiquidVoxelRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="OpaqueVoxelRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="SonarRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="TransparentVoxelRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="HdrRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyboxRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="GameRenderParams.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="PdaRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="DevHudRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockTextureMethods.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="NightVisionRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="ARProcessor.cpp">
-      <Filter>SOA Files\Game\Tools\AR</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsBlockRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="GenerateTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkGridRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="FloraTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="CellularAutomataTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="PauseMenu.cpp">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClCompile>
-    <ClCompile Include="PauseMenuRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxPool.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="DevScreen.cpp">
-      <Filter>SOA Files\Screens\Dev</Filter>
-    </ClCompile>
-    <ClCompile Include="TestConsoleScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="TestMappingScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="TestDeferredScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystemRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockPack.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="TestBlockViewScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuSystemViewer.cpp">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystem.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="SoaController.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="SoaEngine.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="SoaState.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="MusicPlayer.cpp">
-      <Filter>SOA Files\Sound\Music</Filter>
-    </ClCompile>
-    <ClCompile Include="SoaFileSystem.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="AmbienceLibrary.cpp">
-      <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClCompile>
-    <ClCompile Include="AmbienceStream.cpp">
-      <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClCompile>
-    <ClCompile Include="AmbiencePlayer.cpp">
-      <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSystem.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystemLoadStructs.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSystemAssemblages.cpp">
-      <Filter>SOA Files\ECS\Assemblages</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystemAssemblages.cpp">
-      <Filter>SOA Files\ECS\Assemblages</Filter>
-    </ClCompile>
-    <ClCompile Include="AxisRotationComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="FreeMoveComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="FrustumComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSystemUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="OrbitComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="ParkourComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalVoxelComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystemUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelSpaceConversions.cpp">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelSpaceUtils.cpp">
-      <Filter>SOA Files\Voxel\Mapping</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetData.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainCpuGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainGenTextures.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetLoader.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="CpuNoise.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="FarTerrainPatch.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="FarTerrainComponentUpdater.cpp">
-      <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatchMesh.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyboxRenderer.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatchMesher.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatchMeshManager.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatch.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemARRenderer.cpp">
-      <Filter>SOA Files\Rendering\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="MTRenderStateManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkMeshManager.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="TestGasGiantScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="GameplayScreen.cpp">
-      <Filter>SOA Files\Screens\Gameplay</Filter>
-    </ClCompile>
-    <ClCompile Include="ColoredFullQuadRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="InputMapper.cpp">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSystemEvents.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="TestVoxelModelScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelModelLoader.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderLoader.cpp">
-      <Filter>SOA Files\Rendering\Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="AtmosphereComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="FarTerrainComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="GasGiantComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="OrbitComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystemComponentTables.cpp">
-      <Filter>SOA Files\ECS\ComponentTables</Filter>
-    </ClCompile>
-    <ClCompile Include="SoaOptions.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelMatrix.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelModel.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelModelRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelMesher.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="VoxelModelMesh.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetRingsComponentRenderer.cpp">
-    </ClCompile>
-    <ClCompile Include="TestDisplacementMappingScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="TestStarScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="CloudsComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SpaceSystemLoader.cpp">
-      <Filter>SOA Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageAssetLoader.cpp">
-      <Filter>SOA Files\Client\Asset</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderAssetLoader.cpp">
-      <Filter>SOA Files\Client\Asset</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorFilterRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="ExposureCalcRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuRenderer.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="GameplayRenderer.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuLoadScreen.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="GameplayLoadScreen.cpp">
-      <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="MetaSection.cpp">
-      <Filter>SOA Files\Voxel\API</Filter>
-    </ClCompile>
-    <ClCompile Include="TestNewBlockAPIScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkAllocator.cpp">
-      <Filter>SOA Files\Voxel\Allocation</Filter>
-    </ClCompile>
-    <ClCompile Include="ProceduralChunkGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="DualContouringMesher.cpp">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClCompile>
-    <ClCompile Include="Octree.cpp">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClCompile>
-    <ClCompile Include="qef.cpp">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClCompile>
-    <ClCompile Include="svd.cpp">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClCompile>
-    <ClCompile Include="Density.cpp">
-      <Filter>SOA Files\Voxel\Meshing\DualContouring</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockTexturePack.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="Chunk.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkGrid.cpp">
-      <Filter>SOA Files\Voxel</Filter>
-    </ClCompile>
-    <ClCompile Include="TestPlanetGenScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockTexture.cpp">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockTextureLoader.cpp">
-      <Filter>SOA Files\Voxel\Texturing</Filter>
-    </ClCompile>
-    <ClCompile Include="SsaoRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="LenseFlareRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="MainMenuScriptedUI.cpp">
-      <Filter>SOA Files\Screens\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="ModPathResolver.cpp">
-      <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="OptionsController.cpp">
-      <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="StarComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanetRingsComponentRenderer.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="TestNoiseScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="Biome.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="BloomRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainPatchMeshTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClCompile>
-    <ClCompile Include="ChunkMeshTask.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
-    <ClCompile Include="TestConnectedTextureScreen.cpp">
-      <Filter>SOA Files\Screens\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="BloomRenderStage.cpp">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
-    </ClCompile>
+    <ResourceCompile Include="Resources\resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\resources.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    <Image Include="Resources\SOA.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\SOA.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <None Include="VirtualKeyKegDef.inl" />
+    <None Include="VoxelUpdateOrder.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="docs\FileSpecs\WSO.txt">
-      <Filter>SOA Files\Voxel\WSO</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="VoxelUpdateOrder.inl">
-      <Filter>SOA Files\Voxel</Filter>
-    </None>
-    <None Include="VirtualKeyKegDef.inl">
-      <Filter>SOA Files\Ext\Input</Filter>
-    </None>
+    <Text Include="docs\FileSpecs\WSO.txt" />
   </ItemGroup>
 </Project>
