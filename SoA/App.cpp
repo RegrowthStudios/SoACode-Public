@@ -27,6 +27,7 @@
 #include "TestDeferredScreen.h"
 #include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
+#include "TestVoxelModelScreen.h"
 #include "TestMappingScreen.h"
 #include "TestNewBlockAPIScreen.h"
 #include "TestNoiseScreen.h"
@@ -70,6 +71,9 @@ void App::addScreens() {
     scrTests.push_back(new TestStarScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");
+    scrTests.push_back(new TestVoxelModelScreen(this));
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_V, scrTests.back(), "TestVoxelModelScreen");
     scrTests.push_back(new TestDisplacementMappingScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
