@@ -66,13 +66,13 @@ public:
     BlockIdentifier sID;
     nString name;
     ui16 ID;
-    ui16 burnTransformID;
+    nString burnTransformID;
     i16 waveEffect;
     ui16 lightColorPacked; /// 5 bit RGB light color packed into a ui16
     i16 waterMeshLevel;
     i16 floatingAction;
-    ui16 spawnerVal;
-    ui16 sinkVal;
+    nString spawnerID;
+    nString sinkID;
     ui16 explosionRays;
     ui16 floraHeight = 0;
     ui16 liquidStartID = 0;

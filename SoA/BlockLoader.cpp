@@ -142,8 +142,8 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
                 writer.push(keg::WriterParam::VALUE) << nString("selfOnly");
                 break;
         }
-        COND_WRITE_KEG("sinkVal", sinkVal);
-        COND_WRITE_KEG("spawnerVal", spawnerVal);
+        COND_WRITE_KEG("sinkID", sinkID);
+        COND_WRITE_KEG("spawnerID", spawnerID);
         COND_WRITE_KEG("supportive", isSupportive);
         COND_WRITE_KEG("waterBreak", waterBreak);
 

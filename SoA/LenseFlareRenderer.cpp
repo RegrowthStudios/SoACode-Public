@@ -64,7 +64,7 @@ void LenseFlareRenderer::initGL() {
         m_unColor = m_program.getUniform("unColor");
         // Set constant uniforms
         m_program.use();
-        glUniform1i(m_program.getUniform("unTexture"), 0);
+        glUniform1i(m_program.getUniform("unTexture"), 2);
         m_program.unuse();
     }
 
@@ -96,7 +96,7 @@ void LenseFlareRenderer::render(const f32m4& VP, const f64v3& relCamPos,
     f32v2 dims(size, size * aspectRatio);
 
     // Bind texture
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_texture);
     // Upload uniforms
     f32v3 center(-relCamPos);

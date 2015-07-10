@@ -249,13 +249,13 @@ void GameplayRenderer::render() {
     // Post processing
     m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
 
+    // TODO(Ben): This is broken
     if (stages.ssao.isActive()) {
         stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
         stages.ssao.render();
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
-
 
     // last effect should not swap swapChain
     if (stages.nightVision.isActive()) {
@@ -266,24 +266,24 @@ void GameplayRenderer::render() {
 
     if (stages.bloom.isActive()) {
         stages.bloom.render();
-        m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
+
+        // Render star glow into same framebuffer for performance
+        glBlendFunc(GL_ONE, GL_ONE);
+        m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         m_swapChain.swap();
         m_swapChain.use(0, false);
+    } else {
+        glBlendFunc(GL_ONE, GL_ONE);
+        m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     // TODO: More Effects
 
-    m_swapChain.swap();
-    m_swapChain.use(0, false);
-    // Render last
-    glBlendFunc(GL_ONE, GL_ONE);
-    m_commonState->stages.spaceSystem.renderStarGlows(f32v3(1.0f));
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    m_swapChain.swap();
-    m_swapChain.bindPreviousTexture(0);
-
     // Draw to backbuffer for the last effect
+   // m_swapChain.bindPreviousTexture(0);
     m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -303,10 +303,10 @@ void GameplayRenderer::render() {
             m_coloredQuadAlpha = 3.5f;
             m_increaseQuadAlpha = false;
         }
-        m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+      //  m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
     } else if (m_coloredQuadAlpha > 0.0f) {
         static const float FADE_DEC = 0.01f;  
-        m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+   //     m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
         m_coloredQuadAlpha -= FADE_DEC;
     }
 
@@ -375,7 +375,6 @@ void GameplayRenderer::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_state->localCamera.setIsDynamic(false);
         m_state->localCamera.setFocalLength(0.0f);
         m_state->localCamera.setClippingPlane(0.1f, 10000.0f);
         m_state->localCamera.setPosition(vpcmp.gridPosition.pos);

@@ -64,7 +64,7 @@ struct SoaState {
 
     // TODO(Ben): This is temporary?
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
-    CinematicCamera localCamera; ///< Camera for voxels and far terrain
+    Camera localCamera; ///< Camera for voxels and far terrain
 
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;
