@@ -113,91 +113,6 @@ void getBiomes(const BiomeInfluenceMap& biomeMap,
     }
 }
 
-void getBaseBiomes(std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH],
-               f64 x, f64 y, OUT std::map<BiomeInfluence, f64>& rvBiomes) {
-    int ix = (int)x;
-    int iy = (int)y;
-
-    //0 1
-    //2 3
-    /* Interpolate */
-    // Get weights
-    f64 fx = x - (f64)ix;
-    f64 fy = y - (f64)iy;
-    f64 fx1 = 1.0 - fx;
-    f64 fy1 = 1.0 - fy;
-    f64 w0 = fx1 * fy1;
-    f64 w1 = fx * fy1;
-    f64 w2 = fx1 * fy;
-    f64 w3 = fx * fy;
-
-    // Shorter handles
-#define BLIST_0 baseBiomeInfluenceMap[iy][ix]
-#define BLIST_1 baseBiomeInfluenceMap[iy][ix + 1]
-#define BLIST_2 baseBiomeInfluenceMap[iy + 1][ix]
-#define BLIST_3 baseBiomeInfluenceMap[iy + 1][ix + 1]
-
-    // TODO(Ben): Explore padding to ditch ifs?
-    /* Construct list of biomes to generate and assign weights from interpolation. */
-    // Top Left
-    for (auto& b : BLIST_0) {
-        auto& it = rvBiomes.find(b);
-        if (it == rvBiomes.end()) {
-            rvBiomes[b] = w0 * b.weight;
-        } else {
-            it->second += w0 * b.weight;
-        }
-    }
-    // Top Right
-    if (ix < BIOME_MAP_WIDTH - 1) {
-        for (auto& b : BLIST_1) {
-            auto& it = rvBiomes.find(b);
-            if (it == rvBiomes.end()) {
-                rvBiomes[b] = w1 * b.weight;
-            } else {
-                it->second += w1 * b.weight;
-            }
-        }
-    } else {
-        for (auto& b : BLIST_0) {
-            rvBiomes[b] += w1 * b.weight;
-        }
-    }
-    // Bottom left
-    if (iy < BIOME_MAP_WIDTH - 1) {
-        for (auto& b : BLIST_2) {
-            auto& it = rvBiomes.find(b);
-            if (it == rvBiomes.end()) {
-                rvBiomes[b] = w2 * b.weight;
-            } else {
-                it->second += w2 * b.weight;
-            }
-        }
-        // Bottom right
-        if (ix < BIOME_MAP_WIDTH - 1) {
-            for (auto& b : BLIST_3) {
-                auto& it = rvBiomes.find(b);
-                if (it == rvBiomes.end()) {
-                    rvBiomes[b] = w3 * b.weight;
-                } else {
-                    it->second += w3 * b.weight;
-                }
-            }
-        } else {
-            for (auto& b : BLIST_2) {
-                rvBiomes[b] += w3 * b.weight;
-            }
-        }
-    } else {
-        for (auto& b : BLIST_0) {
-            rvBiomes[b] += w2 * b.weight;
-        }
-        for (auto& b : BLIST_1) {
-            rvBiomes[b] += w3 * b.weight;
-        }
-    }
-}
-
 void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH], f64 x, f64 y, OUT std::map<BiomeInfluence, f64>& rvBiomes) {
     int ix = (int)x;
     int iy = (int)y;
@@ -293,8 +208,8 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     height.surfaceBlock = m_genData->surfaceBlock;
 
     // Base Biome
-    const Biome* biome;
-    height.biome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
+    f64 biggestWeight = 0.0;
+    const Biome* bestBiome = m_genData->baseBiomeLookup[height.humidity][height.temperature];
 
     std::map<BiomeInfluence, f64> baseBiomes;
     getBaseBiomes(m_genData->baseBiomeInfluenceMap, temperature, humidity, baseBiomes);
@@ -302,37 +217,21 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     for (auto& bb : baseBiomes) {
         const Biome* biome = bb.first.b;
         f64 baseWeight = bb.first.weight * bb.second;
-        std::map<BiomeInfluence, f64> biomes;
         // Sub biomes
-        while (biome->biomeMap.size()) {
-            if (biome->biomeMap.size() > BIOME_MAP_WIDTH) { // 2D
-                f64 xVal = biome->xNoise.base + getNoiseValue(pos, biome->xNoise.funcs, nullptr, TerrainOp::ADD);
-                xVal = glm::clamp(xVal, 0.0, 255.0);
-                f64 yVal = ((height.height - biome->heightScale.x) / biome->heightScale.y) * 255.0;
-                yVal = glm::clamp(yVal, 0.0, 255.0);
-
-                getBiomes(biome->biomeMap, xVal, yVal, biomes);
-                if (biomes.size() == 0) break;
-
-            } else { // 1D
-                throw new nString("Not implemented");
+        for (auto& child : biome->children) {
+            f64 newHeight = child->terrainNoise.base + getNoiseValue(pos, child->terrainNoise.funcs, nullptr, TerrainOp::ADD);
+            const f64& weight = 1.0;
+            // Biggest weight biome is the next biome
+            if (weight > biggestWeight) {
+                biggestWeight = weight;
+                bestBiome = child;
             }
-            f64 biggestWeight = -1.0;
-            for (auto& bInf : biomes) {
-                f64 newHeight = bInf.first.b->terrainNoise.base + getNoiseValue(pos, bInf.first.b->terrainNoise.funcs, nullptr, TerrainOp::ADD);
-                const f64& weight = bInf.second;
-                // Biggest weight biome is the next biome
-                if (weight > biggestWeight) {
-                    biggestWeight = weight;
-                    biome = bInf.first.b;
-                }
-                // Add height with squared interpolation
-                height.height += (f32)(baseWeight * weight * weight * newHeight);
-            }
-            biomes.clear();
+            // Add height with squared interpolation
+            height.height += (f32)(baseWeight * weight * weight * newHeight);
         }
-        height.biome = biome;
     }
+    // Mark biome that is the best
+    height.biome = bestBiome;
 }
 
 f64 SphericalHeightmapGenerator::getBaseHeightValue(const f64v3& pos) const {
