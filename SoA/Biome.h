@@ -59,7 +59,7 @@ struct BiomeInfluence {
     f32 weight;
 
     bool operator<(const BiomeInfluence& rhs) const {
-        if (weight < rhs.weight) return true;
+        // Ignore weight on purpose. Only one BiomeInfluence per set or map!
         return b < rhs.b;
     }
 };

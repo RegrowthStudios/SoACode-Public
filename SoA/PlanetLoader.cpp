@@ -10,6 +10,7 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/io/YAML.h>
 #include <Vorb/RPC.h>
+#include <Vorb/Timing.h>
 
 #include "Errors.h"
 
@@ -179,12 +180,73 @@ AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
 }
 
 // Helper function for loadBiomes
-ui32 recursiveCountBiomes(BiomeKegProperties& props) {
+ui32 recursiveCountBiomes(const BiomeKegProperties& props) {
     ui32 rv = 1;
     for (size_t i = 0; i < props.children.size(); i++) {
         rv += recursiveCountBiomes(props.children[i]);
     }
     return rv;
+}
+
+const int FILTER_SIZE = 5;
+const int FILTER_OFFSET = FILTER_SIZE / 2;
+
+float blurFilter[FILTER_SIZE][FILTER_SIZE] = {
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f
+};
+
+void blurBiomeMap(std::vector<std::set<BiomeInfluence>>& bMap) {
+    /* Very simple blur function with 5x5 box kernel */
+
+    // Use a second influence map so we can double buffer the blur
+    std::vector<std::set<BiomeInfluence>> bMap2;
+    bMap2.resize(bMap.size());
+
+    // Loop through the map
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            // Loop through biomes at this pixel
+            for (auto& b : bMap[y * BIOME_MAP_WIDTH + x]) {
+                // Loop through box filter
+                for (int j = 0; j < FILTER_SIZE; j++) {
+                    for (int k = 0; k < FILTER_SIZE; k++) {
+                        int xPos = (x - FILTER_OFFSET + k);
+                        int yPos = (y - FILTER_OFFSET + j);
+                        // Bounds checking
+                        if (xPos < 0) {
+                            xPos = 0;
+                        } else if (xPos >= BIOME_MAP_WIDTH) {
+                            xPos = BIOME_MAP_WIDTH - 1;
+                        }
+                        if (yPos < 0) {
+                            yPos = 0;
+                        } else if (yPos >= BIOME_MAP_WIDTH) {
+                            yPos = BIOME_MAP_WIDTH - 1;
+                        }
+                        // Get the list of biomes currently in the blurred map
+                        auto& biomes = bMap2[yPos * BIOME_MAP_WIDTH + xPos];
+                        // See if the current biome is already there
+                        auto& it = biomes.find(b);
+                        // Force modify weight in set with const cast.
+                        // It's ok since weight doesn't affect set position, promise!
+                        if (it == biomes.end()) {
+                            // Add biome and modify weight
+                            const_cast<BiomeInfluence&>(*biomes.insert(b).first).weight = blurFilter[j][k] * b.weight;
+                        } else {
+                            // Modify existing biome weight
+                            const_cast<BiomeInfluence&>(*it).weight += blurFilter[j][k] * b.weight;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Swap the maps
+    bMap.swap(bMap2);
 }
 
 void recursiveInitBiomes(Biome& biome,
@@ -229,28 +291,43 @@ void recursiveInitBiomes(Biome& biome,
             fprintf(stderr, "Warning: Failed to load %s\n", kp.childColorMap.c_str());
             return;
         }
+        // Using a set now for the blurring pass for fast lookups to eliminate duplicate
+        std::vector<std::set<BiomeInfluence>> biomeMap;
         // Check for 1D biome map
         if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
-            biome.biomeMap.resize(BIOME_MAP_WIDTH);
+            biomeMap.resize(BIOME_MAP_WIDTH);
         } else {
             // Error check
             if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
                 pError("loadBiomes() error: width and height of " + kp.childColorMap + " must be " + std::to_string(BIOME_MAP_WIDTH));
             }
-            biome.biomeMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
+            biomeMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
         }
         // Fill biome map
-        for (size_t i = 0; i < biome.biomeMap.size(); i++) {
+        for (size_t i = 0; i < biomeMap.size(); i++) {
             ui8v3& color = rs.bytesUI8v3[i];
             BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
             auto& it = nextBiomeLookup.find(code);
             if (it != nextBiomeLookup.end()) {
-                biome.biomeMap[i].emplace_back(it->second, 1.0f);
+                biomeMap[i].emplace(it->second, 1.0f);
+            }
+        }
+        // Blur biome map so transitions are smooth
+        PreciseTimer timer;
+        timer.start();
+        blurBiomeMap(biomeMap);
+        printf("time: %lf ms\n", timer.stop());
+        // Convert to BiomeInfluenceMap
+        biome.biomeMap.resize(biomeMap.size());
+        for (size_t i = 0; i < biomeMap.size(); i++) {
+            biome.biomeMap[i].resize(biomeMap[i].size());
+            int j = 0;
+            for (auto& b : biomeMap[i]) {
+                biome.biomeMap[i][j++] = b;
             }
         }
     }
 }
-
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file

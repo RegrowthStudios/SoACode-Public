@@ -51,7 +51,8 @@ void getBiomes(const BiomeInfluenceMap& biomeMap, f64 x, f64 y, OUT std::map<Bio
 #define BLIST_2 biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix]
 #define BLIST_3 biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix + 1]
 
-    // TODO(Ben): Padding to ditch ifs?
+    // TODO(Ben): Explore padding to ditch ifs?
+    /* Construct list of biomes to generate and assign weights from interpolation. */
     // Top Left
     for (auto& b : BLIST_0) {
         auto& it = rvBiomes.find(b);
