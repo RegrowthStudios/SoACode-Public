@@ -69,12 +69,13 @@ struct Biome {
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
     std::vector<Biome*> children;
-    f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
     // Only applies to base biomes
-    f32v2 heightRange;
-    f32v2 noiseRange;
+    f64v2 heightRange;
+    f64v2 heightScale;
+    f64v2 noiseRange;
+    f64v2 noiseScale;
 };
 
 static const Biome DEFAULT_BIOME;

@@ -5,6 +5,8 @@
 #include "VoxelSpaceConversions.h"
 #include "Noise.h"
 
+#define WEIGHT_THRESHOLD 0.001
+
 void SphericalHeightmapGenerator::init(const PlanetGenData* planetGenData) {
     m_genData = planetGenData;
 }
@@ -217,21 +219,56 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     for (auto& bb : baseBiomes) {
         const Biome* biome = bb.first.b;
         f64 baseWeight = bb.first.weight * bb.second;
-        // Sub biomes
-        for (auto& child : biome->children) {
-            f64 newHeight = child->terrainNoise.base + getNoiseValue(pos, child->terrainNoise.funcs, nullptr, TerrainOp::ADD);
-            const f64& weight = 1.0;
-            // Biggest weight biome is the next biome
-            if (weight > biggestWeight) {
-                biggestWeight = weight;
-                bestBiome = child;
-            }
-            // Add height with squared interpolation
-            height.height += (f32)(baseWeight * weight * weight * newHeight);
-        }
+        recurseChildBiomes(biome, pos, height.height, biggestWeight, bestBiome, baseWeight);
     }
     // Mark biome that is the best
     height.biome = bestBiome;
+}
+
+void SphericalHeightmapGenerator::recurseChildBiomes(const Biome* biome, const f64v3& pos, f32& height, f64& biggestWeight, const Biome*& bestBiome, f64 baseWeight) const {
+    // Get child noise value
+    f64 noiseVal = biome->childNoise.base + getNoiseValue(pos, biome->childNoise.funcs, nullptr, TerrainOp::ADD);
+    // Sub biomes
+    for (auto& child : biome->children) {
+        f64 weight = 1.0;
+        // Check if biome is present and get weight
+        f64 dx = noiseVal - child->noiseRange.x;
+        f64 dy = child->noiseRange.y - noiseVal;
+        // See which side we are closer too
+        if (ABS(dx) < ABS(dy)) {
+            if (dx < 0) {
+                continue;
+            }
+            dx *= child->noiseScale.x;
+            if (dx > 1.0) {
+                dx = 1.0;
+            }
+            weight *= dx;
+        } else {
+            if (dy < 0) {
+                continue;
+            }
+            dy *= child->noiseScale.x;
+            if (dy > 1.0) {
+                dy = 1.0;
+            }
+            weight *= dy;
+        }
+        // If we reach here, the biome exists.
+        f64 newHeight = child->terrainNoise.base + getNoiseValue(pos, child->terrainNoise.funcs, nullptr, TerrainOp::ADD);
+        // Biggest weight biome is the next biome
+        if (weight >= biggestWeight) {
+            biggestWeight = weight;
+            bestBiome = child;
+        }
+        weight = baseWeight * weight * weight;
+        // Add height with squared interpolation
+        height += (f32)(weight * newHeight);
+        // Recurse children
+        if (child->children.size() && weight > WEIGHT_THRESHOLD) {
+            recurseChildBiomes(child, pos, height, biggestWeight, bestBiome, weight);
+        }
+    }
 }
 
 f64 SphericalHeightmapGenerator::getBaseHeightValue(const f64v3& pos) const {

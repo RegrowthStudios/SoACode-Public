@@ -23,8 +23,10 @@ struct BiomeKegProperties {
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
-    f32v2 heightRange = f32v2(0.0f, 200.0f);
-    f32v2 noiseRange = f32v2(0.0f, 255.0f);
+    f64v2 heightRange = f64v2(0.0, 1000.0);
+    f64v2 heightScale = f64v2(0.1, 0.1);
+    f64v2 noiseRange = f64v2(-1.0, 1.0);
+    f64v2 noiseScale = f64v2(10.0, 10.0);
     nString displayName = "Unknown";
 };
 KEG_TYPE_DECL(BiomeKegProperties);
@@ -33,8 +35,10 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, id, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, displayName, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, mapColor, UI8_V3);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightRange, F32_V2);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseRange, F32_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightRange, F64_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightScale, F64_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseRange, F64_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseScale, F64_V2);
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
     kt.addValue("childNoise", Value::custom(offsetof(BiomeKegProperties, childNoise), "NoiseBase", false));
@@ -296,11 +300,13 @@ void recursiveInitBiomes(Biome& biome,
     biome.displayName = kp.displayName;
     biome.mapColor = kp.mapColor;
     biome.heightRange = kp.heightRange;
+    biome.heightScale = kp.heightScale;
     biome.noiseRange = kp.noiseRange;
+    biome.noiseScale = kp.noiseScale;
     biome.terrainNoise = kp.terrainNoise;
     biome.childNoise = kp.childNoise;
 
-    // Recurse children'
+    // Recurse children
     biome.children.resize(kp.children.size());
     for (size_t i = 0; i < kp.children.size(); i++) {
         Biome& nextBiome = genData->biomes[biomeCounter++];
