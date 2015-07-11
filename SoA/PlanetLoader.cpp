@@ -245,6 +245,51 @@ void blurBiomeMap(const std::vector<BiomeInfluence>& bMap, OUT std::vector<std::
     }
 }
 
+void blurBaseBiomeMap(const Biome* baseBiomeLookup[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH], OUT std::vector<std::set<BiomeInfluence>>& outMap) {
+    /* Very simple blur function with 5x5 box kernel */
+
+    outMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
+
+    // Loop through the map
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            auto& b = baseBiomeLookup[y][x];
+            // Loop through box filter
+            for (int j = 0; j < FILTER_SIZE; j++) {
+                for (int k = 0; k < FILTER_SIZE; k++) {
+                    int xPos = (x - FILTER_OFFSET + k);
+                    int yPos = (y - FILTER_OFFSET + j);
+                    // Bounds checking
+                    if (xPos < 0) {
+                        xPos = 0;
+                    } else if (xPos >= BIOME_MAP_WIDTH) {
+                        xPos = BIOME_MAP_WIDTH - 1;
+                    }
+                    if (yPos < 0) {
+                        yPos = 0;
+                    } else if (yPos >= BIOME_MAP_WIDTH) {
+                        yPos = BIOME_MAP_WIDTH - 1;
+                    }
+                    // Get the list of biomes currently in the blurred map
+                    auto& biomes = outMap[yPos * BIOME_MAP_WIDTH + xPos];
+                    // See if the current biome is already there
+                    // TODO(Ben): Better find
+                    auto& it = biomes.find({ b, 1.0f });
+                    // Force modify weight in set with const cast.
+                    // It's ok since weight doesn't affect set position, promise!
+                    if (it == biomes.end()) {
+                        // Add biome and set
+                        biomes.emplace(b, blurFilter[j][k]);
+                    } else {
+                        // Modify existing biome weight
+                        const_cast<BiomeInfluence&>(*it).weight += blurFilter[j][k];
+                    }
+                }
+            }
+        }
+    }
+}
+
 void recursiveInitBiomes(Biome& biome,
                          BiomeKegProperties& kp,
                          ui32& biomeCounter,
@@ -311,26 +356,24 @@ void recursiveInitBiomes(Biome& biome,
                 biomeMap[i].b = nullptr;
             }
         }
-        // Blur biome map so transitions are smooth
-        // Don't do it on debug mode because its slow.
-#ifdef DEBUG
+
         biome.biomeMap.resize(biomeMap.size());
         for (size_t i = 0; i < biomeMap.size(); i++) {
-            biome.biomeMap[i].emplace_back(biomeMap[i]);
+            if (biomeMap[i].b) biome.biomeMap[i].emplace_back(biomeMap[i]);
         }
-#else
-        std::vector<std::set<BiomeInfluence>> outMap;
-        blurBiomeMap(biomeMap, outMap);
-        // Convert to BiomeInfluenceMap
-        biome.biomeMap.resize(outMap.size());
-        for (size_t i = 0; i < outMap.size(); i++) {
-            biome.biomeMap[i].resize(outMap[i].size());
-            int j = 0;
-            for (auto& b : outMap[i]) {
-                biome.biomeMap[i][j++] = b;
-            }
-        }
-#endif
+
+        //std::vector<std::set<BiomeInfluence>> outMap;
+        //blurBiomeMap(biomeMap, outMap);
+        //// Convert to BiomeInfluenceMap
+        //biome.biomeMap.resize(outMap.size());
+        //for (size_t i = 0; i < outMap.size(); i++) {
+        //    biome.biomeMap[i].resize(outMap[i].size());
+        //    int j = 0;
+        //    for (auto& b : outMap[i]) {
+        //        biome.biomeMap[i][j++] = b;
+        //    }
+        //}
+
     }
 }
 
@@ -419,6 +462,19 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
             auto& it = m_baseBiomeLookupMap.find(colorCodes[y][x]);
             if (it != m_baseBiomeLookupMap.end()) {
                 genData->baseBiomeLookup[y][x] = it->second;
+            }
+        }
+    }
+    // Blur base biome map for transition smoothing
+    std::vector<std::set<BiomeInfluence>> outMap;
+    blurBaseBiomeMap(genData->baseBiomeLookup, outMap);
+    // Convert to influence map
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            genData->baseBiomeInfluenceMap[y][x].resize(outMap[y * BIOME_MAP_WIDTH + x].size());
+            int i = 0;
+            for (auto& b : outMap[y * BIOME_MAP_WIDTH + x]) {
+                genData->baseBiomeInfluenceMap[y][x][i++] = b;
             }
         }
     }

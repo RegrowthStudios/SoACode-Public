@@ -83,6 +83,7 @@ struct PlanetGenData {
     /* Biomes                                                               */
     /************************************************************************/
     const Biome* baseBiomeLookup[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
+    std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
     std::vector<Biome> biomes; ///< Biome object storage. DON'T EVER RESIZE AFTER GEN.
 
     nString filePath;

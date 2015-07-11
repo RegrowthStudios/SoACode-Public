@@ -72,6 +72,7 @@ struct Biome {
     nString displayName = "Default";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
+    std::vector<Biome*> subBiomes;
     BiomeInfluenceMap biomeMap; ///< Optional sub-biome map
     BiomeAxisType axisTypes[2];
     f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
