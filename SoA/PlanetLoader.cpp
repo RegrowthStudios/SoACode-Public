@@ -199,18 +199,16 @@ float blurFilter[FILTER_SIZE][FILTER_SIZE] = {
     0.04f, 0.04f, 0.04f, 0.04f, 0.04f
 };
 
-void blurBiomeMap(std::vector<std::set<BiomeInfluence>>& bMap) {
+void blurBiomeMap(const std::vector<BiomeInfluence>& bMap, OUT std::vector<std::set<BiomeInfluence>>& outMap) {
     /* Very simple blur function with 5x5 box kernel */
 
-    // Use a second influence map so we can double buffer the blur
-    std::vector<std::set<BiomeInfluence>> bMap2;
-    bMap2.resize(bMap.size());
+    outMap.resize(bMap.size());
 
     // Loop through the map
     for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
         for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
-            // Loop through biomes at this pixel
-            for (auto& b : bMap[y * BIOME_MAP_WIDTH + x]) {
+            auto& b = bMap[y * BIOME_MAP_WIDTH + x];
+            if (b.b) {
                 // Loop through box filter
                 for (int j = 0; j < FILTER_SIZE; j++) {
                     for (int k = 0; k < FILTER_SIZE; k++) {
@@ -228,7 +226,7 @@ void blurBiomeMap(std::vector<std::set<BiomeInfluence>>& bMap) {
                             yPos = BIOME_MAP_WIDTH - 1;
                         }
                         // Get the list of biomes currently in the blurred map
-                        auto& biomes = bMap2[yPos * BIOME_MAP_WIDTH + xPos];
+                        auto& biomes = outMap[yPos * BIOME_MAP_WIDTH + xPos];
                         // See if the current biome is already there
                         auto& it = biomes.find(b);
                         // Force modify weight in set with const cast.
@@ -245,8 +243,6 @@ void blurBiomeMap(std::vector<std::set<BiomeInfluence>>& bMap) {
             }
         }
     }
-    // Swap the maps
-    bMap.swap(bMap2);
 }
 
 void recursiveInitBiomes(Biome& biome,
@@ -292,7 +288,7 @@ void recursiveInitBiomes(Biome& biome,
             return;
         }
         // Using a set now for the blurring pass for fast lookups to eliminate duplicate
-        std::vector<std::set<BiomeInfluence>> biomeMap;
+        std::vector<BiomeInfluence> biomeMap;
         // Check for 1D biome map
         if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
             biomeMap.resize(BIOME_MAP_WIDTH);
@@ -309,23 +305,32 @@ void recursiveInitBiomes(Biome& biome,
             BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
             auto& it = nextBiomeLookup.find(code);
             if (it != nextBiomeLookup.end()) {
-                biomeMap[i].emplace(it->second, 1.0f);
+                biomeMap[i].b = it->second;
+                biomeMap[i].weight = 1.0f;
+            } else {
+                biomeMap[i].b = nullptr;
             }
         }
         // Blur biome map so transitions are smooth
-        PreciseTimer timer;
-        timer.start();
-        blurBiomeMap(biomeMap);
-        printf("time: %lf ms\n", timer.stop());
-        // Convert to BiomeInfluenceMap
+        // Don't do it on debug mode because its slow.
+#ifdef DEBUG
         biome.biomeMap.resize(biomeMap.size());
         for (size_t i = 0; i < biomeMap.size(); i++) {
-            biome.biomeMap[i].resize(biomeMap[i].size());
+            biome.biomeMap[i].emplace_back(biomeMap[i]);
+        }
+#else
+        std::vector<std::set<BiomeInfluence>> outMap;
+        blurBiomeMap(biomeMap, outMap);
+        // Convert to BiomeInfluenceMap
+        biome.biomeMap.resize(outMap.size());
+        for (size_t i = 0; i < outMap.size(); i++) {
+            biome.biomeMap[i].resize(outMap[i].size());
             int j = 0;
-            for (auto& b : biomeMap[i]) {
+            for (auto& b : outMap[i]) {
                 biome.biomeMap[i][j++] = b;
             }
         }
+#endif
     }
 }
 
