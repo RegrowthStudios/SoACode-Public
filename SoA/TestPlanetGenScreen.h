@@ -19,8 +19,10 @@
 #include "Camera.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
+#include "SpaceSystemUpdater.h"
 #include "SphericalTerrainComponentRenderer.h"
 #include "SphericalTerrainComponentUpdater.h"
+#include "PlanetLoader.h"
 #include "SoaState.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
@@ -49,17 +51,14 @@ private:
     const f64 PLANET_RADIUS = 6000.0;
     SphericalTerrainComponentRenderer m_terrainRenderer;
     AtmosphereComponentRenderer m_atmoRenderer;
-    AxisRotationComponent m_arCmp;
-    NamePositionComponent m_npCmp;
     SystemBody body;
     f64v3 m_eyePos;
     f64 m_eyeDist = PLANET_RADIUS;
-    SphericalTerrainComponent m_stCmp;
-    SphericalTerrainComponentUpdater m_updater;
+    SpaceSystemUpdater m_updater;
     SpaceLightComponent m_slCmp;
-    AtmosphereComponent m_aCmp;
     Camera m_camera;
     AutoDelegatePool m_hooks;
+    vio::IOManager m_iom;
     SoaState m_state;
 };
 

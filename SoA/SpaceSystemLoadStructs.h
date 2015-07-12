@@ -124,7 +124,7 @@ struct PlanetProperties {
 };
 KEG_TYPE_DECL(PlanetProperties);
 
-struct StarKegProperties {
+struct StarProperties {
     f64 surfaceTemperature = 0.0; ///< temperature in kelvin
     f64 diameter = 0.0;
     f64 density = 0.0;
@@ -134,9 +134,9 @@ struct StarKegProperties {
     f64 rotationalPeriod = 0.0;
     nString displayName = "";
 };
-KEG_TYPE_DECL(StarKegProperties);
+KEG_TYPE_DECL(StarProperties);
 
-struct GasGiantKegProperties {
+struct GasGiantProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
@@ -149,6 +149,6 @@ struct GasGiantKegProperties {
     AtmosphereProperties atmosphere;
     Array<PlanetRingProperties> rings;
 };
-KEG_TYPE_DECL(GasGiantKegProperties);
+KEG_TYPE_DECL(GasGiantProperties);
 
 #endif // SpaceSystemLoadStructs_h__

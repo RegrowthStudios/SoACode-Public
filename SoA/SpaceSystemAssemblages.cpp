@@ -93,7 +93,7 @@ void SpaceSystemAssemblages::destroyPlanet(SpaceSystem* gameSystem, vecs::Entity
 
 vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
                                   const SystemBodyProperties* sysProps,
-                                  const StarKegProperties* properties,
+                                  const StarProperties* properties,
                                   SystemBody* body) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
@@ -126,7 +126,7 @@ void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID
 /// GasGiant entity
 vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
                                       const SystemBodyProperties* sysProps,
-                                      const GasGiantKegProperties* properties,
+                                      const GasGiantProperties* properties,
                                       SystemBody* body,
                                       VGTexture colorMap) {
     body->entity = spaceSystem->addEntity();

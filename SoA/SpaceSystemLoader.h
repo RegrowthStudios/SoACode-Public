@@ -19,7 +19,7 @@
 #include <Vorb/VorbPreDecl.inl>
 #include "VoxPool.h"
 
-struct GasGiantKegProperties;
+struct GasGiantProperties;
 struct SystemBody;
 struct SystemBodyProperties;
 class SpaceSystem;
@@ -76,7 +76,7 @@ private:
 
     static void createGasGiant(SpaceSystemLoadParams& pr,
                                const SystemBodyProperties* sysProps,
-                               GasGiantKegProperties* properties,
+                               GasGiantProperties* properties,
                                SystemBody* body);
 
     static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,

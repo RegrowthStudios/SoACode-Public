@@ -186,14 +186,14 @@ bool SpaceSystemLoader::loadBodyProperties(SpaceSystemLoadParams& pr, const nStr
             SpaceSystemAssemblages::createPlanet(pr.spaceSystem, sysProps, &properties, body, pr.threadpool);
             body->type = SpaceBodyType::PLANET;
         } else if (type == "star") {
-            StarKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(StarKegProperties));
+            StarProperties properties;
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(StarProperties));
             KEG_CHECK;
             SpaceSystemAssemblages::createStar(pr.spaceSystem, sysProps, &properties, body);
             body->type = SpaceBodyType::STAR;
         } else if (type == "gasGiant") {
-            GasGiantKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(GasGiantKegProperties));
+            GasGiantProperties properties;
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(GasGiantProperties));
             KEG_CHECK;
             createGasGiant(pr, sysProps, &properties, body);
             body->type = SpaceBodyType::GAS_GIANT;
@@ -354,7 +354,7 @@ void SpaceSystemLoader::initOrbits(SpaceSystemLoadParams& pr) {
 
 void SpaceSystemLoader::createGasGiant(SpaceSystemLoadParams& pr,
                                const SystemBodyProperties* sysProps,
-                               GasGiantKegProperties* properties,
+                               GasGiantProperties* properties,
                                SystemBody* body) {
 
     // Load the texture

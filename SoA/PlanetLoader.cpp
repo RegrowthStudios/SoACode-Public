@@ -45,13 +45,9 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
 
-PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
-    m_iom(ioManager),
-    m_textureCache(m_iom) {
-    // Empty
-}
-
-PlanetLoader::~PlanetLoader() {
+void PlanetLoader::init(vio::IOManager* ioManager) {
+    m_iom = ioManager;
+    m_textureCache.init(ioManager);
 }
 
 PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {

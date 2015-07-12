@@ -46,9 +46,9 @@ class PlanetLoader;
 struct SoaState;
 class SpriteBatch;
 class SpriteFont;
-struct GasGiantKegProperties;
+struct GasGiantProperties;
 struct PlanetProperties;
-struct StarKegProperties;
+struct StarProperties;
 struct SystemBody;
 struct SystemBodyProperties;
 

@@ -26,9 +26,9 @@ class SpaceSystem;
 
 struct PlanetGenData;
 struct SoaState;
-struct GasGiantKegProperties;
+struct GasGiantProperties;
 struct PlanetProperties;
-struct StarKegProperties;
+struct StarProperties;
 struct SystemBody;
 struct SystemBodyProperties;
 struct SphericalTerrainComponent;
@@ -62,14 +62,14 @@ namespace SpaceSystemAssemblages {
     /// Star entity
     extern vecs::EntityID createStar(SpaceSystem* spaceSystem,
                                         const SystemBodyProperties* sysProps,
-                                        const StarKegProperties* properties,
+                                        const StarProperties* properties,
                                         SystemBody* body);
     extern void destroyStar(SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// GasGiant entity
     extern vecs::EntityID createGasGiant(SpaceSystem* spaceSystem,
                                         const SystemBodyProperties* sysProps,
-                                        const GasGiantKegProperties* properties,
+                                        const GasGiantProperties* properties,
                                         SystemBody* body,
                                         VGTexture colorMap);
     extern void destroyGasGiant(SpaceSystem* gameSystem, vecs::EntityID planetEntity);

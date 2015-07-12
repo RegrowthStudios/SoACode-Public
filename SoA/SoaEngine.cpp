@@ -55,6 +55,7 @@ void SoaEngine::initState(SoaState* state) {
     state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
     state->systemViewer = new MainMenuSystemViewer;
+    state->planetLoader = new PlanetLoader;
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
@@ -94,7 +95,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     vfile file;
     path.asFile(&file);
 
-    state->planetLoader = new PlanetLoader(state->systemIoManager);
+    state->planetLoader->init(state->systemIoManager);
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
     pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
