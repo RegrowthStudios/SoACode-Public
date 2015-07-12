@@ -4,3 +4,6 @@
 [submodule "game"]
 	path = game
 	url = git@github.com:RegrowthStudios/SoAGameData.git
+[submodule "Vorb"]
+	path = Vorb
+	url = git@github.com:RegrowthStudios/Vorb.git
