@@ -559,11 +559,8 @@ EXIT 0</Command>
     <ClInclude Include="Computer.h" />
     <ClInclude Include="ConsoleFuncs.h" />
     <ClInclude Include="ConsoleMain.h" />
-    <ClInclude Include="CpuNoise.h" />
-    <ClInclude Include="DevScreen.h" />
     <ClInclude Include="DLLLoader.h" />
     <ClInclude Include="Density.h" />
-    <ClInclude Include="DevScreen.h" />
     <ClInclude Include="DualContouringMesher.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
@@ -782,7 +779,6 @@ EXIT 0</Command>
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="ConsoleFuncs.cpp" />
     <ClCompile Include="ConsoleMain.cpp" />
-    <ClCompile Include="CpuNoise.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
