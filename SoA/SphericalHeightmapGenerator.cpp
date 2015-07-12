@@ -30,91 +30,6 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     generateHeightData(height, normal * m_genData->radius, normal);
 }
 
-void getBiomes(const BiomeInfluenceMap& biomeMap,
-               f64 x, f64 y, OUT std::map<BiomeInfluence, f64>& rvBiomes) {
-    int ix = (int)x;
-    int iy = (int)y;
-
-    //0 1
-    //2 3
-    /* Interpolate */
-    // Get weights
-    f64 fx = x - (f64)ix;
-    f64 fy = y - (f64)iy;
-    f64 fx1 = 1.0 - fx;
-    f64 fy1 = 1.0 - fy;
-    f64 w0 = fx1 * fy1;
-    f64 w1 = fx * fy1;
-    f64 w2 = fx1 * fy;
-    f64 w3 = fx * fy;
-
-    // Shorter handles
-#define BLIST_0 biomeMap[iy * BIOME_MAP_WIDTH + ix]
-#define BLIST_1 biomeMap[iy * BIOME_MAP_WIDTH + ix + 1]
-#define BLIST_2 biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix]
-#define BLIST_3 biomeMap[(iy + 1) * BIOME_MAP_WIDTH + ix + 1]
-
-    // TODO(Ben): Explore padding to ditch ifs?
-    /* Construct list of biomes to generate and assign weights from interpolation. */
-    // Top Left
-    for (auto& b : BLIST_0) {
-        auto& it = rvBiomes.find(b);
-        if (it == rvBiomes.end()) {
-            rvBiomes[b] = w0 * b.weight;
-        } else {
-            it->second += w0 * b.weight;
-        }
-    }
-    // Top Right
-    if (ix < BIOME_MAP_WIDTH - 1) {
-        for (auto& b : BLIST_1) {
-            auto& it = rvBiomes.find(b);
-            if (it == rvBiomes.end()) {
-                rvBiomes[b] = w1 * b.weight;
-            } else {
-                it->second += w1 * b.weight;
-            }
-        }
-    } else {
-        for (auto& b : BLIST_0) {
-            rvBiomes[b] += w1 * b.weight;
-        }
-    }
-    // Bottom left
-    if (iy < BIOME_MAP_WIDTH - 1) {
-        for (auto& b : BLIST_2) {
-            auto& it = rvBiomes.find(b);
-            if (it == rvBiomes.end()) {
-                rvBiomes[b] = w2 * b.weight;
-            } else {
-                it->second += w2 * b.weight;
-            }
-        }
-        // Bottom right
-        if (ix < BIOME_MAP_WIDTH - 1) {
-            for (auto& b : BLIST_3) {
-                auto& it = rvBiomes.find(b);
-                if (it == rvBiomes.end()) {
-                    rvBiomes[b] = w3 * b.weight;
-                } else {
-                    it->second += w3 * b.weight;
-                }
-            }
-        } else {
-            for (auto& b : BLIST_2) {
-                rvBiomes[b] += w3 * b.weight;
-            }
-        }
-    } else {
-        for (auto& b : BLIST_0) {
-            rvBiomes[b] += w2 * b.weight;
-        }
-        for (auto& b : BLIST_1) {
-            rvBiomes[b] += w3 * b.weight;
-        }
-    }
-}
-
 void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH], f64 x, f64 y, OUT std::map<BiomeInfluence, f64>& rvBiomes) {
     int ix = (int)x;
     int iy = (int)y;
@@ -219,6 +134,12 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     for (auto& bb : baseBiomes) {
         const Biome* biome = bb.first.b;
         f64 baseWeight = bb.first.weight * bb.second;
+        // Get base biome terrain
+        f64 newHeight = biome->terrainNoise.base + height.height;
+        getNoiseValue(pos, biome->terrainNoise.funcs, nullptr, TerrainOp::ADD, newHeight);
+        // Mix in height with squared interpolation
+        height.height = (f32)((baseWeight * newHeight) + (1.0 - baseWeight) * (f64)height.height);
+        // Sub biomes
         recurseChildBiomes(biome, pos, height.height, biggestWeight, bestBiome, baseWeight);
     }
     // Mark biome that is the best
@@ -227,7 +148,8 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
 
 void SphericalHeightmapGenerator::recurseChildBiomes(const Biome* biome, const f64v3& pos, f32& height, f64& biggestWeight, const Biome*& bestBiome, f64 baseWeight) const {
     // Get child noise value
-    f64 noiseVal = biome->childNoise.base + getNoiseValue(pos, biome->childNoise.funcs, nullptr, TerrainOp::ADD);
+    f64 noiseVal = biome->childNoise.base;
+    getNoiseValue(pos, biome->childNoise.funcs, nullptr, TerrainOp::ADD, noiseVal);
     // Sub biomes
     for (auto& child : biome->children) {
         f64 weight = 1.0;
@@ -255,15 +177,16 @@ void SphericalHeightmapGenerator::recurseChildBiomes(const Biome* biome, const f
             weight *= dy;
         }
         // If we reach here, the biome exists.
-        f64 newHeight = child->terrainNoise.base + getNoiseValue(pos, child->terrainNoise.funcs, nullptr, TerrainOp::ADD);
+        f64 newHeight = child->terrainNoise.base + height;
+        getNoiseValue(pos, child->terrainNoise.funcs, nullptr, TerrainOp::ADD, newHeight);
         // Biggest weight biome is the next biome
         if (weight >= biggestWeight) {
             biggestWeight = weight;
             bestBiome = child;
         }
         weight = baseWeight * weight * weight;
-        // Add height with squared interpolation
-        height += (f32)(weight * newHeight);
+        // Mix in height with squared interpolation
+        height = (f32)((weight * newHeight) + (1.0 - weight) * height);
         // Recurse children
         if (child->children.size() && weight > WEIGHT_THRESHOLD) {
             recurseChildBiomes(child, pos, height, biggestWeight, bestBiome, weight);
@@ -272,20 +195,24 @@ void SphericalHeightmapGenerator::recurseChildBiomes(const Biome* biome, const f
 }
 
 f64 SphericalHeightmapGenerator::getBaseHeightValue(const f64v3& pos) const {
-    return m_genData->baseTerrainFuncs.base + getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
+    f64 genHeight = m_genData->baseTerrainFuncs.base;
+    getNoiseValue(pos, m_genData->baseTerrainFuncs.funcs, nullptr, TerrainOp::ADD, genHeight);
+    return genHeight;
 }
 
 f64 SphericalHeightmapGenerator::getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const {
-    f32 temp = m_genData->tempTerrainFuncs.base + getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
-    return calculateTemperature(m_genData->tempLatitudeFalloff, computeAngleFromNormal(normal), temp - glm::max(0.0, m_genData->tempHeightFalloff * height));
+    f64 genHeight = m_genData->tempTerrainFuncs.base;
+    getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD, genHeight);
+    return calculateTemperature(m_genData->tempLatitudeFalloff, computeAngleFromNormal(normal), genHeight - glm::max(0.0, m_genData->tempHeightFalloff * height));
 }
 
 f64 SphericalHeightmapGenerator::getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const {
-    f32 hum = m_genData->humTerrainFuncs.base + getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD);
-    return SphericalHeightmapGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), hum - glm::max(0.0, m_genData->humHeightFalloff * height));
+    f64 genHeight = m_genData->humTerrainFuncs.base;
+    getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD, genHeight);
+    return SphericalHeightmapGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), genHeight - glm::max(0.0, m_genData->humHeightFalloff * height));
 }
 
-// Thanks to tetryds for these
+// Use tetryds formula when displaying to user?
 f64 SphericalHeightmapGenerator::calculateTemperature(f64 range, f64 angle, f64 baseTemp) {
     f64 tempFalloff = 1.0 - pow(cos(angle), 2.0 * angle);
     f64 temp = baseTemp - tempFalloff * range;
@@ -321,13 +248,12 @@ f64 doOperation(const TerrainOp& op, f64 a, f64 b) {
     return 0.0f;
 }
 
-f64 SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
+void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                                                 const Array<TerrainFuncKegProperties>& funcs,
                                                 f64* modifier,
-                                                const TerrainOp& op) const {
+                                                const TerrainOp& op,
+                                                f64& height) const {
 
-    f64 rv = 0.0f;
-   
     // NOTE: Make sure this implementation matches NoiseShaderGenerator::addNoiseFunctions()
     for (size_t f = 0; f < funcs.size(); ++f) {
         auto& fn = funcs[f];
@@ -454,11 +380,10 @@ f64 SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
         if (fn.children.size()) {
             // Early exit for speed
             if (!(nextOp == TerrainOp::MUL && *nextMod == 0.0)) {
-                rv += getNoiseValue(pos, fn.children, nextMod, nextOp);
+                getNoiseValue(pos, fn.children, nextMod, nextOp, height);
             }
         } else {
-            rv = doOperation(fn.op, rv, h);
+            height = doOperation(fn.op, height, h);
         }
     }
-    return rv;
 }

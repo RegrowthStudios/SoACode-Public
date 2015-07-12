@@ -44,10 +44,11 @@ private:
     
     /// Gets noise value using terrainFuncs
     /// @return the noise value
-    f64 getNoiseValue(const f64v3& pos,
+    void getNoiseValue(const f64v3& pos,
                       const Array<TerrainFuncKegProperties>& funcs,
                       f64* modifier,
-                      const TerrainOp& op) const;
+                      const TerrainOp& op,
+                      f64& height) const;
 
     f64 getBaseHeightValue(const f64v3& pos) const;
     f64 getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const;
