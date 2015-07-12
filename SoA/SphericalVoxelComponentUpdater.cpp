@@ -33,7 +33,6 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
 
         // TODO(Ben): This is temporary hard coded player stuff.
         auto& playerPosCmp = gameSystem->voxelPosition.getFromEntity(soaState->playerEntity);
-        auto& playerFrustumCmp = gameSystem->frustum.getFromEntity(soaState->playerEntity);
 
         for (auto& it : spaceSystem->m_sphericalVoxelCT) {
             if (it.second.chunkGrids) {

@@ -20,11 +20,8 @@ struct SoaState;
 
 class SoaController {
 public:
-    SoaController(const App* app);
-    ~SoaController();
+    virtual ~SoaController();
     void startGame(OUT SoaState* state);
-private:
-    const App* m_app = nullptr; ///< App for querying things like aspect ratio
 };
 
 #endif // SoaController_h__
