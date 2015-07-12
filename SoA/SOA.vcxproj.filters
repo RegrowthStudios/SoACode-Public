@@ -180,6 +180,12 @@
     <Filter Include="SOA Files\Voxel\Texturing">
       <UniqueIdentifier>{29e1a60e-9cde-4091-b045-d6c803be19ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Console">
+      <UniqueIdentifier>{771788c4-8294-4b8d-b65c-616f4371e8c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SOA Files\Modding">
+      <UniqueIdentifier>{65cf4844-1033-4e01-a560-63f43e8b3660}</UniqueIdentifier>
+    </Filter>
     <Filter Include="SOA Files\Voxel\Models">
       <UniqueIdentifier>{57f94b81-194d-4aa7-91bb-c4855307dd0e}</UniqueIdentifier>
     </Filter>
@@ -770,6 +776,24 @@
     <ClInclude Include="Biome.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
+    <ClInclude Include="Startup.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleMain.h">
+      <Filter>SOA Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleFuncs.h">
+      <Filter>SOA Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="DLLAPI.h">
+      <Filter>SOA Files\Modding</Filter>
+    </ClInclude>
+    <ClInclude Include="DLLLoader.h">
+      <Filter>SOA Files\Modding</Filter>
+    </ClInclude>
+    <ClInclude Include="ModInformation.h">
+      <Filter>SOA Files\Modding</Filter>
+    </ClInclude>
     <ClInclude Include="TerrainPatchMeshTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
@@ -1291,6 +1315,15 @@
     <ClCompile Include="BlockTextureLoader.cpp">
       <Filter>SOA Files\Voxel\Texturing</Filter>
     </ClCompile>
+    <ClCompile Include="SsaoRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="Startup.cpp">
+      <Filter>SOA Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleMain.cpp">
+      <Filter>SOA Files\Console</Filter>
+    </ClCompile>
     <ClCompile Include="LenseFlareRenderer.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
@@ -1317,6 +1350,9 @@
     </ClCompile>
     <ClCompile Include="Biome.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleFuncs.cpp">
+      <Filter>SOA Files\Console</Filter>
     </ClCompile>
     <ClCompile Include="TerrainPatchMeshTask.cpp">
       <Filter>SOA Files\Voxel\Tasking</Filter>

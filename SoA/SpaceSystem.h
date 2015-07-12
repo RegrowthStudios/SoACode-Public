@@ -77,8 +77,8 @@ public:
     
     f32 age = 0.0f; ///< age of the system
     nString systemDescription = "No description"; ///< textual description of the system
-    vg::GLProgram normalMapGenProgram; ///< For generating normal maps
-    
+
+    // vVv   TODO(Cristian): Holy fuck, get rid of these from here   vVv
     std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors
 };
 

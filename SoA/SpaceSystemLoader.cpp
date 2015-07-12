@@ -369,9 +369,9 @@ void SpaceSystemLoader::createGasGiant(SpaceSystemLoadParams& pr,
         auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
             vg::ScopedBitmapResource b = vg::ImageIO().load(colorPath);
             if (b.data) {
-                colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                        vg::TextureTarget::TEXTURE_2D,
-                                                        &vg::SamplerState::LINEAR_CLAMP);
+                //colorMap = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                //                                        vg::TextureTarget::TEXTURE_2D,
+                //                                        &vg::SamplerState::LINEAR_CLAMP);
             } else {
                 fprintf(stderr, "Failed to load %s\n", properties->colorMap.c_str());
             }
@@ -402,9 +402,10 @@ void SpaceSystemLoader::createGasGiant(SpaceSystemLoadParams& pr,
                 // Load the texture
                 vg::ScopedBitmapResource b = vg::ImageIO().load(ringPath);
                 if (b.data) {
-                    r.texture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
-                                                             vg::TextureTarget::TEXTURE_2D,
-                                                             &vg::SamplerState::LINEAR_CLAMP);
+                    // TODO(Cristian): Disabling until a better place for this is found
+                    //r.texture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                    //                                         vg::TextureTarget::TEXTURE_2D,
+                    //                                         &vg::SamplerState::LINEAR_CLAMP);
                 } else {
                     fprintf(stderr, "Failed to load %s\n", r.colorLookup.c_str());
                 }

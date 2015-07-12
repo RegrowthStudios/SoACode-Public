@@ -39,7 +39,7 @@ GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScr
     m_mainMenuScreen(mainMenuScreen),
     m_updateThread(nullptr),
     m_threadRunning(false),
-    controller(app) {
+    controller() {
     // Empty
 }
 

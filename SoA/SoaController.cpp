@@ -11,11 +11,6 @@
 #include "SoaEngine.h"
 #include "OrbitComponentUpdater.h"
 
-SoaController::SoaController(const App* app) :
-    m_app(app) {
-    // Empty
-}
-
 SoaController::~SoaController() {
     // Empty
 }
@@ -29,7 +24,7 @@ void SoaController::startGame(OUT SoaState* state) {
     SpaceSystem* spaceSystem = state->spaceSystem;
 
     if (state->isNewGame) {
- 
+        // TODO(Cristian): We should not be relying on a starting planet.
         auto& svcmp = spaceSystem->m_sphericalVoxelCT.getFromEntity(state->startingPlanet);
         auto& arcmp = spaceSystem->m_axisRotationCT.getFromEntity(state->startingPlanet);
         auto& npcmp = spaceSystem->m_namePositionCT.getFromEntity(state->startingPlanet);
@@ -39,7 +34,7 @@ void SoaController::startGame(OUT SoaState* state) {
         // Create the player entity and make the initial planet his parent
         state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
                                                                   f64q(), 73.0f,
-                                                                  f64v3(0.0), soaOptions.get(OPT_FOV).value.f, m_app->getWindow().getAspectRatio(),
+                                                                  f64v3(0.0),
                                                                   state->startingPlanet,
                                                                   spaceSystem->m_sphericalGravityCT.getComponentID(state->startingPlanet),
                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(state->startingPlanet));

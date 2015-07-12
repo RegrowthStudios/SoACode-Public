@@ -45,6 +45,10 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     stages.bloom.setParams();
     stages.bloom.setActive(true);
 
+
+    // TODO(Cristian): This needs to be upgraded.
+    // Generate terrain patch indices
+    TerrainPatchMesher::generateIndices();
 }
 
 void MainMenuRenderer::dispose(StaticLoadContext& context) {

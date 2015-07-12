@@ -81,10 +81,6 @@ void SoaEngine::initState(SoaState* state) {
         // Give some time for the threads to spin up
         SDL_Delay(100);
     }
-
-    // TODO(Ben): Maybe not here.
-    // Generate terrain patch indices
-    TerrainPatchMesher::generateIndices();
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
@@ -106,24 +102,6 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
             fs.write("Component \"%s\" added: %d -> Entity %d\n", namedTable.first.c_str(), cid, eid);
         });
     }
-
-    // Load normal map gen shader
-    ProgramGenDelegate gen;
-    vio::IOManager iom;
-    gen.initFromFile("NormalMapGen", "Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag", &iom);
-
-    if (glrpc) {
-        glrpc->invoke(&gen.rpc, true);
-    } else {
-        gen.invoke(nullptr, nullptr);
-    }
-
-    if (!gen.program.isLinked()) {
-        std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
-        return false;
-    }
-
-    state->spaceSystem->normalMapGenProgram = gen.program;
 
     // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;
@@ -206,7 +184,6 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
                                                          radius,
                                                          genData,
-                                                         &spaceSystem->normalMapGenProgram,
                                                          state->threadPool);
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
