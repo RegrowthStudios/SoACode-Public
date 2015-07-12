@@ -46,7 +46,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     data->humLatitudeFalloff = f * 0.3f;
     data->humHeightFalloff = 1.0f;
 
-    std::vector<TerrainFuncKegProperties> funcs;
+    std::vector<TerrainFuncProperties> funcs;
     // Mountains
     getRandomTerrainFuncs(funcs,
                           TerrainStage::RIDGED_NOISE,
@@ -216,7 +216,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     return tex;
 }
 
-void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncKegProperties>& funcs,
+void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncProperties>& funcs,
                                             TerrainStage func,
                                             const std::uniform_int_distribution<int>& funcsRange,
                                             const std::uniform_int_distribution<int>& octavesRange,

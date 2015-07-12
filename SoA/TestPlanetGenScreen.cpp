@@ -61,12 +61,12 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
     m_eyePos = f32v3(0, 0, m_eyeDist);
 
     // Set up planet
-    SystemBodyKegProperties props;
-    PlanetKegProperties pProps;
+    SystemBodyProperties props;
+    PlanetProperties pProps;
     pProps.diameter = PLANET_RADIUS * 2.0;
     pProps.mass = 10000.0;
     PlanetGenData* genData = new PlanetGenData;
-    TerrainFuncKegProperties tprops;
+    TerrainFuncProperties tprops;
     tprops.low = 9;
     tprops.high = 10;
     genData->radius = PLANET_RADIUS;

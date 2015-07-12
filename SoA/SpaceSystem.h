@@ -47,10 +47,10 @@ struct SoaState;
 class SpriteBatch;
 class SpriteFont;
 struct GasGiantKegProperties;
-struct PlanetKegProperties;
+struct PlanetProperties;
 struct StarKegProperties;
 struct SystemBody;
-struct SystemBodyKegProperties;
+struct SystemBodyProperties;
 
 DECL_VG(class TextureRecycler)
 

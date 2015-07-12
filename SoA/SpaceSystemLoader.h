@@ -21,7 +21,7 @@
 
 struct GasGiantKegProperties;
 struct SystemBody;
-struct SystemBodyKegProperties;
+struct SystemBodyProperties;
 class SpaceSystem;
 class PlanetLoader;
 
@@ -64,7 +64,7 @@ private:
     /// @param body: The body to fill
     /// @return true on success
     static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, OUT SystemBody* body);
+                                   const SystemBodyProperties* sysProps, OUT SystemBody* body);
 
     // Sets up mass parameters for binaries
     static void initBinaries(SpaceSystemLoadParams& pr);
@@ -75,7 +75,7 @@ private:
     static void initOrbits(SpaceSystemLoadParams& pr);
 
     static void createGasGiant(SpaceSystemLoadParams& pr,
-                               const SystemBodyKegProperties* sysProps,
+                               const SystemBodyProperties* sysProps,
                                GasGiantKegProperties* properties,
                                SystemBody* body);
 

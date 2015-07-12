@@ -41,7 +41,7 @@ enum class TerrainOp {
 };
 KEG_ENUM_DECL(TerrainOp);
 
-struct TerrainFuncKegProperties {
+struct TerrainFuncProperties {
     TerrainStage func = TerrainStage::NOISE;
     TerrainOp op = TerrainOp::ADD;
     int octaves = 1;
@@ -50,13 +50,13 @@ struct TerrainFuncKegProperties {
     f32 low = -1.0f;
     f32 high = 1.0f;
     f32v2 clamp = f32v2(0.0f);
-    Array<TerrainFuncKegProperties> children;
+    Array<TerrainFuncProperties> children;
 };
-KEG_TYPE_DECL(TerrainFuncKegProperties);
+KEG_TYPE_DECL(TerrainFuncProperties);
 
 struct NoiseBase {
     f32 base = 0.0f;
-    Array<TerrainFuncKegProperties> funcs;
+    Array<TerrainFuncProperties> funcs;
 };
 KEG_TYPE_DECL(NoiseBase);
 

@@ -26,7 +26,7 @@
 #define SEC_PER_HOUR 3600.0
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
-                           const SystemBodyKegProperties* sysProps,
+                           const SystemBodyProperties* sysProps,
                            SystemBody* body, f64 bodyRadius) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
@@ -44,8 +44,8 @@ vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
 }
 
 vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
-                                    const SystemBodyKegProperties* sysProps,
-                                    const PlanetKegProperties* properties,
+                                    const SystemBodyProperties* sysProps,
+                                    const PlanetProperties* properties,
                                     SystemBody* body,
                                     vcore::ThreadPool<WorkerData>* threadPool) {
     body->entity = spaceSystem->addEntity();
@@ -66,7 +66,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     f64 planetRadius = properties->diameter / 2.0;
     addSphericalGravityComponent(spaceSystem, id, npCmp, planetRadius, properties->mass);
 
-    const AtmosphereKegProperties& at = properties->atmosphere;
+    const AtmosphereProperties& at = properties->atmosphere;
     // Check if its active
     if (at.scaleDepth != -1.0f) {
         addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025),
@@ -74,7 +74,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                at.waveLength);
     }
 
-    const CloudsKegProperties& cl = properties->clouds;
+    const CloudsProperties& cl = properties->clouds;
 
     if (cl.density > 0.0f) {
         addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0075), cl.color, cl.scale, cl.density);
@@ -92,7 +92,7 @@ void SpaceSystemAssemblages::destroyPlanet(SpaceSystem* gameSystem, vecs::Entity
 }
 
 vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
-                                  const SystemBodyKegProperties* sysProps,
+                                  const SystemBodyProperties* sysProps,
                                   const StarKegProperties* properties,
                                   SystemBody* body) {
     body->entity = spaceSystem->addEntity();
@@ -125,7 +125,7 @@ void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID
 
 /// GasGiant entity
 vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
-                                      const SystemBodyKegProperties* sysProps,
+                                      const SystemBodyProperties* sysProps,
                                       const GasGiantKegProperties* properties,
                                       SystemBody* body,
                                       VGTexture colorMap) {
@@ -144,7 +144,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
-    const AtmosphereKegProperties& at = properties->atmosphere;
+    const AtmosphereProperties& at = properties->atmosphere;
     // Check if its active
     if (at.scaleDepth != -1.0f) {
         addAtmosphereComponent(spaceSystem, id, npCmp, (f32)radius, (f32)(radius * 1.025),
@@ -192,7 +192,7 @@ void SpaceSystemAssemblages::removeAtmosphereComponent(SpaceSystem* spaceSystem,
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                          vecs::ComponentID namePositionComponent, const Array<PlanetRingKegProperties>& rings) {
+                                          vecs::ComponentID namePositionComponent, const Array<PlanetRingProperties>& rings) {
     vecs::ComponentID prCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_PLANETRINGS_NAME, entity);
     if (prCmpId == 0) {
         return 0;

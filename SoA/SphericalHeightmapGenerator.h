@@ -45,7 +45,7 @@ private:
     /// Gets noise value using terrainFuncs
     /// @return the noise value
     void getNoiseValue(const f64v3& pos,
-                      const Array<TerrainFuncKegProperties>& funcs,
+                      const Array<TerrainFuncProperties>& funcs,
                       f64* modifier,
                       const TerrainOp& op,
                       f64& height) const;

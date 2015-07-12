@@ -165,10 +165,10 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
     return genData;
 }
 
-AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
+AtmosphereProperties PlanetLoader::getRandomAtmosphere() {
     static std::mt19937 generator(2636);
     static std::uniform_real_distribution<f32> randomWav(0.4f, 0.8f);
-    AtmosphereKegProperties props;
+    AtmosphereProperties props;
     props.waveLength.r = randomWav(generator);
     props.waveLength.g = randomWav(generator);
     props.waveLength.b = randomWav(generator);

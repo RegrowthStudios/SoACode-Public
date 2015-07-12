@@ -102,7 +102,6 @@ void BloomRenderStage::load(StaticLoadContext& context) {
 
         context.addWorkCompleted(TOTAL_TASK);
     }, false);
-
 }
 
 void BloomRenderStage::hook(vg::FullQuadVBO* quad) {

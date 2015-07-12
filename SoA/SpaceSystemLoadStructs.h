@@ -49,16 +49,16 @@ enum class TrojanType {
 };
 KEG_TYPE_DECL(TrojanType);
 
-struct AtmosphereKegProperties {
+struct AtmosphereProperties {
     f32 kr = 0.0025f;
     f32 km = 0.0020f;
     f32 g = -0.99f;
     f32 scaleDepth = 0.25f;
     f32v3 waveLength = f32v3(0.65, 0.57, 0.475);
 };
-KEG_TYPE_DECL(AtmosphereKegProperties);
+KEG_TYPE_DECL(AtmosphereProperties);
 
-struct PlanetRingKegProperties {
+struct PlanetRingProperties {
     f32 innerRadius = 0.0f;
     f32 outerRadius = 0.0f;
     f32 aTilt = 0.0f;
@@ -66,16 +66,16 @@ struct PlanetRingKegProperties {
     nString colorLookup = "";
     VGTexture texture = 0;
 };
-KEG_TYPE_DECL(PlanetRingKegProperties);
+KEG_TYPE_DECL(PlanetRingProperties);
 
-struct CloudsKegProperties {
+struct CloudsProperties {
     f32v3 color = f32v3(1.0f, 1.0f, 1.0f);
     f32v3 scale = f32v3(1.0f, 1.5f, 1.0f);
     float density = 0.0f;
 };
-KEG_TYPE_DECL(CloudsKegProperties);
+KEG_TYPE_DECL(CloudsProperties);
 
-struct SystemBodyKegProperties {
+struct SystemBodyProperties {
     SpaceObjectType type = SpaceObjectType::NONE;
     TrojanType trojan = TrojanType::NONE;
     Array<const char*> comps;
@@ -94,7 +94,7 @@ struct SystemBodyKegProperties {
     f64 td = 1.0; ///< Reference body period divisor
     f64 tf = 1.0; ///< Reference body period factor
 };
-KEG_TYPE_DECL(SystemBodyKegProperties);
+KEG_TYPE_DECL(SystemBodyProperties);
 
 struct SystemBody {
     nString name = "";
@@ -103,13 +103,13 @@ struct SystemBody {
     std::vector<SystemBody*> children;
     vecs::EntityID entity = 0;
     SpaceBodyType type = SpaceBodyType::NONE;
-    SystemBodyKegProperties properties;
+    SystemBodyProperties properties;
     f64 mass = 0.0;
     bool isBaryCalculated = false; ///< Used by barycenters
     bool hasComputedRef = false; ///< True when it has computed trojan and t with ref body
 };
 
-struct PlanetKegProperties {
+struct PlanetProperties {
     f64 diameter = 0.0;
     f64 density = 0.0;
     f64 mass = 0.0;
@@ -119,10 +119,10 @@ struct PlanetKegProperties {
     nString displayName = "";
     nString generation = "";
     PlanetGenData* planetGenData = nullptr;
-    AtmosphereKegProperties atmosphere;
-    CloudsKegProperties clouds;
+    AtmosphereProperties atmosphere;
+    CloudsProperties clouds;
 };
-KEG_TYPE_DECL(PlanetKegProperties);
+KEG_TYPE_DECL(PlanetProperties);
 
 struct StarKegProperties {
     f64 surfaceTemperature = 0.0; ///< temperature in kelvin
@@ -146,8 +146,8 @@ struct GasGiantKegProperties {
     f32 oblateness = 0.0;
     nString colorMap = "";
     nString displayName = "";
-    AtmosphereKegProperties atmosphere;
-    Array<PlanetRingKegProperties> rings;
+    AtmosphereProperties atmosphere;
+    Array<PlanetRingProperties> rings;
 };
 KEG_TYPE_DECL(GasGiantKegProperties);
 

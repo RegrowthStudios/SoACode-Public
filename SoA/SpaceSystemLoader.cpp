@@ -104,8 +104,8 @@ bool SpaceSystemLoader::loadSystemProperties(SpaceSystemLoadParams& pr) {
         } else if (name == "age") {
             pr.spaceSystem->age = keg::convert<f32>(value);
         } else {
-            SystemBodyKegProperties properties;
-            keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyKegProperties));
+            SystemBodyProperties properties;
+            keg::Error err = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(SystemBodyProperties));
             if (err != keg::Error::NONE) {
                 fprintf(stderr, "Failed to parse node %s in SystemProperties.yml\n", name.c_str());
                 goodParse = false;
@@ -135,7 +135,7 @@ bool SpaceSystemLoader::loadSystemProperties(SpaceSystemLoadParams& pr) {
 }
 
 bool SpaceSystemLoader::loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyKegProperties* sysProps, SystemBody* body) {
+                                   const SystemBodyProperties* sysProps, SystemBody* body) {
 
 #define KEG_CHECK \
     if (error != keg::Error::NONE) { \
@@ -165,8 +165,8 @@ bool SpaceSystemLoader::loadBodyProperties(SpaceSystemLoadParams& pr, const nStr
 
         // Parse based on type
         if (type == "planet") {
-            PlanetKegProperties properties;
-            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(PlanetKegProperties));
+            PlanetProperties properties;
+            error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(PlanetProperties));
             KEG_CHECK;
 
             // Use planet loader to load terrain and biomes
@@ -353,7 +353,7 @@ void SpaceSystemLoader::initOrbits(SpaceSystemLoadParams& pr) {
 }
 
 void SpaceSystemLoader::createGasGiant(SpaceSystemLoadParams& pr,
-                               const SystemBodyKegProperties* sysProps,
+                               const SystemBodyProperties* sysProps,
                                GasGiantKegProperties* properties,
                                SystemBody* body) {
 

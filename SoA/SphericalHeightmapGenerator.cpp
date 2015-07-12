@@ -279,7 +279,7 @@ f64 doOperation(const TerrainOp& op, f64 a, f64 b) {
 }
 
 void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
-                                                const Array<TerrainFuncKegProperties>& funcs,
+                                                const Array<TerrainFuncProperties>& funcs,
                                                 f64* modifier,
                                                 const TerrainOp& op,
                                                 f64& height) const {

@@ -27,10 +27,10 @@ class SpaceSystem;
 struct PlanetGenData;
 struct SoaState;
 struct GasGiantKegProperties;
-struct PlanetKegProperties;
+struct PlanetProperties;
 struct StarKegProperties;
 struct SystemBody;
-struct SystemBodyKegProperties;
+struct SystemBodyProperties;
 struct SphericalTerrainComponent;
 
 DECL_VG(
@@ -48,27 +48,27 @@ namespace SpaceSystemAssemblages {
    
     // Plain orbit entity
     extern vecs::EntityID createOrbit(SpaceSystem* spaceSystem,
-                                       const SystemBodyKegProperties* sysProps,
+                                       const SystemBodyProperties* sysProps,
                                        SystemBody* body, f64 bodyRadius);
 
     /// Planet entity
     extern vecs::EntityID createPlanet(SpaceSystem* spaceSystem,
-                                        const SystemBodyKegProperties* sysProps,
-                                        const PlanetKegProperties* properties,
+                                        const SystemBodyProperties* sysProps,
+                                        const PlanetProperties* properties,
                                         SystemBody* body,
                                         vcore::ThreadPool<WorkerData>* threadPool);
     extern void destroyPlanet(SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// Star entity
     extern vecs::EntityID createStar(SpaceSystem* spaceSystem,
-                                        const SystemBodyKegProperties* sysProps,
+                                        const SystemBodyProperties* sysProps,
                                         const StarKegProperties* properties,
                                         SystemBody* body);
     extern void destroyStar(SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// GasGiant entity
     extern vecs::EntityID createGasGiant(SpaceSystem* spaceSystem,
-                                        const SystemBodyKegProperties* sysProps,
+                                        const SystemBodyProperties* sysProps,
                                         const GasGiantKegProperties* properties,
                                         SystemBody* body,
                                         VGTexture colorMap);
@@ -86,7 +86,7 @@ namespace SpaceSystemAssemblages {
 
     /// PlanetRings component
     extern vecs::ComponentID addPlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                                    vecs::ComponentID namePositionComponent, const Array<PlanetRingKegProperties>& rings);
+                                                    vecs::ComponentID namePositionComponent, const Array<PlanetRingProperties>& rings);
     extern void removePlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Clouds component
