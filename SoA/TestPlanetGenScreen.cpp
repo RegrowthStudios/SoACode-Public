@@ -61,7 +61,6 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
     m_eyePos = f32v3(0, 0, m_eyeDist);
 
     // Set up planet
-    m_state.spaceSystem->normalMapGenProgram = ShaderLoader::createProgramFromFile("Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag");
     SystemBodyKegProperties props;
     PlanetKegProperties pProps;
     pProps.diameter = PLANET_RADIUS * 2.0;

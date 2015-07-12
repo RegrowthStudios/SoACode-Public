@@ -23,9 +23,6 @@ SpaceSystem::SpaceSystem() : vecs::ECS() {
 }
 
 SpaceSystem::~SpaceSystem() {
-    if (normalMapGenProgram.isCreated()) {
-        normalMapGenProgram.dispose();
-    }
     for (auto& it : m_sphericalVoxelCT) {
         m_sphericalVoxelCT.disposeComponent(m_sphericalVoxelCT.getComponentID(it.first), it.first);
     }
