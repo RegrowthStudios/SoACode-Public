@@ -154,27 +154,57 @@ void SphericalHeightmapGenerator::recurseChildBiomes(const Biome* biome, const f
     for (auto& child : biome->children) {
         f64 weight = 1.0;
         // Check if biome is present and get weight
-        f64 dx = noiseVal - child->noiseRange.x;
-        f64 dy = child->noiseRange.y - noiseVal;
-        // See which side we are closer too
-        if (ABS(dx) < ABS(dy)) {
-            if (dx < 0) {
-                continue;
+        { // Noise
+            f64 dx = noiseVal - child->noiseRange.x;
+            f64 dy = child->noiseRange.y - noiseVal;
+            // See which side we are closer to
+            if (ABS(dx) < ABS(dy)) {
+                if (dx < 0) {
+                    continue;
+                }
+                dx *= child->noiseScale.x;
+                if (dx > 1.0) {
+                    dx = 1.0;
+                } else {
+                    weight *= dx;
+                }
+            } else {
+                if (dy < 0) {
+                    continue;
+                }
+                dy *= child->noiseScale.x;
+                if (dy > 1.0) {
+                    dy = 1.0;
+                } else {
+                    weight *= dy;
+                }
             }
-            dx *= child->noiseScale.x;
-            if (dx > 1.0) {
-                dx = 1.0;
+        }
+        { // Height
+            f64 dx = height - child->heightRange.x;
+            f64 dy = child->heightRange.y - height;
+            // See which side we are closer to
+            if (ABS(dx) < ABS(dy)) {
+                if (dx < 0) {
+                    continue;
+                }
+                dx *= child->heightScale.x;
+                if (dx > 1.0) {
+                    dx = 1.0;
+                } else {
+                    weight *= hermite(dx);
+                }
+            } else {
+                if (dy < 0) {
+                    continue;
+                }
+                dy *= child->heightScale.x;
+                if (dy > 1.0) {
+                    dy = 1.0;
+                } else {
+                    weight *= hermite(dy);
+                }
             }
-            weight *= dx;
-        } else {
-            if (dy < 0) {
-                continue;
-            }
-            dy *= child->noiseScale.x;
-            if (dy > 1.0) {
-                dy = 1.0;
-            }
-            weight *= dy;
         }
         // If we reach here, the biome exists.
         f64 newHeight = child->terrainNoise.base + height;

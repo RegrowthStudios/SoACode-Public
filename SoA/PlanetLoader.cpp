@@ -24,7 +24,7 @@ struct BiomeKegProperties {
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
     f64v2 heightRange = f64v2(0.0, 1000.0);
-    f64v2 heightScale = f64v2(0.1, 0.1);
+    f64v2 heightScale = f64v2(0.01, 0.01);
     f64v2 noiseRange = f64v2(-1.0, 1.0);
     f64v2 noiseScale = f64v2(10.0, 10.0);
     nString displayName = "Unknown";
