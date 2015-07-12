@@ -27,6 +27,7 @@ void GasGiantComponentRenderer::initGL() {
 }
 
 void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
+                                     vecs::EntityID eid,
                                      const f32m4& VP,
                                      const f64q& orientation,
                                      const f32v3& relCamPos,
@@ -34,6 +35,24 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
                                      const float zCoef,
                                      const SpaceLightComponent* spCmp,
                                      const AtmosphereComponent* aCmp) {
+    // Get the render texture or load it if it hasn't been loaded
+    // TODO(Ben): Use a renderable component instead
+    VGTexture colorTexture = 0;
+    auto& it = m_colorTextures.find(eid);
+    if (it == m_colorTextures.end()) {
+        vg::ScopedBitmapResource b = vg::ImageIO().load(ggCmp.colorMapPath);
+        if (b.data) {
+            colorTexture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
+                                                        vg::TextureTarget::TEXTURE_2D,
+                                                        &vg::SamplerState::LINEAR_CLAMP);
+        } else {
+            fprintf(stderr, "Failed to load %s\n", ggCmp.colorMapPath.c_str());
+        }
+        m_colorTextures[eid] = colorTexture;
+    } else {
+        colorTexture = it->second;
+    }
+
     m_program.use();
     // For logarithmic Z buffer
     glUniform1f(m_program.getUniform("unZCoef"), zCoef);
@@ -91,7 +110,7 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
    
     // Bind lookup texture
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, ggCmp.colorMap);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
 
     glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
 

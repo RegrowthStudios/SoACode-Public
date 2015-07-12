@@ -127,8 +127,7 @@ void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID
 vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
                                       const SystemOrbitProperties* sysProps,
                                       const GasGiantProperties* properties,
-                                      SystemBody* body,
-                                      VGTexture colorMap) {
+                                      SystemBody* body) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -140,7 +139,8 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
     f64 radius = properties->diameter / 2.0;
-    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, properties->oblateness, radius, colorMap);
+    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, properties->oblateness, radius,
+                         properties->colorMap, properties->rings);
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
@@ -205,7 +205,7 @@ vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* s
         auto& r2 = rings[i];
         r1.innerRadius = r2.innerRadius;
         r1.outerRadius = r2.outerRadius;
-        r1.colorLookup = r2.texture;
+        r1.texturePath = r2.colorLookup;
         r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
     }
     return prCmpId;
@@ -374,7 +374,8 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(SpaceSystem* spac
                                                                vecs::ComponentID arComp,
                                                                f32 oblateness,
                                                                f64 radius,
-                                                               VGTexture colorMap) {
+                                                               const nString& colorMapPath,
+                                                               const Array<PlanetRingProperties>& rings) {
     vecs::ComponentID ggCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
     auto& ggCmp = spaceSystem->gasGiant.get(ggCmpId);
 
@@ -382,7 +383,8 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(SpaceSystem* spac
     ggCmp.axisRotationComponent = arComp;
     ggCmp.oblateness = oblateness;
     ggCmp.radius = radius;
-    ggCmp.colorMap = colorMap;
+    ggCmp.colorMapPath = colorMapPath;
+    ggCmp.rings = rings;
     return ggCmpId;
 }
 

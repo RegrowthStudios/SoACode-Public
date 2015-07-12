@@ -100,5 +100,5 @@ KEG_TYPE_DEF_SAME_NAME(GasGiantProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, colorMap, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, displayName, STRING);
     kt.addValue("atmosphere", keg::Value::custom(offsetof(GasGiantProperties, atmosphere), "AtmosphereKegProperties", false));
-    kt.addValue("rings", keg::Value::array(offsetof(GasGiantProperties, rings), keg::Value::custom(0, "PlanetRingKegProperties", false)));
+    kt.addValue("rings", keg::Value::array(offsetof(GasGiantProperties, rings), keg::Value::custom(0, "PlanetRingProperties", false)));
 }

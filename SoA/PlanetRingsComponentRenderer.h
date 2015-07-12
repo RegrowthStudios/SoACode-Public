@@ -21,9 +21,16 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/gtypes.h>
+#include "SpaceSystemComponents.h"
 
 struct SpaceLightComponent;
 struct PlanetRingsComponent;
+
+// TODO(Ben): Use a renderable component instead
+struct RenderableRing {
+    PlanetRing ring;
+    VGTexture texture;
+};
 
 class PlanetRingsComponentRenderer {
 public:
@@ -31,6 +38,7 @@ public:
 
     void initGL();
     void draw(const PlanetRingsComponent& prCmp,
+              vecs::EntityID eid,
               const f32m4& VP,
               const f32v3& relCamPos,
               const f32v3& lightPos,
@@ -39,7 +47,8 @@ public:
               const SpaceLightComponent* spComponent);
     void dispose();
 private:
-
+    // TODO(Ben): Use a renderable component instead
+    std::unordered_map<vecs::EntityID, std::vector<RenderableRing>> m_renderableRings;
     vg::GLProgram m_program;
     vg::FullQuadVBO m_quad;
     bool m_isInitialized = false;

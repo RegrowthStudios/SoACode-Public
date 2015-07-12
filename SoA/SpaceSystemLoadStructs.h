@@ -64,7 +64,6 @@ struct PlanetRingProperties {
     f32 aTilt = 0.0f;
     f32 lNorth = 0.0f;
     nString colorLookup = "";
-    VGTexture texture = 0;
 };
 KEG_TYPE_DECL(PlanetRingProperties);
 

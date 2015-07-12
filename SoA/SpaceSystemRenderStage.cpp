@@ -213,7 +213,8 @@ void SpaceSystemRenderStage::drawBodies() {
 
         f32v3 lightDir(glm::normalize(lightPos - *pos));
 
-        m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(),
+        m_gasGiantComponentRenderer.draw(ggCmp, it.first,
+                                         m_spaceCamera->getViewProjectionMatrix(),
                                          m_spaceSystem->axisRotation.getFromEntity(it.first).currentOrientation,
                                          relCamPos, lightDir,
                                          zCoef, lightCmp,
@@ -275,7 +276,7 @@ void SpaceSystemRenderStage::drawBodies() {
         f32v3 lightDir(glm::normalize(l.first - *pos));
 
         // TODO(Ben): Worry about f64 to f32 precision loss
-        m_ringsRenderer.draw(prCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
+        m_ringsRenderer.draw(prCmp, it.first, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
                              f32v3(l.first - m_spaceCamera->getPosition()), (f32)sgCmp.radius,
                              zCoef, l.second);
     }

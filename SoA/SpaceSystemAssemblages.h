@@ -70,8 +70,7 @@ namespace SpaceSystemAssemblages {
     extern vecs::EntityID createGasGiant(SpaceSystem* spaceSystem,
                                         const SystemOrbitProperties* sysProps,
                                         const GasGiantProperties* properties,
-                                        SystemBody* body,
-                                        VGTexture colorMap);
+                                        SystemBody* body);
     extern void destroyGasGiant(SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /************************************************************************/
@@ -136,7 +135,8 @@ namespace SpaceSystemAssemblages {
                                                   vecs::ComponentID arComp,
                                                   f32 oblateness,
                                                   f64 radius,
-                                                  VGTexture colorMap);
+                                                  const nString& colorMapPath,
+                                                  const Array<PlanetRingProperties>& rings);
     extern void removeGasGiantComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Far terrain component

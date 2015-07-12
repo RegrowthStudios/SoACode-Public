@@ -73,7 +73,28 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
             GasGiantProperties properties;
             error = keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(GasGiantProperties));
             KEG_CHECK;
-            SpaceSystemAssemblages::createGasGiant(soaState->spaceSystem, sysProps, &properties, body, 0);
+            // Get full path for color map
+            if (properties.colorMap.size()) {
+                vio::Path colorPath;
+                if (!m_iom->resolvePath(properties.colorMap, colorPath)) {
+                    fprintf(stderr, "Failed to resolve %s\n", properties.colorMap.c_str());
+                }
+                properties.colorMap = colorPath.getString();
+            }
+            // Get full path for rings
+            if (properties.rings.size()) {
+                for (size_t i = 0; i < properties.rings.size(); i++) {
+                    auto& r = properties.rings[i];
+                    // Resolve the path
+                    vio::Path ringPath;
+                    if (!m_iom->resolvePath(r.colorLookup, ringPath)) {
+                        fprintf(stderr, "Failed to resolve %s\n", r.colorLookup.c_str());
+                    }
+                    r.colorLookup = ringPath.getString();
+                }
+            }
+            // Create the component
+            SpaceSystemAssemblages::createGasGiant(soaState->spaceSystem, sysProps, &properties, body);
             body->type = SpaceBodyType::GAS_GIANT;
         }
 

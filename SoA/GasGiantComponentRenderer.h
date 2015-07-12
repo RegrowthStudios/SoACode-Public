@@ -37,6 +37,7 @@ public:
     void initGL();
 
     void draw(const GasGiantComponent& ggCmp,
+              vecs::EntityID eid,
               const f32m4& VP,
               const f64q& orientation,
               const f32v3& relCamPos,
@@ -54,6 +55,9 @@ private:
     VGIndexBuffer m_ibo = 0;
     VGVertexArray m_vao = 0;
     int m_numIndices = 0;
+
+    // TODO(Ben): Use a renderable component instead
+    std::unordered_map<vecs::EntityID, VGTexture> m_colorTextures;
 
     // TODO(Ben): UBO
     VGUniform unWVP;

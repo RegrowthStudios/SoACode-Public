@@ -131,7 +131,7 @@ struct PlanetRing {
     f32 innerRadius;
     f32 outerRadius;
     f64q orientation;
-    VGTexture colorLookup;
+    vio::Path texturePath;
 };
 
 struct PlanetRingsComponent {
@@ -206,7 +206,8 @@ struct GasGiantComponent {
     vecs::ComponentID axisRotationComponent = 0;
     f64 radius = 0.0;
     f32 oblateness = 1.0f;
-    VGTexture colorMap = 0;
+    nString colorMapPath = "";
+    Array<PlanetRingProperties> rings;
 };
 
 struct StarComponent {
