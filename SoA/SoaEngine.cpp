@@ -107,24 +107,6 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
         });
     }
 
-    // Load normal map gen shader
-    ProgramGenDelegate gen;
-    vio::IOManager iom;
-    gen.initFromFile("NormalMapGen", "Shaders/Generation/NormalMap.vert", "Shaders/Generation/NormalMap.frag", &iom);
-
-    if (glrpc) {
-        glrpc->invoke(&gen.rpc, true);
-    } else {
-        gen.invoke(nullptr, nullptr);
-    }
-
-    if (!gen.program.isLinked()) {
-        std::cerr << "Failed to load shader NormalMapGen with error: " << gen.errorMessage;
-        return false;
-    }
-
-    state->spaceSystem->normalMapGenProgram = gen.program;
-
     // Load system
     SpaceSystemLoadParams spaceSystemLoadParams;
     spaceSystemLoadParams.glrpc = glrpc;
