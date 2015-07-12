@@ -61,7 +61,6 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     addSphericalTerrainComponent(spaceSystem, id, npCmp, arCmp,
                                  properties->diameter * 0.5,
                                  properties->planetGenData,
-                                 &spaceSystem->normalMapGenProgram,
                                  threadPool);
 
     f64 planetRadius = properties->diameter / 2.0;
@@ -265,28 +264,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.chunkMeshManager = soaState->chunkMeshManager;
     svcmp.blockPack = &soaState->blocks;
 
-    // Set up threadpool
-    // Check the hardware concurrency
-    // TODO(Ben): Not here.
-    size_t hc = std::thread::hardware_concurrency();
-    // Remove two threads for the render thread and main thread
-    if (hc > 1) hc--;
-    if (hc > 1) hc--;
-
-    // Drop a thread so we don't steal the hardware on debug
-#ifdef DEBUG
-    if (hc > 1) hc--;
-#endif
-
-    // Initialize the threadpool with hc threads
-    svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
-    svcmp.threadPool->init(hc);
+    svcmp.threadPool = soaState->threadPool;
     
     svcmp.meshDepsFlushList = new moodycamel::ConcurrentQueue<Chunk*>();
 
     svcmp.chunkIo->beginThread();
-    // Give some time for the threads to spin up
-    SDL_Delay(100);
 
     svcmp.chunkGrids = new ChunkGrid[6];
     for (int i = 0; i < 6; i++) {
@@ -333,7 +315,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
                                                                       vecs::ComponentID arComp,
                                                                       f64 radius,
                                                                       PlanetGenData* planetGenData,
-                                                                      vg::GLProgram* normalProgram,
                                                                       vcore::ThreadPool<WorkerData>* threadPool) {
     vecs::ComponentID stCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
     auto& stCmp = spaceSystem->sphericalTerrain.get(stCmpId);

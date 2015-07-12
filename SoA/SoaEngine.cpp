@@ -188,7 +188,6 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
                                                          radius,
                                                          genData,
-                                                         &spaceSystem->normalMapGenProgram,
                                                          state->threadPool);
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
