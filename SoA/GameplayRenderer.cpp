@@ -395,8 +395,8 @@ void GameplayRenderer::updateCameras() {
         if (it != m_renderState->spaceBodyPositions.end()) {
             m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {
-            auto& gcmp = ss->m_sphericalGravityCT.get(spcmp.parentGravityID);
-            auto& npcmp = ss->m_namePositionCT.get(gcmp.namePositionComponent);
+            auto& gcmp = ss->sphericalGravity.get(spcmp.parentGravityID);
+            auto& npcmp = ss->namePosition.get(gcmp.namePositionComponent);
             m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
         }
     } else {

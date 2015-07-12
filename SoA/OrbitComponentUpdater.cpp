@@ -6,15 +6,15 @@
 #include "soaUtils.h"
 
 void OrbitComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
-    for (auto& it : spaceSystem->m_orbitCT) {
+    for (auto& it : spaceSystem->orbit) {
         auto& cmp = it.second;
         if (cmp.parentOrbId) {
-            OrbitComponent* pOrbC = &spaceSystem->m_orbitCT.get(cmp.parentOrbId);
-            updatePosition(cmp, time, &spaceSystem->m_namePositionCT.get(cmp.npID),
+            OrbitComponent* pOrbC = &spaceSystem->orbit.get(cmp.parentOrbId);
+            updatePosition(cmp, time, &spaceSystem->namePosition.get(cmp.npID),
                               pOrbC,
-                              &spaceSystem->m_namePositionCT.get(pOrbC->npID));
+                              &spaceSystem->namePosition.get(pOrbC->npID));
         } else {
-            updatePosition(cmp, time, &spaceSystem->m_namePositionCT.get(cmp.npID));
+            updatePosition(cmp, time, &spaceSystem->namePosition.get(cmp.npID));
         }
     }
 }

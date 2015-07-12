@@ -24,7 +24,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* space
             physcmp.velocity = f64v3(0.0);
             acceleration = 1.0;
             auto& vpCmp = gameSystem->voxelPosition.get(physcmp.voxelPositionComponent);
-            f64 radius = spaceSystem->m_sphericalGravityCT.get(vpCmp.parentVoxelComponent).radius;
+            f64 radius = spaceSystem->sphericalGravity.get(vpCmp.parentVoxelComponent).radius;
             orientation = &vpCmp.orientation;
             if (fmcmp.superSpeed) {
                 static const f64 SS_Mult = 0.01;
@@ -32,7 +32,7 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* space
             }
         } else {
             auto& spCmp = gameSystem->spacePosition.get(physcmp.spacePositionComponent);
-            f64 radius = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID).radius;
+            f64 radius = spaceSystem->sphericalGravity.get(spCmp.parentGravityID).radius;
             orientation = &spCmp.orientation;
             acceleration *= KM_PER_VOXEL;
             if (fmcmp.superSpeed) {

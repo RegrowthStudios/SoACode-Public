@@ -148,7 +148,7 @@ bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadDa
 
 void SoaEngine::setPlanetBlocks(SoaState* state) {
     SpaceSystem* ss = state->spaceSystem;
-    for (auto& it : ss->m_sphericalTerrainCT) {
+    for (auto& it : ss->sphericalTerrain) {
         auto& cmp = it.second;
         PlanetBlockInitInfo& blockInfo = cmp.planetGenData->blockInfo;
         // TODO(Ben): Biomes too!
@@ -180,7 +180,7 @@ void SoaEngine::setPlanetBlocks(SoaState* state) {
 
 void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
     SpaceSystem* spaceSystem = state->spaceSystem;
-    auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(eid);
+    auto& stCmp = spaceSystem->sphericalTerrain.getFromEntity(eid);
     f64 radius = stCmp.radius;
     auto npCmpID = stCmp.namePositionComponent;
     auto arCmpID = stCmp.axisRotationComponent;
@@ -190,7 +190,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     nString filePath = genData->filePath;
 
     if (ftCmpID) {
-        face = spaceSystem->m_farTerrainCT.getFromEntity(eid).face;
+        face = spaceSystem->farTerrain.getFromEntity(eid).face;
         SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, eid);
     }
     if (stCmp.sphericalVoxelComponent) {
@@ -217,7 +217,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     // TODO(Ben): this doesn't work too well.
     auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
     pCmp.parentSphericalTerrainID = stCmpID;
-    pCmp.parentGravityID = spaceSystem->m_sphericalGravityCT.getComponentID(eid);
+    pCmp.parentGravityID = spaceSystem->sphericalGravity.getComponentID(eid);
     pCmp.parentEntity = eid;
 }
 

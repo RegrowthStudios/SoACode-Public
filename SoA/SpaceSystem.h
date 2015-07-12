@@ -61,23 +61,22 @@ public:
     SpaceSystem();
     ~SpaceSystem();
 
-    vecs::ComponentTable<NamePositionComponent> m_namePositionCT;
-    vecs::ComponentTable<AxisRotationComponent> m_axisRotationCT;
-    OrbitComponentTable m_orbitCT;
-    vecs::ComponentTable<SphericalGravityComponent> m_sphericalGravityCT;
-    SphericalTerrainComponentTable m_sphericalTerrainCT;
-    vecs::ComponentTable<GasGiantComponent> m_gasGiantCT;
-    vecs::ComponentTable<StarComponent> m_starCT;
-    FarTerrainComponentTable m_farTerrainCT;
-    vecs::ComponentTable<SpaceLightComponent> m_spaceLightCT;
-    vecs::ComponentTable<AtmosphereComponent> m_atmosphereCT;
-    vecs::ComponentTable<PlanetRingsComponent> m_planetRingCT;
-    vecs::ComponentTable<CloudsComponent> m_cloudsCT;
-    SphericalVoxelComponentTable m_sphericalVoxelCT;
+    vecs::ComponentTable<NamePositionComponent> namePosition;
+    vecs::ComponentTable<AxisRotationComponent> axisRotation;
+    OrbitComponentTable orbit;
+    vecs::ComponentTable<SphericalGravityComponent> sphericalGravity;
+    SphericalTerrainComponentTable sphericalTerrain;
+    vecs::ComponentTable<GasGiantComponent> gasGiant;
+    vecs::ComponentTable<StarComponent> star;
+    FarTerrainComponentTable farTerrain;
+    vecs::ComponentTable<SpaceLightComponent> spaceLight;
+    vecs::ComponentTable<AtmosphereComponent> atmosphere;
+    vecs::ComponentTable<PlanetRingsComponent> planetRings;
+    vecs::ComponentTable<CloudsComponent> clouds;
+    SphericalVoxelComponentTable sphericalVoxel;
     
     f32 age = 0.0f; ///< age of the system
     nString systemDescription = "No description"; ///< textual description of the system
-    vg::GLProgram normalMapGenProgram; ///< For generating normal maps
     
     std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors
 };

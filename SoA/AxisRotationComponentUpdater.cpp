@@ -6,7 +6,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
-    for (auto& it : spaceSystem->m_axisRotationCT) {
+    for (auto& it : spaceSystem->axisRotation) {
         auto& cmp = it.second;
         // Calculate rotation
         if (cmp.period) {

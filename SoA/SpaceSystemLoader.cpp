@@ -246,7 +246,7 @@ void SpaceSystemLoader::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) 
         bProps.n = aProps.n;
         bProps.p = aProps.p + 180.0;
         bProps.a = aProps.a;
-        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyB->second->entity);
+        auto& oCmp = pr.spaceSystem->orbit.getFromEntity(bodyB->second->entity);
         oCmp.e = bProps.e;
         oCmp.i = bProps.i * DEG_TO_RAD;
         oCmp.p = bProps.p * DEG_TO_RAD;
@@ -255,7 +255,7 @@ void SpaceSystemLoader::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) 
     }
 
     // Get the A mass
-    auto& aSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyA->second->entity);
+    auto& aSgCmp = pr.spaceSystem->sphericalGravity.getFromEntity(bodyA->second->entity);
     f64 massA = aSgCmp.mass;
     // Recurse if child is a non-constructed binary
     if (massA == 0.0) {
@@ -264,7 +264,7 @@ void SpaceSystemLoader::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) 
     }
 
     // Get the B mass
-    auto& bSgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bodyB->second->entity);
+    auto& bSgCmp = pr.spaceSystem->sphericalGravity.getFromEntity(bodyB->second->entity);
     f64 massB = bSgCmp.mass;
     // Recurse if child is a non-constructed binary
     if (massB == 0.0) {
@@ -275,7 +275,7 @@ void SpaceSystemLoader::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) 
     // Set the barycenter mass
     bary->mass = massA + massB;
 
-    auto& barySgCmp = pr.spaceSystem->m_sphericalGravityCT.getFromEntity(bary->entity);
+    auto& barySgCmp = pr.spaceSystem->sphericalGravity.getFromEntity(bary->entity);
     barySgCmp.mass = bary->mass;
 
     { // Calculate A orbit
@@ -299,8 +299,8 @@ void SpaceSystemLoader::initBinary(SpaceSystemLoadParams& pr, SystemBody* bary) 
     }
 
     { // Set orbit colors from A component
-        auto& oCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bodyA->second->entity);
-        auto& baryOCmp = pr.spaceSystem->m_orbitCT.getFromEntity(bary->entity);
+        auto& oCmp = pr.spaceSystem->orbit.getFromEntity(bodyA->second->entity);
+        auto& baryOCmp = pr.spaceSystem->orbit.getFromEntity(bary->entity);
         baryOCmp.pathColor[0] = oCmp.pathColor[0];
         baryOCmp.pathColor[1] = oCmp.pathColor[1];
     }
@@ -346,7 +346,7 @@ void SpaceSystemLoader::initOrbits(SpaceSystemLoadParams& pr) {
         // Calculate the orbit using parent mass
         if (body->parent) {
             calculateOrbit(pr, body->entity,
-                           pr.spaceSystem->m_sphericalGravityCT.getFromEntity(body->parent->entity).mass,
+                           pr.spaceSystem->sphericalGravity.getFromEntity(body->parent->entity).mass,
                            body);
         }
     }
@@ -424,7 +424,7 @@ void SpaceSystemLoader::createGasGiant(SpaceSystemLoadParams& pr,
 void computeRef(SpaceSystemLoadParams& pr, SystemBody* body) {
     if (!body->properties.ref.empty()) {
         SpaceSystem* spaceSystem = pr.spaceSystem;
-        OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(body->entity);
+        OrbitComponent& orbitC = spaceSystem->orbit.getFromEntity(body->entity);
         // Find reference body
         auto it = pr.systemBodies.find(body->properties.ref);
         if (it != pr.systemBodies.end()) {
@@ -452,20 +452,20 @@ void computeRef(SpaceSystemLoadParams& pr, SystemBody* body) {
 void SpaceSystemLoader::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
                                SystemBody* body, f64 binaryMassRatio /* = 0.0 */) {
     SpaceSystem* spaceSystem = pr.spaceSystem;
-    OrbitComponent& orbitC = spaceSystem->m_orbitCT.getFromEntity(entity);
+    OrbitComponent& orbitC = spaceSystem->orbit.getFromEntity(entity);
 
     // If the orbit was already calculated, don't do it again.
     if (orbitC.isCalculated) return;
     orbitC.isCalculated = true;
 
     // Provide the orbit component with it's parent
-    pr.spaceSystem->m_orbitCT.getFromEntity(body->entity).parentOrbId =
-        pr.spaceSystem->m_orbitCT.getComponentID(body->parent->entity);
+    pr.spaceSystem->orbit.getFromEntity(body->entity).parentOrbId =
+        pr.spaceSystem->orbit.getComponentID(body->parent->entity);
 
     computeRef(pr, body);
 
     f64 t = orbitC.t;
-    auto& sgCmp = spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
+    auto& sgCmp = spaceSystem->sphericalGravity.getFromEntity(entity);
     f64 mass = sgCmp.mass;
     f64 diameter = sgCmp.radius * 2.0;
 
@@ -489,7 +489,7 @@ void SpaceSystemLoader::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID
         f64 ns = log10(0.003 * pow(orbitC.a, 6.0) * pow(diameter + 500.0, 3.0) / (mass * orbitC.parentMass) * (1.0 + (f64)1e20 / (mass + orbitC.parentMass)));
         if (ns < 0) {
             // It is tidally locked so lock the rotational period
-            spaceSystem->m_axisRotationCT.getFromEntity(entity).period = t;
+            spaceSystem->axisRotation.getFromEntity(entity).period = t;
         }
     }
 
@@ -498,15 +498,15 @@ void SpaceSystemLoader::calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID
         static const int NUM_VERTS = 2880;
         orbitC.verts.resize(NUM_VERTS + 1);
         f64 timePerDeg = orbitC.t / (f64)NUM_VERTS;
-        NamePositionComponent& npCmp = spaceSystem->m_namePositionCT.get(orbitC.npID);
+        NamePositionComponent& npCmp = spaceSystem->namePosition.get(orbitC.npID);
         f64v3 startPos = npCmp.position;
         for (int i = 0; i < NUM_VERTS; i++) {
 
             if (orbitC.parentOrbId) {
-                OrbitComponent* pOrbC = &spaceSystem->m_orbitCT.get(orbitC.parentOrbId);
+                OrbitComponent* pOrbC = &spaceSystem->orbit.get(orbitC.parentOrbId);
                 updater.updatePosition(orbitC, i * timePerDeg, &npCmp,
                                        pOrbC,
-                                       &spaceSystem->m_namePositionCT.get(pOrbC->npID));
+                                       &spaceSystem->namePosition.get(pOrbC->npID));
             } else {
                 updater.updatePosition(orbitC, i * timePerDeg, &npCmp);
             }

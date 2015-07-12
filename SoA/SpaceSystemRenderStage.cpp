@@ -167,9 +167,9 @@ void SpaceSystemRenderStage::drawBodies() {
     const f64v3* pos;
     f32 zCoef = computeZCoef(m_spaceCamera->getFarClip());
     // Render spherical terrain
-    for (auto& it : m_spaceSystem->m_sphericalTerrainCT) {
+    for (auto& it : m_spaceSystem->sphericalTerrain) {
         auto& cmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(cmp.namePositionComponent);
+        auto& npCmp = m_spaceSystem->namePosition.get(cmp.namePositionComponent);
         // Cant render if it hasn't generated yet
         if (!cmp.planetGenData) continue;
         // Indicate the need for face transition animation
@@ -196,13 +196,13 @@ void SpaceSystemRenderStage::drawBodies() {
                                                  *pos,
                                                  zCoef,
                                                  lightCmp,
-                                                 &m_spaceSystem->m_axisRotationCT.get(cmp.axisRotationComponent),
-                                                 &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+                                                 &m_spaceSystem->axisRotation.get(cmp.axisRotationComponent),
+                                                 &m_spaceSystem->atmosphere.getFromEntity(it.first));
     }
     // Render gas giants
-    for (auto& it : m_spaceSystem->m_gasGiantCT) {
+    for (auto& it : m_spaceSystem->gasGiant) {
         auto& ggCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(ggCmp.namePositionComponent);
+        auto& npCmp = m_spaceSystem->namePosition.get(ggCmp.namePositionComponent);
 
         pos = getBodyPosition(npCmp, it.first);
 
@@ -214,10 +214,10 @@ void SpaceSystemRenderStage::drawBodies() {
         f32v3 lightDir(glm::normalize(lightPos - *pos));
 
         m_gasGiantComponentRenderer.draw(ggCmp, m_spaceCamera->getViewProjectionMatrix(),
-                                         m_spaceSystem->m_axisRotationCT.getFromEntity(it.first).currentOrientation,
+                                         m_spaceSystem->axisRotation.getFromEntity(it.first).currentOrientation,
                                          relCamPos, lightDir,
                                          zCoef, lightCmp,
-                                         &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+                                         &m_spaceSystem->atmosphere.getFromEntity(it.first));
     }
 
     // Render clouds
@@ -239,9 +239,9 @@ void SpaceSystemRenderStage::drawBodies() {
     glEnable(GL_CULL_FACE);*/
 
     // Render atmospheres
-    for (auto& it : m_spaceSystem->m_atmosphereCT) {
+    for (auto& it : m_spaceSystem->atmosphere) {
         auto& atCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(atCmp.namePositionComponent);
+        auto& npCmp = m_spaceSystem->namePosition.get(atCmp.namePositionComponent);
 
         pos = getBodyPosition(npCmp, it.first);
 
@@ -259,12 +259,12 @@ void SpaceSystemRenderStage::drawBodies() {
 
     // Render planet rings
     glDepthMask(GL_FALSE);
-    for (auto& it : m_spaceSystem->m_planetRingCT) {
+    for (auto& it : m_spaceSystem->planetRings) {
         auto& prCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(prCmp.namePositionComponent);
+        auto& npCmp = m_spaceSystem->namePosition.get(prCmp.namePositionComponent);
 
         // TODO(Ben): Don't use getFromEntity
-        auto& sgCmp = m_spaceSystem->m_sphericalGravityCT.getFromEntity(it.first);
+        auto& sgCmp = m_spaceSystem->sphericalGravity.getFromEntity(it.first);
 
         pos = getBodyPosition(npCmp, it.first);
 
@@ -288,9 +288,9 @@ void SpaceSystemRenderStage::drawBodies() {
             glClear(GL_DEPTH_BUFFER_BIT);
         }
 
-        for (auto& it : m_spaceSystem->m_farTerrainCT) {
+        for (auto& it : m_spaceSystem->farTerrain) {
             auto& cmp = it.second;
-            auto& npCmp = m_spaceSystem->m_namePositionCT.getFromEntity(it.first);
+            auto& npCmp = m_spaceSystem->namePosition.getFromEntity(it.first);
 
             if (!cmp.meshManager) continue;
 
@@ -303,16 +303,16 @@ void SpaceSystemRenderStage::drawBodies() {
                                                lightDir,
                                                zCoef,
                                                l.second,
-                                               &m_spaceSystem->m_axisRotationCT.getFromEntity(it.first),
-                                               &m_spaceSystem->m_atmosphereCT.getFromEntity(it.first));
+                                               &m_spaceSystem->axisRotation.getFromEntity(it.first),
+                                               &m_spaceSystem->atmosphere.getFromEntity(it.first));
         }
     }
 
     // Render stars
     m_starGlowsToRender.clear();
-    for (auto& it : m_spaceSystem->m_starCT) {
+    for (auto& it : m_spaceSystem->star) {
         auto& sCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(sCmp.namePositionComponent);
+        auto& npCmp = m_spaceSystem->namePosition.get(sCmp.namePositionComponent);
 
         pos = getBodyPosition(npCmp, it.first);
 
@@ -334,8 +334,8 @@ void SpaceSystemRenderStage::drawBodies() {
 SpaceLightComponent* SpaceSystemRenderStage::getBrightestLight(NamePositionComponent& npCmp, OUT f64v3& pos) {
     SpaceLightComponent* rv = nullptr;
     f64 closestDist = 999999999999999999999999999999999999999999999.0;
-    for (auto& it : m_spaceSystem->m_spaceLightCT) {
-        auto& lightNpCmp = m_spaceSystem->m_namePositionCT.get(it.second.npID);    
+    for (auto& it : m_spaceSystem->spaceLight) {
+        auto& lightNpCmp = m_spaceSystem->namePosition.get(it.second.npID);    
         f64 dist = selfDot(lightNpCmp.position - npCmp.position);
         if (dist < closestDist) {
             closestDist = dist;
