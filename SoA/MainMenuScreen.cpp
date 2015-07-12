@@ -269,9 +269,7 @@ void MainMenuScreen::reloadUI() {
 
 void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::destroySpaceSystem(m_soaState);
-    SoaEngine::SpaceSystemLoadData loadData;
-    loadData.filePath = "StarSystems/Trinity";
-    SoaEngine::loadSpaceSystem(m_soaState, loadData);
+    SoaEngine::loadSpaceSystem(m_soaState, "StarSystems/Trinity");
     CinematicCamera tmp = m_soaState->spaceCamera; // Store camera so the view doesn't change
     m_soaState->systemViewer->init(m_window->getViewportDims(),
                                    &m_soaState->spaceCamera, m_soaState->spaceSystem,

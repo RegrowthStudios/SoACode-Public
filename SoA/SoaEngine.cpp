@@ -87,7 +87,7 @@ void SoaEngine::initState(SoaState* state) {
     TerrainPatchMesher::generateIndices();
 }
 
-bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
+bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
 
     AutoDelegatePool pool;
     vpath path = "SoASpace.log";
@@ -109,14 +109,14 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
 
     // Load system
     SpaceSystemLoader spaceSystemLoader;
-    spaceSystemLoader.init(state, glrpc);
-    spaceSystemLoader.loadStarSystem(loadData.filePath);
+    spaceSystemLoader.init(state);
+    spaceSystemLoader.loadStarSystem(filePath);
 
     pool.dispose();
     return true;
 }
 
-bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadData) {
+bool SoaEngine::loadGameSystem(SoaState* state) {
     // TODO(Ben): Implement
     
     return true;

@@ -31,8 +31,7 @@ DECL_VCORE(class RPCManager)
 
 class SpaceSystemLoader {
 public:
-    void init(const SoaState* soaState,
-              OPT vcore::RPCManager* glrpc);
+    void init(const SoaState* soaState);
     /// Loads and adds a star system to the SpaceSystem
     /// @param pr: params
     void loadStarSystem(const nString& path);
@@ -65,7 +64,6 @@ private:
     const SoaState* m_soaState = nullptr;
     SpaceSystem* m_spaceSystem;
     vio::IOManager* m_ioManager = nullptr;
-    vcore::RPCManager* m_glrpc = nullptr;
     vcore::ThreadPool<WorkerData>* m_threadpool = nullptr;
     std::map<nString, SystemBody*> m_barycenters;
     std::map<nString, SystemBody*> m_systemBodies;

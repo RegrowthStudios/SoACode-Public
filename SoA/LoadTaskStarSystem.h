@@ -8,16 +8,15 @@
 class LoadTaskStarSystem : public ILoadTask {
     friend class MainMenuLoadScreen;
 
-    LoadTaskStarSystem(vcore::RPCManager* glrpc, const nString& filePath, SoaState* state) :
-        soaState(state) {
-        this->glrpc = glrpc;
-        loadData.filePath = filePath;
+    LoadTaskStarSystem(const nString& filePath, SoaState* state) :
+        soaState(state),
+        filePath(filePath) {
+        // Empty
     }
     virtual void load() {
-        SoaEngine::loadSpaceSystem(soaState, loadData, glrpc);
+        SoaEngine::loadSpaceSystem(soaState, filePath);
     }
 
-    vcore::RPCManager* glrpc = nullptr;
-    SoaEngine::SpaceSystemLoadData loadData;
+    nString filePath;
     SoaState* soaState;
 };

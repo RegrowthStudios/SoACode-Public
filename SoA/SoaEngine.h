@@ -29,14 +29,6 @@ DECL_VCORE(class RPCManager)
 #pragma once
 class SoaEngine {
 public:
-    /// Parameters for loading a SpaceSystem
-    struct SpaceSystemLoadData {
-        nString filePath;
-    };
-    /// Parameters for loading a GameSystem
-    struct GameSystemLoadData {
-        // More stuff here
-    };
 
     /// Initializes the default SoaOptions
     static void initOptions(SoaOptions& options);
@@ -45,16 +37,10 @@ public:
     static void initState(SoaState* state);
     
     /// Loads and initializes the SpaceSystem
-    /// @param state: The SoaState that holds the space system
-    /// @param loadData: Parameters for loading space system
-    /// @param glrpc: Optional RPCManager. If nullptr, then loadSpaceSystem will load the shader.
-    ///   otherwise, it will ask glrpc to load the shader and block until finished.
-    static bool loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc = nullptr);
+    static bool loadSpaceSystem(SoaState* state, const nString& filePath);
 
     /// Loads and initializes the GameSystem
-    /// @param state: The SoaState that holds the space system
-    /// @param loadData: Parameters for loading game system
-    static bool loadGameSystem(SoaState* state, const GameSystemLoadData& loadData);
+    static bool loadGameSystem(SoaState* state);
 
     /// Sets block IDs for planet data
     static void setPlanetBlocks(SoaState* state);

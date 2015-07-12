@@ -22,8 +22,7 @@ SoaController::~SoaController() {
 
 void SoaController::startGame(OUT SoaState* state) {
     // Load game ECS
-    SoaEngine::GameSystemLoadData loadData;
-    SoaEngine::loadGameSystem(state, loadData);
+    SoaEngine::loadGameSystem(state);
 
     GameSystem* gameSystem = state->gameSystem;
     SpaceSystem* spaceSystem = state->spaceSystem;

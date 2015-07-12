@@ -147,7 +147,7 @@ void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
     // Add Tasks Here
     addLoadTask("GameManager", "Core Systems", new LoadTaskGameManager);
 
-    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem(&m_commonState->loadContext.rpcManager, "StarSystems/Trinity", m_commonState->state));
+    addLoadTask("SpaceSystem", "SpaceSystem", new LoadTaskStarSystem("StarSystems/Trinity", m_commonState->state));
     m_monitor.setDep("SpaceSystem", "GameManager");
 
     m_mainMenuScreen->m_renderer.init(m_commonState->window, m_commonState->loadContext, m_mainMenuScreen, m_commonState);

@@ -19,10 +19,8 @@
 #include <Vorb/io/keg.h>
 #include <Vorb/ui/GameWindow.h>
 
-void SpaceSystemLoader::init(const SoaState* soaState,
-                             OPT vcore::RPCManager* glrpc) {
+void SpaceSystemLoader::init(const SoaState* soaState) {
     m_soaState = soaState;
-    m_glrpc = glrpc;
     m_spaceSystem = soaState->spaceSystem;
     m_ioManager = soaState->systemIoManager;
     m_threadpool = soaState->threadPool;
