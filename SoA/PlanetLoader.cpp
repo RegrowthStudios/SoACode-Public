@@ -140,15 +140,15 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
     if (glrpc) {
         vcore::RPC rpc;
         rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-            genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            //genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            //genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            //genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         });
         glrpc->invoke(&rpc, true);
     } else {
-        genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-        genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-        genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        //genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        //genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        //genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
 
     // Set default biome
@@ -450,25 +450,25 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                m_textureCache.freeTexture(kegProps.colorPath);
-                genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                    genData->liquidColorPixels,
-                                                                    vg::ImageIOFormat::RGB_UI8,
-                                                                    vg::TextureTarget::TEXTURE_2D,
-                                                                    &vg::SamplerState::LINEAR_CLAMP,
-                                                                    vg::TextureInternalFormat::RGB8,
-                                                                    vg::TextureFormat::RGB, true);
+                //m_textureCache.freeTexture(kegProps.colorPath);
+                //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
+                //                                                    genData->liquidColorPixels,
+                //                                                    vg::ImageIOFormat::RGB_UI8,
+                //                                                    vg::TextureTarget::TEXTURE_2D,
+                //                                                    &vg::SamplerState::LINEAR_CLAMP,
+                //                                                    vg::TextureInternalFormat::RGB8,
+                //                                                    vg::TextureFormat::RGB, true);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            m_textureCache.freeTexture(kegProps.colorPath);
-            genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                genData->liquidColorPixels,
-                                                                vg::ImageIOFormat::RGB_UI8,
-                                                                vg::TextureTarget::TEXTURE_2D,
-                                                                &vg::SamplerState::LINEAR_CLAMP,
-                                                                vg::TextureInternalFormat::RGB8,
-                                                                vg::TextureFormat::RGB, true);
+            //m_textureCache.freeTexture(kegProps.colorPath);
+            //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
+            //                                                    genData->liquidColorPixels,
+            //                                                    vg::ImageIOFormat::RGB_UI8,
+            //                                                    vg::TextureTarget::TEXTURE_2D,
+            //                                                    &vg::SamplerState::LINEAR_CLAMP,
+            //                                                    vg::TextureInternalFormat::RGB8,
+            //                                                    vg::TextureFormat::RGB, true);
         }
         // Turn into a color map
         if (genData->liquidColorMap.id == 0) {
@@ -480,11 +480,11 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
     }
     genData->liquidFreezeTemp = kegProps.freezeTemp;
@@ -512,25 +512,25 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                m_textureCache.freeTexture(kegProps.colorPath);
-                genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                     genData->terrainColorPixels,
-                                                                     vg::ImageIOFormat::RGB_UI8,
-                                                                     vg::TextureTarget::TEXTURE_2D,
-                                                                     &vg::SamplerState::LINEAR_CLAMP,
-                                                                     vg::TextureInternalFormat::RGB8,
-                                                                     vg::TextureFormat::RGB, true);
+                //m_textureCache.freeTexture(kegProps.colorPath);
+                //genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
+                //                                                     genData->terrainColorPixels,
+                //                                                     vg::ImageIOFormat::RGB_UI8,
+                //                                                     vg::TextureTarget::TEXTURE_2D,
+                //                                                     &vg::SamplerState::LINEAR_CLAMP,
+                //                                                     vg::TextureInternalFormat::RGB8,
+                //                                                     vg::TextureFormat::RGB, true);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            m_textureCache.freeTexture(kegProps.colorPath);
-            genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                 genData->terrainColorPixels,
-                                                                 vg::ImageIOFormat::RGB_UI8,
-                                                                 vg::TextureTarget::TEXTURE_2D,
-                                                                 &vg::SamplerState::LINEAR_CLAMP,
-                                                                 vg::TextureInternalFormat::RGB8,
-                                                                 vg::TextureFormat::RGB, true);
+            //m_textureCache.freeTexture(kegProps.colorPath);
+            //genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
+            //                                                     genData->terrainColorPixels,
+            //                                                     vg::ImageIOFormat::RGB_UI8,
+            //                                                     vg::TextureTarget::TEXTURE_2D,
+            //                                                     &vg::SamplerState::LINEAR_CLAMP,
+            //                                                     vg::TextureInternalFormat::RGB8,
+            //                                                     vg::TextureFormat::RGB, true);
         }
         // Turn into a color map
         if (genData->terrainColorMap.id == 0) {
@@ -543,11 +543,11 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
     }
     if (kegProps.rockTexturePath.size()) {
@@ -555,11 +555,11 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+                //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
-            genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
     }
     genData->terrainTint = kegProps.tint;

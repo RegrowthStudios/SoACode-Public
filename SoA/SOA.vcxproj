@@ -535,6 +535,7 @@ EXIT 0</Command>
     <ClInclude Include="AmbiencePlayer.h" />
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
     <ClInclude Include="AxisRotationComponentUpdater.h" />
@@ -556,8 +557,10 @@ EXIT 0</Command>
     <ClInclude Include="ColoredFullQuadRenderer.h" />
     <ClInclude Include="ColorFilterRenderStage.h" />
     <ClInclude Include="Computer.h" />
+    <ClInclude Include="ConsoleFuncs.h" />
+    <ClInclude Include="ConsoleMain.h" />
+    <ClInclude Include="DLLLoader.h" />
     <ClInclude Include="Density.h" />
-    <ClInclude Include="DevScreen.h" />
     <ClInclude Include="DualContouringMesher.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
@@ -595,6 +598,7 @@ EXIT 0</Command>
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ModelMesher.h" />
     <ClInclude Include="MetaSection.h" />
+    <ClInclude Include="ModInformation.h" />
     <ClInclude Include="ModPathResolver.h" />
     <ClInclude Include="MTRenderState.h" />
     <ClInclude Include="MTRenderStateManager.h" />
@@ -648,6 +652,7 @@ EXIT 0</Command>
     <ClInclude Include="SphericalHeightmapGenerator.h" />
     <ClInclude Include="SSAORenderStage.h" />
     <ClInclude Include="StarComponentRenderer.h" />
+    <ClInclude Include="Startup.h" />
     <ClInclude Include="svd.h" />
     <ClInclude Include="SystemARRenderer.h" />
     <ClInclude Include="SystemBodyLoader.h" />
@@ -773,6 +778,8 @@ EXIT 0</Command>
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
     <ClCompile Include="ColorFilterRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="ConsoleFuncs.cpp" />
+    <ClCompile Include="ConsoleMain.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
@@ -854,6 +861,7 @@ EXIT 0</Command>
     <ClCompile Include="SphericalHeightmapGenerator.cpp" />
     <ClCompile Include="SSAORenderStage.cpp" />
     <ClCompile Include="StarComponentRenderer.cpp" />
+    <ClCompile Include="Startup.cpp" />
     <ClCompile Include="svd.cpp" />
     <ClCompile Include="SystemARRenderer.cpp" />
     <ClCompile Include="SystemBodyLoader.cpp" />

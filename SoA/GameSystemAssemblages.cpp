@@ -7,11 +7,9 @@
 
 vecs::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
                                                     const f64q& orientation, f32 massKg, const f64v3& initialVel,
-                                                    f32 fov, f32 aspectRatio,
                                                     vecs::EntityID parentEntity,
                                                     vecs::ComponentID parentGravComponent,
-                                                    vecs::ComponentID parentSphericalTerrainComponent,
-                                                    f32 znear, f32 zfar) {
+                                                    vecs::ComponentID parentSphericalTerrainComponent) {
     vecs::EntityID id = gameSystem->addEntity();
 
     vecs::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation,
@@ -24,8 +22,6 @@ vecs::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, const
     addFreeMoveInput(gameSystem, id, pyCmpId);
 
     vecs::ComponentID hCmpId = addHeadComponent(gameSystem, id, 0.1f);
-
-    addFrustumComponent(gameSystem, id, fov, aspectRatio, znear, zfar, spCmpId, 0, hCmpId);
 
     return id;
 }

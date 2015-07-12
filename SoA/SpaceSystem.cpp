@@ -23,11 +23,15 @@ SpaceSystem::SpaceSystem() : vecs::ECS() {
 }
 
 SpaceSystem::~SpaceSystem() {
+
     for (auto& it : sphericalVoxel) {
         sphericalVoxel.disposeComponent(sphericalVoxel.getComponentID(it.first), it.first);
     }
     for (auto& it : orbit) {
         orbit.disposeComponent(orbit.getComponentID(it.first), it.first);
+    }
+    for (auto& it : sphericalVoxel) {
+        sphericalVoxel.disposeComponent(sphericalVoxel.getComponentID(it.first), it.first);
     }
     for (auto& it : sphericalTerrain) {
         sphericalTerrain.disposeComponent(sphericalTerrain.getComponentID(it.first), it.first);
