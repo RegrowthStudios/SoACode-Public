@@ -44,7 +44,7 @@ void InitScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void InitScreen::update(const vui::GameTime& gameTime) {
-    // Immediatly move to next state
+    // Immediately move to next state
     m_state = vui::ScreenState::CHANGE_NEXT;
 }
 void InitScreen::draw(const vui::GameTime& gameTime) {

@@ -17,6 +17,7 @@
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "soaUtils.h"
+#include "BloomRenderStage.h"
 
 void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
                             MainMenuScreen* mainMenuScreen, CommonState* commonState) {
@@ -39,6 +40,11 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     m_commonState->stages.hdr.init(window, context);
     stages.colorFilter.init(window, context);
     stages.exposureCalc.init(window, context);
+
+    stages.bloom.init(window, context);
+    stages.bloom.setParams();
+    stages.bloom.setActive(true);
+
 }
 
 void MainMenuRenderer::dispose(StaticLoadContext& context) {
@@ -52,6 +58,7 @@ void MainMenuRenderer::dispose(StaticLoadContext& context) {
     // TODO(Ben): Dispose common stages
     stages.colorFilter.dispose(context);
     stages.exposureCalc.dispose(context);
+    stages.bloom.dispose(context);
 
     // Dispose of persistent rendering resources
     m_hdrTarget.dispose();
@@ -61,17 +68,35 @@ void MainMenuRenderer::dispose(StaticLoadContext& context) {
 void MainMenuRenderer::load(StaticLoadContext& context) {
     m_isLoaded = false;
 
+
+
     m_loadThread = new std::thread([&]() {
         vcore::GLRPC so[4];
         size_t i = 0;
 
         // Create the HDR target  
+        // Create the HDR target     
         context.addTask([&](Sender, void*) {
+            Array<vg::GBufferAttachment> attachments;
+            vg::GBufferAttachment att[2];
+            // TODO(Ben): Don't think this is right.
+            // Color
+            att[0].format = vg::TextureInternalFormat::RGBA16F;
+            att[0].pixelFormat = vg::TextureFormat::RGBA;
+            att[0].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+            att[0].number = 1;
+            // Normals
+            att[1].format = vg::TextureInternalFormat::RGBA16F;
+            att[1].pixelFormat = vg::TextureFormat::RGBA;
+            att[1].pixelType = vg::TexturePixelType::UNSIGNED_BYTE;
+            att[1].number = 2;
             m_hdrTarget.setSize(m_window->getWidth(), m_window->getHeight());
-            m_hdrTarget.init(vg::TextureInternalFormat::RGBA16F, (ui32)soaOptions.get(OPT_MSAA).value.i).initDepth();
+            m_hdrTarget.init(Array<vg::GBufferAttachment>(att, 2), vg::TextureInternalFormat::RGBA32F).initDepth();
+
             if (soaOptions.get(OPT_MSAA).value.i > 0) {
                 glEnable(GL_MULTISAMPLE);
-            } else {
+            }
+            else {
                 glDisable(GL_MULTISAMPLE);
             }
             context.addWorkCompleted(1);
@@ -79,7 +104,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
 
         // Create the swap chain for post process effects (HDR-capable)
         context.addTask([&](Sender, void*) { 
-            m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA16F);
+            m_swapChain.init(m_window->getWidth(), m_window->getHeight(), vg::TextureInternalFormat::RGBA32F);
             context.addWorkCompleted(1);
         }, false);
 
@@ -95,6 +120,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
         m_commonState->stages.hdr.load(context);
         stages.colorFilter.load(context);
         stages.exposureCalc.load(context);
+        stages.bloom.load(context);
 
         context.blockUntilFinished();
 
@@ -109,15 +135,16 @@ void MainMenuRenderer::hook() {
     m_commonState->stages.hdr.hook(&m_commonState->quad);
     stages.colorFilter.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
+    stages.bloom.hook(&m_commonState->quad);
 }
 
 void MainMenuRenderer::render() {
-    
+
     // Check for window resize
     if (m_shouldResize) resize();
 
     // Bind the FBO
-    m_hdrTarget.use();
+    m_hdrTarget.useGeometry();
     // Clear depth buffer. Don't have to clear color since skybox will overwrite it
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -137,17 +164,32 @@ void MainMenuRenderer::render() {
     // Color filter rendering
     if (m_colorFilter != 0) {
         switch (m_colorFilter) {
-            case 1:
-                colorFilter = f32v3(0.66f);
-                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
-            case 2:
-                colorFilter = f32v3(0.3f);
-                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
-            case 3:
-                colorFilter = f32v3(0.0f);
-                stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
+        case 1:
+            colorFilter = f32v3(0.66f);
+            stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.33f)); break;
+        case 2:
+            colorFilter = f32v3(0.3f);
+            stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.66f)); break;
+        case 3:
+            colorFilter = f32v3(0.0f);
+            stages.colorFilter.setColor(f32v4(0.0, 0.0, 0.0, 0.9f)); break;
         }
         stages.colorFilter.render();
+    }
+
+    stages.exposureCalc.render();
+    // Move exposure towards target
+    static const f32 EXPOSURE_STEP = 0.005f;
+    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
+
+    // Post processing
+    m_swapChain.reset(0, m_hdrTarget.getGeometryID(), m_hdrTarget.getGeometryTexture(0), soaOptions.get(OPT_MSAA).value.i > 0, false);
+
+    // TODO: More Effects?
+
+    // last effect should not swap swapChain
+    if (stages.bloom.isActive()) {
+        stages.bloom.render();
     }
 
     // Render last
@@ -155,25 +197,16 @@ void MainMenuRenderer::render() {
     m_commonState->stages.spaceSystem.renderStarGlows(colorFilter);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Post processing
-    m_swapChain.reset(0, m_hdrTarget.getID(), m_hdrTarget.getTextureID(), soaOptions.get(OPT_MSAA).value.i > 0, false);
-
-    // TODO: More Effects?
+    m_swapChain.swap();
+    m_swapChain.bindPreviousTexture(0);
 
     // Draw to backbuffer for the last effect
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_swapChain.unuse(m_window->getWidth(), m_window->getHeight());
     glDrawBuffer(GL_BACK);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    stages.exposureCalc.render();
-    // Move exposure towards target
-    static const f32 EXPOSURE_STEP = 0.005f;
-    stepTowards(soaOptions.get(OPT_HDR_EXPOSURE).value.f, stages.exposureCalc.getExposure(), EXPOSURE_STEP);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureID());
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(m_hdrTarget.getTextureTarget(), m_hdrTarget.getTextureDepthID());
+    // original depth texture
+    m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render(&m_state->spaceCamera);
 
     if (m_showUI) m_mainMenuUI->draw();

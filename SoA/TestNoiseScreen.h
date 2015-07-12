@@ -7,7 +7,7 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/Timing.h>
 
-struct Noise
+struct NoiseType
 {
     const char* vertexShader;
     const char* fragmentShader;
@@ -28,7 +28,7 @@ public:
     virtual void onNoiseChange();
 private:
     vg::GLProgram m_program = nullptr;
-    std::vector<Noise> m_noiseTypes;
+    std::vector<NoiseType> m_noiseTypes;
     unsigned int m_currentNoise;
     FpsLimiter m_limiter;
     AutoDelegatePool m_hooks;

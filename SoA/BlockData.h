@@ -59,9 +59,6 @@ class Block
 public:
     Block();
 
-    void getBlockColor(color3& baseColor, color3& overlayColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
-    void getBlockColor(color3& baseColor, GLuint flags, int temperature, int rainfall, const BlockTexture* blockTexture) const;
-
     void SetAvgTexColors();
 
     i32 temp;
@@ -69,13 +66,13 @@ public:
     BlockIdentifier sID;
     nString name;
     ui16 ID;
-    ui16 burnTransformID;
+    nString burnTransformID;
     i16 waveEffect;
     ui16 lightColorPacked; /// 5 bit RGB light color packed into a ui16
     i16 waterMeshLevel;
     i16 floatingAction;
-    ui16 spawnerVal;
-    ui16 sinkVal;
+    nString spawnerID;
+    nString sinkID;
     ui16 explosionRays;
     ui16 floraHeight = 0;
     ui16 liquidStartID = 0;
@@ -96,9 +93,6 @@ public:
     CA_ALGORITHM caAlg = CA_ALGORITHM::NONE;
     nString caFilePath = "";
 
-    ColorRGB8 color;
-    ColorRGB8 overlayColor;
-    ColorRGB8 averageColor;
     ColorRGB8 lightColor;
     ui8 particleTex;
     bool powderMove;
@@ -111,15 +105,17 @@ public:
     bool isSupportive;
     bool active;
 
-    BlockTexture* textures[6];
-    nString texturePaths[6];
-   
-    // TODO(BEN): a bit redudant isn't it?
-    // BEGIN TEXTURES - DONT CHANGE THE ORDER: Used BY ChunkMesher for connected textures
-    BlockTextureFaces base;
-    BlockTextureFaces overlay;
-    BlockTextureFaces normal;
-    // END
+    union {
+        struct {
+            BlockTexture* textureLeft;
+            BlockTexture* textureRight;
+            BlockTexture* textureBottom;
+            BlockTexture* textureTop;
+            BlockTexture* textureBack;
+            BlockTexture* textureFront;
+        };
+        BlockTexture* textures[6];
+    };
 
     // TODO(Ben): NOPE
     nString particleTexName;
@@ -130,6 +126,3 @@ public:
 };
 KEG_TYPE_DECL(Block);
 
-void SetBlockAvgTexColors();
-
-void DrawHeadBlock(glm::dvec3 position, glm::mat4 &VP, Block *block, int flags, float light, float sunlight);

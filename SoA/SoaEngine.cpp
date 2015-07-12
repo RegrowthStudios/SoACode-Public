@@ -63,6 +63,28 @@ void SoaEngine::initState(SoaState* state) {
     state->blockTextures = new BlockTexturePack;
     state->blockTextures->init(32, 4096);
     state->blockTextureLoader.init(&state->texturePathResolver, state->blockTextures);
+
+    { // Threadpool init
+        size_t hc = std::thread::hardware_concurrency();
+        // Remove two threads for the render thread and main thread
+        if (hc > 1) hc--;
+        if (hc > 1) hc--;
+
+        // Drop a thread so we don't steal the hardware on debug
+#ifdef DEBUG
+        if (hc > 1) hc--;
+#endif
+
+        // Initialize the threadpool with hc threads
+        state->threadPool = new vcore::ThreadPool<WorkerData>();
+        state->threadPool->init(hc);
+        // Give some time for the threads to spin up
+        SDL_Delay(100);
+    }
+
+    // TODO(Ben): Maybe not here.
+    // Generate terrain patch indices
+    TerrainPatchMesher::generateIndices();
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
@@ -110,6 +132,7 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     spaceSystemLoadParams.spaceSystem = state->spaceSystem;
     spaceSystemLoadParams.ioManager = state->systemIoManager;
     spaceSystemLoadParams.planetLoader = state->planetLoader;
+    spaceSystemLoadParams.threadpool = state->threadPool;
 
     m_spaceSystemLoader.loadStarSystem(spaceSystemLoadParams);
 
@@ -159,9 +182,9 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     SpaceSystem* spaceSystem = state->spaceSystem;
     auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(eid);
     f64 radius = stCmp.radius;
-    auto& npCmpID = stCmp.namePositionComponent;
-    auto& arCmpID = stCmp.axisRotationComponent;
-    auto& ftCmpID = stCmp.farTerrainComponent;
+    auto npCmpID = stCmp.namePositionComponent;
+    auto arCmpID = stCmp.axisRotationComponent;
+    auto ftCmpID = stCmp.farTerrainComponent;
     WorldCubeFace face;
     PlanetGenData* genData = stCmp.planetGenData;
     nString filePath = genData->filePath;
@@ -175,8 +198,8 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     }
 
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
-    
-
+    //state->planetLoader->textureCache.freeTexture(genData->liquidColorMap);
+   // state->planetLoader->textureCache.freeTexture(genData->terrainColorMap);
     genData = state->planetLoader->loadPlanet(filePath, glRPC);
     genData->radius = radius;
 
@@ -184,10 +207,11 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
                                                          radius,
                                                          genData,
                                                          &spaceSystem->normalMapGenProgram,
-                                                         spaceSystem->normalMapRecycler.get());
+                                                         state->threadPool);
     if (ftCmpID) {
         auto ftCmpID = SpaceSystemAssemblages::addFarTerrainComponent(spaceSystem, eid, stCmp, face);
         stCmp.farTerrainComponent = ftCmpID;
+       
     }
 
     // TODO(Ben): this doesn't work too well.

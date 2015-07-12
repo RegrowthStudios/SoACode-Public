@@ -17,25 +17,36 @@
 
 #include "VoxelCoordinateSpaces.h"
 #include "TerrainPatchConstants.h"
+#include "VoxPool.h"
 
 #include <Vorb/graphics/gtypes.h>
 
-class TerrainRpcDispatcher;
-class TerrainGenDelegate;
 class TerrainPatchMesh;
+class TerrainPatchMesher;
+class SphericalHeightmapGenerator;
+class TerrainPatchMeshManager;
 
 // Shared data for terrain patches
 struct TerrainPatchData { // TODO(Ben): probably dont need this
     friend struct SphericalTerrainComponent;
 
-    TerrainPatchData(f64 radius, f64 patchWidth) :
+    TerrainPatchData(f64 radius, f64 patchWidth,
+                     SphericalHeightmapGenerator* generator,
+                     TerrainPatchMeshManager* meshManager,
+                     vcore::ThreadPool<WorkerData>* threadPool) :
         radius(radius),
-        patchWidth(patchWidth) {
+        patchWidth(patchWidth),
+        generator(generator),
+        meshManager(meshManager),
+        threadPool(threadPool) {
         // Empty
     }
 
     f64 radius; ///< Radius of the planet in KM
     f64 patchWidth; ///< Width of a patch in KM
+    SphericalHeightmapGenerator* generator;
+    TerrainPatchMeshManager* meshManager;
+    vcore::ThreadPool<WorkerData>* threadPool;
 };
 
 // TODO(Ben): Sorting, Atmosphere, Frustum Culling
@@ -53,8 +64,7 @@ public:
               WorldCubeFace cubeFace,
               int lod,
               const TerrainPatchData* sphericalTerrainData,
-              f64 width,
-              TerrainRpcDispatcher* dispatcher);
+              f64 width);
 
     /// Updates the patch
     /// @param cameraPos: Position of the camera
@@ -79,7 +89,7 @@ public:
     bool canSubdivide() const;
 protected:
     /// Requests a mesh via RPC
-    virtual void requestMesh();
+    void requestMesh(bool isSpherical);
     /// Calculates the closest point to the camera, as well as distance
     /// @param cameraPos: position of the observer
     /// @return closest point on the AABB
@@ -99,7 +109,6 @@ protected:
 
     f64 m_width = 0.0; ///< Width of the patch in KM
 
-    TerrainRpcDispatcher* m_dispatcher = nullptr;
     TerrainPatchMesh* m_mesh = nullptr;
 
     const TerrainPatchData* m_terrainPatchData = nullptr; ///< Shared data pointer

@@ -544,11 +544,13 @@ EXIT 0</Command>
     <ClInclude Include="BlockTexture.h" />
     <ClInclude Include="BlockTextureMethods.h" />
     <ClInclude Include="BlockTexturePack.h" />
+    <ClInclude Include="BloomRenderStage.h" />
     <ClInclude Include="CellularAutomataTask.h" />
     <ClInclude Include="ChunkAllocator.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
     <ClInclude Include="ChunkHandle.h" />
     <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="ChunkMeshTask.h" />
     <ClInclude Include="CommonState.h" />
     <ClInclude Include="CloudsComponentRenderer.h" />
     <ClInclude Include="CollisionComponentUpdater.h" />
@@ -560,6 +562,9 @@ EXIT 0</Command>
     <ClInclude Include="CpuNoise.h" />
     <ClInclude Include="DevScreen.h" />
     <ClInclude Include="DLLLoader.h" />
+    <ClInclude Include="Density.h" />
+    <ClInclude Include="DevScreen.h" />
+    <ClInclude Include="DualContouringMesher.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
     <ClInclude Include="FarTerrainPatch.h" />
@@ -579,12 +584,12 @@ EXIT 0</Command>
     <ClInclude Include="GasGiantComponentRenderer.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
-    <ClInclude Include="HeightData.h" />
     <ClInclude Include="ImageAssetLoader.h" />
     <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="LenseFlareRenderer.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
     <ClInclude Include="LoadContext.h" />
+    <ClInclude Include="LoadTaskBlockData.h" />
     <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
     <ClInclude Include="ExposureCalcRenderStage.h" />
@@ -592,7 +597,9 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
+    <ClInclude Include="MarchingCubesTable.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="ModelMesher.h" />
     <ClInclude Include="MetaSection.h" />
     <ClInclude Include="ModInformation.h" />
     <ClInclude Include="ModPathResolver.h" />
@@ -603,8 +610,9 @@ EXIT 0</Command>
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkGrid.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
+    <ClInclude Include="Noise.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
-    <ClInclude Include="NoiseShaderGenerator.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
     <ClInclude Include="OptionsController.h" />
     <ClInclude Include="OrbitComponentRenderer.h" />
@@ -616,7 +624,7 @@ EXIT 0</Command>
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
     <ClInclude Include="PhysicsComponentUpdater.h" />
-    <ClInclude Include="PlanetData.h" />
+    <ClInclude Include="PlanetGenData.h" />
     <ClInclude Include="PlanetGenerator.h" />
     <ClInclude Include="PlanetHeightData.h" />
     <ClInclude Include="PlanetLoader.h" />
@@ -624,6 +632,7 @@ EXIT 0</Command>
     <ClInclude Include="Positional.h" />
     <ClInclude Include="ProceduralChunkGenerator.h" />
     <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="qef.h" />
     <ClInclude Include="ShaderAssetLoader.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
@@ -643,11 +652,11 @@ EXIT 0</Command>
     <ClInclude Include="SpaceSystemUpdater.h" />
     <ClInclude Include="SphericalTerrainComponentRenderer.h" />
     <ClInclude Include="SphericalTerrainComponentUpdater.h" />
-    <ClInclude Include="SphericalTerrainCpuGenerator.h" />
-    <ClInclude Include="SphericalTerrainGpuGenerator.h" />
-    <ClInclude Include="SsaoRenderStage.h" />
+    <ClInclude Include="SphericalHeightmapGenerator.h" />
+    <ClInclude Include="SSAORenderStage.h" />
     <ClInclude Include="StarComponentRenderer.h" />
     <ClInclude Include="Startup.h" />
+    <ClInclude Include="svd.h" />
     <ClInclude Include="SystemARRenderer.h" />
     <ClInclude Include="TerrainPatchMeshManager.h" />
     <ClInclude Include="SpaceSystemComponentTables.h" />
@@ -656,13 +665,15 @@ EXIT 0</Command>
     <ClInclude Include="TerrainPatchMesher.h" />
     <ClInclude Include="TerrainPatchConstants.h" />
     <ClInclude Include="TerrainPatchMesh.h" />
-    <ClInclude Include="TerrainRpcDispatcher.h" />
+    <ClInclude Include="TerrainPatchMeshTask.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
+    <ClInclude Include="TestConnectedTextureScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
     <ClInclude Include="TestDisplacementMappingScreen.h" />
     <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
+    <ClInclude Include="TestVoxelModelScreen.h" />
     <ClInclude Include="TestNoiseScreen.h" />
     <ClInclude Include="TestNewBlockAPIScreen.h" />
     <ClInclude Include="TestPlanetGenScreen.h" />
@@ -672,6 +683,7 @@ EXIT 0</Command>
     <ClInclude Include="LoadMonitor.h" />
     <ClInclude Include="VoxelBits.h" />
     <ClInclude Include="VoxelCoordinateSpaces.h" />
+    <ClInclude Include="VoxelMatrix.h" />
     <ClInclude Include="VoxelMesh.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -703,6 +715,10 @@ EXIT 0</Command>
     <ClInclude Include="App.h" />
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelModel.h" />
+    <ClInclude Include="VoxelModelLoader.h" />
+    <ClInclude Include="VoxelModelMesh.h" />
+    <ClInclude Include="VoxelModelRenderer.h" />
     <ClInclude Include="VoxelNavigation.inl" />
     <ClInclude Include="VoxelSpaceConversions.h" />
     <ClInclude Include="VoxelSpaceUtils.h" />
@@ -726,7 +742,6 @@ EXIT 0</Command>
     <ClInclude Include="GenerateTask.h" />
     <ClInclude Include="PhysicsBlocks.h" />
     <ClInclude Include="PhysicsEngine.h" />
-    <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="Vertex.h" />
@@ -734,13 +749,11 @@ EXIT 0</Command>
     <ClInclude Include="Particles.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
-    <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
@@ -756,10 +769,12 @@ EXIT 0</Command>
     <ClCompile Include="BlockTextureLoader.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
     <ClCompile Include="BlockTexturePack.cpp" />
+    <ClCompile Include="BloomRenderStage.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
     <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="ChunkMeshTask.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
@@ -769,8 +784,10 @@ EXIT 0</Command>
     <ClCompile Include="ConsoleMain.cpp" />
     <ClCompile Include="CpuNoise.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
+    <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
+    <ClCompile Include="DualContouringMesher.cpp" />
     <ClCompile Include="FarTerrainComponentRenderer.cpp" />
     <ClCompile Include="FarTerrainComponentUpdater.cpp" />
     <ClCompile Include="FarTerrainPatch.cpp" />
@@ -799,6 +816,7 @@ EXIT 0</Command>
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="ModelMesher.cpp" />
     <ClCompile Include="MetaSection.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
     <ClCompile Include="MTRenderStateManager.cpp" />
@@ -806,7 +824,8 @@ EXIT 0</Command>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
-    <ClCompile Include="NoiseShaderGenerator.cpp" />
+    <ClCompile Include="Noise.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
     <ClCompile Include="OptionsController.cpp" />
     <ClCompile Include="OrbitComponentRenderer.cpp" />
@@ -818,11 +837,12 @@ EXIT 0</Command>
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
-    <ClCompile Include="PlanetData.cpp" />
+    <ClCompile Include="PlanetGenData.cpp" />
     <ClCompile Include="PlanetGenerator.cpp" />
     <ClCompile Include="PlanetLoader.cpp" />
     <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
     <ClCompile Include="ProceduralChunkGenerator.cpp" />
+    <ClCompile Include="qef.cpp" />
     <ClCompile Include="ShaderAssetLoader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
@@ -841,11 +861,11 @@ EXIT 0</Command>
     <ClCompile Include="SpaceSystemUpdater.cpp" />
     <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
     <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
-    <ClCompile Include="SphericalTerrainCpuGenerator.cpp" />
-    <ClCompile Include="SphericalTerrainGpuGenerator.cpp" />
-    <ClCompile Include="SsaoRenderStage.cpp" />
+    <ClCompile Include="SphericalHeightmapGenerator.cpp" />
+    <ClCompile Include="SSAORenderStage.cpp" />
     <ClCompile Include="StarComponentRenderer.cpp" />
     <ClCompile Include="Startup.cpp" />
+    <ClCompile Include="svd.cpp" />
     <ClCompile Include="SystemARRenderer.cpp" />
     <ClCompile Include="TerrainPatchMeshManager.cpp" />
     <ClCompile Include="SpaceSystemComponentTables.cpp" />
@@ -853,18 +873,21 @@ EXIT 0</Command>
     <ClCompile Include="TerrainGenTextures.cpp" />
     <ClCompile Include="TerrainPatchMesher.cpp" />
     <ClCompile Include="TerrainPatchMesh.cpp" />
-    <ClCompile Include="TerrainRpcDispatcher.cpp" />
+    <ClCompile Include="TerrainPatchMeshTask.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
+    <ClCompile Include="TestConnectedTextureScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
     <ClCompile Include="TestDisplacementMappingScreen.cpp" />
     <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
+    <ClCompile Include="TestVoxelModelScreen.cpp" />
     <ClCompile Include="TestNoiseScreen.cpp" />
     <ClCompile Include="TestNewBlockAPIScreen.cpp" />
     <ClCompile Include="TestPlanetGenScreen.cpp" />
     <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
+    <ClCompile Include="VoxelMatrix.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
     <ClCompile Include="ChunkMesh.cpp" />
@@ -890,7 +913,6 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
-    <ClCompile Include="RenderTask.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">Create</PrecompiledHeader>
@@ -904,6 +926,10 @@ EXIT 0</Command>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
+    <ClCompile Include="VoxelModel.cpp" />
+    <ClCompile Include="VoxelModelLoader.cpp" />
+    <ClCompile Include="VoxelModelMesh.cpp" />
+    <ClCompile Include="VoxelModelRenderer.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
     <ClCompile Include="VoxelSpaceUtils.cpp" />
@@ -919,7 +945,6 @@ EXIT 0</Command>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SoaOptions.cpp" />
     <ClCompile Include="Rendering.cpp" />
-    <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />

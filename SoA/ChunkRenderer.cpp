@@ -8,26 +8,96 @@
 #include "GameManager.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
-#include "SoaOptions.h"
 #include "PhysicsBlocks.h"
 #include "RenderUtils.h"
+#include "ShaderLoader.h"
+#include "SoaOptions.h"
 #include "soaUtils.h"
 
 volatile f32 ChunkRenderer::fadeDist = 1.0f;
 f32m4 ChunkRenderer::worldMatrix = f32m4(1.0f);
 
-void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP)
-{
-    if (cm->vboID == 0) {
-        //printf("VBO is 0 in drawChunkBlocks\n");
-        return;
+VGIndexBuffer ChunkRenderer::sharedIBO = 0;
+
+void ChunkRenderer::init() {
+    // Not thread safe
+    if (!sharedIBO) { // Create shared IBO if needed
+        std::vector<ui32> indices;
+        const int NUM_INDICES = 589824;
+        indices.resize(NUM_INDICES);
+
+        ui32 j = 0u;
+        for (size_t i = 0; i < indices.size() - 12u; i += 6u) {
+            indices[i] = j;
+            indices[i + 1] = j + 1u;
+            indices[i + 2] = j + 2u;
+            indices[i + 3] = j + 2u;
+            indices[i + 4] = j + 3u;
+            indices[i + 5] = j;
+            j += 4u;
+        }
+
+        glGenBuffers(1, &sharedIBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, NUM_INDICES * sizeof(ui32), NULL, GL_STATIC_DRAW);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, NUM_INDICES * sizeof(ui32), indices.data()); //arbitrarily set to 300000
     }
+
+    { // Opaque
+        m_opaqueProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+                                                              "Shaders/BlockShading/standardShading.frag");
+        m_opaqueProgram.use();
+        glUniform1i(m_opaqueProgram.getUniform("unTextures"), 0);
+    }
+    // TODO(Ben): Fix the shaders
+    { // Transparent
+   //     m_transparentProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+     //                                                              "Shaders/BlockShading/cutoutShading.frag");
+    }
+    { // Cutout
+     //   m_cutoutProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+    //                                                          "Shaders/BlockShading/cutoutShading.frag");
+    }
+    { // Water
+     //   m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/WaterShading/WaterShading.vert",
+     //                                                        "Shaders/WaterShading/WaterShading.frag");
+    }
+    vg::GLProgram::unuse();
+}
+
+void ChunkRenderer::dispose() {
+    if (m_opaqueProgram.isCreated()) m_opaqueProgram.dispose();
+    if (m_transparentProgram.isCreated()) m_transparentProgram.dispose();
+    if (m_cutoutProgram.isCreated()) m_cutoutProgram.dispose();
+    if (m_waterProgram.isCreated()) m_waterProgram.dispose();
+}
+
+void ChunkRenderer::beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+    m_opaqueProgram.use();
+    glUniform3fv(m_opaqueProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
+    glUniform1f(m_opaqueProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
+    glUniform1f(m_opaqueProgram.getUniform("unSpecularIntensity"), soaOptions.get(OPT_SPECULAR_INTENSITY).value.f * 0.3f);
+
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(m_opaqueProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
+
+    f32 blockAmbient = 0.000f;
+    glUniform3fv(m_opaqueProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
+    glUniform3fv(m_opaqueProgram.getUniform("unSunColor"), 1, &sunDir[0]);
+
+    glUniform1f(m_opaqueProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
+}
+
+void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const f64v3 &PlayerPos, const f32m4 &VP) const {
     setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(m_opaqueProgram.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(m_opaqueProgram.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->vaoID);
 
@@ -36,27 +106,22 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
     if (chunkMeshInfo.pyVboSize && PlayerPos.y > cm->position.y + chunkMeshInfo.lowestY) {
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.pyVboOff * sizeof(GLuint)));
     }
-
     //front
     if (chunkMeshInfo.pzVboSize && PlayerPos.z > cm->position.z + chunkMeshInfo.lowestZ){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pzVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.pzVboOff * sizeof(GLuint)));
     }
-
     //back
     if (chunkMeshInfo.nzVboSize && PlayerPos.z < cm->position.z + chunkMeshInfo.highestZ){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nzVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.nzVboOff * sizeof(GLuint)));
     }
-
     //left
     if (chunkMeshInfo.nxVboSize && PlayerPos.x < cm->position.x + chunkMeshInfo.highestX){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nxVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.nxVboOff * sizeof(GLuint)));
     }
-
     //right
     if (chunkMeshInfo.pxVboSize && PlayerPos.x > cm->position.x + chunkMeshInfo.lowestX){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.pxVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.pxVboOff * sizeof(GLuint)));
     }
-
     //bottom
     if (chunkMeshInfo.nyVboSize && PlayerPos.y < cm->position.y + chunkMeshInfo.highestY){
         glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.nyVboOff * sizeof(GLuint)));
@@ -65,33 +130,111 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const vg::GLProgram& program
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP) {
+void ChunkRenderer::drawOpaqueCustom(const ChunkMesh* cm, vg::GLProgram& m_program, const f64v3& PlayerPos, const f32m4& VP) {
+    setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
+
+    f32m4 MVP = VP * worldMatrix;
+
+    glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
+
+    glBindVertexArray(cm->vaoID);
+
+    const ChunkMeshRenderData& chunkMeshInfo = cm->renderData;
+    //top
+    if (chunkMeshInfo.pyVboSize && PlayerPos.y > cm->position.y + chunkMeshInfo.lowestY) {
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.pyVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.pyVboOff * sizeof(GLuint)));
+    }
+    //front
+    if (chunkMeshInfo.pzVboSize && PlayerPos.z > cm->position.z + chunkMeshInfo.lowestZ) {
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.pzVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.pzVboOff * sizeof(GLuint)));
+    }
+    //back
+    if (chunkMeshInfo.nzVboSize && PlayerPos.z < cm->position.z + chunkMeshInfo.highestZ) {
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.nzVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.nzVboOff * sizeof(GLuint)));
+    }
+    //left
+    if (chunkMeshInfo.nxVboSize && PlayerPos.x < cm->position.x + chunkMeshInfo.highestX) {
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.nxVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.nxVboOff * sizeof(GLuint)));
+    }
+    //right
+    if (chunkMeshInfo.pxVboSize && PlayerPos.x > cm->position.x + chunkMeshInfo.lowestX) {
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.pxVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.pxVboOff * sizeof(GLuint)));
+    }
+    //bottom
+    if (chunkMeshInfo.nyVboSize && PlayerPos.y < cm->position.y + chunkMeshInfo.highestY) {
+        glDrawElements(GL_TRIANGLES, chunkMeshInfo.nyVboSize, GL_UNSIGNED_INT, (void*)(chunkMeshInfo.nyVboOff * sizeof(GLuint)));
+    }
+
+    glBindVertexArray(0);
+}
+
+
+void ChunkRenderer::beginTransparent(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+    m_transparentProgram.use();
+    
+    glUniform3fv(m_transparentProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
+    glUniform1f(m_transparentProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
+    glUniform1f(m_transparentProgram.getUniform("unSpecularIntensity"), soaOptions.get(OPT_SPECULAR_INTENSITY).value.f * 0.3f);
+
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(m_transparentProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
+
+    f32 blockAmbient = 0.000f;
+    glUniform3fv(m_transparentProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
+    glUniform3fv(m_transparentProgram.getUniform("unSunColor"), 1, &sunDir[0]);
+
+    glUniform1f(m_transparentProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
+}
+
+void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const f64v3 &playerPos, const f32m4 &VP) const {
     if (cm->transVaoID == 0) return;
 
     setMatrixTranslation(worldMatrix, f64v3(cm->position), playerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(m_transparentProgram.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(m_transparentProgram.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->transVaoID);
 
     glDrawElements(GL_TRIANGLES, cm->renderData.transVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
-
 }
 
-void ChunkRenderer::drawCutout(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &playerPos, const f32m4 &VP) {
+void ChunkRenderer::beginCutout(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+    m_cutoutProgram.use();
+    glUniform3fv(m_cutoutProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
+    glUniform1f(m_cutoutProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
+    glUniform1f(m_cutoutProgram.getUniform("unSpecularIntensity"), soaOptions.get(OPT_SPECULAR_INTENSITY).value.f * 0.3f);
+
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(m_cutoutProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
+
+    f32 blockAmbient = 0.000f;
+    glUniform3fv(m_cutoutProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
+    glUniform3fv(m_cutoutProgram.getUniform("unSunColor"), 1, &sunDir[0]);
+
+    glUniform1f(m_cutoutProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
+}
+
+void ChunkRenderer::drawCutout(const ChunkMesh *cm, const f64v3 &playerPos, const f32m4 &VP) const {
     if (cm->cutoutVaoID == 0) return;
 
     setMatrixTranslation(worldMatrix, f64v3(cm->position), playerPos);
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(m_cutoutProgram.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(m_cutoutProgram.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->cutoutVaoID);
 
@@ -101,8 +244,26 @@ void ChunkRenderer::drawCutout(const ChunkMesh *cm, const vg::GLProgram& program
 
 }
 
-void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram& program, const f64v3 &PlayerPos, const f32m4 &VP)
-{
+void ChunkRenderer::beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+    m_waterProgram.use();
+    glUniform3fv(m_waterProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
+    glUniform1f(m_waterProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
+    glUniform1f(m_waterProgram.getUniform("unSpecularIntensity"), soaOptions.get(OPT_SPECULAR_INTENSITY).value.f * 0.3f);
+
+    // Bind the block textures
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(m_waterProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
+
+    f32 blockAmbient = 0.000f;
+    glUniform3fv(m_waterProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
+    glUniform3fv(m_waterProgram.getUniform("unSunColor"), 1, &sunDir[0]);
+
+    glUniform1f(m_waterProgram.getUniform("unFadeDist"), 100000.0f/*ChunkRenderer::fadeDist*/);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedIBO);
+}
+
+void ChunkRenderer::drawLiquid(const ChunkMesh *cm, const f64v3 &PlayerPos, const f32m4 &VP) const {
     //use drawWater bool to avoid checking frustum twice
     if (cm->inFrustum && cm->waterVboID){
 
@@ -110,8 +271,8 @@ void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram& program,
 
         f32m4 MVP = VP * worldMatrix;
 
-        glUniformMatrix4fv(program.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(program.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+        glUniformMatrix4fv(m_waterProgram.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(m_waterProgram.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
 
         glBindVertexArray(cm->waterVaoID);
 
@@ -121,123 +282,6 @@ void ChunkRenderer::drawWater(const ChunkMesh *cm, const vg::GLProgram& program,
     }
 }
 
-void ChunkRenderer::buildTransparentVao(ChunkMesh& cm)
-{
-    glGenVertexArrays(1, &(cm.transVaoID));
-    glBindVertexArray(cm.transVaoID);
-
-    glBindBuffer(GL_ARRAY_BUFFER, cm.transVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm.transIndexID);
-
-    for (int i = 0; i < 8; i++) {
-        glEnableVertexAttribArray(i);
-    }
-
-    //position + texture type
-    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
-    //UV, animation, blendmode
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
-    //textureAtlas_textureIndex
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
-    //Texture dimensions
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
-    //color
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
-    //overlayColor
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
-    //lightcolor[3], sunlight,
-    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
-    //normal
-    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
-
-    glBindVertexArray(0);
-}
-
-void ChunkRenderer::buildCutoutVao(ChunkMesh& cm)
-{
-    glGenVertexArrays(1, &(cm.cutoutVaoID));
-    glBindVertexArray(cm.cutoutVaoID);
-
-    glBindBuffer(GL_ARRAY_BUFFER, cm.cutoutVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    for (int i = 0; i < 8; i++) {
-        glEnableVertexAttribArray(i);
-    }
-
-    //position + texture type
-    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
-    //UV, animation, blendmode
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
-    //textureAtlas_textureIndex
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
-    //Texture dimensions
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
-    //color
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
-    //overlayColor
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
-    //lightcolor[3], sunlight,
-    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
-    //normal
-    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
-
-
-    glBindVertexArray(0);
-}
-
-void ChunkRenderer::buildVao(ChunkMesh& cm)
-{
-    glGenVertexArrays(1, &(cm.vaoID));
-    glBindVertexArray(cm.vaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, cm.vboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    for (int i = 0; i < 8; i++) {
-        glEnableVertexAttribArray(i);
-    }
-
-    // vPosition_Face
-    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
-    // vTex_Animation_BlendMode
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
-    // vTextureAtlas_TextureIndex
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
-    // vNDTextureAtlas
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));
-    // vNDTextureIndex
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normIndex));
-    // vTexDims
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
-    // vColor
-    glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
-    // vOverlayColor
-    glVertexAttribPointer(7, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
-   
-    glBindVertexArray(0);
-}
-
-void ChunkRenderer::buildWaterVao(ChunkMesh& cm)
-{
-    glGenVertexArrays(1, &(cm.waterVaoID));
-    glBindVertexArray(cm.waterVaoID);
-    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Chunk::vboIndicesID);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
-
-    glBindBuffer(GL_ARRAY_BUFFER, cm.waterVboID);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
-    //uvs_texUnit_texIndex
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (12)));
-    //color
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
-    //light
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
-
-    glBindVertexArray(0);
+void ChunkRenderer::end() {
+    vg::GLProgram::unuse();
 }

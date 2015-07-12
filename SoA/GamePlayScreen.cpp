@@ -27,7 +27,6 @@
 #include "SoaOptions.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
-#include "RenderTask.h"
 #include "SoaEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
@@ -69,8 +68,6 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
     initInput();
-
-    ChunkMesher::bindVBOIndicesID();
 
     m_soaState = m_mainMenuScreen->getSoAState();
 
@@ -122,7 +119,7 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     // TODO(Ben): Move to glUpdate for voxel component
     // TODO(Ben): Don't hardcode for a single player
     auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
-    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, false);
+    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, true);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -134,6 +131,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadTarget) {
         m_reloadLock.lock();
         printf("Reloading Target\n");
+        m_soaState->threadPool->clearTasks();
+        Sleep(200);
         SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, nullptr);
         m_shouldReloadTarget = false;
         m_reloadLock.unlock();
@@ -183,11 +182,12 @@ void GameplayScreen::updateMTRenderState() {
 
     // Debug chunk grid
     if (m_renderer.stages.chunkGrid.isActive()) {
+        // TODO(Ben): This doesn't let you go to different planets!!!
         auto& svcmp = m_soaState->spaceSystem->m_sphericalVoxelCT.getFromEntity(m_soaState->startingPlanet);
         auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
         state->debugChunkData.clear();
         if (svcmp.chunkGrids) {
-            for (Chunk* chunk = svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks(); chunk != nullptr; chunk = chunk->getNextActive()) {
+            for (Chunk* chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks()) {
                 state->debugChunkData.emplace_back();
                 state->debugChunkData.back().genLevel = chunk->genLevel;
                 state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;

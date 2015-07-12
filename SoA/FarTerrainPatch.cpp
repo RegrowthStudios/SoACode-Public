@@ -8,7 +8,6 @@
 #include "Camera.h"
 #include "RenderUtils.h"
 #include "TerrainPatchMesher.h"
-#include "TerrainRpcDispatcher.h"
 #include "VoxelCoordinateSpaces.h"
 #include "VoxelSpaceConversions.h"
 #include "soaUtils.h"
@@ -17,13 +16,12 @@ FarTerrainPatch::~FarTerrainPatch() {
     destroy();
 }
 
-void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, int lod, const TerrainPatchData* sphericalTerrainData, f64 width, TerrainRpcDispatcher* dispatcher) {
+void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, int lod, const TerrainPatchData* sphericalTerrainData, f64 width) {
     m_gridPos = gridPosition;
     m_cubeFace = cubeFace;
     m_lod = lod;
     m_terrainPatchData = sphericalTerrainData;
     m_width = width;
-    m_dispatcher = dispatcher;
 
     // Get world position and bounding box
     m_aabbPos = f32v3(m_gridPos.x, 0, m_gridPos.y);
@@ -36,7 +34,7 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
     if (m_children) {
         if (m_distance > m_width * DIST_MAX) {
             if (!m_mesh) {
-                requestMesh();
+                requestMesh(false);
             }
             if (hasMesh()) {
                 // Out of range, kill children
@@ -67,12 +65,11 @@ void FarTerrainPatch::update(const f64v3& cameraPos) {
         for (int z = 0; z < 2; z++) {
             for (int x = 0; x < 2; x++) {
                 m_children[(z << 1) + x].init(m_gridPos + f64v2((m_width / 2.0) * x, (m_width / 2.0) * z),
-                                                m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0,
-                                                m_dispatcher);
+                                                m_cubeFace, m_lod + 1, m_terrainPatchData, m_width / 2.0);
             }
         }
     } else if (!m_mesh) {
-        requestMesh();
+        requestMesh(false);
     }
 
     // Recursively update children if they exist
@@ -103,14 +100,4 @@ bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, 
         return true;
     }
     return false;
-}
-
-void FarTerrainPatch::requestMesh() {
-    f32v3 startPos(m_gridPos.x,
-                   m_terrainPatchData->radius,
-                   m_gridPos.y);
-    m_mesh = m_dispatcher->dispatchTerrainGen(startPos,
-                                              (f32)m_width,
-                                              m_lod,
-                                              m_cubeFace, false);
 }

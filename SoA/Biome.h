@@ -16,6 +16,8 @@
 
 #include <Vorb/io/Keg.h>
 
+#include "Noise.h"
+
 class BiomeTree {
 public:
     BiomeTree(f32 prob, i32 index) : probability(prob),
@@ -41,12 +43,44 @@ struct BlockLayer {
 };
 KEG_TYPE_DECL(BlockLayer);
 
-class Biome {
-public:
-    nString displayName;
-    ColorRGB8 mapColor;
-    Array<BlockLayer> blockLayers;
+#define BIOME_MAP_WIDTH 256
+
+// TODO(Ben): Add more
+enum class BiomeAxisType { HEIGHT, NOISE };
+KEG_ENUM_DECL(BiomeAxisType);
+
+typedef nString BiomeID;
+struct Biome;
+
+struct BiomeInfluence {
+    BiomeInfluence() {};
+    BiomeInfluence(const Biome* b, f32 weight) : b(b), weight(weight) {}
+    const Biome* b;
+    f32 weight;
+
+    bool operator<(const BiomeInfluence& rhs) const {
+        if (weight < rhs.weight) return true;
+        return b < rhs.b;
+    }
 };
-KEG_TYPE_DECL(Biome);
+
+// TODO(Ben): Make the memory one contiguous block
+typedef std::vector<std::vector<BiomeInfluence>> BiomeInfluenceMap;
+
+struct Biome {
+    BiomeID id = "default";
+    nString displayName = "Default";
+    ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
+    std::vector<BlockLayer> blockLayers; ///< Overrides base layers
+    BiomeInfluenceMap biomeMap; ///< Optional sub-biome map
+    BiomeAxisType axisTypes[2];
+    f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
+    NoiseBase biomeMapNoise; ///< For sub biome determination
+    NoiseBase terrainNoise; ///< Modifies terrain directly
+    NoiseBase xNoise;
+    NoiseBase yNoise;
+};
+
+static const Biome DEFAULT_BIOME;
 
 #endif // Biome_h__

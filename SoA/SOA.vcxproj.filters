@@ -186,6 +186,9 @@
     <Filter Include="SOA Files\Modding">
       <UniqueIdentifier>{65cf4844-1033-4e01-a560-63f43e8b3660}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Models">
+      <UniqueIdentifier>{57f94b81-194d-4aa7-91bb-c4855307dd0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -232,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="DevConsoleView.h">
       <Filter>SOA Files\Rendering\Dev</Filter>
-    </ClInclude>
-    <ClInclude Include="EditorVariables.h">
-      <Filter>SOA Files\Data</Filter>
     </ClInclude>
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
@@ -299,14 +299,8 @@
     <ClInclude Include="Rendering.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="SimplexNoise.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>SOA Files</Filter>
@@ -566,16 +560,7 @@
     <ClInclude Include="ProgramGenDelegate.h">
       <Filter>SOA Files\Rendering\Delegates</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetData.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="NoiseShaderCode.hpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainCpuGenerator.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
-    <ClInclude Include="SphericalTerrainGpuGenerator.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
     <ClInclude Include="TerrainGenTextures.h">
@@ -584,14 +569,8 @@
     <ClInclude Include="PlanetLoader.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="CpuNoise.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="FarTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainRpcDispatcher.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
     <ClInclude Include="FarTerrainComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
@@ -612,9 +591,6 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClInclude>
     <ClInclude Include="TerrainPatch.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseShaderGenerator.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
     <ClInclude Include="soaUtils.h">
@@ -746,9 +722,6 @@
     <ClInclude Include="BlockTexturePack.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="HeightData.h">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="Chunk.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
@@ -760,9 +733,6 @@
     </ClInclude>
     <ClInclude Include="TestPlanetGenScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="SsaoRenderStage.h">
-      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
     <ClInclude Include="ModPathResolver.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
@@ -823,6 +793,72 @@
     </ClInclude>
     <ClInclude Include="ModInformation.h">
       <Filter>SOA Files\Modding</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainPatchMeshTask.h">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkMeshTask.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConnectedTextureScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadTaskBlockData.h">
+      <Filter>SOA Files\Screens\Load\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SphericalHeightmapGenerator.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Noise.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetGenData.h">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelLoader.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModel.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelRenderer.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelMatrix.h">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="DualContouringMesher.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="Density.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="MarchingCubesTable.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMesher.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelModelMesh.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomRenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="svd.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="qef.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
+    <ClInclude Include="TestVoxelModelScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAORenderStage.h">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -916,9 +952,6 @@
     <ClCompile Include="Rendering.cpp">
       <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="SimplexNoise.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
@@ -948,9 +981,6 @@
     </ClCompile>
     <ClCompile Include="ZipFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTask.cpp">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClCompile>
     <ClCompile Include="ChunkMesh.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
@@ -1144,29 +1174,14 @@
     <ClCompile Include="VoxelSpaceUtils.cpp">
       <Filter>SOA Files\Voxel\Mapping</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetData.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainCpuGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
-    <ClCompile Include="SphericalTerrainGpuGenerator.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
     <ClCompile Include="PlanetLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="CpuNoise.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="FarTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainRpcDispatcher.cpp">
-      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
     <ClCompile Include="FarTerrainComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\SpaceSystem</Filter>
@@ -1184,9 +1199,6 @@
       <Filter>SOA Files\Rendering\Universe</Filter>
     </ClCompile>
     <ClCompile Include="TerrainPatch.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseShaderGenerator.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
     <ClCompile Include="SystemARRenderer.cpp">
@@ -1341,6 +1353,66 @@
     </ClCompile>
     <ClCompile Include="ConsoleFuncs.cpp">
       <Filter>SOA Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainPatchMeshTask.cpp">
+      <Filter>SOA Files\Voxel\Tasking</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkMeshTask.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConnectedTextureScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="SphericalHeightmapGenerator.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Noise.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetGenData.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="Density.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="DualContouringMesher.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMesher.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelMesh.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModel.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelMatrix.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelLoader.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelModelRenderer.cpp">
+      <Filter>SOA Files\Voxel\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomRenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="svd.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="qef.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="TestVoxelModelScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAORenderStage.cpp">
+      <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

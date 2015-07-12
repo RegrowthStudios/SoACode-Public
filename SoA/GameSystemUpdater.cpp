@@ -9,7 +9,6 @@
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
-#include "SphericalTerrainGpuGenerator.h"
 #include "TerrainPatch.h"
 #include "VoxelSpaceConversions.h"
 #include "VoxelSpaceUtils.h"

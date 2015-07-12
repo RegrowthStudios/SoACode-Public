@@ -29,6 +29,7 @@ typedef ui32 ChunkID;
 
 class ChunkGridData {
 public:
+    ChunkGridData() {};
     ChunkGridData(const ChunkPosition3D& pos) {
         gridPosition.pos = i32v2(pos.pos.x, pos.pos.z);
         gridPosition.face = pos.face;
@@ -43,13 +44,13 @@ public:
 
 class Chunk {
     friend class ChunkGenerator;
-    friend class ProceduralChunkGenerator;
-    friend class PagedChunkAllocator;
-    friend class SphericalVoxelComponentUpdater;
     friend class ChunkGrid;
-    friend class RenderTask;
+    friend class ChunkMeshTask;
 public:
+    // Initializes the chunk but does not set voxel data
     void init(ChunkID id, const ChunkPosition3D& pos);
+    // Initializes the chunk and sets all voxel data to 0
+    void initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
@@ -58,24 +59,23 @@ public:
     /************************************************************************/
     const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
     const VoxelPosition3D& getVoxelPosition() const { return m_voxelPosition; }
-    bool hasAllNeighbors() const { return m_numNeighbors == 6u; }
-    const bool& isInRange() const { return m_isInRange; }
-    const f32& getDistance2() const { return m_distance2; }
-    ChunkPtr getNextActive() const { return m_nextActive; }
-    ChunkPtr getPrevActive() const { return m_prevActive; }
+    bool hasAllNeighbors() const { return numNeighbors == 6u; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
-        return m_blocks.get(c);
+        return blocks.get(c);
     }
     inline ui16 getTertiaryData(int c) const {
-        return m_tertiary.get(c);
+        return tertiary.get(c);
+    }
+    void setBlock(int x, int y, int z, ui16 id) {
+        blocks.set(x + y * CHUNK_LAYER + z * CHUNK_WIDTH, id);
     }
 
     // True when the chunk needs to be meshed
-    bool needsRemesh() { return m_remeshFlags != 0; }
+    bool needsRemesh() { return remeshFlags != 0; }
     // Marks the chunks as dirty and flags for a re-mesh
-    void flagDirty() { m_isDirty = true; m_remeshFlags |= 1; }
+    void flagDirty() { isDirty = true; remeshFlags |= 1; }
 
     // TODO(Ben): This can be better
     void lock() { mutex.lock(); }
@@ -92,32 +92,31 @@ public:
         };
         ChunkPtr neighbors[6];
     };
-    std::mutex mutex;
-    int refCount = 0;
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    bool hasCreatedMesh = false;
+    bool isDirty;
+    bool isInRange;
+    f32 distance2; //< Squared distance
+    int numBlocks;
+    volatile int refCount; ///< Only change on main thread
+    std::mutex mutex;
+    
+    ui32 numNeighbors = 0u;
+    ui8 remeshFlags;
     volatile bool isAccessible = false;
     volatile bool queuedForMesh = false;
-    bool hasCreatedMesh = false;
 
-    static ui32 vboIndicesID;
+    // TODO(Ben): Think about data locality.
+    vvox::SmartVoxelContainer<ui16> blocks;
+    vvox::SmartVoxelContainer<ui16> tertiary;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
-    // For ChunkGrid
-    ChunkPtr m_nextActive = nullptr;
-    ChunkPtr m_prevActive = nullptr;
 
-    ui32 m_numNeighbors = 0u;
     ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
-    // TODO(Ben): Think about data locality.
-    vvox::SmartVoxelContainer<ui16> m_blocks;
-    vvox::SmartVoxelContainer<ui16> m_tertiary;
-    ui8 m_remeshFlags;
-    bool m_isInRange;
-    bool m_isDirty;
-    f32 m_distance2; //< Squared distance
+  
     ChunkID m_id;
 };
 

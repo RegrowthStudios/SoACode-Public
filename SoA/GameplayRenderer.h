@@ -21,6 +21,7 @@
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"
+#include "ChunkRenderer.h"
 #include "ColoredFullQuadRenderer.h"
 #include "CutoutVoxelRenderStage.h"
 #include "DevHudRenderStage.h"
@@ -34,8 +35,10 @@
 #include "PhysicsBlockRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
+#include "SSAORenderStage.h"
 #include "TransparentVoxelRenderStage.h"
-#include "SsaoRenderStage.h"
+#include "BloomRenderStage.h"
+#include "ExposureCalcRenderStage.h"
 
 /// Forward declarations
 class App;
@@ -114,12 +117,16 @@ public:
         PdaRenderStage pda; ///< Renders the PDA
         PauseMenuRenderStage pauseMenu; ///< Renders the pause menu
         NightVisionRenderStage nightVision; ///< Renders night vision
-        SsaoRenderStage ssao; ///< Renders SSAO
+        SSAORenderStage ssao; ///< Renders SSAO
+        BloomRenderStage bloom; ///< Renders Bloom effect
+        ExposureCalcRenderStage exposureCalc; ///< Calculate exposure
     } stages;
 
 private:
     void updateCameras();
     void dumpScreenshot();
+
+    ChunkRenderer m_chunkRenderer;
 
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
 

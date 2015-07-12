@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "PlanetLoader.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 
 #include <random>
 
@@ -12,6 +12,41 @@
 #include <Vorb/RPC.h>
 
 #include "Errors.h"
+
+typedef ui32 BiomeColorCode;
+
+struct BiomeKegProperties {
+    Array<BiomeKegProperties> children;
+    Array<BlockLayer> blockLayers;
+    BiomeAxisType xAxis = BiomeAxisType::NOISE;
+    BiomeAxisType yAxis = BiomeAxisType::NOISE;
+    BiomeID id = "";
+    ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
+    NoiseBase biomeMapNoise; ///< For sub biome determination
+    NoiseBase terrainNoise; ///< Modifies terrain directly
+    NoiseBase xNoise;
+    NoiseBase yNoise;
+    f32v2 heightScale = f32v2(0.0f, 200.0f); ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
+    nString displayName = "Unknown";
+    nString childColorMap = "";
+};
+KEG_TYPE_DECL(BiomeKegProperties);
+KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
+    using namespace keg;
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, id, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, displayName, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, childColorMap, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, mapColor, UI8_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightScale, F32_V2);
+    kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
+    kt.addValue("xAxis", keg::Value::custom(offsetof(BiomeKegProperties, xAxis), "BiomeAxisType", true));
+    kt.addValue("yAxis", keg::Value::custom(offsetof(BiomeKegProperties, yAxis), "BiomeAxisType", true));
+    kt.addValue("xNoise", keg::Value::custom(offsetof(BiomeKegProperties, xNoise), "NoiseBase", false));
+    kt.addValue("yNoise", keg::Value::custom(offsetof(BiomeKegProperties, yNoise), "NoiseBase", false));
+    kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
+    kt.addValue("biomeMapNoise", Value::custom(offsetof(BiomeKegProperties, biomeMapNoise), "NoiseBase", false));
+    kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
+}
 
 PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
     m_iom(ioManager),
@@ -38,12 +73,15 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     }
 
     PlanetGenData* genData = new PlanetGenData;
+    genData->filePath = filePath;
 
     nString biomePath = "";
+    bool didLoadBiomes = false;
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
+            didLoadBiomes = true;
             loadBiomes(keg::convert<nString>(value), genData);
         } else if (type == "terrainColor") {
             parseTerrainColor(context, value, genData);
@@ -73,16 +111,17 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     });
     context.reader.forAllInMap(node, f);
     context.reader.dispose();
-    
-    // Generate the program
-    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
+    delete f;
 
-    if (genData->program.isLinked()) {
-        genData->filePath = filePath;
-        return genData;
-    } 
-    delete genData;
-    return nullptr;
+    if (!didLoadBiomes) {
+        // Set default biome
+        for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+            for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+                genData->baseBiomeLookup[y][x] = &DEFAULT_BIOME;
+            }
+        }
+    }
+    return genData;
 }
 
 PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
@@ -90,9 +129,6 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     if (!m_defaultGenData) {
         // Allocate data
         m_defaultGenData = new PlanetGenData;
-
-        m_defaultGenData->program = m_shaderGenerator.getDefaultProgram(glrpc);
-
     }
     return m_defaultGenData;
 }
@@ -122,14 +158,14 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
         genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
 
-    // Generate the program
-    genData->program = m_shaderGenerator.generateProgram(genData, glrpc);
-
-    if (genData->program.isLinked()) {
-        return genData;
+    // Set default biome
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            genData->baseBiomeLookup[y][x] = &DEFAULT_BIOME;
+        }
     }
-    delete genData;
-    return nullptr;
+
+    return genData;
 }
 
 AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
@@ -142,10 +178,86 @@ AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
     return props;
 }
 
+// Helper function for loadBiomes
+ui32 recursiveCountBiomes(BiomeKegProperties& props) {
+    ui32 rv = 1;
+    for (size_t i = 0; i < props.children.size(); i++) {
+        rv += recursiveCountBiomes(props.children[i]);
+    }
+    return rv;
+}
+
+void recursiveInitBiomes(Biome& biome,
+                         BiomeKegProperties& kp,
+                         ui32& biomeCounter,
+                         PlanetGenData* genData,
+                         std::map<BiomeColorCode, Biome*>& biomeLookup,
+                         vio::IOManager* iom) {
+    // Get the color code and add to map
+    BiomeColorCode colorCode = ((ui32)kp.mapColor.r << 16) | ((ui32)kp.mapColor.g << 8) | (ui32)kp.mapColor.b;
+    biomeLookup[colorCode] = &biome;
+
+    // Copy all biome data
+    biome.id = kp.id;
+    biome.blockLayers.resize(kp.blockLayers.size());
+    for (size_t i = 0; i < kp.blockLayers.size(); i++) {
+        biome.blockLayers[i] = kp.blockLayers[i];
+    }
+    biome.displayName = kp.displayName;
+    biome.mapColor = kp.mapColor;
+    biome.heightScale = kp.heightScale;
+    biome.terrainNoise = kp.terrainNoise;
+    biome.biomeMapNoise = kp.biomeMapNoise;
+    biome.xNoise = kp.xNoise;
+    biome.yNoise = kp.yNoise;
+    biome.axisTypes[0] = kp.xAxis;
+    biome.axisTypes[1] = kp.yAxis;
+
+    // Recurse children
+    std::map<BiomeColorCode, Biome*> nextBiomeLookup;
+    for (size_t i = 0; i < kp.children.size(); i++) {
+        Biome& nextBiome = genData->biomes[biomeCounter++];
+        recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData, nextBiomeLookup, iom);
+    }
+
+    // Load and parse child lookup map
+    if (kp.childColorMap.size()) {
+        vpath texPath;
+        iom->resolvePath(kp.childColorMap, texPath);
+        vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true);
+        if (!rs.data) {
+            fprintf(stderr, "Warning: Failed to load %s\n", kp.childColorMap.c_str());
+            return;
+        }
+        // Check for 1D biome map
+        if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
+            biome.biomeMap.resize(BIOME_MAP_WIDTH);
+        } else {
+            // Error check
+            if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
+                pError("loadBiomes() error: width and height of " + kp.childColorMap + " must be " + std::to_string(BIOME_MAP_WIDTH));
+            }
+            biome.biomeMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
+        }
+        // Fill biome map
+        for (size_t i = 0; i < biome.biomeMap.size(); i++) {
+            ui8v3& color = rs.bytesUI8v3[i];
+            BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
+            auto& it = nextBiomeLookup.find(code);
+            if (it != nextBiomeLookup.end()) {
+                biome.biomeMap[i].emplace_back(it->second, 1.0f);
+            }
+        }
+    }
+}
+
+
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
+    // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
+    // Get the read context and error check
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data.c_str());
@@ -156,95 +268,77 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
-    m_baseBiomeLookupTextureData.resize(LOOKUP_TEXTURE_SIZE, 0);
+    // Lookup Maps
+    std::map<BiomeColorCode, Biome*> m_baseBiomeLookupMap; ///< To lookup biomes via color code
+    BiomeColorCode colorCodes[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
 
-    keg::Error error;
+    std::vector<BiomeKegProperties> baseBiomes;
 
     // Load yaml data
     int i = 0;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& type, keg::Node value) {
+    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         // Parse based on type
-        if (type == "baseLookupMap") {
+        if (key == "baseLookupMap") {
             vpath texPath;
             m_iom->resolvePath(keg::convert<nString>(value), texPath);
-            vg::BitmapResource bitmap = vg::ImageIO().load(texPath.getString());
-            if (!bitmap.data) {
+            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true);
+            if (!rs.data) {
                 pError("Failed to load " + keg::convert<nString>(value));
             }
-            if (bitmap.width != 256 || bitmap.height != 256) {
-                pError("loadBiomes() error: width and height of " + keg::convert<nString>(value) + " must be 256");
+            if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
+                pError("loadBiomes() error: width and height of " + keg::convert<nString>(value) +" must be " + std::to_string(BIOME_MAP_WIDTH));
             }
 
-            for (int i = 0; i < LOOKUP_TEXTURE_SIZE; i++) {
-                int index = i * 4;
-                ui32 colorCode = ((ui32)bitmap.bytesUI8[index] << 16) | ((ui32)bitmap.bytesUI8[index + 1] << 8) | (ui32)bitmap.bytesUI8[index + 2];
-                addBiomePixel(colorCode, i);
+            for (int i = 0; i < BIOME_MAP_WIDTH * BIOME_MAP_WIDTH; i++) {
+                ui8v3& color = rs.bytesUI8v3[i];
+                BiomeColorCode colorCode = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
+                colorCodes[i / BIOME_MAP_WIDTH][i % BIOME_MAP_WIDTH] = colorCode;
             }
-        } else {
-            // It is a biome
-            genData->biomes.emplace_back();
-            
-            error = keg::parse((ui8*)&genData->biomes.back(), value, context, &KEG_GLOBAL_TYPE(Biome));
+        } else { // It is a base biome
+            baseBiomes.emplace_back();
+            BiomeKegProperties& props = baseBiomes.back();
+            props.id = key;
+            // Parse it
+            keg::Error error = keg::parse((ui8*)&props, value, context, &KEG_GLOBAL_TYPE(BiomeKegProperties));
             if (error != keg::Error::NONE) {
                 fprintf(stderr, "Keg error %d in loadBiomes()\n", (int)error);
                 return;
             }
         }
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, baseParser);
+    delete baseParser;
     context.reader.dispose();
 
-    // Code for uploading biome texture
-#define BIOME_TEX_CODE \
-    genData->baseBiomeLookupTexture = vg::GpuMemory::uploadTexture(m_baseBiomeLookupTextureData.data(),\
-                                                                   LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
-                                                                   vg::TexturePixelType::UNSIGNED_BYTE,\
-                                                                   vg::TextureTarget::TEXTURE_2D,\
-                                                                   &vg::SamplerState::POINT_CLAMP,\
-                                                                   vg::TextureInternalFormat::R8,\
-                                                                   vg::TextureFormat::RED, 0);\
-    glGenTextures(1, &genData->biomeArrayTexture); \
-    glBindTexture(GL_TEXTURE_2D_ARRAY, genData->biomeArrayTexture);\
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_R8, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH, m_biomeLookupMap.size(), 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);\
-    for (auto& it : m_biomeLookupMap) {\
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, it.second.index, LOOKUP_TEXTURE_WIDTH, LOOKUP_TEXTURE_WIDTH,\
-                        1, GL_RED, GL_UNSIGNED_BYTE, it.second.data.data());\
-    }\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);\
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    if (m_biomeLookupMap.size()) {
-        // Handle RPC for texture upload
-        if (m_glRpc) {
-            vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                BIOME_TEX_CODE
-            });
-            m_glRpc->invoke(&rpc, true);
-        } else {
-            BIOME_TEX_CODE
-        }     
+    // Get number of biomes
+    ui32 numBiomes = 0;
+    for (auto& kp : baseBiomes) {
+        numBiomes += recursiveCountBiomes(kp);
     }
-    // Free memory
-    std::map<ui32, BiomeLookupTexture>().swap(m_biomeLookupMap);
-    std::vector<ui8>().swap(m_baseBiomeLookupTextureData);
-    m_biomeCount = 0;
-}
+    // Set biome storage
+    genData->biomes.resize(numBiomes);
+    
+    ui32 biomeCounter = 0;
+    for (size_t i = 0; i < baseBiomes.size(); i++) {
+        auto& kp = baseBiomes[i];
+      
+        // Get the biome
+        Biome& biome = genData->biomes[biomeCounter++];
+       
+        // Copy all the data over
+        recursiveInitBiomes(biome, kp, biomeCounter, genData, m_baseBiomeLookupMap, m_iom);
+    }
+    assert(biomeCounter == genData->biomes.size());
 
-void PlanetLoader::addBiomePixel(ui32 colorCode, int index) {
-    auto& it = m_biomeLookupMap.find(colorCode);
-    if (it == m_biomeLookupMap.end()) {
-        BiomeLookupTexture& tex = m_biomeLookupMap[colorCode];
-        tex.index = m_biomeCount;
-        m_baseBiomeLookupTextureData[index] = m_biomeCount;
-        tex.data[index] = 255;
-        m_biomeCount++;
-    } else {
-        m_baseBiomeLookupTextureData[index] = m_biomeCount - 1;
-        it->second.data[index] = 255;
+    // Set base biomes
+    memset(genData->baseBiomeLookup, 0, sizeof(genData->baseBiomeLookup));
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            auto& it = m_baseBiomeLookupMap.find(colorCodes[y][x]);
+            if (it != m_baseBiomeLookupMap.end()) {
+                genData->baseBiomeLookup[y][x] = it->second;
+            }
+        }
     }
 }
 
@@ -277,41 +371,32 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
     }
 
     if (kegProps.colorPath.size()) {
-        vg::BitmapResource pixelData;
-        // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                m_textureCache.freeTexture(kegProps.colorPath);
                 genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                    pixelData,
+                                                                    genData->liquidColorPixels,
                                                                     vg::ImageIOFormat::RGB_UI8,
                                                                     vg::TextureTarget::TEXTURE_2D,
                                                                     &vg::SamplerState::LINEAR_CLAMP,
                                                                     vg::TextureInternalFormat::RGB8,
-                                                                    vg::TextureFormat::RGB);
+                                                                    vg::TextureFormat::RGB, true);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
+            m_textureCache.freeTexture(kegProps.colorPath);
             genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                pixelData,
+                                                                genData->liquidColorPixels,
                                                                 vg::ImageIOFormat::RGB_UI8,
                                                                 vg::TextureTarget::TEXTURE_2D,
                                                                 &vg::SamplerState::LINEAR_CLAMP,
                                                                 vg::TextureInternalFormat::RGB8,
-                                                                vg::TextureFormat::RGB);
+                                                                vg::TextureFormat::RGB, true);
         }
         // Turn into a color map
-        if (genData->liquidColorMap.id) {
-            if (genData->liquidColorMap.width != 256 ||
-                genData->liquidColorMap.height != 256) {
-                std::cerr << "Liquid color map needs to be 256x256";
-            } else {
-                genData->colorMaps.colorMaps.emplace_back(new vg::BitmapResource);
-                *genData->colorMaps.colorMaps.back() = pixelData;
-                genData->colorMaps.colorMapTable["liquid"] = genData->colorMaps.colorMaps.back();
-            }
-        } else {
-            vg::ImageIO::free(pixelData);
+        if (genData->liquidColorMap.id == 0) {
+            vg::ImageIO::free(genData->liquidColorPixels);
         }
     }
     if (kegProps.texturePath.size()) {
@@ -347,42 +432,33 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
     }
 
     if (kegProps.colorPath.size()) {
-        // TODO(Ben): "biome" color map will conflict with other planets
-        vg::BitmapResource pixelData;
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
             rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+                m_textureCache.freeTexture(kegProps.colorPath);
                 genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                     pixelData,
+                                                                     genData->terrainColorPixels,
                                                                      vg::ImageIOFormat::RGB_UI8,
                                                                      vg::TextureTarget::TEXTURE_2D,
                                                                      &vg::SamplerState::LINEAR_CLAMP,
                                                                      vg::TextureInternalFormat::RGB8,
-                                                                     vg::TextureFormat::RGB);
+                                                                     vg::TextureFormat::RGB, true);
             });
             m_glRpc->invoke(&rpc, true);
         } else {
+            m_textureCache.freeTexture(kegProps.colorPath);
             genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                                                                 pixelData,
+                                                                 genData->terrainColorPixels,
                                                                  vg::ImageIOFormat::RGB_UI8,
                                                                  vg::TextureTarget::TEXTURE_2D,
                                                                  &vg::SamplerState::LINEAR_CLAMP,
                                                                  vg::TextureInternalFormat::RGB8,
-                                                                 vg::TextureFormat::RGB);
+                                                                 vg::TextureFormat::RGB, true);
         }
         // Turn into a color map
-        if (genData->terrainColorMap.id) {
-            if (genData->terrainColorMap.width != 256 ||
-                genData->terrainColorMap.height != 256) {
-                std::cerr << "Terrain color map needs to be 256x256";
-            } else {
-                genData->colorMaps.colorMaps.emplace_back(new vg::BitmapResource);
-                *genData->colorMaps.colorMaps.back() = pixelData;
-                genData->colorMaps.colorMapTable["biome"] = genData->colorMaps.colorMaps.back();
-            }
-        } else {
-            vg::ImageIO::free(pixelData);
+        if (genData->terrainColorMap.id == 0) {
+            vg::ImageIO::free(genData->terrainColorPixels);
         }
     }
     // TODO(Ben): stop being lazy and copy pasting

@@ -25,7 +25,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     m_nextFree = 0;
     // Calculate max mipmap level
     m_mipLevels = 0;
-    int width = m_pageWidthPixels;
+    ui32 width = m_pageWidthPixels;
     while (width > m_stitcher.getTilesPerRow()) {
         width >>= 1;
         m_mipLevels++;
@@ -33,6 +33,12 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
 
     // Set up first page for default textures
     flagDirtyPage(0);
+
+    // Allocate biome and liquid maps and init to white
+    BlockColorMap& bmap = m_colorMaps["biome"];
+    memset(bmap.pixels, 255, sizeof(bmap.pixels));
+    BlockColorMap& lmap = m_colorMaps["liquid"];
+    memset(lmap.pixels, 255, sizeof(lmap.pixels));
 }
 
 // TODO(Ben): Lock?
@@ -139,6 +145,44 @@ BlockTexture* BlockTexturePack::getNextFreeTexture(const nString& filePath) {
     return &m_textures[m_nextFree++];
 }
 
+BlockColorMap* BlockTexturePack::getColorMap(const nString& path) {
+    auto& it = m_colorMaps.find(path);
+    if (it != m_colorMaps.end()) return &it->second;
+
+    // Load it
+    vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGB_UI8);
+    if (!rs.data) {
+        fprintf(stderr, "Warning: Could not find color map %s\n", path.c_str());
+        return nullptr;
+    }
+   
+    // Add it
+    return setColorMap(path, &rs);
+}
+
+BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const vg::BitmapResource* rs) {
+    // Error check
+    if (rs->width != BLOCK_COLOR_MAP_WIDTH || rs->height != BLOCK_COLOR_MAP_WIDTH) {
+        fprintf(stderr, "Warning: Color map %s is not %d x %d\n", name.c_str(), BLOCK_COLOR_MAP_WIDTH, BLOCK_COLOR_MAP_WIDTH);
+        fflush(stderr);
+    }
+    return setColorMap(name, rs->bytesUI8v3);
+}
+
+BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const ui8v3* pixels) {
+    // Allocate the color map
+    BlockColorMap* colorMap = &m_colorMaps[name];
+    // Set its pixels
+    for (int y = 0; y < BLOCK_COLOR_MAP_WIDTH; y++) {
+        for (int x = 0; x < BLOCK_COLOR_MAP_WIDTH; x++) {
+            colorMap->pixels[y][x].r = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].r;
+            colorMap->pixels[y][x].g = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].g;
+            colorMap->pixels[y][x].b = pixels[y * BLOCK_COLOR_MAP_WIDTH + x].b;
+        }
+    }
+    return colorMap;
+}
+
 void BlockTexturePack::update() {
     bool needsMipmapGen = false;
     if (m_needsRealloc) {
@@ -147,7 +191,7 @@ void BlockTexturePack::update() {
         needsMipmapGen = true;
         // Upload all pages
         glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
-        for (int i = 0; i < m_pages.size(); i++) {
+        for (size_t i = 0; i < m_pages.size(); i++) {
             uploadPage(i);
         }
         std::vector<int>().swap(m_dirtyPages);
@@ -176,7 +220,7 @@ void BlockTexturePack::writeDebugAtlases() {
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_atlasTexture);
     glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    for (int i = 0; i < m_pages.size(); i++) {
+    for (size_t i = 0; i < m_pages.size(); i++) {
         SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + i * pixelsPerPage, width, height, m_resolution, 4 * width, 0xFF, 0xFF00, 0xFF0000, 0x0);
         SDL_SaveBMP(surface, ("atlas" + std::to_string(i) + ".bmp").c_str());
     }
@@ -207,306 +251,10 @@ nString getName(nString name) {
     return name;
 }
 
-void BlockTexturePack::save(BlockPack* blockPack) {
-
-    std::map<BlockTextureLayer, nString> shittyLookup1;
-    std::map<nString, BlockTextureLayer> shittyLookup2;
-
-
-    { // TextureProperties.yml
-        std::map<nString, std::pair<BlockTextureLayer, BlockTextureLayer> > matMap;
-
-        // Save layers
-        for (auto& it : m_descLookup) {
-            it.second;
-        }
-
-        std::ofstream file("Data/Blocks/LayerProperties.yml");
-
-        for (auto& it : m_descLookup) {
-            vio::Path path(it.second.temp.path);
-            nString string = path.getLeaf();
-            while (string.back() != '.') string.pop_back();
-            string.pop_back();
-            shittyLookup2[string] = it.second.temp;
-        }
-
-        // Emit data
-        keg::YAMLWriter writer;
-        writer.push(keg::WriterParam::BEGIN_MAP);
-        for (auto& it : shittyLookup2) {
-            BlockTextureLayer& l = it.second;
-            shittyLookup1[l] = it.first;
-            // Write the block name first
-            writer.push(keg::WriterParam::KEY) << it.first;
-            // Write the block data now
-            writer.push(keg::WriterParam::VALUE);
-            writer.push(keg::WriterParam::BEGIN_MAP);
-
-            writer.push(keg::WriterParam::KEY) << nString("path");
-            writer.push(keg::WriterParam::VALUE) << l.path;
-            if (l.innerSeams) {
-                writer.push(keg::WriterParam::KEY) << nString("innerSeams");
-                writer.push(keg::WriterParam::VALUE) << true;
-            }
-            if (l.method != ConnectedTextureMethods::NONE) {
-                writer.push(keg::WriterParam::KEY) << nString("method");
-                switch (l.method) {
-                    case ConnectedTextureMethods::CONNECTED:
-                        writer.push(keg::WriterParam::VALUE) << nString("connected");
-                        break;
-                    case ConnectedTextureMethods::HORIZONTAL:
-                        writer.push(keg::WriterParam::VALUE) << nString("horizontal");
-                        break;
-                    case ConnectedTextureMethods::VERTICAL:
-                        writer.push(keg::WriterParam::VALUE) << nString("vertical");
-                        break;
-                    case ConnectedTextureMethods::GRASS:
-                        writer.push(keg::WriterParam::VALUE) << nString("grass");
-                        break;
-                    case ConnectedTextureMethods::REPEAT:
-                        writer.push(keg::WriterParam::VALUE) << nString("repeat");
-                        break;
-                    case ConnectedTextureMethods::RANDOM:
-                        writer.push(keg::WriterParam::VALUE) << nString("random");
-                        break;
-                    case ConnectedTextureMethods::FLORA:
-                        writer.push(keg::WriterParam::VALUE) << nString("flora");
-                        break;
-                    default:
-                        writer.push(keg::WriterParam::VALUE) << nString("none");
-                        break;
-                }
-            }
-            if (l.transparency) {
-                writer.push(keg::WriterParam::KEY) << nString("transparency");
-                writer.push(keg::WriterParam::VALUE) << true;
-            }
-            if (l.useMapColor.size()) {
-                writer.push(keg::WriterParam::KEY) << nString("color");
-                writer.push(keg::WriterParam::VALUE) << l.useMapColor;
-            }
-            writer.push(keg::WriterParam::END_MAP);
-
-        }
-        writer.push(keg::WriterParam::END_MAP);
-
-        file << writer.c_str();
-        file.flush();
-        file.close();
-    }
-    {
-        std::ofstream file("Data/Blocks/Textures.yml");
-
-        // Emit data
-        keg::YAMLWriter writer;
-        writer.push(keg::WriterParam::BEGIN_MAP);
-        for (auto& it : m_textureLookup) {
-            BlockTexture& b = m_textures[it.second];
-            if (it.first.empty()) continue;
-            vio::Path path(it.first);
-            nString string = path.getLeaf();
-            while (string.back() != '.') string.pop_back();
-            string.pop_back();
-
-            // Write the block name first
-            writer.push(keg::WriterParam::KEY) << string;
-            // Write the block data now
-            writer.push(keg::WriterParam::VALUE);
-            writer.push(keg::WriterParam::BEGIN_MAP);
-            writer.push(keg::WriterParam::KEY) << nString("base");
-            writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.base];
-            if (b.overlay.index) {
-                writer.push(keg::WriterParam::KEY) << nString("overlay");
-                writer.push(keg::WriterParam::VALUE) << shittyLookup1[b.overlay];
-            }
-            if (b.blendMode != BlendType::ALPHA) {
-                writer.push(keg::WriterParam::KEY) << nString("blendMode");
-                switch (b.blendMode) {
-                    case BlendType::ADD:
-                        writer.push(keg::WriterParam::VALUE) << nString("add");
-                        break;
-                    case BlendType::MULTIPLY:
-                        writer.push(keg::WriterParam::VALUE) << nString("multiply");
-                        break;
-                    case BlendType::SUBTRACT:
-                        writer.push(keg::WriterParam::VALUE) << nString("subtract");
-                        break;
-                }
-            }
-            writer.push(keg::WriterParam::END_MAP);
-        }
-        writer.push(keg::WriterParam::END_MAP);
-
-        file << writer.c_str();
-        file.flush();
-        file.close();
-    }
-
-     { // BlockTextureMapping.yml
-         std::ofstream file("Data/Blocks/BlockTextureMapping.yml");
-
-         // Emit data
-         keg::YAMLWriter writer;
-         writer.push(keg::WriterParam::BEGIN_MAP);
-         
-         for (int i = 0; i < blockPack->size(); i++) {
-             const Block& b = blockPack->operator[](i);
-             nString name[6];
-             if (b.active) {
-                 // Write the block name first
-                 writer.push(keg::WriterParam::KEY) << b.sID;
-                 // Write the block data now
-                 writer.push(keg::WriterParam::VALUE);
-                 writer.push(keg::WriterParam::BEGIN_MAP);
-
-                 // I DON'T GIVE A FUCK
-                 if (b.textures[0]) {
-                     name[0] = "";
-                     for (auto& it : m_textureLookup) {
-                         BlockTexture& b2 = m_textures[it.second];
-                         if (b2.base == b.textures[0]->base && b2.overlay == b.textures[0]->overlay) {
-                             name[0] = getName(it.first);
-                             break;
-                         }
-                     }
-                    
-                 }
-                 if (b.textures[1]) {
-                     name[1] = "";
-                     for (auto& it : m_textureLookup) {
-                         BlockTexture& b2 = m_textures[it.second];
-                         if (b2.base == b.textures[1]->base && b2.overlay == b.textures[1]->overlay) {
-                             name[1] = getName(it.first);
-                             break;
-                         }
-                     }
-                     
-                 }
-                 if (b.textures[2]) {
-                     name[2] = "";
-                     for (auto& it : m_textureLookup) {
-                         BlockTexture& b2 = m_textures[it.second];
-                         if (b2.base == b.textures[2]->base && b2.overlay == b.textures[2]->overlay) {
-                             name[2] = getName(it.first);
-                             break;
-                         }
-                     }
-                     
-                 }
-                 if (b.textures[3]) {
-                     name[3] = "";
-                     for (auto& it : m_textureLookup) {
-                         BlockTexture& b2 = m_textures[it.second];
-                         if (b2.base == b.textures[3]->base && b2.overlay == b.textures[3]->overlay) {
-                             name[3] = getName(it.first);
-                             break;
-                         }
-                     }
-                   
-                 }
-                 if (b.textures[4]) {
-                     name[4] = "";
-                     for (auto& it : m_textureLookup) {
-                         BlockTexture& b2 = m_textures[it.second];
-                         if (b2.base == b.textures[4]->base && b2.overlay == b.textures[4]->overlay) {
-                             name[4] = getName(it.first);
-                             break;
-                         }
-                     }
-                   
-                 }
-                 if (b.textures[5]) {
-                     name[5] = "";
-                     for (auto& it : m_textureLookup) {
-                         BlockTexture& b2 = m_textures[it.second];
-                         if (b2.base == b.textures[5]->base && b2.overlay == b.textures[5]->overlay) {
-                             name[5] = getName(it.first);
-                             break;
-                         }
-                     }
-                   
-                 }
-
-                 if (name[0] == name[1] && name[1] == name[2] && name[2] == name[3] && name[3] == name[4] && name[4] == name[5]) {
-                     if (name[0].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("texture");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[0];
-                     }
-                 } else if (name[0] == name[1] && name[1] == name[4] && name[4] == name[5]) {
-                     if (name[0].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("texture");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[0];
-                     }
-                     if (name[2].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureBottom");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[2];
-                     }
-                     if (name[3].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureTop");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[3];
-                     }
-                 } else {
-                     if (name[0].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureLeft");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[0];
-                     }
-                     if (name[1].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureRight");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[1];
-                     }
-                     if (name[2].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureBottom");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[2];
-                     }
-                     if (name[3].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureTop");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[3];
-                     }
-                     if (name[4].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureBack");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[4];
-                     }
-                     if (name[5].size()) {
-                         writer.push(keg::WriterParam::KEY) << nString("textureFront");
-                         // Write the block data now
-                         writer.push(keg::WriterParam::VALUE) << name[5];
-                     }
-                 }
-
-                 writer.push(keg::WriterParam::END_MAP);
-             }
-         }
-
-         writer.push(keg::WriterParam::END_MAP);
-
-         file << writer.c_str();
-         file.flush();
-         file.close();
-     }
-
-    /*   const std::vector<Block>& blockList = blockPack->getBlockList();
-       for (int i = 0; i < blockList.size(); i++) {
-       const Block& b = blockList[i];
-       if (b.active) {
-       matMap[b.sID] = std::make_pair()
-       }
-       }*/
-}
-
 void BlockTexturePack::flagDirtyPage(ui32 pageIndex) {
     // If we need to allocate new pages, do so
     if (pageIndex >= m_pages.size()) {
-        int i = m_pages.size();
+        size_t i = m_pages.size();
         m_pages.resize(pageIndex + 1);
         for (; i < m_pages.size(); i++) {
             m_pages[i].pixels = new color4[m_pageWidthPixels * m_pageWidthPixels];
@@ -535,14 +283,19 @@ void BlockTexturePack::allocatePages() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LOD, (int)m_mipLevels);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 
+   
     // Anisotropic filtering
     float anisotropy;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
     glActiveTexture(GL_TEXTURE0);
-    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    // Smooth texture params
+//    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ //   glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+ //   glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 
     // Unbind
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);

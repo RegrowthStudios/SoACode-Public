@@ -36,7 +36,7 @@ public:
 
     void addChunk(Chunk* chunk);
 
-    void removeChunk(Chunk* chunk);
+    void removeChunk(Chunk* chunk, int index);
 
     Chunk* getChunk(const f64v3& voxelPos);
 
@@ -54,8 +54,7 @@ public:
     // Processes chunk queries
     void update();
 
-    Chunk* getActiveChunks() const { return m_activeChunks; }
-    const ui32& getNumActiveChunks() const { return m_numActiveChunks; }
+    const std::vector<Chunk*>& getActiveChunks() const { return m_activeChunks; }
 
 private:
     void connectNeighbors(Chunk* chunk);
@@ -66,8 +65,7 @@ private:
     ChunkAllocator* m_allocator = nullptr;
     ChunkGenerator* m_generators = nullptr;
 
-    Chunk* m_activeChunks = nullptr; ///< Linked list of chunks
-    ui32 m_numActiveChunks = 0;
+    std::vector<Chunk*> m_activeChunks;
 
     std::unordered_map<i32v3, Chunk*> m_chunkMap; ///< hashmap of chunks
     std::unordered_map<i32v2, std::shared_ptr<ChunkGridData> > m_chunkGridDataMap; ///< 2D grid specific data

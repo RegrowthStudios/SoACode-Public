@@ -5,8 +5,7 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"
-#include "SphericalTerrainCpuGenerator.h"
-#include "SphericalTerrainGpuGenerator.h"
+#include "SphericalHeightmapGenerator.h"
 #include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
 #include "PlanetLoader.h"
@@ -16,13 +15,26 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
     SpaceSystem* spaceSystem = state->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
-      
         SphericalTerrainComponent& stCmp = it.second;
+    
         const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
         const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
         stCmp.distance = glm::length(relativeCameraPos);
+
+        // Lazy random planet loading
+        if (stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
+            PlanetGenData* data = state->planetLoader->getRandomGenData((f32)stCmp.radius);
+            stCmp.meshManager = new TerrainPatchMeshManager(data);
+            stCmp.cpuGenerator = new SphericalHeightmapGenerator;
+            stCmp.cpuGenerator->init(data);
+            // Do this last to prevent race condition with regular update
+            data->radius = stCmp.radius;
+            stCmp.planetGenData = data;
+            stCmp.sphericalTerrainData->generator = stCmp.cpuGenerator;
+            stCmp.sphericalTerrainData->meshManager = stCmp.meshManager;
+        }
 
         // Animation for fade
         if (stCmp.needsVoxelComponent) {
@@ -39,7 +51,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
         if (stCmp.distance <= LOAD_DIST) {
            
-            if (stCmp.planetGenData) {
+            if (stCmp.planetGenData && !stCmp.needsVoxelComponent) {
                 // Allocate if needed
                 if (!stCmp.patches) {
                     initPatches(stCmp);
@@ -66,23 +78,8 @@ void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
     auto& spaceSystem = soaState->spaceSystem;
     for (auto& it : spaceSystem->m_sphericalTerrainCT) {
         SphericalTerrainComponent& stCmp = it.second;
-        // Lazy random planet loading
-        if(stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {
-            PlanetGenData* data = soaState->planetLoader->getRandomGenData((f32)stCmp.radius);
-            stCmp.meshManager = new TerrainPatchMeshManager(data,
-                                                            spaceSystem->normalMapRecycler.get());
-            stCmp.gpuGenerator = new SphericalTerrainGpuGenerator(stCmp.meshManager,
-                                                                  data,
-                                                                  &spaceSystem->normalMapGenProgram,
-                                                                  spaceSystem->normalMapRecycler.get());
-            stCmp.cpuGenerator = new SphericalTerrainCpuGenerator;
-            stCmp.cpuGenerator->init(data);
-            stCmp.rpcDispatcher = new TerrainRpcDispatcher(stCmp.gpuGenerator, stCmp.cpuGenerator);
-            // Do this last to prevent race condition with regular update
-            data->radius = stCmp.radius;
-            stCmp.planetGenData = data;
-        }
-        if (stCmp.planetGenData && it.second.alpha > 0.0f) stCmp.gpuGenerator->update();
+        
+        if (stCmp.meshManager && it.second.alpha > 0.0f) stCmp.meshManager->update();
     }
 }
 
@@ -104,8 +101,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
                 gridPos.x = (x - center) * patchWidth;
                 gridPos.y = (z - center) * patchWidth;
                 p.init(gridPos, static_cast<WorldCubeFace>(face),
-                       0, cmp.sphericalTerrainData, patchWidth,
-                       cmp.rpcDispatcher);
+                       0, cmp.sphericalTerrainData, patchWidth);
             }
         }
     }

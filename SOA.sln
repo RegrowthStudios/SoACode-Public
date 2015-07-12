@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoA", "SoA\SOA.vcxproj", "{588491F3-69BA-40E7-8CE8-2382A64D86E3}"
 EndProject
@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Performance1.psess = Performance1.psess
 		Performance2.psess = Performance2.psess
 		Performance3.psess = Performance3.psess
+		Performance4.psess = Performance4.psess
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModTest", "ModTest\ModTest.vcxproj", "{C49943E6-5645-4D1C-A5F6-FE2D7C94D924}"

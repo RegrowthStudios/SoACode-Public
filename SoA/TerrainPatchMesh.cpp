@@ -27,16 +27,6 @@ TerrainPatchMesh::~TerrainPatchMesh() {
     if (m_wvao) {
         glDeleteVertexArrays(1, &m_wvao);
     }
-    if (m_normalMap) {
-        glDeleteTextures(1, &m_normalMap);
-    }
-}
-
-void TerrainPatchMesh::recycleNormalMap(vg::TextureRecycler* recycler) {
-    if (m_normalMap) {
-        recycler->recycle(m_normalMap);
-        m_normalMap = 0;
-    }
 }
 
 void TerrainPatchMesh::draw(const f32m4& WVP, const vg::GLProgram& program,
@@ -44,8 +34,6 @@ void TerrainPatchMesh::draw(const f32m4& WVP, const vg::GLProgram& program,
     glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
 
     glBindVertexArray(m_vao);
-
-    glBindTexture(GL_TEXTURE_2D, m_normalMap);
 
     if (drawSkirts) {
         glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);
@@ -76,8 +64,6 @@ void TerrainPatchMesh::drawAsFarTerrain(const f64v3& relativePos, const f32m4& V
     glUniform3fv(program.getUniform("unPosition"), 1, &m_aabbPos[0]);
 
     glBindVertexArray(m_vao);
-
-    glBindTexture(GL_TEXTURE_2D, m_normalMap);
 
     if (drawSkirts) {
         glDrawElements(GL_TRIANGLES, PATCH_INDICES, GL_UNSIGNED_SHORT, 0);

@@ -11,12 +11,23 @@
 #include <Vorb/TextureRecycler.hpp>
 
 #include "FarTerrainPatch.h"
-#include "PlanetData.h"
+#include "PlanetGenData.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMesh.h"
 #include "soaUtils.h"
+
+#define MAX_UPDATES_PER_FRAME 100
+
+void TerrainPatchMeshManager::update() {
+    TerrainPatchMesh* meshes[MAX_UPDATES_PER_FRAME];
+    if (size_t numUpdates = m_meshesToAdd.try_dequeue_bulk(meshes, MAX_UPDATES_PER_FRAME)) {
+        for (size_t i = 0; i < numUpdates; i++) {
+            addMesh(meshes[i]);
+        }
+    }
+}
 
 void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
                                                   const Camera* camera,
@@ -111,8 +122,6 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
             auto& m = m_meshes[i];
 
             if (m->m_shouldDelete) {
-                m->recycleNormalMap(m_normalMapRecycler);
-
                 // [15] If m_wvbo is 1, then chunk was marked for delete between
                 // Drawing water and terrain. So we free m_wvbo to mark it
                 // for delete on the next pass through m_waterMeshes
@@ -157,8 +166,13 @@ TerrainPatchMeshManager::~TerrainPatchMeshManager() {
     }
 }
 
-void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) {
-    if (isSpherical) {
+void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh) {
+    // Upload data
+    if (mesh->m_meshDataBuffer.size()) {
+        TerrainPatchMesher::uploadMeshData(mesh);
+    }
+    // Add to mesh list
+    if (mesh->getIsSpherical()) {
         m_meshes.push_back(mesh);
         if (mesh->m_wvbo) {
             m_waterMeshes.push_back(mesh);
@@ -170,7 +184,10 @@ void TerrainPatchMeshManager::addMesh(TerrainPatchMesh* mesh, bool isSpherical) 
         }
     }
     mesh->m_isRenderable = true;
+}
 
+void TerrainPatchMeshManager::addMeshAsync(TerrainPatchMesh* mesh) {
+    m_meshesToAdd.enqueue(mesh);
 }
 
 bool meshComparator(TerrainPatchMesh* m1, TerrainPatchMesh* m2) {
@@ -280,8 +297,6 @@ void TerrainPatchMeshManager::drawFarMeshes(const f64v3& relativePos,
         for (size_t i = 0; i < m_farMeshes.size();) {
             auto& m = m_farMeshes[i];
             if (m->m_shouldDelete) {
-                m->recycleNormalMap(m_normalMapRecycler);
-
                 // [15] If m_wvbo is 1, then chunk was marked for delete between
                 // Drawing water and terrain. So we free m_wvbo to mark it
                 // for delete on the next pass through m_farWaterMeshes

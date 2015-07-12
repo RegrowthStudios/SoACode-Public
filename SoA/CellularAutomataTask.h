@@ -24,7 +24,7 @@ class Chunk;
 class ChunkManager;
 class ChunkMeshManager;
 class PhysicsEngine;
-class RenderTask;
+class ChunkMeshTask;
 
 #define CA_TASK_ID 3
 
@@ -52,7 +52,7 @@ public:
     /// Executes the task
     void execute(WorkerData* workerData) override;
 
-    RenderTask* renderTask = nullptr; ///< A nested to force re-mesh
+    ChunkMeshTask* renderTask = nullptr; ///< A nested to force re-mesh
 
 private:
     std::vector<CaPhysicsType*> typesToUpdate; ///< All the CA types that will be updated by this task
