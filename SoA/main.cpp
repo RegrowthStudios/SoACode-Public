@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
         consoleMain();
         break;
     case Startup::HELP:
+        // Pause on user input
         getchar();
         break;
     default:
