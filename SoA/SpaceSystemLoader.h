@@ -18,69 +18,58 @@
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 #include "VoxPool.h"
+#include "SystemBodyLoader.h"
 
 struct GasGiantProperties;
 struct SystemBody;
-struct SystemBodyProperties;
+struct SystemOrbitProperties;
 class SpaceSystem;
 class PlanetLoader;
 
 DECL_VIO(class IOManager)
 DECL_VCORE(class RPCManager)
 
-struct SpaceSystemLoadParams {
-    SpaceSystem* spaceSystem = nullptr;
-    vio::IOManager* ioManager = nullptr;
-    nString dirPath;
-    PlanetLoader* planetLoader = nullptr;
-    vcore::RPCManager* glrpc = nullptr;
-    vcore::ThreadPool<WorkerData>* threadpool = nullptr;
-
-    std::map<nString, SystemBody*> barycenters; ///< Contains all barycenter objects
-    std::map<nString, SystemBody*> systemBodies; ///< Contains all system bodies
-    std::map<nString, vecs::EntityID> bodyLookupMap;
-};
-
 class SpaceSystemLoader {
 public:
+    void init(const SoaState* soaState,
+              OPT vcore::RPCManager* glrpc);
     /// Loads and adds a star system to the SpaceSystem
     /// @param pr: params
-    static void loadStarSystem(SpaceSystemLoadParams& pr);
+    void loadStarSystem(const nString& path);
 private:
     /// Loads path color scheme
     /// @param pr: params
     /// @return true on success
-    static bool loadPathColors(SpaceSystemLoadParams& pr);
+    bool loadPathColors();
 
     /// Loads and adds system properties to the params
     /// @param pr: params
     /// @return true on success
-    static bool loadSystemProperties(SpaceSystemLoadParams& pr);
-
-    /// Loads and adds body properties to the params
-    /// @param pr: params
-    /// @param filePath: Path to body
-    /// @param sysProps: Keg properties for the system
-    /// @param body: The body to fill
-    /// @return true on success
-    static bool loadBodyProperties(SpaceSystemLoadParams& pr, const nString& filePath,
-                                   const SystemBodyProperties* sysProps, OUT SystemBody* body);
+    bool loadSystemProperties();
 
     // Sets up mass parameters for binaries
-    static void initBinaries(SpaceSystemLoadParams& pr);
+    void initBinaries();
     // Recursive function for binary creation
-    static void initBinary(SpaceSystemLoadParams& pr, SystemBody* bary);
+    void initBinary(SystemBody* bary);
 
     // Initializes orbits and parent connections
-    static void initOrbits(SpaceSystemLoadParams& pr);
+    void initOrbits();
 
-    static void createGasGiant(SpaceSystemLoadParams& pr,
-                               const SystemBodyProperties* sysProps,
-                               GasGiantProperties* properties,
-                               SystemBody* body);
+    void computeRef(SystemBody* body);
 
-    static void calculateOrbit(SpaceSystemLoadParams& pr, vecs::EntityID entity, f64 parentMass,
-                               SystemBody* body, f64 binaryMassRatio = 0.0);
+    void calculateOrbit(vecs::EntityID entity, f64 parentMass,
+                        SystemBody* body, f64 binaryMassRatio = 0.0);
+
+    SystemBodyLoader m_bodyLoader;
+    
+    const SoaState* m_soaState = nullptr;
+    SpaceSystem* m_spaceSystem;
+    vio::IOManager* m_ioManager = nullptr;
+    vcore::RPCManager* m_glrpc = nullptr;
+    vcore::ThreadPool<WorkerData>* m_threadpool = nullptr;
+    std::map<nString, SystemBody*> m_barycenters;
+    std::map<nString, SystemBody*> m_systemBodies;
+    std::map<nString, vecs::EntityID> m_bodyLookupMap;
 };
 
 #endif // SpaceSystemLoader_h__

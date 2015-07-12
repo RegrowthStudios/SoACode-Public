@@ -50,7 +50,7 @@ struct GasGiantProperties;
 struct PlanetProperties;
 struct StarProperties;
 struct SystemBody;
-struct SystemBodyProperties;
+struct SystemOrbitProperties;
 
 DECL_VG(class TextureRecycler)
 

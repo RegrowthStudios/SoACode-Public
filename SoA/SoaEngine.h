@@ -69,8 +69,6 @@ public:
     static void destroySpaceSystem(SoaState* state);
 
     static OptionsController optionsController;
-private:
-    static SpaceSystemLoader m_spaceSystemLoader;
 };
 
 #endif // SoAEngine_h__

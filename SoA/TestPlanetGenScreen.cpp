@@ -61,7 +61,7 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
     m_eyePos = f32v3(0, 0, m_eyeDist);
 
     { // Set up planet
-        SystemBodyProperties props;
+        SystemOrbitProperties props;
         PlanetProperties pProps;
         pProps.diameter = PLANET_RADIUS * 2.0;
         pProps.mass = 10000.0;

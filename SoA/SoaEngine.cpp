@@ -14,7 +14,6 @@
 #define M_PER_KM 1000.0
 
 OptionsController SoaEngine::optionsController;
-SpaceSystemLoader SoaEngine::m_spaceSystemLoader;
 
 void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_PLANET_DETAIL, "Planet Detail", OptionValue(1));
@@ -109,15 +108,9 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     }
 
     // Load system
-    SpaceSystemLoadParams spaceSystemLoadParams;
-    spaceSystemLoadParams.glrpc = glrpc;
-    spaceSystemLoadParams.dirPath = loadData.filePath;
-    spaceSystemLoadParams.spaceSystem = state->spaceSystem;
-    spaceSystemLoadParams.ioManager = state->systemIoManager;
-    spaceSystemLoadParams.planetLoader = state->planetLoader;
-    spaceSystemLoadParams.threadpool = state->threadPool;
-
-    m_spaceSystemLoader.loadStarSystem(spaceSystemLoadParams);
+    SpaceSystemLoader spaceSystemLoader;
+    spaceSystemLoader.init(state, glrpc);
+    spaceSystemLoader.loadStarSystem(loadData.filePath);
 
     pool.dispose();
     return true;

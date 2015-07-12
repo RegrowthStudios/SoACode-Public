@@ -26,8 +26,8 @@
 #define SEC_PER_HOUR 3600.0
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
-                           const SystemBodyProperties* sysProps,
-                           SystemBody* body, f64 bodyRadius) {
+                                                   const SystemOrbitProperties* sysProps,
+                                                   SystemBody* body, f64 bodyRadius) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -44,7 +44,7 @@ vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
 }
 
 vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
-                                    const SystemBodyProperties* sysProps,
+                                    const SystemOrbitProperties* sysProps,
                                     const PlanetProperties* properties,
                                     SystemBody* body,
                                     vcore::ThreadPool<WorkerData>* threadPool) {
@@ -92,7 +92,7 @@ void SpaceSystemAssemblages::destroyPlanet(SpaceSystem* gameSystem, vecs::Entity
 }
 
 vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
-                                  const SystemBodyProperties* sysProps,
+                                  const SystemOrbitProperties* sysProps,
                                   const StarProperties* properties,
                                   SystemBody* body) {
     body->entity = spaceSystem->addEntity();
@@ -112,7 +112,7 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a);
 
@@ -125,7 +125,7 @@ void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID
 
 /// GasGiant entity
 vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
-                                      const SystemBodyProperties* sysProps,
+                                      const SystemOrbitProperties* sysProps,
                                       const GasGiantProperties* properties,
                                       SystemBody* body,
                                       VGTexture colorMap) {
@@ -156,7 +156,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
         addPlanetRingsComponent(spaceSystem, id, npCmp, properties->rings);
     }
 
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a);
 

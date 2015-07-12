@@ -23,24 +23,24 @@ KEG_ENUM_DEF(TrojanType, TrojanType, kt) {
     kt.addValue("L5", TrojanType::L5);
 }
 
-KEG_TYPE_DEF_SAME_NAME(SystemBodyProperties, kt) {
-    kt.addValue("type", keg::Value::custom(offsetof(SystemBodyProperties, type), "SpaceObjectType", true));
-    kt.addValue("trojan", keg::Value::custom(offsetof(SystemBodyProperties, trojan), "TrojanType", true));
-    kt.addValue("comps", keg::Value::array(offsetof(SystemBodyProperties, comps), keg::BasicType::C_STRING));
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, par, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, path, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, ref, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, e, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, t, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, a, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, n, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, p, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, i, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, RA, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, dec, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, dist, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, td, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyProperties, tf, F64);
+KEG_TYPE_DEF_SAME_NAME(SystemOrbitProperties, kt) {
+    kt.addValue("type", keg::Value::custom(offsetof(SystemOrbitProperties, type), "SpaceObjectType", true));
+    kt.addValue("trojan", keg::Value::custom(offsetof(SystemOrbitProperties, trojan), "TrojanType", true));
+    kt.addValue("comps", keg::Value::array(offsetof(SystemOrbitProperties, comps), keg::BasicType::C_STRING));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, par, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, path, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, ref, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, e, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, t, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, a, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, n, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, p, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, i, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, RA, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, dec, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, dist, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, td, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, tf, F64);
 }
 
 KEG_TYPE_DEF_SAME_NAME(AtmosphereProperties, kt) {

@@ -75,7 +75,7 @@ struct CloudsProperties {
 };
 KEG_TYPE_DECL(CloudsProperties);
 
-struct SystemBodyProperties {
+struct SystemOrbitProperties {
     SpaceObjectType type = SpaceObjectType::NONE;
     TrojanType trojan = TrojanType::NONE;
     Array<const char*> comps;
@@ -94,7 +94,7 @@ struct SystemBodyProperties {
     f64 td = 1.0; ///< Reference body period divisor
     f64 tf = 1.0; ///< Reference body period factor
 };
-KEG_TYPE_DECL(SystemBodyProperties);
+KEG_TYPE_DECL(SystemOrbitProperties);
 
 struct SystemBody {
     nString name = "";
@@ -103,7 +103,7 @@ struct SystemBody {
     std::vector<SystemBody*> children;
     vecs::EntityID entity = 0;
     SpaceBodyType type = SpaceBodyType::NONE;
-    SystemBodyProperties properties;
+    SystemOrbitProperties properties;
     f64 mass = 0.0;
     bool isBaryCalculated = false; ///< Used by barycenters
     bool hasComputedRef = false; ///< True when it has computed trojan and t with ref body

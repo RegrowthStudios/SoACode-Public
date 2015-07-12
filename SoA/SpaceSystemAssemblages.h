@@ -30,7 +30,7 @@ struct GasGiantProperties;
 struct PlanetProperties;
 struct StarProperties;
 struct SystemBody;
-struct SystemBodyProperties;
+struct SystemOrbitProperties;
 struct SphericalTerrainComponent;
 
 DECL_VG(
@@ -48,12 +48,12 @@ namespace SpaceSystemAssemblages {
    
     // Plain orbit entity
     extern vecs::EntityID createOrbit(SpaceSystem* spaceSystem,
-                                       const SystemBodyProperties* sysProps,
+                                       const SystemOrbitProperties* sysProps,
                                        SystemBody* body, f64 bodyRadius);
 
     /// Planet entity
     extern vecs::EntityID createPlanet(SpaceSystem* spaceSystem,
-                                        const SystemBodyProperties* sysProps,
+                                        const SystemOrbitProperties* sysProps,
                                         const PlanetProperties* properties,
                                         SystemBody* body,
                                         vcore::ThreadPool<WorkerData>* threadPool);
@@ -61,14 +61,14 @@ namespace SpaceSystemAssemblages {
 
     /// Star entity
     extern vecs::EntityID createStar(SpaceSystem* spaceSystem,
-                                        const SystemBodyProperties* sysProps,
+                                        const SystemOrbitProperties* sysProps,
                                         const StarProperties* properties,
                                         SystemBody* body);
     extern void destroyStar(SpaceSystem* gameSystem, vecs::EntityID planetEntity);
 
     /// GasGiant entity
     extern vecs::EntityID createGasGiant(SpaceSystem* spaceSystem,
-                                        const SystemBodyProperties* sysProps,
+                                        const SystemOrbitProperties* sysProps,
                                         const GasGiantProperties* properties,
                                         SystemBody* body,
                                         VGTexture colorMap);
