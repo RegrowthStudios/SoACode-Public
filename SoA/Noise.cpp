@@ -57,9 +57,10 @@ KEG_TYPE_DEF_SAME_NAME(TerrainFuncProperties, kt) {
 // Converted to C++ by Ben Arnold
 
 // Permutation polynomial: (34x^2 + x) mod 289
-f64v3 permute(const f64v3& x) {
+inline f64v3 permute(const f64v3& x) {
     return glm::mod((34.0 * x + 1.0) * x, 289.0);
 }
+
 
 // TODO(Ben): Fastfloor?
 f64v2 Noise::cellular(const f64v3& P) {
@@ -256,9 +257,9 @@ f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, con
 }
 
 f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z) {
-    f64 total = 0;
+    f64 total = 0.0;
     f64 frequency = freq;
-    f64 amplitude = 1;
+    f64 amplitude = 1.0;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
