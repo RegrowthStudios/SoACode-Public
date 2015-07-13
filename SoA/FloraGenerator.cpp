@@ -264,7 +264,6 @@ bool FloraGenerator::makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, flo
                         if (!makeTrunkOuterRing(innerBlockIndex, innerChunkOffset,  x, z, coreWidth, leafThickness, leafBlock, _lnodes)) return false;
                     } 
                 }
-              
             }
 
             // Move along X axis
@@ -703,7 +702,6 @@ int FloraGenerator::makeMushroomLeaves(int c, ui16 chunkOffset, int dir, bool br
             return makeMushroomLeaves(c - CHUNK_LAYER + CHUNK_WIDTH, chunkOffset, dir, branch, 1, ntype, lamntype, dx, dy, dz, rad, tt);
         }
     }
-
 
     return 1;
 }

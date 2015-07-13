@@ -46,6 +46,7 @@ private:
     std::map<VirtualKey, nString> m_screenNames; ///< Stores display names of screens
     AutoDelegatePool m_delegatePool; ///< Input hooks reservoir
     vui::IGameScreen* m_nextScreen = nullptr; ///< The next screen
+    int deferCounter = 1; //< When this hits 0 we change screen
     vg::SpriteBatch* m_sb = nullptr;
     vg::SpriteFont* m_font = nullptr;
 };

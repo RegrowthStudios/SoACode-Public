@@ -39,6 +39,7 @@ void DevScreen::onEntry(const vui::GameTime& gameTime) {
     glClearDepth(1.0);
 
     m_nextScreen = nullptr;
+    deferCounter = 1;
 
     m_sb = new vg::SpriteBatch(true, true);
     m_font = new vg::SpriteFont();
@@ -56,7 +57,13 @@ void DevScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void DevScreen::update(const vui::GameTime& gameTime) {
-    if (m_nextScreen) m_state = vui::ScreenState::CHANGE_NEXT;
+    if (m_nextScreen) {
+        if (deferCounter) {
+            --deferCounter;
+        } else {
+            m_state = vui::ScreenState::CHANGE_NEXT;
+        }
+    }
 }
 
 void DevScreen::draw(const vui::GameTime& gameTime) {
@@ -68,18 +75,23 @@ void DevScreen::draw(const vui::GameTime& gameTime) {
 
     f32v2 pos(90.0f, 300.0f);
     f32 posInc = 35.0f;
-    
-    // Draw title
-    m_sb->drawString(m_font, TITLE, f32v2((w->getWidth() - m_font->measure(TITLE).x * 1.5) / 2.0, 50.0f),
-                     f32v2(1.5f), FONT_COLOR);
-    // Draw strings
-    m_sb->drawString(m_font, "* Press one of the following keys to enter a screen:", pos, f32v2(1.0f), FONT_COLOR);
-    pos.y += posInc * 2.0f;
-    for (auto& it : m_screenMapping) {
-        m_sb->drawString(m_font, m_screenNames[it.first].c_str(), pos, f32v2(1.0f), FONT_COLOR);
-        pos.y += posInc;
-    }
 
+    if (m_nextScreen) {
+        // Draw loading message
+        m_sb->drawString(m_font, "Loading... please wait.", f32v2(w->getWidth() * 0.5f, w->getHeight() * 0.5f), f32v2(1.0f), FONT_COLOR, vg::TextAlign::CENTER);
+    } else {
+        // Draw title
+        m_sb->drawString(m_font, TITLE, f32v2((w->getWidth() - m_font->measure(TITLE).x * 1.5) / 2.0, 50.0f),
+                         f32v2(1.5f), FONT_COLOR);
+        // Draw strings
+        m_sb->drawString(m_font, "* Press one of the following keys to enter a screen:", pos, f32v2(1.0f), FONT_COLOR);
+   
+        pos.y += posInc * 2.0f;
+        for (auto& it : m_screenMapping) {
+            m_sb->drawString(m_font, m_screenNames[it.first].c_str(), pos, f32v2(1.0f), FONT_COLOR);
+            pos.y += posInc;
+        }
+    }
     m_sb->end();
     m_sb->render(f32v2(w->getWidth(), w->getHeight()));
 }

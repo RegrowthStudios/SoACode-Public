@@ -42,8 +42,6 @@ public:
 //flags
 const int TOOSTEEP = 0x4;
 
-class HeightData;
-
 struct MineralData
 {
     MineralData(GLint btype, GLint startheight, float startchance, GLint centerheight, float centerchance, GLint endheight, float endchance, GLint minsize, GLint maxsize)
