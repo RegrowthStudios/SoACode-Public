@@ -78,7 +78,7 @@ void App::addScreens() {
     scrTests.push_back(new TestDisplacementMappingScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
-    scrTests.push_back(new TestNoiseScreen);
+    scrTests.push_back(new TestNoiseScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_N, scrTests.back(), "TestNoiseScreen");
     scrTests.push_back(new TestNewBlockAPIScreen);

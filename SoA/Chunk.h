@@ -100,7 +100,7 @@ public:
     int numBlocks;
     volatile int refCount; ///< Only change on main thread
     std::mutex mutex;
-    
+
     ui32 numNeighbors = 0u;
     ui8 remeshFlags;
     volatile bool isAccessible = false;
