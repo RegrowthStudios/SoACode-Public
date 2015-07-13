@@ -10,6 +10,7 @@ class BlockTextureLayer;
 class ChunkMeshData;
 struct BlockTexture;
 struct PlanetHeightData;
+struct FloraQuadData;
 
 // Sizes For A Padded Chunk
 const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
@@ -64,6 +65,7 @@ private:
     void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]);
     void computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
     void addFlora();
+    void addFloraQuad(const ui8v3* positions, FloraQuadData& data);
     void addLiquid();
 
     int getLiquidLevel(int blockIndex, const Block& block);
@@ -83,13 +85,13 @@ private:
 
     std::vector<BlockVertex> m_finalVerts[6];
 
+    std::vector<VoxelQuad> m_floraQuads;
     std::vector<VoxelQuad> m_quads[6];
     ui32 m_numQuads;
 
     BlockTextureMethodParams m_textureMethodParams[6][2];
 
     // TODO(Ben): Change this up a bit
-    std::vector<BlockVertex> _cutoutVerts;
     std::vector<LiquidVertex> _waterVboVerts;
 
     ChunkMeshData* m_chunkMeshData = nullptr;

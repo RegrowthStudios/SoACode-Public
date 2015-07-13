@@ -585,6 +585,9 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
         sizes[i] = index - tmp;
     }
 
+    // Swap flora quads
+    m_chunkMeshData->cutoutQuads.swap(m_floraQuads);
+
     m_highestY /= QUAD_SIZE;
     m_lowestY /= QUAD_SIZE;
     m_highestX /= QUAD_SIZE;
@@ -937,8 +940,8 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     overlayNormTextureIndex %= ATLAS_SIZE;
     overlayDispTextureIndex %= ATLAS_SIZE;
     i32v3 pos(bx, by, bz);
-    int uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
-    int vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
+    ui8 uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
+    ui8 vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
 
     // Construct the quad
     i16 quadIndex = quads.size();
@@ -1058,67 +1061,141 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     m_quadIndices[blockIndex][face] = quadIndex;
 }
 
+struct FloraQuadData {
+    color3 blockColor[2];
+    BlockTextureIndex baseTextureIndex;
+    BlockTextureIndex baseNormTextureIndex;
+    BlockTextureIndex baseDispTextureIndex;
+    BlockTextureIndex overlayTextureIndex;
+    BlockTextureIndex overlayNormTextureIndex;
+    BlockTextureIndex overlayDispTextureIndex;
+    ui8 blendMode;
+    ui8 baseTextureAtlas;
+    ui8 baseNormTextureAtlas;
+    ui8 baseDispTextureAtlas;
+    ui8 overlayTextureAtlas;
+    ui8 overlayNormTextureAtlas;
+    ui8 overlayDispTextureAtlas;
+    ui8 uOffset;
+    ui8 vOffset;
+    const BlockTexture* texture;
+};
+
 //adds a flora mesh
 void ChunkMesher::addFlora() {
+    FloraQuadData data;
 
-    //const Block &block = (*m_blocks)[mi.btype];
-    //mi.currentBlock = &block;
+    data.texture = block->textures[0];
+    // Get colors
+    // TODO(Ben): altColors
+    color3 blockColor[2];
+    data.texture->base.getFinalColor(blockColor[B_INDEX],
+                                heightData->temperature,
+                                heightData->humidity, 0);
+    data.texture->base.getFinalColor(blockColor[O_INDEX],
+                                heightData->temperature,
+                                heightData->humidity, 0);
 
-    //ColorRGB8 color, overlayColor;
-    //const int wc = mi.wc;
-    //const int btype = mi.btype;
+    // Get texturing parameters
+    data.blendMode = getBlendMode(data.texture->blendMode);
+    // TODO(Ben): Make this better
+    data.baseTextureIndex = data.texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    data.baseNormTextureIndex = data.texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    data.baseDispTextureIndex = data.texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
+    data.overlayTextureIndex = data.texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    data.overlayNormTextureIndex = data.texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    data.overlayDispTextureIndex = data.texture->overlay.getDispTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
 
-    ////Biome *biome = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].biome;
-    //int temperature = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].temperature;
-    //int rainfall = mi.chunkGridData->heightData[mi.nz*CHUNK_WIDTH + mi.nx].rainfall;
+    // TODO(Ben): Bitwise ops?
+    data.baseTextureAtlas = (ui8)(data.baseTextureIndex / ATLAS_SIZE);
+    data.baseNormTextureAtlas = (ui8)(data.baseNormTextureIndex / ATLAS_SIZE);
+    data.baseDispTextureAtlas = (ui8)(data.baseDispTextureIndex / ATLAS_SIZE);
+    data.overlayTextureAtlas = (ui8)(data.overlayTextureIndex / ATLAS_SIZE);
+    data.overlayNormTextureAtlas = (ui8)(data.overlayNormTextureIndex / ATLAS_SIZE);
+    data.overlayDispTextureAtlas = (ui8)(data.overlayDispTextureIndex / ATLAS_SIZE);
+    data.baseTextureIndex %= ATLAS_SIZE;
+    data.baseNormTextureIndex %= ATLAS_SIZE;
+    data.baseDispTextureIndex %= ATLAS_SIZE;
+    data.overlayTextureIndex %= ATLAS_SIZE;
+    data.overlayNormTextureIndex %= ATLAS_SIZE;
+    data.overlayDispTextureIndex %= ATLAS_SIZE;
+    i32v3 pos(bx, by, bz);
+    data.uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
+    data.vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
+    int r;
+    switch (block->meshType) {
+        case MeshType::LEAVES:
 
-    //GLuint flags = GETFLAGS(m_blockData[mi.wc]);
+            break;
+        case MeshType::CROSSFLORA:
+            //Generate a random number between 0 and 3 inclusive
+            r = std::bind(std::uniform_int_distribution<int>(0, NUM_CROSSFLORA_MESHES-1), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
 
-    //ui8 sunLight = m_sunData[wc];
-    //ColorRGB8 lampLight((m_lampData[wc] & LAMP_RED_MASK) >> LAMP_RED_SHIFT,
-    //                    (m_lampData[wc] & LAMP_GREEN_MASK) >> LAMP_GREEN_SHIFT,
-    //                    m_lampData[wc] & LAMP_BLUE_MASK);
+            ChunkMesher::addFloraQuad(VoxelMesher::crossFloraVertices[r], data);
+            ChunkMesher::addFloraQuad(VoxelMesher::crossFloraVertices[r] + 4, data);
+            break;
+        case MeshType::FLORA:
+            //Generate a random number between 0 and 3 inclusive
+            r = std::bind(std::uniform_int_distribution<int>(0, NUM_FLORA_MESHES-1), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
 
-    //sunLight = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - sunLight)));
-    //lampLight.r = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.r)));
-    //lampLight.g = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.g)));
-    //lampLight.b = (ui8)(255.0f*(LIGHT_OFFSET + pow(LIGHT_MULT, MAXLIGHT - lampLight.b)));
+            ChunkMesher::addFloraQuad(VoxelMesher::floraVertices[r], data);
+            ChunkMesher::addFloraQuad(VoxelMesher::floraVertices[r] + 4, data);
+            ChunkMesher::addFloraQuad(VoxelMesher::floraVertices[r] + 8, data);
+            break;
+    }
+}
 
-    //(*m_blocks)[btype].GetBlockColor(color, overlayColor, flags, temperature, rainfall, block.textures[0]);
+void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
 
-    ////We will offset the texture index based on the texture method
-    //i32 textureIndex = block.textures[0]->base.getBlockTextureIndex(mi.pxBaseMethodParams, color);
-    //i32 overlayTextureIndex = block.textures[0]->overlay.getBlockTextureIndex(mi.pxOverlayMethodParams, overlayColor);
+    m_floraQuads.emplace_back();
+    VoxelQuad& quad = m_floraQuads.back();
 
-    //int r;
+    for (int i = 0; i < 4; i++) {
+        BlockVertex& v = quad.verts[i];
+        v.position = positions[i] + voxelPosOffset;
 
-    //switch (mi.meshType){
-    //    case MeshType::LEAVES:
+        v.color = data.blockColor[B_INDEX];
+        v.overlayColor = data.blockColor[O_INDEX];
 
-    //        break;
-    //    case MeshType::CROSSFLORA:
-    //        //Generate a random number between 0 and 3 inclusive
-    //        r = std::bind(std::uniform_int_distribution<int>(0, 1), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
+        // TODO(Ben) array?
+        v.textureIndex = data.baseTextureIndex;
+        v.textureAtlas = data.baseTextureAtlas;
+        v.normIndex = data.baseNormTextureIndex;
+        v.normAtlas = data.baseNormTextureAtlas;
+        v.dispIndex = data.baseDispTextureIndex;
+        v.dispAtlas = data.baseDispTextureAtlas;
+        v.overlayTextureIndex = data.overlayTextureIndex;
+        v.overlayTextureAtlas = data.overlayTextureAtlas;
+        v.overlayNormIndex = data.overlayNormTextureIndex;
+        v.overlayNormAtlas = data.overlayNormTextureAtlas;
+        v.overlayDispIndex = data.overlayDispTextureIndex;
+        v.overlayDispAtlas = data.overlayDispTextureAtlas;
 
-    //        _cutoutVerts.resize(_cutoutVerts.size() + 8);
-    //        VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
-    //        mi.cutoutIndex += 4;
-    //        VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::crossFloraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
-    //        mi.cutoutIndex += 4;
-    //        break;
-    //    case MeshType::FLORA:
-    //        //Generate a random number between 0 and 3 inclusive
-    //        r = std::bind(std::uniform_int_distribution<int>(0, 3), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
+        v.textureWidth = (ui8)data.texture->base.size.x;
+        v.textureHeight = (ui8)data.texture->base.size.y;
+        v.overlayTextureWidth = (ui8)data.texture->overlay.size.x;
+        v.overlayTextureHeight = (ui8)data.texture->overlay.size.y;
+        v.blendMode = data.blendMode;
+        v.face = (ui8)0;
+    }
+    // Set texture coordinates
+    quad.verts[0].tex.x = (ui8)(UV_0 + data.uOffset);
+    quad.verts[0].tex.y = (ui8)(UV_1 + data.vOffset);
+    quad.verts[1].tex.x = (ui8)(UV_0 + data.uOffset);
+    quad.verts[1].tex.y = (ui8)(UV_0 + data.vOffset);
+    quad.verts[2].tex.x = (ui8)(UV_1 + data.uOffset);
+    quad.verts[2].tex.y = (ui8)(UV_0 + data.vOffset);
+    quad.verts[3].tex.x = (ui8)(UV_1 + data.uOffset);
+    quad.verts[3].tex.y = (ui8)(UV_1 + data.vOffset);
 
-    //        _cutoutVerts.resize(_cutoutVerts.size() + 12);
-    //        VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 0, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
-    //        mi.cutoutIndex += 4;
-    //        VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 12, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
-    //        mi.cutoutIndex += 4;
-    //        VoxelMesher::makeFloraFace(&(_cutoutVerts[0]), VoxelMesher::floraVertices[r], VoxelMesher::floraNormals, 24, block.waveEffect, i32v3(mi.nx, mi.ny, mi.nz), mi.cutoutIndex, textureIndex, overlayTextureIndex, color, overlayColor, sunLight, lampLight, block.textures[0]);
-    //        mi.cutoutIndex += 4;
-    //        break;
-    //}
+    // Check against lowest and highest for culling in render
+    // TODO(Ben): Think about this more
+    if (quad.v0.position.x < m_lowestX) m_lowestX = quad.v0.position.x;
+    if (quad.v0.position.x > m_highestX) m_highestX = quad.v0.position.x;
+    if (quad.v0.position.y < m_lowestY) m_lowestY = quad.v0.position.y;
+    if (quad.v0.position.y > m_highestY) m_highestY = quad.v0.position.y;
+    if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
+    if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
 }
 
 //Gets the liquid level from a block index
@@ -1504,23 +1581,22 @@ void ChunkMesher::buildCutoutVao(ChunkMesh& cm) {
         glEnableVertexAttribArray(i);
     }
 
-    //position + texture type
-    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
-    //UV, animation, blendmode
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
-    //textureAtlas_textureIndex
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
-    //Texture dimensions
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
-    //color
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
-    //overlayColor
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
-    //lightcolor[3], sunlight,
-    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
-    //normal
-    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
-
+    // vPosition_Face
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
+    // vTex_Animation_BlendMode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
+    // .0
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
+    // vNDTextureAtlas
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));
+    // vNDTextureIndex
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normIndex));
+    // vTexDims
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
+    // vColor
+    glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
+    // vOverlayColor
+    glVertexAttribPointer(7, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
 
     glBindVertexArray(0);
 }
