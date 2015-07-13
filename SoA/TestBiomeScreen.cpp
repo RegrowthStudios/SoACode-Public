@@ -195,8 +195,9 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
 
     // Draw UI
     char buf[256];
+    sprintf(buf, "FPS: %.1f", m_app->getFps());
     m_sb.begin();
-    sprintf(buf, "FPS: %f", m_app->getFps());
+    m_sb.drawString(&m_font, buf, f32v2(30.0f), f32v2(1.0f), color::White);
     m_sb.end();
     m_sb.render(f32v2(m_commonState->window->getViewportDims()));
     vg::DepthState::FULL.set(); // Have to restore depth
@@ -210,14 +211,27 @@ void TestBiomeScreen::initChunks() {
     m_heightData.resize(HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS);
 
     // Init height data
+    m_heightGenerator.init(m_genData);
+    for (int z = 0; z < HORIZONTAL_CHUNKS; z++) {
+        for (int x = 0; x < HORIZONTAL_CHUNKS; x++) {
+            auto& hd = m_heightData[z * HORIZONTAL_CHUNKS + x];
+            for (int i = 0; i < CHUNK_WIDTH; i++) {
+                for (int j = 0; j < CHUNK_WIDTH; j++) {
+                    VoxelPosition2D pos;
+                    pos.pos.x = x * CHUNK_WIDTH + j;
+                    pos.pos.y = z * CHUNK_WIDTH + i;
+                    m_heightGenerator.generateHeightData(hd.heightData[i * CHUNK_WIDTH + j], pos);
+                }
+            }
+        }
+    }
+
+    // Get center height
+    f32 cHeight = m_heightData[HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS / 2].heightData[CHUNK_LAYER / 2].height;
+    // Center the heightmap
     for (auto& hd : m_heightData) {
-        hd.isLoaded = true;
         for (int i = 0; i < CHUNK_LAYER; i++) {
-            hd.heightData[i].biome = &DEFAULT_BIOME;
-            hd.heightData[i].height = 10;
-            hd.heightData[i].humidity = 128;
-            hd.heightData[i].temperature = 128;
-            hd.heightData[i].flags = 0;
+            hd.heightData[i].height -= cHeight;
         }
     }
 

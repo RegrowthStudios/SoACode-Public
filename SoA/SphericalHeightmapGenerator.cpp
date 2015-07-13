@@ -242,7 +242,7 @@ f64 SphericalHeightmapGenerator::getHumidityValue(const f64v3& pos, const f64v3&
     return SphericalHeightmapGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), genHeight - glm::max(0.0, m_genData->humHeightFalloff * height));
 }
 
-// Use tetryds formula when displaying to user?
+// Thanks to tetryds for these
 f64 SphericalHeightmapGenerator::calculateTemperature(f64 range, f64 angle, f64 baseTemp) {
     f64 tempFalloff = 1.0 - pow(cos(angle), 2.0 * angle);
     f64 temp = baseTemp - tempFalloff * range;

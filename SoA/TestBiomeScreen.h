@@ -10,11 +10,12 @@
 #include "BlockPack.h"
 #include "Camera.h"
 #include "Chunk.h"
-#include "CommonState.h"
 #include "ChunkMesher.h"
 #include "ChunkRenderer.h"
-#include "SSAORenderStage.h"
+#include "CommonState.h"
 #include "HdrRenderStage.h"
+#include "SSAORenderStage.h"
+#include "SphericalHeightmapGenerator.h"
 
 class TestBiomeScreen : public vui::IAppScreen < App > {
 public:
@@ -47,6 +48,7 @@ private:
     ChunkRenderer m_renderer;
     ChunkMesher m_mesher;
     ProceduralChunkGenerator m_chunkGenerator;
+    SphericalHeightmapGenerator m_heightGenerator;
     PlanetGenData* m_genData = nullptr;
     vio::IOManager m_iom;
 
