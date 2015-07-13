@@ -31,9 +31,7 @@ void free(T* v) {
 
 void initState(SoaState* s, const cString spaceSystemDir) {
     SoaEngine::initState(s);
-    SoaEngine::SpaceSystemLoadData ld = {};
-    ld.filePath = spaceSystemDir;
-    SoaEngine::loadSpaceSystem(s, ld);
+    SoaEngine::loadSpaceSystem(s, spaceSystemDir);
 }
 
 std::thread* startGame(SoaState* s, SoaController* c) {

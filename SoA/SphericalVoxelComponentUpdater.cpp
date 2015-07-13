@@ -29,12 +29,12 @@
 void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
     SpaceSystem* spaceSystem = soaState->spaceSystem;
     GameSystem* gameSystem = soaState->gameSystem;
-    if (spaceSystem->m_sphericalVoxelCT.getComponentListSize() > 1) {
+    if (spaceSystem->sphericalVoxel.getComponentListSize() > 1) {
 
         // TODO(Ben): This is temporary hard coded player stuff.
         auto& playerPosCmp = gameSystem->voxelPosition.getFromEntity(soaState->playerEntity);
 
-        for (auto& it : spaceSystem->m_sphericalVoxelCT) {
+        for (auto& it : spaceSystem->sphericalVoxel) {
             if (it.second.chunkGrids) {
                 m_cmp = &it.second;
                 updateComponent(playerPosCmp.gridPosition);

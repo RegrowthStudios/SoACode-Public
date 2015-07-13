@@ -12,7 +12,7 @@
 
 void FarTerrainComponentUpdater::update(SpaceSystem* spaceSystem, const f64v3& cameraPos) {
 
-    for (auto& it : spaceSystem->m_farTerrainCT) {
+    for (auto& it : spaceSystem->farTerrain) {
 
         FarTerrainComponent& cmp = it.second;
 
@@ -95,7 +95,7 @@ void FarTerrainComponentUpdater::initPatches(FarTerrainComponent& cmp, const f64
 }
 
 void FarTerrainComponentUpdater::glUpdate(SpaceSystem* spaceSystem) {
-    for (auto& it : spaceSystem->m_farTerrainCT) {
+    for (auto& it : spaceSystem->farTerrain) {
         if (it.second.meshManager) it.second.meshManager->update();
     }
 }

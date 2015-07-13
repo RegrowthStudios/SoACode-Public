@@ -26,8 +26,8 @@
 #define SEC_PER_HOUR 3600.0
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
-                           const SystemBodyKegProperties* sysProps,
-                           SystemBody* body, f64 bodyRadius) {
+                                                   const SystemOrbitProperties* sysProps,
+                                                   SystemBody* body, f64 bodyRadius) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -44,8 +44,8 @@ vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
 }
 
 vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
-                                    const SystemBodyKegProperties* sysProps,
-                                    const PlanetKegProperties* properties,
+                                    const SystemOrbitProperties* sysProps,
+                                    const PlanetProperties* properties,
                                     SystemBody* body,
                                     vcore::ThreadPool<WorkerData>* threadPool) {
     body->entity = spaceSystem->addEntity();
@@ -66,7 +66,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     f64 planetRadius = properties->diameter / 2.0;
     addSphericalGravityComponent(spaceSystem, id, npCmp, planetRadius, properties->mass);
 
-    const AtmosphereKegProperties& at = properties->atmosphere;
+    const AtmosphereProperties& at = properties->atmosphere;
     // Check if its active
     if (at.scaleDepth != -1.0f) {
         addAtmosphereComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 1.025),
@@ -74,7 +74,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
                                at.waveLength);
     }
 
-    const CloudsKegProperties& cl = properties->clouds;
+    const CloudsProperties& cl = properties->clouds;
 
     if (cl.density > 0.0f) {
         addCloudsComponent(spaceSystem, id, npCmp, (f32)planetRadius, (f32)(planetRadius * 0.0075), cl.color, cl.scale, cl.density);
@@ -92,8 +92,8 @@ void SpaceSystemAssemblages::destroyPlanet(SpaceSystem* gameSystem, vecs::Entity
 }
 
 vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
-                                  const SystemBodyKegProperties* sysProps,
-                                  const StarKegProperties* properties,
+                                  const SystemOrbitProperties* sysProps,
+                                  const StarProperties* properties,
                                   SystemBody* body) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
@@ -112,7 +112,7 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a);
 
@@ -125,10 +125,9 @@ void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID
 
 /// GasGiant entity
 vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
-                                      const SystemBodyKegProperties* sysProps,
-                                      const GasGiantKegProperties* properties,
-                                      SystemBody* body,
-                                      VGTexture colorMap) {
+                                      const SystemOrbitProperties* sysProps,
+                                      const GasGiantProperties* properties,
+                                      SystemBody* body) {
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
@@ -140,11 +139,12 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     vecs::ComponentID npCmp = addNamePositionComponent(spaceSystem, id, body->name, tmpPos);
 
     f64 radius = properties->diameter / 2.0;
-    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, properties->oblateness, radius, colorMap);
+    addGasGiantComponent(spaceSystem, id, npCmp, arCmp, properties->oblateness, radius,
+                         properties->colorMap, properties->rings);
 
     addSphericalGravityComponent(spaceSystem, id, npCmp, radius, properties->mass);
 
-    const AtmosphereKegProperties& at = properties->atmosphere;
+    const AtmosphereProperties& at = properties->atmosphere;
     // Check if its active
     if (at.scaleDepth != -1.0f) {
         addAtmosphereComponent(spaceSystem, id, npCmp, (f32)radius, (f32)(radius * 1.025),
@@ -156,7 +156,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
         addPlanetRingsComponent(spaceSystem, id, npCmp, properties->rings);
     }
 
-    return SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
+    SpaceSystemAssemblages::addOrbitComponent(spaceSystem, id, npCmp, sysProps->type, sysProps->e,
                                                      sysProps->t, sysProps->n, sysProps->p,
                                                      sysProps->i, sysProps->a);
 
@@ -172,7 +172,7 @@ vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* sp
                                                                  f32 radius, f32 kr, f32 km, f32 g, f32 scaleDepth,
                                                                  f32v3 wavelength, f32 oblateness /*= 0.0f*/) {
     vecs::ComponentID aCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ATMOSPHERE_NAME, entity);
-    auto& aCmp = spaceSystem->m_atmosphereCT.get(aCmpId);
+    auto& aCmp = spaceSystem->atmosphere.get(aCmpId);
     aCmp.namePositionComponent = namePositionComponent;
     aCmp.planetRadius = planetRadius;
     aCmp.radius = radius;
@@ -192,12 +192,12 @@ void SpaceSystemAssemblages::removeAtmosphereComponent(SpaceSystem* spaceSystem,
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
-                                          vecs::ComponentID namePositionComponent, const Array<PlanetRingKegProperties>& rings) {
+                                          vecs::ComponentID namePositionComponent, const Array<PlanetRingProperties>& rings) {
     vecs::ComponentID prCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_PLANETRINGS_NAME, entity);
     if (prCmpId == 0) {
         return 0;
     }
-    auto& prCmp = spaceSystem->m_planetRingCT.get(prCmpId);
+    auto& prCmp = spaceSystem->planetRings.get(prCmpId);
     prCmp.namePositionComponent = namePositionComponent;
     prCmp.rings.resize(rings.size());
     for (size_t i = 0; i < rings.size(); i++) {
@@ -205,7 +205,7 @@ vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* s
         auto& r2 = rings[i];
         r1.innerRadius = r2.innerRadius;
         r1.outerRadius = r2.outerRadius;
-        r1.colorLookup = r2.texture;
+        r1.texturePath = r2.colorLookup;
         r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
     }
     return prCmpId;
@@ -220,7 +220,7 @@ vecs::ComponentID SpaceSystemAssemblages::addCloudsComponent(SpaceSystem* spaceS
                                                             f32 height, f32v3 color, f32v3 scale, float density) {
 
     vecs::ComponentID cCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
-    auto& cCmp = spaceSystem->m_cloudsCT.get(cCmpId);
+    auto& cCmp = spaceSystem->clouds.get(cCmpId);
     cCmp.namePositionComponent = namePositionComponent;
     cCmp.planetRadius = planetRadius;
     cCmp.height = height;
@@ -246,9 +246,9 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     if (svCmpId == 0) {
         return 0;
     }
-    auto& svcmp = spaceSystem->m_sphericalVoxelCT.get(svCmpId);
+    auto& svcmp = spaceSystem->sphericalVoxel.get(svCmpId);
 
-    auto& ftcmp = spaceSystem->m_farTerrainCT.get(farTerrainComponent);
+    auto& ftcmp = spaceSystem->farTerrain.get(farTerrainComponent);
 
     // Get component handles
     svcmp.sphericalTerrainComponent = sphericalTerrainComponent;
@@ -264,28 +264,11 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.chunkMeshManager = soaState->chunkMeshManager;
     svcmp.blockPack = &soaState->blocks;
 
-    // Set up threadpool
-    // Check the hardware concurrency
-    // TODO(Ben): Not here.
-    size_t hc = std::thread::hardware_concurrency();
-    // Remove two threads for the render thread and main thread
-    if (hc > 1) hc--;
-    if (hc > 1) hc--;
-
-    // Drop a thread so we don't steal the hardware on debug
-#ifdef DEBUG
-    if (hc > 1) hc--;
-#endif
-
-    // Initialize the threadpool with hc threads
-    svcmp.threadPool = new vcore::ThreadPool<WorkerData>(); 
-    svcmp.threadPool->init(hc);
+    svcmp.threadPool = soaState->threadPool;
     
     svcmp.meshDepsFlushList = new moodycamel::ConcurrentQueue<Chunk*>();
 
     svcmp.chunkIo->beginThread();
-    // Give some time for the threads to spin up
-    SDL_Delay(100);
 
     svcmp.chunkGrids = new ChunkGrid[6];
     for (int i = 0; i < 6; i++) {
@@ -315,7 +298,7 @@ vecs::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(SpaceSystem* 
                                                                   f32 aTilt, f32 lNorth, f64 startAngle,
                                                                   f64 rotationalPeriod) {
     vecs::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
-    auto& arCmp = spaceSystem->m_axisRotationCT.get(arCmpId);
+    auto& arCmp = spaceSystem->axisRotation.get(arCmpId);
     arCmp.tilt = aTilt;
     arCmp.axisOrientation = glm::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
     arCmp.currentRotation = startAngle;
@@ -334,7 +317,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
                                                                       PlanetGenData* planetGenData,
                                                                       vcore::ThreadPool<WorkerData>* threadPool) {
     vecs::ComponentID stCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
-    auto& stCmp = spaceSystem->m_sphericalTerrainCT.get(stCmpId);
+    auto& stCmp = spaceSystem->sphericalTerrain.get(stCmpId);
     
     stCmp.namePositionComponent = npComp;
     stCmp.axisRotationComponent = arComp;
@@ -357,7 +340,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
 }
 
 void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
-    auto& stcmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(entity);
+    auto& stcmp = spaceSystem->sphericalTerrain.getFromEntity(entity);
 
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }
@@ -370,7 +353,7 @@ vecs::ComponentID SpaceSystemAssemblages::addStarComponent(SpaceSystem* spaceSys
                                           f64 radius,
                                           f64 temperature) {
     vecs::ComponentID sCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_STAR_NAME, entity);
-    auto& sCmp = spaceSystem->m_starCT.get(sCmpId);
+    auto& sCmp = spaceSystem->star.get(sCmpId);
 
     sCmp.namePositionComponent = npComp;
     sCmp.axisRotationComponent = arComp;
@@ -391,15 +374,17 @@ vecs::ComponentID SpaceSystemAssemblages::addGasGiantComponent(SpaceSystem* spac
                                                                vecs::ComponentID arComp,
                                                                f32 oblateness,
                                                                f64 radius,
-                                                               VGTexture colorMap) {
+                                                               const nString& colorMapPath,
+                                                               const Array<PlanetRingProperties>& rings) {
     vecs::ComponentID ggCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_GASGIANT_NAME, entity);
-    auto& ggCmp = spaceSystem->m_gasGiantCT.get(ggCmpId);
+    auto& ggCmp = spaceSystem->gasGiant.get(ggCmpId);
 
     ggCmp.namePositionComponent = npComp;
     ggCmp.axisRotationComponent = arComp;
     ggCmp.oblateness = oblateness;
     ggCmp.radius = radius;
-    ggCmp.colorMap = colorMap;
+    ggCmp.colorMapPath = colorMapPath;
+    ggCmp.rings = rings;
     return ggCmpId;
 }
 
@@ -411,7 +396,7 @@ vecs::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(SpaceSystem* sp
                                                                   SphericalTerrainComponent& parentCmp,
                                                                   WorldCubeFace face) {
     vecs::ComponentID ftCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_FARTERRAIN_NAME, entity);
-    auto& ftCmp = spaceSystem->m_farTerrainCT.get(ftCmpId);
+    auto& ftCmp = spaceSystem->farTerrain.get(ftCmpId);
 
     ftCmp.planetGenData = parentCmp.planetGenData;
     ftCmp.meshManager = parentCmp.meshManager;
@@ -425,7 +410,7 @@ vecs::ComponentID SpaceSystemAssemblages::addFarTerrainComponent(SpaceSystem* sp
 }
 
 void SpaceSystemAssemblages::removeFarTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
-    auto& ftcmp = spaceSystem->m_farTerrainCT.getFromEntity(entity);
+    auto& ftcmp = spaceSystem->farTerrain.getFromEntity(entity);
 
     if (ftcmp.patches) delete[] ftcmp.patches;
     ftcmp.patches = nullptr;
@@ -435,7 +420,7 @@ void SpaceSystemAssemblages::removeFarTerrainComponent(SpaceSystem* spaceSystem,
 vecs::ComponentID SpaceSystemAssemblages::addSphericalGravityComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                         vecs::ComponentID npComp, f64 radius, f64 mass) {
     vecs::ComponentID sgCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALGRAVITY_NAME, entity);
-    auto& sgCmp = spaceSystem->m_sphericalGravityCT.get(sgCmpId);
+    auto& sgCmp = spaceSystem->sphericalGravity.get(sgCmpId);
     sgCmp.namePositionComponent = npComp;
     sgCmp.radius = radius;
     sgCmp.mass = mass;
@@ -449,7 +434,7 @@ void SpaceSystemAssemblages::removeSphericalGravityComponent(SpaceSystem* spaceS
 vecs::ComponentID SpaceSystemAssemblages::addNamePositionComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                   const nString& name, const f64v3& position) {
     vecs::ComponentID npCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_NAMEPOSITIION_NAME, entity);
-    auto& npCmp = spaceSystem->m_namePositionCT.get(npCmpId);
+    auto& npCmp = spaceSystem->namePosition.get(npCmpId);
     npCmp.name = name;
     npCmp.position = position;
     return npCmpId;
@@ -465,7 +450,7 @@ vecs::ComponentID SpaceSystemAssemblages::addOrbitComponent(SpaceSystem* spaceSy
                                                             f64 ascendingLong, f64 periapsisLong,
                                                             f64 inclination, f64 trueAnomaly) {
     vecs::ComponentID oCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_ORBIT_NAME, entity);
-    auto& oCmp = spaceSystem->m_orbitCT.get(oCmpId);
+    auto& oCmp = spaceSystem->orbit.get(oCmpId);
     oCmp.e = eccentricity;
     oCmp.t = orbitalPeriod;
     oCmp.npID = npComp;
@@ -507,7 +492,7 @@ void SpaceSystemAssemblages::removeOrbitComponent(SpaceSystem* spaceSystem, vecs
 
 vecs::ComponentID SpaceSystemAssemblages::addSpaceLightComponent(SpaceSystem* spaceSystem, vecs::EntityID entity, vecs::ComponentID npCmp, color3 color, f32 intensity) {
     vecs::ComponentID slCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPACELIGHT_NAME, entity);
-    auto& slCmp = spaceSystem->m_spaceLightCT.get(slCmpId);
+    auto& slCmp = spaceSystem->spaceLight.get(slCmpId);
     slCmp.color = color;
     slCmp.intensity = intensity;
     slCmp.npID = npCmp;

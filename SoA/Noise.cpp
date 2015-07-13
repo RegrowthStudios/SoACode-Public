@@ -5,7 +5,7 @@
 
 KEG_TYPE_DEF_SAME_NAME(NoiseBase, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, NoiseBase, base, F32);
-    kt.addValue("funcs", keg::Value::array(offsetof(NoiseBase, funcs), keg::Value::custom(0, "TerrainFuncKegProperties", false)));
+    kt.addValue("funcs", keg::Value::array(offsetof(NoiseBase, funcs), keg::Value::custom(0, "TerrainFuncProperties", false)));
 }
 
 KEG_ENUM_DEF(TerrainStage, TerrainStage, kt) {
@@ -30,17 +30,17 @@ KEG_ENUM_DEF(TerrainOp, TerrainOp, kt) {
     kt.addValue("div", TerrainOp::DIV);
 }
 
-KEG_TYPE_DEF_SAME_NAME(TerrainFuncKegProperties, kt) {
-    kt.addValue("type", keg::Value::custom(offsetof(TerrainFuncKegProperties, func), "TerrainStage", true));
-    kt.addValue("op", keg::Value::custom(offsetof(TerrainFuncKegProperties, op), "TerrainOp", true));
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, octaves, I32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, persistence, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, frequency, F32);
-    kt.addValue("val", keg::Value::basic(offsetof(TerrainFuncKegProperties, low), keg::BasicType::F32));
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, low, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, high, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncKegProperties, clamp, F32_V2);
-    kt.addValue("children", keg::Value::array(offsetof(TerrainFuncKegProperties, children), keg::Value::custom(0, "TerrainFuncKegProperties", false)));
+KEG_TYPE_DEF_SAME_NAME(TerrainFuncProperties, kt) {
+    kt.addValue("type", keg::Value::custom(offsetof(TerrainFuncProperties, func), "TerrainStage", true));
+    kt.addValue("op", keg::Value::custom(offsetof(TerrainFuncProperties, op), "TerrainOp", true));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, octaves, I32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, persistence, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, frequency, F32);
+    kt.addValue("val", keg::Value::basic(offsetof(TerrainFuncProperties, low), keg::BasicType::F32));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, low, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, high, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, clamp, F32_V2);
+    kt.addValue("children", keg::Value::array(offsetof(TerrainFuncProperties, children), keg::Value::custom(0, "TerrainFuncProperties", false)));
 }
 
 

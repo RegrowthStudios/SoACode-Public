@@ -132,7 +132,7 @@ void SystemARRenderer::drawPaths() {
     glLineWidth(3.0f);
 
     f32m4 wvp = m_camera->getProjectionMatrix() * m_camera->getViewMatrix();
-    for (auto& it : m_spaceSystem->m_orbitCT) {
+    for (auto& it : m_spaceSystem->orbit) {
         auto& cmp = it.second;
     
         bool isSelected = false;
@@ -158,11 +158,11 @@ void SystemARRenderer::drawPaths() {
         }
 
         if (cmp.parentOrbId) {
-            OrbitComponent& pOrbCmp = m_spaceSystem->m_orbitCT.get(cmp.parentOrbId);
-            m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
-                                              m_camera->getPosition(), blendFactor, &m_spaceSystem->m_namePositionCT.get(pOrbCmp.npID));
+            OrbitComponent& pOrbCmp = m_spaceSystem->orbit.get(cmp.parentOrbId);
+            m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->namePosition.getFromEntity(it.first),
+                                              m_camera->getPosition(), blendFactor, &m_spaceSystem->namePosition.get(pOrbCmp.npID));
         } else {
-            m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->m_namePositionCT.getFromEntity(it.first),
+            m_orbitComponentRenderer.drawPath(cmp, m_colorProgram, wvp, &m_spaceSystem->namePosition.getFromEntity(it.first),
                                               m_camera->getPosition(), blendFactor);
         }
 
@@ -188,10 +188,10 @@ void SystemARRenderer::drawHUD() {
     m_spriteBatch->begin();
 
     // Render all bodies
-    for (auto& it : m_spaceSystem->m_orbitCT) {
+    for (auto& it : m_spaceSystem->orbit) {
 
         auto& oCmp = it.second;
-        auto& npCmp = m_spaceSystem->m_namePositionCT.get(oCmp.npID);
+        auto& npCmp = m_spaceSystem->namePosition.get(oCmp.npID);
 
         // Get the augmented reality data
         const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
@@ -296,9 +296,9 @@ void SystemARRenderer::drawHUD() {
             if (isSelected && bodyArData->isLandSelected) {
                 f32v3 selectedPos = bodyArData->selectedPos;
                 // Apply axis rotation if applicable
-                vecs::ComponentID componentID = m_spaceSystem->m_axisRotationCT.getComponentID(it.first);
+                vecs::ComponentID componentID = m_spaceSystem->axisRotation.getComponentID(it.first);
                 if (componentID) {
-                    f64q rot = m_spaceSystem->m_axisRotationCT.get(componentID).currentOrientation;
+                    f64q rot = m_spaceSystem->axisRotation.get(componentID).currentOrientation;
                     selectedPos = f32v3(rot * f64v3(selectedPos));
                 }
 

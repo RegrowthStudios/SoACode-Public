@@ -63,7 +63,6 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Set up components
     m_ggCmp.radius = (f32)GIANT_RADIUS;
-    m_ggCmp.colorMap = colorBandLookup;
     m_aCmp.radius = (f32)(GIANT_RADIUS * 1.025);
     m_aCmp.planetRadius = (f32)GIANT_RADIUS;
     m_aCmp.invWavelength4 = f32v3(1.0f / powf(0.475f, 4.0f),
@@ -97,10 +96,10 @@ void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
     f32v3 lightPos = glm::normalize(f32v3(0.0f, 0.0f, 1.0f));
 
     PreciseTimer timer;
-    m_gasGiantRenderer.draw(m_ggCmp, m_camera.getViewProjectionMatrix(),
-                            f64q(), f32v3(m_eyePos), lightPos,
-                            computeZCoef(m_camera.getFarClip()),
-                            &m_slCmp, &m_aCmp);
+    /* m_gasGiantRenderer.draw(m_ggCmp, m_camera.getViewProjectionMatrix(),
+                             f64q(), f32v3(m_eyePos), lightPos,
+                             computeZCoef(m_camera.getFarClip()),
+                             &m_slCmp, &m_aCmp);*/
 
     m_atmoRenderer.draw(m_aCmp, m_camera.getViewProjectionMatrix(), f32v3(m_eyePos), lightPos,
                         computeZCoef(m_camera.getFarClip()), &m_slCmp);

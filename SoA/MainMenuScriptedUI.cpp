@@ -128,20 +128,20 @@ vecs::EntityID MainMenuScriptedUI::getTargetBody() {
 
 nString MainMenuScriptedUI::getBodyName(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return state->spaceSystem->m_namePositionCT.getFromEntity(entity).name;
+    return state->spaceSystem->namePosition.getFromEntity(entity).name;
 }
 
 nString MainMenuScriptedUI::getBodyParentName(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    auto parentOID = state->spaceSystem->m_orbitCT.getFromEntity(entity).parentOrbId;
+    auto parentOID = state->spaceSystem->orbit.getFromEntity(entity).parentOrbId;
     if (parentOID == 0) return "None";
-    auto parentNpID = state->spaceSystem->m_orbitCT.get(parentOID).npID;
-    return state->spaceSystem->m_namePositionCT.get(parentNpID).name;
+    auto parentNpID = state->spaceSystem->orbit.get(parentOID).npID;
+    return state->spaceSystem->namePosition.get(parentNpID).name;
 }
 
 nString MainMenuScriptedUI::getBodyTypeName(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    auto t = state->spaceSystem->m_orbitCT.getFromEntity(entity).type;
+    auto t = state->spaceSystem->orbit.getFromEntity(entity).type;
     nString n;
     switch (t) {
         case SpaceObjectType::BARYCENTER:
@@ -168,47 +168,47 @@ nString MainMenuScriptedUI::getBodyTypeName(vecs::EntityID entity) {
 
 f32 MainMenuScriptedUI::getBodyMass(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass;
+    return (f32)state->spaceSystem->sphericalGravity.getFromEntity(entity).mass;
 }
 
 f32 MainMenuScriptedUI::getBodyDiameter(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity).radius * 2.0f;
+    return (f32)state->spaceSystem->sphericalGravity.getFromEntity(entity).radius * 2.0f;
 }
 
 f32 MainMenuScriptedUI::getBodyRotPeriod(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_axisRotationCT.getFromEntity(entity).period;
+    return (f32)state->spaceSystem->axisRotation.getFromEntity(entity).period;
 }
 
 f32 MainMenuScriptedUI::getBodyOrbPeriod(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_orbitCT.getFromEntity(entity).t;
+    return (f32)state->spaceSystem->orbit.getFromEntity(entity).t;
 }
 
 f32 MainMenuScriptedUI::getBodyAxialTilt(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_axisRotationCT.getFromEntity(entity).tilt;
+    return (f32)state->spaceSystem->axisRotation.getFromEntity(entity).tilt;
 }
 
 f32 MainMenuScriptedUI::getBodyEccentricity(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_orbitCT.getFromEntity(entity).e;
+    return (f32)state->spaceSystem->orbit.getFromEntity(entity).e;
 }
 
 f32 MainMenuScriptedUI::getBodyInclination(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_orbitCT.getFromEntity(entity).i;
+    return (f32)state->spaceSystem->orbit.getFromEntity(entity).i;
 }
 
 f32 MainMenuScriptedUI::getBodySemiMajor(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    return (f32)state->spaceSystem->m_orbitCT.getFromEntity(entity).a;
+    return (f32)state->spaceSystem->orbit.getFromEntity(entity).a;
 }
 
 f32 MainMenuScriptedUI::getGravityAccel(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
-    auto& sgCmp = state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
+    auto& sgCmp = state->spaceSystem->sphericalGravity.getFromEntity(entity);
     f32 rad = (f32)(sgCmp.radius * M_PER_KM);
     return (f32)(M_G * sgCmp.mass / (rad * rad));
 }
@@ -216,7 +216,7 @@ f32 MainMenuScriptedUI::getGravityAccel(vecs::EntityID entity) {
 f32 MainMenuScriptedUI::getVolume(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     // TODO(Ben): Handle oblateness
-    auto& sgCmp = state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity);
+    auto& sgCmp = state->spaceSystem->sphericalGravity.getFromEntity(entity);
     f32 rad = (f32)(sgCmp.radius * M_PER_KM);
     return (f32)(4.0 / 3.0 * M_PI * rad * rad * rad);
 }
@@ -225,5 +225,5 @@ f32 MainMenuScriptedUI::getAverageDensity(vecs::EntityID entity) {
     SoaState* state = ((MainMenuScreen*)m_ownerScreen)->m_soaState;
     // TODO(Ben): This is a double lookup
     f32 volume = getVolume(entity);
-    return (f32)(state->spaceSystem->m_sphericalGravityCT.getFromEntity(entity).mass / volume);
+    return (f32)(state->spaceSystem->sphericalGravity.getFromEntity(entity).mass / volume);
 }

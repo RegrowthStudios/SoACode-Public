@@ -36,10 +36,7 @@ typedef ui32 BiomeColorCode;
 
 class PlanetLoader {
 public:
-    /// Constructor
-    /// @param ioManager: Iomanager for IO
-    PlanetLoader(vio::IOManager* ioManager);
-    ~PlanetLoader();
+    void init(vio::IOManager* ioManager);
 
     /// Loads a planet from file
     /// @param filePath: Path of the planet
@@ -54,7 +51,7 @@ public:
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
     PlanetGenData* getRandomGenData(f32 radius, vcore::RPCManager* glrpc = nullptr);
-    AtmosphereKegProperties getRandomAtmosphere();
+    AtmosphereProperties getRandomAtmosphere();
 
 private:
     /// Loads the biomes from file

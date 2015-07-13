@@ -155,8 +155,8 @@ void GameplayScreen::updateECS() {
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
     auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
-    auto parentNpCmpId = spaceSystem->m_sphericalGravityCT.get(spCmp.parentGravityID).namePositionComponent;
-    auto& parentNpCmp = spaceSystem->m_namePositionCT.get(parentNpCmpId);
+    auto parentNpCmpId = spaceSystem->sphericalGravity.get(spCmp.parentGravityID).namePositionComponent;
+    auto& parentNpCmp = spaceSystem->namePosition.get(parentNpCmpId);
     // Calculate non-relative space position
     f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
 
@@ -172,7 +172,7 @@ void GameplayScreen::updateMTRenderState() {
 
     SpaceSystem* spaceSystem = m_soaState->spaceSystem;
     // Set all space positions
-    for (auto& it : spaceSystem->m_namePositionCT) {
+    for (auto& it : spaceSystem->namePosition) {
         state->spaceBodyPositions[it.first] = it.second.position;
     }
     // Set camera position
@@ -183,7 +183,7 @@ void GameplayScreen::updateMTRenderState() {
     // Debug chunk grid
     if (m_renderer.stages.chunkGrid.isActive()) {
         // TODO(Ben): This doesn't let you go to different planets!!!
-        auto& svcmp = m_soaState->spaceSystem->m_sphericalVoxelCT.getFromEntity(m_soaState->startingPlanet);
+        auto& svcmp = m_soaState->spaceSystem->sphericalVoxel.getFromEntity(m_soaState->startingPlanet);
         auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
         state->debugChunkData.clear();
         if (svcmp.chunkGrids) {

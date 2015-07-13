@@ -14,11 +14,11 @@
 void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3& cameraPos) {
 
     SpaceSystem* spaceSystem = state->spaceSystem;
-    for (auto& it : spaceSystem->m_sphericalTerrainCT) {
+    for (auto& it : spaceSystem->sphericalTerrain) {
         SphericalTerrainComponent& stCmp = it.second;
     
-        const NamePositionComponent& npComponent = spaceSystem->m_namePositionCT.get(stCmp.namePositionComponent);
-        const AxisRotationComponent& arComponent = spaceSystem->m_axisRotationCT.get(stCmp.axisRotationComponent);
+        const NamePositionComponent& npComponent = spaceSystem->namePosition.get(stCmp.namePositionComponent);
+        const AxisRotationComponent& arComponent = spaceSystem->axisRotation.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
         stCmp.distance = glm::length(relativeCameraPos);
@@ -76,7 +76,7 @@ void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3
 
 void SphericalTerrainComponentUpdater::glUpdate(const SoaState* soaState) {
     auto& spaceSystem = soaState->spaceSystem;
-    for (auto& it : spaceSystem->m_sphericalTerrainCT) {
+    for (auto& it : spaceSystem->sphericalTerrain) {
         SphericalTerrainComponent& stCmp = it.second;
         
         if (stCmp.meshManager && it.second.alpha > 0.0f) stCmp.meshManager->update();
@@ -119,7 +119,7 @@ void SphericalTerrainComponentUpdater::updateVoxelComponentLogic(const SoaState*
                                                                                        stCmp.startVoxelPosition.face);
             // Add spherical voxel component (SERVER SIDE)
             stCmp.sphericalVoxelComponent = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, eid,
-                                                                                               spaceSystem->m_sphericalTerrainCT.getComponentID(eid),
+                                                                                               spaceSystem->sphericalTerrain.getComponentID(eid),
                                                                                                stCmp.farTerrainComponent,
                                                                                                stCmp.axisRotationComponent,
                                                                                                stCmp.namePositionComponent,
@@ -138,14 +138,14 @@ void SphericalTerrainComponentUpdater::updateVoxelComponentLogic(const SoaState*
                 SpaceSystemAssemblages::removeSphericalVoxelComponent(spaceSystem, eid);
                 // Add spherical voxel component (SERVER SIDE)
                 stCmp.sphericalVoxelComponent = SpaceSystemAssemblages::addSphericalVoxelComponent(spaceSystem, eid,
-                                                                                                   spaceSystem->m_sphericalTerrainCT.getComponentID(eid),
+                                                                                                   spaceSystem->sphericalTerrain.getComponentID(eid),
                                                                                                    stCmp.farTerrainComponent,
                                                                                                    stCmp.axisRotationComponent,
                                                                                                    stCmp.namePositionComponent,
                                                                                                    stCmp.transitionFace,
                                                                                                    state);
                 // Reload the terrain
-                auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
+                auto& ftCmp = spaceSystem->farTerrain.get(stCmp.farTerrainComponent);
                 ftCmp.transitionFace = stCmp.transitionFace;
                 stCmp.transitionFace = FACE_NONE;
                 stCmp.faceTransTime = 0.0f;
@@ -159,7 +159,7 @@ void SphericalTerrainComponentUpdater::updateVoxelComponentLogic(const SoaState*
         // TODO(Ben): We need to do refcounting for MP!
         if (stCmp.sphericalVoxelComponent) {
             // Mark far terrain for fadeout
-            auto& ftCmp = spaceSystem->m_farTerrainCT.get(stCmp.farTerrainComponent);
+            auto& ftCmp = spaceSystem->farTerrain.get(stCmp.farTerrainComponent);
 
             if (!ftCmp.shouldFade) {
                 ftCmp.shouldFade = true;

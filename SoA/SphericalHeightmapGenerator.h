@@ -40,12 +40,15 @@ public:
     const PlanetGenData* getGenData() const { return m_genData; }
 private:
     void generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const;
+    void recurseChildBiomes(const Biome* biome, const f64v3& pos, f32& height, f64& biggestWeight, const Biome*& bestBiome, f64 baseWeight) const;
+    
     /// Gets noise value using terrainFuncs
     /// @return the noise value
-    f64 getNoiseValue(const f64v3& pos,
-                      const Array<TerrainFuncKegProperties>& funcs,
+    void getNoiseValue(const f64v3& pos,
+                      const Array<TerrainFuncProperties>& funcs,
                       f64* modifier,
-                      const TerrainOp& op) const;
+                      const TerrainOp& op,
+                      f64& height) const;
 
     f64 getBaseHeightValue(const f64v3& pos) const;
     f64 getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const;

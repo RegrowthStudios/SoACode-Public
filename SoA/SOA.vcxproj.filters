@@ -860,6 +860,9 @@
     <ClInclude Include="SSAORenderStage.h">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
     </ClInclude>
+    <ClInclude Include="SystemBodyLoader.h">
+      <Filter>SOA Files\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1413,6 +1416,9 @@
     </ClCompile>
     <ClCompile Include="SSAORenderStage.cpp">
       <Filter>SOA Files\Rendering\RenderPipelines\RenderStages</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemBodyLoader.cpp">
+      <Filter>SOA Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

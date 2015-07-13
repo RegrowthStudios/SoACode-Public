@@ -54,7 +54,7 @@ void MainMenuSystemViewer::update() {
 
     m_camera->update();
 
-    for (auto& it : m_spaceSystem->m_namePositionCT) {
+    for (auto& it : m_spaceSystem->namePosition) {
         vecs::ComponentID componentID;
 
         f64v3 relativePos = it.second.position - m_camera->getPosition();
@@ -75,10 +75,10 @@ void MainMenuSystemViewer::update() {
             f32 interpolator = hermite(hoverTime);
 
             // See if it has a radius
-            componentID = m_spaceSystem->m_sphericalGravityCT.getComponentID(it.first);
+            componentID = m_spaceSystem->sphericalGravity.getComponentID(it.first);
             if (componentID) {
                 // Get radius of projected sphere
-                radius = m_spaceSystem->m_sphericalGravityCT.get(componentID).radius;
+                radius = m_spaceSystem->sphericalGravity.get(componentID).radius;
                 radiusPixels = (radius /
                                 (tan((f64)m_camera->getFieldOfView() / 2.0) * distance)) *
                                 ((f64)m_viewport.y / 2.0);
@@ -129,7 +129,7 @@ void MainMenuSystemViewer::stopInput() {
 }
 
 void MainMenuSystemViewer::targetBody(const nString& name) {
-    for (auto& it : m_spaceSystem->m_namePositionCT) {
+    for (auto& it : m_spaceSystem->namePosition) {
         if (it.second.name == name) {
             targetBody(it.first);
             return;
@@ -141,20 +141,20 @@ void MainMenuSystemViewer::targetBody(vecs::EntityID eid) {
     if (m_targetEntity != eid) {
         TargetChange(eid);
         m_targetEntity = eid;
-        m_targetComponent = m_spaceSystem->m_namePositionCT.getComponentID(m_targetEntity);
+        m_targetComponent = m_spaceSystem->namePosition.getComponentID(m_targetEntity);
     }
 }
 
 f64v3 MainMenuSystemViewer::getTargetPosition() {
-    return m_spaceSystem->m_namePositionCT.get(m_targetComponent).position;
+    return m_spaceSystem->namePosition.get(m_targetComponent).position;
 }
 
 f64 MainMenuSystemViewer::getTargetRadius() {
-    return m_spaceSystem->m_sphericalGravityCT.getFromEntity(m_targetEntity).radius;
+    return m_spaceSystem->sphericalGravity.getFromEntity(m_targetEntity).radius;
 }
 
 nString MainMenuSystemViewer::getTargetName() {
-    return m_spaceSystem->m_namePositionCT.get(m_targetComponent).name;
+    return m_spaceSystem->namePosition.get(m_targetComponent).name;
 }
 
 void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButtonEvent& e) {
@@ -169,7 +169,7 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
             if (it.second.isHovering) {
 
                 // Check distance so we pick only the closest one
-                f64v3 pos = m_spaceSystem->m_namePositionCT.getFromEntity(it.first).position;
+                f64v3 pos = m_spaceSystem->namePosition.getFromEntity(it.first).position;
                 f64 dist = glm::length(pos - m_camera->getPosition());
                 if (dist < closestDist) {
                     closestDist = dist;
@@ -223,7 +223,7 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
 
 void MainMenuSystemViewer::pickStartLocation(vecs::EntityID eid) {
     // Check to see if it even has terrain by checking if it has a generator
-    if (!m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator) return;
+    if (!m_spaceSystem->sphericalTerrain.getFromEntity(m_targetEntity).cpuGenerator) return;
     // Select the planet
     m_selectedPlanet = eid;
 
@@ -231,29 +231,29 @@ void MainMenuSystemViewer::pickStartLocation(vecs::EntityID eid) {
         1.0f - (m_mouseCoords.y / m_viewport.y) * 2.0f);
     f64v3 pickRay(m_camera->getPickRay(ndc));
 
-    vecs::ComponentID cid = m_spaceSystem->m_namePositionCT.getComponentID(eid);
+    vecs::ComponentID cid = m_spaceSystem->namePosition.getComponentID(eid);
     if (!cid) return;
-    f64v3 centerPos = m_spaceSystem->m_namePositionCT.get(cid).position;
+    f64v3 centerPos = m_spaceSystem->namePosition.get(cid).position;
     f64v3 pos = f64v3(centerPos - m_camera->getPosition());
 
-    cid = m_spaceSystem->m_sphericalGravityCT.getComponentID(eid);
+    cid = m_spaceSystem->sphericalGravity.getComponentID(eid);
     if (!cid) return;
-    f64 radius = m_spaceSystem->m_sphericalGravityCT.get(cid).radius;
+    f64 radius = m_spaceSystem->sphericalGravity.get(cid).radius;
 
     // Compute the intersection
     f64v3 normal, hitpoint;
     f64 distance;
     if (IntersectionUtils::sphereIntersect(pickRay, f64v3(0.0f), pos, radius, hitpoint, distance, normal)) {
         hitpoint -= pos;
-        cid = m_spaceSystem->m_axisRotationCT.getComponentID(eid);
+        cid = m_spaceSystem->axisRotation.getComponentID(eid);
         if (cid) {
-            f64q rot = m_spaceSystem->m_axisRotationCT.get(cid).currentOrientation;
+            f64q rot = m_spaceSystem->axisRotation.get(cid).currentOrientation;
             hitpoint = glm::inverse(rot) * hitpoint;
         }
 
         // Compute face and grid position
         PlanetHeightData heightData;
-        m_spaceSystem->m_sphericalTerrainCT.getFromEntity(m_targetEntity).cpuGenerator->generateHeightData(heightData, glm::normalize(hitpoint));
+        m_spaceSystem->sphericalTerrain.getFromEntity(m_targetEntity).cpuGenerator->generateHeightData(heightData, glm::normalize(hitpoint));
         f64 height = heightData.height * KM_PER_VOXEL;
 
         m_clickPos = f64v3(hitpoint + glm::normalize(hitpoint) * height);

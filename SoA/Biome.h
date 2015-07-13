@@ -45,10 +45,6 @@ KEG_TYPE_DECL(BlockLayer);
 
 #define BIOME_MAP_WIDTH 256
 
-// TODO(Ben): Add more
-enum class BiomeAxisType { HEIGHT, NOISE };
-KEG_ENUM_DECL(BiomeAxisType);
-
 typedef nString BiomeID;
 struct Biome;
 
@@ -59,7 +55,7 @@ struct BiomeInfluence {
     f32 weight;
 
     bool operator<(const BiomeInfluence& rhs) const {
-        if (weight < rhs.weight) return true;
+        // Ignore weight on purpose. Only one BiomeInfluence per set or map!
         return b < rhs.b;
     }
 };
@@ -72,13 +68,14 @@ struct Biome {
     nString displayName = "Default";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
-    BiomeInfluenceMap biomeMap; ///< Optional sub-biome map
-    BiomeAxisType axisTypes[2];
-    f32v2 heightScale; ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
-    NoiseBase biomeMapNoise; ///< For sub biome determination
+    std::vector<Biome*> children;
+    NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
-    NoiseBase xNoise;
-    NoiseBase yNoise;
+    // Only applies to base biomes
+    f64v2 heightRange;
+    f64v2 heightScale;
+    f64v2 noiseRange;
+    f64v2 noiseScale;
 };
 
 static const Biome DEFAULT_BIOME;

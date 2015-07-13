@@ -10,6 +10,7 @@
 #include <Vorb/Events.hpp>
 #include <Vorb/io/YAML.h>
 #include <Vorb/RPC.h>
+#include <Vorb/Timing.h>
 
 #include "Errors.h"
 
@@ -18,43 +19,35 @@ typedef ui32 BiomeColorCode;
 struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
-    BiomeAxisType xAxis = BiomeAxisType::NOISE;
-    BiomeAxisType yAxis = BiomeAxisType::NOISE;
     BiomeID id = "";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
-    NoiseBase biomeMapNoise; ///< For sub biome determination
+    NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
-    NoiseBase xNoise;
-    NoiseBase yNoise;
-    f32v2 heightScale = f32v2(0.0f, 200.0f); ///< Scales height for BIOME_AXIS_TYPE::HEIGHT
+    f64v2 heightRange = f64v2(0.0, 1000.0);
+    f64v2 heightScale = f64v2(0.01, 0.01);
+    f64v2 noiseRange = f64v2(-1.0, 1.0);
+    f64v2 noiseScale = f64v2(10.0, 10.0);
     nString displayName = "Unknown";
-    nString childColorMap = "";
 };
 KEG_TYPE_DECL(BiomeKegProperties);
 KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     using namespace keg;
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, id, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, displayName, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, childColorMap, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, mapColor, UI8_V3);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightScale, F32_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightRange, F64_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, heightScale, F64_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseRange, F64_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseScale, F64_V2);
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
-    kt.addValue("xAxis", keg::Value::custom(offsetof(BiomeKegProperties, xAxis), "BiomeAxisType", true));
-    kt.addValue("yAxis", keg::Value::custom(offsetof(BiomeKegProperties, yAxis), "BiomeAxisType", true));
-    kt.addValue("xNoise", keg::Value::custom(offsetof(BiomeKegProperties, xNoise), "NoiseBase", false));
-    kt.addValue("yNoise", keg::Value::custom(offsetof(BiomeKegProperties, yNoise), "NoiseBase", false));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
-    kt.addValue("biomeMapNoise", Value::custom(offsetof(BiomeKegProperties, biomeMapNoise), "NoiseBase", false));
+    kt.addValue("childNoise", Value::custom(offsetof(BiomeKegProperties, childNoise), "NoiseBase", false));
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
 
-PlanetLoader::PlanetLoader(vio::IOManager* ioManager) :
-    m_iom(ioManager),
-    m_textureCache(m_iom) {
-    // Empty
-}
-
-PlanetLoader::~PlanetLoader() {
+void PlanetLoader::init(vio::IOManager* ioManager) {
+    m_iom = ioManager;
+    m_textureCache.init(ioManager);
 }
 
 PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {
@@ -168,10 +161,10 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
     return genData;
 }
 
-AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
+AtmosphereProperties PlanetLoader::getRandomAtmosphere() {
     static std::mt19937 generator(2636);
     static std::uniform_real_distribution<f32> randomWav(0.4f, 0.8f);
-    AtmosphereKegProperties props;
+    AtmosphereProperties props;
     props.waveLength.r = randomWav(generator);
     props.waveLength.g = randomWav(generator);
     props.waveLength.b = randomWav(generator);
@@ -179,7 +172,7 @@ AtmosphereKegProperties PlanetLoader::getRandomAtmosphere() {
 }
 
 // Helper function for loadBiomes
-ui32 recursiveCountBiomes(BiomeKegProperties& props) {
+ui32 recursiveCountBiomes(const BiomeKegProperties& props) {
     ui32 rv = 1;
     for (size_t i = 0; i < props.children.size(); i++) {
         rv += recursiveCountBiomes(props.children[i]);
@@ -187,15 +180,112 @@ ui32 recursiveCountBiomes(BiomeKegProperties& props) {
     return rv;
 }
 
+const int FILTER_SIZE = 5;
+const int FILTER_OFFSET = FILTER_SIZE / 2;
+
+float blurFilter[FILTER_SIZE][FILTER_SIZE] = {
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
+    0.04f, 0.04f, 0.04f, 0.04f, 0.04f
+};
+
+void blurBiomeMap(const std::vector<BiomeInfluence>& bMap, OUT std::vector<std::set<BiomeInfluence>>& outMap) {
+    /* Very simple blur function with 5x5 box kernel */
+
+    outMap.resize(bMap.size());
+
+    // Loop through the map
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            auto& b = bMap[y * BIOME_MAP_WIDTH + x];
+            if (b.b) {
+                // Loop through box filter
+                for (int j = 0; j < FILTER_SIZE; j++) {
+                    for (int k = 0; k < FILTER_SIZE; k++) {
+                        int xPos = (x - FILTER_OFFSET + k);
+                        int yPos = (y - FILTER_OFFSET + j);
+                        // Bounds checking
+                        if (xPos < 0) {
+                            xPos = 0;
+                        } else if (xPos >= BIOME_MAP_WIDTH) {
+                            xPos = BIOME_MAP_WIDTH - 1;
+                        }
+                        if (yPos < 0) {
+                            yPos = 0;
+                        } else if (yPos >= BIOME_MAP_WIDTH) {
+                            yPos = BIOME_MAP_WIDTH - 1;
+                        }
+                        // Get the list of biomes currently in the blurred map
+                        auto& biomes = outMap[yPos * BIOME_MAP_WIDTH + xPos];
+                        // See if the current biome is already there
+                        auto& it = biomes.find(b);
+                        // Force modify weight in set with const cast.
+                        // It's ok since weight doesn't affect set position, promise!
+                        if (it == biomes.end()) {
+                            // Add biome and modify weight
+                            const_cast<BiomeInfluence&>(*biomes.insert(b).first).weight = blurFilter[j][k] * b.weight;
+                        } else {
+                            // Modify existing biome weight
+                            const_cast<BiomeInfluence&>(*it).weight += blurFilter[j][k] * b.weight;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void blurBaseBiomeMap(const Biome* baseBiomeLookup[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH], OUT std::vector<std::set<BiomeInfluence>>& outMap) {
+    /* Very simple blur function with 5x5 box kernel */
+
+    outMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
+
+    // Loop through the map
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            auto& b = baseBiomeLookup[y][x];
+            // Loop through box filter
+            for (int j = 0; j < FILTER_SIZE; j++) {
+                for (int k = 0; k < FILTER_SIZE; k++) {
+                    int xPos = (x - FILTER_OFFSET + k);
+                    int yPos = (y - FILTER_OFFSET + j);
+                    // Bounds checking
+                    if (xPos < 0) {
+                        xPos = 0;
+                    } else if (xPos >= BIOME_MAP_WIDTH) {
+                        xPos = BIOME_MAP_WIDTH - 1;
+                    }
+                    if (yPos < 0) {
+                        yPos = 0;
+                    } else if (yPos >= BIOME_MAP_WIDTH) {
+                        yPos = BIOME_MAP_WIDTH - 1;
+                    }
+                    // Get the list of biomes currently in the blurred map
+                    auto& biomes = outMap[yPos * BIOME_MAP_WIDTH + xPos];
+                    // See if the current biome is already there
+                    // TODO(Ben): Better find
+                    auto& it = biomes.find({ b, 1.0f });
+                    // Force modify weight in set with const cast.
+                    // It's ok since weight doesn't affect set position, promise!
+                    if (it == biomes.end()) {
+                        // Add biome and set
+                        biomes.emplace(b, blurFilter[j][k]);
+                    } else {
+                        // Modify existing biome weight
+                        const_cast<BiomeInfluence&>(*it).weight += blurFilter[j][k];
+                    }
+                }
+            }
+        }
+    }
+}
+
 void recursiveInitBiomes(Biome& biome,
-                         BiomeKegProperties& kp,
+                         const BiomeKegProperties& kp,
                          ui32& biomeCounter,
-                         PlanetGenData* genData,
-                         std::map<BiomeColorCode, Biome*>& biomeLookup,
-                         vio::IOManager* iom) {
-    // Get the color code and add to map
-    BiomeColorCode colorCode = ((ui32)kp.mapColor.r << 16) | ((ui32)kp.mapColor.g << 8) | (ui32)kp.mapColor.b;
-    biomeLookup[colorCode] = &biome;
+                         PlanetGenData* genData) {
 
     // Copy all biome data
     biome.id = kp.id;
@@ -205,52 +295,21 @@ void recursiveInitBiomes(Biome& biome,
     }
     biome.displayName = kp.displayName;
     biome.mapColor = kp.mapColor;
+    biome.heightRange = kp.heightRange;
     biome.heightScale = kp.heightScale;
+    biome.noiseRange = kp.noiseRange;
+    biome.noiseScale = kp.noiseScale;
     biome.terrainNoise = kp.terrainNoise;
-    biome.biomeMapNoise = kp.biomeMapNoise;
-    biome.xNoise = kp.xNoise;
-    biome.yNoise = kp.yNoise;
-    biome.axisTypes[0] = kp.xAxis;
-    biome.axisTypes[1] = kp.yAxis;
+    biome.childNoise = kp.childNoise;
 
     // Recurse children
-    std::map<BiomeColorCode, Biome*> nextBiomeLookup;
+    biome.children.resize(kp.children.size());
     for (size_t i = 0; i < kp.children.size(); i++) {
         Biome& nextBiome = genData->biomes[biomeCounter++];
-        recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData, nextBiomeLookup, iom);
-    }
-
-    // Load and parse child lookup map
-    if (kp.childColorMap.size()) {
-        vpath texPath;
-        iom->resolvePath(kp.childColorMap, texPath);
-        vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true);
-        if (!rs.data) {
-            fprintf(stderr, "Warning: Failed to load %s\n", kp.childColorMap.c_str());
-            return;
-        }
-        // Check for 1D biome map
-        if (rs.width == BIOME_MAP_WIDTH && rs.height == 1) {
-            biome.biomeMap.resize(BIOME_MAP_WIDTH);
-        } else {
-            // Error check
-            if (rs.width != BIOME_MAP_WIDTH || rs.height != BIOME_MAP_WIDTH) {
-                pError("loadBiomes() error: width and height of " + kp.childColorMap + " must be " + std::to_string(BIOME_MAP_WIDTH));
-            }
-            biome.biomeMap.resize(BIOME_MAP_WIDTH * BIOME_MAP_WIDTH);
-        }
-        // Fill biome map
-        for (size_t i = 0; i < biome.biomeMap.size(); i++) {
-            ui8v3& color = rs.bytesUI8v3[i];
-            BiomeColorCode code = ((ui32)color.r << 16) | ((ui32)color.g << 8) | (ui32)color.b;
-            auto& it = nextBiomeLookup.find(code);
-            if (it != nextBiomeLookup.end()) {
-                biome.biomeMap[i].emplace_back(it->second, 1.0f);
-            }
-        }
+        recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData);
+        biome.children[i] = &nextBiome;
     }
 }
-
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
@@ -325,8 +384,12 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
         // Get the biome
         Biome& biome = genData->biomes[biomeCounter++];
        
+        // Get the color code and add to map
+        BiomeColorCode colorCode = ((ui32)kp.mapColor.r << 16) | ((ui32)kp.mapColor.g << 8) | (ui32)kp.mapColor.b;
+        m_baseBiomeLookupMap[colorCode] = &biome;
+
         // Copy all the data over
-        recursiveInitBiomes(biome, kp, biomeCounter, genData, m_baseBiomeLookupMap, m_iom);
+        recursiveInitBiomes(biome, kp, biomeCounter, genData);
     }
     assert(biomeCounter == genData->biomes.size());
 
@@ -337,6 +400,19 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
             auto& it = m_baseBiomeLookupMap.find(colorCodes[y][x]);
             if (it != m_baseBiomeLookupMap.end()) {
                 genData->baseBiomeLookup[y][x] = it->second;
+            }
+        }
+    }
+    // Blur base biome map for transition smoothing
+    std::vector<std::set<BiomeInfluence>> outMap;
+    blurBaseBiomeMap(genData->baseBiomeLookup, outMap);
+    // Convert to influence map
+    for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
+        for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
+            genData->baseBiomeInfluenceMap[y][x].resize(outMap[y * BIOME_MAP_WIDTH + x].size());
+            int i = 0;
+            for (auto& b : outMap[y * BIOME_MAP_WIDTH + x]) {
+                genData->baseBiomeInfluenceMap[y][x][i++] = b;
             }
         }
     }

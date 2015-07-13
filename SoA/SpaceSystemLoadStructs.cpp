@@ -23,82 +23,82 @@ KEG_ENUM_DEF(TrojanType, TrojanType, kt) {
     kt.addValue("L5", TrojanType::L5);
 }
 
-KEG_TYPE_DEF_SAME_NAME(SystemBodyKegProperties, kt) {
-    kt.addValue("type", keg::Value::custom(offsetof(SystemBodyKegProperties, type), "SpaceObjectType", true));
-    kt.addValue("trojan", keg::Value::custom(offsetof(SystemBodyKegProperties, trojan), "TrojanType", true));
-    kt.addValue("comps", keg::Value::array(offsetof(SystemBodyKegProperties, comps), keg::BasicType::C_STRING));
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, par, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, path, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, ref, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, e, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, t, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, a, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, n, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, p, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, i, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, RA, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, dec, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, dist, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, td, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemBodyKegProperties, tf, F64);
+KEG_TYPE_DEF_SAME_NAME(SystemOrbitProperties, kt) {
+    kt.addValue("type", keg::Value::custom(offsetof(SystemOrbitProperties, type), "SpaceObjectType", true));
+    kt.addValue("trojan", keg::Value::custom(offsetof(SystemOrbitProperties, trojan), "TrojanType", true));
+    kt.addValue("comps", keg::Value::array(offsetof(SystemOrbitProperties, comps), keg::BasicType::C_STRING));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, par, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, path, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, ref, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, e, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, t, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, a, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, n, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, p, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, i, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, RA, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, dec, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, dist, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, td, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, SystemOrbitProperties, tf, F64);
 }
 
-KEG_TYPE_DEF_SAME_NAME(AtmosphereKegProperties, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, kr, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, km, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, g, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, scaleDepth, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereKegProperties, waveLength, F32_V3);
+KEG_TYPE_DEF_SAME_NAME(AtmosphereProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereProperties, kr, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereProperties, km, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereProperties, g, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereProperties, scaleDepth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, AtmosphereProperties, waveLength, F32_V3);
 }
 
-KEG_TYPE_DEF_SAME_NAME(PlanetRingKegProperties, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, innerRadius, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, outerRadius, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, aTilt, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, lNorth, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingKegProperties, colorLookup, STRING);
+KEG_TYPE_DEF_SAME_NAME(PlanetRingProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingProperties, innerRadius, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingProperties, outerRadius, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingProperties, lNorth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetRingProperties, colorLookup, STRING);
 }
 
-KEG_TYPE_DEF_SAME_NAME(CloudsKegProperties, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, color, F32_V3);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, scale, F32_V3);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsKegProperties, density, F32);
+KEG_TYPE_DEF_SAME_NAME(CloudsProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsProperties, color, F32_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsProperties, scale, F32_V3);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, CloudsProperties, density, F32);
 }
 
-KEG_TYPE_DEF_SAME_NAME(PlanetKegProperties, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, diameter, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, density, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, mass, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, aTilt, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, lNorth, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, rotationalPeriod, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, displayName, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetKegProperties, generation, STRING);
-    kt.addValue("atmosphere", keg::Value::custom(offsetof(PlanetKegProperties, atmosphere), "AtmosphereKegProperties", false));
-    kt.addValue("clouds", keg::Value::custom(offsetof(PlanetKegProperties, clouds), "CloudsKegProperties", false));
+KEG_TYPE_DEF_SAME_NAME(PlanetProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, diameter, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, density, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, mass, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, lNorth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, rotationalPeriod, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, displayName, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, PlanetProperties, generation, STRING);
+    kt.addValue("atmosphere", keg::Value::custom(offsetof(PlanetProperties, atmosphere), "AtmosphereKegProperties", false));
+    kt.addValue("clouds", keg::Value::custom(offsetof(PlanetProperties, clouds), "CloudsKegProperties", false));
 }
 
-KEG_TYPE_DEF_SAME_NAME(StarKegProperties, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, surfaceTemperature, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, diameter, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, density, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, mass, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, aTilt, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, lNorth, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, rotationalPeriod, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, StarKegProperties, displayName, STRING);
+KEG_TYPE_DEF_SAME_NAME(StarProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, surfaceTemperature, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, diameter, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, density, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, mass, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, lNorth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, rotationalPeriod, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, StarProperties, displayName, STRING);
 }
 
-KEG_TYPE_DEF_SAME_NAME(GasGiantKegProperties, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, diameter, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, density, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, mass, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, aTilt, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, lNorth, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, rotationalPeriod, F64);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, oblateness, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, colorMap, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantKegProperties, displayName, STRING);
-    kt.addValue("atmosphere", keg::Value::custom(offsetof(GasGiantKegProperties, atmosphere), "AtmosphereKegProperties", false));
-    kt.addValue("rings", keg::Value::array(offsetof(GasGiantKegProperties, rings), keg::Value::custom(0, "PlanetRingKegProperties", false)));
+KEG_TYPE_DEF_SAME_NAME(GasGiantProperties, kt) {
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, diameter, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, density, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, mass, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, aTilt, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, lNorth, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, rotationalPeriod, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, oblateness, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, colorMap, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, GasGiantProperties, displayName, STRING);
+    kt.addValue("atmosphere", keg::Value::custom(offsetof(GasGiantProperties, atmosphere), "AtmosphereKegProperties", false));
+    kt.addValue("rings", keg::Value::array(offsetof(GasGiantProperties, rings), keg::Value::custom(0, "PlanetRingProperties", false)));
 }

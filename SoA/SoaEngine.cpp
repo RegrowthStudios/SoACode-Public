@@ -14,7 +14,6 @@
 #define M_PER_KM 1000.0
 
 OptionsController SoaEngine::optionsController;
-SpaceSystemLoader SoaEngine::m_spaceSystemLoader;
 
 void SoaEngine::initOptions(SoaOptions& options) {
     options.addOption(OPT_PLANET_DETAIL, "Planet Detail", OptionValue(1));
@@ -55,6 +54,7 @@ void SoaEngine::initState(SoaState* state) {
     state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
     state->systemViewer = new MainMenuSystemViewer;
+    state->planetLoader = new PlanetLoader;
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
@@ -83,14 +83,14 @@ void SoaEngine::initState(SoaState* state) {
     }
 }
 
-bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& loadData, vcore::RPCManager* glrpc /* = nullptr */) {
+bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
 
     AutoDelegatePool pool;
     vpath path = "SoASpace.log";
     vfile file;
     path.asFile(&file);
 
-    state->planetLoader = new PlanetLoader(state->systemIoManager);
+    state->planetLoader->init(state->systemIoManager);
 
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
     pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
@@ -104,21 +104,15 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const SpaceSystemLoadData& load
     }
 
     // Load system
-    SpaceSystemLoadParams spaceSystemLoadParams;
-    spaceSystemLoadParams.glrpc = glrpc;
-    spaceSystemLoadParams.dirPath = loadData.filePath;
-    spaceSystemLoadParams.spaceSystem = state->spaceSystem;
-    spaceSystemLoadParams.ioManager = state->systemIoManager;
-    spaceSystemLoadParams.planetLoader = state->planetLoader;
-    spaceSystemLoadParams.threadpool = state->threadPool;
-
-    m_spaceSystemLoader.loadStarSystem(spaceSystemLoadParams);
+    SpaceSystemLoader spaceSystemLoader;
+    spaceSystemLoader.init(state);
+    spaceSystemLoader.loadStarSystem(filePath);
 
     pool.dispose();
     return true;
 }
 
-bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadData) {
+bool SoaEngine::loadGameSystem(SoaState* state) {
     // TODO(Ben): Implement
     
     return true;
@@ -126,7 +120,7 @@ bool SoaEngine::loadGameSystem(SoaState* state, const GameSystemLoadData& loadDa
 
 void SoaEngine::setPlanetBlocks(SoaState* state) {
     SpaceSystem* ss = state->spaceSystem;
-    for (auto& it : ss->m_sphericalTerrainCT) {
+    for (auto& it : ss->sphericalTerrain) {
         auto& cmp = it.second;
         PlanetBlockInitInfo& blockInfo = cmp.planetGenData->blockInfo;
         // TODO(Ben): Biomes too!
@@ -158,7 +152,7 @@ void SoaEngine::setPlanetBlocks(SoaState* state) {
 
 void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
     SpaceSystem* spaceSystem = state->spaceSystem;
-    auto& stCmp = spaceSystem->m_sphericalTerrainCT.getFromEntity(eid);
+    auto& stCmp = spaceSystem->sphericalTerrain.getFromEntity(eid);
     f64 radius = stCmp.radius;
     auto npCmpID = stCmp.namePositionComponent;
     auto arCmpID = stCmp.axisRotationComponent;
@@ -168,7 +162,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     nString filePath = genData->filePath;
 
     if (ftCmpID) {
-        face = spaceSystem->m_farTerrainCT.getFromEntity(eid).face;
+        face = spaceSystem->farTerrain.getFromEntity(eid).face;
         SpaceSystemAssemblages::removeFarTerrainComponent(spaceSystem, eid);
     }
     if (stCmp.sphericalVoxelComponent) {
@@ -194,7 +188,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     // TODO(Ben): this doesn't work too well.
     auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
     pCmp.parentSphericalTerrainID = stCmpID;
-    pCmp.parentGravityID = spaceSystem->m_sphericalGravityCT.getComponentID(eid);
+    pCmp.parentGravityID = spaceSystem->sphericalGravity.getComponentID(eid);
     pCmp.parentEntity = eid;
 }
 
