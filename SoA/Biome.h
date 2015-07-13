@@ -25,7 +25,7 @@ public:
 
 struct BiomeFlora {
     f32 chance;
-    ui16 block;
+    ui16 block = 0;
 };
 KEG_TYPE_DECL(BiomeFlora);
 

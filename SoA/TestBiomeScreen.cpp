@@ -251,6 +251,41 @@ void TestBiomeScreen::initChunks() {
         m_chunks[i].chunk->init(i, pos);
         m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData);
     }
+
+#define GET_INDEX(x, y, z) ((x) + (y) * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + (z) * HORIZONTAL_CHUNKS)
+    
+    // Set neighbor pointers
+    for (int y = 0; y < VERTICAL_CHUNKS; y++) {
+        for (int z = 0; z < VERTICAL_CHUNKS; z++) {
+            for (int x = 0; x < VERTICAL_CHUNKS; x++) {
+                Chunk* chunk = m_chunks[GET_INDEX(x, y, z)].chunk;
+                if (x > 0) {
+                    chunk->left = m_chunks[GET_INDEX(x - 1, y, z)].chunk;
+                    chunk->numNeighbors++;
+                }
+                if (x < HORIZONTAL_CHUNKS - 1) {
+                    chunk->right = m_chunks[GET_INDEX(x + 1, y, z)].chunk;
+                    chunk->numNeighbors++;
+                }
+                if (y > 0) {
+                    chunk->bottom = m_chunks[GET_INDEX(x, y - 1, z)].chunk;
+                    chunk->numNeighbors++;
+                }
+                if (y < VERTICAL_CHUNKS - 1) {
+                    chunk->top = m_chunks[GET_INDEX(x, y + 1, z)].chunk;
+                    chunk->numNeighbors++;
+                }
+                if (z > 0) {
+                    chunk->back = m_chunks[GET_INDEX(x, y, z - 1)].chunk;
+                    chunk->numNeighbors++;
+                }
+                if (z < HORIZONTAL_CHUNKS - 1) {
+                    chunk->front = m_chunks[GET_INDEX(x, y, z + 1)].chunk;
+                    chunk->numNeighbors++;
+                }
+            }
+        }
+    }
 }
 
 void TestBiomeScreen::initInput() {

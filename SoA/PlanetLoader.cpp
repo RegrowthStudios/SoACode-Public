@@ -344,6 +344,7 @@ void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
         keg::parse((ui8*)&flora, node, context, &KEG_GLOBAL_TYPE(BiomeFlora));
    
         FloraID id = genData->flora.size();
+        genData->flora.push_back(flora);
         genData->blockInfo.floraNames.push_back(key);
         genData->floraMap[key] = id;
     });
