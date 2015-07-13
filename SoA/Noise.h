@@ -113,14 +113,14 @@ namespace Noise {
     }
 
     // The gradients are the midpoints of the vertices of a cube.
-    const int grad3[12][3] = {
+    const f64 grad3[12][3] = {
         { 1, 1, 0 }, { -1, 1, 0 }, { 1, -1, 0 }, { -1, -1, 0 },
         { 1, 0, 1 }, { -1, 0, 1 }, { 1, 0, -1 }, { -1, 0, -1 },
         { 0, 1, 1 }, { 0, -1, 1 }, { 0, 1, -1 }, { 0, -1, -1 }
     };
 
     // The gradients are the midpoints of the vertices of a hypercube.
-    const int grad4[32][4] = {
+    const f64 grad4[32][4] = {
         { 0, 1, 1, 1 }, { 0, 1, 1, -1 }, { 0, 1, -1, 1 }, { 0, 1, -1, -1 },
         { 0, -1, 1, 1 }, { 0, -1, 1, -1 }, { 0, -1, -1, 1 }, { 0, -1, -1, -1 },
         { 1, 0, 1, 1 }, { 1, 0, 1, -1 }, { 1, 0, -1, 1 }, { 1, 0, -1, -1 },

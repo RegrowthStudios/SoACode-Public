@@ -231,9 +231,9 @@ f64v2 Noise::cellular(const f64v3& P) {
 
 inline int fastfloor(const f64 x) { return x > 0 ? (int)x : (int)x - 1; }
 
-inline f64 dot(const int* g, const f64 x, const f64 y) { return g[0] * x + g[1] * y; }
-inline f64 dot(const int* g, const f64 x, const f64 y, const f64 z) { return g[0] * x + g[1] * y + g[2] * z; }
-inline f64 dot(const int* g, const f64 x, const f64 y, const f64 z, const f64 w) { return g[0] * x + g[1] * y + g[2] * z + g[3] * w; }
+inline f64 dot(const f64* g, const f64 x, const f64 y) { return g[0] * x + g[1] * y; }
+inline f64 dot(const f64* g, const f64 x, const f64 y, const f64 z) { return g[0] * x + g[1] * y + g[2] * z; }
+inline f64 dot(const f64* g, const f64 x, const f64 y, const f64 z, const f64 w) { return g[0] * x + g[1] * y + g[2] * z + g[3] * w; }
 
 f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y) {
     f64 total = 0.0;
@@ -294,6 +294,7 @@ f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, con
 
     return total / maxAmplitude;
 }
+
 
 // 2D raw Simplex noise
 f64 Noise::raw(const f64 x, const f64 y) {

@@ -99,15 +99,21 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
     m_sb.begin();
     switch (m_currentNoise) {
         case SIMPLEX:
-            m_sb.drawString(&m_font, "Simplex", f32v2(30.0f), f32v2(1.0f), color::Red);
+            m_sb.drawString(&m_font, "Simplex", f32v2(30.0f), f32v2(0.7f), color::White);
             break;
         case CELLULAR:
-            m_sb.drawString(&m_font, "Cellular", f32v2(30.0f), f32v2(1.0f), color::Red);
+            m_sb.drawString(&m_font, "Cellular", f32v2(30.0f), f32v2(0.7f), color::White);
             break;
     }
     char buf[256];
-    sprintf(buf, "Time %.2lf ms\n Samples %d\n Avg. time per sample: %.4lf", m_times[m_currentNoise], numSamples, m_times[m_currentNoise] / numSamples);
-    m_sb.drawString(&m_font, buf, f32v2(30.0f, 60.0f), f32v2(1.0f), color::Red);
+    sprintf(buf, "Time %.2lf ms", m_times[m_currentNoise]);
+    m_sb.drawString(&m_font, buf, f32v2(30.0f, 60.0f), f32v2(0.7f), color::White);
+
+    sprintf(buf, "Samples %d", numSamples);
+    m_sb.drawString(&m_font, buf, f32v2(330.0f, 60.0f), f32v2(0.7f), color::White);
+
+    sprintf(buf, "Time per sample: %.6lf ms", m_times[m_currentNoise] / numSamples);
+    m_sb.drawString(&m_font, buf, f32v2(630.0f, 60.0f), f32v2(0.7f), color::White);
 
     m_sb.end();
     m_sb.render(f32v2(m_app->getWindow().getViewportDims()));
