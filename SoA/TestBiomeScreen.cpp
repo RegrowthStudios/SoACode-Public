@@ -4,12 +4,11 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/colors.h>
 
-#include "SoaState.h"
-#include "SoaEngine.h"
-#include "LoadTaskBlockData.h"
+#include "App.h"
 #include "ChunkRenderer.h"
-
-#include "ChunkMeshTask.h"
+#include "LoadTaskBlockData.h"
+#include "SoaEngine.h"
+#include "SoaState.h"
 
 #define HORIZONTAL_CHUNKS 10
 #define VERTICAL_CHUNKS 10
@@ -195,10 +194,11 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
     m_hdrStage.render();
 
     // Draw UI
-    /*  m_sb.begin();
-      
-      m_sb.end();
-      m_sb.render(f32v2(m_commonState->window->getViewportDims()));*/
+    char buf[256];
+    m_sb.begin();
+    sprintf(buf, "FPS: %f", m_app->getFps());
+    m_sb.end();
+    m_sb.render(f32v2(m_commonState->window->getViewportDims()));
     vg::DepthState::FULL.set(); // Have to restore depth
 }
 
@@ -211,12 +211,13 @@ void TestBiomeScreen::initChunks() {
 
     // Init height data
     for (auto& hd : m_heightData) {
+        hd.isLoaded = true;
         for (int i = 0; i < CHUNK_LAYER; i++) {
-            hd.biome = &DEFAULT_BIOME;
-            hd.height = 10;
-            hd.humidity = 128;
-            hd.temperature = 128;
-            hd.flags = 0;
+            hd.heightData[i].biome = &DEFAULT_BIOME;
+            hd.heightData[i].height = 10;
+            hd.heightData[i].humidity = 128;
+            hd.heightData[i].temperature = 128;
+            hd.heightData[i].flags = 0;
         }
     }
 
@@ -228,7 +229,7 @@ void TestBiomeScreen::initChunks() {
         pos.pos.z = (i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)) / HORIZONTAL_CHUNKS - HORIZONTAL_CHUNKS / 2;
         m_chunks[i].chunk = new Chunk;
         m_chunks[i].chunk->init(i, pos);
-        m_chunkGenerator.generateChunk(m_chunks[i].chunk, &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)]);
+        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData);
     }
 }
 

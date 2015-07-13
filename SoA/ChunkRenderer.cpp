@@ -95,7 +95,6 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const f64v3 &PlayerPos, cons
     setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
     f32m4 MVP = VP * worldMatrix;
-
     glUniformMatrix4fv(m_opaqueProgram.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(m_opaqueProgram.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
 

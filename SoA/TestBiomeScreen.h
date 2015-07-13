@@ -54,7 +54,7 @@ private:
     vg::SpriteFont m_font;
 
     std::vector <ViewableChunk> m_chunks;
-    std::vector <PlanetHeightData> m_heightData;
+    std::vector <ChunkGridData> m_heightData;
 
     vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing

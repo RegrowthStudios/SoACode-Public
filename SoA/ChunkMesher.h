@@ -3,11 +3,11 @@
 #include "BlockData.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
+#include "ChunkMeshTask.h"
 
 class BlockPack;
 class BlockTextureLayer;
 class ChunkMeshData;
-class ChunkMeshTask;
 struct BlockTexture;
 struct PlanetHeightData;
 
@@ -25,6 +25,7 @@ public:
     CALLER_DELETE ChunkMesh* easyCreateChunkMesh(const Chunk* chunk, MeshTaskType type) {
         prepareData(chunk);
         ChunkMesh* mesh = new ChunkMesh;
+        mesh->position = chunk->getVoxelPosition().pos;
         uploadMeshData(*mesh, createChunkMeshData(type));
         return mesh;
     }
