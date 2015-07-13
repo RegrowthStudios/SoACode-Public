@@ -226,7 +226,9 @@ void TestBiomeScreen::initChunks() {
                     VoxelPosition2D pos;
                     pos.pos.x = x * CHUNK_WIDTH + j;
                     pos.pos.y = z * CHUNK_WIDTH + i;
-                    m_heightGenerator.generateHeightData(hd.heightData[i * CHUNK_WIDTH + j], pos);
+                    PlanetHeightData& data = hd.heightData[i * CHUNK_WIDTH + j];
+                    m_heightGenerator.generateHeightData(data, pos);
+                    data.flora = m_heightGenerator.getFloraID(data.biome, pos);
                 }
             }
         }

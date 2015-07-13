@@ -37,6 +37,9 @@ public:
     void generateHeightData(OUT PlanetHeightData& height, const VoxelPosition2D& facePosition) const;
     void generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const;
 
+    // Gets the flora id that should be at a specific heightmap spot
+    FloraID getFloraID(const Biome* biome, const VoxelPosition2D& facePosition);
+    
     const PlanetGenData* getGenData() const { return m_genData; }
 private:
     void generateHeightData(OUT PlanetHeightData& height, const f64v3& pos, const f64v3& normal) const;

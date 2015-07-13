@@ -141,14 +141,37 @@ void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
                 nString().swap(blockInfo.surfaceBlockName); // clear memory
             }
         }
+
         // Set flora blocks
-        for (size_t i = 0; i < blockInfo.floraNames.size(); i++) {
-            const Block* b = blocks.hasBlock(blockInfo.floraNames[i]);
+        for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
+            const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
             if (b) {
                 genData->flora[i].block = b->ID;
             }
         }
-        std::vector<BlockIdentifier>().swap(blockInfo.floraNames);
+        std::vector<BlockIdentifier>().swap(blockInfo.floraBlockNames);
+
+        // Set biomes flora
+        for (auto& biome : genData->biomes) {
+            auto& it = blockInfo.biomeFlora.find(&biome);
+            if (it != blockInfo.biomeFlora.end()) {
+                auto& kList = it->second;
+                biome.flora.resize(kList.size());
+                // Iterate through keg properties
+                for (size_t i = 0; i < kList.size(); i++) {
+                    auto& kp = kList[i];
+                    auto& mit = genData->floraMap.find(kp.id);
+                    if (mit != genData->floraMap.end()) {
+                        biome.flora[i].chance = kp.chance;
+                        biome.flora[i].data = genData->flora[mit->second];
+                        biome.flora[i].id = i;
+                    } else {
+                        fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+                    }
+                }
+            }
+        }
+        std::map<const Biome*, std::vector<BiomeFloraKegProperties>>().swap(blockInfo.biomeFlora);
     }
 }
 

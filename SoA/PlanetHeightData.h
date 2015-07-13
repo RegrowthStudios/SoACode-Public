@@ -20,10 +20,9 @@ struct Biome;
 struct PlanetHeightData {
     const Biome* biome;
     f32 height; ///< Height in voxels
-    ui16 surfaceBlock;
+    ui16 flora;
     ui8 temperature;
     ui8 humidity;
-    ui8 depth; // For water, but is this needed?
     ui8 flags; // TODO(Ben): Bitfield
 };
 

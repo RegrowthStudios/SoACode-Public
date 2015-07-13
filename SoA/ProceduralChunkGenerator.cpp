@@ -57,7 +57,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             // Get the block ID
             layerIndices[c] = getBlockLayerIndex(depth);
             BlockLayer& layer = blockLayers[layerIndices[c]];
-            blockID = getBlockID(depth, mapHeight, height, layer);
+            blockID = getBlockID(depth, mapHeight, height, heightData[c], layer);
 
             if (blockID != 0) chunk->numBlocks++;
 
@@ -99,7 +99,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 if (blockLayers[layerIndex].start > depth && layerIndex > 0) layerIndex--;
                 // Get the block ID
                 BlockLayer& layer = blockLayers[layerIndex];
-                blockID = getBlockID(depth, mapHeight, height, layer);
+                blockID = getBlockID(depth, mapHeight, height, heightData[hIndex], layer);
 
                 //if (tooSteep) dh += 3; // If steep, increase depth
 
@@ -169,7 +169,7 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
     return layers.size() - 1;
 }
 
-ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, BlockLayer& layer) const {
+ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, const PlanetHeightData& hd, BlockLayer& layer) const {
     ui16 blockID = 0;
     if (depth >= 0) {
         // TODO(Ben): Optimize
@@ -186,6 +186,10 @@ ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, 
         // Liquid
         if (height < 0 && m_genData->liquidBlock) {
             blockID = m_genData->liquidBlock;
+        } else if (depth == -1) {
+            if (hd.flora != FLORA_ID_NONE) {
+                blockID = hd.biome->flora[hd.flora].data.block;
+            }
         }
     }
     return blockID;

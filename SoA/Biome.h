@@ -23,11 +23,26 @@ public:
     f32 chance;
 };
 
-struct BiomeFlora {
-    f32 chance;
-    ui16 block = 0;
+#define FLORA_ID_NONE 0xFFFFu
+typedef ui16 FloraID;
+
+// Flora specification
+struct FloraData {
+    ui16 block;
 };
-KEG_TYPE_DECL(BiomeFlora);
+
+struct BiomeFloraKegProperties {
+    NoiseBase chance;
+    nString id;
+};
+KEG_TYPE_DECL(BiomeFloraKegProperties);
+
+// Unique flora instance
+struct BiomeFlora {
+    NoiseBase chance;
+    FloraData data;
+    FloraID id = FLORA_ID_NONE;
+};
 
 struct BlockLayer {
     ui32 start;
@@ -62,6 +77,7 @@ struct Biome {
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
     std::vector<Biome*> children;
+    std::vector<BiomeFlora> flora;
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
     // Only applies to base biomes

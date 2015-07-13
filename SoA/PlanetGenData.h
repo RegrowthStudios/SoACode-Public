@@ -45,13 +45,13 @@ KEG_TYPE_DECL(TerrainColorKegProperties);
 
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
+    std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
     std::vector<nString> blockLayerNames;
-    std::vector<nString> floraNames;
+    std::vector<nString> floraBlockNames;
     nString liquidBlockName = "";
     nString surfaceBlockName = "";
 };
 
-typedef ui32 FloraID;
 struct PlanetGenData {
     vg::Texture terrainColorMap = 0;
     vg::Texture liquidColorMap = 0;
@@ -84,9 +84,8 @@ struct PlanetGenData {
     /************************************************************************/
     /* Flora and Trees                                                      */
     /************************************************************************/
-    std::vector <BiomeFlora> flora;
-    std::map<nString, FloraID> floraMap;
-    f32 floraChance = 0.0f;
+    std::vector<FloraData> flora;
+    std::map<nString, ui32> floraMap;
 
     /************************************************************************/
     /* Biomes                                                               */

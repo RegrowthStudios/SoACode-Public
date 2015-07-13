@@ -21,6 +21,7 @@ typedef ui32 BiomeColorCode;
 struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
+    Array<BiomeFloraKegProperties> flora;
     BiomeID id = "";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
     NoiseBase childNoise; ///< For sub biome determination
@@ -43,8 +44,18 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseScale, F64_V2);
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
+    kt.addValue("flora", Value::array(offsetof(BiomeKegProperties, flora), Value::custom(0, "BiomeFloraKegProperties")));
     kt.addValue("childNoise", Value::custom(offsetof(BiomeKegProperties, childNoise), "NoiseBase", false));
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
+}
+
+struct FloraKegProperties {
+    nString block = "";
+};
+KEG_TYPE_DECL(FloraKegProperties);
+KEG_TYPE_DEF_SAME_NAME(FloraKegProperties, kt) {
+    using namespace keg;
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FloraKegProperties, block, STRING);
 }
 
 void PlanetLoader::init(vio::IOManager* ioManager) {
@@ -314,6 +325,16 @@ void recursiveInitBiomes(Biome& biome,
     biome.terrainNoise = kp.terrainNoise;
     biome.childNoise = kp.childNoise;
 
+    // Construct vector in place
+    auto& floraPropList = genData->blockInfo.biomeFlora.insert(
+        std::make_pair(&biome, std::vector<BiomeFloraKegProperties>())).first->second;
+
+    // Copy flora data over
+    floraPropList.resize(kp.flora.size());
+    for (size_t i = 0; i < kp.flora.size(); i++) {
+        floraPropList[i] = kp.flora[i];
+    }
+
     // Recurse children
     biome.children.resize(kp.children.size());
     for (size_t i = 0; i < kp.children.size(); i++) {
@@ -340,12 +361,12 @@ void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
     }
 
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        BiomeFlora flora;
-        keg::parse((ui8*)&flora, node, context, &KEG_GLOBAL_TYPE(BiomeFlora));
-   
-        FloraID id = genData->flora.size();
-        genData->flora.push_back(flora);
-        genData->blockInfo.floraNames.push_back(key);
+        FloraKegProperties properties;
+        keg::parse((ui8*)&properties, node, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
+        
+        ui32 id = genData->flora.size();
+        genData->flora.emplace_back();
+        genData->blockInfo.floraBlockNames.push_back(properties.block);
         genData->floraMap[key] = id;
     });
     context.reader.forAllInMap(node, baseParser);
