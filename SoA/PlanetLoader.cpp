@@ -362,7 +362,7 @@ void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
 
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         FloraKegProperties properties;
-        keg::parse((ui8*)&properties, node, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
+        keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
         
         ui32 id = genData->flora.size();
         genData->flora.emplace_back();

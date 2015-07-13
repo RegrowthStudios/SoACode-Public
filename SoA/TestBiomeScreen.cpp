@@ -10,8 +10,13 @@
 #include "SoaEngine.h"
 #include "SoaState.h"
 
+#ifdef DEBUG
+#define HORIZONTAL_CHUNKS 4
+#define VERTICAL_CHUNKS 4
+#else
 #define HORIZONTAL_CHUNKS 10
 #define VERTICAL_CHUNKS 10
+#endif
 
 TestBiomeScreen::TestBiomeScreen(const App* app, CommonState* state) :
 IAppScreen<App>(app),
@@ -171,12 +176,21 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    // Opaque
     m_renderer.beginOpaque(m_soaState->blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
     for (auto& vc : m_chunks) {
         m_renderer.drawOpaque(vc.chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
     }
+    // Cutout
+    m_renderer.beginCutout(m_soaState->blockTextures->getAtlasTexture(),
+                           f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
+                           f32v3(0.3f));
+    for (auto& vc : m_chunks) {
+        m_renderer.drawCutout(vc.chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+    }
+
     m_renderer.end();
 
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

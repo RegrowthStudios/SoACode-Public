@@ -9,7 +9,7 @@ KEG_ENUM_DEF(MeshType, MeshType, e) {
     e.addValue("none", MeshType::NONE);
     e.addValue("cube", MeshType::BLOCK);
     e.addValue("leaves", MeshType::LEAVES);
-    e.addValue("triangle", MeshType::FLORA);
+    e.addValue("triangle", MeshType::TRIANGLE);
     e.addValue("cross", MeshType::CROSSFLORA);
     e.addValue("liquid", MeshType::LIQUID);
     e.addValue("flat", MeshType::FLAT);

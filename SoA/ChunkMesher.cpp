@@ -526,7 +526,6 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
 
     // TODO(Ben): Here?
     _waterVboVerts.clear();
-    _cutoutVerts.clear();
 
     // Stores the data for a chunk mesh
     // TODO(Ben): new is bad mkay
@@ -552,7 +551,7 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
                         break;
                     case MeshType::LEAVES:
                     case MeshType::CROSSFLORA:
-                    case MeshType::FLORA:
+                    case MeshType::TRIANGLE:
                         addFlora();
                         break;
                     default:
@@ -586,6 +585,7 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
     }
 
     // Swap flora quads
+    renderData.cutoutVboSize = m_floraQuads.size() * INDICES_PER_QUAD;
     m_chunkMeshData->cutoutQuads.swap(m_floraQuads);
 
     m_highestY /= QUAD_SIZE;
@@ -1099,12 +1099,12 @@ void ChunkMesher::addFlora() {
     // Get texturing parameters
     data.blendMode = getBlendMode(data.texture->blendMode);
     // TODO(Ben): Make this better
-    data.baseTextureIndex = data.texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
-    data.baseNormTextureIndex = data.texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
-    data.baseDispTextureIndex = data.texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
-    data.overlayTextureIndex = data.texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
-    data.overlayNormTextureIndex = data.texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
-    data.overlayDispTextureIndex = data.texture->overlay.getDispTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    data.baseTextureIndex = data.texture->base.getBlockTextureIndex(m_textureMethodParams[0][B_INDEX], blockColor[B_INDEX]);
+    data.baseNormTextureIndex = data.texture->base.getNormalTextureIndex(m_textureMethodParams[0][B_INDEX], blockColor[B_INDEX]);
+    data.baseDispTextureIndex = data.texture->base.getDispTextureIndex(m_textureMethodParams[0][B_INDEX], blockColor[B_INDEX]);
+    data.overlayTextureIndex = data.texture->overlay.getBlockTextureIndex(m_textureMethodParams[0][O_INDEX], blockColor[O_INDEX]);
+    data.overlayNormTextureIndex = data.texture->overlay.getNormalTextureIndex(m_textureMethodParams[0][O_INDEX], blockColor[O_INDEX]);
+    data.overlayDispTextureIndex = data.texture->overlay.getDispTextureIndex(m_textureMethodParams[0][O_INDEX], blockColor[O_INDEX]);
 
     // TODO(Ben): Bitwise ops?
     data.baseTextureAtlas = (ui8)(data.baseTextureIndex / ATLAS_SIZE);
@@ -1120,8 +1120,8 @@ void ChunkMesher::addFlora() {
     data.overlayNormTextureIndex %= ATLAS_SIZE;
     data.overlayDispTextureIndex %= ATLAS_SIZE;
     i32v3 pos(bx, by, bz);
-    data.uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
-    data.vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
+    data.uOffset = (ui8)(pos[FACE_AXIS[0][0]] * FACE_AXIS_SIGN[0][0]);
+    data.vOffset = (ui8)(pos[FACE_AXIS[0][1]] * FACE_AXIS_SIGN[0][1]);
     int r;
     switch (block->meshType) {
         case MeshType::LEAVES:
@@ -1134,7 +1134,7 @@ void ChunkMesher::addFlora() {
             ChunkMesher::addFloraQuad(VoxelMesher::crossFloraVertices[r], data);
             ChunkMesher::addFloraQuad(VoxelMesher::crossFloraVertices[r] + 4, data);
             break;
-        case MeshType::FLORA:
+        case MeshType::TRIANGLE:
             //Generate a random number between 0 and 3 inclusive
             r = std::bind(std::uniform_int_distribution<int>(0, NUM_FLORA_MESHES-1), std::mt19937(/*getPositionSeed(mi.nx, mi.nz)*/))();
 
