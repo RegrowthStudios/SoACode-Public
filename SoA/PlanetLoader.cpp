@@ -12,7 +12,9 @@
 #include <Vorb/RPC.h>
 #include <Vorb/Timing.h>
 
+#include "BlockPack.h"
 #include "Errors.h"
+#include "Biome.h"
 
 typedef ui32 BiomeColorCode;
 
@@ -50,32 +52,36 @@ void PlanetLoader::init(vio::IOManager* ioManager) {
     m_textureCache.init(ioManager);
 }
 
-PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {
-    m_glRpc = glrpc;
+PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
     nString data;
-    m_iom->readFileToString(filePath.c_str(), data);
+    m_iom->readFileToString(terrainPath.c_str(), data);
 
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data.c_str());
     keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
-        std::cout << "Failed to load " + filePath;
+        std::cout << "Failed to load " + terrainPath;
         context.reader.dispose();
         return false;
     }
 
     PlanetGenData* genData = new PlanetGenData;
-    genData->filePath = filePath;
+    genData->terrainFilePath = terrainPath;
 
     nString biomePath = "";
+    nString floraPath = "";
+    nString treesPath = "";
     bool didLoadBiomes = false;
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
-            didLoadBiomes = true;
-            loadBiomes(keg::convert<nString>(value), genData);
+            biomePath = keg::convert<nString>(value);
+        } else if (type == "flora") {
+            floraPath = keg::convert<nString>(value);
+        } else if (type == "trees") {
+            treesPath = keg::convert<nString>(value);
         } else if (type == "terrainColor") {
             parseTerrainColor(context, value, genData);
         } else if (type == "liquidColor") {
@@ -106,7 +112,13 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     context.reader.dispose();
     delete f;
 
-    if (!didLoadBiomes) {
+    if (floraPath.size()) {
+        loadFlora(floraPath, genData);
+    }
+
+    if (biomePath.size()) {
+        loadBiomes(biomePath, genData);
+    } else {
         // Set default biome
         for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
             for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
@@ -309,6 +321,59 @@ void recursiveInitBiomes(Biome& biome,
         recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData);
         biome.children[i] = &nextBiome;
     }
+}
+
+void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
+    // Read in the file
+    nString data;
+    m_iom->readFileToString(filePath.c_str(), data);
+
+    // Get the read context and error check
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        std::cout << "Failed to load " + filePath;
+        context.reader.dispose();
+        return;
+    }
+
+    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        BiomeFlora flora;
+        keg::parse((ui8*)&flora, node, context, &KEG_GLOBAL_TYPE(BiomeFlora));
+   
+        FloraID id = genData->flora.size();
+        genData->blockInfo.floraNames.push_back(key);
+        genData->floraMap[key] = id;
+    });
+    context.reader.forAllInMap(node, baseParser);
+    delete baseParser;
+    context.reader.dispose();
+}
+
+void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
+    // Read in the file
+    nString data;
+    m_iom->readFileToString(filePath.c_str(), data);
+
+    // Get the read context and error check
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        std::cout << "Failed to load " + filePath;
+        context.reader.dispose();
+        return;
+    }
+
+    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+       
+    });
+    context.reader.forAllInMap(node, baseParser);
+    delete baseParser;
+    context.reader.dispose();
 }
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {

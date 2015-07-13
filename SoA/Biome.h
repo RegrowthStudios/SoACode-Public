@@ -18,23 +18,16 @@
 
 #include "Noise.h"
 
-class BiomeTree {
+struct BiomeTree {
 public:
-    BiomeTree(f32 prob, i32 index) : probability(prob),
-    treeIndex(index) {
-    }
-    f32 probability;
-    i32 treeIndex;
+    f32 chance;
 };
 
-class BiomeFlora {
-public:
-    BiomeFlora(f32 prob, i32 index) : probability(prob),
-    floraIndex(index) {
-    }
-    f32 probability;
-    i32 floraIndex;
+struct BiomeFlora {
+    f32 chance;
+    ui16 block;
 };
+KEG_TYPE_DECL(BiomeFlora);
 
 struct BlockLayer {
     ui32 start;

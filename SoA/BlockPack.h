@@ -20,8 +20,6 @@
 
 #include "BlockData.h"
 
-typedef ui16 BlockID;
-
 /// A container for blocks
 class BlockPack {
 public:
@@ -36,14 +34,14 @@ public:
 
     /// Note that the returned pointer becomes invalidated after an append call
     /// @return nullptr if block doesn't exist
-    Block* hasBlock(const BlockID& id) {
+    const Block* hasBlock(const BlockID& id) const {
         if (id >= m_blockList.size()) {
             return nullptr;
         } else {
             return &m_blockList[id];
         }
     }
-    Block* hasBlock(const BlockIdentifier& sid) {
+    const Block* hasBlock(const BlockIdentifier& sid) const {
         auto v = m_blockMap.find(sid);
         if (v == m_blockMap.end()) {
             return nullptr;

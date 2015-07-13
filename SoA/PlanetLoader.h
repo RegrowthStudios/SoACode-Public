@@ -31,6 +31,7 @@ DECL_VCORE(class RPCManager);
 struct NoiseBase;
 struct PlanetGenData;
 struct BiomeKegProperties;
+class BlockPack;
 
 typedef ui32 BiomeColorCode;
 
@@ -39,10 +40,7 @@ public:
     void init(vio::IOManager* ioManager);
 
     /// Loads a planet from file
-    /// @param filePath: Path of the planet
-    /// @param glrpc: Optional RPC if you want to load on a non-render thread
-    /// @return planet gen data
-    PlanetGenData* loadPlanet(const nString& filePath, vcore::RPCManager* glrpc = nullptr);
+    PlanetGenData* loadPlanetGenData(const nString& terrainPath);
     /// Returns a default planetGenData
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
@@ -54,30 +52,15 @@ public:
     AtmosphereProperties getRandomAtmosphere();
 
 private:
-    /// Loads the biomes from file
-    /// @param filePath: Path to the biome file
-    /// @param genData: generation data to be modified
-    void loadBiomes(const nString& filePath, OUT PlanetGenData* genData);
-    /// Parses terrain noise functions
-    /// @param terrainFuncs: The functions to parse
-    /// @param reader: The YAML reader
-    /// @param node: The YAML node
+
+    void loadFlora(const nString& filePath, PlanetGenData* genData);
+    void loadTrees(const nString& filePath, PlanetGenData* genData);
+    void loadBiomes(const nString& filePath, PlanetGenData* genData);
+
     void parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node);
-    /// Parses liquid color data
-    /// @param reader: The YAML reader
-    /// @param node: The YAML node
-    /// @param genData: The generation data to modify
-    void parseLiquidColor(keg::ReadContext& context, keg::Node node, OUT PlanetGenData* genData);
-    /// Parses terrain color data
-    /// @param reader: The YAML reader
-    /// @param node: The YAML node
-    /// @param genData: The generation data to modify
-    void parseTerrainColor(keg::ReadContext& context, keg::Node node, OUT PlanetGenData* genData);
-    /// Parses block layer data
-    /// @param reader: The YAML reader
-    /// @param node: The YAML node
-    /// @param genData: The generation data to modify
-    void parseBlockLayers(keg::ReadContext& context, keg::Node node, OUT PlanetGenData* genData);
+    void parseLiquidColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData);
+    void parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData);
+    void parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData);
 
     PlanetGenData* m_defaultGenData = nullptr; ///< Default generation data handle
 

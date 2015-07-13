@@ -89,8 +89,14 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     m_soaState->blockTextures->update();
     // Load test planet
     PlanetLoader planetLoader;
+    m_iom.setSearchDirectory("StarSystems/Trinity/");
     planetLoader.init(&m_iom);
-    m_genData = planetLoader.loadPlanet("StarSystems/Trinity/Planets/Aldrin/terrain_gen.yml");
+    m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
+    m_genData->radius = 4500.0;
+    
+    // Set blocks
+    SoaEngine::setPlanetBlocks(m_genData, m_soaState->blocks);
+    
     m_chunkGenerator.init(m_genData);
 
     printf("Generating chunks...");
