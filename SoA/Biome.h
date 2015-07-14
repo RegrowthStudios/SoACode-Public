@@ -19,7 +19,6 @@
 #include "Noise.h"
 
 struct BiomeTree {
-public:
     f32 chance;
 };
 

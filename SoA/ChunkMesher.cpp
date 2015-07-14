@@ -1088,23 +1088,22 @@ void ChunkMesher::addFlora() {
     data.texture = block->textures[0];
     // Get colors
     // TODO(Ben): altColors
-    color3 blockColor[2];
-    data.texture->base.getFinalColor(blockColor[B_INDEX],
+    data.texture->base.getFinalColor(data.blockColor[B_INDEX],
                                 heightData->temperature,
                                 heightData->humidity, 0);
-    data.texture->base.getFinalColor(blockColor[O_INDEX],
+    data.texture->base.getFinalColor(data.blockColor[O_INDEX],
                                 heightData->temperature,
                                 heightData->humidity, 0);
 
     // Get texturing parameters
     data.blendMode = getBlendMode(data.texture->blendMode);
     // TODO(Ben): Make this better
-    data.baseTextureIndex = data.texture->base.getBlockTextureIndex(m_textureMethodParams[0][B_INDEX], blockColor[B_INDEX]);
-    data.baseNormTextureIndex = data.texture->base.getNormalTextureIndex(m_textureMethodParams[0][B_INDEX], blockColor[B_INDEX]);
-    data.baseDispTextureIndex = data.texture->base.getDispTextureIndex(m_textureMethodParams[0][B_INDEX], blockColor[B_INDEX]);
-    data.overlayTextureIndex = data.texture->overlay.getBlockTextureIndex(m_textureMethodParams[0][O_INDEX], blockColor[O_INDEX]);
-    data.overlayNormTextureIndex = data.texture->overlay.getNormalTextureIndex(m_textureMethodParams[0][O_INDEX], blockColor[O_INDEX]);
-    data.overlayDispTextureIndex = data.texture->overlay.getDispTextureIndex(m_textureMethodParams[0][O_INDEX], blockColor[O_INDEX]);
+    data.baseTextureIndex = data.texture->base.getBlockTextureIndex(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX]);
+    data.baseNormTextureIndex = data.texture->base.getNormalTextureIndex(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX]);
+    data.baseDispTextureIndex = data.texture->base.getDispTextureIndex(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX]);
+    data.overlayTextureIndex = data.texture->overlay.getBlockTextureIndex(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX]);
+    data.overlayNormTextureIndex = data.texture->overlay.getNormalTextureIndex(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX]);
+    data.overlayDispTextureIndex = data.texture->overlay.getDispTextureIndex(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX]);
 
     // TODO(Ben): Bitwise ops?
     data.baseTextureAtlas = (ui8)(data.baseTextureIndex / ATLAS_SIZE);
@@ -1176,7 +1175,7 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
         v.overlayTextureWidth = (ui8)data.texture->overlay.size.x;
         v.overlayTextureHeight = (ui8)data.texture->overlay.size.y;
         v.blendMode = data.blendMode;
-        v.face = (ui8)0;
+        v.face = (ui8)vvox::Cardinal::Y_POS;
     }
     // Set texture coordinates
     quad.verts[0].tex.x = (ui8)(UV_0 + data.uOffset);
