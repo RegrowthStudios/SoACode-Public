@@ -30,6 +30,41 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     generateHeightData(height, normal * m_genData->radius, normal);
 }
 
+//No idea how this works. Something to do with prime numbers, but returns # between -1 and 1
+inline f64 pseudoRand(int x, int z) {
+    int n = (x & 0xFFFF) + ((z & 0x7FFF) << 16);
+    n = (n << 13) ^ n;
+    int nn = (n*(n*n * 60493 + z * 19990303) + x * 1376312589) & 0x7fffffff;
+    return ((f64)nn / 1073741824.0);
+}
+
+FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelPosition2D& facePosition) {
+    // Need to convert to world-space
+    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
+    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
+
+    f64v3 pos;
+    pos[coordMapping.x] = facePosition.pos.x * KM_PER_VOXEL * coordMults.x;
+    pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
+    pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
+
+    f64v3 normal = glm::normalize(pos);
+    pos = normal * m_genData->radius;
+
+    // TODO(Ben): Experiment with optimizations with large amounts of flora.
+    // TODO(Ben): Sort flora with priority
+    for (size_t i = 0; i < biome->flora.size(); i++) {
+        const BiomeFlora& f = biome->flora[i];
+        f64 chance = f.chance.base;
+        getNoiseValue(pos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
+        f64 roll = pseudoRand(facePosition.pos.x, facePosition.pos.y);
+        if (roll < chance) {
+            return f.id;
+        }
+    }
+    return FLORA_ID_NONE;
+}
+
 void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH], f64 x, f64 y, OUT std::map<BiomeInfluence, f64>& rvBiomes) {
     int ix = (int)x;
     int iy = (int)y;
@@ -122,7 +157,7 @@ inline void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData
     f64 humidity = getHumidityValue(pos, normal, h);
     height.temperature = (ui8)temperature;
     height.humidity = (ui8)humidity;
-    height.surfaceBlock = m_genData->surfaceBlock;
+    height.flora = FLORA_ID_NONE;
 
     // Base Biome
     f64 biggestWeight = 0.0;
@@ -242,7 +277,7 @@ f64 SphericalHeightmapGenerator::getHumidityValue(const f64v3& pos, const f64v3&
     return SphericalHeightmapGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), genHeight - glm::max(0.0, m_genData->humHeightFalloff * height));
 }
 
-// Use tetryds formula when displaying to user?
+// Thanks to tetryds for these
 f64 SphericalHeightmapGenerator::calculateTemperature(f64 range, f64 angle, f64 baseTemp) {
     f64 tempFalloff = 1.0 - pow(cos(angle), 2.0 * angle);
     f64 temp = baseTemp - tempFalloff * range;

@@ -49,7 +49,7 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
 
             // Use planet loader to load terrain and biomes
             if (properties.generation.length()) {
-                properties.planetGenData = m_planetLoader.loadPlanet(properties.generation, glrpc);
+                properties.planetGenData = m_planetLoader.loadPlanetGenData(properties.generation);
             } else {
                 properties.planetGenData = nullptr;
                 // properties.planetGenData = pr.planetLoader->getRandomGenData(properties.density, pr.glrpc);

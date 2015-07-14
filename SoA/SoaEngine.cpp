@@ -118,35 +118,60 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
     return true;
 }
 
-void SoaEngine::setPlanetBlocks(SoaState* state) {
-    SpaceSystem* ss = state->spaceSystem;
-    for (auto& it : ss->sphericalTerrain) {
-        auto& cmp = it.second;
-        PlanetBlockInitInfo& blockInfo = cmp.planetGenData->blockInfo;
-        // TODO(Ben): Biomes too!
-        if (cmp.planetGenData) {
-            // Set all block layers
-            for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
-                ui16 blockID = state->blocks[blockInfo.blockLayerNames[i]].ID;
-                cmp.planetGenData->blockLayers[i].block = blockID;
+void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
+    PlanetBlockInitInfo& blockInfo = genData->blockInfo;
+    if (genData) {
+        // Set all block layers
+        for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
+            ui16 blockID = blocks[blockInfo.blockLayerNames[i]].ID;
+            genData->blockLayers[i].block = blockID;
+        }
+        std::vector<BlockIdentifier>().swap(blockInfo.blockLayerNames);
+        // Set liquid block
+        if (blockInfo.liquidBlockName.length()) {
+            if (blocks.hasBlock(blockInfo.liquidBlockName)) {
+                genData->liquidBlock = blocks[blockInfo.liquidBlockName].ID;
+                nString().swap(blockInfo.liquidBlockName); // clear memory
             }
-            // Clear memory
-            std::vector<nString>().swap(blockInfo.blockLayerNames);
-            // Set liquid block
-            if (blockInfo.liquidBlockName.length()) {
-                if (state->blocks.hasBlock(blockInfo.liquidBlockName)) {
-                    cmp.planetGenData->liquidBlock = state->blocks[blockInfo.liquidBlockName].ID;
-                    nString().swap(blockInfo.liquidBlockName); // clear memory
-                }
+        }
+        // Set surface block
+        if (blockInfo.surfaceBlockName.length()) {
+            if (blocks.hasBlock(blockInfo.surfaceBlockName)) {
+                genData->surfaceBlock = blocks[blockInfo.surfaceBlockName].ID;
+                nString().swap(blockInfo.surfaceBlockName); // clear memory
             }
-            // Set surface block
-            if (blockInfo.surfaceBlockName.length()) {
-                if (state->blocks.hasBlock(blockInfo.surfaceBlockName)) {
-                    cmp.planetGenData->surfaceBlock = state->blocks[blockInfo.surfaceBlockName].ID;
-                    nString().swap(blockInfo.surfaceBlockName); // clear memory
+        }
+
+        // Set flora blocks
+        for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
+            const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
+            if (b) {
+                genData->flora[i].block = b->ID;
+            }
+        }
+        std::vector<BlockIdentifier>().swap(blockInfo.floraBlockNames);
+
+        // Set biomes flora
+        for (auto& biome : genData->biomes) {
+            auto& it = blockInfo.biomeFlora.find(&biome);
+            if (it != blockInfo.biomeFlora.end()) {
+                auto& kList = it->second;
+                biome.flora.resize(kList.size());
+                // Iterate through keg properties
+                for (size_t i = 0; i < kList.size(); i++) {
+                    auto& kp = kList[i];
+                    auto& mit = genData->floraMap.find(kp.id);
+                    if (mit != genData->floraMap.end()) {
+                        biome.flora[i].chance = kp.chance;
+                        biome.flora[i].data = genData->flora[mit->second];
+                        biome.flora[i].id = i;
+                    } else {
+                        fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+                    }
                 }
             }
         }
+        std::map<const Biome*, std::vector<BiomeFloraKegProperties>>().swap(blockInfo.biomeFlora);
     }
 }
 
@@ -159,7 +184,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     auto ftCmpID = stCmp.farTerrainComponent;
     WorldCubeFace face;
     PlanetGenData* genData = stCmp.planetGenData;
-    nString filePath = genData->filePath;
+    nString filePath = genData->terrainFilePath;
 
     if (ftCmpID) {
         face = spaceSystem->farTerrain.getFromEntity(eid).face;
@@ -172,7 +197,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
     //state->planetLoader->textureCache.freeTexture(genData->liquidColorMap);
    // state->planetLoader->textureCache.freeTexture(genData->terrainColorMap);
-    genData = state->planetLoader->loadPlanet(filePath, glRPC);
+    genData = state->planetLoader->loadPlanetGenData(filePath);
     genData->radius = radius;
 
     auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,

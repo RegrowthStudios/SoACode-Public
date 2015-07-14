@@ -73,7 +73,10 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
     // End condition
     if (!loadedTextures && m_gameplayScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("BlockData")) {
         // Post process the planets
-        SoaEngine::setPlanetBlocks(m_commonState->state);
+        for (auto& it : m_commonState->state->spaceSystem->sphericalTerrain) {
+            auto& cmp = it.second;
+            SoaEngine::setPlanetBlocks(it.second.planetGenData, m_commonState->state->blocks);
+        }
         m_commonState->state->blockTextures->update();
         m_commonState->state->blockTextures->writeDebugAtlases();
         //m_commonState->state->blockTextures->save(&m_commonState->state->blocks);

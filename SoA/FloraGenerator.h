@@ -72,8 +72,6 @@ public:
 };
 KEG_TYPE_DECL(TreeBranchingProps);
 
-
-
 //This is data specific to a breed of tree
 class TreeType {
 public:

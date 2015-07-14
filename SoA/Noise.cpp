@@ -57,9 +57,10 @@ KEG_TYPE_DEF_SAME_NAME(TerrainFuncProperties, kt) {
 // Converted to C++ by Ben Arnold
 
 // Permutation polynomial: (34x^2 + x) mod 289
-f64v3 permute(const f64v3& x) {
+inline f64v3 permute(const f64v3& x) {
     return glm::mod((34.0 * x + 1.0) * x, 289.0);
 }
+
 
 // TODO(Ben): Fastfloor?
 f64v2 Noise::cellular(const f64v3& P) {
@@ -231,9 +232,9 @@ f64v2 Noise::cellular(const f64v3& P) {
 
 inline int fastfloor(const f64 x) { return x > 0 ? (int)x : (int)x - 1; }
 
-inline f64 dot(const int* g, const f64 x, const f64 y) { return g[0] * x + g[1] * y; }
-inline f64 dot(const int* g, const f64 x, const f64 y, const f64 z) { return g[0] * x + g[1] * y + g[2] * z; }
-inline f64 dot(const int* g, const f64 x, const f64 y, const f64 z, const f64 w) { return g[0] * x + g[1] * y + g[2] * z + g[3] * w; }
+inline f64 dot(const f64* g, const f64 x, const f64 y) { return g[0] * x + g[1] * y; }
+inline f64 dot(const f64* g, const f64 x, const f64 y, const f64 z) { return g[0] * x + g[1] * y + g[2] * z; }
+inline f64 dot(const f64* g, const f64 x, const f64 y, const f64 z, const f64 w) { return g[0] * x + g[1] * y + g[2] * z + g[3] * w; }
 
 f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y) {
     f64 total = 0.0;
@@ -256,9 +257,9 @@ f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, con
 }
 
 f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, const f64 x, const f64 y, const f64 z) {
-    f64 total = 0;
+    f64 total = 0.0;
     f64 frequency = freq;
-    f64 amplitude = 1;
+    f64 amplitude = 1.0;
 
     // We have to keep track of the largest possible amplitude,
     // because each octave adds more, and we need a value in [-1, 1].
@@ -294,6 +295,7 @@ f64 Noise::fractal(const int octaves, const f64 persistence, const f64 freq, con
 
     return total / maxAmplitude;
 }
+
 
 // 2D raw Simplex noise
 f64 Noise::raw(const f64 x, const f64 y) {

@@ -112,7 +112,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
                 case MeshType::LEAVES:
                     writer.push(keg::WriterParam::VALUE) << nString("leaves");
                     break;
-                case MeshType::FLORA:
+                case MeshType::TRIANGLE:
                     writer.push(keg::WriterParam::VALUE) << nString("triangle");
                     break;
                 case MeshType::CROSSFLORA:

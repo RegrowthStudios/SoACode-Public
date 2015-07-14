@@ -15,7 +15,7 @@ SoaController::~SoaController() {
     // Empty
 }
 
-void SoaController::startGame(OUT SoaState* state) {
+void SoaController::startGame(SoaState* state) {
     // Load game ECS
     SoaEngine::loadGameSystem(state);
 
@@ -23,26 +23,20 @@ void SoaController::startGame(OUT SoaState* state) {
     SpaceSystem* spaceSystem = state->spaceSystem;
 
     if (state->isNewGame) {
-        // TODO(Cristian): We should not be relying on a starting planet.
-        auto& svcmp = spaceSystem->sphericalVoxel.getFromEntity(state->startingPlanet);
-        auto& arcmp = spaceSystem->axisRotation.getFromEntity(state->startingPlanet);
-        auto& npcmp = spaceSystem->namePosition.getFromEntity(state->startingPlanet);
-
-        auto& np2 = spaceSystem->namePosition.get(spaceSystem->sphericalGravity.get(spaceSystem->sphericalGravity.getComponentID(state->startingPlanet)).namePositionComponent);
-
         // Create the player entity and make the initial planet his parent
-        state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
-                                                                  f64q(), 73.0f,
-                                                                  f64v3(0.0),
-                                                                  state->startingPlanet,
-                                                                  spaceSystem->sphericalGravity.getComponentID(state->startingPlanet),
-                                                                  spaceSystem->sphericalTerrain.getComponentID(state->startingPlanet));
-
-        auto& spcmp = gameSystem->spacePosition.getFromEntity(state->playerEntity);
-
-        const f64v3& spacePos = state->startSpacePos;
-
-        spcmp.position = arcmp.currentOrientation * spacePos;
+        if (state->startingPlanet) {
+            state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
+                                                                      f64q(), 73.0f,
+                                                                      f64v3(0.0),
+                                                                      state->startingPlanet,
+                                                                      spaceSystem->sphericalGravity.getComponentID(state->startingPlanet),
+                                                                      spaceSystem->sphericalTerrain.getComponentID(state->startingPlanet));
+        } else {
+            state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
+                                                                      f64q(), 73.0f,
+                                                                      f64v3(0.0),
+                                                                      0, 0, 0);
+        }
     } else {
         // TODO(Ben): This
     }

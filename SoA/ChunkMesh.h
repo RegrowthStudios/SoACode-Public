@@ -8,7 +8,7 @@ enum class MeshType {
     NONE, 
     BLOCK, 
     LEAVES, 
-    FLORA,
+    TRIANGLE,
     CROSSFLORA, 
     LIQUID,
     FLAT 

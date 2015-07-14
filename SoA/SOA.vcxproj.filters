@@ -871,6 +871,9 @@
     </ClInclude>
     <ClInclude Include="SpaceSystemComponentBuilders.h">
       <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+	</ClInclude>
+    <ClInclude Include="TestBiomeScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1440,6 +1443,9 @@
     </ClCompile>
     <ClCompile Include="GameSystemComponents.cpp">
       <Filter>SOA Files\ECS\Components</Filter>
+	</ClCompile>
+    <ClCompile Include="TestBiomeScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

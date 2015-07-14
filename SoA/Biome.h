@@ -18,22 +18,29 @@
 
 #include "Noise.h"
 
-class BiomeTree {
-public:
-    BiomeTree(f32 prob, i32 index) : probability(prob),
-    treeIndex(index) {
-    }
-    f32 probability;
-    i32 treeIndex;
+struct BiomeTree {
+    f32 chance;
 };
 
-class BiomeFlora {
-public:
-    BiomeFlora(f32 prob, i32 index) : probability(prob),
-    floraIndex(index) {
-    }
-    f32 probability;
-    i32 floraIndex;
+#define FLORA_ID_NONE 0xFFFFu
+typedef ui16 FloraID;
+
+// Flora specification
+struct FloraData {
+    ui16 block;
+};
+
+struct BiomeFloraKegProperties {
+    NoiseBase chance;
+    nString id;
+};
+KEG_TYPE_DECL(BiomeFloraKegProperties);
+
+// Unique flora instance
+struct BiomeFlora {
+    NoiseBase chance;
+    FloraData data;
+    FloraID id = FLORA_ID_NONE;
 };
 
 struct BlockLayer {
@@ -69,6 +76,7 @@ struct Biome {
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
     std::vector<Biome*> children;
+    std::vector<BiomeFlora> flora;
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
     // Only applies to base biomes

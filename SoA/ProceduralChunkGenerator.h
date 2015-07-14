@@ -29,7 +29,7 @@ public:
     void generateHeightmap(Chunk* chunk, PlanetHeightData* heightData) const;
 private:
     ui32 getBlockLayerIndex(ui32 depth) const;
-    ui16 getBlockID(int depth, int mapHeight, int height, BlockLayer& layer) const;
+    ui16 getBlockID(int depth, int mapHeight, int height, const PlanetHeightData& hd, BlockLayer& layer) const;
 
     PlanetGenData* m_genData = nullptr;
     SphericalHeightmapGenerator m_heightGenerator;

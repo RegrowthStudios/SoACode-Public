@@ -45,7 +45,9 @@ KEG_TYPE_DECL(TerrainColorKegProperties);
 
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
+    std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
     std::vector<nString> blockLayerNames;
+    std::vector<nString> floraBlockNames;
     nString liquidBlockName = "";
     nString surfaceBlockName = "";
 };
@@ -80,13 +82,19 @@ struct PlanetGenData {
     NoiseBase humTerrainFuncs;
 
     /************************************************************************/
+    /* Flora and Trees                                                      */
+    /************************************************************************/
+    std::vector<FloraData> flora;
+    std::map<nString, ui32> floraMap;
+
+    /************************************************************************/
     /* Biomes                                                               */
     /************************************************************************/
     const Biome* baseBiomeLookup[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
     std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME_MAP_WIDTH][BIOME_MAP_WIDTH];
     std::vector<Biome> biomes; ///< Biome object storage. DON'T EVER RESIZE AFTER GEN.
 
-    nString filePath;
+    nString terrainFilePath;
 };
 
 #endif // PlanetData_h__

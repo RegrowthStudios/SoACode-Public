@@ -40,7 +40,7 @@ public:
     static const GLfloat waterCubeVertices[NUM_VERTICES];
     static const GLbyte cubeNormals[NUM_VERTICES];
     static const GLbyte floraNormals[NUM_VERTICES];
-    static const ui8 floraVertices[NUM_FLORA_MESHES][NUM_FLORA_VERTICES];
-    static const ui8 crossFloraVertices[NUM_CROSSFLORA_MESHES][NUM_CROSSFLORA_VERTICES];
+    static const ui8v3 floraVertices[NUM_FLORA_MESHES][12];
+    static const ui8v3 crossFloraVertices[NUM_CROSSFLORA_MESHES][8];
 };
 
