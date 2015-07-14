@@ -15,15 +15,86 @@
 #define Biome_h__
 
 #include <Vorb/io/Keg.h>
+#include <Vorb/utils.h>
 
 #include "Noise.h"
 
-struct BiomeTree {
+#define FLORA_ID_NONE 0xFFFFu
+typedef ui16 FloraID;
+
+enum class TreeLeafType {
+    NONE,
+    ROUND,
+    CLUSTER,
+    PINE,
+    MUSHROOM
+};
+
+struct TreeFruitProperties {
+    FloraID flora;
     f32 chance;
 };
 
-#define FLORA_ID_NONE 0xFFFFu
-typedef ui16 FloraID;
+struct TreeLeafProperties {
+    TreeLeafType type;
+    TreeFruitProperties fruitProps;
+    // Union based on type
+    union {
+        struct Round {
+            ui16 radius;
+            ui16 blockID;
+        };
+        struct Cluster {
+            ui16 width;
+            ui16 height;
+            ui16 blockID;
+        };
+        struct Pine {
+            ui16 thickness;
+            ui16 blockID;
+        };
+        struct Mushroom {
+            i32 lengthMod;
+            i32 curlLength;
+            i32 capThickness;
+            i32 gillThickness;
+            ui16 gillBlockID;
+            ui16 capBlockID;
+        };
+    };
+};
+
+struct TreeBranchProperties {
+    ui16 coreWidth;
+    ui16 barkWidth;
+    f32 branchChance;
+    ui16 coreBlockID;
+    ui16 barkBlockID;
+    TreeFruitProperties fruitProps;
+    TreeLeafProperties leafProps;
+};
+
+struct TreeTrunkProperties {
+    Range<ui16> coreWidth;
+    Range<ui16> barkWidth;
+    Range<f32> branchChance;
+    Range<i32> slope;
+    ui16 coreBlockID;
+    ui16 barkBlockID;
+    TreeFruitProperties fruitProps;
+    TreeLeafProperties leafProps;
+    Range<TreeBranchProperties> branchProps;
+};
+
+// TODO(Ben): Also support L-system trees.
+struct BiomeTree {
+    // All ranges are for scaling between baby tree and adult tree
+    NoiseBase chance;
+    Range<ui16> heightRange;
+    // Data points for trunk properties. Properties get interpolated between these from
+    // base of tree to top of tree.
+    std::vector<TreeTrunkProperties> treeProperties;
+};
 
 // Flora specification
 struct FloraData {
