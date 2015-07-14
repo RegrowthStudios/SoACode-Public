@@ -51,12 +51,14 @@ FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelP
     f64v3 normal = glm::normalize(pos);
     pos = normal * m_genData->radius;
 
+    // TODO(Ben): Experiment with optimizations with large amounts of flora.
+    // TODO(Ben): Sort flora with priority
     for (size_t i = 0; i < biome->flora.size(); i++) {
         const BiomeFlora& f = biome->flora[i];
-        f64 noiseVal = f.chance.base;
-        getNoiseValue(pos, f.chance.funcs, nullptr, TerrainOp::ADD, noiseVal);
+        f64 chance = f.chance.base;
+        getNoiseValue(pos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
         f64 roll = pseudoRand(facePosition.pos.x, facePosition.pos.y);
-        if (roll < noiseVal) {
+        if (roll < chance) {
             return f.id;
         }
     }
