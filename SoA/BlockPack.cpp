@@ -27,13 +27,13 @@ BlockPack::BlockPack() :
 }
 
 BlockID BlockPack::append(Block& block) {
-    Block* curBlock;
+    const Block* curBlock;
     BlockID rv;
     if (curBlock = hasBlock(block.sID)) {
         rv = curBlock->ID;
         block.ID = rv;
         // Overwrite block
-        *curBlock = block;
+        *const_cast<Block*>(curBlock) = block;
     } else {
         rv = m_blockMap.size();
         block.ID = rv;

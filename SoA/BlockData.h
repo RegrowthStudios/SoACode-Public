@@ -54,6 +54,8 @@ public:
 
 typedef nString BlockIdentifier; ///< Unique identifier key for blocks
 
+typedef ui16 BlockID;
+
 class Block
 {
 public:
@@ -65,7 +67,7 @@ public:
 
     BlockIdentifier sID;
     nString name;
-    ui16 ID;
+    BlockID ID;
     nString burnTransformID;
     i16 waveEffect;
     ui16 lightColorPacked; /// 5 bit RGB light color packed into a ui16

@@ -21,8 +21,10 @@
 #include "SpaceSystemLoader.h"
 
 class GameSystem;
-struct SoaState;
+class BlockPack;
 class SpaceSystem;
+struct SoaState;
+struct PlanetGenData;
 
 DECL_VCORE(class RPCManager)
 
@@ -43,7 +45,7 @@ public:
     static bool loadGameSystem(SoaState* state);
 
     /// Sets block IDs for planet data
-    static void setPlanetBlocks(SoaState* state);
+    static void setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks);
 
     static void reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC);
 

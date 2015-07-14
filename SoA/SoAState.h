@@ -69,7 +69,7 @@ struct SoaState {
     vio::IOManager saveFileIom;
     ModPathResolver texturePathResolver;
     bool isNewGame = true;
-    f64v3 startSpacePos = f64v3(0.0f);
+    f64v3 startSpacePos = f64v3(0.0f); ///< Starting position of player entity
     f64 time = 0.0;
     bool isInputEnabled = true;
     float timeStep = 0.016f;

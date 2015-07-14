@@ -55,8 +55,10 @@ void ChunkRenderer::init() {
      //                                                              "Shaders/BlockShading/cutoutShading.frag");
     }
     { // Cutout
-     //   m_cutoutProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
-    //                                                          "Shaders/BlockShading/cutoutShading.frag");
+        m_cutoutProgram = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
+                                                              "Shaders/BlockShading/cutoutShading.frag");
+        m_cutoutProgram.use();
+        glUniform1i(m_cutoutProgram.getUniform("unTextures"), 0);
     }
     { // Water
      //   m_waterProgram = ShaderLoader::createProgramFromFile("Shaders/WaterShading/WaterShading.vert",
@@ -95,7 +97,6 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const f64v3 &PlayerPos, cons
     setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
     f32m4 MVP = VP * worldMatrix;
-
     glUniformMatrix4fv(m_opaqueProgram.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
     glUniformMatrix4fv(m_opaqueProgram.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
 
@@ -233,8 +234,8 @@ void ChunkRenderer::drawCutout(const ChunkMesh *cm, const f64v3 &playerPos, cons
 
     f32m4 MVP = VP * worldMatrix;
 
-    glUniformMatrix4fv(m_cutoutProgram.getUniform("MVP"), 1, GL_FALSE, &MVP[0][0]);
-    glUniformMatrix4fv(m_cutoutProgram.getUniform("M"), 1, GL_FALSE, &worldMatrix[0][0]);
+    glUniformMatrix4fv(m_cutoutProgram.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniformMatrix4fv(m_cutoutProgram.getUniform("unW"), 1, GL_FALSE, &worldMatrix[0][0]);
 
     glBindVertexArray(cm->cutoutVaoID);
 

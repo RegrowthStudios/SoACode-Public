@@ -236,6 +236,14 @@ void MainMenuScreen::newGame(const nString& fileName) {
     m_soaState->startSpacePos += glm::normalize(m_soaState->startSpacePos) * 5.0 * KM_PER_VOXEL;
 
     m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
+    vecs::EntityID startingPlanet = m_soaState->startingPlanet;
+
+    { // Compute start location
+        SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+        auto& arcmp = spaceSystem->axisRotation.getFromEntity(startingPlanet);
+
+        m_soaState->startSpacePos = arcmp.currentOrientation * m_soaState->startSpacePos;
+    }
 
     std::cout << "Making new game: " << fileName << std::endl;
 

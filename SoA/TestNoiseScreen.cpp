@@ -3,9 +3,12 @@
 
 #include <Vorb/ui/InputDispatcher.h>
 #include <SDL/SDL.h>
+#include <Vorb/colors.h>
+#include <Vorb/graphics/GpuMemory.h>
 
 #include "Errors.h"
 #include "ShaderLoader.h"
+#include "Noise.h"
 
 #define MS_AVARAGE_FRAMES 60
 
@@ -13,6 +16,11 @@ auto startTime = std::chrono::high_resolution_clock::now();
 
 f64 ms = 0;
 unsigned int frameCount = 0;
+
+TestNoiseScreen::TestNoiseScreen(const App* app) :
+IAppScreen<App>(app) {
+
+}
 
 i32 TestNoiseScreen::getNextScreen() const
 {
@@ -35,56 +43,36 @@ void TestNoiseScreen::destroy(const vui::GameTime& gameTime)
 
 void TestNoiseScreen::onEntry(const vui::GameTime& gameTime)
 { 
-    // NO VSYNC!
-    SDL_GL_SetSwapInterval(0);
+    m_sb.init();
+    m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
 
-    m_noiseTypes.emplace_back();
-    m_noiseTypes.back().vertexShader = R"(
-    out vec2 fPosition;
-
-    const vec2 vertices[4] = vec2[](vec2(-1.0, 1.0), vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(1.0, 1.0));
-
-    void main()
-    {
-        vec2 vertex = vertices[gl_VertexID];
-        fPosition = vertex;
-        gl_Position = vec4(vertex, 0.0, 1.0);
+    for (int i = 0; i < NUM_TEST_NOISE_TYPES; i++) {
+        m_textures[i] = 0;
     }
-    )";
 
-    m_noiseTypes.back().fragmentShader = R"(
-    uniform float unTime;
-    uniform float unAspectRatio;
-
-    in vec2 fPosition;
-
-    out vec4 pColor;
-
-    #include "Shaders/Noise/snoise3.glsl"
-
-    void main()
-    {
-        vec3 noisePosition = vec3(fPosition * 4.0, unTime * 0.0002);
-        noisePosition.x *= unAspectRatio;
-        pColor = vec4(snoise(noisePosition) * 0.5 + 0.5);
-    }
-    )";
-    
-    m_currentNoise = 0;
     onNoiseChange();
 
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
-        if (e.keyCode == VKEY_LEFT) m_currentNoise--;
-        if (e.keyCode == VKEY_RIGHT) m_currentNoise++;
-        if (m_currentNoise < 0) m_currentNoise = m_noiseTypes.size() - 1;
-        if (m_currentNoise >= m_noiseTypes.size()) m_currentNoise = 0;
+        if (e.keyCode == VKEY_LEFT) {
+            if (m_currentNoise == 0) {
+                m_currentNoise = TEST_NOISE_TYPES::CELLULAR;
+            } else {
+                m_currentNoise = (TEST_NOISE_TYPES)((int)m_currentNoise - 1);
+            }
+        }
+        if (e.keyCode == VKEY_RIGHT) {
+            if (m_currentNoise == TEST_NOISE_TYPES::CELLULAR) {
+                m_currentNoise = TEST_NOISE_TYPES::SIMPLEX;
+            } else {
+                m_currentNoise = (TEST_NOISE_TYPES)((int)m_currentNoise + 1);
+            }
+        }
         onNoiseChange();
     });
 }
 
 void TestNoiseScreen::onExit(const vui::GameTime& gameTime)
 {
-    if (m_program.isCreated()) m_program.dispose();
 }
 
 void TestNoiseScreen::update(const vui::GameTime& gameTime)
@@ -96,36 +84,83 @@ void TestNoiseScreen::draw(const vui::GameTime& gameTime)
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_program.use();
-    glUniform1f(m_program.getUniform("unTime"), (float)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count());
-    glUniform1f(m_program.getUniform("unAspectRatio"), m_game->getWindow().getAspectRatio());
+    int numSamples = m_app->getWindow().getWidth() * (m_app->getWindow().getHeight() - 100);
 
-    // Do the timing
-    timeBeginPeriod(1);
-    PreciseTimer timer;
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glFinish();
-    f64 t = timer.stop();
-    timeEndPeriod(1);
+    f32v2 destDims = f32v2(m_app->getWindow().getViewportDims());
+    destDims.y += 100.0f;
 
-    ms += t;
-    m_program.unuse();
-    checkGlError("TestNoiseScreen::draw");
+    // Texture
+    m_sb.begin();
+    m_sb.draw(m_textures[m_currentNoise], f32v2(0.0f, 100.0f), destDims, color::White);
+    m_sb.end();
+    m_sb.render(f32v2(m_app->getWindow().getViewportDims()));
 
-    frameCount++;
-    if (frameCount >= MS_AVARAGE_FRAMES) {
-        printf("%fms\n", ms / (f64)frameCount);
-        frameCount = 0;
-        ms = 0.0;
+    // UI
+    m_sb.begin();
+    switch (m_currentNoise) {
+        case SIMPLEX:
+            m_sb.drawString(&m_font, "Simplex", f32v2(30.0f), f32v2(0.7f), color::White);
+            break;
+        case CELLULAR:
+            m_sb.drawString(&m_font, "Cellular", f32v2(30.0f), f32v2(0.7f), color::White);
+            break;
     }
-    // Rest so we don't melt the GPU
-    if (t < 15.0f) {
-        Sleep(16 - (int)t);
-    }
+    char buf[256];
+    sprintf(buf, "Time %.2lf ms", m_times[m_currentNoise]);
+    m_sb.drawString(&m_font, buf, f32v2(30.0f, 60.0f), f32v2(0.7f), color::White);
+
+    sprintf(buf, "Samples %d", numSamples);
+    m_sb.drawString(&m_font, buf, f32v2(330.0f, 60.0f), f32v2(0.7f), color::White);
+
+    sprintf(buf, "Time per sample: %.6lf ms", m_times[m_currentNoise] / numSamples);
+    m_sb.drawString(&m_font, buf, f32v2(630.0f, 60.0f), f32v2(0.7f), color::White);
+
+    m_sb.end();
+    m_sb.render(f32v2(m_app->getWindow().getViewportDims()));
+
 }
 
 void TestNoiseScreen::onNoiseChange()
 {
-    if (m_program.isCreated()) m_program.dispose();
-    m_program = ShaderLoader::createProgram("Noise", m_noiseTypes[m_currentNoise].vertexShader, m_noiseTypes[m_currentNoise].fragmentShader);
+    // Only generate once
+    if (m_textures[m_currentNoise]) return;
+    const f64 frequency = 0.01;
+    int width = m_app->getWindow().getWidth();
+    int height = m_app->getWindow().getHeight() - 100;
+    std::vector<color4> buffer;
+    buffer.resize(width * height);
+    PreciseTimer timer;
+    timer.start();
+    f64 val;
+    ui8 p;
+    f64v2 cval;
+    switch (m_currentNoise) {
+        case SIMPLEX:
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    val = Noise::raw((f64)x * frequency, (f64)y * frequency, 0.0);
+                    p = (ui8)((val + 1.0) * 127.5);
+                    buffer[y * width + x].r = p;
+                    buffer[y * width + x].g = p;
+                    buffer[y * width + x].b = p;
+                    buffer[y * width + x].a = 255;
+                }
+            }
+            break;
+        case CELLULAR:
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    cval = Noise::cellular(f64v3((f64)x * frequency, (f64)y * frequency, 0.0));
+                    val = (cval.y - cval.x);
+                    p = (ui8)((val + 1.0) * 127.5);
+                    buffer[y * width + x].r = p;
+                    buffer[y * width + x].g = p;
+                    buffer[y * width + x].b = p;
+                    buffer[y * width + x].a = 255;
+                }
+            }
+            break;
+    }
+    m_times[m_currentNoise] = timer.stop();
+    m_textures[m_currentNoise] = vg::GpuMemory::uploadTexture((void*)buffer.data(), width, height);
 }

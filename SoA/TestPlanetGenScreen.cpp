@@ -66,7 +66,7 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
         pProps.diameter = PLANET_RADIUS * 2.0;
         pProps.mass = 10000.0;
         m_state.planetLoader->init(&m_iom);
-        pProps.planetGenData = m_state.planetLoader->loadPlanet("StarSystems/Trinity/Planets/Aldrin/properties.yml");
+        pProps.planetGenData = m_state.planetLoader->loadPlanetGenData("StarSystems/Trinity/Planets/Aldrin/properties.yml");
         TerrainFuncProperties tprops;
         tprops.low = 9;
         tprops.high = 10;

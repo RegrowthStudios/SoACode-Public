@@ -21,18 +21,19 @@
 #include "SoaOptions.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
+#include "TestBiomeScreen.h"
 #include "TestBlockViewScreen.h"
 #include "TestConnectedTextureScreen.h"
 #include "TestConsoleScreen.h"
 #include "TestDeferredScreen.h"
 #include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
-#include "TestVoxelModelScreen.h"
 #include "TestMappingScreen.h"
 #include "TestNewBlockAPIScreen.h"
 #include "TestNoiseScreen.h"
 #include "TestPlanetGenScreen.h"
 #include "TestStarScreen.h"
+#include "TestVoxelModelScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);  
@@ -77,7 +78,7 @@ void App::addScreens() {
     scrTests.push_back(new TestDisplacementMappingScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_P, scrTests.back(), "TestDisplacementMappingScreen");
-    scrTests.push_back(new TestNoiseScreen);
+    scrTests.push_back(new TestNoiseScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_N, scrTests.back(), "TestNoiseScreen");
     scrTests.push_back(new TestNewBlockAPIScreen);
@@ -89,6 +90,9 @@ void App::addScreens() {
     scrTests.push_back(new TestConnectedTextureScreen(this, &state));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_T, scrTests.back(), "TestConnectedTextureScreen");
+    scrTests.push_back(new TestBiomeScreen(this, &state));
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_Z, scrTests.back(), "TestBiomeScreen");
 
     // Uncomment to start from dev screen for testing other screens
 #define START_AT_DEV_SCREEN

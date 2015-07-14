@@ -440,9 +440,6 @@
     <ClInclude Include="VoxPool.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
-    <ClInclude Include="DevScreen.h">
-      <Filter>SOA Files\Screens\Dev</Filter>
-    </ClInclude>
     <ClInclude Include="TestConsoleScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -862,6 +859,9 @@
     </ClInclude>
     <ClInclude Include="SystemBodyLoader.h">
       <Filter>SOA Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TestBiomeScreen.h">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1419,6 +1419,9 @@
     </ClCompile>
     <ClCompile Include="SystemBodyLoader.cpp">
       <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TestBiomeScreen.cpp">
+      <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

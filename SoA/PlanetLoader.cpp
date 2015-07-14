@@ -12,13 +12,16 @@
 #include <Vorb/RPC.h>
 #include <Vorb/Timing.h>
 
+#include "BlockPack.h"
 #include "Errors.h"
+#include "Biome.h"
 
 typedef ui32 BiomeColorCode;
 
 struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
+    Array<BiomeFloraKegProperties> flora;
     BiomeID id = "";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
     NoiseBase childNoise; ///< For sub biome determination
@@ -41,8 +44,18 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, BiomeKegProperties, noiseScale, F64_V2);
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
+    kt.addValue("flora", Value::array(offsetof(BiomeKegProperties, flora), Value::custom(0, "BiomeFloraKegProperties")));
     kt.addValue("childNoise", Value::custom(offsetof(BiomeKegProperties, childNoise), "NoiseBase", false));
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
+}
+
+struct FloraKegProperties {
+    nString block = "";
+};
+KEG_TYPE_DECL(FloraKegProperties);
+KEG_TYPE_DEF_SAME_NAME(FloraKegProperties, kt) {
+    using namespace keg;
+    KEG_TYPE_INIT_ADD_MEMBER(kt, FloraKegProperties, block, STRING);
 }
 
 void PlanetLoader::init(vio::IOManager* ioManager) {
@@ -50,32 +63,36 @@ void PlanetLoader::init(vio::IOManager* ioManager) {
     m_textureCache.init(ioManager);
 }
 
-PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManager* glrpc /* = nullptr */) {
-    m_glRpc = glrpc;
+PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
     nString data;
-    m_iom->readFileToString(filePath.c_str(), data);
+    m_iom->readFileToString(terrainPath.c_str(), data);
 
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data.c_str());
     keg::Node node = context.reader.getFirst();
     if (keg::getType(node) != keg::NodeType::MAP) {
-        std::cout << "Failed to load " + filePath;
+        std::cout << "Failed to load " + terrainPath;
         context.reader.dispose();
         return false;
     }
 
     PlanetGenData* genData = new PlanetGenData;
-    genData->filePath = filePath;
+    genData->terrainFilePath = terrainPath;
 
     nString biomePath = "";
+    nString floraPath = "";
+    nString treesPath = "";
     bool didLoadBiomes = false;
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
-            didLoadBiomes = true;
-            loadBiomes(keg::convert<nString>(value), genData);
+            biomePath = keg::convert<nString>(value);
+        } else if (type == "flora") {
+            floraPath = keg::convert<nString>(value);
+        } else if (type == "trees") {
+            treesPath = keg::convert<nString>(value);
         } else if (type == "terrainColor") {
             parseTerrainColor(context, value, genData);
         } else if (type == "liquidColor") {
@@ -106,7 +123,13 @@ PlanetGenData* PlanetLoader::loadPlanet(const nString& filePath, vcore::RPCManag
     context.reader.dispose();
     delete f;
 
-    if (!didLoadBiomes) {
+    if (floraPath.size()) {
+        loadFlora(floraPath, genData);
+    }
+
+    if (biomePath.size()) {
+        loadBiomes(biomePath, genData);
+    } else {
         // Set default biome
         for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
             for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
@@ -302,6 +325,16 @@ void recursiveInitBiomes(Biome& biome,
     biome.terrainNoise = kp.terrainNoise;
     biome.childNoise = kp.childNoise;
 
+    // Construct vector in place
+    auto& floraPropList = genData->blockInfo.biomeFlora.insert(
+        std::make_pair(&biome, std::vector<BiomeFloraKegProperties>())).first->second;
+
+    // Copy flora data over
+    floraPropList.resize(kp.flora.size());
+    for (size_t i = 0; i < kp.flora.size(); i++) {
+        floraPropList[i] = kp.flora[i];
+    }
+
     // Recurse children
     biome.children.resize(kp.children.size());
     for (size_t i = 0; i < kp.children.size(); i++) {
@@ -309,6 +342,60 @@ void recursiveInitBiomes(Biome& biome,
         recursiveInitBiomes(nextBiome, kp.children[i], biomeCounter, genData);
         biome.children[i] = &nextBiome;
     }
+}
+
+void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
+    // Read in the file
+    nString data;
+    m_iom->readFileToString(filePath.c_str(), data);
+
+    // Get the read context and error check
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        std::cout << "Failed to load " + filePath;
+        context.reader.dispose();
+        return;
+    }
+
+    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        FloraKegProperties properties;
+        keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
+        
+        ui32 id = genData->flora.size();
+        genData->flora.emplace_back();
+        genData->blockInfo.floraBlockNames.push_back(properties.block);
+        genData->floraMap[key] = id;
+    });
+    context.reader.forAllInMap(node, baseParser);
+    delete baseParser;
+    context.reader.dispose();
+}
+
+void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
+    // Read in the file
+    nString data;
+    m_iom->readFileToString(filePath.c_str(), data);
+
+    // Get the read context and error check
+    keg::ReadContext context;
+    context.env = keg::getGlobalEnvironment();
+    context.reader.init(data.c_str());
+    keg::Node node = context.reader.getFirst();
+    if (keg::getType(node) != keg::NodeType::MAP) {
+        std::cout << "Failed to load " + filePath;
+        context.reader.dispose();
+        return;
+    }
+
+    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+       
+    });
+    context.reader.forAllInMap(node, baseParser);
+    delete baseParser;
+    context.reader.dispose();
 }
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {

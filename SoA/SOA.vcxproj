@@ -664,6 +664,7 @@ EXIT 0</Command>
     <ClInclude Include="TerrainPatchConstants.h" />
     <ClInclude Include="TerrainPatchMesh.h" />
     <ClInclude Include="TerrainPatchMeshTask.h" />
+    <ClInclude Include="TestBiomeScreen.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
     <ClInclude Include="TestConnectedTextureScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
@@ -872,6 +873,7 @@ EXIT 0</Command>
     <ClCompile Include="TerrainPatchMesher.cpp" />
     <ClCompile Include="TerrainPatchMesh.cpp" />
     <ClCompile Include="TerrainPatchMeshTask.cpp" />
+    <ClCompile Include="TestBiomeScreen.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
     <ClCompile Include="TestConnectedTextureScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />

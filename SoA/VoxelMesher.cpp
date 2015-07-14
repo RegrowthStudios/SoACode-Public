@@ -89,31 +89,31 @@ const GLbyte VoxelMesher::floraNormals[72] = { 0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 
     0, N_1, 0, 0, N_1, 0, 0, N_1, 0, 0, N_1, 0 };
 
 //We use 4 meshes so that we can add variation to the flora meshes
-const ui8 VoxelMesher::floraVertices[NUM_FLORA_MESHES][36] = {
+const ui8v3 VoxelMesher::floraVertices[NUM_FLORA_MESHES][12] = {
     {
-        0, 7, 5, 0, 0, 5, 7, 0, 5, 7, 7, 5,
-        6, 7, 7, 6, 0, 7, 1, 0, 0, 1, 7, 0,
-        1, 7, 7, 1, 0, 7, 6, 0, 0, 6, 7, 0 },
+        ui8v3(0, 7, 5), ui8v3(0, 0, 5), ui8v3(7, 0, 5), ui8v3(7, 7, 5),
+        ui8v3(6, 7, 7), ui8v3(6, 0, 7), ui8v3(1, 0, 0), ui8v3(1, 7, 0),
+        ui8v3(1, 7, 7), ui8v3(1, 0, 7), ui8v3(6, 0, 0), ui8v3(6, 7, 0) },
     {
-        2, 7, 0, 2, 0, 0, 2, 0, 7, 2, 7, 7,
-        0, 7, 1, 0, 0, 1, 7, 0, 6, 7, 7, 6,
-        0, 7, 6, 0, 0, 6, 7, 0, 1, 7, 7, 1 },
+        ui8v3(2, 7, 0), ui8v3(2, 0, 0), ui8v3(2, 0, 7), ui8v3(2, 7, 7),
+        ui8v3(0, 7, 1), ui8v3(0, 0, 1), ui8v3(7, 0, 6), ui8v3(7, 7, 6),
+        ui8v3(0, 7, 6), ui8v3(0, 0, 6), ui8v3(7, 0, 1), ui8v3(7, 7, 1) },
     {
-        0, 7, 2, 0, 0, 2, 7, 0, 2, 7, 7, 2,
-        6, 7, 0, 6, 0, 0, 1, 0, 7, 1, 7, 7,
-        1, 7, 0, 1, 0, 0, 6, 0, 7, 6, 7, 7 },
+        ui8v3(0, 7, 2), ui8v3(0, 0, 2), ui8v3(7, 0, 2), ui8v3(7, 7, 2),
+        ui8v3(6, 7, 0), ui8v3(6, 0, 0), ui8v3(1, 0, 7), ui8v3(1, 7, 7),
+        ui8v3(1, 7, 0), ui8v3(1, 0, 0), ui8v3(6, 0, 7), ui8v3(6, 7, 7) },
     {
-        5, 7, 0, 5, 0, 0, 5, 0, 7, 5, 7, 7,
-        7, 7, 1, 7, 0, 1, 0, 0, 6, 0, 7, 6,
-        7, 7, 6, 7, 0, 6, 0, 0, 1, 0, 7, 1 } };
+        ui8v3(5, 7, 0), ui8v3(5, 0, 0), ui8v3(5, 0, 7), ui8v3(5, 7, 7),
+        ui8v3(7, 7, 1), ui8v3(7, 0, 1), ui8v3(0, 0, 6), ui8v3(0, 7, 6),
+        ui8v3(7, 7, 6), ui8v3(7, 0, 6), ui8v3(0, 0, 1), ui8v3(0, 7, 1) } };
 
-const ui8 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][24] = {
+const ui8v3 VoxelMesher::crossFloraVertices[NUM_CROSSFLORA_MESHES][8] = {
     {
-        0, 7, 0, 0, 0, 0, 7, 0, 7, 7, 7, 7,
-        0, 7, 7, 0, 0, 7, 7, 0, 0, 7, 7, 0 },
+        ui8v3(0, 7, 0), ui8v3(0, 0, 0), ui8v3(7, 0, 7), ui8v3(7, 7, 7),
+        ui8v3(0, 7, 7), ui8v3(0, 0, 7), ui8v3(7, 0, 0), ui8v3(7, 7, 0) },
     {
-        7, 7, 7, 7, 0, 7, 0, 0, 0, 0, 7, 0,
-        7, 7, 0, 7, 0, 0, 0, 0, 7, 0, 7, 7 } };
+        ui8v3(7, 7, 7), ui8v3(7, 0, 7), ui8v3(0, 0, 0), ui8v3(0, 7, 0),
+        ui8v3(7, 7, 0), ui8v3(7, 0, 0), ui8v3(0, 0, 7), ui8v3(0, 7, 7) } };
 
 
 void VoxelMesher::makeFloraFace(BlockVertex *Verts, const ui8* positions, const i8* normals, int vertexOffset, int waveEffect, i32v3& pos, int vertexIndex, int textureIndex, int overlayTextureIndex, const ColorRGB8& color, const ColorRGB8& overlayColor, const ui8 sunlight, const ColorRGB8& lampColor, const BlockTexture* texInfo)
