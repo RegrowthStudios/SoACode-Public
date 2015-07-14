@@ -189,6 +189,9 @@
     <Filter Include="SOA Files\Voxel\Models">
       <UniqueIdentifier>{57f94b81-194d-4aa7-91bb-c4855307dd0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\ComponentBuilders">
+      <UniqueIdentifier>{8abe075e-c1df-4773-9ffd-b200f0dd9087}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -439,9 +442,6 @@
     </ClInclude>
     <ClInclude Include="VoxPool.h">
       <Filter>SOA Files\Voxel</Filter>
-    </ClInclude>
-    <ClInclude Include="DevScreen.h">
-      <Filter>SOA Files\Screens\Dev</Filter>
     </ClInclude>
     <ClInclude Include="TestConsoleScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
@@ -863,6 +863,15 @@
     <ClInclude Include="SystemBodyLoader.h">
       <Filter>SOA Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ECSTemplates.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemComponentBuilders.h">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemComponentBuilders.h">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1125,9 +1134,6 @@
     </ClCompile>
     <ClCompile Include="AmbiencePlayer.cpp">
       <Filter>SOA Files\Sound\Ambience</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSystem.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="SpaceSystemLoadStructs.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
@@ -1419,6 +1425,21 @@
     </ClCompile>
     <ClCompile Include="SystemBodyLoader.cpp">
       <Filter>SOA Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSTemplates.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemComponentBuilders.cpp">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemComponentBuilders.cpp">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemComponents.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
