@@ -181,7 +181,7 @@ void GameplayScreen::updateMTRenderState() {
     state->spaceCameraOrientation = spCmp.orientation;
 
     // Debug chunk grid
-    if (m_renderer.stages.chunkGrid.isActive()) {
+    if (m_renderer.stages.chunkGrid.isActive() && m_soaState->startingPlanet) {
         // TODO(Ben): This doesn't let you go to different planets!!!
         auto& svcmp = m_soaState->spaceSystem->sphericalVoxel.getFromEntity(m_soaState->startingPlanet);
         auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);

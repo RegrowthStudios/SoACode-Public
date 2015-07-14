@@ -21,7 +21,7 @@ struct SoaState;
 class SoaController {
 public:
     virtual ~SoaController();
-    void startGame(OUT SoaState* state);
+    void startGame(SoaState* state);
 };
 
 #endif // SoaController_h__
