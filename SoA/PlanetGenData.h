@@ -157,7 +157,7 @@ struct PlanetGenData {
     /************************************************************************/
     std::vector<FloraData> flora;
     std::map<nString, ui32> floraMap;
-    std::vector<TreeData> trees;
+    std::vector<TreeType> trees;
     std::map<nString, ui32> treeMap;
 
     /************************************************************************/

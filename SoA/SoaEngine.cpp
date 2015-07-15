@@ -117,7 +117,7 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
 #define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
 #define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
 
-void setTreeFruitProperties(TreeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
+void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
     SET_RANGE(fp, kp, chance);
     auto& it = genData->floraMap.find(kp.flora);
     if (it != genData->floraMap.end()) {
@@ -125,7 +125,7 @@ void setTreeFruitProperties(TreeFruitProperties& fp, const FruitKegProperties& k
     }
 }
 
-void setTreeLeafProperties(TreeLeafProperties& lp, const LeafKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
+void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
     lp.type = kp.type;
     setTreeFruitProperties(lp.fruitProps, kp.fruitProps, genData);
     const Block* b;
@@ -157,7 +157,7 @@ void setTreeLeafProperties(TreeLeafProperties& lp, const LeafKegProperties& kp, 
     }
 }
 
-void setTreeBranchProperties(TreeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
+void setTreeBranchProperties(TreeTypeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
     SET_RANGE(bp, kp, coreWidth);
     SET_RANGE(bp, kp, barkWidth);
     SET_RANGE(bp, kp, branchChance);
@@ -199,10 +199,10 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             }
         }
 
-        // Set tree data
+        // Set tree types
         genData->trees.resize(blockInfo.trees.size());
         for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
-            TreeData& td = genData->trees[i];
+            TreeType& td = genData->trees[i];
             const TreeKegProperties& kp = blockInfo.trees[i];
             // Add to lookup map
             genData->treeMap[kp.id] = i;
@@ -212,7 +212,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             // Set trunk properties
             td.trunkProps.resize(kp.trunkProps.size());
             for (size_t j = 0; j < kp.trunkProps.size(); j++) {
-                TreeTrunkProperties& tp = td.trunkProps[j];
+                TreeTypeTrunkProperties& tp = td.trunkProps[j];
                 const TrunkKegProperties& tkp = kp.trunkProps[j];
                 const Block* b;
                 // Blocks
