@@ -54,7 +54,6 @@ void SoaEngine::initState(SoaState* state) {
     state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
     state->systemViewer = new MainMenuSystemViewer;
-    state->planetLoader = new PlanetGenLoader;
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
@@ -89,9 +88,6 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
     vpath path = "SoASpace.log";
     vfile file;
     path.asFile(&file);
-
-    state->planetLoader->init(state->systemIoManager);
-
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
     pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
@@ -309,7 +305,9 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
     //state->planetLoader->textureCache.freeTexture(genData->liquidColorMap);
    // state->planetLoader->textureCache.freeTexture(genData->terrainColorMap);
-    genData = state->planetLoader->loadPlanetGenData(filePath);
+    PlanetGenLoader loader;
+    loader.init(state->systemIoManager);
+    genData = loader.loadPlanetGenData(filePath);
     genData->radius = radius;
 
     auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
@@ -337,7 +335,6 @@ void SoaEngine::destroyAll(SoaState* state) {
     delete state->chunkMeshManager;
     delete state->systemViewer;
     delete state->systemIoManager;
-    delete state->planetLoader;
     delete state->options;
     delete state->blockTextures;
     destroyGameSystem(state);

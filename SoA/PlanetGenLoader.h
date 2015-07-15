@@ -40,7 +40,7 @@ public:
     void init(vio::IOManager* ioManager);
 
     /// Loads a planet from file
-    PlanetGenData* loadPlanetGenData(const nString& terrainPath);
+    CALLER_DELETE PlanetGenData* loadPlanetGenData(const nString& terrainPath);
     /// Returns a default planetGenData
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
@@ -48,7 +48,7 @@ public:
     /// Returns a default planetGenData
     /// @param glrpc: Optional RPC if you want to load on a non-render thread
     /// @return planet gen data
-    PlanetGenData* getRandomGenData(f32 radius, vcore::RPCManager* glrpc = nullptr);
+    CALLER_DELETE PlanetGenData* getRandomGenData(f32 radius, vcore::RPCManager* glrpc = nullptr);
     AtmosphereProperties getRandomAtmosphere();
 
 private:
@@ -62,7 +62,7 @@ private:
     void parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData);
     void parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData);
 
-    PlanetGenData* m_defaultGenData = nullptr; ///< Default generation data handle
+    static PlanetGenData* m_defaultGenData; ///< Default generation data handle
 
     vio::IOManager* m_iom = nullptr; ///< IOManager handle
 

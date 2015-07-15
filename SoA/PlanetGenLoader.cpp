@@ -18,6 +18,8 @@
 
 typedef ui32 BiomeColorCode;
 
+PlanetGenData* PlanetGenLoader::m_defaultGenData = nullptr;
+
 struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
@@ -65,7 +67,7 @@ void PlanetGenLoader::init(vio::IOManager* ioManager) {
     m_textureCache.init(ioManager);
 }
 
-PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& terrainPath) {
+CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& terrainPath) {
     nString data;
     m_iom->readFileToString(terrainPath.c_str(), data);
 
@@ -154,7 +156,7 @@ PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = 
     return m_defaultGenData;
 }
 
-PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
+CALLER_DELETE PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
 
     // Allocate data
