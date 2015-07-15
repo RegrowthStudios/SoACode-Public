@@ -152,7 +152,6 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
             TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
             break;
         case TreeLeafType::NONE:
-            fprintf(stderr, "Warning: Missing tree leaf type in setTreeLeafProperties()\n");
             break;
     }
 }

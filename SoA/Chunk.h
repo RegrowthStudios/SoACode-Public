@@ -42,13 +42,6 @@ public:
     int refCount = 1;
 };
 
-// A flora/tree that needs to be generated
-struct QueuedFlora {
-    QueuedFlora(ui16 floraID, ui16 blockIndex) : floraID(floraID), blockIndex(blockIndex) {}
-    ui16 floraID;
-    ui16 blockIndex;
-};
-
 class Chunk {
     friend class ChunkGenerator;
     friend class ChunkGrid;
@@ -91,6 +84,8 @@ public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
+    // TODO(Ben): I don't think this has to be shared_ptr
+    // The reason it is, is because of meshing, but there is a workaround.
     std::shared_ptr<ChunkGridData> gridData = nullptr;
     MetaFieldInformation meta;    
     union {
@@ -116,7 +111,8 @@ public:
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
-    std::vector<QueuedFlora> floraToGenerate;
+    // Block IDs where flora must be generated.
+    std::vector<ui16> floraToGenerate;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;

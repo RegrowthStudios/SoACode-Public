@@ -4,6 +4,7 @@
 #include "PlanetHeightData.h"
 #include "VoxelSpaceConversions.h"
 #include "Noise.h"
+#include "soaUtils.h"
 
 #define WEIGHT_THRESHOLD 0.001
 
@@ -35,14 +36,6 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
 
 void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const {
     generateHeightData(height, normal * m_genData->radius, normal);
-}
-
-//No idea how this works. Something to do with prime numbers, but returns # between -1 and 1
-inline f64 pseudoRand(int x, int z) {
-    int n = (x & 0xFFFF) + ((z & 0x7FFF) << 16);
-    n = (n << 13) ^ n;
-    int nn = (n*(n*n * 60493 + z * 19990303) + x * 1376312589) & 0x7fffffff;
-    return ((f64)nn / 1073741824.0);
 }
 
 FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
