@@ -20,7 +20,7 @@
 // TODO(Ben): Also support L-system trees.
 struct BiomeTree {
     NoiseBase chance;
-    TreeType* data = nullptr;
+    NTreeType* data = nullptr;
     FloraID id = FLORA_ID_NONE;
 };
 

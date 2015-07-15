@@ -61,7 +61,6 @@ enum class TreeLeafShape {
     PINE,
     MUSHROOM
 };
-KEG_ENUM_DECL(TreeLeafShape);
 
 class TreeBranchingProps {
 public:
@@ -70,7 +69,6 @@ public:
     F32Range chance;
     i32 direction;
 };
-KEG_TYPE_DECL(TreeBranchingProps);
 
 //This is data specific to a breed of tree
 class TreeType {
@@ -125,7 +123,6 @@ public:
     nString fileName;
     std::vector<i32> possibleAltLeafFlags;
 };
-KEG_TYPE_DECL(TreeType);
 
 //This is data specific to an instance of a tree
 class TreeData2 {

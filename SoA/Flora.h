@@ -141,9 +141,9 @@ struct TreeTrunkProperties {
     TreeBranchProperties branchProps;
 };
 
-struct TreeType {
+struct NTreeType {
     // All ranges are for scaling between baby tree and adult tree
-    Range<ui16> height;
+    Range<ui16> heightRange;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
     std::vector<TreeTypeTrunkProperties> trunkProps;

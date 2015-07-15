@@ -202,7 +202,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
         // Set tree types
         genData->trees.resize(blockInfo.trees.size());
         for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
-            TreeType& td = genData->trees[i];
+            NTreeType& td = genData->trees[i];
             const TreeKegProperties& kp = blockInfo.trees[i];
             // Add to lookup map
             genData->treeMap[kp.id] = i;

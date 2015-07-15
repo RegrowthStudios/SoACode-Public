@@ -44,7 +44,7 @@ public:
 
 // A flora/tree that needs to be generated
 struct QueuedFlora {
-    QueuedFlora(ui16& floraID, ui16& blockIndex) : floraID(floraID), blockIndex(blockIndex) {}
+    QueuedFlora(ui16 floraID, ui16 blockIndex) : floraID(floraID), blockIndex(blockIndex) {}
     ui16 floraID;
     ui16 blockIndex;
 };
