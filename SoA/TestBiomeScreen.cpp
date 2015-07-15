@@ -100,7 +100,7 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     m_genData->radius = 4500.0;
     
     // Set blocks
-    SoaEngine::setPlanetBlocks(m_genData, m_soaState->blocks);
+    SoaEngine::initVoxelGen(m_genData, m_soaState->blocks);
     
     m_chunkGenerator.init(m_genData);
 

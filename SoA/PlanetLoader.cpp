@@ -22,6 +22,7 @@ struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
     Array<BiomeFloraKegProperties> flora;
+    Array<BiomeTreeKegProperties> trees;
     BiomeID id = "";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
     NoiseBase childNoise; ///< For sub biome determination
@@ -45,73 +46,10 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
     kt.addValue("flora", Value::array(offsetof(BiomeKegProperties, flora), Value::custom(0, "BiomeFloraKegProperties")));
+    kt.addValue("trees", Value::array(offsetof(BiomeKegProperties, trees), Value::custom(0, "BiomeTreeKegProperties")));
     kt.addValue("childNoise", Value::custom(offsetof(BiomeKegProperties, childNoise), "NoiseBase", false));
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
-
-struct FruitKegProperties {
-    nString fruitBlock;
-    f32v2 fruitChance;
-};
-
-struct LeafKegProperties {
-    TreeLeafType type;
-    FruitKegProperties fruitProps;
-    // Union based on type
-    union {
-        UNIONIZE(struct {
-            ui32v2 radius;
-        } round;);
-        UNIONIZE(struct {
-            ui32v2 width;
-            ui32v2 height;
-        } cluster;);
-        UNIONIZE(struct {
-            ui32v2 thickness;
-        } pine;);
-        UNIONIZE(struct {
-            i32v2 lengthMod;
-            i32v2 curlLength;
-            i32v2 capThickness;
-            i32v2 gillThickness;
-        } mushroom;);
-    };
-    // Don't put strings in unions
-    nString roundBlock;
-    nString clusterBlock;
-    nString pineBlock;
-    nString mushGillBlock;
-    nString mushCapBlock;
-};
-
-struct BranchKegProperties {
-    ui32v2 coreWidth;
-    ui32v2 barkWidth;
-    f32v2 branchChance;
-    nString coreBlock;
-    nString barkBlock;
-    FruitKegProperties fruitProps;
-    LeafKegProperties leafProps;
-};
-
-struct TrunkKegProperties {
-    f32 loc;
-    ui32v2 coreWidth;
-    ui32v2 barkWidth;
-    f32v2 branchChance;
-    i32v2 slope[2];
-    nString coreBlock;
-    nString barkBlock;
-    FruitKegProperties fruitProps;
-    LeafKegProperties leafProps;
-    BranchKegProperties branchProps;
-};
-
-struct TreeKegProperties {
-    nString id;
-    ui32v2 heightRange = ui32v2(0, 0);
-    std::vector<TrunkKegProperties> trunkProps;
-};
 
 struct FloraKegProperties {
     nString block = "";
@@ -431,10 +369,7 @@ void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
         FloraKegProperties properties;
         keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
         
-        ui32 id = genData->flora.size();
-        genData->flora.emplace_back();
         genData->blockInfo.floraBlockNames.push_back(properties.block);
-        genData->floraMap[key] = id;
     });
     context.reader.forAllInMap(node, baseParser);
     delete baseParser;
@@ -468,7 +403,7 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
-    TreeKegProperties properties;
+    TreeKegProperties* treeProps;
     // Handles
     TrunkKegProperties* trunkProps = nullptr;
     FruitKegProperties* fruitProps = nullptr;
@@ -483,14 +418,18 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
     keg::Value leafTypeVal = keg::Value::custom(0, "TreeLeafType", true);
 
-    /* The following code is ugly because it must be custom parsed to handle PARSE_UI32_V2 */
+    /************************************************************************/
+    /* The following code is ugly because it must be custom parsed with     */
+    /* PARSE_V2. It is *IMPERATIVE* that any added properties be set in     */
+    /* SoaEngine::initVoxelGen as well.                                     */
+    /************************************************************************/
 
     // Parses fruit field
     auto fruitParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "id") {
-            keg::evalData((ui8*)&fruitProps->fruitBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&fruitProps->flora, &stringVal, value, context);
         } else if (key == "max") {
-            PARSE_V2(f32, fruitProps->fruitChance);
+            PARSE_V2(f32, fruitProps->chance);
         }
     });
 
@@ -570,16 +509,16 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
 
     // Parses third level
     auto trunkParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
-        properties.trunkProps.emplace_back();
+        treeProps->trunkProps.emplace_back();
         // Get our handle
-        trunkProps = &properties.trunkProps.back();
+        trunkProps = &treeProps->trunkProps.back();
         context.reader.forAllInMap(value, trunkDataParser);
     });
 
     // Parses second level
     auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
-            PARSE_V2(ui32, properties.heightRange);
+            PARSE_V2(ui32, treeProps->heightRange);
         } else if (key == "trunk") {
             context.reader.forAllInSequence(value, trunkParser);
         }
@@ -587,7 +526,9 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
 
     // Parses top level
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        properties.id = key;
+        genData->blockInfo.trees.emplace_back();
+        treeProps = &genData->blockInfo.trees.back();
+        treeProps->id = key;
         context.reader.forAllInMap(value, treeParser);
     });
     context.reader.forAllInMap(node, baseParser);
@@ -600,8 +541,6 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     delete treeParser;
     delete baseParser;
     context.reader.dispose();
-
-    // TODO(Ben): Store the properties
 }
 #undef PARSE_V2
 

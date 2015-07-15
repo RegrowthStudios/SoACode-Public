@@ -43,9 +43,79 @@ struct TerrainColorKegProperties {
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
 
+// Must match var names for TreeFruitProperties
+struct FruitKegProperties {
+    nString flora = "";
+    f32v2 chance = f32v2(0.0f);
+};
+
+// Must match var names for TreeLeafProperties
+struct LeafKegProperties {
+    TreeLeafType type = TreeLeafType::NONE;
+    FruitKegProperties fruitProps;
+    // Union based on type
+    union {
+        UNIONIZE(struct {
+            ui32v2 radius;
+        } round;);
+        UNIONIZE(struct {
+            ui32v2 width;
+            ui32v2 height;
+        } cluster;);
+        UNIONIZE(struct {
+            ui32v2 thickness;
+        } pine;);
+        UNIONIZE(struct {
+            i32v2 lengthMod;
+            i32v2 curlLength;
+            i32v2 capThickness;
+            i32v2 gillThickness;
+        } mushroom;);
+    };
+    // Don't put strings in unions
+    nString roundBlock = "";
+    nString clusterBlock = "";
+    nString pineBlock = "";
+    nString mushGillBlock = "";
+    nString mushCapBlock = "";
+};
+
+// Must match var names for TreeBranchProperties
+struct BranchKegProperties {
+    ui32v2 coreWidth;
+    ui32v2 barkWidth;
+    f32v2 branchChance;
+    nString coreBlock = "";
+    nString barkBlock = "";
+    FruitKegProperties fruitProps;
+    LeafKegProperties leafProps;
+};
+
+// Must match var names for TreeTrunkProperties
+struct TrunkKegProperties {
+    f32 loc = 0.0f;
+    ui32v2 coreWidth;
+    ui32v2 barkWidth;
+    f32v2 branchChance;
+    i32v2 slope[2];
+    nString coreBlock = "";
+    nString barkBlock = "";
+    FruitKegProperties fruitProps;
+    LeafKegProperties leafProps;
+    BranchKegProperties branchProps;
+};
+
+// Must match var names for TreeData
+struct TreeKegProperties {
+    nString id = "";
+    ui32v2 heightRange = ui32v2(0, 0);
+    std::vector<TrunkKegProperties> trunkProps;
+};
+
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
     std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
+    std::vector<TreeKegProperties> trees;
     std::vector<nString> blockLayerNames;
     std::vector<nString> floraBlockNames;
     nString liquidBlockName = "";
@@ -86,6 +156,8 @@ struct PlanetGenData {
     /************************************************************************/
     std::vector<FloraData> flora;
     std::map<nString, ui32> floraMap;
+    std::vector<TreeData> trees;
+    std::map<nString, ui32> treeMap;
 
     /************************************************************************/
     /* Biomes                                                               */

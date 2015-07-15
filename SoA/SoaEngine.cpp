@@ -118,7 +118,62 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
     return true;
 }
 
-void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
+#define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
+
+#define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
+
+void setTreeFruitProperties(TreeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
+    SET_RANGE(fp, kp, chance);
+    auto& it = genData->floraMap.find(kp.flora);
+    if (it != genData->floraMap.end()) {
+        fp.flora = it->second;
+    }
+}
+
+void setTreeLeafProperties(TreeLeafProperties& lp, const LeafKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
+    lp.type = kp.type;
+    setTreeFruitProperties(lp.fruitProps, kp.fruitProps, genData);
+    const Block* b;
+    switch (lp.type) {
+        case TreeLeafType::ROUND:
+            SET_RANGE(lp, kp, round.radius);
+            TRY_SET_BLOCK(lp.round.blockID, b, kp.roundBlock);
+            break;
+        case TreeLeafType::CLUSTER:
+            SET_RANGE(lp, kp, cluster.width);
+            SET_RANGE(lp, kp, cluster.height);
+            TRY_SET_BLOCK(lp.cluster.blockID, b, kp.clusterBlock);
+            break;
+        case TreeLeafType::PINE:
+            SET_RANGE(lp, kp, pine.thickness);
+            TRY_SET_BLOCK(lp.pine.blockID, b, kp.pineBlock);
+            break;
+        case TreeLeafType::MUSHROOM:
+            SET_RANGE(lp, kp, mushroom.lengthMod);
+            SET_RANGE(lp, kp, mushroom.curlLength);
+            SET_RANGE(lp, kp, mushroom.capThickness);
+            SET_RANGE(lp, kp, mushroom.gillThickness);
+            TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.mushGillBlock);
+            TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
+            break;
+        case TreeLeafType::NONE:
+            fprintf(stderr, "Warning: Missing tree leaf type in setTreeLeafProperties()\n");
+            break;
+    }
+}
+
+void setTreeBranchProperties(TreeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
+    SET_RANGE(bp, kp, coreWidth);
+    SET_RANGE(bp, kp, barkWidth);
+    SET_RANGE(bp, kp, branchChance);
+    const Block* b;
+    TRY_SET_BLOCK(bp.coreBlockID, b,kp.coreBlock);
+    TRY_SET_BLOCK(bp.barkBlockID, b, kp.barkBlock);
+    setTreeFruitProperties(bp.fruitProps, kp.fruitProps, genData);
+    setTreeLeafProperties(bp.leafProps, kp.leafProps, genData, blocks);
+}
+
+void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
     PlanetBlockInitInfo& blockInfo = genData->blockInfo;
     if (genData) {
         // Set all block layers
@@ -143,9 +198,11 @@ void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
         }
 
         // Set flora blocks
+        genData->flora.resize(blockInfo.floraBlockNames.size());
         for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
             const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
             if (b) {
+                genData->floraMap[blockInfo.floraBlockNames[i]] = i;
                 genData->flora[i].block = b->ID;
             }
         }
@@ -172,8 +229,44 @@ void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
             }
         }
         std::map<const Biome*, std::vector<BiomeFloraKegProperties>>().swap(blockInfo.biomeFlora);
+    
+        // Set tree datas
+        genData->trees.resize(blockInfo.trees.size());
+        for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
+            TreeData& td = genData->trees[i];
+            const TreeKegProperties& kp = blockInfo.trees[i];
+            // Add to lookup map
+            genData->treeMap[kp.id] = i;
+            // Set height range
+            SET_RANGE(td, kp, heightRange);
+
+            // Set trunk properties
+            td.trunkProps.resize(kp.trunkProps.size());
+            for (size_t j = 0; j < kp.trunkProps.size(); j++) {
+                TreeTrunkProperties& tp = td.trunkProps[j];
+                const TrunkKegProperties& tkp = kp.trunkProps[j];
+                const Block* b;
+                // Blocks
+                TRY_SET_BLOCK(tp.barkBlockID, b, tkp.barkBlock);
+                TRY_SET_BLOCK(tp.coreBlockID, b, tkp.coreBlock);
+                // Set ranges
+                SET_RANGE(tp, tkp, coreWidth);
+                SET_RANGE(tp, tkp, barkWidth);
+                SET_RANGE(tp, tkp, branchChance);
+                tp.slope.min.min = tkp.slope[0].x;
+                tp.slope.min.max = tkp.slope[0].y;
+                tp.slope.max.min = tkp.slope[1].x;
+                tp.slope.max.max = tkp.slope[1].y;
+                setTreeFruitProperties(tp.fruitProps, tkp.fruitProps, genData);
+                setTreeBranchProperties(tp.branchProps, tkp.branchProps, genData, blocks);
+                setTreeLeafProperties(tp.leafProps, tkp.leafProps, genData, blocks);
+            }
+        }
+
+        // Set biomes trees
     }
 }
+#undef SET_RANGE
 
 void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
     SpaceSystem* spaceSystem = state->spaceSystem;
