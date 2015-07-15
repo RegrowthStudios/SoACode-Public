@@ -32,7 +32,7 @@
 class ChunkMeshManager;
 class DebugRenderer;
 class MeshManager;
-class PlanetLoader;
+class PlanetGenLoader;
 class SoaOptions;
 DECL_VIO(class IOManager);
 
@@ -52,7 +52,7 @@ struct SoaState {
     MainMenuSystemViewer* systemViewer = nullptr;
 
     vio::IOManager* systemIoManager = nullptr;
-    PlanetLoader* planetLoader = nullptr;
+    PlanetGenLoader* planetLoader = nullptr;
 
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 

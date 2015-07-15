@@ -54,7 +54,7 @@ void SoaEngine::initState(SoaState* state) {
     state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
     state->systemViewer = new MainMenuSystemViewer;
-    state->planetLoader = new PlanetLoader;
+    state->planetLoader = new PlanetGenLoader;
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
@@ -181,23 +181,20 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             ui16 blockID = blocks[blockInfo.blockLayerNames[i]].ID;
             genData->blockLayers[i].block = blockID;
         }
-        std::vector<BlockIdentifier>().swap(blockInfo.blockLayerNames);
         // Set liquid block
         if (blockInfo.liquidBlockName.length()) {
             if (blocks.hasBlock(blockInfo.liquidBlockName)) {
                 genData->liquidBlock = blocks[blockInfo.liquidBlockName].ID;
-                nString().swap(blockInfo.liquidBlockName); // clear memory
             }
         }
         // Set surface block
         if (blockInfo.surfaceBlockName.length()) {
             if (blocks.hasBlock(blockInfo.surfaceBlockName)) {
                 genData->surfaceBlock = blocks[blockInfo.surfaceBlockName].ID;
-                nString().swap(blockInfo.surfaceBlockName); // clear memory
             }
         }
 
-        // Set flora blocks
+        // Set flora datas
         genData->flora.resize(blockInfo.floraBlockNames.size());
         for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
             const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
@@ -206,9 +203,8 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 genData->flora[i].block = b->ID;
             }
         }
-        std::vector<BlockIdentifier>().swap(blockInfo.floraBlockNames);
 
-        // Set biomes flora
+        // Set biome flora
         for (auto& biome : genData->biomes) {
             auto& it = blockInfo.biomeFlora.find(&biome);
             if (it != blockInfo.biomeFlora.end()) {
@@ -228,8 +224,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 }
             }
         }
-        std::map<const Biome*, std::vector<BiomeFloraKegProperties>>().swap(blockInfo.biomeFlora);
-    
+
         // Set tree datas
         genData->trees.resize(blockInfo.trees.size());
         for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
@@ -263,7 +258,11 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             }
         }
 
-        // Set biomes trees
+        // Set biome trees
+
+
+        // Clear memory
+        blockInfo = PlanetBlockInitInfo();
     }
 }
 #undef SET_RANGE

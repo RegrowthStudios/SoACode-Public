@@ -42,7 +42,7 @@ class App;
 class Binary;
 class Camera;
 class GameSystem;
-class PlanetLoader;
+class PlanetGenLoader;
 struct SoaState;
 class SpriteBatch;
 class SpriteFont;

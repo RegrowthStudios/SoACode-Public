@@ -60,12 +60,12 @@ KEG_TYPE_DEF_SAME_NAME(FloraKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, FloraKegProperties, block, STRING);
 }
 
-void PlanetLoader::init(vio::IOManager* ioManager) {
+void PlanetGenLoader::init(vio::IOManager* ioManager) {
     m_iom = ioManager;
     m_textureCache.init(ioManager);
 }
 
-PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
+PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& terrainPath) {
     nString data;
     m_iom->readFileToString(terrainPath.c_str(), data);
 
@@ -145,7 +145,7 @@ PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
     return genData;
 }
 
-PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
+PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
     if (!m_defaultGenData) {
         // Allocate data
@@ -154,7 +154,7 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     return m_defaultGenData;
 }
 
-PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
+PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
 
     // Allocate data
@@ -189,7 +189,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
     return genData;
 }
 
-AtmosphereProperties PlanetLoader::getRandomAtmosphere() {
+AtmosphereProperties PlanetGenLoader::getRandomAtmosphere() {
     static std::mt19937 generator(2636);
     static std::uniform_real_distribution<f32> randomWav(0.4f, 0.8f);
     AtmosphereProperties props;
@@ -349,7 +349,7 @@ void recursiveInitBiomes(Biome& biome,
     }
 }
 
-void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
+void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
@@ -386,7 +386,7 @@ if (keg::getType(value) == keg::NodeType::VALUE) { \
     ##v.y = ##v.x; \
 } 
 
-void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
+void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
@@ -544,7 +544,7 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
 }
 #undef PARSE_V2
 
-void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
+void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
@@ -651,7 +651,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     }
 }
 
-void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node) {
+void PlanetGenLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -664,7 +664,7 @@ void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& 
     }
 }
 
-void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -725,7 +725,7 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
     genData->liquidTint = kegProps.tint;
 }
 
-void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -798,7 +798,7 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
     genData->terrainTint = kegProps.tint;
 }
 
-void PlanetLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node in parseBlockLayers. Should be MAP";
         return;

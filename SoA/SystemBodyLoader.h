@@ -32,7 +32,7 @@ public:
 
 private:
     vio::IOManager* m_iom;
-    PlanetLoader m_planetLoader;
+    PlanetGenLoader m_planetLoader;
 };
 
 #endif // SystemBodyLoader_h__

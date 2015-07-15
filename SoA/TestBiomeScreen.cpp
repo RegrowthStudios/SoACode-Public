@@ -93,7 +93,7 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
     // Load test planet
-    PlanetLoader planetLoader;
+    PlanetGenLoader planetLoader;
     m_iom.setSearchDirectory("StarSystems/Trinity/");
     planetLoader.init(&m_iom);
     m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");

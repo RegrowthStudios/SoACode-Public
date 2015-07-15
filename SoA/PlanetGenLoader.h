@@ -35,7 +35,7 @@ class BlockPack;
 
 typedef ui32 BiomeColorCode;
 
-class PlanetLoader {
+class PlanetGenLoader {
 public:
     void init(vio::IOManager* ioManager);
 

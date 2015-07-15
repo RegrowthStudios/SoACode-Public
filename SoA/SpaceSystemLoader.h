@@ -24,7 +24,7 @@ struct GasGiantProperties;
 struct SystemBody;
 struct SystemOrbitProperties;
 class SpaceSystem;
-class PlanetLoader;
+class PlanetGenLoader;
 
 DECL_VIO(class IOManager)
 DECL_VCORE(class RPCManager)
