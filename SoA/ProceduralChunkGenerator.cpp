@@ -50,8 +50,9 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             rainfall = heightData[c].humidity;
 
             //tooSteep = (flags & TOOSTEEP) != 0;
-
-            height = voxPosition.pos.y;
+            
+            // TODO(Ben): Fastfloor?
+            height = (int)voxPosition.pos.y;
             depth = mapHeight - height; // Get depth of voxel
 
             // Get the block ID
@@ -91,12 +92,13 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 temperature = heightData[hIndex].temperature;
                 rainfall = heightData[hIndex].humidity;
 
-                height = y + voxPosition.pos.y;
+                // TODO(Ben): Fastfloor?
+                height = (int)(y + voxPosition.pos.y);
                 depth = mapHeight - height; // Get depth of voxel
 
                 // Check for going up one layer
                 ui16 layerIndex = layerIndices[hIndex];
-                if (blockLayers[layerIndex].start > depth && layerIndex > 0) layerIndex--;
+                if (blockLayers[layerIndex].start > (ui32)depth && layerIndex > 0) layerIndex--;
                 // Get the block ID
                 BlockLayer& layer = blockLayers[layerIndex];
                 blockID = getBlockID(depth, mapHeight, height, heightData[hIndex], layer);

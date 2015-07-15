@@ -77,7 +77,7 @@ KEG_TYPE_DEF_SAME_NAME(TreeType, kt) {
     kt.addValue("isSlopeRandom", Value::basic(offsetof(TreeType, isSlopeRandom), BasicType::BOOL));
 }
 
-bool FloraGenerator::generateTree(const TreeData& treeData, Chunk* startChunk) {
+bool FloraGenerator::generateTree(const TreeData2& treeData, Chunk* startChunk) {
     _treeData = &treeData;
 
     if (!generateTrunk()) return false;
@@ -460,7 +460,7 @@ bool FloraGenerator::generateFlora(Chunk* chunk, std::vector<TreeNode>& wnodes, 
     return true;
 }
 
-int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, int X, int Z) {
+int FloraGenerator::makeLODTreeData(TreeData2 &td, TreeType *tt, int x, int z, int X, int Z) {
     srand(Z*X - x*z);
 
     f32 mod = (f32)((PseudoRand(X*CHUNK_SIZE + z - X, Z*Z - x*z) + 1.0) / 2.0);
@@ -482,7 +482,7 @@ int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, in
     return 0;
 }
 
-int FloraGenerator::makeTreeData(Chunk* chunk, TreeData &td, TreeType *tt) {
+int FloraGenerator::makeTreeData(Chunk* chunk, TreeData2 &td, TreeType *tt) {
    /* int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
@@ -965,7 +965,7 @@ bool FloraGenerator::makeSphere(int blockIndex, ui16 chunkOffset, int radius, in
     return true;
 }
 
-void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio) {
+void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData2& outProps, const f32& ratio) {
     outProps.botBranchChance = ratio * (f32)(bottom.chance.max - bottom.chance.min) + (f32)bottom.chance.min;
     outProps.topBranchChance = ratio * (f32)(top.chance.max - top.chance.min) + (f32)top.chance.min;
     outProps.botBranchLength = (i32)(ratio * (f32)(bottom.length.max - bottom.length.min) + (f32)bottom.length.min);
