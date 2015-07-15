@@ -22,6 +22,9 @@
 #define FLORA_ID_NONE 0xFFFFu
 typedef ui16 FloraID;
 
+#define TREE_ID_NONE 0xFFFFu
+typedef ui16 TreeID;
+
 enum class TreeLeafType {
     NONE,
     ROUND,
@@ -29,6 +32,7 @@ enum class TreeLeafType {
     PINE,
     MUSHROOM
 };
+KEG_ENUM_DECL(TreeLeafType);
 
 struct TreeFruitProperties {
     FloraID flora;
@@ -40,19 +44,19 @@ struct TreeLeafProperties {
     TreeFruitProperties fruitProps;
     // Union based on type
     union {
-        struct Round {
+        struct {
             ui16 radius;
             ui16 blockID;
-        };
-        struct Cluster {
+        } round;
+        struct {
             ui16 width;
             ui16 height;
             ui16 blockID;
-        };
-        struct Pine {
+        } cluster;
+        struct {
             ui16 thickness;
             ui16 blockID;
-        };
+        } pine;
         struct Mushroom {
             i32 lengthMod;
             i32 curlLength;
@@ -60,7 +64,7 @@ struct TreeLeafProperties {
             i32 gillThickness;
             ui16 gillBlockID;
             ui16 capBlockID;
-        };
+        } mushroom;
     };
 };
 
@@ -78,22 +82,26 @@ struct TreeTrunkProperties {
     Range<ui16> coreWidth;
     Range<ui16> barkWidth;
     Range<f32> branchChance;
-    Range<i32> slope;
+    Range<Range<i32>> slope;
     ui16 coreBlockID;
     ui16 barkBlockID;
-    TreeFruitProperties fruitProps;
-    TreeLeafProperties leafProps;
+    Range<TreeFruitProperties> fruitProps;
+    Range<TreeLeafProperties> leafProps;
     Range<TreeBranchProperties> branchProps;
 };
 
-// TODO(Ben): Also support L-system trees.
-struct BiomeTree {
+struct TreeData {
     // All ranges are for scaling between baby tree and adult tree
-    NoiseBase chance;
     Range<ui16> heightRange;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
     std::vector<TreeTrunkProperties> treeProperties;
+};
+
+// TODO(Ben): Also support L-system trees.
+struct BiomeTree {
+    NoiseBase chance;
+    TreeData* data = nullptr;
 };
 
 // Flora specification
@@ -141,6 +149,7 @@ struct BiomeInfluence {
 // TODO(Ben): Make the memory one contiguous block
 typedef std::vector<std::vector<BiomeInfluence>> BiomeInfluenceMap;
 
+// TODO(Ben): Optimize the cache
 struct Biome {
     BiomeID id = "default";
     nString displayName = "Default";
@@ -148,6 +157,7 @@ struct Biome {
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
     std::vector<Biome*> children;
     std::vector<BiomeFlora> flora;
+    std::vector<BiomeTree> trees;
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
     // Only applies to base biomes

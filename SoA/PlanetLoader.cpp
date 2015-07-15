@@ -49,6 +49,70 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
 
+struct FruitKegProperties {
+    nString fruitBlock;
+    f32v2 fruitChance;
+};
+
+struct LeafKegProperties {
+    TreeLeafType type;
+    FruitKegProperties fruitProps;
+    // Union based on type
+    union {
+        struct {
+            ui32v2 roundRadius;
+        };
+        struct {
+            ui32v2 clusterWidth;
+            ui32v2 clusterHeight;
+        };
+        struct {
+            ui32v2 pineThickness;
+        };
+        struct {
+            i32v2 mushLengthMod;
+            i32v2 mushCurlLength;
+            i32v2 mushCapThickness;
+            i32v2 mushGillThickness;
+        };
+    };
+    // Don't put strings in unions
+    nString roundBlock;
+    nString clusterBlock;
+    nString pineBlock;
+    nString mushGillBlock;
+    nString mushCapBlock;
+};
+
+struct BranchKegProperties {
+    ui32v2 coreWidth;
+    ui32v2 barkWidth;
+    f32v2 branchChance;
+    nString coreBlock;
+    nString barkBlock;
+    FruitKegProperties fruitProps;
+    LeafKegProperties leafProps;
+};
+
+struct TrunkKegProperties {
+    f32 loc;
+    ui32v2 coreWidth;
+    ui32v2 barkWidth;
+    f32v2 branchChance;
+    i32v2 slope[2];
+    nString coreBlock;
+    nString barkBlock;
+    FruitKegProperties fruitProps;
+    LeafKegProperties leafProps;
+    BranchKegProperties branchProps;
+};
+
+struct TreeKegProperties {
+    nString id;
+    ui32v2 heightRange = ui32v2(0, 0);
+    std::vector<TrunkKegProperties> trunkProps;
+};
+
 struct FloraKegProperties {
     nString block = "";
 };
@@ -125,6 +189,9 @@ PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
 
     if (floraPath.size()) {
         loadFlora(floraPath, genData);
+    }
+    if (treesPath.size()) {
+        loadTrees(treesPath, genData);
     }
 
     if (biomePath.size()) {
@@ -374,12 +441,23 @@ void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
     context.reader.dispose();
 }
 
+// Conditionally parses a value so it can be either a v2 or a single value
+// When its single, it sets both values of the v2 to that value
+#define PARSE_V2(type, v) \
+if (keg::getType(value) == keg::NodeType::VALUE) { \
+    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
+} else { \
+    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
+    ##v.y = ##v.x; \
+} 
+
 void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
     // Get the read context and error check
+    // TODO(Ben): Too much copy paste
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data.c_str());
@@ -390,13 +468,140 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
+    TreeKegProperties properties;
+    // Handles
+    TrunkKegProperties* trunkProps = nullptr;
+    FruitKegProperties* fruitProps = nullptr;
+    LeafKegProperties* leafProps = nullptr;
+    // Custom values, must match PARSE_V2 syntax
+    keg::Value ui32v2Val = keg::Value::basic(0, keg::BasicType::UI32_V2);
+    keg::Value ui32Val = keg::Value::basic(0, keg::BasicType::UI32);
+    keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
+    keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
+    keg::Value f32v2Val = keg::Value::basic(0, keg::BasicType::F32_V2);
+    keg::Value f32Val = keg::Value::basic(0, keg::BasicType::F32);
+    keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
+    keg::Value leafTypeVal = keg::Value::custom(0, "TreeLeafType", true);
+
+    /* The following code is ugly because it must be custom parsed to handle PARSE_UI32_V2 */
+
+    // Parses fruit field
+    auto fruitParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "id") {
+            keg::evalData((ui8*)&fruitProps->fruitBlock, &stringVal, value, context);
+        } else if (key == "max") {
+            PARSE_V2(f32, fruitProps->fruitChance);
+        }
+    });
+
+    auto leafParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "type") {
+            keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
+        } else if (key == "width") {
+            PARSE_V2(ui32, leafProps->clusterWidth);
+        } else if (key == "height") {
+            PARSE_V2(ui32, leafProps->clusterHeight);
+        } else if (key == "block") {
+            keg::evalData((ui8*)&leafProps->clusterBlock, &stringVal, value, context);
+        } else if (key == "fruit") {
+            fruitProps = &leafProps->fruitProps;
+            context.reader.forAllInMap(value, fruitParser);
+        }
+    });
+
+    // Parses branch field
+    auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "coreWidth") {
+            PARSE_V2(ui32, trunkProps->branchProps.coreWidth);
+        } else if (key == "barkWidth") {
+            PARSE_V2(ui32, trunkProps->branchProps.barkWidth);
+        } else if (key == "branchChance") {
+            PARSE_V2(f32, trunkProps->branchProps.branchChance);
+        } else if (key == "coreBlock") {
+            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+        } else if (key == "barkBlock") {
+            keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
+        } else if (key == "fruit") {
+            fruitProps = &trunkProps->branchProps.fruitProps;
+            context.reader.forAllInMap(value, fruitParser);
+        } else if (key == "leaves") {
+            leafProps = &trunkProps->branchProps.leafProps;
+            context.reader.forAllInMap(value, leafParser);
+        }
+    });
+
+    // Parses slope field
+    auto slopeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "min") {
+            PARSE_V2(i32, trunkProps->slope[0]);
+        } else if (key == "max") {
+            PARSE_V2(i32, trunkProps->slope[1]);
+        }
+    });
+
+    // Parses fourth level
+    auto trunkDataParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "loc") {
+            keg::evalData((ui8*)&trunkProps->loc, &f32Val, value, context);
+        } else if (key == "coreWidth") {
+            PARSE_V2(ui32, trunkProps->coreWidth);
+        } else if (key == "barkWidth") {
+            PARSE_V2(ui32, trunkProps->barkWidth);
+        } else if (key == "branchChance") {
+            PARSE_V2(f32, trunkProps->branchChance);
+        } else if (key == "slope") {
+            context.reader.forAllInMap(value, slopeParser);
+        } else if (key == "coreBlock") {
+            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+        } else if (key == "barkBlock") {
+            keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
+        } else if (key == "fruit") {
+            fruitProps = &trunkProps->fruitProps;
+            context.reader.forAllInMap(value, fruitParser);
+        } else if (key == "branches") {
+            context.reader.forAllInMap(value, branchParser);
+        } else if (key == "leaves") {
+            leafProps = &trunkProps->leafProps;
+            context.reader.forAllInMap(value, leafParser);
+        }
+    });
+
+    // Parses third level
+    auto trunkParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
+        properties.trunkProps.emplace_back();
+        // Get our handle
+        trunkProps = &properties.trunkProps.back();
+        context.reader.forAllInMap(value, trunkDataParser);
+    });
+
+    // Parses second level
+    auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "height") {
+            PARSE_V2(ui32, properties.heightRange);
+        } else if (key == "trunk") {
+            context.reader.forAllInSequence(value, trunkParser);
+        }
+    });
+
+    // Parses top level
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-       
+        properties.id = key;
+        context.reader.forAllInMap(value, treeParser);
     });
     context.reader.forAllInMap(node, baseParser);
+    delete fruitParser;
+    delete leafParser;
+    delete branchParser;
+    delete slopeParser;
+    delete trunkParser;
+    delete trunkDataParser;
+    delete treeParser;
     delete baseParser;
     context.reader.dispose();
+
+    // TODO(Ben): Store the properties
 }
+#undef PARSE_V2
 
 void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
