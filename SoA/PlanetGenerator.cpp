@@ -17,7 +17,7 @@ void PlanetGenerator::dispose(vcore::RPCManager* glrpc) {
     // TODO(Ben): Implement
 }
 
-CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc /* = nullptr */) {
+CALLER_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectType type, vcore::RPCManager* glrpc /* = nullptr */) {
     switch (type) {
         case SpaceObjectType::PLANET:
         case SpaceObjectType::DWARF_PLANET:
@@ -33,7 +33,7 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generateRandomPlanet(SpaceObjectTy
     }
 }
 
-CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* glrpc) {
+CALLER_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* glrpc) {
     PlanetGenData* data = new PlanetGenData;
     data->terrainColorMap = getRandomColorMap(glrpc, true);
     data->liquidColorMap = getRandomColorMap(glrpc, true);
@@ -92,12 +92,12 @@ CALLEE_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     return data;
 }
 
-CALLEE_DELETE PlanetGenData* PlanetGenerator::generateAsteroid(vcore::RPCManager* glrpc) {
+CALLER_DELETE PlanetGenData* PlanetGenerator::generateAsteroid(vcore::RPCManager* glrpc) {
     PlanetGenData* data = new PlanetGenData;
     return data;
 }
 
-CALLEE_DELETE PlanetGenData* PlanetGenerator::generateComet(vcore::RPCManager* glrpc) {
+CALLER_DELETE PlanetGenData* PlanetGenerator::generateComet(vcore::RPCManager* glrpc) {
     PlanetGenData* data = new PlanetGenData;
     return data;
 }

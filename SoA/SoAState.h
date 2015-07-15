@@ -46,13 +46,13 @@ struct SoaState {
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
 
+    // TODO(Ben): Commonstate
     DebugRenderer* debugRenderer = nullptr;
     MeshManager* meshManager = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
     MainMenuSystemViewer* systemViewer = nullptr;
 
     vio::IOManager* systemIoManager = nullptr;
-    PlanetGenLoader* planetLoader = nullptr;
 
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 
