@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "PlanetGenData.h"
 
 #include <random>
@@ -330,14 +330,20 @@ void recursiveInitBiomes(Biome& biome,
     biome.terrainNoise = kp.terrainNoise;
     biome.childNoise = kp.childNoise;
 
-    // Construct vector in place
+    // Construct vectors in place for flora and trees
     auto& floraPropList = genData->blockInfo.biomeFlora.insert(
         std::make_pair(&biome, std::vector<BiomeFloraKegProperties>())).first->second;
-
+    auto& treePropList = genData->blockInfo.biomeTrees.insert(
+        std::make_pair(&biome, std::vector<BiomeTreeKegProperties>())).first->second;
     // Copy flora data over
     floraPropList.resize(kp.flora.size());
     for (size_t i = 0; i < kp.flora.size(); i++) {
         floraPropList[i] = kp.flora[i];
+    }
+    // Copy tree data over
+    treePropList.resize(kp.trees.size());
+    for (size_t i = 0; i < kp.trees.size(); i++) {
+        treePropList[i] = kp.trees[i];
     }
 
     // Recurse children
@@ -381,9 +387,9 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
 #define PARSE_V2(type, v) \
 if (keg::getType(value) == keg::NodeType::VALUE) { \
     keg::evalData((ui8*)&##v, &##type##Val, value, context); \
+    ##v.y = ##v.x; \
 } else { \
     keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
-    ##v.y = ##v.x; \
 } 
 
 void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {

@@ -115,6 +115,7 @@ struct TreeKegProperties {
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
     std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
+    std::map<const Biome*, std::vector<BiomeTreeKegProperties>> biomeTrees;
     std::vector<TreeKegProperties> trees;
     std::vector<nString> blockLayerNames;
     std::vector<nString> floraBlockNames;

@@ -6,7 +6,7 @@
 #include "ChunkMeshManager.h"
 #include "DebugRenderer.h"
 #include "MeshManager.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
@@ -204,27 +204,6 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             }
         }
 
-        // Set biome flora
-        for (auto& biome : genData->biomes) {
-            auto& it = blockInfo.biomeFlora.find(&biome);
-            if (it != blockInfo.biomeFlora.end()) {
-                auto& kList = it->second;
-                biome.flora.resize(kList.size());
-                // Iterate through keg properties
-                for (size_t i = 0; i < kList.size(); i++) {
-                    auto& kp = kList[i];
-                    auto& mit = genData->floraMap.find(kp.id);
-                    if (mit != genData->floraMap.end()) {
-                        biome.flora[i].chance = kp.chance;
-                        biome.flora[i].data = genData->flora[mit->second];
-                        biome.flora[i].id = i;
-                    } else {
-                        fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
-                    }
-                }
-            }
-        }
-
         // Set tree datas
         genData->trees.resize(blockInfo.trees.size());
         for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
@@ -258,8 +237,49 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             }
         }
 
-        // Set biome trees
-
+        // Set biome trees and flora
+        for (auto& biome : genData->biomes) {
+            { // Flora
+                auto& it = blockInfo.biomeFlora.find(&biome);
+                if (it != blockInfo.biomeFlora.end()) {
+                    auto& kList = it->second;
+                    biome.flora.resize(kList.size());
+                    // Iterate through keg properties
+                    for (size_t i = 0; i < kList.size(); i++) {
+                        auto& kp = kList[i];
+                        auto& mit = genData->floraMap.find(kp.id);
+                        if (mit != genData->floraMap.end()) {
+                            biome.flora[i].chance = kp.chance;
+                            biome.flora[i].data = genData->flora[mit->second];
+                            biome.flora[i].id = i;
+                        } else {
+                            fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+                        }
+                    }
+                }
+            }
+            { // Trees
+                auto& it = blockInfo.biomeTrees.find(&biome);
+                if (it != blockInfo.biomeTrees.end()) {
+                    auto& kList = it->second;
+                    biome.trees.resize(kList.size());
+                    // Iterate through keg properties
+                    for (size_t i = 0; i < kList.size(); i++) {
+                        auto& kp = kList[i];
+                        auto& mit = genData->treeMap.find(kp.id);
+                        if (mit != genData->treeMap.end()) {
+                            biome.trees[i].chance = kp.chance;
+                            biome.trees[i].data = &genData->trees[mit->second];
+                            // Trees and flora share IDs so we can use a single
+                            // value in heightmap. Thus, add flora.size().
+                            biome.trees[i].id = biome.flora.size() + i;
+                        } else {
+                            fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+                        }
+                    }
+                }
+            }
+        }
 
         // Clear memory
         blockInfo = PlanetBlockInitInfo();

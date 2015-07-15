@@ -20,10 +20,8 @@
 #include "Noise.h"
 
 #define FLORA_ID_NONE 0xFFFFu
+// Both trees and flora share FloraID
 typedef ui16 FloraID;
-
-#define TREE_ID_NONE 0xFFFFu
-typedef ui16 TreeID;
 
 enum class TreeLeafType {
     NONE,
@@ -102,6 +100,7 @@ struct TreeData {
 struct BiomeTree {
     NoiseBase chance;
     TreeData* data = nullptr;
+    FloraID id = FLORA_ID_NONE;
 };
 
 // Flora specification

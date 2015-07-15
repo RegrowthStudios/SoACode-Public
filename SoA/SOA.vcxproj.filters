@@ -563,9 +563,6 @@
     <ClInclude Include="TerrainGenTextures.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetLoader.h">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClInclude>
     <ClInclude Include="FarTerrainPatch.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
@@ -862,6 +859,9 @@
     </ClInclude>
     <ClInclude Include="TestBiomeScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetGenLoader.h">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1180,9 +1180,6 @@
     <ClCompile Include="TerrainGenTextures.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetLoader.cpp">
-      <Filter>SOA Files\Game\Universe</Filter>
-    </ClCompile>
     <ClCompile Include="FarTerrainPatch.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
@@ -1422,6 +1419,9 @@
     </ClCompile>
     <ClCompile Include="TestBiomeScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetGenLoader.cpp">
+      <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

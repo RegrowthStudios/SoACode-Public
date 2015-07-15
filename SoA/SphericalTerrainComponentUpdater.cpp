@@ -8,7 +8,7 @@
 #include "SphericalHeightmapGenerator.h"
 #include "TerrainPatchMeshManager.h"
 #include "VoxelCoordinateSpaces.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "soaUtils.h"
 
 void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3& cameraPos) {
