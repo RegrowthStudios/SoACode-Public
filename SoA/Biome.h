@@ -20,10 +20,8 @@
 #include "Noise.h"
 
 #define FLORA_ID_NONE 0xFFFFu
+// Both trees and flora share FloraID
 typedef ui16 FloraID;
-
-#define TREE_ID_NONE 0xFFFFu
-typedef ui16 TreeID;
 
 enum class TreeLeafType {
     NONE,
@@ -35,45 +33,45 @@ enum class TreeLeafType {
 KEG_ENUM_DECL(TreeLeafType);
 
 struct TreeFruitProperties {
-    FloraID flora;
-    f32 chance;
+    FloraID flora = FLORA_ID_NONE;
+    Range<f32> chance;
 };
 
 struct TreeLeafProperties {
     TreeLeafType type;
     TreeFruitProperties fruitProps;
-    // Union based on type
+    // Mutually exclusive union based on type
     union {
-        struct {
-            ui16 radius;
+        UNIONIZE(struct {
+            Range<ui16> radius;
             ui16 blockID;
-        } round;
-        struct {
-            ui16 width;
-            ui16 height;
+        } round;);
+        UNIONIZE(struct {
+            Range<ui16> width;
+            Range<ui16> height;
             ui16 blockID;
-        } cluster;
-        struct {
-            ui16 thickness;
+        } cluster;);
+        UNIONIZE(struct {
+            Range<ui16> thickness;
             ui16 blockID;
-        } pine;
-        struct Mushroom {
-            i32 lengthMod;
-            i32 curlLength;
-            i32 capThickness;
-            i32 gillThickness;
+        } pine;);
+        UNIONIZE(struct {
+            Range<i16> lengthMod;
+            Range<i16> curlLength;
+            Range<i16> capThickness;
+            Range<i16> gillThickness;
             ui16 gillBlockID;
             ui16 capBlockID;
-        } mushroom;
+        } mushroom;);
     };
 };
 
 struct TreeBranchProperties {
-    ui16 coreWidth;
-    ui16 barkWidth;
-    f32 branchChance;
-    ui16 coreBlockID;
-    ui16 barkBlockID;
+    Range<ui16> coreWidth;
+    Range<ui16> barkWidth;
+    Range<f32> branchChance;
+    ui16 coreBlockID = 0;
+    ui16 barkBlockID = 0;
     TreeFruitProperties fruitProps;
     TreeLeafProperties leafProps;
 };
@@ -83,11 +81,11 @@ struct TreeTrunkProperties {
     Range<ui16> barkWidth;
     Range<f32> branchChance;
     Range<Range<i32>> slope;
-    ui16 coreBlockID;
-    ui16 barkBlockID;
-    Range<TreeFruitProperties> fruitProps;
-    Range<TreeLeafProperties> leafProps;
-    Range<TreeBranchProperties> branchProps;
+    ui16 coreBlockID = 0;
+    ui16 barkBlockID = 0;
+    TreeFruitProperties fruitProps;
+    TreeLeafProperties leafProps;
+    TreeBranchProperties branchProps;
 };
 
 struct TreeData {
@@ -95,13 +93,14 @@ struct TreeData {
     Range<ui16> heightRange;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
-    std::vector<TreeTrunkProperties> treeProperties;
+    std::vector<TreeTrunkProperties> trunkProps;
 };
 
 // TODO(Ben): Also support L-system trees.
 struct BiomeTree {
     NoiseBase chance;
     TreeData* data = nullptr;
+    FloraID id = FLORA_ID_NONE;
 };
 
 // Flora specification
@@ -114,6 +113,12 @@ struct BiomeFloraKegProperties {
     nString id;
 };
 KEG_TYPE_DECL(BiomeFloraKegProperties);
+
+struct BiomeTreeKegProperties {
+    NoiseBase chance;
+    nString id;
+};
+KEG_TYPE_DECL(BiomeTreeKegProperties);
 
 // Unique flora instance
 struct BiomeFlora {

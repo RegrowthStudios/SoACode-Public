@@ -57,7 +57,7 @@ FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelP
         const BiomeFlora& f = biome->flora[i];
         f64 chance = f.chance.base;
         getNoiseValue(pos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        f64 roll = pseudoRand(facePosition.pos.x, facePosition.pos.y);
+        f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
         if (roll < chance) {
             return f.id;
         }
