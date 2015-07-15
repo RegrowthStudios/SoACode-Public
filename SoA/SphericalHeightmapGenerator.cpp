@@ -24,6 +24,13 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     f64v3 normal = glm::normalize(pos);
 
     generateHeightData(height, normal * m_genData->radius, normal);
+
+    // For Voxel Position, automatically get tree or flora
+    height.flora = getTreeID(height.biome, facePosition, pos);
+    // If no tree, try flora
+    if (height.flora == FLORA_ID_NONE) {
+        height.flora = getFloraID(height.biome, facePosition, pos);
+    }
 }
 
 void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& height, const f64v3& normal) const {
@@ -38,25 +45,28 @@ inline f64 pseudoRand(int x, int z) {
     return ((f64)nn / 1073741824.0);
 }
 
-FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelPosition2D& facePosition) {
-    // Need to convert to world-space
-    f32v2 coordMults = f32v2(VoxelSpaceConversions::FACE_TO_WORLD_MULTS[(int)facePosition.face]);
-    i32v3 coordMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)facePosition.face];
+FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
+    // TODO(Ben): Experiment with optimizations with large amounts of flora.
+    // TODO(Ben): Sort trees with priority
+    for (size_t i = 0; i < biome->trees.size(); i++) {
+        const BiomeTree& t = biome->trees[i];
+        f64 chance = t.chance.base;
+        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, chance);
+        f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
+        if (roll < chance) {
+            return t.id;
+        }
+    }
+    return FLORA_ID_NONE;
+}
 
-    f64v3 pos;
-    pos[coordMapping.x] = facePosition.pos.x * KM_PER_VOXEL * coordMults.x;
-    pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
-    pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
-
-    f64v3 normal = glm::normalize(pos);
-    pos = normal * m_genData->radius;
-
+FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
     // TODO(Ben): Sort flora with priority
     for (size_t i = 0; i < biome->flora.size(); i++) {
         const BiomeFlora& f = biome->flora[i];
         f64 chance = f.chance.base;
-        getNoiseValue(pos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
+        getNoiseValue(worldPos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
         f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
         if (roll < chance) {
             return f.id;

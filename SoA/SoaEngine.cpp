@@ -119,7 +119,6 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
 }
 
 #define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
-
 #define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
 
 void setTreeFruitProperties(TreeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
@@ -194,7 +193,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             }
         }
 
-        // Set flora datas
+        // Set flora data
         genData->flora.resize(blockInfo.floraBlockNames.size());
         for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
             const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
@@ -204,7 +203,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             }
         }
 
-        // Set tree datas
+        // Set tree data
         genData->trees.resize(blockInfo.trees.size());
         for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
             TreeData& td = genData->trees[i];

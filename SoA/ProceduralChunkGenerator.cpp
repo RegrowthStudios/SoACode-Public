@@ -41,8 +41,8 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
     // First pass at y = 0. We separate it so we can getBlockLayerIndex a single
     // time and cut out some comparisons.
-    for (size_t z = 0; z < CHUNK_WIDTH; z++) {
-        for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
+    for (size_t z = 0; z < CHUNK_WIDTH; ++z) {
+        for (size_t x = 0; x < CHUNK_WIDTH; ++x, ++c) {
             tertiaryData = 0;
 
             mapHeight = (int)heightData[c].height;
@@ -58,7 +58,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             // Get the block ID
             layerIndices[c] = getBlockLayerIndex(depth);
             BlockLayer& layer = blockLayers[layerIndices[c]];
-            blockID = getBlockID(depth, mapHeight, height, heightData[c], layer);
+            blockID = getBlockID(chunk, c, depth, mapHeight, height, heightData[c], layer);
 
             if (blockID != 0) chunk->numBlocks++;
 
@@ -68,12 +68,12 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 tertiaryDataArray[tertiaryDataSize++].set(c, 1, tertiaryData);
             } else {
                 if (blockID == blockDataArray[blockDataSize - 1].data) {
-                    blockDataArray[blockDataSize - 1].length++;
+                    ++blockDataArray[blockDataSize - 1].length;
                 } else {
                     blockDataArray[blockDataSize++].set(c, 1, blockID);
                 }
                 if (tertiaryData == tertiaryDataArray[tertiaryDataSize - 1].data) {
-                    tertiaryDataArray[tertiaryDataSize - 1].length++;
+                    ++tertiaryDataArray[tertiaryDataSize - 1].length;
                 } else {
                     tertiaryDataArray[tertiaryDataSize++].set(c, 1, tertiaryData);
                 }
@@ -82,9 +82,9 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
     }
 
     // All the rest of the layers.
-    for (size_t y = 1; y < CHUNK_WIDTH; y++) {
-        for (size_t z = 0; z < CHUNK_WIDTH; z++) {
-            for (size_t x = 0; x < CHUNK_WIDTH; x++, c++) {
+    for (size_t y = 1; y < CHUNK_WIDTH; ++y) {
+        for (size_t z = 0; z < CHUNK_WIDTH; ++z) {
+            for (size_t x = 0; x < CHUNK_WIDTH; ++x, ++c) {
                 tertiaryData = 0;
                 hIndex = (c & 0x3FF); // Same as % CHUNK_LAYER
 
@@ -101,7 +101,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 if (blockLayers[layerIndex].start > (ui32)depth && layerIndex > 0) layerIndex--;
                 // Get the block ID
                 BlockLayer& layer = blockLayers[layerIndex];
-                blockID = getBlockID(depth, mapHeight, height, heightData[hIndex], layer);
+                blockID = getBlockID(chunk, c, depth, mapHeight, height, heightData[hIndex], layer);
 
                 //if (tooSteep) dh += 3; // If steep, increase depth
 
@@ -109,16 +109,16 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
 
                 // TODO(Ben): Check for underground
                 
-                if (blockID != 0) chunk->numBlocks++;
+                if (blockID != 0) ++chunk->numBlocks;
 
                 // Add to the data arrays
                 if (blockID == blockDataArray[blockDataSize - 1].data) {
-                    blockDataArray[blockDataSize - 1].length++;
+                    ++blockDataArray[blockDataSize - 1].length;
                 } else {
                     blockDataArray[blockDataSize++].set(c, 1, blockID);
                 }
                 if (tertiaryData == tertiaryDataArray[tertiaryDataSize - 1].data) {
-                    tertiaryDataArray[tertiaryDataSize - 1].length++;
+                    ++tertiaryDataArray[tertiaryDataSize - 1].length;
                 } else {
                     tertiaryDataArray[tertiaryDataSize++].set(c, 1, tertiaryData);
                 }
@@ -171,7 +171,8 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
     return layers.size() - 1;
 }
 
-ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, const PlanetHeightData& hd, BlockLayer& layer) const {
+// TODO(Ben): Too many parameters?
+ui16 ProceduralChunkGenerator::getBlockID(Chunk* chunk, int blockIndex, int depth, int mapHeight, int height, const PlanetHeightData& hd, BlockLayer& layer) const {
     ui16 blockID = 0;
     if (depth >= 0) {
         // TODO(Ben): Optimize
@@ -179,7 +180,7 @@ ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, 
       //  blockID = 55;
         // Check for surface block replacement
         if (depth == 0) {
-            blockID = 55;
+            blockID = 55; // TODO(Ben): Stoppit!
         //    if (blockID == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
         //        blockID = 43/*m_genData->surfaceBlock*/;
         //    }
@@ -190,7 +191,7 @@ ui16 ProceduralChunkGenerator::getBlockID(int depth, int mapHeight, int height, 
             blockID = m_genData->liquidBlock;
         } else if (depth == -1) {
             if (hd.flora != FLORA_ID_NONE) {
-                blockID = hd.biome->flora[hd.flora].data.block;
+                chunk->floraToGenerate.emplace_back(hd.flora, blockIndex);
             }
         }
     }

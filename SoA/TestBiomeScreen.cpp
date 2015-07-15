@@ -242,7 +242,6 @@ void TestBiomeScreen::initChunks() {
                     pos.pos.y = z * CHUNK_WIDTH + i;
                     PlanetHeightData& data = hd.heightData[i * CHUNK_WIDTH + j];
                     m_heightGenerator.generateHeightData(data, pos);
-                    data.flora = m_heightGenerator.getFloraID(data.biome, pos);
                 }
             }
         }

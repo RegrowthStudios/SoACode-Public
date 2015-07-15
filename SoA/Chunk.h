@@ -42,6 +42,13 @@ public:
     int refCount = 1;
 };
 
+// A flora/tree that needs to be generated
+struct QueuedFlora {
+    QueuedFlora(ui16& floraID, ui16& blockIndex) : floraID(floraID), blockIndex(blockIndex) {}
+    ui16 floraID;
+    ui16 blockIndex;
+};
+
 class Chunk {
     friend class ChunkGenerator;
     friend class ChunkGrid;
@@ -109,6 +116,7 @@ public:
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
+    std::vector<QueuedFlora> floraToGenerate;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
