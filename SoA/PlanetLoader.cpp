@@ -59,22 +59,22 @@ struct LeafKegProperties {
     FruitKegProperties fruitProps;
     // Union based on type
     union {
-        struct {
-            ui32v2 roundRadius;
-        };
-        struct {
-            ui32v2 clusterWidth;
-            ui32v2 clusterHeight;
-        };
-        struct {
-            ui32v2 pineThickness;
-        };
-        struct {
-            i32v2 mushLengthMod;
-            i32v2 mushCurlLength;
-            i32v2 mushCapThickness;
-            i32v2 mushGillThickness;
-        };
+        UNIONIZE(struct {
+            ui32v2 radius;
+        } round;);
+        UNIONIZE(struct {
+            ui32v2 width;
+            ui32v2 height;
+        } cluster;);
+        UNIONIZE(struct {
+            ui32v2 thickness;
+        } pine;);
+        UNIONIZE(struct {
+            i32v2 lengthMod;
+            i32v2 curlLength;
+            i32v2 capThickness;
+            i32v2 gillThickness;
+        } mushroom;);
     };
     // Don't put strings in unions
     nString roundBlock;
@@ -494,13 +494,15 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
         }
     });
 
+    // Parses leaf field
     auto leafParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        // TODO(Ben): Other leaf types
         if (key == "type") {
             keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
         } else if (key == "width") {
-            PARSE_V2(ui32, leafProps->clusterWidth);
+            PARSE_V2(ui32, leafProps->cluster.width);
         } else if (key == "height") {
-            PARSE_V2(ui32, leafProps->clusterHeight);
+            PARSE_V2(ui32, leafProps->cluster.height);
         } else if (key == "block") {
             keg::evalData((ui8*)&leafProps->clusterBlock, &stringVal, value, context);
         } else if (key == "fruit") {
