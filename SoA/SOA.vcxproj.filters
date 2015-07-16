@@ -863,6 +863,12 @@
     <ClInclude Include="PlanetGenLoader.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
+    <ClInclude Include="NFloraGenerator.h">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="Flora.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1422,6 +1428,12 @@
     </ClCompile>
     <ClCompile Include="PlanetGenLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
+    </ClCompile>
+    <ClCompile Include="NFloraGenerator.cpp">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="Flora.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
