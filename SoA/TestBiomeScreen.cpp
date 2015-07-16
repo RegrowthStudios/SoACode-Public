@@ -259,30 +259,46 @@ void TestBiomeScreen::initChunks() {
     // Generate chunk data
     for (int i = 0; i < m_chunks.size(); i++) {
         ChunkPosition3D pos;
+        i32v3 gridPosition;
+        gridPosition.x = i % HORIZONTAL_CHUNKS;
+        gridPosition.y = i / (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS);
+        gridPosition.z = (i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)) / HORIZONTAL_CHUNKS;
         // Center position about origin
-        pos.pos.x = i % HORIZONTAL_CHUNKS - HORIZONTAL_CHUNKS / 2;
-        pos.pos.y = i / (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS) - VERTICAL_CHUNKS / 2;
-        pos.pos.z = (i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)) / HORIZONTAL_CHUNKS - HORIZONTAL_CHUNKS / 2;
+        pos.pos.x = gridPosition.x - HORIZONTAL_CHUNKS / 2;
+        pos.pos.y = gridPosition.y - VERTICAL_CHUNKS / 2;
+        pos.pos.z = gridPosition.z - HORIZONTAL_CHUNKS / 2;
         m_chunks[i].chunk = new Chunk;
         m_chunks[i].chunk->init(i, pos);
+        m_chunks[i].gridPosition = gridPosition;
         m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData);
     }
 
     // Generate flora
     std::vector<FloraNode> lNodes;
     std::vector<FloraNode> wNodes;
+    // TODO(Ben): I know this is ugly
     for (int i = 0; i < m_chunks.size(); i++) {
         Chunk* chunk = m_chunks[i].chunk;
         m_floraGenerator.generateChunkFlora(chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData, lNodes, wNodes);
         for (auto& node : wNodes) {
-            // TODO(Ben): Neighbor chunks too
-            if (node.chunkOffset == NO_CHUNK_OFFSET) {
+            i32v3 gridPos = m_chunks[i].gridPosition;
+            gridPos.x += ((node.chunkOffset >> 10) & 0x1F) - 0x7;
+            gridPos.y += ((node.chunkOffset >> 5) & 0x1F) - 0x7;
+            gridPos.z += (node.chunkOffset & 0x1F) - 0x7;
+            if (gridPos.x > 0 && gridPos.y > 0 && gridPos.z > 0
+                && gridPos.x < HORIZONTAL_CHUNKS && gridPos.y < VERTICAL_CHUNKS && gridPos.z < HORIZONTAL_CHUNKS) {
+                Chunk* chunk = m_chunks[gridPos.x + gridPos.y * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + gridPos.z * HORIZONTAL_CHUNKS].chunk;
                 chunk->blocks.set(node.blockIndex, node.blockID);
             }
         }
         for (auto& node : lNodes) {
-            // TODO(Ben): Neighbor chunks too
-            if (node.chunkOffset == NO_CHUNK_OFFSET) {
+            i32v3 gridPos = m_chunks[i].gridPosition;
+            gridPos.x += ((node.chunkOffset >> 10) & 0x1F) - 0x7;
+            gridPos.y += ((node.chunkOffset >> 5) & 0x1F) - 0x7;
+            gridPos.z += (node.chunkOffset & 0x1F) - 0x7;
+            if (gridPos.x > 0 && gridPos.y > 0 && gridPos.z > 0
+                && gridPos.x < HORIZONTAL_CHUNKS && gridPos.y < VERTICAL_CHUNKS && gridPos.z < HORIZONTAL_CHUNKS) {
+                Chunk* chunk = m_chunks[gridPos.x + gridPos.y * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + gridPos.z * HORIZONTAL_CHUNKS].chunk;
                 if (chunk->blocks.get(node.blockIndex) == 0) {
                     chunk->blocks.set(node.blockIndex, node.blockID);
                 }

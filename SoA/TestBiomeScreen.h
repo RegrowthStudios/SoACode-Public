@@ -39,6 +39,7 @@ private:
     struct ViewableChunk {
         Chunk* chunk;
         ChunkMesh* chunkMesh;
+        i32v3 gridPosition;
     };
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir

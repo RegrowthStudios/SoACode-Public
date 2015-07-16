@@ -23,10 +23,11 @@
 
 // Will not work for chunks > 32^3
 struct FloraNode {
-    FloraNode(ui16 blockIndex, ui16 blockID, ui16 chunkOffset = NO_CHUNK_OFFSET) :
-        blockIndex(blockIndex), blockID(blockID), chunkOffset(chunkOffset) {};
-    ui16 blockIndex;
+    FloraNode(ui16 blockID, ui16 blockIndex, ui16 chunkOffset) :
+        blockID(blockID), blockIndex(blockIndex), chunkOffset(chunkOffset) {
+    };
     ui16 blockID;
+    ui16 blockIndex;
     ui16 chunkOffset; ///< Packed 0 XXXXX YYYYY ZZZZZ for positional offset. 00111 == 0
 };
 
@@ -45,10 +46,18 @@ public:
     /// Generates a specific tree's properties
     static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
 private:
+    enum TreeDir {
+        TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
+    };
+
+    void makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties& props);
+    void directionalMove(ui16& blockIndex, ui16 &chunkOffset, TreeDir dir);
+   
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;
     FloraData m_floraData;
+    ui16 m_centerX, m_centerY, m_centerZ;
 };
 
 #endif // NFloraGenerator_h__

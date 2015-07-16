@@ -111,13 +111,13 @@ public:
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
-    // Block IDs where flora must be generated.
+    // Block indexes where flora must be generated.
     std::vector<ui16> floraToGenerate;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
 
-    ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
+    // ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
   

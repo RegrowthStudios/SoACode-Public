@@ -214,6 +214,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 TreeTypeTrunkProperties& tp = td.trunkProps[j];
                 const TrunkKegProperties& tkp = kp.trunkProps[j];
                 const Block* b;
+                tp.loc = tkp.loc;
                 // Blocks
                 TRY_SET_BLOCK(tp.barkBlockID, b, tkp.barkBlock);
                 TRY_SET_BLOCK(tp.coreBlockID, b, tkp.coreBlock);

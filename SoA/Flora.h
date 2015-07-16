@@ -119,6 +119,7 @@ struct TreeBranchProperties {
 };
 
 struct TreeTypeTrunkProperties {
+    f32 loc;
     Range<ui16> coreWidth;
     Range<ui16> barkWidth;
     Range<f32> branchChance;
@@ -130,6 +131,7 @@ struct TreeTypeTrunkProperties {
     TreeTypeBranchProperties branchProps;
 };
 struct TreeTrunkProperties {
+    f32 loc;
     ui16 coreWidth;
     ui16 barkWidth;
     f32 branchChance;
