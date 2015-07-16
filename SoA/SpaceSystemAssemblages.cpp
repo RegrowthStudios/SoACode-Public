@@ -260,7 +260,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.generator = ftcmp.cpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkAllocator = new PagedChunkAllocator();
     svcmp.chunkMeshManager = soaState->chunkMeshManager;
     svcmp.blockPack = &soaState->blocks;
 
@@ -272,7 +271,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.chunkGrids = new ChunkGrid[6];
     for (int i = 0; i < 6; i++) {
-        svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.chunkAllocator, svcmp.threadPool, 1, ftcmp.planetGenData);
+        svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.threadPool, 1, ftcmp.planetGenData);
     }
 
     svcmp.planetGenData = ftcmp.planetGenData;

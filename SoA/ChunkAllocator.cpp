@@ -17,7 +17,7 @@ PagedChunkAllocator::~PagedChunkAllocator() {
     }
 }
 
-Chunk* PagedChunkAllocator::getNewChunk() {
+Chunk* PagedChunkAllocator::alloc() {
     // TODO(Ben): limit
     // Allocate chunk pages if needed
     if (m_freeChunks.empty()) {
@@ -36,7 +36,7 @@ Chunk* PagedChunkAllocator::getNewChunk() {
     return chunk;
 }
 
-void PagedChunkAllocator::freeChunk(Chunk* chunk) {
+void PagedChunkAllocator::free(Chunk* chunk) {
     // TODO(Ben): Deletion if there is a lot?
     m_freeChunks.push_back(chunk);
 }
