@@ -93,14 +93,14 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
     // Load test planet
-    PlanetLoader planetLoader;
+    PlanetGenLoader planetLoader;
     m_iom.setSearchDirectory("StarSystems/Trinity/");
     planetLoader.init(&m_iom);
     m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
     m_genData->radius = 4500.0;
     
     // Set blocks
-    SoaEngine::setPlanetBlocks(m_genData, m_soaState->blocks);
+    SoaEngine::initVoxelGen(m_genData, m_soaState->blocks);
     
     m_chunkGenerator.init(m_genData);
 
@@ -242,7 +242,6 @@ void TestBiomeScreen::initChunks() {
                     pos.pos.y = z * CHUNK_WIDTH + i;
                     PlanetHeightData& data = hd.heightData[i * CHUNK_WIDTH + j];
                     m_heightGenerator.generateHeightData(data, pos);
-                    data.flora = m_heightGenerator.getFloraID(data.biome, pos);
                 }
             }
         }
@@ -257,6 +256,7 @@ void TestBiomeScreen::initChunks() {
         }
     }
 
+    // Generate chunk data
     for (int i = 0; i < m_chunks.size(); i++) {
         ChunkPosition3D pos;
         // Center position about origin
@@ -266,6 +266,31 @@ void TestBiomeScreen::initChunks() {
         m_chunks[i].chunk = new Chunk;
         m_chunks[i].chunk->init(i, pos);
         m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData);
+    }
+
+    // Generate flora
+    std::vector<FloraNode> lNodes;
+    std::vector<FloraNode> wNodes;
+    for (int i = 0; i < m_chunks.size(); i++) {
+        Chunk* chunk = m_chunks[i].chunk;
+        m_floraGenerator.generateChunkFlora(chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData, lNodes, wNodes);
+        for (auto& node : wNodes) {
+            // TODO(Ben): Neighbor chunks too
+            if (node.chunkOffset == NO_CHUNK_OFFSET) {
+                chunk->blocks.set(node.blockIndex, node.blockID);
+            }
+        }
+        for (auto& node : lNodes) {
+            // TODO(Ben): Neighbor chunks too
+            if (node.chunkOffset == NO_CHUNK_OFFSET) {
+                if (chunk->blocks.get(node.blockIndex) == 0) {
+                    chunk->blocks.set(node.blockIndex, node.blockID);
+                }
+            }
+        }
+        std::vector<ui16>().swap(chunk->floraToGenerate);
+        lNodes.clear();
+        wNodes.clear();
     }
 
 #define GET_INDEX(x, y, z) ((x) + (y) * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + (z) * HORIZONTAL_CHUNKS)

@@ -10,74 +10,7 @@
 #include "ChunkUpdater.h"
 #include "WorldStructs.h"
 
-KEG_ENUM_DEF(TreeLeafShape, TreeLeafShape, kt) {
-    kt.addValue("unknown", TreeLeafShape::UNKNOWN);
-    kt.addValue("round", TreeLeafShape::ROUND);
-    kt.addValue("cluster", TreeLeafShape::CLUSTER);
-    kt.addValue("pine", TreeLeafShape::PINE);
-    kt.addValue("mushroom", TreeLeafShape::MUSHROOM);
-}
-
-KEG_TYPE_DEF_SAME_NAME(TreeBranchingProps, kt) {
-    using namespace keg;
-    kt.addValue("width", Value::basic(offsetof(TreeBranchingProps, width), BasicType::I32_V2));
-    kt.addValue("length", Value::basic(offsetof(TreeBranchingProps, length), BasicType::I32_V2));
-    kt.addValue("chance", Value::basic(offsetof(TreeBranchingProps, chance), BasicType::F32_V2));
-    kt.addValue("direction", Value::basic(offsetof(TreeBranchingProps, direction), BasicType::I32));
-}
-
-KEG_TYPE_DEF_SAME_NAME(TreeType, kt) {
-    using namespace keg;
-    kt.addValue("name", Value::basic(offsetof(TreeType, name), BasicType::STRING));
-    kt.addValue("idCore", Value::basic(offsetof(TreeType, idCore), BasicType::I32));
-    kt.addValue("idLeaves", Value::basic(offsetof(TreeType, idLeaves), BasicType::I32));
-    kt.addValue("idBark", Value::basic(offsetof(TreeType, idOuter), BasicType::I32));
-    kt.addValue("idRoot", Value::basic(offsetof(TreeType, idRoot), BasicType::I32));
-    kt.addValue("idSpecialBlock", Value::basic(offsetof(TreeType, idSpecial), BasicType::I32));
-
-    kt.addValue("trunkHeight", Value::basic(offsetof(TreeType, trunkHeight), BasicType::I32_V2));
-    kt.addValue("trunkHeightBase", Value::basic(offsetof(TreeType, trunkBaseHeight), BasicType::I32_V2));
-
-    kt.addValue("trunkWidthBase", Value::basic(offsetof(TreeType, trunkBaseWidth), BasicType::I32_V2));
-    kt.addValue("trunkWidthMid", Value::basic(offsetof(TreeType, trunkMidWidth), BasicType::I32_V2));
-    kt.addValue("trunkWidthTop", Value::basic(offsetof(TreeType, trunkTopWidth), BasicType::I32_V2));
-    kt.addValue("trunkCoreWidth", Value::basic(offsetof(TreeType, coreWidth), BasicType::I32));
-
-    kt.addValue("trunkSlopeEnd", Value::basic(offsetof(TreeType, trunkEndSlope), BasicType::I32_V2));
-    kt.addValue("trunkSlopeStart", Value::basic(offsetof(TreeType, trunkStartSlope), BasicType::I32_V2));
-
-    kt.addValue("branchingPropsBottom", Value::custom(offsetof(TreeType, branchingPropsBottom), "TreeBranchingProps"));
-    kt.addValue("branchingPropsTop", Value::custom(offsetof(TreeType, branchingPropsTop), "TreeBranchingProps"));
-
-    kt.addValue("droopyLeavesLength", Value::basic(offsetof(TreeType, droopyLength), BasicType::I32_V2));
-    kt.addValue("leafCapSize", Value::basic(offsetof(TreeType, leafCapSize), BasicType::I32_V2));
-
-    kt.addValue("leafCapShape", Value::custom(offsetof(TreeType, leafCapShape), "TreeLeafShape", true));
-    kt.addValue("branchLeafShape", Value::custom(offsetof(TreeType, branchLeafShape), "TreeLeafShape", true));
-
-    kt.addValue("branchLeafSizeMod", Value::basic(offsetof(TreeType, branchLeafSizeMod), BasicType::I32));
-    kt.addValue("branchLeafYMod", Value::basic(offsetof(TreeType, branchLeafYMod), BasicType::I32));
-
-    kt.addValue("droopyLeavesSlope", Value::basic(offsetof(TreeType, droopyLeavesSlope), BasicType::I32));
-    kt.addValue("droopyLeavesDSlope", Value::basic(offsetof(TreeType, droopyLeavesDSlope), BasicType::I32));
-
-    kt.addValue("mushroomCapCurlLength", Value::basic(offsetof(TreeType, mushroomCapCurlLength), BasicType::I32));
-    kt.addValue("mushroomCapGillThickness", Value::basic(offsetof(TreeType, mushroomCapGillThickness), BasicType::I32));
-    kt.addValue("mushroomCapStretchMod", Value::basic(offsetof(TreeType, mushroomCapLengthMod), BasicType::I32));
-    kt.addValue("mushroomCapThickness", Value::basic(offsetof(TreeType, mushroomCapThickness), BasicType::I32));
-
-    kt.addValue("branchChanceCapMod", Value::basic(offsetof(TreeType, capBranchChanceMod), BasicType::F32));
-    kt.addValue("trunkChangeDirChance", Value::basic(offsetof(TreeType, trunkChangeDirChance), BasicType::F32));
-    kt.addValue("rootDepth", Value::basic(offsetof(TreeType, rootDepthMult), BasicType::F32));
-    kt.addValue("branchStart", Value::basic(offsetof(TreeType, branchStart), BasicType::F32));
-
-    kt.addValue("hasThickCapBranches", Value::basic(offsetof(TreeType, hasThickCapBranches), BasicType::BOOL));
-    kt.addValue("droopyLeavesActive", Value::basic(offsetof(TreeType, hasDroopyLeaves), BasicType::BOOL));
-    kt.addValue("mushroomCapInverted", Value::basic(offsetof(TreeType, isMushroomCapInverted), BasicType::BOOL));
-    kt.addValue("isSlopeRandom", Value::basic(offsetof(TreeType, isSlopeRandom), BasicType::BOOL));
-}
-
-bool FloraGenerator::generateTree(const TreeData& treeData, Chunk* startChunk) {
+bool FloraGenerator::generateTree(const TreeData2& treeData, Chunk* startChunk) {
     _treeData = &treeData;
 
     if (!generateTrunk()) return false;
@@ -460,7 +393,7 @@ bool FloraGenerator::generateFlora(Chunk* chunk, std::vector<TreeNode>& wnodes, 
     return true;
 }
 
-int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, int X, int Z) {
+int FloraGenerator::makeLODTreeData(TreeData2 &td, TreeType *tt, int x, int z, int X, int Z) {
     srand(Z*X - x*z);
 
     f32 mod = (f32)((PseudoRand(X*CHUNK_SIZE + z - X, Z*Z - x*z) + 1.0) / 2.0);
@@ -482,7 +415,7 @@ int FloraGenerator::makeLODTreeData(TreeData &td, TreeType *tt, int x, int z, in
     return 0;
 }
 
-int FloraGenerator::makeTreeData(Chunk* chunk, TreeData &td, TreeType *tt) {
+int FloraGenerator::makeTreeData(Chunk* chunk, TreeData2 &td, TreeType *tt) {
    /* int c = td.startc;
     int x = c%CHUNK_WIDTH;
     int z = (c%CHUNK_LAYER) / CHUNK_WIDTH;
@@ -965,7 +898,7 @@ bool FloraGenerator::makeSphere(int blockIndex, ui16 chunkOffset, int radius, in
     return true;
 }
 
-void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio) {
+void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData2& outProps, const f32& ratio) {
     outProps.botBranchChance = ratio * (f32)(bottom.chance.max - bottom.chance.min) + (f32)bottom.chance.min;
     outProps.topBranchChance = ratio * (f32)(top.chance.max - top.chance.min) + (f32)top.chance.min;
     outProps.botBranchLength = (i32)(ratio * (f32)(bottom.length.max - bottom.length.min) + (f32)bottom.length.min);

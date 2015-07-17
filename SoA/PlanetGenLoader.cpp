@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "PlanetGenData.h"
 
 #include <random>
@@ -18,10 +18,13 @@
 
 typedef ui32 BiomeColorCode;
 
+PlanetGenData* PlanetGenLoader::m_defaultGenData = nullptr;
+
 struct BiomeKegProperties {
     Array<BiomeKegProperties> children;
     Array<BlockLayer> blockLayers;
     Array<BiomeFloraKegProperties> flora;
+    Array<BiomeTreeKegProperties> trees;
     BiomeID id = "";
     ColorRGB8 mapColor = ColorRGB8(255, 255, 255);
     NoiseBase childNoise; ///< For sub biome determination
@@ -45,6 +48,7 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("blockLayers", Value::array(offsetof(BiomeKegProperties, blockLayers), Value::custom(0, "BlockLayer")));
     kt.addValue("terrainNoise", Value::custom(offsetof(BiomeKegProperties, terrainNoise), "NoiseBase", false));
     kt.addValue("flora", Value::array(offsetof(BiomeKegProperties, flora), Value::custom(0, "BiomeFloraKegProperties")));
+    kt.addValue("trees", Value::array(offsetof(BiomeKegProperties, trees), Value::custom(0, "BiomeTreeKegProperties")));
     kt.addValue("childNoise", Value::custom(offsetof(BiomeKegProperties, childNoise), "NoiseBase", false));
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
@@ -58,12 +62,12 @@ KEG_TYPE_DEF_SAME_NAME(FloraKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, FloraKegProperties, block, STRING);
 }
 
-void PlanetLoader::init(vio::IOManager* ioManager) {
+void PlanetGenLoader::init(vio::IOManager* ioManager) {
     m_iom = ioManager;
     m_textureCache.init(ioManager);
 }
 
-PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
+CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& terrainPath) {
     nString data;
     m_iom->readFileToString(terrainPath.c_str(), data);
 
@@ -126,6 +130,9 @@ PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
     if (floraPath.size()) {
         loadFlora(floraPath, genData);
     }
+    if (treesPath.size()) {
+        loadTrees(treesPath, genData);
+    }
 
     if (biomePath.size()) {
         loadBiomes(biomePath, genData);
@@ -140,7 +147,7 @@ PlanetGenData* PlanetLoader::loadPlanetGenData(const nString& terrainPath) {
     return genData;
 }
 
-PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
+PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
     if (!m_defaultGenData) {
         // Allocate data
@@ -149,7 +156,7 @@ PlanetGenData* PlanetLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nul
     return m_defaultGenData;
 }
 
-PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
+CALLER_DELETE PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore::RPCManager* glrpc /* = nullptr */) {
     // Lazily construct default data
 
     // Allocate data
@@ -184,7 +191,7 @@ PlanetGenData* PlanetLoader::getRandomGenData(f32 radius, vcore::RPCManager* glr
     return genData;
 }
 
-AtmosphereProperties PlanetLoader::getRandomAtmosphere() {
+AtmosphereProperties PlanetGenLoader::getRandomAtmosphere() {
     static std::mt19937 generator(2636);
     static std::uniform_real_distribution<f32> randomWav(0.4f, 0.8f);
     AtmosphereProperties props;
@@ -325,14 +332,20 @@ void recursiveInitBiomes(Biome& biome,
     biome.terrainNoise = kp.terrainNoise;
     biome.childNoise = kp.childNoise;
 
-    // Construct vector in place
+    // Construct vectors in place for flora and trees
     auto& floraPropList = genData->blockInfo.biomeFlora.insert(
         std::make_pair(&biome, std::vector<BiomeFloraKegProperties>())).first->second;
-
+    auto& treePropList = genData->blockInfo.biomeTrees.insert(
+        std::make_pair(&biome, std::vector<BiomeTreeKegProperties>())).first->second;
     // Copy flora data over
     floraPropList.resize(kp.flora.size());
     for (size_t i = 0; i < kp.flora.size(); i++) {
         floraPropList[i] = kp.flora[i];
+    }
+    // Copy tree data over
+    treePropList.resize(kp.trees.size());
+    for (size_t i = 0; i < kp.trees.size(); i++) {
+        treePropList[i] = kp.trees[i];
     }
 
     // Recurse children
@@ -344,7 +357,7 @@ void recursiveInitBiomes(Biome& biome,
     }
 }
 
-void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
+void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
@@ -364,22 +377,30 @@ void PlanetLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
         FloraKegProperties properties;
         keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
         
-        ui32 id = genData->flora.size();
-        genData->flora.emplace_back();
         genData->blockInfo.floraBlockNames.push_back(properties.block);
-        genData->floraMap[key] = id;
     });
     context.reader.forAllInMap(node, baseParser);
     delete baseParser;
     context.reader.dispose();
 }
 
-void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
+// Conditionally parses a value so it can be either a v2 or a single value
+// When its single, it sets both values of the v2 to that value
+#define PARSE_V2(type, v) \
+if (keg::getType(value) == keg::NodeType::VALUE) { \
+    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
+    ##v.y = ##v.x; \
+} else { \
+    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
+} 
+
+void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
 
     // Get the read context and error check
+    // TODO(Ben): Too much copy paste
     keg::ReadContext context;
     context.env = keg::getGlobalEnvironment();
     context.reader.init(data.c_str());
@@ -390,15 +411,148 @@ void PlanetLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
         return;
     }
 
+    TreeKegProperties* treeProps;
+    // Handles
+    TrunkKegProperties* trunkProps = nullptr;
+    FruitKegProperties* fruitProps = nullptr;
+    LeafKegProperties* leafProps = nullptr;
+    // Custom values, must match PARSE_V2 syntax
+    keg::Value ui32v2Val = keg::Value::basic(0, keg::BasicType::UI32_V2);
+    keg::Value ui32Val = keg::Value::basic(0, keg::BasicType::UI32);
+    keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
+    keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
+    keg::Value f32v2Val = keg::Value::basic(0, keg::BasicType::F32_V2);
+    keg::Value f32Val = keg::Value::basic(0, keg::BasicType::F32);
+    keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
+    keg::Value leafTypeVal = keg::Value::custom(0, "TreeLeafType", true);
+
+    /************************************************************************/
+    /* The following code is ugly because it must be custom parsed with     */
+    /* PARSE_V2. It is *IMPERATIVE* that any added properties be set in     */
+    /* SoaEngine::initVoxelGen as well.                                     */
+    /************************************************************************/
+
+    // Parses fruit field
+    auto fruitParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "id") {
+            keg::evalData((ui8*)&fruitProps->flora, &stringVal, value, context);
+        } else if (key == "max") {
+            PARSE_V2(f32, fruitProps->chance);
+        }
+    });
+
+    // Parses leaf field
+    auto leafParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        // TODO(Ben): Other leaf types
+        if (key == "type") {
+            keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
+        } else if (key == "width") {
+            PARSE_V2(ui32, leafProps->cluster.width);
+        } else if (key == "height") {
+            PARSE_V2(ui32, leafProps->cluster.height);
+        } else if (key == "block") {
+            keg::evalData((ui8*)&leafProps->clusterBlock, &stringVal, value, context);
+        } else if (key == "fruit") {
+            fruitProps = &leafProps->fruitProps;
+            context.reader.forAllInMap(value, fruitParser);
+        }
+    });
+
+    // Parses branch field
+    auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "coreWidth") {
+            PARSE_V2(ui32, trunkProps->branchProps.coreWidth);
+        } else if (key == "barkWidth") {
+            PARSE_V2(ui32, trunkProps->branchProps.barkWidth);
+        } else if (key == "branchChance") {
+            PARSE_V2(f32, trunkProps->branchProps.branchChance);
+        } else if (key == "coreBlock") {
+            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+        } else if (key == "barkBlock") {
+            keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
+        } else if (key == "fruit") {
+            fruitProps = &trunkProps->branchProps.fruitProps;
+            context.reader.forAllInMap(value, fruitParser);
+        } else if (key == "leaves") {
+            leafProps = &trunkProps->branchProps.leafProps;
+            context.reader.forAllInMap(value, leafParser);
+        }
+    });
+
+    // Parses slope field
+    auto slopeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "min") {
+            PARSE_V2(i32, trunkProps->slope[0]);
+        } else if (key == "max") {
+            PARSE_V2(i32, trunkProps->slope[1]);
+        }
+    });
+
+    // Parses fourth level
+    auto trunkDataParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "loc") {
+            keg::evalData((ui8*)&trunkProps->loc, &f32Val, value, context);
+        } else if (key == "coreWidth") {
+            PARSE_V2(ui32, trunkProps->coreWidth);
+        } else if (key == "barkWidth") {
+            PARSE_V2(ui32, trunkProps->barkWidth);
+        } else if (key == "branchChance") {
+            PARSE_V2(f32, trunkProps->branchChance);
+        } else if (key == "slope") {
+            context.reader.forAllInMap(value, slopeParser);
+        } else if (key == "coreBlock") {
+            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+        } else if (key == "barkBlock") {
+            keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
+        } else if (key == "fruit") {
+            fruitProps = &trunkProps->fruitProps;
+            context.reader.forAllInMap(value, fruitParser);
+        } else if (key == "branches") {
+            context.reader.forAllInMap(value, branchParser);
+        } else if (key == "leaves") {
+            leafProps = &trunkProps->leafProps;
+            context.reader.forAllInMap(value, leafParser);
+        }
+    });
+
+    // Parses third level
+    auto trunkParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
+        treeProps->trunkProps.emplace_back();
+        // Get our handle
+        trunkProps = &treeProps->trunkProps.back();
+        context.reader.forAllInMap(value, trunkDataParser);
+    });
+
+    // Parses second level
+    auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "height") {
+            PARSE_V2(ui32, treeProps->heightRange);
+        } else if (key == "trunk") {
+            context.reader.forAllInSequence(value, trunkParser);
+        }
+    });
+
+    // Parses top level
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-       
+        genData->blockInfo.trees.emplace_back();
+        treeProps = &genData->blockInfo.trees.back();
+        treeProps->id = key;
+        context.reader.forAllInMap(value, treeParser);
     });
     context.reader.forAllInMap(node, baseParser);
+    delete fruitParser;
+    delete leafParser;
+    delete branchParser;
+    delete slopeParser;
+    delete trunkParser;
+    delete trunkDataParser;
+    delete treeParser;
     delete baseParser;
     context.reader.dispose();
 }
+#undef PARSE_V2
 
-void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
+void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
     m_iom->readFileToString(filePath.c_str(), data);
@@ -505,7 +659,7 @@ void PlanetLoader::loadBiomes(const nString& filePath, PlanetGenData* genData) {
     }
 }
 
-void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node) {
+void PlanetGenLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& context, keg::Node node) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -518,7 +672,7 @@ void PlanetLoader::parseTerrainFuncs(NoiseBase* terrainFuncs, keg::ReadContext& 
     }
 }
 
-void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -579,7 +733,7 @@ void PlanetLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node, P
     genData->liquidTint = kegProps.tint;
 }
 
-void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -652,7 +806,7 @@ void PlanetLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, 
     genData->terrainTint = kegProps.tint;
 }
 
-void PlanetLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node in parseBlockLayers. Should be MAP";
         return;

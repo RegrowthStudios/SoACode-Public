@@ -45,7 +45,7 @@ public:
     static bool loadGameSystem(SoaState* state);
 
     /// Sets block IDs for planet data
-    static void setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks);
+    static void initVoxelGen(PlanetGenData* genData, const BlockPack& blocks);
 
     static void reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC);
 

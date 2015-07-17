@@ -566,6 +566,7 @@ EXIT 0</Command>
     <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
     <ClInclude Include="FarTerrainPatch.h" />
+    <ClInclude Include="Flora.h" />
     <ClInclude Include="FloraTask.h" />
     <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
@@ -608,6 +609,7 @@ EXIT 0</Command>
     <ClInclude Include="BlockTextureLoader.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkGrid.h" />
+    <ClInclude Include="NFloraGenerator.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="Noise.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
@@ -626,7 +628,7 @@ EXIT 0</Command>
     <ClInclude Include="PlanetGenData.h" />
     <ClInclude Include="PlanetGenerator.h" />
     <ClInclude Include="PlanetHeightData.h" />
-    <ClInclude Include="PlanetLoader.h" />
+    <ClInclude Include="PlanetGenLoader.h" />
     <ClInclude Include="PlanetRingsComponentRenderer.h" />
     <ClInclude Include="Positional.h" />
     <ClInclude Include="ProceduralChunkGenerator.h" />
@@ -793,6 +795,7 @@ EXIT 0</Command>
     <ClCompile Include="FarTerrainComponentRenderer.cpp" />
     <ClCompile Include="FarTerrainComponentUpdater.cpp" />
     <ClCompile Include="FarTerrainPatch.cpp" />
+    <ClCompile Include="Flora.cpp" />
     <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FrustumComponentUpdater.cpp" />
     <ClCompile Include="GameplayLoadScreen.cpp" />
@@ -827,6 +830,7 @@ EXIT 0</Command>
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
+    <ClCompile Include="NFloraGenerator.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="Octree.cpp" />
@@ -843,7 +847,7 @@ EXIT 0</Command>
     <ClCompile Include="PhysicsComponentUpdater.cpp" />
     <ClCompile Include="PlanetGenData.cpp" />
     <ClCompile Include="PlanetGenerator.cpp" />
-    <ClCompile Include="PlanetLoader.cpp" />
+    <ClCompile Include="PlanetGenLoader.cpp" />
     <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
     <ClCompile Include="ProceduralChunkGenerator.cpp" />
     <ClCompile Include="qef.cpp" />

@@ -4,7 +4,7 @@
 
 class Chunk;
 class TreeType;
-class TreeData;
+class TreeData2;
 struct Biome;
 
 //This node is used in tree generation
@@ -28,13 +28,13 @@ public:
     };
 
     bool generateFlora(Chunk* chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
-    static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
-    static i32 makeTreeData(Chunk* chunk, TreeData &td, TreeType *tt);
+    static i32 makeLODTreeData(TreeData2 &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
+    static i32 makeTreeData(Chunk* chunk, TreeData2 &td, TreeType *tt);
     static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
 
 private:
     // generates a tree and stores the resulting nodes
-    bool generateTree(const TreeData& treeData, Chunk* startChunk);
+    bool generateTree(const TreeData2& treeData, Chunk* startChunk);
     bool generateTrunk();
     bool makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, float heightRatio);
     bool makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes);
@@ -51,7 +51,7 @@ private:
     std::vector<TreeNode>* _wnodes;
     std::vector<TreeNode>* _lnodes;
 
-    const TreeData* _treeData;
+    const TreeData2* _treeData;
 };
 
 enum class TreeLeafShape {
@@ -61,7 +61,6 @@ enum class TreeLeafShape {
     PINE,
     MUSHROOM
 };
-KEG_ENUM_DECL(TreeLeafShape);
 
 class TreeBranchingProps {
 public:
@@ -70,7 +69,6 @@ public:
     F32Range chance;
     i32 direction;
 };
-KEG_TYPE_DECL(TreeBranchingProps);
 
 //This is data specific to a breed of tree
 class TreeType {
@@ -125,10 +123,9 @@ public:
     nString fileName;
     std::vector<i32> possibleAltLeafFlags;
 };
-KEG_TYPE_DECL(TreeType);
 
 //This is data specific to an instance of a tree
-class TreeData {
+class TreeData2 {
 public:
     i32 type, startc;
     i32 trunkBaseWidth, trunkMidWidth, trunkTopWidth;
@@ -148,8 +145,8 @@ public:
     TreeType *treeType;
 };
 
-typedef void(*TreeBranchInterpolator)(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
-void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
+typedef void(*TreeBranchInterpolator)(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData2& outProps, const f32& ratio);
+void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData2& outProps, const f32& ratio);
 
 //This is data specific to a breed of plant
 class PlantType {

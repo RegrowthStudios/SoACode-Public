@@ -75,7 +75,7 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
         // Post process the planets
         for (auto& it : m_commonState->state->spaceSystem->sphericalTerrain) {
             auto& cmp = it.second;
-            SoaEngine::setPlanetBlocks(it.second.planetGenData, m_commonState->state->blocks);
+            SoaEngine::initVoxelGen(it.second.planetGenData, m_commonState->state->blocks);
         }
         m_commonState->state->blockTextures->update();
         m_commonState->state->blockTextures->writeDebugAtlases();

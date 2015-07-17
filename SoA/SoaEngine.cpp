@@ -6,7 +6,7 @@
 #include "ChunkMeshManager.h"
 #include "DebugRenderer.h"
 #include "MeshManager.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
@@ -54,7 +54,6 @@ void SoaEngine::initState(SoaState* state) {
     state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
     state->systemViewer = new MainMenuSystemViewer;
-    state->planetLoader = new PlanetLoader;
     // TODO(Ben): This is also elsewhere?
     state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
                                     "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
@@ -89,9 +88,6 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
     vpath path = "SoASpace.log";
     vfile file;
     path.asFile(&file);
-
-    state->planetLoader->init(state->systemIoManager);
-
     vfstream fs = file.open(vio::FileOpenFlags::READ_WRITE_CREATE);
     pool.addAutoHook(state->spaceSystem->onEntityAdded, [=] (Sender, vecs::EntityID eid) {
         fs.write("Entity added: %d\n", eid);
@@ -118,7 +114,60 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
     return true;
 }
 
-void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
+#define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
+#define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
+
+void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
+    SET_RANGE(fp, kp, chance);
+    auto& it = genData->floraMap.find(kp.flora);
+    if (it != genData->floraMap.end()) {
+        fp.flora = it->second;
+    }
+}
+
+void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
+    lp.type = kp.type;
+    setTreeFruitProperties(lp.fruitProps, kp.fruitProps, genData);
+    const Block* b;
+    switch (lp.type) {
+        case TreeLeafType::ROUND:
+            SET_RANGE(lp, kp, round.radius);
+            TRY_SET_BLOCK(lp.round.blockID, b, kp.roundBlock);
+            break;
+        case TreeLeafType::CLUSTER:
+            SET_RANGE(lp, kp, cluster.width);
+            SET_RANGE(lp, kp, cluster.height);
+            TRY_SET_BLOCK(lp.cluster.blockID, b, kp.clusterBlock);
+            break;
+        case TreeLeafType::PINE:
+            SET_RANGE(lp, kp, pine.thickness);
+            TRY_SET_BLOCK(lp.pine.blockID, b, kp.pineBlock);
+            break;
+        case TreeLeafType::MUSHROOM:
+            SET_RANGE(lp, kp, mushroom.lengthMod);
+            SET_RANGE(lp, kp, mushroom.curlLength);
+            SET_RANGE(lp, kp, mushroom.capThickness);
+            SET_RANGE(lp, kp, mushroom.gillThickness);
+            TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.mushGillBlock);
+            TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
+            break;
+        case TreeLeafType::NONE:
+            break;
+    }
+}
+
+void setTreeBranchProperties(TreeTypeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
+    SET_RANGE(bp, kp, coreWidth);
+    SET_RANGE(bp, kp, barkWidth);
+    SET_RANGE(bp, kp, branchChance);
+    const Block* b;
+    TRY_SET_BLOCK(bp.coreBlockID, b,kp.coreBlock);
+    TRY_SET_BLOCK(bp.barkBlockID, b, kp.barkBlock);
+    setTreeFruitProperties(bp.fruitProps, kp.fruitProps, genData);
+    setTreeLeafProperties(bp.leafProps, kp.leafProps, genData, blocks);
+}
+
+void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
     PlanetBlockInitInfo& blockInfo = genData->blockInfo;
     if (genData) {
         // Set all block layers
@@ -126,54 +175,111 @@ void SoaEngine::setPlanetBlocks(PlanetGenData* genData, BlockPack& blocks) {
             ui16 blockID = blocks[blockInfo.blockLayerNames[i]].ID;
             genData->blockLayers[i].block = blockID;
         }
-        std::vector<BlockIdentifier>().swap(blockInfo.blockLayerNames);
         // Set liquid block
         if (blockInfo.liquidBlockName.length()) {
             if (blocks.hasBlock(blockInfo.liquidBlockName)) {
                 genData->liquidBlock = blocks[blockInfo.liquidBlockName].ID;
-                nString().swap(blockInfo.liquidBlockName); // clear memory
             }
         }
         // Set surface block
         if (blockInfo.surfaceBlockName.length()) {
             if (blocks.hasBlock(blockInfo.surfaceBlockName)) {
                 genData->surfaceBlock = blocks[blockInfo.surfaceBlockName].ID;
-                nString().swap(blockInfo.surfaceBlockName); // clear memory
             }
         }
 
-        // Set flora blocks
+        // Set flora data
+        genData->flora.resize(blockInfo.floraBlockNames.size());
         for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
             const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
             if (b) {
+                genData->floraMap[blockInfo.floraBlockNames[i]] = i;
                 genData->flora[i].block = b->ID;
             }
         }
-        std::vector<BlockIdentifier>().swap(blockInfo.floraBlockNames);
 
-        // Set biomes flora
+        // Set tree types
+        genData->trees.resize(blockInfo.trees.size());
+        for (size_t i = 0; i < blockInfo.trees.size(); ++i) {
+            NTreeType& td = genData->trees[i];
+            const TreeKegProperties& kp = blockInfo.trees[i];
+            // Add to lookup map
+            genData->treeMap[kp.id] = i;
+            // Set height range
+            SET_RANGE(td, kp, heightRange);
+
+            // Set trunk properties
+            td.trunkProps.resize(kp.trunkProps.size());
+            for (size_t j = 0; j < kp.trunkProps.size(); j++) {
+                TreeTypeTrunkProperties& tp = td.trunkProps[j];
+                const TrunkKegProperties& tkp = kp.trunkProps[j];
+                const Block* b;
+                // Blocks
+                TRY_SET_BLOCK(tp.barkBlockID, b, tkp.barkBlock);
+                TRY_SET_BLOCK(tp.coreBlockID, b, tkp.coreBlock);
+                // Set ranges
+                SET_RANGE(tp, tkp, coreWidth);
+                SET_RANGE(tp, tkp, barkWidth);
+                SET_RANGE(tp, tkp, branchChance);
+                tp.slope.min.min = tkp.slope[0].x;
+                tp.slope.min.max = tkp.slope[0].y;
+                tp.slope.max.min = tkp.slope[1].x;
+                tp.slope.max.max = tkp.slope[1].y;
+                setTreeFruitProperties(tp.fruitProps, tkp.fruitProps, genData);
+                setTreeBranchProperties(tp.branchProps, tkp.branchProps, genData, blocks);
+                setTreeLeafProperties(tp.leafProps, tkp.leafProps, genData, blocks);
+            }
+        }
+
+        // Set biome trees and flora
         for (auto& biome : genData->biomes) {
-            auto& it = blockInfo.biomeFlora.find(&biome);
-            if (it != blockInfo.biomeFlora.end()) {
-                auto& kList = it->second;
-                biome.flora.resize(kList.size());
-                // Iterate through keg properties
-                for (size_t i = 0; i < kList.size(); i++) {
-                    auto& kp = kList[i];
-                    auto& mit = genData->floraMap.find(kp.id);
-                    if (mit != genData->floraMap.end()) {
-                        biome.flora[i].chance = kp.chance;
-                        biome.flora[i].data = genData->flora[mit->second];
-                        biome.flora[i].id = i;
-                    } else {
-                        fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+            { // Flora
+                auto& it = blockInfo.biomeFlora.find(&biome);
+                if (it != blockInfo.biomeFlora.end()) {
+                    auto& kList = it->second;
+                    biome.flora.resize(kList.size());
+                    // Iterate through keg properties
+                    for (size_t i = 0; i < kList.size(); i++) {
+                        auto& kp = kList[i];
+                        auto& mit = genData->floraMap.find(kp.id);
+                        if (mit != genData->floraMap.end()) {
+                            biome.flora[i].chance = kp.chance;
+                            biome.flora[i].data = genData->flora[mit->second];
+                            biome.flora[i].id = i;
+                        } else {
+                            fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+                        }
+                    }
+                }
+            }
+            { // Trees
+                auto& it = blockInfo.biomeTrees.find(&biome);
+                if (it != blockInfo.biomeTrees.end()) {
+                    auto& kList = it->second;
+                    biome.trees.resize(kList.size());
+                    // Iterate through keg properties
+                    for (size_t i = 0; i < kList.size(); i++) {
+                        auto& kp = kList[i];
+                        auto& mit = genData->treeMap.find(kp.id);
+                        if (mit != genData->treeMap.end()) {
+                            biome.trees[i].chance = kp.chance;
+                            biome.trees[i].data = &genData->trees[mit->second];
+                            // Trees and flora share IDs so we can use a single
+                            // value in heightmap. Thus, add flora.size().
+                            biome.trees[i].id = biome.flora.size() + i;
+                        } else {
+                            fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());
+                        }
                     }
                 }
             }
         }
-        std::map<const Biome*, std::vector<BiomeFloraKegProperties>>().swap(blockInfo.biomeFlora);
+
+        // Clear memory
+        blockInfo = PlanetBlockInitInfo();
     }
 }
+#undef SET_RANGE
 
 void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
     SpaceSystem* spaceSystem = state->spaceSystem;
@@ -197,7 +303,9 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     SpaceSystemAssemblages::removeSphericalTerrainComponent(spaceSystem, eid);
     //state->planetLoader->textureCache.freeTexture(genData->liquidColorMap);
    // state->planetLoader->textureCache.freeTexture(genData->terrainColorMap);
-    genData = state->planetLoader->loadPlanetGenData(filePath);
+    PlanetGenLoader loader;
+    loader.init(state->systemIoManager);
+    genData = loader.loadPlanetGenData(filePath);
     genData->radius = radius;
 
     auto stCmpID = SpaceSystemAssemblages::addSphericalTerrainComponent(spaceSystem, eid, npCmpID, arCmpID,
@@ -225,7 +333,6 @@ void SoaEngine::destroyAll(SoaState* state) {
     delete state->chunkMeshManager;
     delete state->systemViewer;
     delete state->systemIoManager;
-    delete state->planetLoader;
     delete state->options;
     delete state->blockTextures;
     destroyGameSystem(state);

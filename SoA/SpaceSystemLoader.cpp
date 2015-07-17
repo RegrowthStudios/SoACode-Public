@@ -6,7 +6,7 @@
 #include "SoaOptions.h"
 #include "OrbitComponentUpdater.h"
 #include "PlanetGenData.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoaState.h"
 #include "SpaceSystemAssemblages.h"

@@ -7,27 +7,21 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Provides the biome implementation
+/// Provides the biome implementation.
 ///
 #pragma once
 
 #ifndef Biome_h__
 #define Biome_h__
 
-#include <Vorb/io/Keg.h>
-
 #include "Noise.h"
+#include "Flora.h"
 
+// TODO(Ben): Also support L-system trees.
 struct BiomeTree {
-    f32 chance;
-};
-
-#define FLORA_ID_NONE 0xFFFFu
-typedef ui16 FloraID;
-
-// Flora specification
-struct FloraData {
-    ui16 block;
+    NoiseBase chance;
+    NTreeType* data = nullptr;
+    FloraID id = FLORA_ID_NONE;
 };
 
 struct BiomeFloraKegProperties {
@@ -35,6 +29,12 @@ struct BiomeFloraKegProperties {
     nString id;
 };
 KEG_TYPE_DECL(BiomeFloraKegProperties);
+
+struct BiomeTreeKegProperties {
+    NoiseBase chance;
+    nString id;
+};
+KEG_TYPE_DECL(BiomeTreeKegProperties);
 
 // Unique flora instance
 struct BiomeFlora {
@@ -70,6 +70,7 @@ struct BiomeInfluence {
 // TODO(Ben): Make the memory one contiguous block
 typedef std::vector<std::vector<BiomeInfluence>> BiomeInfluenceMap;
 
+// TODO(Ben): Optimize the cache
 struct Biome {
     BiomeID id = "default";
     nString displayName = "Default";
@@ -77,6 +78,7 @@ struct Biome {
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
     std::vector<Biome*> children;
     std::vector<BiomeFlora> flora;
+    std::vector<BiomeTree> trees;
     NoiseBase childNoise; ///< For sub biome determination
     NoiseBase terrainNoise; ///< Modifies terrain directly
     // Only applies to base biomes

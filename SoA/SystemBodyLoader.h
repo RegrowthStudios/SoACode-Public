@@ -15,7 +15,7 @@
 #ifndef SystemBodyLoader_h__
 #define SystemBodyLoader_h__
 
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 
 #include <Vorb/VorbPreDecl.inl>
 
@@ -32,7 +32,7 @@ public:
 
 private:
     vio::IOManager* m_iom;
-    PlanetLoader m_planetLoader;
+    PlanetGenLoader m_planetLoader;
 };
 
 #endif // SystemBodyLoader_h__

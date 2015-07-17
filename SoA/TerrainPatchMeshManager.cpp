@@ -2,7 +2,7 @@
 #include "TerrainPatchMeshManager.h"
 
 #include "Errors.h"
-#include "PlanetLoader.h"
+#include "PlanetGenLoader.h"
 #include "Camera.h"
 
 #include <glm/gtx/quaternion.hpp>
