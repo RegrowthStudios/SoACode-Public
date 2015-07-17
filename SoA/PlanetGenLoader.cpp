@@ -466,10 +466,12 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(ui32, trunkProps->branchProps.barkWidth);
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchProps.branchChance);
+        } else if (key == "length") {
+            PARSE_V2(ui32, trunkProps->branchProps.length);
         } else if (key == "coreBlock") {
-            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
         } else if (key == "barkBlock") {
-            keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&trunkProps->branchProps.barkBlock, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &trunkProps->branchProps.fruitProps;
             context.reader.forAllInMap(value, fruitParser);

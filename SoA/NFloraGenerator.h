@@ -28,6 +28,7 @@ struct FloraNode {
     };
     ui16 blockID;
     ui16 blockIndex;
+    // TODO(Ben): ui32 instead for massive trees? Use leftover bits for Y?
     ui16 chunkOffset; ///< Packed 0 XXXXX YYYYY ZZZZZ for positional offset. 00111 == 0
 };
 
@@ -45,12 +46,23 @@ public:
     void generateFlora(FloraData type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui16 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates a specific tree's properties
     static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
+
+    static inline int getChunkXOffset(ui16 chunkOffset) {
+        return (int)((chunkOffset >> 10) & 0x1F) - 0x7;
+    }
+    static inline int getChunkYOffset(ui16 chunkOffset) {
+        return (int)((chunkOffset >> 5) & 0x1F) - 0x7;
+    }
+    static inline int getChunkZOffset(ui16 chunkOffset) {
+        return (int)(chunkOffset & 0x1F) - 0x7;
+    }
 private:
     enum TreeDir {
         TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
     };
 
     void makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties& props);
+    void generateBranch(ui16 chunkOffset, int x, int y, int z, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props);
     void directionalMove(ui16& blockIndex, ui16 &chunkOffset, TreeDir dir);
    
     std::vector<FloraNode>* m_fNodes;

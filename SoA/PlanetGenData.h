@@ -84,6 +84,7 @@ struct LeafKegProperties {
 struct BranchKegProperties {
     ui32v2 coreWidth;
     ui32v2 barkWidth;
+    ui32v2 length;
     f32v2 branchChance;
     nString coreBlock = "";
     nString barkBlock = "";

@@ -117,7 +117,7 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
 #define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
 #define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
 
-void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
+inline void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
     SET_RANGE(fp, kp, chance);
     auto& it = genData->floraMap.find(kp.flora);
     if (it != genData->floraMap.end()) {
@@ -159,6 +159,7 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
 void setTreeBranchProperties(TreeTypeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
     SET_RANGE(bp, kp, coreWidth);
     SET_RANGE(bp, kp, barkWidth);
+    SET_RANGE(bp, kp, length);
     SET_RANGE(bp, kp, branchChance);
     const Block* b;
     TRY_SET_BLOCK(bp.coreBlockID, b,kp.coreBlock);
@@ -215,7 +216,6 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 const TrunkKegProperties& tkp = kp.trunkProps[j];
                 const Block* b;
                 tp.loc = tkp.loc;
-                // Blocks
                 TRY_SET_BLOCK(tp.barkBlockID, b, tkp.barkBlock);
                 TRY_SET_BLOCK(tp.coreBlockID, b, tkp.coreBlock);
                 // Set ranges
