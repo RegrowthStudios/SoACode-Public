@@ -155,6 +155,10 @@ inline void setBranchProps(TreeBranchProperties& branchProps, const TreeTypeBran
     branchProps.barkBlockID = typeProps.barkBlockID;
     branchProps.barkWidth = AGE_LERP(typeProps.barkWidth);
     branchProps.coreWidth = AGE_LERP(typeProps.coreWidth);
+    branchProps.segments.min = AGE_LERP(typeProps.segments.min);
+    branchProps.segments.max = AGE_LERP(typeProps.segments.max);
+    branchProps.angle = typeProps.angle;
+    branchProps.endSizeMult = typeProps.endSizeMult;
     branchProps.length = AGE_LERP(typeProps.length);
     branchProps.branchChance = AGE_LERP(typeProps.branchChance);
     setLeafProps(branchProps.leafProps, typeProps.leafProps, age);
@@ -188,7 +192,6 @@ inline void addChunkOffset(i32v2& pos, ui16& chunkOffset) {
     // Modulo 32
     pos &= 0x1f;
 }
-
 inline void addChunkOffset(i32v3& pos, ui16& chunkOffset) {
     // Modify chunk offset
     chunkOffset += X_1 * (pos.x / CHUNK_WIDTH); // >> 5 = / 32

@@ -82,10 +82,13 @@ struct LeafKegProperties {
 
 // Must match var names for TreeBranchProperties
 struct BranchKegProperties {
-    ui32v2 coreWidth;
-    ui32v2 barkWidth;
-    ui32v2 length;
-    f32v2 branchChance;
+    ui32v2 coreWidth = ui32v2(0);
+    ui32v2 barkWidth = ui32v2(0);
+    ui32v2 length = ui32v2(0);
+    f32v2 branchChance = f32v2(0.0f);
+    f32v2 angle = f32v2(0.0f);
+    ui32v2 segments[2];
+    f32 endSizeMult = 0.0f;
     nString coreBlock = "";
     nString barkBlock = "";
     FruitKegProperties fruitProps;

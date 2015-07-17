@@ -458,12 +458,29 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         }
     });
 
+    // Parses segments field
+    auto segmentsParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "min") {
+            PARSE_V2(ui32, trunkProps->branchProps.segments[0]);
+        } else if (key == "max") {
+            PARSE_V2(ui32, trunkProps->branchProps.segments[1]);
+        }
+    });
+
     // Parses branch field
     auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "coreWidth") {
             PARSE_V2(ui32, trunkProps->branchProps.coreWidth);
         } else if (key == "barkWidth") {
             PARSE_V2(ui32, trunkProps->branchProps.barkWidth);
+        } else if (key == "length") {
+            PARSE_V2(ui32, trunkProps->branchProps.length);
+        } else if (key == "angle") {
+            PARSE_V2(f32, trunkProps->branchProps.angle);
+        } else if (key == "segments") {
+            context.reader.forAllInMap(value, segmentsParser);
+        } else if (key == "endSizeMult") {
+            keg::evalData((ui8*)&trunkProps->branchProps.endSizeMult, &f32Val, value, context);
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchProps.branchChance);
         } else if (key == "length") {
@@ -544,6 +561,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     context.reader.forAllInMap(node, baseParser);
     delete fruitParser;
     delete leafParser;
+    delete segmentsParser;
     delete branchParser;
     delete slopeParser;
     delete trunkParser;

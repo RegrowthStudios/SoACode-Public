@@ -161,6 +161,12 @@ void setTreeBranchProperties(TreeTypeBranchProperties& bp, const BranchKegProper
     SET_RANGE(bp, kp, barkWidth);
     SET_RANGE(bp, kp, length);
     SET_RANGE(bp, kp, branchChance);
+    SET_RANGE(bp, kp, angle);
+    bp.endSizeMult = kp.endSizeMult;
+    bp.segments.min.min = kp.segments[0].x;
+    bp.segments.min.max = kp.segments[0].y;
+    bp.segments.max.min = kp.segments[1].x;
+    bp.segments.max.max = kp.segments[1].y;
     const Block* b;
     TRY_SET_BLOCK(bp.coreBlockID, b,kp.coreBlock);
     TRY_SET_BLOCK(bp.barkBlockID, b, kp.barkBlock);
