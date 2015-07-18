@@ -62,7 +62,7 @@ private:
     };
 
     void makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties& props);
-    void generateBranch(ui16 chunkOffset, int x, int y, int z, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props);
+    void generateBranch(ui16 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props);
     void directionalMove(ui16& blockIndex, ui16 &chunkOffset, TreeDir dir);
    
     std::vector<FloraNode>* m_fNodes;

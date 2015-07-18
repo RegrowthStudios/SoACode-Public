@@ -56,14 +56,14 @@ struct LeafKegProperties {
     // Union based on type
     union {
         UNIONIZE(struct {
-            ui32v2 radius;
+            i32v2 radius;
         } round;);
         UNIONIZE(struct {
-            ui32v2 width;
-            ui32v2 height;
+            i32v2 width;
+            i32v2 height;
         } cluster;);
         UNIONIZE(struct {
-            ui32v2 thickness;
+            i32v2 thickness;
         } pine;);
         UNIONIZE(struct {
             i32v2 lengthMod;
@@ -82,12 +82,16 @@ struct LeafKegProperties {
 
 // Must match var names for TreeBranchProperties
 struct BranchKegProperties {
-    ui32v2 coreWidth = ui32v2(0);
-    ui32v2 barkWidth = ui32v2(0);
-    ui32v2 length = ui32v2(0);
+    BranchKegProperties() {
+        segments[0] = i32v2(0);
+        segments[1] = i32v2(0);
+    }
+    i32v2 coreWidth = i32v2(0);
+    i32v2 barkWidth = i32v2(0);
+    i32v2 length = i32v2(0);
     f32v2 branchChance = f32v2(0.0f);
     f32v2 angle = f32v2(0.0f);
-    ui32v2 segments[2];
+    i32v2 segments[2];
     f32 endSizeMult = 0.0f;
     nString coreBlock = "";
     nString barkBlock = "";
@@ -98,8 +102,8 @@ struct BranchKegProperties {
 // Must match var names for TreeTrunkProperties
 struct TrunkKegProperties {
     f32 loc = 0.0f;
-    ui32v2 coreWidth;
-    ui32v2 barkWidth;
+    i32v2 coreWidth;
+    i32v2 barkWidth;
     f32v2 branchChance;
     i32v2 slope[2];
     nString coreBlock = "";
@@ -112,7 +116,7 @@ struct TrunkKegProperties {
 // Must match var names for TreeData
 struct TreeKegProperties {
     nString id = "";
-    ui32v2 heightRange = ui32v2(0, 0);
+    i32v2 heightRange = i32v2(0, 0);
     std::vector<TrunkKegProperties> trunkProps;
 };
 

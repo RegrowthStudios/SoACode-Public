@@ -417,7 +417,6 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     FruitKegProperties* fruitProps = nullptr;
     LeafKegProperties* leafProps = nullptr;
     // Custom values, must match PARSE_V2 syntax
-    keg::Value ui32v2Val = keg::Value::basic(0, keg::BasicType::UI32_V2);
     keg::Value ui32Val = keg::Value::basic(0, keg::BasicType::UI32);
     keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
     keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
@@ -447,9 +446,9 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         if (key == "type") {
             keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
         } else if (key == "width") {
-            PARSE_V2(ui32, leafProps->cluster.width);
+            PARSE_V2(i32, leafProps->cluster.width);
         } else if (key == "height") {
-            PARSE_V2(ui32, leafProps->cluster.height);
+            PARSE_V2(i32, leafProps->cluster.height);
         } else if (key == "block") {
             keg::evalData((ui8*)&leafProps->clusterBlock, &stringVal, value, context);
         } else if (key == "fruit") {
@@ -461,20 +460,20 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     // Parses segments field
     auto segmentsParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "min") {
-            PARSE_V2(ui32, trunkProps->branchProps.segments[0]);
+            PARSE_V2(i32, trunkProps->branchProps.segments[0]);
         } else if (key == "max") {
-            PARSE_V2(ui32, trunkProps->branchProps.segments[1]);
+            PARSE_V2(i32, trunkProps->branchProps.segments[1]);
         }
     });
 
     // Parses branch field
     auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "coreWidth") {
-            PARSE_V2(ui32, trunkProps->branchProps.coreWidth);
+            PARSE_V2(i32, trunkProps->branchProps.coreWidth);
         } else if (key == "barkWidth") {
-            PARSE_V2(ui32, trunkProps->branchProps.barkWidth);
+            PARSE_V2(i32, trunkProps->branchProps.barkWidth);
         } else if (key == "length") {
-            PARSE_V2(ui32, trunkProps->branchProps.length);
+            PARSE_V2(i32, trunkProps->branchProps.length);
         } else if (key == "angle") {
             PARSE_V2(f32, trunkProps->branchProps.angle);
         } else if (key == "segments") {
@@ -484,7 +483,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchProps.branchChance);
         } else if (key == "length") {
-            PARSE_V2(ui32, trunkProps->branchProps.length);
+            PARSE_V2(i32, trunkProps->branchProps.length);
         } else if (key == "coreBlock") {
             keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
         } else if (key == "barkBlock") {
@@ -512,9 +511,9 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         if (key == "loc") {
             keg::evalData((ui8*)&trunkProps->loc, &f32Val, value, context);
         } else if (key == "coreWidth") {
-            PARSE_V2(ui32, trunkProps->coreWidth);
+            PARSE_V2(i32, trunkProps->coreWidth);
         } else if (key == "barkWidth") {
-            PARSE_V2(ui32, trunkProps->barkWidth);
+            PARSE_V2(i32, trunkProps->barkWidth);
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchChance);
         } else if (key == "slope") {
@@ -545,7 +544,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     // Parses second level
     auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
-            PARSE_V2(ui32, treeProps->heightRange);
+            PARSE_V2(i32, treeProps->heightRange);
         } else if (key == "trunk") {
             context.reader.forAllInSequence(value, trunkParser);
         }

@@ -2,6 +2,8 @@
 #include "NFloraGenerator.h"
 #include "soaUtils.h"
 
+#include <glm/gtx/quaternion.hpp>
+
 #define X_1 0x400
 #define Y_1 0x20
 #define Z_1 0x1
@@ -36,6 +38,10 @@ inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranch
     rvProps.barkWidth = lerp(a.barkWidth, b.barkWidth, l);
     rvProps.branchChance = lerp(a.branchChance, b.branchChance, l);
     rvProps.length = lerp(a.length, b.length, l);
+    rvProps.angle.min = lerp(a.angle.min, b.angle.min, l);
+    rvProps.angle.max = lerp(a.angle.max, b.angle.max, l);
+    rvProps.segments.min = lerp(a.segments.min, b.segments.min, l);
+    rvProps.segments.max = lerp(a.segments.max, b.segments.max, l);
     // TODO(Ben): Lerp other properties
 }
 
@@ -242,8 +248,19 @@ void NFloraGenerator::makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties
                     ui16 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
-                    generateBranch(chunkOff, pos.x, m_centerY, pos.y, 30.0f, 2.0f,
-                                   glm::normalize(f32v3(dx, 0.0f, dz)), props.branchProps);
+
+                    ui32 segments = round((rand() / (float)RAND_MAX) * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
+                    if (segments > 10) {
+                        std::cout << "AHH";
+                    }
+                    if (segments > 0) {
+                        f32 angle = (rand() / (float)RAND_MAX) * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
+                        // Interpolate the angle
+                        // TODO(Ben): Actual trig instead
+                        f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));
+                        generateBranch(chunkOff, pos.x, m_centerY, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
+                                       dir, props.branchProps);
+                    }
                 }
             }
         }
@@ -268,7 +285,11 @@ inline f32 minDistance(const f32v3& w, const f32v3& v, const f32v3& p) {
     return glm::length(p - projection);
 }
 
-void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props) {
+void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props) {
+    int startX = x;
+    int startY = y;
+    int startZ = z;
+    ui16 startChunkOffset = chunkOffset;
     f32 maxDist = (float)props.length;
 
     f32 width2 = width * width;
@@ -373,16 +394,53 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, f32 
                     m_wNodes->emplace_back(props.barkBlockID, newIndex, chunkOff);
                 } else if (dist2 < width2p1) {
                     // Outer edge, check for branching and fruit
-                    if (rand() / (f32)RAND_MAX < props.branchChance) {
+                    if (segments > 1 && length >= 2.0f && rand() / (f32)RAND_MAX < props.branchChance) {
                         i32v3 pos(x + k, y + i, z + j);
                         ui16 chunkOff = chunkOffset;
                         addChunkOffset(pos, chunkOff);
-                        ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                        m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
+                        f32 m = 1.0f;
+                        f32v3 newDir = glm::normalize(f32v3(dir.x + m * ((f32)rand() / RAND_MAX - 0.5f), dir.y + m * ((f32)rand() / RAND_MAX - 0.5f), dir.z + m * ((f32)rand() / RAND_MAX - 0.5f)));
+                        generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, width - 1.0f, newDir, props);
                     }
                 }
             }
         }
+    }
+    
+
+    // Continue on
+    // TODO(Ben): Not recursion
+    if (segments > 1 && length >= 2.0f) {
+        if (ray.x < 0.0f) {
+            x = (CHUNK_WIDTH - startX) - fastFloor(ray.x);
+            startChunkOffset -= X_1 * (x / CHUNK_WIDTH); // >> 5 = / 32
+            x = CHUNK_WIDTH - (x & 0x1f);
+        } else {
+            x = startX + (int)ray.x;
+            startChunkOffset += X_1 * (x / CHUNK_WIDTH);
+            x &= 0x1f;
+        }
+        if (ray.y < 0.0f) {
+            y = (CHUNK_WIDTH - startY) - fastFloor(ray.y);
+            startChunkOffset -= Y_1 * (y / CHUNK_WIDTH); // >> 5 = / 32
+            y = CHUNK_WIDTH - (y & 0x1f);
+        } else {
+            y = startY + (int)ray.y;
+            startChunkOffset += Y_1 * (y / CHUNK_WIDTH);
+            y &= 0x1f;
+        }
+        if (ray.z < 0.0f) {
+            z = (CHUNK_WIDTH - startZ) - fastFloor(ray.z);
+            startChunkOffset -= Z_1 * (z / CHUNK_WIDTH); // >> 5 = / 32
+            z = CHUNK_WIDTH - (z & 0x1f);
+        } else {
+            z = startZ + (int)ray.z;
+            startChunkOffset += Z_1 * (z / CHUNK_WIDTH);
+            z &= 0x1f;
+        }
+        f32 m = 0.5f;
+        f32v3 newDir = glm::normalize(f32v3(dir.x + m * ((f32)rand() / RAND_MAX - 0.5f), dir.y + m * ((f32)rand() / RAND_MAX - 0.5f), dir.z + m * ((f32)rand() / RAND_MAX - 0.5f)));
+        generateBranch(startChunkOffset, x, y, z, segments - 1, length, width - 1.0f, newDir, props);
     }
 }
 
