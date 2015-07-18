@@ -25,6 +25,13 @@ class ChunkGrid;
 class GameRenderParams;
 class ChunkMemoryManager;
 
+struct ChunkGridVertex {
+public:
+    f32v3 position;
+    f32v2 uv;
+    color4 color;
+};
+
 class ChunkGridRenderStage : public IRenderStage {
 public:
     void hook(const GameRenderParams* gameRenderParams);

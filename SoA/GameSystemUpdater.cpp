@@ -14,7 +14,6 @@
 #include "VoxelSpaceUtils.h"
 
 #include <Vorb/utils.h>
-#include <Vorb/IntersectionUtils.inl>
 
 GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputMapper* inputMapper) :
     m_soaState(soaState),
