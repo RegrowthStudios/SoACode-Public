@@ -38,13 +38,20 @@ public:
 
     // Draws the render stage
     void setState(const MTRenderState* state) { m_state = state; }
+
+    virtual void init(vui::GameWindow* window, StaticLoadContext& context) override;
     virtual void render(const Camera* camera) override;
+    virtual void dispose(StaticLoadContext& context) override;
 private:
+    void drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices);
+
     vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
     const MTRenderState* m_state = nullptr;
 
-    void drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices);
+    GLuint m_vbo;
+    GLuint m_ibo;
+    GLuint m_vao;
 };
 
 #endif // ChunkGridRenderStage_h__

@@ -44,6 +44,12 @@ void ChunkGridRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 
+void ChunkGridRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
+    m_vao = 0;
+    m_vbo = 0;
+    m_ibo = 0;
+}
+
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,
 /// it should not cause a crash. However data may be partially incorrect.
 void ChunkGridRenderStage::render(const Camera* camera) {
@@ -112,19 +118,21 @@ void ChunkGridRenderStage::render(const Camera* camera) {
     if(numVertices != 0) drawGrid(vertices, indices);
 }
 
-void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices) {
-    GLuint vbo;
-    GLuint ibo;
-    GLuint vao;
+void ChunkGridRenderStage::dispose(StaticLoadContext& context) {
+    if(m_vao != 0)  glDeleteVertexArrays(1, &m_vao);
+    if(m_vbo != 0)  glDeleteBuffers(1, &m_vbo);
+    if(m_ibo != 0)  glDeleteBuffers(1, &m_ibo);
+}
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices) {
+    if(m_vao == 0) glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
     // Generate and bind VBO
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    if(m_vbo == 0) glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     // Generate and bind element buffer
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    if(m_ibo == 0) glGenBuffers(1, &m_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 
     // Set attribute arrays
     glEnableVertexAttribArray(0);
@@ -138,13 +146,13 @@ void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::
     glBindVertexArray(0);
 
     // Upload the data
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(ChunkGridVertex)* vertices.size(), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ChunkGridVertex)* vertices.size(), vertices.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     GLuint numVertices = vertices.size();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32)* indices.size(), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(ui32)* indices.size(), indices.data());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -163,15 +171,11 @@ void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::
         &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
     // Draw the grid     
     // Bind the VAO
-    glBindVertexArray(vao);
+    glBindVertexArray(m_vao);
     // Perform draw call
     glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 
     // Unuse the program
     m_program.unuse();
-
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ibo);
 }
