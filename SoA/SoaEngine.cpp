@@ -132,16 +132,16 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
     switch (lp.type) {
         case TreeLeafType::ROUND:
             SET_RANGE(lp, kp, round.radius);
-            TRY_SET_BLOCK(lp.round.blockID, b, kp.roundBlock);
+            TRY_SET_BLOCK(lp.round.blockID, b, kp.block);
             break;
         case TreeLeafType::CLUSTER:
             SET_RANGE(lp, kp, cluster.width);
             SET_RANGE(lp, kp, cluster.height);
-            TRY_SET_BLOCK(lp.cluster.blockID, b, kp.clusterBlock);
+            TRY_SET_BLOCK(lp.cluster.blockID, b, kp.block);
             break;
         case TreeLeafType::PINE:
             SET_RANGE(lp, kp, pine.thickness);
-            TRY_SET_BLOCK(lp.pine.blockID, b, kp.pineBlock);
+            TRY_SET_BLOCK(lp.pine.blockID, b, kp.block);
             break;
         case TreeLeafType::MUSHROOM:
             SET_RANGE(lp, kp, mushroom.lengthMod);

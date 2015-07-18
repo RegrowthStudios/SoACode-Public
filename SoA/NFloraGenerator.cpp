@@ -24,6 +24,59 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
     }
 }
 
+inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProperties& a, const TreeLeafProperties& b, f32 l) {
+    const TreeLeafProperties* blockP;
+    if (l < 0.5f) {
+        blockP = &a;
+    } else {
+        blockP = &b;
+    }
+    rvProps.type = blockP->type;
+    switch (rvProps.type) {
+        case TreeLeafType::CLUSTER:
+            rvProps.cluster.blockID = blockP->cluster.blockID;
+            if (a.type == b.type) {
+                rvProps.cluster.width = lerp(a.cluster.width, b.cluster.width, l);
+                rvProps.cluster.height = lerp(a.cluster.height, b.cluster.height, l);
+            } else {
+                rvProps.cluster.width = blockP->cluster.width;
+                rvProps.cluster.height = blockP->cluster.height;
+            }
+            break;
+        case TreeLeafType::ROUND:
+            rvProps.round.blockID = blockP->round.blockID;
+            if (a.type == b.type) {
+                rvProps.round.radius = lerp(a.round.radius, b.round.radius, l);
+            } else {
+                rvProps.round.radius = blockP->round.radius;
+            }
+            break;
+        case TreeLeafType::PINE:
+            rvProps.pine.blockID = blockP->pine.blockID;
+            if (a.type == b.type) {
+                rvProps.pine.thickness = lerp(a.pine.thickness, b.pine.thickness, l);
+            } else {
+                rvProps.pine.thickness = blockP->pine.thickness;
+            }
+            break;
+        case TreeLeafType::MUSHROOM:
+            rvProps.mushroom.capBlockID = blockP->mushroom.capBlockID;
+            rvProps.mushroom.gillBlockID = blockP->mushroom.gillBlockID;
+            if (a.type == b.type) {
+                rvProps.mushroom.capThickness = lerp(a.mushroom.capThickness, b.mushroom.capThickness, l);
+                rvProps.mushroom.curlLength = lerp(a.mushroom.curlLength, b.mushroom.curlLength, l);
+                rvProps.mushroom.lengthMod = lerp(a.mushroom.lengthMod, b.mushroom.lengthMod, l);
+            } else {
+                rvProps.mushroom.capThickness = blockP->mushroom.capThickness;
+                rvProps.mushroom.curlLength = blockP->mushroom.curlLength;
+                rvProps.mushroom.lengthMod = blockP->mushroom.lengthMod;
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranchProperties& a, const TreeBranchProperties& b, f32 l) {
     // Block IDs
     if (l < 0.5f) {
@@ -42,6 +95,7 @@ inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranch
     rvProps.angle.max = lerp(a.angle.max, b.angle.max, l);
     rvProps.segments.min = lerp(a.segments.min, b.segments.min, l);
     rvProps.segments.max = lerp(a.segments.max, b.segments.max, l);
+    lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
     // TODO(Ben): Lerp other properties
 }
 
@@ -65,6 +119,7 @@ inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkPro
     rvProps.slope.min = lerp(a.slope.min, b.slope.min, l);
     rvProps.slope.max = lerp(a.slope.max, b.slope.max, l);
     lerpBranchProperties(rvProps.branchProps, a.branchProps, b.branchProps, l);
+    lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
     // TODO(Ben): Lerp other properties
 }
 
@@ -219,7 +274,7 @@ void NFloraGenerator::makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties
     // We are inverting and treating negative as positive here so modulus works
     int x = (CHUNK_WIDTH - (int)m_centerX) + width;
     int z = (CHUNK_WIDTH - (int)m_centerZ) + width;
-    chunkOffset -= X_1 * (x / CHUNK_WIDTH); // >> 5 = / 32
+    chunkOffset -= X_1 * (x / CHUNK_WIDTH);
     chunkOffset -= Z_1 * (z / CHUNK_WIDTH);
     // Modulo 32 and invert back to positive
     x = CHUNK_WIDTH - (x & 0x1f);
@@ -331,7 +386,7 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
     // TODO(Ben): Clean this up with a macro or something
     if (minX < 0.0f) {
         x = (CHUNK_WIDTH - x) - iMinX;
-        chunkOffset -= X_1 * (x / CHUNK_WIDTH); // >> 5 = / 32
+        chunkOffset -= X_1 * (x / CHUNK_WIDTH);
         x = CHUNK_WIDTH - (x & 0x1f);
     } else {
         x = x + iMinX;
@@ -342,7 +397,7 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
     end.x -= minX;
     if (minY < 0.0f) {
         y = (CHUNK_WIDTH - y) - iMinY;
-        chunkOffset -= Y_1 * (y / CHUNK_WIDTH); // >> 5 = / 32
+        chunkOffset -= Y_1 * (y / CHUNK_WIDTH);
         y = CHUNK_WIDTH - (y & 0x1f);
     } else {
         y = y + iMinY;
@@ -353,7 +408,7 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
     end.y -= minY;
     if (minZ < 0.0f) {
         z = (CHUNK_WIDTH - z) - iMinZ;
-        chunkOffset -= Z_1 * (z / CHUNK_WIDTH); // >> 5 = / 32
+        chunkOffset -= Z_1 * (z / CHUNK_WIDTH);
         z = CHUNK_WIDTH - (z & 0x1f);
     } else {
         z = z + iMinZ;
@@ -407,40 +462,86 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
         }
     }
     
-
+    if (ray.x < 0.0f) {
+        x = (CHUNK_WIDTH - startX) - fastFloor(ray.x);
+        startChunkOffset -= X_1 * (x / CHUNK_WIDTH); // >> 5 = / 32
+        x = CHUNK_WIDTH - (x & 0x1f);
+    } else {
+        x = startX + (int)ray.x;
+        startChunkOffset += X_1 * (x / CHUNK_WIDTH);
+        x &= 0x1f;
+    }
+    if (ray.y < 0.0f) {
+        y = (CHUNK_WIDTH - startY) - fastFloor(ray.y);
+        startChunkOffset -= Y_1 * (y / CHUNK_WIDTH); // >> 5 = / 32
+        y = CHUNK_WIDTH - (y & 0x1f);
+    } else {
+        y = startY + (int)ray.y;
+        startChunkOffset += Y_1 * (y / CHUNK_WIDTH);
+        y &= 0x1f;
+    }
+    if (ray.z < 0.0f) {
+        z = (CHUNK_WIDTH - startZ) - fastFloor(ray.z);
+        startChunkOffset -= Z_1 * (z / CHUNK_WIDTH); // >> 5 = / 32
+        z = CHUNK_WIDTH - (z & 0x1f);
+    } else {
+        z = startZ + (int)ray.z;
+        startChunkOffset += Z_1 * (z / CHUNK_WIDTH);
+        z &= 0x1f;
+    }
     // Continue on
     // TODO(Ben): Not recursion
     if (segments > 1 && length >= 2.0f) {
-        if (ray.x < 0.0f) {
-            x = (CHUNK_WIDTH - startX) - fastFloor(ray.x);
-            startChunkOffset -= X_1 * (x / CHUNK_WIDTH); // >> 5 = / 32
-            x = CHUNK_WIDTH - (x & 0x1f);
-        } else {
-            x = startX + (int)ray.x;
-            startChunkOffset += X_1 * (x / CHUNK_WIDTH);
-            x &= 0x1f;
-        }
-        if (ray.y < 0.0f) {
-            y = (CHUNK_WIDTH - startY) - fastFloor(ray.y);
-            startChunkOffset -= Y_1 * (y / CHUNK_WIDTH); // >> 5 = / 32
-            y = CHUNK_WIDTH - (y & 0x1f);
-        } else {
-            y = startY + (int)ray.y;
-            startChunkOffset += Y_1 * (y / CHUNK_WIDTH);
-            y &= 0x1f;
-        }
-        if (ray.z < 0.0f) {
-            z = (CHUNK_WIDTH - startZ) - fastFloor(ray.z);
-            startChunkOffset -= Z_1 * (z / CHUNK_WIDTH); // >> 5 = / 32
-            z = CHUNK_WIDTH - (z & 0x1f);
-        } else {
-            z = startZ + (int)ray.z;
-            startChunkOffset += Z_1 * (z / CHUNK_WIDTH);
-            z &= 0x1f;
-        }
+        
         f32 m = 0.5f;
         f32v3 newDir = glm::normalize(f32v3(dir.x + m * ((f32)rand() / RAND_MAX - 0.5f), dir.y + m * ((f32)rand() / RAND_MAX - 0.5f), dir.z + m * ((f32)rand() / RAND_MAX - 0.5f)));
         generateBranch(startChunkOffset, x, y, z, segments - 1, length, width - 1.0f, newDir, props);
+    } else {
+        // Finish with leaves
+        generateLeaves(startChunkOffset, x, y, z, props.leafProps);
+    }
+}
+
+inline void NFloraGenerator::generateLeaves(ui16 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
+    // TODO(Ben): OTHER TYPES
+    switch (props.type) {
+        case TreeLeafType::ROUND:
+            generateRoundLeaves(chunkOffset, x, y, z, props);
+            break;
+        default:
+            break;
+    }
+}
+
+void NFloraGenerator::generateRoundLeaves(ui16 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
+    int radius = (int)(props.round.radius);
+    int radius2 = radius * radius;
+    // Get position at back left corner
+    // We are inverting and treating negative as positive here so modulus works
+    x = (CHUNK_WIDTH - x) + radius;
+    y = (CHUNK_WIDTH - y) + radius;
+    z = (CHUNK_WIDTH - z) + radius;
+    chunkOffset -= X_1 * (x / CHUNK_WIDTH);
+    chunkOffset -= Y_1 * (y / CHUNK_WIDTH);
+    chunkOffset -= Z_1 * (z / CHUNK_WIDTH);
+    // Modulo 32 and invert back to positive
+    x = CHUNK_WIDTH - (x & 0x1f);
+    y = CHUNK_WIDTH - (y & 0x1f);
+    z = CHUNK_WIDTH - (z & 0x1f);
+
+    for (int dy = -radius; dy <= radius; ++dy) {
+        for (int dz = -radius; dz <= radius; ++dz) {
+            for (int dx = -radius; dx <= radius; ++dx) {
+                int dist2 = dx * dx + dy * dy + dz * dz;
+                if (dist2 <= radius2) {
+                    i32v3 pos(x + dx + radius, y + dy + radius, z + dz + radius);
+                    ui16 chunkOff = chunkOffset;
+                    addChunkOffset(pos, chunkOff);
+                    ui16 blockIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
+                    m_fNodes->emplace_back(props.round.blockID, blockIndex, chunkOff);
+                }
+            }
+        }
     }
 }
 

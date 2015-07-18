@@ -73,9 +73,7 @@ struct LeafKegProperties {
         } mushroom;);
     };
     // Don't put strings in unions
-    nString roundBlock = "";
-    nString clusterBlock = "";
-    nString pineBlock = "";
+    nString block = "";
     nString mushGillBlock = "";
     nString mushCapBlock = "";
 };

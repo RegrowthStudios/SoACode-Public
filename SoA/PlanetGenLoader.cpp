@@ -445,12 +445,14 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         // TODO(Ben): Other leaf types
         if (key == "type") {
             keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
+        } else if (key == "radius") {
+            PARSE_V2(i32, leafProps->round.radius);
         } else if (key == "width") {
             PARSE_V2(i32, leafProps->cluster.width);
         } else if (key == "height") {
             PARSE_V2(i32, leafProps->cluster.height);
         } else if (key == "block") {
-            keg::evalData((ui8*)&leafProps->clusterBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&leafProps->block, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &leafProps->fruitProps;
             context.reader.forAllInMap(value, fruitParser);
