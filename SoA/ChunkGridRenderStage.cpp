@@ -107,69 +107,71 @@ void ChunkGridRenderStage::render(const Camera* camera) {
             numIndices += 24;
         }
     }
-    
-    // Check if a non-empty mesh was built
-    if (numVertices != 0) {
-        GLuint vbo;
-        GLuint ibo;
-        GLuint vao;
 
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        // Generate and bind VBO
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        // Generate and bind element buffer
-        glGenBuffers(1, &ibo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    // Check for non-empty mesh then draw
+    if(numVertices != 0) drawGrid(vertices, indices);
+}
 
-        // Set attribute arrays
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
-        // Set attribute pointers
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, position));
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, color));
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, uv));
-        // Unbind VAO
-        glBindVertexArray(0);
+void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices) {
+    GLuint vbo;
+    GLuint ibo;
+    GLuint vao;
 
-        // Upload the data
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(ChunkGridVertex)* vertices.size(), nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ChunkGridVertex)* vertices.size(), vertices.data());
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        numVertices = vertices.size();
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    // Generate and bind VBO
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // Generate and bind element buffer
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32)* indices.size(), nullptr, GL_STATIC_DRAW);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(ui32)* indices.size(), indices.data());
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        
-        GLsizei numIndices = (GLsizei)indices.size();
+    // Set attribute arrays
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    // Set attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, position));
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, color));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, uv));
+    // Unbind VAO
+    glBindVertexArray(0);
 
-        // Lazily initialize shader
-        if (!m_program.isCreated()) m_program = ShaderLoader::createProgram("ChunkLine", VERT_SRC, FRAG_SRC);
+    // Upload the data
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ChunkGridVertex)* vertices.size(), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ChunkGridVertex)* vertices.size(), vertices.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLuint numVertices = vertices.size();
 
-        // Bind the program
-        m_program.use();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32)* indices.size(), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(ui32)* indices.size(), indices.data());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        // Set Matrix
-        glUniformMatrix4fv(m_program.getUniform("MVP"), 1,
-                           GL_FALSE,
-                           &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
-        // Draw the grid     
-        // Bind the VAO
-        glBindVertexArray(vao);
-        // Perform draw call
-        glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
+    GLsizei numIndices = (GLsizei)indices.size();
 
-        // Unuse the program
-        m_program.unuse();
+    // Lazily initialize shader
+    if(!m_program.isCreated()) m_program = ShaderLoader::createProgram("ChunkLine", VERT_SRC, FRAG_SRC);
 
-        glDeleteVertexArrays(1, &vao);
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ibo);
-    }
+    // Bind the program
+    m_program.use();
+
+    // Set Matrix
+    glUniformMatrix4fv(m_program.getUniform("MVP"), 1,
+        GL_FALSE,
+        &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
+    // Draw the grid     
+    // Bind the VAO
+    glBindVertexArray(vao);
+    // Perform draw call
+    glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+
+    // Unuse the program
+    m_program.unuse();
+
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ibo);
 }

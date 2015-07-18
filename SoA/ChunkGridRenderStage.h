@@ -43,6 +43,8 @@ private:
     vg::GLProgram m_program;
     const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
     const MTRenderState* m_state = nullptr;
+
+    void drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices);
 };
 
 #endif // ChunkGridRenderStage_h__
