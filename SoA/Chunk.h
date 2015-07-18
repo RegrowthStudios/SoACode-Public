@@ -84,6 +84,8 @@ public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
+    // TODO(Ben): I don't think this has to be shared_ptr
+    // The reason it is, is because of meshing, but there is a workaround.
     std::shared_ptr<ChunkGridData> gridData = nullptr;
     MetaFieldInformation meta;    
     union {
@@ -109,6 +111,8 @@ public:
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
+    // Block IDs where flora must be generated.
+    std::vector<ui16> floraToGenerate;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;

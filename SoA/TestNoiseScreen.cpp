@@ -9,6 +9,7 @@
 #include "Errors.h"
 #include "ShaderLoader.h"
 #include "Noise.h"
+#include "soaUtils.h"
 
 #define MS_AVARAGE_FRAMES 60
 

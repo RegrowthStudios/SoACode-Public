@@ -137,6 +137,27 @@ inline bool dumpFramebufferImage(const nString& rootDir, const ui32v4& viewport)
     return true;
 }
 
+//No idea how this works. Something to do with prime numbers, but returns # between -1 and 1
+inline f64 pseudoRand(int x, int z) {
+    int n = (x & 0xFFFF) + ((z & 0x7FFF) << 16);
+    n = (n << 13) ^ n;
+    int nn = (n*(n*n * 60493 + z * 19990303) + x * 1376312589) & 0x7fffffff;
+    return ((f64)nn / 1073741824.0);
+}
+
+// Thread safe version of intel's fast random number generator
+// https://software.intel.com/en-us/articles/fast-random-number-generator-on-the-intel-pentiumr-4-processor
+inline ui32 fastRand(ui32 seed) {
+    return ((214013u * seed + 2531011u) >> 16) & RAND_MAX;
+}
+// Slightly faster than pseudoRand
+inline ui32 fastRand(ui32 x, ui32 y) {
+    x = ((214013u * x + 2531011u) >> 16u) & RAND_MAX;
+    y = ((214013u * y + 2531011u) >> 16u) & RAND_MAX;
+    // Use cantor pairing function
+    return (((x + y) * (x + y + 1)) >> 1u) + x;
+}
+
 // Math stuff //TODO(Ben): Move this to vorb?
 // atan2 approximation for doubles for GLSL
 // using http://lolengine.net/wiki/doc/maths/remez
