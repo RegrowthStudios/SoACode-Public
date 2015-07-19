@@ -770,33 +770,11 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node nod
     }
 
     if (kegProps.colorPath.size()) {
-        // Handle RPC for texture upload
-        if (m_glRpc) {
-            vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                //m_textureCache.freeTexture(kegProps.colorPath);
-                //genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                //                                                     genData->terrainColorPixels,
-                //                                                     vg::ImageIOFormat::RGB_UI8,
-                //                                                     vg::TextureTarget::TEXTURE_2D,
-                //                                                     &vg::SamplerState::LINEAR_CLAMP,
-                //                                                     vg::TextureInternalFormat::RGB8,
-                //                                                     vg::TextureFormat::RGB, true);
-            });
-            m_glRpc->invoke(&rpc, true);
-        } else {
-            //m_textureCache.freeTexture(kegProps.colorPath);
-            //genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-            //                                                     genData->terrainColorPixels,
-            //                                                     vg::ImageIOFormat::RGB_UI8,
-            //                                                     vg::TextureTarget::TEXTURE_2D,
-            //                                                     &vg::SamplerState::LINEAR_CLAMP,
-            //                                                     vg::TextureInternalFormat::RGB8,
-            //                                                     vg::TextureFormat::RGB, true);
-        }
-        // Turn into a color map
-        if (genData->terrainColorMap.id == 0) {
-            vg::ImageIO::free(genData->terrainColorPixels);
+        vio::Path p;
+        if (m_iom->resolvePath(kegProps.colorPath, p)) {
+            // Handle RPC for texture upload
+            genData->terrainColorPixels = vg::ImageIO().load(p, vg::ImageIOFormat::RGB_UI8,
+                                                             true);
         }
     }
     // TODO(Ben): stop being lazy and copy pasting

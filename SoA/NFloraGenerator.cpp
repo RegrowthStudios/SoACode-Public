@@ -4,8 +4,8 @@
 
 #include <glm/gtx/quaternion.hpp>
 
-#define X_1 0x400
-#define Y_1 0x20
+#define X_1 0x100000
+#define Y_1 0x400
 #define Z_1 0x1
 
 void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes) {
@@ -123,7 +123,7 @@ inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkPro
     // TODO(Ben): Lerp other properties
 }
 
-void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui16 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
+void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     // Get the properties for this tree
     generateTreeProperties(type, age, m_treeData);
 
@@ -170,7 +170,7 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     }
 }
 
-void NFloraGenerator::generateFlora(FloraData type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui16 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
+void NFloraGenerator::generateFlora(FloraData type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     // TODO(Ben): Multiblock flora
     fNodes.emplace_back(type.block, blockIndex, chunkOffset);
 }
@@ -246,14 +246,14 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
 }
 #undef AGE_LERP
 
-inline void addChunkOffset(i32v2& pos, ui16& chunkOffset) {
+inline void addChunkOffset(i32v2& pos, ui32& chunkOffset) {
     // Modify chunk offset
     chunkOffset += X_1 * (pos.x / CHUNK_WIDTH); // >> 5 = / 32
     chunkOffset += Z_1 * (pos.y / CHUNK_WIDTH);
     // Modulo 32
     pos &= 0x1f;
 }
-inline void addChunkOffset(i32v3& pos, ui16& chunkOffset) {
+inline void addChunkOffset(i32v3& pos, ui32& chunkOffset) {
     // Modify chunk offset
     chunkOffset += X_1 * (pos.x / CHUNK_WIDTH); // >> 5 = / 32
     chunkOffset += Y_1 * (pos.y / CHUNK_WIDTH);
@@ -263,7 +263,7 @@ inline void addChunkOffset(i32v3& pos, ui16& chunkOffset) {
 }
 
 // TODO(Ben): Need to handle different shapes than just round
-void NFloraGenerator::makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties& props) {
+void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props) {
     // This function is so clever
     int width = (int)(props.coreWidth + props.barkWidth);
     int innerWidth2 = (int)(props.coreWidth * props.coreWidth);
@@ -287,7 +287,7 @@ void NFloraGenerator::makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties
             int dist2 = dx * dx + dz * dz;
             if (dist2 <= width2) {
                 i32v2 pos(x + dx + width, z + dz + width);
-                ui16 chunkOff = chunkOffset;
+                ui32 chunkOff = chunkOffset;
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
                 if (dist2 < innerWidth2) {
@@ -300,7 +300,7 @@ void NFloraGenerator::makeTrunkSlice(ui16 chunkOffset, const TreeTrunkProperties
                 float r = rand() / (float)RAND_MAX;
                 if (r < props.branchChance) {
                     i32v2 pos(x + dx + width, z + dz + width);
-                    ui16 chunkOff = chunkOffset;
+                    ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
 
@@ -340,11 +340,11 @@ inline f32 minDistance(const f32v3& w, const f32v3& v, const f32v3& p) {
     return glm::length(p - projection);
 }
 
-void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props) {
+void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props) {
     int startX = x;
     int startY = y;
     int startZ = z;
-    ui16 startChunkOffset = chunkOffset;
+    ui32 startChunkOffset = chunkOffset;
     f32 maxDist = (float)props.length;
 
     f32 width2 = width * width;
@@ -443,7 +443,7 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
                 
                 if (dist2 < width2) {
                     i32v3 pos(x + k, y + i, z + j);
-                    ui16 chunkOff = chunkOffset;
+                    ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
                     m_wNodes->emplace_back(props.barkBlockID, newIndex, chunkOff);
@@ -451,7 +451,7 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
                     // Outer edge, check for branching and fruit
                     if (segments > 1 && length >= 2.0f && rand() / (f32)RAND_MAX < props.branchChance) {
                         i32v3 pos(x + k, y + i, z + j);
-                        ui16 chunkOff = chunkOffset;
+                        ui32 chunkOff = chunkOffset;
                         addChunkOffset(pos, chunkOff);
                         f32 m = 1.0f;
                         f32v3 newDir = glm::normalize(f32v3(dir.x + m * ((f32)rand() / RAND_MAX - 0.5f), dir.y + m * ((f32)rand() / RAND_MAX - 0.5f), dir.z + m * ((f32)rand() / RAND_MAX - 0.5f)));
@@ -502,7 +502,7 @@ void NFloraGenerator::generateBranch(ui16 chunkOffset, int x, int y, int z, ui32
     }
 }
 
-inline void NFloraGenerator::generateLeaves(ui16 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
+inline void NFloraGenerator::generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
     // TODO(Ben): OTHER TYPES
     switch (props.type) {
         case TreeLeafType::ROUND:
@@ -513,7 +513,7 @@ inline void NFloraGenerator::generateLeaves(ui16 chunkOffset, int x, int y, int 
     }
 }
 
-void NFloraGenerator::generateRoundLeaves(ui16 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
+void NFloraGenerator::generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
     int radius = (int)(props.round.radius);
     int radius2 = radius * radius;
     // Get position at back left corner
@@ -532,10 +532,10 @@ void NFloraGenerator::generateRoundLeaves(ui16 chunkOffset, int x, int y, int z,
     for (int dy = -radius; dy <= radius; ++dy) {
         for (int dz = -radius; dz <= radius; ++dz) {
             for (int dx = -radius; dx <= radius; ++dx) {
-                int dist2 = dx * dx + dy * dy + dz * dz;
+                int dist2 = dx * dx + dy * dy + dz * dz + rand() % 3;
                 if (dist2 <= radius2) {
                     i32v3 pos(x + dx + radius, y + dy + radius, z + dz + radius);
-                    ui16 chunkOff = chunkOffset;
+                    ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
                     m_fNodes->emplace_back(props.round.blockID, blockIndex, chunkOff);
@@ -545,7 +545,7 @@ void NFloraGenerator::generateRoundLeaves(ui16 chunkOffset, int x, int y, int z,
     }
 }
 
-void NFloraGenerator::directionalMove(ui16& blockIndex, ui16 &chunkOffset, TreeDir dir) {
+void NFloraGenerator::directionalMove(ui16& blockIndex, ui32 &chunkOffset, TreeDir dir) {
     // Constants for chunkOffset
     // TODO(Ben): Optimize out the modulus
 

@@ -34,6 +34,7 @@ public:
     void update(const vui::GameTime& gameTime) override;
     void draw(const vui::GameTime& gameTime) override;
 private:
+    void initHeightData();
     void initChunks();
     void initInput();
 
