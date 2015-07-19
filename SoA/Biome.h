@@ -46,9 +46,9 @@ struct BiomeFlora {
 struct BlockLayer {
     ui32 start;
     ui32 width;
-    ui32 block = 0;
+    ui16 block = 0;
+    ui16 surfaceTransform = 0; ///< This block is used on surface
 };
-KEG_TYPE_DECL(BlockLayer);
 
 #define BIOME_MAP_WIDTH 256
 

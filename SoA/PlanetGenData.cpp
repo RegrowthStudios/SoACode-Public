@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "PlanetGenData.h"
 
+KEG_TYPE_DEF_SAME_NAME(BlockLayerKegProperties, kt) {
+    using namespace keg;
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockLayerKegProperties, block, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockLayerKegProperties, surfaceTransform, STRING);
+    kt.addValue("width", Value::basic(offsetof(BlockLayerKegProperties, width), BasicType::UI32));
+}
+
 KEG_TYPE_DEF_SAME_NAME(LiquidColorKegProperties, kt) {
     KEG_TYPE_INIT_ADD_MEMBER(kt, LiquidColorKegProperties, colorPath, STRING);
     KEG_TYPE_INIT_ADD_MEMBER(kt, LiquidColorKegProperties, texturePath, STRING);

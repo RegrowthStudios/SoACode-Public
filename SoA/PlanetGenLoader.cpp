@@ -119,8 +119,6 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
             parseBlockLayers(context, value, genData);
         } else if (type == "liquidBlock") {
             genData->blockInfo.liquidBlockName = keg::convert<nString>(value);
-        } else if (type == "surfaceBlock") {
-            genData->blockInfo.surfaceBlockName = keg::convert<nString>(value);
         }
     });
     context.reader.forAllInMap(node, f);
@@ -819,21 +817,11 @@ void PlanetGenLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node
     }
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
-        // Add a block
-        genData->blockInfo.blockLayerNames.emplace_back(name);
-        genData->blockLayers.emplace_back();
-
-        BlockLayer& l = genData->blockLayers.back();
-        // Load data
-        keg::parse((ui8*)&l, value, context, &KEG_GLOBAL_TYPE(BlockLayer));
+        BlockLayerKegProperties layerProps = {};
+        layerProps.block = name;
+        keg::parse((ui8*)&layerProps, value, context, &KEG_GLOBAL_TYPE(BlockLayerKegProperties));
+        genData->blockInfo.blockLayers.push_back(layerProps);
     });
     context.reader.forAllInMap(node, f);
     delete f;
-
-    // Set starts for binary search application
-    int start = 0;
-    for (auto& l : genData->blockLayers) {
-        l.start = start;
-        start += l.width;
-    }
 }

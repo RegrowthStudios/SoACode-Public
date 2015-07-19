@@ -117,12 +117,19 @@ struct TreeKegProperties {
     std::vector<TrunkKegProperties> trunkProps;
 };
 
+struct BlockLayerKegProperties {
+    nString block = "";
+    nString surfaceTransform = "";
+    ui32 width = 0;
+};
+KEG_TYPE_DECL(BlockLayerKegProperties);
+
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
     std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
     std::map<const Biome*, std::vector<BiomeTreeKegProperties>> biomeTrees;
     std::vector<TreeKegProperties> trees;
-    std::vector<nString> blockLayerNames;
+    std::vector<BlockLayerKegProperties> blockLayers;
     std::vector<nString> floraBlockNames;
     nString liquidBlockName = "";
     nString surfaceBlockName = "";

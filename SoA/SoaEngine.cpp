@@ -176,10 +176,35 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
     PlanetBlockInitInfo& blockInfo = genData->blockInfo;
     if (genData) {
         // Set all block layers
-        for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
-            ui16 blockID = blocks[blockInfo.blockLayerNames[i]].ID;
-            genData->blockLayers[i].block = blockID;
+        genData->blockLayers.resize(blockInfo.blockLayers.size());
+        for (size_t i = 0; i < blockInfo.blockLayers.size(); i++) {
+            BlockLayerKegProperties& kp = blockInfo.blockLayers[i];
+            BlockLayer& l = genData->blockLayers[i];
+            l.width = kp.width;
+            const Block* b = blocks.hasBlock(kp.block);
+            if (b) {
+                l.block = b->ID;
+            } else {
+                l.block = 0;
+            }
+            if (kp.surfaceTransform.size()) {
+                b = blocks.hasBlock(kp.surfaceTransform);
+                if (b) {
+                    l.surfaceTransform = b->ID;
+                } else {
+                    l.surfaceTransform = l.block;
+                }
+            } else {
+                l.surfaceTransform = l.block;
+            }
         }
+        // Set starts for binary search application
+        int start = 0;
+        for (auto& l : genData->blockLayers) {
+            l.start = start;
+            start += l.width;
+        }
+
         // Set liquid block
         if (blockInfo.liquidBlockName.length()) {
             if (blocks.hasBlock(blockInfo.liquidBlockName)) {

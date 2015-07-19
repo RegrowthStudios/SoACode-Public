@@ -1002,7 +1002,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
     { // Look-Behind Greedy Merging(tm)
-        if (0 && quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
             ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
             // Check left merge
@@ -1026,7 +1026,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
             }
         }
         // Check back merge
-        if (0 && quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
             int backIndex = m_quadIndices[blockIndex + backOffset][face];
             if (backIndex != NO_QUAD_INDEX) {
