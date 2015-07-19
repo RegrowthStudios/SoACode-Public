@@ -84,10 +84,10 @@ public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
-    // TODO(Ben): I don't think this has to be shared_ptr
-    // The reason it is, is because of meshing, but there is a workaround.
-    std::shared_ptr<ChunkGridData> gridData = nullptr;
-    MetaFieldInformation meta;    
+    // Everything else uses this grid data handle
+    ChunkGridData* gridData = nullptr;
+    PlanetHeightData* heightData = nullptr;
+    MetaFieldInformation meta;
     union {
         struct {
             ChunkPtr left, right, bottom, top, back, front;

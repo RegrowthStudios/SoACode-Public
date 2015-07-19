@@ -275,10 +275,15 @@ void TestBiomeScreen::initChunks() {
         pos.pos.x = gridPosition.x - HORIZONTAL_CHUNKS / 2;
         pos.pos.y = gridPosition.y - VERTICAL_CHUNKS / 4;
         pos.pos.z = gridPosition.z - HORIZONTAL_CHUNKS / 2;
+        // Init parameters
         m_chunks[i].chunk = new Chunk;
         m_chunks[i].chunk->init(i, pos);
         m_chunks[i].gridPosition = gridPosition;
-        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData);
+        m_chunks[i].chunk->gridData = &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)];
+        m_chunks[i].chunk->heightData = m_chunks[i].chunk->gridData->heightData;
+        // Generate the chunk
+        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->heightData);
+        // Decompress to flat array
         m_chunks[i].chunk->blocks.setArrayRecycler(&m_blockArrayRecycler);
         m_chunks[i].chunk->blocks.changeState(vvox::VoxelStorageState::FLAT_ARRAY, m_chunks[i].chunk->mutex);
     }

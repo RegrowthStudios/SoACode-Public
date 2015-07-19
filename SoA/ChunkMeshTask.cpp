@@ -48,6 +48,7 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     msg.chunkID = chunk->getID();
     // We no longer care about chunk
     depFlushList->enqueue(chunk);
+    chunk = nullptr;
     // Create the actual mesh
     msg.data = workerData->chunkMesher->createChunkMeshData(type);
 

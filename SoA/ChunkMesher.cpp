@@ -54,7 +54,7 @@ const int FACE_AXIS[6][2] = { { 2, 1 }, { 2, 1 }, { 0, 2 }, { 0, 2 }, { 0, 1 }, 
 
 const int FACE_AXIS_SIGN[6][2] = { { 1, 1 }, { -1, 1 }, { 1, 1 }, { -1, 1 }, { -1, 1 }, { 1, 1 } };
 
-ChunkGridData ChunkMesher::defaultChunkGridData = {};
+PlanetHeightData ChunkMesher::defaultChunkHeightData[CHUNK_LAYER] = {};
 
 void ChunkMesher::init(const BlockPack* blocks) {
     this->blocks = blocks;
@@ -95,10 +95,11 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
 
     wSize = 0;
     chunk = chunk;
-    m_chunkGridDataHandle = chunk->gridData;
-    m_chunkGridData = m_chunkGridDataHandle.get();
-    // Use default when none is provided
-    if (!m_chunkGridData) m_chunkGridData = &defaultChunkGridData;
+    if (chunk->heightData) {
+        m_chunkHeightData = chunk->gridData->heightData;
+    } else {
+        m_chunkHeightData = defaultChunkHeightData;
+    }
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
@@ -295,10 +296,13 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
 
     wSize = 0;
     chunk = chunk;
-    m_chunkGridDataHandle = chunk->gridData;
-    m_chunkGridData = m_chunkGridDataHandle.get();
-    // Use default when none is provided
-    if (!m_chunkGridData) m_chunkGridData = &defaultChunkGridData;
+    if (chunk->heightData) {
+        // If its async we copy to avoid storing a shared_ptr
+        memcpy(heightDataBuffer, chunk->heightData, sizeof(heightData));
+        m_chunkHeightData = heightDataBuffer;
+    } else {
+        m_chunkHeightData = defaultChunkHeightData;
+    }
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
@@ -540,7 +544,7 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
                 blockIndex = (by + 1) * PADDED_CHUNK_LAYER + (bz + 1) * PADDED_CHUNK_WIDTH + (bx + 1);
                 blockID = blockData[blockIndex];
                 if (blockID == 0) continue; // Skip air blocks
-                heightData = &m_chunkGridData->heightData[bz * CHUNK_WIDTH + bx];
+                heightData = &m_chunkHeightData[bz * CHUNK_WIDTH + bx];
                 block = &blocks->operator[](blockID);
                 // TODO(Ben) Don't think bx needs to be member
                 voxelPosOffset = ui8v3(bx * QUAD_SIZE, by * QUAD_SIZE, bz * QUAD_SIZE);
@@ -620,8 +624,6 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
         renderData.highestZ = m_highestZ;
         renderData.lowestZ = m_lowestZ;
     }
-
-    m_chunkGridDataHandle.reset();
 
     return m_chunkMeshData;
 }

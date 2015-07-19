@@ -9,7 +9,7 @@
 #define Z_1 0x1
 
 void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes) {
-    f32 age = rand() / (float)RAND_MAX; //TODO(Ben): Temporary
+    f32 age = 1.0;// rand() / (float)RAND_MAX; //TODO(Ben): Temporary
     // Iterate all block indices where flora must be generated
     for (auto& blockIndex : chunk->floraToGenerate) {
         const PlanetHeightData& hd = heightData[blockIndex & 0x3FF]; // & 0x3FF = % CHUNK_LAYER

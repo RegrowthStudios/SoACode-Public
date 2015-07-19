@@ -18,6 +18,7 @@ const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
 const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
 // each worker thread gets one of these
+// This class is too big to statically allocate
 class ChunkMesher {
 public:
     void init(const BlockPack* blocks);
@@ -55,6 +56,8 @@ public:
     const PlanetHeightData* heightData;
     ui8v3 voxelPosOffset;
 
+    // Heightmap data
+    PlanetHeightData heightDataBuffer[CHUNK_LAYER];
     // Voxel data arrays
     ui16 blockData[PADDED_CHUNK_SIZE];
     ui16 tertiaryData[PADDED_CHUNK_SIZE];
@@ -104,10 +107,9 @@ private:
     int m_lowestZ;
 
     Chunk* chunk; ///< The chunk we are currently meshing;
-    std::shared_ptr<ChunkGridData> m_chunkGridDataHandle; ///< current grid data
-    ChunkGridData* m_chunkGridData;
+    const PlanetHeightData* m_chunkHeightData;
 
-    static ChunkGridData defaultChunkGridData;
+    static PlanetHeightData defaultChunkHeightData[CHUNK_LAYER];
 
     int wSize;
 
