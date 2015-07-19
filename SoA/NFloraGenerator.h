@@ -65,6 +65,8 @@ private:
     void generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props);
     void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateClusterLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateYSlice(ui32 chunkOffset, int x, int y, int z, int radius, ui16 blockID, std::vector<FloraNode>& nodes);
     void directionalMove(ui16& blockIndex, ui32 &chunkOffset, TreeDir dir);
    
     std::vector<FloraNode>* m_fNodes;
