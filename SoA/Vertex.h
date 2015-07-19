@@ -70,7 +70,8 @@ struct BlockVertex {
     // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.
     bool operator==(const BlockVertex& rhs) const {
         return (color == rhs.color && overlayColor == rhs.overlayColor &&
-                textureAtlas == rhs.textureAtlas && textureIndex == rhs.textureIndex);
+                textureAtlas == rhs.textureAtlas && textureIndex == rhs.textureIndex &&
+                overlayTextureAtlas == rhs.overlayTextureAtlas && overlayTextureIndex == rhs.overlayTextureIndex);
     }
 };
 

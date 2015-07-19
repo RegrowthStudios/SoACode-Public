@@ -63,6 +63,8 @@ public:
     ui16 tertiaryData[PADDED_CHUNK_SIZE];
 
     const BlockPack* blocks = nullptr;
+
+    VoxelPosition3D chunkVoxelPos;
 private:
     void addBlock();
     void addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]);
@@ -106,7 +108,6 @@ private:
     int m_highestZ;
     int m_lowestZ;
 
-    Chunk* chunk; ///< The chunk we are currently meshing;
     const PlanetHeightData* m_chunkHeightData;
 
     static PlanetHeightData defaultChunkHeightData[CHUNK_LAYER];

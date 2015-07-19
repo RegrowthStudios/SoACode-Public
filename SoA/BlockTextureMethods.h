@@ -52,16 +52,21 @@ public:
     ColorRGB8* color = nullptr;
 };
 
-typedef std::function <void(BlockTextureMethodParams& params, BlockTextureIndex& result)> BlockTextureFunc;
+struct BlockTextureMethodData {
+    BlockTextureIndex index;
+    ui32v2 size;
+};
+
+typedef std::function <void(BlockTextureMethodParams& params, BlockTextureMethodData& result)> BlockTextureFunc;
 
 namespace BlockTextureMethods {
-    inline void getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) { /* Do nothing */ };
-    extern void getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
-    extern void getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
-    extern void getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
-    extern void getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
-    extern void getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
-    extern void getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result);
+    extern void getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    extern void getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    extern void getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    extern void getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    extern void getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    extern void getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    extern void getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
 }
 
 #endif // BlockTextureMethods_h__

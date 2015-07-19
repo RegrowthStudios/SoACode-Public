@@ -94,7 +94,7 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
     i32v3 pos;
 
     wSize = 0;
-    chunk = chunk;
+    chunkVoxelPos = chunk->getVoxelPosition();
     if (chunk->heightData) {
         m_chunkHeightData = chunk->gridData->heightData;
     } else {
@@ -295,7 +295,7 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
     i32v3 pos;
 
     wSize = 0;
-    chunk = chunk;
+    chunkVoxelPos = chunk->getVoxelPosition();
     if (chunk->heightData) {
         // If its async we copy to avoid storing a shared_ptr
         memcpy(heightDataBuffer, chunk->heightData, sizeof(heightData));
@@ -921,26 +921,20 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     // Get texturing parameters
     ui8 blendMode = getBlendMode(texture->blendMode);
     // TODO(Ben): Make this better
-    BlockTextureIndex baseTextureIndex = texture->base.getBlockTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
-    BlockTextureIndex baseNormTextureIndex = texture->base.getNormalTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
-    BlockTextureIndex baseDispTextureIndex = texture->base.getDispTextureIndex(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX]);
-    BlockTextureIndex overlayTextureIndex = texture->overlay.getBlockTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
-    BlockTextureIndex overlayNormTextureIndex = texture->overlay.getNormalTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
-    BlockTextureIndex overlayDispTextureIndex = texture->overlay.getDispTextureIndex(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX]);
+    BlockTextureMethodData methodDatas[6];
+    texture->base.getBlockTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[0]);
+    texture->base.getNormalTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[1]);
+    texture->base.getDispTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[2]);
+    texture->overlay.getBlockTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[3]);
+    texture->overlay.getNormalTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[4]);
+    texture->overlay.getDispTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[5]);
 
-    // TODO(Ben): Bitwise ops?
-    ui8 baseTextureAtlas = (ui8)(baseTextureIndex / ATLAS_SIZE);
-    ui8 baseNormTextureAtlas = (ui8)(baseNormTextureIndex / ATLAS_SIZE);
-    ui8 baseDispTextureAtlas = (ui8)(baseDispTextureIndex / ATLAS_SIZE);
-    ui8 overlayTextureAtlas = (ui8)(overlayTextureIndex / ATLAS_SIZE);
-    ui8 overlayNormTextureAtlas = (ui8)(overlayNormTextureIndex / ATLAS_SIZE);
-    ui8 overlayDispTextureAtlas = (ui8)(overlayDispTextureIndex / ATLAS_SIZE);
-    baseTextureIndex %= ATLAS_SIZE;
-    baseNormTextureIndex %= ATLAS_SIZE;
-    baseDispTextureIndex %= ATLAS_SIZE;
-    overlayTextureIndex %= ATLAS_SIZE;
-    overlayNormTextureIndex %= ATLAS_SIZE;
-    overlayDispTextureIndex %= ATLAS_SIZE;
+    ui8 atlasIndices[6];
+    for (int i = 0; i < 6; i++) {
+        atlasIndices[i] = (ui8)(methodDatas[i].index / ATLAS_SIZE);
+        methodDatas[i].index &= ATLAS_MODULUS_BITS;
+    }
+    
     i32v3 pos(bx, by, bz);
     ui8 uOffset = (ui8)(pos[FACE_AXIS[face][0]] * FACE_AXIS_SIGN[face][0]);
     ui8 vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
@@ -968,23 +962,23 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.overlayColor = blockColor[O_INDEX];
 #endif
         // TODO(Ben) array?
-        v.textureIndex = baseTextureIndex;
-        v.textureAtlas = baseTextureAtlas;
-        v.normIndex = baseNormTextureIndex;
-        v.normAtlas = baseNormTextureAtlas;
-        v.dispIndex = baseDispTextureIndex;
-        v.dispAtlas = baseDispTextureAtlas;
-        v.overlayTextureIndex = overlayTextureIndex;
-        v.overlayTextureAtlas = overlayTextureAtlas;
-        v.overlayNormIndex = overlayNormTextureIndex;
-        v.overlayNormAtlas = overlayNormTextureAtlas;
-        v.overlayDispIndex = overlayDispTextureIndex;
-        v.overlayDispAtlas = overlayDispTextureAtlas;
+        v.textureIndex = (ui8)methodDatas[0].index;
+        v.textureAtlas = atlasIndices[0];
+        v.normIndex = (ui8)methodDatas[1].index;
+        v.normAtlas = atlasIndices[1];
+        v.dispIndex = (ui8)methodDatas[2].index;
+        v.dispAtlas = atlasIndices[2];
+        v.overlayTextureIndex = (ui8)methodDatas[3].index;
+        v.overlayTextureAtlas = atlasIndices[3];
+        v.overlayNormIndex = (ui8)methodDatas[4].index;
+        v.overlayNormAtlas = atlasIndices[4];
+        v.overlayDispIndex = (ui8)methodDatas[5].index;
+        v.overlayDispAtlas = atlasIndices[5];
         
-        v.textureWidth = (ui8)texture->base.size.x;
-        v.textureHeight = (ui8)texture->base.size.y;
-        v.overlayTextureWidth = (ui8)texture->overlay.size.x;
-        v.overlayTextureHeight = (ui8)texture->overlay.size.y;
+        v.textureWidth = (ui8)methodDatas[0].size.x;
+        v.textureHeight = (ui8)methodDatas[0].size.y;
+        v.overlayTextureWidth = (ui8)methodDatas[3].size.x;
+        v.overlayTextureHeight = (ui8)methodDatas[3].size.y;
         v.blendMode = blendMode;
         v.face = (ui8)face;
     }
@@ -1008,7 +1002,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
     { // Look-Behind Greedy Merging(tm)
-        if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        if (0 && quad->v0 == quad->v3 && quad->v1 == quad->v2) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
             ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
             // Check left merge
@@ -1032,7 +1026,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
             }
         }
         // Check back merge
-        if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        if (0 && quad->v0 == quad->v1 && quad->v2 == quad->v3) {
             quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
             int backIndex = m_quadIndices[blockIndex + backOffset][face];
             if (backIndex != NO_QUAD_INDEX) {
@@ -1065,19 +1059,9 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
 
 struct FloraQuadData {
     color3 blockColor[2];
-    BlockTextureIndex baseTextureIndex;
-    BlockTextureIndex baseNormTextureIndex;
-    BlockTextureIndex baseDispTextureIndex;
-    BlockTextureIndex overlayTextureIndex;
-    BlockTextureIndex overlayNormTextureIndex;
-    BlockTextureIndex overlayDispTextureIndex;
+    BlockTextureMethodData methodDatas[6];
+    ui8 atlasIndices[6];
     ui8 blendMode;
-    ui8 baseTextureAtlas;
-    ui8 baseNormTextureAtlas;
-    ui8 baseDispTextureAtlas;
-    ui8 overlayTextureAtlas;
-    ui8 overlayNormTextureAtlas;
-    ui8 overlayDispTextureAtlas;
     ui8 uOffset;
     ui8 vOffset;
     const BlockTexture* texture;
@@ -1099,27 +1083,17 @@ void ChunkMesher::addFlora() {
 
     // Get texturing parameters
     data.blendMode = getBlendMode(data.texture->blendMode);
-    // TODO(Ben): Make this better
-    data.baseTextureIndex = data.texture->base.getBlockTextureIndex(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX]);
-    data.baseNormTextureIndex = data.texture->base.getNormalTextureIndex(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX]);
-    data.baseDispTextureIndex = data.texture->base.getDispTextureIndex(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX]);
-    data.overlayTextureIndex = data.texture->overlay.getBlockTextureIndex(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX]);
-    data.overlayNormTextureIndex = data.texture->overlay.getNormalTextureIndex(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX]);
-    data.overlayDispTextureIndex = data.texture->overlay.getDispTextureIndex(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX]);
+    data.texture->base.getBlockTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[0]);
+    data.texture->base.getNormalTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[1]);
+    data.texture->base.getDispTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[2]);
+    data.texture->overlay.getBlockTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[3]);
+    data.texture->overlay.getNormalTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[4]);
+    data.texture->overlay.getDispTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[5]);
+    for (int i = 0; i < 6; i++) {
+        data.atlasIndices[i] = (ui8)(data.methodDatas[i].index / ATLAS_SIZE);
+        data.methodDatas[i].index &= ATLAS_MODULUS_BITS;
+    }
 
-    // TODO(Ben): Bitwise ops?
-    data.baseTextureAtlas = (ui8)(data.baseTextureIndex / ATLAS_SIZE);
-    data.baseNormTextureAtlas = (ui8)(data.baseNormTextureIndex / ATLAS_SIZE);
-    data.baseDispTextureAtlas = (ui8)(data.baseDispTextureIndex / ATLAS_SIZE);
-    data.overlayTextureAtlas = (ui8)(data.overlayTextureIndex / ATLAS_SIZE);
-    data.overlayNormTextureAtlas = (ui8)(data.overlayNormTextureIndex / ATLAS_SIZE);
-    data.overlayDispTextureAtlas = (ui8)(data.overlayDispTextureIndex / ATLAS_SIZE);
-    data.baseTextureIndex %= ATLAS_SIZE;
-    data.baseNormTextureIndex %= ATLAS_SIZE;
-    data.baseDispTextureIndex %= ATLAS_SIZE;
-    data.overlayTextureIndex %= ATLAS_SIZE;
-    data.overlayNormTextureIndex %= ATLAS_SIZE;
-    data.overlayDispTextureIndex %= ATLAS_SIZE;
     i32v3 pos(bx, by, bz);
     data.uOffset = (ui8)(pos[FACE_AXIS[0][0]] * FACE_AXIS_SIGN[0][0]);
     data.vOffset = (ui8)(pos[FACE_AXIS[0][1]] * FACE_AXIS_SIGN[0][1]);
@@ -1159,23 +1133,23 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
         v.overlayColor = data.blockColor[O_INDEX];
 
         // TODO(Ben) array?
-        v.textureIndex = data.baseTextureIndex;
-        v.textureAtlas = data.baseTextureAtlas;
-        v.normIndex = data.baseNormTextureIndex;
-        v.normAtlas = data.baseNormTextureAtlas;
-        v.dispIndex = data.baseDispTextureIndex;
-        v.dispAtlas = data.baseDispTextureAtlas;
-        v.overlayTextureIndex = data.overlayTextureIndex;
-        v.overlayTextureAtlas = data.overlayTextureAtlas;
-        v.overlayNormIndex = data.overlayNormTextureIndex;
-        v.overlayNormAtlas = data.overlayNormTextureAtlas;
-        v.overlayDispIndex = data.overlayDispTextureIndex;
-        v.overlayDispAtlas = data.overlayDispTextureAtlas;
+        v.textureIndex = (ui8)data.methodDatas[0].index;
+        v.textureAtlas = data.atlasIndices[0];
+        v.normIndex = (ui8)data.methodDatas[1].index;
+        v.normAtlas = data.atlasIndices[1];
+        v.dispIndex = (ui8)data.methodDatas[2].index;
+        v.dispAtlas = data.atlasIndices[2];
+        v.overlayTextureIndex = (ui8)data.methodDatas[3].index;
+        v.overlayTextureAtlas = data.atlasIndices[3];
+        v.overlayNormIndex = (ui8)data.methodDatas[4].index;
+        v.overlayNormAtlas = data.atlasIndices[4];
+        v.overlayDispIndex = (ui8)data.methodDatas[5].index;
+        v.overlayDispAtlas = data.atlasIndices[5];
 
-        v.textureWidth = (ui8)data.texture->base.size.x;
-        v.textureHeight = (ui8)data.texture->base.size.y;
-        v.overlayTextureWidth = (ui8)data.texture->overlay.size.x;
-        v.overlayTextureHeight = (ui8)data.texture->overlay.size.y;
+        v.textureWidth = (ui8)data.methodDatas[0].size.x;
+        v.textureHeight = (ui8)data.methodDatas[0].size.y;
+        v.overlayTextureWidth = (ui8)data.methodDatas[3].size.x;
+        v.overlayTextureHeight = (ui8)data.methodDatas[3].size.y;
         v.blendMode = data.blendMode;
         v.face = (ui8)vvox::Cardinal::Y_POS;
     }

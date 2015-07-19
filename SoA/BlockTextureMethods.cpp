@@ -3,32 +3,46 @@
 
 #include <Vorb/graphics/ConnectedTextures.h>
 #include <Vorb/utils.h>
+#include <Vorb/Random.h>
 
 #include "BlockPack.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
 #include "ChunkMesher.h"
 #include "VoxelBits.h"
+#include "soaUtils.h"
 
 #define GETBLOCK(a) (((*blocks)[((a) & 0x0FFF)]))
 #define TEXTURE_INDEX block->textures[params.faceIndex]->layers[params.layerIndex].indices[params.typeIndex]
 
+inline ui32 getPositionSeed(const i32v3& pos) {
+    i32 val = ((pos.x & 0x7ff) | ((pos.y & 0x3ff) << 11) | ((pos.z & 0x7ff) << 21));
+    // Treat i32 bits as ui32 so we don't just truncate with a cast
+    return *(ui32*)&val;
+}
+
+void BlockTextureMethods::getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
+    result.size = params.blockTexInfo->size;
+} 
+
 //Gets a random offset for use by random textures
-void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
     //TODO: MurmurHash3
     const ChunkMesher* cm = params.chunkMesher;
     const BlockTextureLayer* blockTexInfo = params.blockTexInfo;
-    i32 seed = 0; // getPositionSeed(cm->x + cm->position.x, cm->y + cm->position.y, cm->z + cm->position.z);
+    i32v3 pos(cm->chunkVoxelPos.pos.x + cm->bx, cm->chunkVoxelPos.pos.y + cm->by, cm->chunkVoxelPos.pos.z + cm->bz);
 
-    f32 r = (f32)((/*PseudoRand(seed) +*/ 1.0) * 0.5 * blockTexInfo->totalWeight);
+    // TODO(Ben): Faster RNG?
+    f32 r = params.blockTexInfo->totalWeight * ((f32)rand() / RAND_MAX);
     f32 totalWeight = 0;
 
+    result.size = params.blockTexInfo->size;
     // TODO(Ben): Binary search?
     if (blockTexInfo->weights.size()) {
         for (ui32 i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += blockTexInfo->weights[i];
             if (r <= totalWeight) {
-                result += i;
+                result.index += i;
                 return;
             }
         }
@@ -36,14 +50,14 @@ void BlockTextureMethods::getRandomTextureIndex(BlockTextureMethodParams& params
         for (ui32 i = 0; i < blockTexInfo->numTiles; i++) {
             totalWeight += 1.0f;
             if (r <= totalWeight) {
-                result += i;
+                result.index += i;
                 return;
             }
         }
     }
 }
 
-void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
     //TODO: MurmurHash3
     const ChunkMesher* cm = params.chunkMesher;
     i32 seed = 0; // getPositionSeed(cm->x + cm->position.x, cm->y + cm->position.y, cm->z + cm->position.z);
@@ -77,21 +91,21 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
         }
     }
 
-    result += column;
+    result.index += column;
 
     // Get the height of the current voxel
     int height = MIN(VoxelBits::getFloraHeight(tertiaryData[blockIndex]), cm->block->floraHeight);
     int yPos = height - VoxelBits::getFloraPosition(tertiaryData[blockIndex]);
 
     // Move the result to the flora of the correct height
-    result += blockTexInfo->size.x * (height * height + height) / 2;
+    result.index += blockTexInfo->size.x * (height * height + height) / 2;
     // Offset by the ypos
-    result += blockTexInfo->size.x * yPos;
-
+    result.index += blockTexInfo->size.x * yPos;
+    result.size = params.blockTexInfo->size;
 }
 
 //Gets a connected texture offset by looking at the surrounding blocks
-void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
     const BlockPack* blocks = params.chunkMesher->blocks;
     int connectedOffset = 0;
     const int& blockIndex = params.chunkMesher->blockIndex;
@@ -99,7 +113,7 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
     const int& rightDir = params.rightDir;
     const int& frontDir = params.frontDir;
     const ui16* blockIDData = params.chunkMesher->blockData;
-    BlockTextureIndex tex = result;
+    BlockTextureIndex tex = result.index;
 
     // Top Left
     const Block *block = &GETBLOCK(blockIDData[blockIndex + upDir - rightDir]);
@@ -199,12 +213,12 @@ void BlockTextureMethods::getConnectedTextureIndex(BlockTextureMethodParams& par
             connectedOffset |= 0x38;
         }
     }
-
-    result += vg::ConnectedTextureHelper::getOffsetFull(connectedOffset);
+    result.size = params.blockTexInfo->size;
+    result.index += vg::ConnectedTextureHelper::getOffsetFull(connectedOffset);
 }
 
 //Gets a grass side texture offset by looking at the surrounding blocks
-void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
     const BlockPack* blocks = params.chunkMesher->blocks;
     int connectedOffset = 0;
     const int& blockIndex = params.chunkMesher->blockIndex;
@@ -215,16 +229,17 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
    
     const ChunkMesher* cm = params.chunkMesher;
 
-    BlockTextureIndex tex = result;
+    BlockTextureIndex tex = result.index;
 
     // Bottom Front
     const Block* block = &GETBLOCK(blockIDData[blockIndex - upDir + frontDir]);
 
     if (/*cm->levelOfDetail > 1 || */ TEXTURE_INDEX == tex) {
         block = &GETBLOCK(blockIDData[blockIndex]);
-        result = block->textureTop->base.index;
+        result.index = block->textureTop->base.index;
         block->textureTop->base.blockTextureFunc(params, result);
         block->textureTop->base.getFinalColor(*params.color, cm->heightData->temperature, cm->heightData->humidity, 0);
+        result.size = block->textureTop->base.size;
         return;
     }
 
@@ -280,11 +295,11 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     if (TEXTURE_INDEX == tex) {
         connectedOffset |= 0x1;
     }
-
-    result += vg::ConnectedTextureHelper::getOffsetSmall(connectedOffset);
+    result.size = params.blockTexInfo->size;
+    result.index += vg::ConnectedTextureHelper::getOffsetSmall(connectedOffset);
 }
 
-void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
     const BlockPack* blocks = params.chunkMesher->blocks;
     static int verticalOffsets[4] = { 0, 1, 3, 2 };
 
@@ -294,7 +309,7 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
     const ui16* blockIDData = params.chunkMesher->blockData;
     const ConnectedTextureReducedMethod& rm = params.blockTexInfo->reducedMethod;
 
-    BlockTextureIndex tex = result;
+    BlockTextureIndex tex = result.index;
 
     if (rm == ConnectedTextureReducedMethod::NONE) {
         connectedOffset = 0;
@@ -315,11 +330,11 @@ void BlockTextureMethods::getVerticalTextureIndex(BlockTextureMethodParams& para
     if (TEXTURE_INDEX == tex) {
         connectedOffset |= 1;
     }
-
-    result += verticalOffsets[connectedOffset];
+    result.size = params.blockTexInfo->size;
+    result.index += verticalOffsets[connectedOffset];
 }
 
-void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureIndex& result) {
+void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result) {
     static int horizontalOffsets[4] = { 0, 1, 3, 2 };
     const BlockPack* blocks = params.chunkMesher->blocks;
 
@@ -328,7 +343,7 @@ void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& pa
     const int& rightDir = params.rightDir;
     const int& frontDir = params.frontDir;
     const ui16* blockIDData = params.chunkMesher->blockData;
-    BlockTextureIndex tex = result;
+    BlockTextureIndex tex = result.index;
 
     //right bit
     const Block *block = &GETBLOCK(blockIDData[blockIndex + rightDir]);
@@ -354,6 +369,6 @@ void BlockTextureMethods::getHorizontalTextureIndex(BlockTextureMethodParams& pa
             connectedOffset &= 1;
         }
     }
-
-    result += horizontalOffsets[connectedOffset];
+    result.size = params.blockTexInfo->size;
+    result.index += horizontalOffsets[connectedOffset];
 }

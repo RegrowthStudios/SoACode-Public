@@ -405,7 +405,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     for (int dz = -width; dz <= width; ++dz) {
         for (int dx = -width; dx <= width; ++dx) {
             int dist2 = dx * dx + dz * dz;
-            if (dist2 <= woodWidth2) { // Wood block
+            if (dist2 < woodWidth2) { // Wood block
                 // Get position
                 i32v2 pos(x + dx, z + dz);
                 ui32 chunkOff = chunkOffset;
@@ -416,14 +416,14 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 } else {
                     m_wNodes->emplace_back(props.barkBlockID, blockIndex, chunkOff);
                 }
-            } else if (dist2 <= outerWidth2) { // Leaf block or branch
+            } else if (dist2 < outerWidth2) { // Leaf block or branch
                 // Get position
                 i32v2 pos(x + dx, z + dz);
                 ui32 chunkOff = chunkOffset;
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
 
-                if (dist2 <= woodWidth2p1) {
+                if (dist2 < woodWidth2p1) {
                     // TODO(Ben): Eliminate all uses of rand()
                     float r = rand() / (float)RAND_MAX;
                     if (r < props.branchChance) {
