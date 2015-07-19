@@ -60,7 +60,9 @@ struct LeafKegProperties {
             i32v2 hRadius;
         } round;);
         UNIONIZE(struct {
-            i32v2 thickness;
+            i32v2 oRadius;
+            i32v2 iRadius;
+            i32v2 period;
         } pine;);
         UNIONIZE(struct {
             i32v2 lengthMod;
@@ -70,9 +72,9 @@ struct LeafKegProperties {
         } mushroom;);
     };
     // Don't put strings in unions
-    nString block = "";
-    nString mushGillBlock = "";
-    nString mushCapBlock = "";
+    nString block = "none";
+    nString mushGillBlock = "none";
+    nString mushCapBlock = "none";
 };
 
 // Must match var names for TreeBranchProperties

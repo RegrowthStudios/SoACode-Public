@@ -166,9 +166,13 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
         case TreeLeafType::PINE:
             rvProps.pine.blockID = blockP->pine.blockID;
             if (a.type == b.type) {
-                rvProps.pine.thickness = lerp(a.pine.thickness, b.pine.thickness, l);
+                rvProps.pine.oRadius = lerp(a.pine.oRadius, b.pine.oRadius, l);
+                rvProps.pine.iRadius = lerp(a.pine.iRadius, b.pine.iRadius, l);
+                rvProps.pine.period = lerp(a.pine.period, b.pine.period, l);
             } else {
-                rvProps.pine.thickness = blockP->pine.thickness;
+                rvProps.pine.oRadius = blockP->pine.oRadius;
+                rvProps.pine.iRadius = blockP->pine.iRadius;
+                rvProps.pine.period = blockP->pine.period;
             }
             break;
         case TreeLeafType::MUSHROOM:
@@ -248,13 +252,13 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     const TreeTrunkProperties* trunkProps;
     
     ui32 pointIndex = 0;
-    for (ui32 h = 0; h < m_treeData.height; ++h) {
+    for (m_h = 0; m_h < m_treeData.height; ++m_h) {
         // TODO(Ben): Don't have to calculate every time
         m_centerX = blockIndex & 0x5; // & 0x5 = % 32
         m_centerY = blockIndex / CHUNK_LAYER;
         m_centerZ = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
         // Get height ratio for interpolation purposes
-        f32 heightRatio = (f32)h / m_treeData.height;
+        f32 heightRatio = (f32)m_h / m_treeData.height;
         // Do interpolation along data points
         if (pointIndex < m_treeData.trunkProps.size() - 1) {
             if (heightRatio > m_treeData.trunkProps[pointIndex + 1].loc) {
@@ -305,7 +309,9 @@ inline void setLeafProps(TreeLeafProperties& leafProps, const TreeTypeLeafProper
             break;
         case TreeLeafType::PINE:
             leafProps.pine.blockID = typeProps.pine.blockID;
-            leafProps.pine.thickness = AGE_LERP(typeProps.pine.thickness);
+            leafProps.pine.oRadius = AGE_LERP(typeProps.pine.oRadius);
+            leafProps.pine.iRadius = AGE_LERP(typeProps.pine.iRadius);
+            leafProps.pine.period = AGE_LERP(typeProps.pine.period);
             break;
         case TreeLeafType::MUSHROOM:
             leafProps.mushroom.capBlockID = typeProps.mushroom.capBlockID;
@@ -359,21 +365,49 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     // This function is so clever
     int width = (int)(props.coreWidth + props.barkWidth);
     int innerWidth2 = (int)(props.coreWidth * props.coreWidth);
-    int width2 = width * width;
+    int woodWidth2 = width * width;
     // Should get layer right outside outer layer
-    int width2p1 = (width + 1) * (width + 1);
+    int woodWidth2p1 = (width + 1) * (width + 1);
+    // For leaves
+    int leafWidth = 0;
+    ui16 leafBlockID = 0;
+    // Determine outer leaf shape
+    switch (props.leafProps.type) {
+        case TreeLeafType::ROUND:
+            leafWidth = props.leafProps.round.hRadius;
+            leafBlockID = props.leafProps.round.blockID;
+            break;
+        case TreeLeafType::PINE:
+            if (props.leafProps.pine.period == 1) {
+                leafWidth = props.leafProps.pine.oRadius;
+            } else {
+                leafWidth = fastFloor((1.0f - (f32)(m_h % props.leafProps.pine.period) / (props.leafProps.pine.period - 1)) *
+                                      (props.leafProps.pine.oRadius - props.leafProps.pine.iRadius) + 0.5f)
+                                      + props.leafProps.pine.iRadius;
+            }
+            leafBlockID = props.leafProps.pine.blockID;
+            break;
+        default:
+            break;
+    }
+    width += leafWidth;
+    int outerWidth2 = width * width;
+
     // Get position at back left corner
     int x = m_centerX;
     int z = m_centerZ;
     offsetToCorner(x, z, X_1, Z_1, chunkOffset, width);
+    x += width;
+    z += width;
     // Y voxel offset
     int yOff = m_centerY * CHUNK_LAYER;
 
     for (int dz = -width; dz <= width; ++dz) {
         for (int dx = -width; dx <= width; ++dx) {
             int dist2 = dx * dx + dz * dz;
-            if (dist2 <= width2) {
-                i32v2 pos(x + dx + width, z + dz + width);
+            if (dist2 <= woodWidth2) { // Wood block
+                // Get position
+                i32v2 pos(x + dx, z + dz);
                 ui32 chunkOff = chunkOffset;
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
@@ -382,24 +416,32 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 } else {
                     m_wNodes->emplace_back(props.barkBlockID, blockIndex, chunkOff);
                 }
-            } else if (dist2 <= width2p1) {
-                // TODO(Ben): Eliminate all uses of rand()
-                float r = rand() / (float)RAND_MAX;
-                if (r < props.branchChance) {
-                    i32v2 pos(x + dx + width, z + dz + width);
-                    ui32 chunkOff = chunkOffset;
-                    addChunkOffset(pos, chunkOff);
-                    ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
+            } else if (dist2 <= outerWidth2) { // Leaf block or branch
+                // Get position
+                i32v2 pos(x + dx, z + dz);
+                ui32 chunkOff = chunkOffset;
+                addChunkOffset(pos, chunkOff);
+                ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
 
-                    ui32 segments = round((rand() / (float)RAND_MAX) * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
-                    if (segments > 0) {
-                        f32 angle = (rand() / (float)RAND_MAX) * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
-                        // Interpolate the angle
-                        // TODO(Ben): Actual trig instead
-                        f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));
-                        generateBranch(chunkOff, pos.x, m_centerY, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
-                                       dir, props.branchProps);
+                if (dist2 <= woodWidth2p1) {
+                    // TODO(Ben): Eliminate all uses of rand()
+                    float r = rand() / (float)RAND_MAX;
+                    if (r < props.branchChance) {
+                        
+                        ui32 segments = round((rand() / (float)RAND_MAX) * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
+                        if (segments > 0) {
+                            f32 angle = (rand() / (float)RAND_MAX) * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
+                            // Interpolate the angle
+                            // TODO(Ben): Actual trig instead
+                            f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));
+                            generateBranch(chunkOff, pos.x, m_centerY, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
+                                           dir, props.branchProps);
+                        }
+                    } else {
+                        m_fNodes->emplace_back(leafBlockID, blockIndex, chunkOff);
                     }
+                } else {
+                    m_fNodes->emplace_back(leafBlockID, blockIndex, chunkOff);
                 }
             }
         }

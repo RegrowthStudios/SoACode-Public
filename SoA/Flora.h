@@ -52,7 +52,9 @@ struct TreeTypeLeafProperties {
             ui16 blockID;
         } round;);
         UNIONIZE(struct {
-            Range<ui16> thickness;
+            Range<ui16> oRadius;
+            Range<ui16> iRadius;
+            Range<ui16> period;
             ui16 blockID;
         } pine;);
         UNIONIZE(struct {
@@ -76,7 +78,9 @@ struct TreeLeafProperties {
             ui16 blockID;
         } round;);
         UNIONIZE(struct {
-            ui16 thickness;
+            ui16 oRadius;
+            ui16 iRadius;
+            ui16 period;
             ui16 blockID;
         } pine;);
         UNIONIZE(struct {

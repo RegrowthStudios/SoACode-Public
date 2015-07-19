@@ -11,8 +11,8 @@
 #include "SoaState.h"
 
 #ifdef DEBUG
-#define HORIZONTAL_CHUNKS 10
-#define VERTICAL_CHUNKS 20
+#define HORIZONTAL_CHUNKS 4
+#define VERTICAL_CHUNKS 4
 #else
 #define HORIZONTAL_CHUNKS 10
 #define VERTICAL_CHUNKS 20
@@ -110,11 +110,10 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     
     m_chunkGenerator.init(m_genData);
 
-    printf("Generating chunks...");
     initHeightData();
     initChunks();
 
-    printf("Generating Meshes...");
+    printf("Generating Meshes...\n");
     // Create all chunk meshes
     m_mesher.init(&m_soaState->blocks);
     for (auto& cv : m_chunks) {
@@ -231,6 +230,7 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
 }
 
 void TestBiomeScreen::initHeightData() {
+    printf("Generating height data...\n");
     m_heightData.resize(HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS);
     // Init height data
     m_heightGenerator.init(m_genData);
@@ -262,6 +262,7 @@ void TestBiomeScreen::initHeightData() {
 }
 
 void TestBiomeScreen::initChunks() {
+    printf("Generating chunks...\n");
     m_chunks.resize(HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS * VERTICAL_CHUNKS);
 
     // Generate chunk data
@@ -448,10 +449,11 @@ void TestBiomeScreen::initInput() {
                     m_mesher.freeChunkMesh(m_chunks[i].chunkMesh);
                 }
 
-                printf("Generating chunks...");
+                
+                initHeightData();
                 initChunks();
 
-                printf("Generating Meshes...");
+                printf("Generating Meshes...\n");
                 // Create all chunk meshes
                 m_mesher.init(&m_soaState->blocks);
                 for (auto& cv : m_chunks) {

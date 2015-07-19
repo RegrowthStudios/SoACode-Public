@@ -452,6 +452,12 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(i32, leafProps->round.vRadius);
         } else if (key == "hRadius") {
             PARSE_V2(i32, leafProps->round.hRadius);
+        } else if (key == "oRadius") {
+            PARSE_V2(i32, leafProps->pine.oRadius);
+        } else if (key == "iRadius") {
+            PARSE_V2(i32, leafProps->pine.iRadius);
+        } else if (key == "period") {
+            PARSE_V2(i32, leafProps->pine.period);
         } else if (key == "block") {
             keg::evalData((ui8*)&leafProps->block, &stringVal, value, context);
         } else if (key == "fruit") {

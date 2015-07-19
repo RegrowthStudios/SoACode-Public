@@ -136,7 +136,9 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
             TRY_SET_BLOCK(lp.round.blockID, b, kp.block);
             break;
         case TreeLeafType::PINE:
-            SET_RANGE(lp, kp, pine.thickness);
+            SET_RANGE(lp, kp, pine.oRadius);
+            SET_RANGE(lp, kp, pine.iRadius);
+            SET_RANGE(lp, kp, pine.period);
             TRY_SET_BLOCK(lp.pine.blockID, b, kp.block);
             break;
         case TreeLeafType::MUSHROOM:
