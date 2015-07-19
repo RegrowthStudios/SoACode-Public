@@ -56,12 +56,9 @@ struct LeafKegProperties {
     // Union based on type
     union {
         UNIONIZE(struct {
-            i32v2 radius;
+            i32v2 vRadius;
+            i32v2 hRadius;
         } round;);
-        UNIONIZE(struct {
-            i32v2 width;
-            i32v2 height;
-        } cluster;);
         UNIONIZE(struct {
             i32v2 thickness;
         } pine;);

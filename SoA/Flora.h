@@ -27,7 +27,6 @@ typedef ui16 FloraID;
 enum class TreeLeafType {
     NONE,
     ROUND,
-    CLUSTER,
     PINE,
     MUSHROOM
 };
@@ -48,14 +47,10 @@ struct TreeTypeLeafProperties {
     // Mutually exclusive union based on type
     union {
         UNIONIZE(struct {
-            Range<ui16> radius;
+            Range<ui16> vRadius;
+            Range<ui16> hRadius;
             ui16 blockID;
         } round;);
-        UNIONIZE(struct {
-            Range<ui16> width;
-            Range<ui16> height;
-            ui16 blockID;
-        } cluster;);
         UNIONIZE(struct {
             Range<ui16> thickness;
             ui16 blockID;
@@ -76,14 +71,10 @@ struct TreeLeafProperties {
     // Mutually exclusive union based on type
     union {
         UNIONIZE(struct {
-            ui16 radius;
+            ui16 vRadius;
+            ui16 hRadius;
             ui16 blockID;
         } round;);
-        UNIONIZE(struct {
-            ui16 width;
-            ui16 height;
-            ui16 blockID;
-        } cluster;);
         UNIONIZE(struct {
             ui16 thickness;
             ui16 blockID;

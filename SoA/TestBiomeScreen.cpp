@@ -11,8 +11,8 @@
 #include "SoaState.h"
 
 #ifdef DEBUG
-#define HORIZONTAL_CHUNKS 4
-#define VERTICAL_CHUNKS 4
+#define HORIZONTAL_CHUNKS 10
+#define VERTICAL_CHUNKS 20
 #else
 #define HORIZONTAL_CHUNKS 10
 #define VERTICAL_CHUNKS 20
