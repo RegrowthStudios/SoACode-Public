@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "Flora.h"
 
+KEG_ENUM_DEF(FloraInterpType, FloraInterpType, e) {
+    e.addValue("linear", FloraInterpType::LINEAR);
+    e.addValue("hermite", FloraInterpType::HERMITE);
+    e.addValue("cosine", FloraInterpType::COSINE);
+    e.addValue("sine", FloraInterpType::SINE);
+}
+
 KEG_ENUM_DEF(TreeLeafType, TreeLeafType, e) {
     e.addValue("none", TreeLeafType::NONE);
     e.addValue("round", TreeLeafType::ROUND);

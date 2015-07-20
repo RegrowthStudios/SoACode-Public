@@ -131,6 +131,25 @@ inline void offsetByPos(int& x, int& y, int& z, ui32& chunkOffset, const i32v3& 
 /************************************************************************/
 #pragma endregion
 
+// Smooths an input factor on the range 0-1
+inline void smoothInterpFactor(f32& l, const FloraInterpType& type) {
+    switch (type) {
+        case FloraInterpType::HERMITE:
+            l = hermite(l);
+            break;
+        case FloraInterpType::COSINE:
+            // TODO(Ben): Cos lookup table
+            l = (f32)(1.0 - cos((f64)l * M_PI_2));
+            break;
+        case FloraInterpType::SINE:
+            // TODO(Ben): Cos lookup table
+            l = (f32)(sin((f64)l * M_PI_2));
+            break;
+        default:
+            break;
+    }
+}
+
 void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes) {
     // Iterate all block indices where flora must be generated
     for (ui16 blockIndex : chunk->floraToGenerate) {
@@ -195,6 +214,7 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
         case TreeLeafType::MUSHROOM:
             rvProps.mushroom.capBlockID = blockP->mushroom.capBlockID;
             rvProps.mushroom.gillBlockID = blockP->mushroom.gillBlockID;
+            rvProps.mushroom.interp = blockP->mushroom.interp;
             if (a.type == b.type) {
                 rvProps.mushroom.tvRadius = LERP_UI16(mushroom.tvRadius);
                 rvProps.mushroom.thRadius = LERP_UI16(mushroom.thRadius);
@@ -244,7 +264,9 @@ inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkPro
     // TODO(Ben): Other interpolation types
     f32 l = (heightRatio - a.loc) / (b.loc - a.loc);
     // Hermite interpolation for smooth curve
-    l = hermite(l);
+    smoothInterpFactor(l, a.interp);
+    rvProps.interp = a.interp;
+
     // Block IDs
     if (l < 0.5f) {
         rvProps.barkBlockID = a.barkBlockID;
@@ -374,6 +396,7 @@ inline void setLeafProps(TreeLeafProperties& leafProps, const TreeTypeLeafProper
         case TreeLeafType::MUSHROOM:
             leafProps.mushroom.capBlockID = typeProps.mushroom.capBlockID;
             leafProps.mushroom.gillBlockID = typeProps.mushroom.gillBlockID;
+            leafProps.mushroom.interp = typeProps.mushroom.interp;
             leafProps.mushroom.tvRadius = AGE_LERP_UI16(typeProps.mushroom.tvRadius);
             leafProps.mushroom.thRadius = AGE_LERP_UI16(typeProps.mushroom.thRadius);
             leafProps.mushroom.bvRadius = AGE_LERP_UI16(typeProps.mushroom.bvRadius);
@@ -415,6 +438,7 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
         tp.branchChance = AGE_LERP_F32(ttp.branchChance);
         tp.coreBlockID = ttp.coreBlockID;
         tp.barkBlockID = ttp.barkBlockID;
+        tp.interp = ttp.interp;
         setFruitProps(tp.fruitProps, ttp.fruitProps, age);
         setLeafProps(tp.leafProps, ttp.leafProps, age);
         setBranchProps(tp.branchProps, ttp.branchProps, age);
@@ -822,7 +846,7 @@ void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z,
         for (f32 i = fSkipped; i < end; i += 1.0f) {
             // Get lerp factor
             f32 l = (i - fSkipped) / (end - fSkipped);
-            l = hermite(l);
+            smoothInterpFactor(l, props.mushroom.interp);
             // Lerp the a
             f32 a = ((f32)props.mushroom.thRadius - (f32)props.mushroom.bhRadius) * l + props.mushroom.bhRadius;
             // Equation of ellipse

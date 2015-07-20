@@ -24,6 +24,14 @@ typedef ui16 FloraID;
 
 /* TreeType is a breed of tree, TreeData is an individual tree.*/
 
+enum class FloraInterpType {
+    LINEAR,
+    HERMITE,
+    COSINE,
+    SINE
+};
+KEG_ENUM_DECL(FloraInterpType);
+
 enum class TreeLeafType {
     NONE,
     ROUND,
@@ -67,6 +75,7 @@ struct TreeTypeLeafProperties {
             Range<ui16> gillWidth;
             ui16 gillBlockID;
             ui16 capBlockID;
+            FloraInterpType interp;
         } mushroom;);
     };
 };
@@ -96,6 +105,7 @@ struct TreeLeafProperties {
             ui16 gillWidth;
             ui16 gillBlockID;
             ui16 capBlockID;
+            FloraInterpType interp;
         } mushroom;);
     };
 };
@@ -135,6 +145,7 @@ struct TreeTypeTrunkProperties {
     Range<Range<i32>> slope;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
+    FloraInterpType interp;
     TreeTypeFruitProperties fruitProps;
     TreeTypeLeafProperties leafProps;
     TreeTypeBranchProperties branchProps;
@@ -147,6 +158,7 @@ struct TreeTrunkProperties {
     Range<i32> slope;
     ui16 coreBlockID;
     ui16 barkBlockID;
+    FloraInterpType interp;
     TreeFruitProperties fruitProps;
     TreeLeafProperties leafProps;
     TreeBranchProperties branchProps;

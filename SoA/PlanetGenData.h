@@ -72,6 +72,7 @@ struct LeafKegProperties {
             i32v2 bLength;
             i32v2 capWidth;
             i32v2 gillWidth;
+            FloraInterpType interp;
         } mushroom;);
     };
     // Don't put strings in unions
@@ -108,6 +109,7 @@ struct TrunkKegProperties {
     i32v2 slope[2];
     nString coreBlock = "";
     nString barkBlock = "";
+    FloraInterpType interp = FloraInterpType::HERMITE;
     FruitKegProperties fruitProps;
     LeafKegProperties leafProps;
     BranchKegProperties branchProps;

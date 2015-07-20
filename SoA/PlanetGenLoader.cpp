@@ -438,6 +438,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     keg::Value f32Val = keg::Value::basic(0, keg::BasicType::F32);
     keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
     keg::Value leafTypeVal = keg::Value::custom(0, "TreeLeafType", true);
+    keg::Value interpTypeVal = keg::Value::custom(0, "FloraInterpType", true);
 
     /************************************************************************/
     /* The following code is ugly because it must be custom parsed with     */
@@ -495,6 +496,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             keg::evalData((ui8*)&leafProps->mushGillBlock, &stringVal, value, context);
         } else if (key == "capBlock") {
             keg::evalData((ui8*)&leafProps->mushCapBlock, &stringVal, value, context);
+        } else if (key == "interp") {
+            keg::evalData((ui8*)&leafProps->mushroom.interp, &interpTypeVal, value, context);
         }
     });
 
@@ -571,6 +574,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         } else if (key == "leaves") {
             leafProps = &trunkProps->leafProps;
             context.reader.forAllInMap(value, leafParser);
+        } else if (key == "interp") {
+            keg::evalData((ui8*)&trunkProps->interp, &interpTypeVal, value, context);
         }
     });
 

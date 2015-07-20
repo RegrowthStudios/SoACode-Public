@@ -149,6 +149,7 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
             SET_RANGE(lp, kp, mushroom.bLength);
             SET_RANGE(lp, kp, mushroom.capWidth);
             SET_RANGE(lp, kp, mushroom.gillWidth);
+            lp.mushroom.interp = kp.mushroom.interp;
             // Block overrides cap and gill when they are none
             if (kp.block != "none" && kp.mushGillBlock == "none" && kp.mushCapBlock == "none") {
                 TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.block);
@@ -288,6 +289,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 tp.slope.min.max = tkp.slope[0].y;
                 tp.slope.max.min = tkp.slope[1].x;
                 tp.slope.max.max = tkp.slope[1].y;
+                tp.interp = tkp.interp;
                 setTreeFruitProperties(tp.fruitProps, tkp.fruitProps, genData);
                 setTreeBranchProperties(tp.branchProps, tkp.branchProps, genData, blocks);
                 setTreeLeafProperties(tp.leafProps, tkp.leafProps, genData, blocks);
