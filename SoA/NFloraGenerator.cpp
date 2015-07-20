@@ -286,9 +286,11 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     }
 }
 
-void NFloraGenerator::generateFlora(FloraData type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
+void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
+    FloraData data;
+    generateFloraProperties(type, age, data);
     // TODO(Ben): Multiblock flora
-    fNodes.emplace_back(type.block, blockIndex, chunkOffset);
+    fNodes.emplace_back(data.block, blockIndex, chunkOffset);
 }
 
 #define AGE_LERP(var) lerp(var.min, var.max, age)
@@ -342,7 +344,7 @@ inline void setBranchProps(TreeBranchProperties& branchProps, const TreeTypeBran
 
 void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree) {
     tree.age = age;
-    tree.height = AGE_LERP(type->heightRange);
+    tree.height = AGE_LERP(type->height);
     tree.trunkProps.resize(type->trunkProps.size());
     for (size_t i = 0; i < tree.trunkProps.size(); ++i) {
         TreeTrunkProperties& tp = tree.trunkProps[i];
@@ -356,6 +358,24 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
         setFruitProps(tp.fruitProps, ttp.fruitProps, age);
         setLeafProps(tp.leafProps, ttp.leafProps, age);
         setBranchProps(tp.branchProps, ttp.branchProps, age);
+    }
+}
+void NFloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora) {
+    flora.block = type->block;
+    flora.slope = AGE_LERP(type->slope);
+    flora.dSlope = AGE_LERP(type->dSlope);
+    flora.height = AGE_LERP(type->height);
+    flora.nextFlora = type->nextFlora;
+    switch (type->dir) {
+        case FloraDir::SIDE:
+            flora.dir = rand() % 4;
+            break;
+        case FloraDir::UP:
+            flora.dir = TREE_UP;
+            break;
+        case FloraDir::DOWN:
+            flora.dir = TREE_DOWN;
+            break;
     }
 }
 #undef AGE_LERP

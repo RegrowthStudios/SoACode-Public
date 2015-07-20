@@ -43,9 +43,10 @@ public:
     /// Generates standalone tree.
     void generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates standalone flora.
-    void generateFlora(FloraData type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
+    void generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates a specific tree's properties
     static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
+    static void generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora);
 
     static inline int getChunkXOffset(ui32 chunkOffset) {
         return (int)((chunkOffset >> 20) & 0x3FF) - 0x1FF;

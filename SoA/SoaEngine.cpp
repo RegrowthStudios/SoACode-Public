@@ -219,12 +219,29 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
         }
 
         // Set flora data
-        genData->flora.resize(blockInfo.floraBlockNames.size());
-        for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
-            const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
+        genData->flora.resize(blockInfo.flora.size());
+        for (size_t i = 0; i < blockInfo.flora.size(); i++) {
+            FloraKegProperties& kp = blockInfo.flora[i];
+            const Block* b = blocks.hasBlock(kp.block);
             if (b) {
-                genData->floraMap[blockInfo.floraBlockNames[i]] = i;
-                genData->flora[i].block = b->ID;
+                FloraType& ft = genData->flora[i];
+                genData->floraMap[kp.id] = i;
+                ft.block = b->ID;
+                ft.height.min = kp.height.x;
+                ft.height.max = kp.height.y;
+                ft.slope.min = kp.slope.x;
+                ft.slope.max = kp.slope.y;
+                ft.dSlope.min = kp.dSlope.x;
+                ft.dSlope.max = kp.dSlope.y;
+            }
+        }
+        // Set sub-flora
+        for (size_t i = 0; i < genData->flora.size(); i++) {
+            FloraKegProperties& kp = blockInfo.flora[i];
+            FloraType& ft = genData->flora[i];
+            auto& it = genData->floraMap.find(kp.nextFlora);
+            if (it != genData->floraMap.end()) {
+                ft.nextFlora = &genData->flora[it->second];
             }
         }
 
@@ -236,7 +253,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             // Add to lookup map
             genData->treeMap[kp.id] = i;
             // Set height range
-            SET_RANGE(td, kp, heightRange);
+            SET_RANGE(td, kp, height);
 
             // Set trunk properties
             td.trunkProps.resize(kp.trunkProps.size());
@@ -274,7 +291,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                         auto& mit = genData->floraMap.find(kp.id);
                         if (mit != genData->floraMap.end()) {
                             biome.flora[i].chance = kp.chance;
-                            biome.flora[i].data = genData->flora[mit->second];
+                            biome.flora[i].data = &genData->flora[mit->second];
                             biome.flora[i].id = i;
                         } else {
                             fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());

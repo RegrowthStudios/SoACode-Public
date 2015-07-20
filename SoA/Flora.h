@@ -148,7 +148,7 @@ struct TreeTrunkProperties {
 
 struct NTreeType {
     // All ranges are for scaling between baby tree and adult tree
-    Range<ui16> heightRange;
+    Range<ui16> height;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
     std::vector<TreeTypeTrunkProperties> trunkProps;
@@ -161,9 +161,28 @@ struct TreeData {
     std::vector<TreeTrunkProperties> trunkProps;
 };
 
-// Flora specification
+enum class FloraDir {
+    UP, SIDE, DOWN
+};
+KEG_ENUM_DECL(FloraDir);
+
+struct FloraType {
+    ui16 block;
+    Range<ui16> height;
+    Range<ui16> slope;
+    Range<ui16> dSlope;
+    FloraDir dir;
+    const FloraType* nextFlora = nullptr;
+};
+
+// Specification for individual flora
 struct FloraData {
     ui16 block;
+    ui16 height;
+    ui16 dir;
+    ui16 slope;
+    ui16 dSlope;
+    const FloraType* nextFlora;
 };
 
 #endif // Flora_h__

@@ -113,8 +113,18 @@ struct TrunkKegProperties {
 // Must match var names for TreeData
 struct TreeKegProperties {
     nString id = "";
-    i32v2 heightRange = i32v2(0, 0);
+    i32v2 height = i32v2(0, 0);
     std::vector<TrunkKegProperties> trunkProps;
+};
+
+struct FloraKegProperties {
+    nString id;
+    nString block = "";
+    nString nextFlora = "";
+    i32v2 height = i32v2(0);
+    i32v2 slope = i32v2(0);
+    i32v2 dSlope = i32v2(0);
+    FloraDir dir = FloraDir::UP;
 };
 
 struct BlockLayerKegProperties {
@@ -129,8 +139,8 @@ struct PlanetBlockInitInfo {
     std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
     std::map<const Biome*, std::vector<BiomeTreeKegProperties>> biomeTrees;
     std::vector<TreeKegProperties> trees;
+    std::vector<FloraKegProperties> flora;
     std::vector<BlockLayerKegProperties> blockLayers;
-    std::vector<nString> floraBlockNames;
     nString liquidBlockName = "";
     nString surfaceBlockName = "";
 };
@@ -167,7 +177,7 @@ struct PlanetGenData {
     /************************************************************************/
     /* Flora and Trees                                                      */
     /************************************************************************/
-    std::vector<FloraData> flora;
+    std::vector<FloraType> flora;
     std::map<nString, ui32> floraMap;
     std::vector<NTreeType> trees;
     std::map<nString, ui32> treeMap;

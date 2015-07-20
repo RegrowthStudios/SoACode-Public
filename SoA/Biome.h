@@ -39,7 +39,7 @@ KEG_TYPE_DECL(BiomeTreeKegProperties);
 // Unique flora instance
 struct BiomeFlora {
     NoiseBase chance;
-    FloraData data;
+    FloraType* data = nullptr;
     FloraID id = FLORA_ID_NONE;
 };
 

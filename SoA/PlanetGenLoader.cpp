@@ -53,15 +53,6 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
 
-struct FloraKegProperties {
-    nString block = "";
-};
-KEG_TYPE_DECL(FloraKegProperties);
-KEG_TYPE_DEF_SAME_NAME(FloraKegProperties, kt) {
-    using namespace keg;
-    KEG_TYPE_INIT_ADD_MEMBER(kt, FloraKegProperties, block, STRING);
-}
-
 void PlanetGenLoader::init(vio::IOManager* ioManager) {
     m_iom = ioManager;
     m_textureCache.init(ioManager);
@@ -355,6 +346,16 @@ void recursiveInitBiomes(Biome& biome,
     }
 }
 
+// Conditionally parses a value so it can be either a v2 or a single value
+// When its single, it sets both values of the v2 to that value
+#define PARSE_V2(type, v) \
+if (keg::getType(value) == keg::NodeType::VALUE) { \
+    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
+    ##v.y = ##v.x; \
+} else { \
+    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
+} 
+
 void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
@@ -371,26 +372,42 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
         return;
     }
 
+    FloraKegProperties* floraProps;
+    // Custom values, must match PARSE_V2 syntax
+    keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
+    keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
+    keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
+    keg::Value floraDirVal = keg::Value::custom(0, "FloraDir", true);
+
+    // Parses slope field
+    auto floraParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "block") {
+            keg::evalData((ui8*)&floraProps->block, &stringVal, value, context);
+        } else if (key == "nextFlora") {
+            keg::evalData((ui8*)&floraProps->nextFlora, &stringVal, value, context);
+        } else if (key == "height") {
+            PARSE_V2(i32, floraProps->height);
+        } else if (key == "slope") {
+            PARSE_V2(i32, floraProps->slope);
+        } else if (key == "dSlope") {
+            PARSE_V2(i32, floraProps->dSlope);
+        } else if (key == "dir") {
+            keg::evalData((ui8*)&floraProps->dir, &floraDirVal, value, context);
+        }
+    });
+
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         FloraKegProperties properties;
-        keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
-        
-        genData->blockInfo.floraBlockNames.push_back(properties.block);
+        properties.id = key;
+        floraProps = &properties;
+        context.reader.forAllInMap(value, floraParser);
+        genData->blockInfo.flora.push_back(properties);
     });
     context.reader.forAllInMap(node, baseParser);
     delete baseParser;
+    delete floraParser;
     context.reader.dispose();
 }
-
-// Conditionally parses a value so it can be either a v2 or a single value
-// When its single, it sets both values of the v2 to that value
-#define PARSE_V2(type, v) \
-if (keg::getType(value) == keg::NodeType::VALUE) { \
-    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
-    ##v.y = ##v.x; \
-} else { \
-    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
-} 
 
 void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
@@ -415,7 +432,6 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     FruitKegProperties* fruitProps = nullptr;
     LeafKegProperties* leafProps = nullptr;
     // Custom values, must match PARSE_V2 syntax
-    keg::Value ui32Val = keg::Value::basic(0, keg::BasicType::UI32);
     keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
     keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
     keg::Value f32v2Val = keg::Value::basic(0, keg::BasicType::F32_V2);
@@ -551,7 +567,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     // Parses second level
     auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
-            PARSE_V2(i32, treeProps->heightRange);
+            PARSE_V2(i32, treeProps->height);
         } else if (key == "trunk") {
             context.reader.forAllInSequence(value, trunkParser);
         }
