@@ -17,6 +17,7 @@
 
 #include "Flora.h"
 #include "Chunk.h"
+#include "soaUtils.h"
 
 // 0111111111 0111111111 0111111111 = 0x1FF7FDFF
 #define NO_CHUNK_OFFSET 0x1FF7FDFF

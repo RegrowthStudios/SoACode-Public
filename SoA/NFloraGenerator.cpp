@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "NFloraGenerator.h"
-#include "soaUtils.h"
 
 #include <glm/gtx/quaternion.hpp>
 
@@ -147,7 +146,7 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
         const VoxelPosition3D& vpos = chunk->getVoxelPosition();
         m_rGen.seed(vpos.pos.x + m_centerX, vpos.pos.y + m_centerY, vpos.pos.z + m_centerZ);
         // Get age
-        age = m_rGen.genf();
+        f32 age = m_rGen.genf();
         // Determine which to generate
         if (hd.flora < b->flora.size()) {
             // It's a flora
@@ -487,7 +486,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
 
                     ui32 segments = round(m_rGen.genf() * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
                     if (segments > 0) {
-                        f32 angle = (m_rGen.genf() * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
+                        f32 angle = m_rGen.genf() * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
                         // Interpolate the angle
                         // TODO(Ben): Disk offset
                         f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));

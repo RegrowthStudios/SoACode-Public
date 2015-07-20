@@ -147,7 +147,6 @@ inline f64 pseudoRand(int x, int z) {
 }
 
 // Thread safe version of intel's fast random number generator
-// https://software.intel.com/en-us/articles/fast-random-number-generator-on-the-intel-pentiumr-4-processor
 inline ui32 fastRand(ui32 seed) {
     return ((214013u * seed + 2531011u) >> 16) & RAND_MAX;
 }
@@ -155,6 +154,7 @@ inline ui32 fastRand(ui32 seed) {
 // RAND_MAX minus 1
 #define RAND_MAX_M1 0x7FFE
 
+// https://software.intel.com/en-us/articles/fast-random-number-generator-on-the-intel-pentiumr-4-processor
 // Poor distribution but fast.
 class FastRandGenerator {
 public:
@@ -190,10 +190,11 @@ public:
         return (f32)(m_seed & RAND_MAX) / (RAND_MAX_M1);
     }
     // Generates number between 0 and 1
-    // Granularity is 0.0000305
+    // Granularity is 1 / 2^30
     inline f64 genlf() {
-        m_seed = ((214013u * m_seed + 2531011u) >> 16);
-        return (f64)(m_seed & RAND_MAX) / (RAND_MAX_M1);
+        ui32 low = ((214013u * m_seed + 2531011u) >> 16);
+        m_seed = ((214013u * low + 2531011u) >> 16);
+        return (f64)(((m_seed & RAND_MAX) << 15) | (low & RAND_MAX)) / (f64)(0x3FFFFFFF);
     }
 private:
     ui32 m_seed = 0;
