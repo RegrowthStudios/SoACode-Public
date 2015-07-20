@@ -121,7 +121,7 @@ struct FloraKegProperties {
     nString id;
     nString block = "";
     nString nextFlora = "";
-    i32v2 height = i32v2(0);
+    i32v2 height = i32v2(1);
     i32v2 slope = i32v2(0);
     i32v2 dSlope = i32v2(0);
     FloraDir dir = FloraDir::UP;

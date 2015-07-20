@@ -239,9 +239,15 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
         for (size_t i = 0; i < genData->flora.size(); i++) {
             FloraKegProperties& kp = blockInfo.flora[i];
             FloraType& ft = genData->flora[i];
-            auto& it = genData->floraMap.find(kp.nextFlora);
-            if (it != genData->floraMap.end()) {
-                ft.nextFlora = &genData->flora[it->second];
+            if (kp.nextFlora.size()) {
+                auto& it = genData->floraMap.find(kp.nextFlora);
+                if (it != genData->floraMap.end()) {
+                    ft.nextFlora = &genData->flora[it->second];
+                } else {
+                    ft.nextFlora = nullptr;
+                }
+            } else {
+                ft.nextFlora = nullptr;
             }
         }
 

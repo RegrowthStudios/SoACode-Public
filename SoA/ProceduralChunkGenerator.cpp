@@ -189,7 +189,7 @@ ui16 ProceduralChunkGenerator::getBlockID(Chunk* chunk, int blockIndex, int dept
             if (hd.flora != FLORA_ID_NONE) {
                 // We can determine the flora from the heightData during gen.
                 // Only need to store index.
-                chunk->floraToGenerate.push_back(blockIndex);
+                chunk->floraToGenerate.push_back(blockIndex);            
             }
         }
     } else {

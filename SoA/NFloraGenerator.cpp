@@ -251,12 +251,13 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     TreeTrunkProperties lerpedTrunkProps;
     const TreeTrunkProperties* trunkProps;
     
+    // Get position
+    m_centerX = blockIndex & 0x1F; // & 0x1F = % 32
+    m_centerY = blockIndex / CHUNK_LAYER;
+    m_centerZ = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
+
     ui32 pointIndex = 0;
     for (m_h = 0; m_h < m_treeData.height; ++m_h) {
-        // TODO(Ben): Don't have to calculate every time
-        m_centerX = blockIndex & 0x5; // & 0x5 = % 32
-        m_centerY = blockIndex / CHUNK_LAYER;
-        m_centerZ = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
         // Get height ratio for interpolation purposes
         f32 heightRatio = (f32)m_h / m_treeData.height;
         // Do interpolation along data points
@@ -280,17 +281,34 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         }
         // Build the trunk slice
         makeTrunkSlice(chunkOffset, *trunkProps);
-
-        // TODO(Ben): Can optimize out the switch
-        directionalMove(blockIndex, chunkOffset, TreeDir::TREE_UP);
+        // Move up
+        offsetPositive(m_centerY, Y_1, chunkOffset, 1);
     }
 }
 
 void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     FloraData data;
     generateFloraProperties(type, age, data);
-    // TODO(Ben): Multiblock flora
-    fNodes.emplace_back(data.block, blockIndex, chunkOffset);
+
+    // Get position
+    m_centerX = blockIndex & 0x1F; // & 0x1F = % 32
+    m_centerY = blockIndex / CHUNK_LAYER;
+    m_centerZ = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
+
+    do {
+        for (m_h = 0; m_h < data.height; ++m_h) {
+            fNodes.emplace_back(data.block, blockIndex, chunkOffset);
+            // Move up
+            offsetPositive(m_centerY, Y_1, chunkOffset, 1);
+            blockIndex = m_centerX + m_centerY * CHUNK_LAYER + m_centerZ * CHUNK_WIDTH;
+        }
+        // Go on to sub flora if one exists
+        if (data.nextFlora) {
+            generateFloraProperties(data.nextFlora, age, data);
+        } else {
+            break;
+        }
+    } while (true);
 }
 
 #define AGE_LERP(var) lerp(var.min, var.max, age)

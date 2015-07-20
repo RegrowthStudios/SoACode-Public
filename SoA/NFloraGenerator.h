@@ -73,7 +73,7 @@ private:
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;
     FloraData m_floraData;
-    ui16 m_centerX, m_centerY, m_centerZ;
+    int m_centerX, m_centerY, m_centerZ;
     ui32 m_h; ///< Current height along the tree
 };
 

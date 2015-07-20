@@ -73,6 +73,8 @@ private:
     // Computes angle from normalized position
     static f64 computeAngleFromNormal(const f64v3& normal);
 
+    std::hash<i32> iHash;
+
     const PlanetGenData* m_genData = nullptr; ///< Planet generation data for this generator
 };
 

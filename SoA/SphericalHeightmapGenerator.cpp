@@ -45,7 +45,9 @@ FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPo
         const BiomeTree& t = biome->trees[i];
         f64 chance = t.chance.base;
         getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
+        // TODO(Ben) This is wrong
+        ui32 hash = ((iHash((int)facePosition.pos.x + i) ^ (iHash((int)facePosition.pos.y + i) << 1)) >> 1);
+        f64 roll = (f32)fastRand(hash) / RAND_MAX;
         if (roll < chance) {
             return t.id;
         }
@@ -59,8 +61,10 @@ FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelP
     for (size_t i = 0; i < biome->flora.size(); i++) {
         const BiomeFlora& f = biome->flora[i];
         f64 chance = f.chance.base;
+        // TODO(Ben): This is wrong
         getNoiseValue(worldPos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
+        ui32 hash = ((iHash((int)facePosition.pos.x + i) ^ (iHash((int)facePosition.pos.y + i) << 1)) >> 1);
+        f64 roll = (f32)fastRand(hash) / RAND_MAX;
         if (roll < chance) {
             return f.id;
         }

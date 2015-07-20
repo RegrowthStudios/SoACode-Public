@@ -146,7 +146,7 @@ void TestBiomeScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void TestBiomeScreen::update(const vui::GameTime& gameTime) {
-    f32 speed = 5.0f;
+    f32 speed = 10.0f;
     if (m_movingFast) speed *= 5.0f;
     if (m_movingForward) {
         f32v3 offset = m_camera.getDirection() * speed * (f32)gameTime.elapsed;

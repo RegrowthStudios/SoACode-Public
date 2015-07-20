@@ -383,7 +383,7 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
     auto floraParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "block") {
             keg::evalData((ui8*)&floraProps->block, &stringVal, value, context);
-        } else if (key == "nextFlora") {
+        } else if (key == "child") {
             keg::evalData((ui8*)&floraProps->nextFlora, &stringVal, value, context);
         } else if (key == "height") {
             PARSE_V2(i32, floraProps->height);
