@@ -142,12 +142,20 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
             TRY_SET_BLOCK(lp.pine.blockID, b, kp.block);
             break;
         case TreeLeafType::MUSHROOM:
-            SET_RANGE(lp, kp, mushroom.lengthMod);
-            SET_RANGE(lp, kp, mushroom.curlLength);
-            SET_RANGE(lp, kp, mushroom.capThickness);
-            SET_RANGE(lp, kp, mushroom.gillThickness);
-            TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.mushGillBlock);
-            TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
+            SET_RANGE(lp, kp, mushroom.tvRadius);
+            SET_RANGE(lp, kp, mushroom.thRadius);
+            SET_RANGE(lp, kp, mushroom.bvRadius);
+            SET_RANGE(lp, kp, mushroom.bhRadius);
+            SET_RANGE(lp, kp, mushroom.capWidth);
+            SET_RANGE(lp, kp, mushroom.gillWidth);
+            // Block overrides cap and gill when they are none
+            if (kp.block != "none" && kp.mushGillBlock == "none" && kp.mushCapBlock == "none") {
+                TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.block);
+                TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.block);
+            } else {
+                TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.mushGillBlock);
+                TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
+            }
             break;
         case TreeLeafType::NONE:
             break;

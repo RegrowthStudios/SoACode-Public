@@ -193,13 +193,19 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
             rvProps.mushroom.capBlockID = blockP->mushroom.capBlockID;
             rvProps.mushroom.gillBlockID = blockP->mushroom.gillBlockID;
             if (a.type == b.type) {
-                rvProps.mushroom.capThickness = lerp(a.mushroom.capThickness, b.mushroom.capThickness, l);
-                rvProps.mushroom.curlLength = lerp(a.mushroom.curlLength, b.mushroom.curlLength, l);
-                rvProps.mushroom.lengthMod = lerp(a.mushroom.lengthMod, b.mushroom.lengthMod, l);
+                rvProps.mushroom.tvRadius = lerp(a.mushroom.tvRadius, b.mushroom.tvRadius, l);
+                rvProps.mushroom.thRadius = lerp(a.mushroom.thRadius, b.mushroom.thRadius, l);
+                rvProps.mushroom.bvRadius = lerp(a.mushroom.bvRadius, b.mushroom.bvRadius, l);
+                rvProps.mushroom.bhRadius = lerp(a.mushroom.bhRadius, b.mushroom.bhRadius, l);
+                rvProps.mushroom.capWidth = lerp(a.mushroom.capWidth, b.mushroom.capWidth, l);
+                rvProps.mushroom.gillWidth = lerp(a.mushroom.gillWidth, b.mushroom.gillWidth, l);
             } else {
-                rvProps.mushroom.capThickness = blockP->mushroom.capThickness;
-                rvProps.mushroom.curlLength = blockP->mushroom.curlLength;
-                rvProps.mushroom.lengthMod = blockP->mushroom.lengthMod;
+                rvProps.mushroom.tvRadius = blockP->mushroom.tvRadius;
+                rvProps.mushroom.thRadius = blockP->mushroom.thRadius;
+                rvProps.mushroom.bvRadius = blockP->mushroom.bvRadius;
+                rvProps.mushroom.bhRadius = blockP->mushroom.bhRadius;
+                rvProps.mushroom.capWidth = blockP->mushroom.capWidth;
+                rvProps.mushroom.gillWidth = blockP->mushroom.gillWidth;
             }
             break;
         default:
@@ -331,10 +337,13 @@ void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vec
     } while (true);
 }
 
-#define AGE_LERP(var) lerp(var.min, var.max, age)
+// Lerps and rounds
+#define AGE_LERP_F32(var) fastFloorf((var.max - var.min) * age + var.min + 0.5f)
+#define AGE_LERP_I32(var) FastConversion<f32, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
+#define AGE_LERP_UI16(var) FastConversion<ui16, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
 
 inline void setFruitProps(TreeFruitProperties& fruitProps, const TreeTypeFruitProperties& typeProps, f32 age) {
-    fruitProps.chance = AGE_LERP(typeProps.chance);
+    fruitProps.chance = AGE_LERP_F32(typeProps.chance);
     fruitProps.flora = typeProps.flora;
 }
 
@@ -344,21 +353,24 @@ inline void setLeafProps(TreeLeafProperties& leafProps, const TreeTypeLeafProper
     switch (leafProps.type) {
         case TreeLeafType::ROUND:
             leafProps.round.blockID = typeProps.round.blockID;
-            leafProps.round.vRadius = AGE_LERP(typeProps.round.vRadius);
-            leafProps.round.hRadius = AGE_LERP(typeProps.round.hRadius);
+            leafProps.round.vRadius = AGE_LERP_UI16(typeProps.round.vRadius);
+            leafProps.round.hRadius = AGE_LERP_UI16(typeProps.round.hRadius);
             break;
         case TreeLeafType::PINE:
             leafProps.pine.blockID = typeProps.pine.blockID;
-            leafProps.pine.oRadius = AGE_LERP(typeProps.pine.oRadius);
-            leafProps.pine.iRadius = AGE_LERP(typeProps.pine.iRadius);
-            leafProps.pine.period = AGE_LERP(typeProps.pine.period);
+            leafProps.pine.oRadius = AGE_LERP_UI16(typeProps.pine.oRadius);
+            leafProps.pine.iRadius = AGE_LERP_UI16(typeProps.pine.iRadius);
+            leafProps.pine.period = AGE_LERP_UI16(typeProps.pine.period);
             break;
         case TreeLeafType::MUSHROOM:
             leafProps.mushroom.capBlockID = typeProps.mushroom.capBlockID;
             leafProps.mushroom.gillBlockID = typeProps.mushroom.gillBlockID;
-            leafProps.mushroom.capThickness = AGE_LERP(typeProps.mushroom.capThickness);
-            leafProps.mushroom.curlLength = AGE_LERP(typeProps.mushroom.curlLength);
-            leafProps.mushroom.lengthMod = AGE_LERP(typeProps.mushroom.lengthMod);
+            leafProps.mushroom.tvRadius = AGE_LERP_UI16(typeProps.mushroom.tvRadius);
+            leafProps.mushroom.thRadius = AGE_LERP_UI16(typeProps.mushroom.thRadius);
+            leafProps.mushroom.bvRadius = AGE_LERP_UI16(typeProps.mushroom.bvRadius);
+            leafProps.mushroom.bhRadius = AGE_LERP_UI16(typeProps.mushroom.bhRadius);
+            leafProps.mushroom.capWidth = AGE_LERP_UI16(typeProps.mushroom.capWidth);
+            leafProps.mushroom.gillWidth = AGE_LERP_UI16(typeProps.mushroom.gillWidth);
             break;
         default:
             break;
@@ -368,29 +380,29 @@ inline void setLeafProps(TreeLeafProperties& leafProps, const TreeTypeLeafProper
 inline void setBranchProps(TreeBranchProperties& branchProps, const TreeTypeBranchProperties& typeProps, f32 age) {
     branchProps.coreBlockID = typeProps.coreBlockID;
     branchProps.barkBlockID = typeProps.barkBlockID;
-    branchProps.barkWidth = AGE_LERP(typeProps.barkWidth);
-    branchProps.coreWidth = AGE_LERP(typeProps.coreWidth);
-    branchProps.segments.min = AGE_LERP(typeProps.segments.min);
-    branchProps.segments.max = AGE_LERP(typeProps.segments.max);
+    branchProps.barkWidth = AGE_LERP_UI16(typeProps.barkWidth);
+    branchProps.coreWidth = AGE_LERP_UI16(typeProps.coreWidth);
+    branchProps.segments.min = AGE_LERP_I32(typeProps.segments.min);
+    branchProps.segments.max = AGE_LERP_I32(typeProps.segments.max);
     branchProps.angle = typeProps.angle;
     branchProps.endSizeMult = typeProps.endSizeMult;
-    branchProps.length = AGE_LERP(typeProps.length);
-    branchProps.branchChance = AGE_LERP(typeProps.branchChance);
+    branchProps.length = AGE_LERP_UI16(typeProps.length);
+    branchProps.branchChance = AGE_LERP_F32(typeProps.branchChance);
     setLeafProps(branchProps.leafProps, typeProps.leafProps, age);
     setFruitProps(branchProps.fruitProps, typeProps.fruitProps, age);
 }
 
 void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree) {
     tree.age = age;
-    tree.height = AGE_LERP(type->height);
+    tree.height = AGE_LERP_UI16(type->height);
     tree.trunkProps.resize(type->trunkProps.size());
     for (size_t i = 0; i < tree.trunkProps.size(); ++i) {
         TreeTrunkProperties& tp = tree.trunkProps[i];
         const TreeTypeTrunkProperties& ttp = type->trunkProps[i];
         tp.loc = ttp.loc;
-        tp.coreWidth = AGE_LERP(ttp.coreWidth);
-        tp.barkWidth = AGE_LERP(ttp.barkWidth);
-        tp.branchChance = AGE_LERP(ttp.branchChance);
+        tp.coreWidth = AGE_LERP_UI16(ttp.coreWidth);
+        tp.barkWidth = AGE_LERP_UI16(ttp.barkWidth);
+        tp.branchChance = AGE_LERP_F32(ttp.branchChance);
         tp.coreBlockID = ttp.coreBlockID;
         tp.barkBlockID = ttp.barkBlockID;
         setFruitProps(tp.fruitProps, ttp.fruitProps, age);
@@ -644,7 +656,11 @@ inline void NFloraGenerator::generateLeaves(ui32 chunkOffset, int x, int y, int 
                 generateEllipseLeaves(chunkOffset, x, y, z, props);
             }
             break;
+        case TreeLeafType::MUSHROOM:
+            generateMushroomCap(chunkOffset, x, y, z, props);
+            break;
         default:
+            // Pine leaves cant generate on branches
             break;
     }
 }
@@ -712,6 +728,59 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
             }
         }
         
+        offsetPositive(y, Y_1, chunkOffset, 1);
+    }
+}
+
+void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
+    // Offset to bottom
+    int offset = props.mushroom.tvRadius;
+    int tmp = y;
+    offsetToCorner(y, Y_1, chunkOffset, offset);
+    // Use equation of ellipse
+    f32 fOffset = (f32)offset;
+    f32 a = (f32)props.mushroom.thRadius;
+    f32 b = (f32)(props.mushroom.tvRadius * props.mushroom.tvRadius);
+    f32 thickness = (f32)(props.mushroom.capWidth + props.mushroom.gillWidth);
+    for (f32 i = 0.0f; i < fOffset + 1.0f; i += 1.0f) {
+        f32 radius = sqrtf(1.0f - (i * i) / b) * a;
+        f32 capRadius2 = radius - props.mushroom.capWidth;
+        capRadius2 = capRadius2 * capRadius2;
+        f32 innerRadius2 = radius - thickness;
+        if (innerRadius2 < 0.0f) {
+            innerRadius2 = 0.0f;
+        } else {
+            innerRadius2 = innerRadius2 * innerRadius2;
+        }
+        f32 radius2 = radius * radius;
+        const int yOff = y * CHUNK_LAYER;
+        // Offset to back left
+        int offset = fastFloor(radius);
+        int x2 = x;
+        int z2 = z;
+        ui32 innerChunkOffset = chunkOffset;
+        offsetToCorner(x2, z2, X_1, Z_1, innerChunkOffset, offset);
+        x2 += offset;
+        z2 += offset;
+        // Make the layer
+        for (int dz = -offset; dz <= offset; ++dz) {
+            for (int dx = -offset; dx <= offset; ++dx) {
+                f32 dist2 = (f32)(dx * dx + dz * dz);
+                if (dist2 < radius2 && dist2 > innerRadius2) {
+                    i32v2 pos(x2 + dx, z2 + dz);
+                    ui32 chunkOff = innerChunkOffset;
+                    addChunkOffset(pos, chunkOff);
+                    ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
+
+                    if (dist2 >= capRadius2) {
+                        m_fNodes->emplace_back(props.mushroom.capBlockID, blockIndex, chunkOff);
+                    } else {
+                        m_fNodes->emplace_back(props.mushroom.gillBlockID, blockIndex, chunkOff);
+                    }
+                }
+            }
+        }
+
         offsetPositive(y, Y_1, chunkOffset, 1);
     }
 }

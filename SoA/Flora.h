@@ -58,10 +58,12 @@ struct TreeTypeLeafProperties {
             ui16 blockID;
         } pine;);
         UNIONIZE(struct {
-            Range<i16> lengthMod;
-            Range<i16> curlLength;
-            Range<i16> capThickness;
-            Range<i16> gillThickness;
+            Range<ui16> tvRadius;
+            Range<ui16> thRadius;
+            Range<ui16> bvRadius;
+            Range<ui16> bhRadius;
+            Range<ui16> capWidth;
+            Range<ui16> gillWidth;
             ui16 gillBlockID;
             ui16 capBlockID;
         } mushroom;);
@@ -84,10 +86,12 @@ struct TreeLeafProperties {
             ui16 blockID;
         } pine;);
         UNIONIZE(struct {
-            i16 lengthMod;
-            i16 curlLength;
-            i16 capThickness;
-            i16 gillThickness;
+            ui16 tvRadius;
+            ui16 thRadius;
+            ui16 bvRadius;
+            ui16 bhRadius;
+            ui16 capWidth;
+            ui16 gillWidth;
             ui16 gillBlockID;
             ui16 capBlockID;
         } mushroom;);

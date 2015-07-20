@@ -456,7 +456,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
 
     // Parses leaf field
     auto leafParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        // TODO(Ben): Other leaf types
+        // TODO(Ben): String tokenizer to get rid of string comparisons
         if (key == "type") {
             keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
         } else if (key == "radius") {
@@ -477,6 +477,22 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         } else if (key == "fruit") {
             fruitProps = &leafProps->fruitProps;
             context.reader.forAllInMap(value, fruitParser);
+        } else if (key == "tvRadius") {
+            PARSE_V2(i32, leafProps->mushroom.tvRadius);
+        } else if (key == "thRadius") {
+            PARSE_V2(i32, leafProps->mushroom.thRadius);
+        } else if (key == "bvRadius") {
+            PARSE_V2(i32, leafProps->mushroom.bvRadius);
+        } else if (key == "bhRadius") {
+            PARSE_V2(i32, leafProps->mushroom.bhRadius);
+        } else if (key == "capWidth") {
+            PARSE_V2(i32, leafProps->mushroom.capWidth);
+        } else if (key == "gillWidth") {
+            PARSE_V2(i32, leafProps->mushroom.gillWidth);
+        } else if (key == "gillBlock") {
+            keg::evalData((ui8*)&leafProps->mushGillBlock, &stringVal, value, context);
+        } else if (key == "capBlock") {
+            keg::evalData((ui8*)&leafProps->mushCapBlock, &stringVal, value, context);
         }
     });
 
@@ -561,6 +577,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         treeProps->trunkProps.emplace_back();
         // Get our handle
         trunkProps = &treeProps->trunkProps.back();
+        *trunkProps = {}; // Zero it
         context.reader.forAllInMap(value, trunkDataParser);
     });
 
@@ -577,6 +594,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         genData->blockInfo.trees.emplace_back();
         treeProps = &genData->blockInfo.trees.back();
+        *treeProps = {}; // Zero it
         treeProps->id = key;
         context.reader.forAllInMap(value, treeParser);
     });

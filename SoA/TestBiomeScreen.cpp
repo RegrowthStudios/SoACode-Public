@@ -14,8 +14,8 @@
 #define HORIZONTAL_CHUNKS 4
 #define VERTICAL_CHUNKS 4
 #else
-#define HORIZONTAL_CHUNKS 20
-#define VERTICAL_CHUNKS 16
+#define HORIZONTAL_CHUNKS 16
+#define VERTICAL_CHUNKS 12
 #endif
 
 TestBiomeScreen::TestBiomeScreen(const App* app, CommonState* state) :

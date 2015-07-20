@@ -65,10 +65,12 @@ struct LeafKegProperties {
             i32v2 period;
         } pine;);
         UNIONIZE(struct {
-            i32v2 lengthMod;
-            i32v2 curlLength;
-            i32v2 capThickness;
-            i32v2 gillThickness;
+            i32v2 tvRadius;
+            i32v2 thRadius;
+            i32v2 bvRadius;
+            i32v2 bhRadius;
+            i32v2 capWidth;
+            i32v2 gillWidth;
         } mushroom;);
     };
     // Don't put strings in unions
