@@ -485,6 +485,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(i32, leafProps->mushroom.bvRadius);
         } else if (key == "bhRadius") {
             PARSE_V2(i32, leafProps->mushroom.bhRadius);
+        } else if (key == "bLength") {
+            PARSE_V2(i32, leafProps->mushroom.bLength);
         } else if (key == "capWidth") {
             PARSE_V2(i32, leafProps->mushroom.capWidth);
         } else if (key == "gillWidth") {

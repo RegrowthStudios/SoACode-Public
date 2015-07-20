@@ -146,6 +146,7 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
             SET_RANGE(lp, kp, mushroom.thRadius);
             SET_RANGE(lp, kp, mushroom.bvRadius);
             SET_RANGE(lp, kp, mushroom.bhRadius);
+            SET_RANGE(lp, kp, mushroom.bLength);
             SET_RANGE(lp, kp, mushroom.capWidth);
             SET_RANGE(lp, kp, mushroom.gillWidth);
             // Block overrides cap and gill when they are none

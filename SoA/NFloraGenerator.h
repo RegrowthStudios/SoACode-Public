@@ -69,7 +69,6 @@ private:
     void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
-    void directionalMove(ui16& blockIndex, ui32 &chunkOffset, TreeDir dir);
    
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;

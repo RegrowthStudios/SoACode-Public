@@ -62,6 +62,7 @@ struct TreeTypeLeafProperties {
             Range<ui16> thRadius;
             Range<ui16> bvRadius;
             Range<ui16> bhRadius;
+            Range<ui16> bLength;
             Range<ui16> capWidth;
             Range<ui16> gillWidth;
             ui16 gillBlockID;
@@ -90,6 +91,7 @@ struct TreeLeafProperties {
             ui16 thRadius;
             ui16 bvRadius;
             ui16 bhRadius;
+            ui16 bLength;
             ui16 capWidth;
             ui16 gillWidth;
             ui16 gillBlockID;

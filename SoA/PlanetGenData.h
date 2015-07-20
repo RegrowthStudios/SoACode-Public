@@ -69,6 +69,7 @@ struct LeafKegProperties {
             i32v2 thRadius;
             i32v2 bvRadius;
             i32v2 bhRadius;
+            i32v2 bLength;
             i32v2 capWidth;
             i32v2 gillWidth;
         } mushroom;);

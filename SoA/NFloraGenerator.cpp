@@ -7,8 +7,11 @@
 #define Y_1 0x400
 #define Z_1 0x1
 
+#pragma region helpers
 /************************************************************************/
 /* Helper Functions                                                     */
+/************************************************************************/
+/*  These functions allow us to move in chunk-space without branching.  */
 /************************************************************************/
 // Adds a positive offset
 inline void offsetPositive(int& x, int x1, ui32& chunkOffset, int offset) {
@@ -17,9 +20,37 @@ inline void offsetPositive(int& x, int x1, ui32& chunkOffset, int offset) {
     x &= 0x1f; // Modulo 32
 }
 inline void offsetNegative(int& x, int x1, ui32& chunkOffset, int offset) {
+    // We are inverting and treating negative as positive here so modulus works
+    // without branching
     x = (CHUNK_WIDTH_M1 - x) + offset;
     chunkOffset -= x1 * (x / CHUNK_WIDTH);
+    // Modulo 32 and invert back to positive
     x = CHUNK_WIDTH_M1 - (x & 0x1f);
+}
+inline void offsetNegative(int& x, int& y, int x1, int y1, ui32& chunkOffset, int offset) {
+    // We are inverting and treating negative as positive here so modulus works
+    // without branching
+    x = (CHUNK_WIDTH_M1 - x) + offset;
+    y = (CHUNK_WIDTH_M1 - y) + offset;
+    chunkOffset -= x1 * (x / CHUNK_WIDTH);
+    chunkOffset -= y1 * (y / CHUNK_WIDTH);
+    // Modulo 32 and invert back to positive
+    x = CHUNK_WIDTH_M1 - (x & 0x1f);
+    y = CHUNK_WIDTH_M1 - (y & 0x1f);
+}
+inline void offsetNegative(int& x, int& y, int& z, ui32& chunkOffset, int offset) {
+    // We are inverting and treating negative as positive here so modulus works
+    // without branching
+    x = (CHUNK_WIDTH_M1 - x) + offset;
+    y = (CHUNK_WIDTH_M1 - y) + offset;
+    z = (CHUNK_WIDTH_M1 - z) + offset;
+    chunkOffset -= X_1 * (x / CHUNK_WIDTH);
+    chunkOffset -= Y_1 * (y / CHUNK_WIDTH);
+    chunkOffset -= Z_1 * (z / CHUNK_WIDTH);
+    // Modulo 32 and invert back to positive
+    x = CHUNK_WIDTH_M1 - (x & 0x1f);
+    y = CHUNK_WIDTH_M1 - (y & 0x1f);
+    z = CHUNK_WIDTH_M1 - (z & 0x1f);
 }
 inline void addChunkOffset(i32v2& pos, ui32& chunkOffset) {
     // Modify chunk offset
@@ -35,40 +66,7 @@ inline void addChunkOffset(i32v3& pos, ui32& chunkOffset) {
     // Modulo 32
     pos &= 0x1f; // Modulo 32
 }
-// Offsets to negative corner for iteration over a volume
-inline void offsetToCorner(int& x, int x1, ui32& chunkOffset, int offset) {
-    // We are inverting and treating negative as positive here so modulus works
-    // without branching
-    x = (CHUNK_WIDTH_M1 - x) + offset;
-    chunkOffset -= x1 * (x / CHUNK_WIDTH);
-    // Modulo 32 and invert back to positive
-    x = CHUNK_WIDTH_M1 - (x & 0x1f);
-}
-inline void offsetToCorner(int& x, int& y, int x1, int y1, ui32& chunkOffset, int offset) {
-    // We are inverting and treating negative as positive here so modulus works
-    // without branching
-    x = (CHUNK_WIDTH_M1 - x) + offset;
-    y = (CHUNK_WIDTH_M1 - y) + offset;
-    chunkOffset -= x1 * (x / CHUNK_WIDTH);
-    chunkOffset -= y1 * (y / CHUNK_WIDTH);
-    // Modulo 32 and invert back to positive
-    x = CHUNK_WIDTH_M1 - (x & 0x1f);
-    y = CHUNK_WIDTH_M1 - (y & 0x1f);
-}
-inline void offsetToCorner(int& x, int& y, int& z, ui32& chunkOffset, int offset) {
-    // We are inverting and treating negative as positive here so modulus works
-    // without branching
-    x = (CHUNK_WIDTH_M1 - x) + offset;
-    y = (CHUNK_WIDTH_M1 - y) + offset;
-    z = (CHUNK_WIDTH_M1 - z) + offset;
-    chunkOffset -= X_1 * (x / CHUNK_WIDTH);
-    chunkOffset -= Y_1 * (y / CHUNK_WIDTH);
-    chunkOffset -= Z_1 * (z / CHUNK_WIDTH);
-    // Modulo 32 and invert back to positive
-    x = CHUNK_WIDTH_M1 - (x & 0x1f);
-    y = CHUNK_WIDTH_M1 - (y & 0x1f);
-    z = CHUNK_WIDTH_M1 - (z & 0x1f);
-}
+
 // Offsets by a floating point position
 inline void offsetByPos(int& x, int& y, int& z, ui32& chunkOffset, const f32v3& pos) {
     if (pos.x < 0.0f) {
@@ -128,10 +126,10 @@ inline void offsetByPos(int& x, int& y, int& z, ui32& chunkOffset, const i32v3& 
         z &= 0x1f;
     }
 }
-
 /************************************************************************/
 /* End Helper Functions                                                 */
 /************************************************************************/
+#pragma endregion
 
 void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes) {
     // Iterate all block indices where flora must be generated
@@ -202,6 +200,7 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
                 rvProps.mushroom.thRadius = LERP_UI16(mushroom.thRadius);
                 rvProps.mushroom.bvRadius = LERP_UI16(mushroom.bvRadius);
                 rvProps.mushroom.bhRadius = LERP_UI16(mushroom.bhRadius);
+                rvProps.mushroom.bLength = LERP_UI16(mushroom.bLength);
                 rvProps.mushroom.capWidth = LERP_UI16(mushroom.capWidth);
                 rvProps.mushroom.gillWidth = LERP_UI16(mushroom.gillWidth);
             } else {
@@ -209,6 +208,7 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
                 rvProps.mushroom.thRadius = blockP->mushroom.thRadius;
                 rvProps.mushroom.bvRadius = blockP->mushroom.bvRadius;
                 rvProps.mushroom.bhRadius = blockP->mushroom.bhRadius;
+                rvProps.mushroom.bLength = blockP->mushroom.bLength;
                 rvProps.mushroom.capWidth = blockP->mushroom.capWidth;
                 rvProps.mushroom.gillWidth = blockP->mushroom.gillWidth;
             }
@@ -378,6 +378,7 @@ inline void setLeafProps(TreeLeafProperties& leafProps, const TreeTypeLeafProper
             leafProps.mushroom.thRadius = AGE_LERP_UI16(typeProps.mushroom.thRadius);
             leafProps.mushroom.bvRadius = AGE_LERP_UI16(typeProps.mushroom.bvRadius);
             leafProps.mushroom.bhRadius = AGE_LERP_UI16(typeProps.mushroom.bhRadius);
+            leafProps.mushroom.bLength = AGE_LERP_UI16(typeProps.mushroom.bLength);
             leafProps.mushroom.capWidth = AGE_LERP_UI16(typeProps.mushroom.capWidth);
             leafProps.mushroom.gillWidth = AGE_LERP_UI16(typeProps.mushroom.gillWidth);
             break;
@@ -479,7 +480,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     int x = m_centerX;
     int z = m_centerZ;
     width += 1; // Pad out one so we can check branches on small trees
-    offsetToCorner(x, z, X_1, Z_1, chunkOffset, width);
+    offsetNegative(x, z, X_1, Z_1, chunkOffset, width);
     x += width;
     z += width;
     // Y voxel offset
@@ -682,7 +683,7 @@ void NFloraGenerator::generateRoundLeaves(ui32 chunkOffset, int x, int y, int z,
     int radius = (int)(props.round.hRadius);
     int radius2 = radius * radius;
     // Get position at back left corner
-    offsetToCorner(x, y, z, chunkOffset, radius - 1);
+    offsetNegative(x, y, z, chunkOffset, radius - 1);
 
     x += radius;
     y += radius;
@@ -707,7 +708,7 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
     // Offset to bottom
     int offset = props.round.vRadius;
     int tmp = y;
-    offsetToCorner(y, Y_1, chunkOffset, offset);
+    offsetNegative(y, Y_1, chunkOffset, offset);
     // Use equation of ellipse
     f32 fOffset = (f32)offset;
     f32 a = (f32)props.round.hRadius;
@@ -722,7 +723,7 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
         int x2 = x;
         int z2 = z;
         ui32 innerChunkOffset = chunkOffset;
-        offsetToCorner(x2, z2, X_1, Z_1, innerChunkOffset, offset);
+        offsetNegative(x2, z2, X_1, Z_1, innerChunkOffset, offset);
         x2 += offset;
         z2 += offset;
         // Make the layer
@@ -745,110 +746,124 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
 }
 
 void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
-    // Offset to bottom
-    int offset = props.mushroom.tvRadius;
-    int tmp = y;
-    offsetToCorner(y, Y_1, chunkOffset, offset);
-    // Use equation of ellipse
-    f32 fOffset = (f32)offset;
-    f32 a = (f32)props.mushroom.thRadius;
-    f32 b = (f32)(props.mushroom.tvRadius * props.mushroom.tvRadius);
-    f32 thickness = (f32)(props.mushroom.capWidth + props.mushroom.gillWidth);
-    for (f32 i = 0.0f; i < fOffset + 1.0f; i += 1.0f) {
-        f32 radius = sqrtf(1.0f - (i * i) / b) * a;
-        f32 capRadius2 = radius - props.mushroom.capWidth;
-        capRadius2 = capRadius2 * capRadius2;
-        f32 innerRadius2 = radius - thickness;
-        if (innerRadius2 < 0.0f) {
-            innerRadius2 = 0.0f;
-        } else {
-            innerRadius2 = innerRadius2 * innerRadius2;
-        }
-        f32 radius2 = radius * radius;
-        const int yOff = y * CHUNK_LAYER;
-        // Offset to back left
-        int offset = fastFloor(radius);
-        int x2 = x;
-        int z2 = z;
-        ui32 innerChunkOffset = chunkOffset;
-        offsetToCorner(x2, z2, X_1, Z_1, innerChunkOffset, offset);
-        x2 += offset;
-        z2 += offset;
-        // Make the layer
-        for (int dz = -offset; dz <= offset; ++dz) {
-            for (int dx = -offset; dx <= offset; ++dx) {
-                f32 dist2 = (f32)(dx * dx + dz * dz);
-                if (dist2 < radius2 && dist2 > innerRadius2) {
-                    i32v2 pos(x2 + dx, z2 + dz);
-                    ui32 chunkOff = innerChunkOffset;
-                    addChunkOffset(pos, chunkOff);
-                    ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
+    
+    int startY = y;
+    ui32 startChunkOffset = chunkOffset;
+    if (props.mushroom.tvRadius) { // Top half
+        // Offset to middle of cap
+        int offset = props.mushroom.tvRadius;
+        offsetNegative(y, Y_1, chunkOffset, offset);
+        // Parameters
+        f32 fOffset = (f32)offset;
+        f32 a = (f32)props.mushroom.thRadius;
+        f32 b = (f32)(props.mushroom.tvRadius * props.mushroom.tvRadius);
+        f32 thickness = (f32)(props.mushroom.capWidth + props.mushroom.gillWidth);
 
-                    if (dist2 >= capRadius2) {
-                        m_fNodes->emplace_back(props.mushroom.capBlockID, blockIndex, chunkOff);
-                    } else {
-                        m_fNodes->emplace_back(props.mushroom.gillBlockID, blockIndex, chunkOff);
+        // Top half
+        for (f32 i = 0.0f; i < fOffset + 1.0f; i += 1.0f) {
+            // Equation of ellipse
+            f32 radius = sqrtf(1.0f - (i * i) / b) * a;
+            f32 capRadius2 = radius - props.mushroom.capWidth;
+            capRadius2 = capRadius2 * capRadius2;
+            f32 innerRadius2 = radius - thickness;
+            if (innerRadius2 < 0.0f) {
+                innerRadius2 = 0.0f;
+            } else {
+                innerRadius2 = innerRadius2 * innerRadius2;
+            }
+            f32 radius2 = radius * radius;
+            const int yOff = y * CHUNK_LAYER;
+            // Offset to back left
+            int innerOffset = fastFloor(radius);
+            int x2 = x;
+            int z2 = z;
+            ui32 innerChunkOffset = chunkOffset;
+            offsetNegative(x2, z2, X_1, Z_1, innerChunkOffset, innerOffset);
+            x2 += innerOffset;
+            z2 += innerOffset;
+            // Make the layer
+            for (int dz = -innerOffset; dz <= innerOffset; ++dz) {
+                for (int dx = -innerOffset; dx <= innerOffset; ++dx) {
+                    f32 dist2 = (f32)(dx * dx + dz * dz);
+                    if (dist2 < radius2 && dist2 > innerRadius2) {
+                        i32v2 pos(x2 + dx, z2 + dz);
+                        ui32 chunkOff = innerChunkOffset;
+                        addChunkOffset(pos, chunkOff);
+                        ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
+                        if (dist2 >= capRadius2) {
+                            m_fNodes->emplace_back(props.mushroom.capBlockID, blockIndex, chunkOff);
+                        } else {
+                            m_fNodes->emplace_back(props.mushroom.gillBlockID, blockIndex, chunkOff);
+                        }
                     }
                 }
             }
+            offsetPositive(y, Y_1, chunkOffset, 1);
         }
-
-        offsetPositive(y, Y_1, chunkOffset, 1);
     }
-}
 
-void NFloraGenerator::directionalMove(ui16& blockIndex, ui32 &chunkOffset, TreeDir dir) {
-    // Constants for chunkOffset
-    // TODO(Ben): Optimize out the modulus
+    if (props.mushroom.bLength && props.mushroom.bvRadius) { // Bottom half
+        y = startY;
+        chunkOffset = startChunkOffset;
+        // Offset to bottom of cap and skip layers as needed
+        int skipped = props.mushroom.bvRadius - props.mushroom.bLength;
+        if (skipped < 0) return;
+        int offset = props.mushroom.bvRadius - skipped;
+        offsetNegative(y, Y_1, chunkOffset, offset + props.mushroom.tvRadius + 1);
+        // Parameters
+        f32 fOffset = (f32)props.mushroom.bvRadius;
+        f32 a = (f32)props.mushroom.bhRadius;
+        f32 b = (f32)(props.mushroom.bvRadius * props.mushroom.bvRadius);
+        f32 thickness = (f32)(props.mushroom.capWidth + props.mushroom.gillWidth);
 
-    switch (dir) {
-        case TREE_UP:
-            blockIndex += CHUNK_LAYER;
-            if (blockIndex >= CHUNK_SIZE) {
-                blockIndex -= CHUNK_SIZE;
-                chunkOffset += Y_1;
-            }
-            break;
-        case TREE_DOWN:
-            blockIndex -= CHUNK_LAYER;
-            if (blockIndex < 0) {
-                blockIndex += CHUNK_SIZE;
-                chunkOffset -= Y_1;
-            }
-            break;
-        case TREE_LEFT:
-            if (blockIndex % CHUNK_WIDTH) {
-                blockIndex--;
+        // Top half
+        f32 end = fOffset + 1.0f;
+        f32 fSkipped = (f32)skipped;
+        for (f32 i = fSkipped; i < end; i += 1.0f) {
+            // Get lerp factor
+            f32 l = (i - fSkipped) / (end - fSkipped);
+            l = hermite(l);
+            // Lerp the a
+            f32 a = ((f32)props.mushroom.thRadius - (f32)props.mushroom.bhRadius) * l + props.mushroom.bhRadius;
+            // Equation of ellipse
+            f32 ey = fOffset - i;
+            f32 radius = sqrtf(1.0f - (ey * ey) / b) * a;
+            f32 capRadius2 = radius - props.mushroom.capWidth;
+            capRadius2 = capRadius2 * capRadius2;
+            f32 innerRadius2 = radius - thickness;
+            if (innerRadius2 < 0.0f) {
+                innerRadius2 = 0.0f;
             } else {
-                blockIndex = blockIndex + CHUNK_WIDTH - 1;
-                chunkOffset -= X_1;
+                innerRadius2 = innerRadius2 * innerRadius2;
             }
-            break;
-        case TREE_BACK:
-            if ((blockIndex % CHUNK_LAYER) / CHUNK_WIDTH) {
-                blockIndex -= CHUNK_WIDTH;
-            } else {
-                blockIndex = blockIndex + CHUNK_LAYER - CHUNK_WIDTH;
-                chunkOffset -= Z_1;
+            f32 radius2 = radius * radius;
+            const int yOff = y * CHUNK_LAYER;
+            // Offset to back left
+            int innerOffset = fastFloor(radius);
+            int x2 = x;
+            int z2 = z;
+            ui32 innerChunkOffset = chunkOffset;
+            offsetNegative(x2, z2, X_1, Z_1, innerChunkOffset, innerOffset);
+            x2 += innerOffset;
+            z2 += innerOffset;
+            // Make the layer
+            for (int dz = -innerOffset; dz <= innerOffset; ++dz) {
+                for (int dx = -innerOffset; dx <= innerOffset; ++dx) {
+                    f32 dist2 = (f32)(dx * dx + dz * dz);
+                    if (dist2 < radius2 && dist2 > innerRadius2) {
+                        i32v2 pos(x2 + dx, z2 + dz);
+                        ui32 chunkOff = innerChunkOffset;
+                        addChunkOffset(pos, chunkOff);
+                        ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
+                        if (dist2 >= capRadius2) {
+                            m_fNodes->emplace_back(props.mushroom.capBlockID, blockIndex, chunkOff);
+                        } else {
+                            m_fNodes->emplace_back(props.mushroom.gillBlockID, blockIndex, chunkOff);
+                        }
+                    }
+                }
             }
-            break;
-        case TREE_RIGHT:
-            if (blockIndex % CHUNK_WIDTH < CHUNK_WIDTH - 1) {
-                blockIndex++;
-            } else {
-                blockIndex = blockIndex - CHUNK_WIDTH + 1;
-                chunkOffset += X_1;
-            }
-            break;
-        case TREE_FRONT:
-            if ((blockIndex % CHUNK_LAYER) / CHUNK_WIDTH < CHUNK_WIDTH - 1) {
-                blockIndex += CHUNK_WIDTH;
-            } else {
-                blockIndex = blockIndex - CHUNK_LAYER + CHUNK_WIDTH;
-                chunkOffset += Z_1;
-            }
-            break;
-        default:
-            break;
+            offsetPositive(y, Y_1, chunkOffset, 1);
+        }
     }
 }
