@@ -158,6 +158,11 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
     }
 }
 
+#pragma region lerping
+// Lerps and rounds
+#define LERP_UI16(var) FastConversion<ui16, f32>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
+#define LERP_I32(var) FastConversion<i32, f32>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
+
 inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProperties& a, const TreeLeafProperties& b, f32 l) {
     const TreeLeafProperties* blockP;
     if (l < 0.5f) {
@@ -170,8 +175,8 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
         case TreeLeafType::ROUND:
             rvProps.round.blockID = blockP->round.blockID;
             if (a.type == b.type) {
-                rvProps.round.vRadius = lerp(a.round.vRadius, b.round.vRadius, l);
-                rvProps.round.hRadius = lerp(a.round.hRadius, b.round.hRadius, l);
+                rvProps.round.vRadius = LERP_UI16(round.vRadius);
+                rvProps.round.hRadius = LERP_UI16(round.hRadius);
             } else {
                 rvProps.round.vRadius = blockP->round.vRadius;
                 rvProps.round.hRadius = blockP->round.hRadius;
@@ -180,9 +185,9 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
         case TreeLeafType::PINE:
             rvProps.pine.blockID = blockP->pine.blockID;
             if (a.type == b.type) {
-                rvProps.pine.oRadius = lerp(a.pine.oRadius, b.pine.oRadius, l);
-                rvProps.pine.iRadius = lerp(a.pine.iRadius, b.pine.iRadius, l);
-                rvProps.pine.period = lerp(a.pine.period, b.pine.period, l);
+                rvProps.pine.oRadius = LERP_UI16(pine.oRadius);
+                rvProps.pine.iRadius = LERP_UI16(pine.iRadius);
+                rvProps.pine.period = LERP_UI16(pine.period);
             } else {
                 rvProps.pine.oRadius = blockP->pine.oRadius;
                 rvProps.pine.iRadius = blockP->pine.iRadius;
@@ -193,12 +198,12 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
             rvProps.mushroom.capBlockID = blockP->mushroom.capBlockID;
             rvProps.mushroom.gillBlockID = blockP->mushroom.gillBlockID;
             if (a.type == b.type) {
-                rvProps.mushroom.tvRadius = lerp(a.mushroom.tvRadius, b.mushroom.tvRadius, l);
-                rvProps.mushroom.thRadius = lerp(a.mushroom.thRadius, b.mushroom.thRadius, l);
-                rvProps.mushroom.bvRadius = lerp(a.mushroom.bvRadius, b.mushroom.bvRadius, l);
-                rvProps.mushroom.bhRadius = lerp(a.mushroom.bhRadius, b.mushroom.bhRadius, l);
-                rvProps.mushroom.capWidth = lerp(a.mushroom.capWidth, b.mushroom.capWidth, l);
-                rvProps.mushroom.gillWidth = lerp(a.mushroom.gillWidth, b.mushroom.gillWidth, l);
+                rvProps.mushroom.tvRadius = LERP_UI16(mushroom.tvRadius);
+                rvProps.mushroom.thRadius = LERP_UI16(mushroom.thRadius);
+                rvProps.mushroom.bvRadius = LERP_UI16(mushroom.bvRadius);
+                rvProps.mushroom.bhRadius = LERP_UI16(mushroom.bhRadius);
+                rvProps.mushroom.capWidth = LERP_UI16(mushroom.capWidth);
+                rvProps.mushroom.gillWidth = LERP_UI16(mushroom.gillWidth);
             } else {
                 rvProps.mushroom.tvRadius = blockP->mushroom.tvRadius;
                 rvProps.mushroom.thRadius = blockP->mushroom.thRadius;
@@ -223,14 +228,14 @@ inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranch
         rvProps.coreBlockID = b.coreBlockID;
     }
     // Lerp the rest
-    rvProps.coreWidth = lerp(a.coreWidth, b.coreWidth, l);
-    rvProps.barkWidth = lerp(a.barkWidth, b.barkWidth, l);
+    rvProps.coreWidth = LERP_UI16(coreWidth);
+    rvProps.barkWidth = LERP_UI16(barkWidth);
     rvProps.branchChance = lerp(a.branchChance, b.branchChance, l);
-    rvProps.length = lerp(a.length, b.length, l);
+    rvProps.length = LERP_UI16(length);
     rvProps.angle.min = lerp(a.angle.min, b.angle.min, l);
     rvProps.angle.max = lerp(a.angle.max, b.angle.max, l);
-    rvProps.segments.min = lerp(a.segments.min, b.segments.min, l);
-    rvProps.segments.max = lerp(a.segments.max, b.segments.max, l);
+    rvProps.segments.min = LERP_I32(segments.min);
+    rvProps.segments.max = LERP_I32(segments.max);
     lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
     // TODO(Ben): Lerp other properties
 }
@@ -249,11 +254,11 @@ inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkPro
         rvProps.coreBlockID = b.coreBlockID;
     }
     // Lerp the rest
-    rvProps.coreWidth = lerp(a.coreWidth, b.coreWidth, l);
-    rvProps.barkWidth = lerp(a.barkWidth, b.barkWidth, l);
+    rvProps.coreWidth = LERP_UI16(coreWidth);
+    rvProps.barkWidth = LERP_UI16(barkWidth);
     rvProps.branchChance = lerp(a.branchChance, b.branchChance, l);
-    rvProps.slope.min = lerp(a.slope.min, b.slope.min, l);
-    rvProps.slope.max = lerp(a.slope.max, b.slope.max, l);
+    rvProps.slope.min = LERP_I32(slope.min);
+    rvProps.slope.max = LERP_I32(slope.max);
     lerpBranchProperties(rvProps.branchProps, a.branchProps, b.branchProps, l);
     lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
     // TODO(Ben): Lerp other properties
@@ -336,10 +341,14 @@ void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vec
         }
     } while (true);
 }
+#undef LERP_UI16
+#undef LERP_I32
+#pragma endregion
 
+#pragma region age_lerping
+#define AGE_LERP_F32(var) lerp(var.max, var.min, age)
 // Lerps and rounds
-#define AGE_LERP_F32(var) fastFloorf((var.max - var.min) * age + var.min + 0.5f)
-#define AGE_LERP_I32(var) FastConversion<f32, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
+#define AGE_LERP_I32(var) FastConversion<i32, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
 #define AGE_LERP_UI16(var) FastConversion<ui16, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
 
 inline void setFruitProps(TreeFruitProperties& fruitProps, const TreeTypeFruitProperties& typeProps, f32 age) {
@@ -412,9 +421,9 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
 }
 void NFloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora) {
     flora.block = type->block;
-    flora.slope = AGE_LERP(type->slope);
-    flora.dSlope = AGE_LERP(type->dSlope);
-    flora.height = AGE_LERP(type->height);
+    flora.slope = AGE_LERP_UI16(type->slope);
+    flora.dSlope = AGE_LERP_UI16(type->dSlope);
+    flora.height = AGE_LERP_UI16(type->height);
     flora.nextFlora = type->nextFlora;
     switch (type->dir) {
         case FloraDir::SIDE:
@@ -428,7 +437,10 @@ void NFloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OU
             break;
     }
 }
-#undef AGE_LERP
+#undef AGE_LERP_F32
+#undef AGE_LERP_I32
+#undef AGE_LERP_UI16
+#pragma endregion
 
 // TODO(Ben): Need to handle different shapes than just round
 void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props) {
