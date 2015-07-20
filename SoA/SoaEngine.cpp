@@ -233,6 +233,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 ft.slope.max = kp.slope.y;
                 ft.dSlope.min = kp.dSlope.x;
                 ft.dSlope.max = kp.dSlope.y;
+                ft.dir = kp.dir;
             }
         }
         // Set sub-flora

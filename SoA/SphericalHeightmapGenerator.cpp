@@ -40,35 +40,67 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
 
 FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
-    // TODO(Ben): Sort trees with priority
+    f64 noTreeChance = 1.0;
+    f64 totalChance = 0.0;
+    // TODO(Ben): Stack allocate
+    f64* chances = new f64[biome->trees.size()];
+    // Determine chance
     for (size_t i = 0; i < biome->trees.size(); i++) {
-        const BiomeTree& t = biome->trees[i];
-        f64 chance = t.chance.base;
-        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        // TODO(Ben) This is wrong
-        ui32 hash = ((iHash((int)facePosition.pos.x + i) ^ (iHash((int)facePosition.pos.y + i) << 1)) >> 1);
-        f64 roll = (f32)fastRand(hash) / RAND_MAX;
-        if (roll < chance) {
-            return t.id;
+        auto& t = biome->trees[i];
+        f64 c = t.chance.base;
+        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, c);
+        totalChance += c;
+        chances[i] = totalChance;
+        noTreeChance *= (1.0 - c);
+    }
+    // Start random generator
+    FastRandGenerator rGen(facePosition.pos.x, facePosition.pos.y);
+    if (rGen.genlf() < 1.0 - noTreeChance) {
+        // A plant exists, now we determine which one
+        // TODO(Ben): Binary search?
+        f64 roll = rGen.genlf() * totalChance;
+        for (size_t i = 0; i < biome->trees.size(); i++) {
+            auto& t = biome->trees[i];
+            if (roll <= chances[i]) {
+                delete[] chances;
+                return t.id;
+            }
         }
     }
+    delete[] chances;
     return FLORA_ID_NONE;
 }
 
 FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
-    // TODO(Ben): Sort flora with priority
+    f64 noFloraChance = 1.0;
+    f64 totalChance = 0.0;
+    // TODO(Ben): Stack allocate
+    f64* chances = new f64[biome->flora.size()];
+    // Determine chance
     for (size_t i = 0; i < biome->flora.size(); i++) {
-        const BiomeFlora& f = biome->flora[i];
-        f64 chance = f.chance.base;
-        // TODO(Ben): This is wrong
-        getNoiseValue(worldPos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        ui32 hash = ((iHash((int)facePosition.pos.x + i) ^ (iHash((int)facePosition.pos.y + i) << 1)) >> 1);
-        f64 roll = (f32)fastRand(hash) / RAND_MAX;
-        if (roll < chance) {
-            return f.id;
+        auto& t = biome->flora[i];
+        f64 c = t.chance.base;
+        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, c);
+        totalChance += c;
+        chances[i] = totalChance;
+        noFloraChance *= (1.0 - c);
+    }
+    // Start random generator
+    FastRandGenerator rGen(facePosition.pos.x, facePosition.pos.y);
+    if (rGen.genlf() < 1.0 - noFloraChance) {
+        // A plant exists, now we determine which one
+        // TODO(Ben): Binary search?
+        f64 roll = rGen.genlf() * totalChance;
+        for (size_t i = 0; i < biome->flora.size(); i++) {
+            auto& t = biome->flora[i];
+            if (roll <= chances[i]) {
+                delete[] chances;
+                return t.id;
+            }
         }
     }
+    delete[] chances;
     return FLORA_ID_NONE;
 }
 

@@ -75,6 +75,7 @@ private:
     FloraData m_floraData;
     int m_centerX, m_centerY, m_centerZ;
     ui32 m_h; ///< Current height along the tree
+    FastRandGenerator m_rGen;
 };
 
 #endif // NFloraGenerator_h__

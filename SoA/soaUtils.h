@@ -152,6 +152,53 @@ inline ui32 fastRand(ui32 seed) {
     return ((214013u * seed + 2531011u) >> 16) & RAND_MAX;
 }
 
+// RAND_MAX minus 1
+#define RAND_MAX_M1 0x7FFE
+
+// Poor distribution but fast.
+class FastRandGenerator {
+public:
+    FastRandGenerator() {};
+    FastRandGenerator(ui32 seed) : m_seed(seed) {};
+    template <typename T>
+    FastRandGenerator(T seedX, T seedY) { seed(seedX, seedY); }
+    template <typename T>
+    FastRandGenerator(T seedX, T seedY, T seedZ) { seed(seedX, seedY, seedZ); }
+
+    // Seeds the generator
+    inline void seed(ui32 seed) { m_seed = seed; }
+    template <typename T>
+    inline void seed(T seedX, T seedY) {
+        std::hash<T> h;
+        m_seed = ((h(seedX) ^ (h(seedY) << 1)) >> 1);
+    }
+    template <typename T>
+    inline void seed(T seedX, T seedY, T seedZ) {
+        std::hash<T> h;
+        m_seed = ((h(seedX) ^ (h(seedY) << 1)) >> 1) ^ (h(seedZ) << 1);
+    }
+
+    // Generates number between 0 and RAND_MAX-1
+    inline ui32 gen() {
+        m_seed = ((214013u * m_seed + 2531011u) >> 16);
+        return m_seed & RAND_MAX;
+    }
+    // Generates number between 0 and 1
+    // Granularity is 0.0000305
+    inline f32 genf() {
+        m_seed = ((214013u * m_seed + 2531011u) >> 16);
+        return (f32)(m_seed & RAND_MAX) / (RAND_MAX_M1);
+    }
+    // Generates number between 0 and 1
+    // Granularity is 0.0000305
+    inline f64 genlf() {
+        m_seed = ((214013u * m_seed + 2531011u) >> 16);
+        return (f64)(m_seed & RAND_MAX) / (RAND_MAX_M1);
+    }
+private:
+    ui32 m_seed = 0;
+};
+
 
 // Math stuff //TODO(Ben): Move this to vorb?
 // atan2 approximation for doubles for GLSL
