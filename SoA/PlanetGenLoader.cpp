@@ -528,6 +528,9 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(f32, trunkProps->branchProps.branchChance);
         } else if (key == "length") {
             PARSE_V2(i32, trunkProps->branchProps.length);
+        } else if (key == "block") {
+            keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
+            trunkProps->branchProps.barkBlock = trunkProps->branchProps.coreBlock;
         } else if (key == "coreBlock") {
             keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
         } else if (key == "barkBlock") {
@@ -562,6 +565,9 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(f32, trunkProps->branchChance);
         } else if (key == "slope") {
             context.reader.forAllInMap(value, slopeParser);
+        } else if (key == "block") {
+            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+            trunkProps->barkBlock = trunkProps->coreBlock;
         } else if (key == "coreBlock") {
             keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
         } else if (key == "barkBlock") {

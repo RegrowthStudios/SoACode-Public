@@ -138,11 +138,11 @@ inline void smoothInterpFactor(f32& l, const FloraInterpType& type) {
             l = hermite(l);
             break;
         case FloraInterpType::COSINE:
-            // TODO(Ben): Cos lookup table
+            // TODO(Ben): cos lookup table
             l = (f32)(1.0 - cos((f64)l * M_PI_2));
             break;
         case FloraInterpType::SINE:
-            // TODO(Ben): Cos lookup table
+            // TODO(Ben): sin lookup table
             l = (f32)(sin((f64)l * M_PI_2));
             break;
         default:
@@ -325,6 +325,9 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         makeTrunkSlice(chunkOffset, *trunkProps);
         // Move up
         offsetPositive(m_centerY, Y_1, chunkOffset, 1);
+    }
+    if (trunkProps->leafProps.type == TreeLeafType::MUSHROOM) {
+        generateMushroomCap(chunkOffset, m_centerX, m_centerY, m_centerZ, trunkProps->leafProps);
     }
 }
 

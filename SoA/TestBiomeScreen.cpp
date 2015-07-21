@@ -14,8 +14,9 @@
 #define HORIZONTAL_CHUNKS 4
 #define VERTICAL_CHUNKS 4
 #else
-#define HORIZONTAL_CHUNKS 16
-#define VERTICAL_CHUNKS 12
+
+#define HORIZONTAL_CHUNKS 30
+#define VERTICAL_CHUNKS 20
 #endif
 
 TestBiomeScreen::TestBiomeScreen(const App* app, CommonState* state) :
@@ -444,12 +445,11 @@ void TestBiomeScreen::initInput() {
 
                 m_chunkGenerator.init(m_genData);
 
-                for (size_t i = 0; i < m_chunks.size(); i++) {
-                    delete m_chunks[i].chunk;
-                    m_mesher.freeChunkMesh(m_chunks[i].chunkMesh);
+                for (auto& cv : m_chunks) {
+                    delete cv.chunk;
+                    m_mesher.freeChunkMesh(cv.chunkMesh);
                 }
 
-                
                 initHeightData();
                 initChunks();
 
