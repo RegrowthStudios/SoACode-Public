@@ -953,23 +953,23 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.overlayColor = blockColor[O_INDEX];
 #endif
         // TODO(Ben) array?
-        v.textureIndex = (ui8)methodDatas[0].index;
-        v.textureAtlas = atlasIndices[0];
-        v.normIndex = (ui8)methodDatas[1].index;
-        v.normAtlas = atlasIndices[1];
-        v.dispIndex = (ui8)methodDatas[2].index;
-        v.dispAtlas = atlasIndices[2];
-        v.overlayTextureIndex = (ui8)methodDatas[3].index;
-        v.overlayTextureAtlas = atlasIndices[3];
-        v.overlayNormIndex = (ui8)methodDatas[4].index;
-        v.overlayNormAtlas = atlasIndices[4];
-        v.overlayDispIndex = (ui8)methodDatas[5].index;
-        v.overlayDispAtlas = atlasIndices[5];
+        v.texturePosition.base.index = (ui8)methodDatas[0].index;
+        v.texturePosition.base.atlas = atlasIndices[0];
+        v.normTexturePosition.base.index = (ui8)methodDatas[1].index;
+        v.normTexturePosition.base.atlas = atlasIndices[1];
+        v.dispTexturePosition.base.index = (ui8)methodDatas[2].index;
+        v.dispTexturePosition.base.atlas = atlasIndices[2];
+        v.texturePosition.overlay.index = (ui8)methodDatas[3].index;
+        v.texturePosition.overlay.atlas = atlasIndices[3];
+        v.normTexturePosition.overlay.index = (ui8)methodDatas[4].index;
+        v.normTexturePosition.overlay.atlas = atlasIndices[4];
+        v.dispTexturePosition.overlay.index = (ui8)methodDatas[5].index;
+        v.dispTexturePosition.overlay.atlas = atlasIndices[5];
         
-        v.textureWidth = (ui8)methodDatas[0].size.x;
-        v.textureHeight = (ui8)methodDatas[0].size.y;
-        v.overlayTextureWidth = (ui8)methodDatas[3].size.x;
-        v.overlayTextureHeight = (ui8)methodDatas[3].size.y;
+        v.textureDims.x = (ui8)methodDatas[0].size.x;
+        v.textureDims.y = (ui8)methodDatas[0].size.y;
+        v.overlayTextureDims.x = (ui8)methodDatas[3].size.x;
+        v.overlayTextureDims.y = (ui8)methodDatas[3].size.y;
         v.blendMode = blendMode;
         v.face = (ui8)face;
     }
@@ -1124,23 +1124,23 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
         v.overlayColor = data.blockColor[O_INDEX];
 
         // TODO(Ben) array?
-        v.textureIndex = (ui8)data.methodDatas[0].index;
-        v.textureAtlas = data.atlasIndices[0];
-        v.normIndex = (ui8)data.methodDatas[1].index;
-        v.normAtlas = data.atlasIndices[1];
-        v.dispIndex = (ui8)data.methodDatas[2].index;
-        v.dispAtlas = data.atlasIndices[2];
-        v.overlayTextureIndex = (ui8)data.methodDatas[3].index;
-        v.overlayTextureAtlas = data.atlasIndices[3];
-        v.overlayNormIndex = (ui8)data.methodDatas[4].index;
-        v.overlayNormAtlas = data.atlasIndices[4];
-        v.overlayDispIndex = (ui8)data.methodDatas[5].index;
-        v.overlayDispAtlas = data.atlasIndices[5];
+        v.texturePosition.base.index = (ui8)data.methodDatas[0].index;
+        v.texturePosition.base.atlas = data.atlasIndices[0];
+        v.normTexturePosition.base.index = (ui8)data.methodDatas[1].index;
+        v.normTexturePosition.base.atlas = data.atlasIndices[1];
+        v.dispTexturePosition.base.index = (ui8)data.methodDatas[2].index;
+        v.dispTexturePosition.base.atlas = data.atlasIndices[2];
+        v.texturePosition.overlay.index = (ui8)data.methodDatas[3].index;
+        v.texturePosition.overlay.atlas = data.atlasIndices[3];
+        v.normTexturePosition.overlay.index = (ui8)data.methodDatas[4].index;
+        v.normTexturePosition.overlay.atlas = data.atlasIndices[4];
+        v.dispTexturePosition.overlay.index = (ui8)data.methodDatas[5].index;
+        v.dispTexturePosition.overlay.atlas = data.atlasIndices[5];
 
-        v.textureWidth = (ui8)data.methodDatas[0].size.x;
-        v.textureHeight = (ui8)data.methodDatas[0].size.y;
-        v.overlayTextureWidth = (ui8)data.methodDatas[3].size.x;
-        v.overlayTextureHeight = (ui8)data.methodDatas[3].size.y;
+        v.textureDims.x = (ui8)data.methodDatas[0].size.x;
+        v.textureDims.y = (ui8)data.methodDatas[0].size.y;
+        v.overlayTextureDims.x = (ui8)data.methodDatas[3].size.x;
+        v.overlayTextureDims.y = (ui8)data.methodDatas[3].size.y;
         v.blendMode = data.blendMode;
         v.face = (ui8)vvox::Cardinal::Y_POS;
     }
@@ -1515,22 +1515,23 @@ void ChunkMesher::buildTransparentVao(ChunkMesh& cm) {
         glEnableVertexAttribArray(i);
     }
 
-    //position + texture type
-    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), 0);
-    //UV, animation, blendmode
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (4)));
-    //textureAtlas_textureIndex
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (8)));
-    //Texture dimensions
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), ((char *)NULL + (12)));
-    //color
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (16)));
-    //overlayColor
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (20)));
-    //lightcolor[3], sunlight,
-    glVertexAttribPointer(6, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (24)));
-    //normal
-    glVertexAttribPointer(7, 3, GL_BYTE, GL_TRUE, sizeof(BlockVertex), ((char *)NULL + (28)));
+    // TODO(Ben): Might be wrong
+    // vPosition_Face
+    glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
+    // vTex_Animation_BlendMode
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
+    // vTexturePos
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, texturePosition));
+    // vNormTexturePos
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normTexturePosition));
+    // vDispTexturePos
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, dispTexturePosition));
+    // vTexDims
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureDims));
+    // vColor
+    glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
+    // vOverlayColor
+    glVertexAttribPointer(7, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, overlayColor));
 
     glBindVertexArray(0);
 }
@@ -1550,14 +1551,14 @@ void ChunkMesher::buildCutoutVao(ChunkMesh& cm) {
     glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
     // vTex_Animation_BlendMode
     glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
-    // .0
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
-    // vNDTextureAtlas
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));
-    // vNDTextureIndex
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normIndex));
+    // vTexturePos
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, texturePosition));
+    // vNormTexturePos
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normTexturePosition));
+    // vDispTexturePos
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, dispTexturePosition));
     // vTexDims
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureDims));
     // vColor
     glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
     // vOverlayColor
@@ -1580,14 +1581,14 @@ void ChunkMesher::buildVao(ChunkMesh& cm) {
     glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, position));
     // vTex_Animation_BlendMode
     glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, tex));
-    // .0
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureAtlas));
-    // vNDTextureAtlas
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normAtlas));
-    // vNDTextureIndex
-    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normIndex));
+    // vTexturePos
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, texturePosition));
+    // vNormTexturePos
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, normTexturePosition));
+    // vDispTexturePos
+    glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, dispTexturePosition));
     // vTexDims
-    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureWidth));
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(BlockVertex), offsetptr(BlockVertex, textureDims));
     // vColor
     glVertexAttribPointer(6, 3, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(BlockVertex), offsetptr(BlockVertex, color));
     // vOverlayColor

@@ -11,6 +11,7 @@
 KEG_ENUM_DEF(BlockOcclusion, BlockOcclusion, e) {
     e.addValue("none", BlockOcclusion::NONE);
     e.addValue("self", BlockOcclusion::SELF);
+    // TODO(Ben): Temporary
     e.addValue("selfOnly", BlockOcclusion::SELF);
     e.addValue("all", BlockOcclusion::ALL);
 }

@@ -95,19 +95,19 @@ public:
     }
 
     // TODO(Ben): should it be ref color?
-    inline void getBlockTextureMethodData(BlockTextureMethodParams& params, OUT ColorRGB8& color, OUT BlockTextureMethodData& data) const {
+    inline void getBlockTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT BlockTextureMethodData& data) const {
         data.index = this->index;
         getTextureMethodData(params, BASE_TYPE_INDEX, color, data);
     }
-    inline void getNormalTextureMethodData(BlockTextureMethodParams& params, OUT ColorRGB8& color, OUT BlockTextureMethodData& data) const {
+    inline void getNormalTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT BlockTextureMethodData& data) const {
         data.index = this->normalIndex;
         return getTextureMethodData(params, NORM_TYPE_INDEX, color, data);
     }
-    inline void getDispTextureMethodData(BlockTextureMethodParams& params, OUT ColorRGB8& color, OUT  BlockTextureMethodData& data) const {
+    inline void getDispTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT  BlockTextureMethodData& data) const {
         data.index = this->dispIndex;
         return getTextureMethodData(params, DISP_TYPE_INDEX, color, data);
     }
-    inline void getTextureMethodData(BlockTextureMethodParams& params, ui32 typeIndex, OUT ColorRGB8& color, BlockTextureMethodData& data) const {
+    inline void getTextureMethodData(BlockTextureMethodParams& params, ui32 typeIndex, OUT color3& color, BlockTextureMethodData& data) const {
         params.set(this, typeIndex, color);
         blockTextureFunc(params, data);
     }

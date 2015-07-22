@@ -3,7 +3,9 @@
 
 KEG_ENUM_DEF(FloraInterpType, FloraInterpType, e) {
     e.addValue("linear", FloraInterpType::LINEAR);
+    e.addValue("lin", FloraInterpType::LINEAR);
     e.addValue("hermite", FloraInterpType::HERMITE);
+    e.addValue("herm", FloraInterpType::HERMITE);
     e.addValue("cosine", FloraInterpType::COSINE);
     e.addValue("cos", FloraInterpType::COSINE);
     e.addValue("sine", FloraInterpType::SINE);

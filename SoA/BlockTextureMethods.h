@@ -60,13 +60,13 @@ struct BlockTextureMethodData {
 typedef std::function <void(BlockTextureMethodParams& params, BlockTextureMethodData& result)> BlockTextureFunc;
 
 namespace BlockTextureMethods {
-    extern void getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
-    extern void getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
-    extern void getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
-    extern void getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
-    extern void getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
-    extern void getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
-    extern void getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getDefaultTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getRandomTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getFloraTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getConnectedTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getGrassTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getVerticalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
+    void getHorizontalTextureIndex(BlockTextureMethodParams& params, BlockTextureMethodData& result);
 }
 
 #endif // BlockTextureMethods_h__
