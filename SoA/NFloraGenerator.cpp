@@ -67,6 +67,18 @@ inline void addChunkOffset(i32v3& pos, ui32& chunkOffset) {
     pos &= 0x1f; // Modulo 32
 }
 
+inline void offsetAxis(int& x, int x1, ui32& chunkOffset, int offset) {
+    if (offset < 0) {
+        x = (CHUNK_WIDTH_M1 - x) - offset;
+        chunkOffset -= x1 * (x / CHUNK_WIDTH);
+        x = CHUNK_WIDTH_M1 - (x & 0x1f);
+    } else {
+        x = x + offset;
+        chunkOffset += x1 * (x / CHUNK_WIDTH);
+        x &= 0x1f;
+    }
+}
+
 // Offsets by a floating point position
 inline void offsetByPos(int& x, int& y, int& z, ui32& chunkOffset, const f32v3& pos) {
     if (pos.x < 0.0f) {
@@ -154,14 +166,14 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
     // Iterate all block indices where flora must be generated
     for (ui16 blockIndex : chunk->floraToGenerate) {
         // Get position
-        m_centerX = blockIndex & 0x1F; // & 0x1F = % 32
-        m_centerY = blockIndex / CHUNK_LAYER;
-        m_centerZ = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
+        m_center.x = blockIndex & 0x1F; // & 0x1F = % 32
+        m_center.y = blockIndex / CHUNK_LAYER;
+        m_center.z = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
         const PlanetHeightData& hd = heightData[blockIndex & 0x3FF]; // & 0x3FF = % CHUNK_LAYER
         const Biome* b = hd.biome;
         // Seed the generator
         const VoxelPosition3D& vpos = chunk->getVoxelPosition();
-        m_rGen.seed(vpos.pos.x + m_centerX, vpos.pos.y + m_centerY, vpos.pos.z + m_centerZ);
+        m_rGen.seed(vpos.pos.x + m_center.x, vpos.pos.y + m_center.y, vpos.pos.z + m_center.z);
         // Get age
         f32 age = m_rGen.genf();
         // Determine which to generate
@@ -279,12 +291,19 @@ inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkPro
     rvProps.coreWidth = LERP_UI16(coreWidth);
     rvProps.barkWidth = LERP_UI16(barkWidth);
     rvProps.branchChance = lerp(a.branchChance, b.branchChance, l);
-    rvProps.slope.min = LERP_I32(slope.min);
-    rvProps.slope.max = LERP_I32(slope.max);
+    rvProps.changeDirChance = lerp(a.changeDirChance, b.changeDirChance, l);
+    rvProps.slope = LERP_I32(slope);
     lerpBranchProperties(rvProps.branchProps, a.branchProps, b.branchProps, l);
     lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
     // TODO(Ben): Lerp other properties
 }
+
+struct DirLookup {
+    int axis;
+    int one;
+    int sign;
+};
+const DirLookup DIR_AXIS_LOOKUP[4] = { {0, X_1, -1}, {2, Z_1, -1}, {0, X_1, 1}, {2, Z_1, 1} };
 
 void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     // Get the properties for this tree
@@ -324,10 +343,29 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         // Build the trunk slice
         makeTrunkSlice(chunkOffset, *trunkProps);
         // Move up
-        offsetPositive(m_centerY, Y_1, chunkOffset, 1);
+        offsetPositive(m_center.y, Y_1, chunkOffset, 1);
+        // Check for dir chance
+        if (m_rGen.genf() <= trunkProps->changeDirChance) {
+            m_treeData.currentDir = m_rGen.gen() & 3; // & 3 == % 4
+        }
+        // Move sideways with slope if needed
+        if (m_h % trunkProps->slope == trunkProps->slope - 1) {
+            // Place a block so we don't have any floating parts when width is 1
+            if (trunkProps->coreWidth + trunkProps->barkWidth == 1) {
+                if (trunkProps->coreWidth) {
+                    ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
+                    m_wNodes->emplace_back(trunkProps->coreBlockID, blockIndex, chunkOffset);
+                } else {
+                    ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
+                    m_wNodes->emplace_back(trunkProps->barkBlockID, blockIndex, chunkOffset);
+                }
+            }
+            const DirLookup& dir = DIR_AXIS_LOOKUP[m_treeData.currentDir];
+            offsetAxis(m_center[dir.axis], dir.one, chunkOffset, dir.sign);
+        }
     }
     if (trunkProps->leafProps.type == TreeLeafType::MUSHROOM) {
-        generateMushroomCap(chunkOffset, m_centerX, m_centerY, m_centerZ, trunkProps->leafProps);
+        generateMushroomCap(chunkOffset, m_center.x, m_center.y, m_center.z, trunkProps->leafProps);
     }
 }
 
@@ -432,6 +470,8 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
     tree.age = age;
     tree.height = AGE_LERP_UI16(type->height);
     tree.trunkProps.resize(type->trunkProps.size());
+    // TODO(Ben): no rand!!!
+    tree.currentDir = rand() & 3; // & 3 == % 4
     for (size_t i = 0; i < tree.trunkProps.size(); ++i) {
         TreeTrunkProperties& tp = tree.trunkProps[i];
         const TreeTypeTrunkProperties& ttp = type->trunkProps[i];
@@ -442,6 +482,13 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
         tp.coreBlockID = ttp.coreBlockID;
         tp.barkBlockID = ttp.barkBlockID;
         tp.interp = ttp.interp;
+        // TODO(Ben): no rand!!!
+        Range<i32> slopeRange;
+        slopeRange.min = rand() % (ttp.slope.min.max - ttp.slope.min.min + 1) + ttp.slope.min.min;
+        slopeRange.max = rand() % (ttp.slope.max.max - ttp.slope.max.min + 1) + ttp.slope.max.min;
+        tp.slope = AGE_LERP_I32(slopeRange);
+        // TODO(Ben): NO RAND
+        tp.changeDirChance = ((f32)rand() / RAND_MAX) * (ttp.changeDirChance.max - ttp.changeDirChance.min) + ttp.changeDirChance.min;
         setFruitProps(tp.fruitProps, ttp.fruitProps, age);
         setLeafProps(tp.leafProps, ttp.leafProps, age);
         setBranchProps(tp.branchProps, ttp.branchProps, age);
@@ -504,14 +551,14 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     int leafWidth2 = width * width;
 
     // Get position at back left corner
-    int x = m_centerX;
-    int z = m_centerZ;
+    int x = m_center.x;
+    int z = m_center.z;
     width += 1; // Pad out one so we can check branches on small trees
     offsetNegative(x, z, X_1, Z_1, chunkOffset, width);
     x += width;
     z += width;
     // Y voxel offset
-    int yOff = m_centerY * CHUNK_LAYER;
+    int yOff = m_center.y * CHUNK_LAYER;
 
     for (int dz = -width; dz <= width; ++dz) {
         for (int dx = -width; dx <= width; ++dx) {
@@ -542,7 +589,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                         // Interpolate the angle
                         // TODO(Ben): Disk offset
                         f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));
-                        generateBranch(chunkOff, pos.x, m_centerY, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
+                        generateBranch(chunkOff, pos.x, m_center.y, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
                                        dir, props.branchProps);
                     }
                 } else if (leafBlockID) {

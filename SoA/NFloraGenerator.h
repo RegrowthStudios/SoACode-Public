@@ -74,7 +74,7 @@ private:
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;
     FloraData m_floraData;
-    int m_centerX, m_centerY, m_centerZ;
+    i32v3 m_center;
     ui32 m_h; ///< Current height along the tree
     FastRandGenerator m_rGen;
 };

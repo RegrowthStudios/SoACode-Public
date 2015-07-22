@@ -285,6 +285,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 SET_RANGE(tp, tkp, coreWidth);
                 SET_RANGE(tp, tkp, barkWidth);
                 SET_RANGE(tp, tkp, branchChance);
+                SET_RANGE(tp, tkp, changeDirChance);
                 tp.slope.min.min = tkp.slope[0].x;
                 tp.slope.min.max = tkp.slope[0].y;
                 tp.slope.max.min = tkp.slope[1].x;

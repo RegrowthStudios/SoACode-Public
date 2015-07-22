@@ -142,6 +142,7 @@ struct TreeTypeTrunkProperties {
     Range<ui16> coreWidth;
     Range<ui16> barkWidth;
     Range<f32> branchChance;
+    Range<f32> changeDirChance;
     Range<Range<i32>> slope;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
@@ -155,7 +156,8 @@ struct TreeTrunkProperties {
     ui16 coreWidth;
     ui16 barkWidth;
     f32 branchChance;
-    Range<i32> slope;
+    f32 changeDirChance;
+    i32 slope;
     ui16 coreBlockID;
     ui16 barkBlockID;
     FloraInterpType interp;
@@ -176,6 +178,7 @@ struct NTreeType {
 struct TreeData {
     f32 age; ///< 0 - 1
     ui16 height;
+    ui16 currentDir;
     std::vector<TreeTrunkProperties> trunkProps;
 };
 

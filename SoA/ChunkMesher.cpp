@@ -740,34 +740,34 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
 void ChunkMesher::freeChunkMesh(CALLEE_DELETE ChunkMesh* mesh) {
     // Opaque
     if (mesh->vboID != 0) {
-        glDeleteBuffers(1, &(mesh->vboID));
+        glDeleteBuffers(1, &mesh->vboID);
     }
     if (mesh->vaoID != 0) {
-        glDeleteVertexArrays(1, &(mesh->vaoID));
+        glDeleteVertexArrays(1, &mesh->vaoID);
     }
     // Transparent
     if (mesh->transVaoID != 0) {
-        glDeleteVertexArrays(1, &(mesh->transVaoID));
+        glDeleteVertexArrays(1, &mesh->transVaoID);
     }
     if (mesh->transVboID != 0) {
-        glDeleteBuffers(1, &(mesh->transVboID));
+        glDeleteBuffers(1, &mesh->transVboID);
     }
     if (mesh->transIndexID != 0) {
-        glDeleteBuffers(1, &(mesh->transIndexID));
+        glDeleteBuffers(1, &mesh->transIndexID);
     }
     // Cutout
     if (mesh->cutoutVaoID != 0) {
-        glDeleteVertexArrays(1, &(mesh->cutoutVaoID));
+        glDeleteVertexArrays(1, &mesh->cutoutVaoID);
     }
     if (mesh->cutoutVboID != 0) {
-        glDeleteBuffers(1, &(mesh->cutoutVboID));
+        glDeleteBuffers(1, &mesh->cutoutVboID);
     }
     // Liquid
     if (mesh->waterVboID != 0) {
-        glDeleteBuffers(1, &(mesh->waterVboID));
+        glDeleteBuffers(1, &mesh->waterVboID);
     }
     if (mesh->waterVaoID != 0) {
-        glDeleteVertexArrays(1, &(mesh->waterVaoID));
+        glDeleteVertexArrays(1, &mesh->waterVaoID);
     }
     delete mesh;
 }

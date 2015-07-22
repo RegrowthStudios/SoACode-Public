@@ -563,6 +563,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(i32, trunkProps->barkWidth);
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchChance);
+        } else if (key == "changeDirChance") {
+            PARSE_V2(f32, trunkProps->changeDirChance);
         } else if (key == "slope") {
             context.reader.forAllInMap(value, slopeParser);
         } else if (key == "block") {
@@ -591,7 +593,15 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         // Get our handle
         trunkProps = &treeProps->trunkProps.back();
         *trunkProps = {}; // Zero it
+        // Default slopes
+        trunkProps->slope[0] = i32v2(1000);
+        trunkProps->slope[1] = i32v2(1000);
         context.reader.forAllInMap(value, trunkDataParser);
+        // Avoid div 0
+        if (trunkProps->slope[0].x < 1) trunkProps->slope[0].x = 1;
+        if (trunkProps->slope[0].y < 1) trunkProps->slope[0].y = 1;
+        if (trunkProps->slope[1].x < 1) trunkProps->slope[1].x = 1;
+        if (trunkProps->slope[1].y < 1) trunkProps->slope[1].y = 1;
     });
 
     // Parses second level

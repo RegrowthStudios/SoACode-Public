@@ -103,9 +103,10 @@ struct BranchKegProperties {
 // Must match var names for TreeTrunkProperties
 struct TrunkKegProperties {
     f32 loc = 0.0f;
-    i32v2 coreWidth;
-    i32v2 barkWidth;
-    f32v2 branchChance;
+    i32v2 coreWidth = i32v2(0);
+    i32v2 barkWidth = i32v2(0);
+    f32v2 branchChance = f32v2(0.0f);
+    f32v2 changeDirChance = f32v2(0.0f);
     i32v2 slope[2];
     nString coreBlock = "";
     nString barkBlock = "";

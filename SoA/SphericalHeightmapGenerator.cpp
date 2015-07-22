@@ -42,8 +42,8 @@ FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPo
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
     f64 noTreeChance = 1.0;
     f64 totalChance = 0.0;
-    // TODO(Ben): Stack allocate
-    std::vector<f64> chances(biome->trees.size());
+    // NOTE: Stack overflow bad mkay
+    f64* chances = (f64*)alloca(sizeof(f64) * biome->trees.size());
     // Determine chance
     for (size_t i = 0; i < biome->trees.size(); i++) {
         auto& t = biome->trees[i];
@@ -76,8 +76,8 @@ FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelP
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
     f64 noFloraChance = 1.0;
     f64 totalChance = 0.0;
-    // TODO(Ben): Stack allocate
-    std::vector<f64> chances(biome->flora.size());
+    // NOTE: Stack overflow bad mkay
+    f64* chances = (f64*)alloca(sizeof(f64) * biome->flora.size());
     // Determine chance
     for (size_t i = 0; i < biome->flora.size(); i++) {
         auto& t = biome->flora[i];
