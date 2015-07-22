@@ -135,7 +135,7 @@ struct FloraKegProperties {
 
 struct BlockLayerKegProperties {
     nString block = "";
-    nString surfaceTransform = "";
+    nString surface = "";
     ui32 width = 0;
 };
 KEG_TYPE_DECL(BlockLayerKegProperties);

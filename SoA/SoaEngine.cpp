@@ -197,8 +197,8 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             } else {
                 l.block = 0;
             }
-            if (kp.surfaceTransform.size()) {
-                b = blocks.hasBlock(kp.surfaceTransform);
+            if (kp.surface.size()) {
+                b = blocks.hasBlock(kp.surface);
                 if (b) {
                     l.surfaceTransform = b->ID;
                 } else {
