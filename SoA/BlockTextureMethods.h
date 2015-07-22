@@ -54,7 +54,7 @@ public:
 
 struct BlockTextureMethodData {
     BlockTextureIndex index;
-    ui32v2 size;
+    ui8v2 size;
 };
 
 typedef std::function <void(BlockTextureMethodParams& params, BlockTextureMethodData& result)> BlockTextureFunc;

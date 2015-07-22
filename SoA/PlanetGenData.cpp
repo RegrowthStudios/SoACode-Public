@@ -4,7 +4,7 @@
 KEG_TYPE_DEF_SAME_NAME(BlockLayerKegProperties, kt) {
     using namespace keg;
     KEG_TYPE_INIT_ADD_MEMBER(kt, BlockLayerKegProperties, block, STRING);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockLayerKegProperties, surfaceTransform, STRING);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, BlockLayerKegProperties, surface, STRING);
     kt.addValue("width", Value::basic(offsetof(BlockLayerKegProperties, width), BasicType::UI32));
 }
 

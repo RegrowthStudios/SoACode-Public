@@ -966,10 +966,8 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
         v.dispTexturePosition.overlay.index = (ui8)methodDatas[5].index;
         v.dispTexturePosition.overlay.atlas = atlasIndices[5];
         
-        v.textureDims.x = (ui8)methodDatas[0].size.x;
-        v.textureDims.y = (ui8)methodDatas[0].size.y;
-        v.overlayTextureDims.x = (ui8)methodDatas[3].size.x;
-        v.overlayTextureDims.y = (ui8)methodDatas[3].size.y;
+        v.textureDims = methodDatas[0].size;
+        v.overlayTextureDims = methodDatas[3].size;
         v.blendMode = blendMode;
         v.face = (ui8)face;
     }
@@ -1137,10 +1135,8 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
         v.dispTexturePosition.overlay.index = (ui8)data.methodDatas[5].index;
         v.dispTexturePosition.overlay.atlas = data.atlasIndices[5];
 
-        v.textureDims.x = (ui8)data.methodDatas[0].size.x;
-        v.textureDims.y = (ui8)data.methodDatas[0].size.y;
-        v.overlayTextureDims.x = (ui8)data.methodDatas[3].size.x;
-        v.overlayTextureDims.y = (ui8)data.methodDatas[3].size.y;
+        v.textureDims = data.methodDatas[0].size;
+        v.overlayTextureDims = data.methodDatas[3].size;
         v.blendMode = data.blendMode;
         v.face = (ui8)vvox::Cardinal::Y_POS;
     }

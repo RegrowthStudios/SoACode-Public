@@ -115,7 +115,7 @@ public:
     void getFinalColor(OUT color3& color, ui8 temperature, ui8 rainfall, ui32 altColor) const;
 
     ConnectedTextureMethods method = ConnectedTextureMethods::NONE;
-    ui32v2 size = ui32v2(1);
+    ui8v2 size = ui8v2(1);
     ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
     ConnectedTextureReducedMethod reducedMethod = ConnectedTextureReducedMethod::NONE;
     BlockColorMap* colorMap = nullptr;

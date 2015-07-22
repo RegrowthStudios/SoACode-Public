@@ -431,7 +431,7 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
     switch (layer.method) {
         // Need to set up numTiles and totalWeight for RANDOM method
         case ConnectedTextureMethods::CONNECTED:
-            layer.size = ui32v2(1);
+            layer.size = ui8v2(1);
             DIM_CHECK(width, CONNECTED_WIDTH, bitmap.height, CONNECTED_HEIGHT, CONNECTED);
             break;
         case ConnectedTextureMethods::RANDOM:
@@ -448,22 +448,22 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             }
             break;
         case ConnectedTextureMethods::GRASS:
-            layer.size = ui32v2(1);
+            layer.size = ui8v2(1);
             DIM_CHECK(width, GRASS_WIDTH, bitmap.height, GRASS_HEIGHT, GRASS);
             break;
         case ConnectedTextureMethods::HORIZONTAL:
-            layer.size.x = bitmap.width / resolution;
-            layer.size.y = bitmap.height / resolution;
+            layer.size.x = (ui8)(bitmap.width / resolution);
+            layer.size.y = (ui8)(bitmap.height / resolution);
             DIM_CHECK(width, HORIZONTAL_WIDTH, bitmap.height, HORIZONTAL_HEIGHT, HORIZONTAL);
             break;
         case ConnectedTextureMethods::VERTICAL:
-            layer.size.x = bitmap.width / resolution;
-            layer.size.y = bitmap.height / resolution;
+            layer.size.x = (ui8)(bitmap.width / resolution);
+            layer.size.y = (ui8)(bitmap.height / resolution);
             DIM_CHECK(width, HORIZONTAL_HEIGHT, bitmap.height, HORIZONTAL_WIDTH, VERTICAL);
             break;
         case ConnectedTextureMethods::REPEAT:
-            layer.size.x = bitmap.width / resolution;
-            layer.size.y = bitmap.height / resolution;
+            layer.size.x = (ui8)(bitmap.width / resolution);
+            layer.size.y = (ui8)(bitmap.height / resolution);
             DIM_CHECK(width, layer.size.x, bitmap.height, layer.size.y, REPEAT);
             break;
         //case ConnectedTextureMethods::FLORA:
