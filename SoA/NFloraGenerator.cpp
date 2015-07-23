@@ -175,7 +175,7 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
         const VoxelPosition3D& vpos = chunk->getVoxelPosition();
         m_rGen.seed(vpos.pos.x + m_center.x, vpos.pos.y + m_center.y, vpos.pos.z + m_center.z);
         // Get age
-        f32 age = m_rGen.genf();
+        f32 age = (f32)m_rGen.genlf();
         // Determine which to generate
         if (hd.flora < b->flora.size()) {
             // It's a flora
@@ -189,8 +189,8 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
 
 #pragma region lerping
 // Lerps and rounds
-#define LERP_UI16(var) FastConversion<ui16, f32>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
-#define LERP_I32(var) FastConversion<i32, f32>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
+#define LERP_UI16(var) (ui16)FastConversion<ui16, f32>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
+#define LERP_I32(var) fastFloor((f32)(b.##var - a.##var) * l + (f32)a.##var + 0.5f)
 
 inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProperties& a, const TreeLeafProperties& b, f32 l) {
     const TreeLeafProperties* blockP;
@@ -345,7 +345,7 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         // Move up
         offsetPositive(m_center.y, Y_1, chunkOffset, 1);
         // Check for dir chance
-        if (m_rGen.genf() <= trunkProps->changeDirChance) {
+        if (m_rGen.genlf() <= trunkProps->changeDirChance) {
             m_treeData.currentDir = m_rGen.gen() & 3; // & 3 == % 4
         }
         // Move sideways with slope if needed
@@ -411,7 +411,7 @@ void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vec
 #pragma region age_lerping
 #define AGE_LERP_F32(var) lerp(var.max, var.min, age)
 // Lerps and rounds
-#define AGE_LERP_I32(var) FastConversion<i32, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
+#define AGE_LERP_I32(var) fastFloor((var.max - var.min) * age + var.min + 0.5f)
 #define AGE_LERP_UI16(var) FastConversion<ui16, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
 
 inline void setFruitProps(TreeFruitProperties& fruitProps, const TreeTypeFruitProperties& typeProps, f32 age) {
@@ -521,6 +521,7 @@ void NFloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OU
 void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props) {
     // This function is so clever
     int width = (int)(props.coreWidth + props.barkWidth);
+    if (width == 0) return;
     int innerWidth2 = (int)(props.coreWidth * props.coreWidth);
     int woodWidth2 = width * width;
     // Should get layer right outside outer layer
@@ -560,6 +561,9 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     // Y voxel offset
     int yOff = m_center.y * CHUNK_LAYER;
 
+    // Distribute branch chance over the circumference of the core
+    f64 branchChance = props.branchChance / (2.0 * M_PI * (f64)(props.coreWidth + props.barkWidth));
+
     for (int dz = -width; dz <= width; ++dz) {
         for (int dx = -width; dx <= width; ++dx) {
             int dist2 = dx * dx + dz * dz;
@@ -581,18 +585,18 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
 
-                if (m_rGen.genf() < props.branchChance) {
+                if (m_rGen.genlf() < branchChance) {
 
-                    ui32 segments = round(m_rGen.genf() * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
+                    ui32 segments = round(m_rGen.genlf() * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
                     if (segments > 0) {
-                        f32 angle = m_rGen.genf() * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
+                        f32 angle = m_rGen.genlf() * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
                         // Interpolate the angle
                         // TODO(Ben): Disk offset
                         f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));
                         generateBranch(chunkOff, pos.x, m_center.y, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
                                        dir, props.branchProps);
                     }
-                } else if (leafBlockID) {
+                } else if (leafWidth && leafBlockID) {
                     m_fNodes->emplace_back(leafBlockID, blockIndex, chunkOff);
                 }
             } else if (dist2 < leafWidth2 && leafBlockID) { // Leaves
@@ -671,6 +675,9 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32
     start -= min;
     end -= min;
 
+    // Distribute branch chance over the circumference of the branch
+    f64 branchChance = props.branchChance / (2.0 * M_PI * (f64)(width));
+
     const f32v3 ray = (end - start);
     const f32 l2 = selfDot(ray);
     f32v3 vec(0.0f);
@@ -702,12 +709,12 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32
                     m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
                 } else if (dist2 < width2p1) {
                     // Outer edge, check for branching and fruit
-                    if (segments > 1 && length >= 2.0f && m_rGen.genf() < props.branchChance) {
+                    if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
                         i32v3 pos(x + k, y + i, z + j);
                         ui32 chunkOff = chunkOffset;
                         addChunkOffset(pos, chunkOff);
                         f32 m = 1.0f;
-                        f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genf(), dir.y + m * m_rGen.genf(), dir.z + m * m_rGen.genf()));
+                        f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genlf(), dir.y + m * m_rGen.genlf(), dir.z + m * m_rGen.genlf()));
                         generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, width - 1.0f, newDir, props);
                     }
                 }
@@ -725,8 +732,8 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32
     // TODO(Ben): Not recursion
     if (segments > 1 && width >= 2.0f) {
         f32 m = 0.5f;
-        f32v3 newDir = glm::normalize(f32v3(dir.x + m * (m_rGen.genf() - 0.5f), dir.y + m * (m_rGen.genf() - 0.5f), dir.z + m * (m_rGen.genf() - 0.5f)));
-        generateBranch(startChunkOffset, x, y, z, segments - 1, length, width - 1.0f, newDir, props);
+        f32v3 newDir = glm::normalize(f32v3(dir.x + m * (m_rGen.genlf() - 0.5), dir.y + m * (m_rGen.genlf() - 0.5), dir.z + m * (m_rGen.genlf() - 0.5)));
+        generateBranch(startChunkOffset, x, y, z, segments - 1, length, width - 10.0f, newDir, props);
     } else {
         // Finish with leaves
         generateLeaves(startChunkOffset, x, y, z, props.leafProps);

@@ -11,11 +11,11 @@
 #include "SoaState.h"
 
 #ifdef DEBUG
-#define HORIZONTAL_CHUNKS 4
+#define HORIZONTAL_CHUNKS 24
 #define VERTICAL_CHUNKS 4
 #else
 
-#define HORIZONTAL_CHUNKS 30
+#define HORIZONTAL_CHUNKS 24
 #define VERTICAL_CHUNKS 26
 #endif
 
