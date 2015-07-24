@@ -57,7 +57,7 @@ FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPo
     // ITS SLOW
     std::hash<f64> h;
     std::uniform_real_distribution<f64> dist(0.0, 1.0);
-    std::mt19937 slowRGen(h(facePosition.pos.x) ^ h(facePosition.pos.y));
+    std::mt19937 slowRGen(h(facePosition.pos.x) ^ (h(facePosition.pos.y) << 1));
     f64 r = dist(slowRGen);
     if (r < 1.0 - noTreeChance) {
         std::cout << facePosition.pos.x << " " << facePosition.pos.y << std::endl;
@@ -92,7 +92,7 @@ FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelP
     // ITS SLOW
     std::hash<f64> h;
     std::uniform_real_distribution<f64> dist(0.0, 1.0);
-    std::mt19937 slowRGen(h(facePosition.pos.x) ^ h(facePosition.pos.y));
+    std::mt19937 slowRGen(h(facePosition.pos.x) ^ (h(facePosition.pos.y) << 1));
     f64 r = dist(slowRGen);
     if (r < 1.0 - noFloraChance) {
         f64 roll = dist(slowRGen) * totalChance;

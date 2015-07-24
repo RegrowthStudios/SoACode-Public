@@ -629,114 +629,125 @@ inline f32 minDistance(const f32v3& w, const f32v3& v, const f32v3& p) {
     return glm::length(p - projection);
 }
 
-void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props) {
-    if (width < 1.0f) return;
-    int startX = x;
-    int startY = y;
-    int startZ = z;
-    ui32 startChunkOffset = chunkOffset;
-    f32 maxDist = (float)props.length;
+void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, f32v3 dir, const TreeBranchProperties& props) {
+    while (true) {
+        if (width < 1.0f) return;
+        f32 endWidth = width - 10.0f;
+        if (endWidth < 0.0f) endWidth = 0.0f;
+        int startX = x;
+        int startY = y;
+        int startZ = z;
+        ui32 startChunkOffset = chunkOffset;
+        f32 maxDist = (float)props.length;
 
-    f32 width2 = width * width;
-    f32 width2p1 = (width + 1) * (width + 1);
+        f32v3 start(0.0f);
+        f32v3 end = dir * length;
 
-    f32v3 start(0.0f);
-    f32v3 end = dir * length;
+        // Compute bounding box
+        f32 minX = 0.0f, maxX = 0.0f;
+        f32 minY = 0.0f, maxY = 0.0f;
+        f32 minZ = 0.0f, maxZ = 0.0f;
 
-    // Compute bounding box
-    f32 minX = 0.0f, maxX = 0.0f;
-    f32 minY = 0.0f, maxY = 0.0f;
-    f32 minZ = 0.0f, maxZ = 0.0f;
+        if (end.x < minX) minX = end.x;
+        if (end.x > maxX) maxX = end.x;
+        if (end.y < minY) minY = end.y;
+        if (end.y > maxY) maxY = end.y;
+        if (end.z < minZ) minZ = end.z;
+        if (end.z > maxZ) maxZ = end.z;
 
-    if (end.x < minX) minX = end.x;
-    if (end.x > maxX) maxX = end.x;
-    if (end.y < minY) minY = end.y;
-    if (end.y > maxY) maxY = end.y;
-    if (end.z < minZ) minZ = end.z;
-    if (end.z > maxZ) maxZ = end.z;
+        // Pad the box by width + 1
+        f32 wp1 = width + 1;
+        minX -= wp1;
+        maxX += wp1;
+        minY -= wp1;
+        maxY += wp1;
+        minZ -= wp1;
+        maxZ += wp1;
 
-    // Pad the box by width + 1
-    f32 wp1 = width + 1;
-    minX -= wp1;
-    maxX += wp1;
-    minY -= wp1;
-    maxY += wp1;
-    minZ -= wp1;
-    maxZ += wp1;
+        // Round down to voxel position
+        i32v3 min(fastFloor(minX), fastFloor(minY), fastFloor(minZ));
+        i32v3 max(fastFloor(maxX), fastFloor(maxY), fastFloor(maxZ));
 
-    // Round down to voxel position
-    i32v3 min(fastFloor(minX), fastFloor(minY), fastFloor(minZ));
-    i32v3 max(fastFloor(maxX), fastFloor(maxY), fastFloor(maxZ));
-   
-    // Offset to back corner
-    offsetByPos(x, y, z, chunkOffset, min);
-   
-    // Make start and end relative to min
-    start -= min;
-    end -= min;
+        // Offset to back corner
+        offsetByPos(x, y, z, chunkOffset, min);
 
-    // Distribute branch chance over the circumference of the branch
-    f64 branchChance = props.branchChance / (2.0 * M_PI * (f64)(width));
+        // Make start and end relative to min
+        start -= min;
+        end -= min;
 
-    const f32v3 ray = (end - start);
-    const f32 l2 = selfDot(ray);
-    f32v3 vec(0.0f);
-    // Iterate the volume and check points against line segment
-    for (int i = 0; i < max.y - min.y; i++) {
-        for (int j = 0; j < max.z - min.z; j++) {
-            for (int k = 0; k < max.x - min.x; k++) {
-                // http://stackoverflow.com/a/1501725/3346893
-                const f32v3 vec(k, i, j);
-                const f32v3 v2 = vec - start;
-                const f32 t = glm::dot(v2, ray) / l2;
+        // Distribute branch chance over the circumference of the branch
+        f64 branchChance = props.branchChance / (2.0 * M_PI * (f64)(width));
 
-                // Compute distance2
-                f32 dist2;
-                if (t < 0.0) {
-                    dist2 = selfDot(v2);
-                } else if (t > 1.0) {
-                    dist2 = selfDot(vec - end);
-                } else {
-                    const f32v3 projection = start + t * ray;
-                    dist2 = selfDot(vec - projection);
-                }
-                
-                if (dist2 < width2) {
-                    i32v3 pos(x + k, y + i, z + j);
-                    ui32 chunkOff = chunkOffset;
-                    addChunkOffset(pos, chunkOff);
-                    ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                    m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
-                } else if (dist2 < width2p1) {
-                    // Outer edge, check for branching and fruit
-                    if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
+        const f32v3 ray = (end - start);
+        const f32 l2 = selfDot(ray);
+        f32v3 vec(0.0f);
+        // Iterate the volume and check points against line segment
+        for (int i = 0; i < max.y - min.y; i++) {
+            for (int j = 0; j < max.z - min.z; j++) {
+                for (int k = 0; k < max.x - min.x; k++) {
+                    // http://stackoverflow.com/a/1501725/3346893
+                    const f32v3 vec(k, i, j);
+                    const f32v3 v2 = vec - start;
+                    const f32 t = glm::dot(v2, ray) / l2;
+
+                    // Compute distance2
+                    f32 dist2;
+                    f32 innerWidth;
+                    if (t < 0.0) {
+                        dist2 = selfDot(v2);
+                        innerWidth = width;
+                    } else if (t > 1.0) {
+                        dist2 = selfDot(vec - end);
+                        innerWidth = endWidth;
+                    } else {
+                        const f32v3 projection = start + t * ray;
+                        dist2 = selfDot(vec - projection);
+                        // Lerp the branch width
+                        innerWidth = lerp(width, endWidth, t);
+                    }
+                    
+                    f32 width2 = innerWidth * innerWidth;
+                    f32 width2p1 = (innerWidth + 1) * (innerWidth + 1);
+
+                    if (dist2 < width2) {
                         i32v3 pos(x + k, y + i, z + j);
                         ui32 chunkOff = chunkOffset;
                         addChunkOffset(pos, chunkOff);
-                        f32 m = 1.0f;
-                        f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genlf(), dir.y + m * m_rGen.genlf(), dir.z + m * m_rGen.genlf()));
-                        generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, width - 1.0f, newDir, props);
+                        ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
+                        m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
+                    } else if (dist2 < width2p1) {
+                        // Outer edge, check for branching and fruit
+                        if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
+                            i32v3 pos(x + k, y + i, z + j);
+                            ui32 chunkOff = chunkOffset;
+                            addChunkOffset(pos, chunkOff);
+                            f32 m = 1.0f;
+                            f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genlf(), dir.y + m * m_rGen.genlf(), dir.z + m * m_rGen.genlf()));
+                            generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, innerWidth - 1.0f, newDir, props);
+                        }
                     }
                 }
             }
         }
-    }
 
-    // Offset to the end of the ray
-    x = startX;
-    y = startY;
-    z = startZ;
-    offsetByPos(x, y, z, startChunkOffset, ray);
-    
-    // Continue on
-    // TODO(Ben): Not recursion
-    if (segments > 1 && width >= 2.0f) {
-        f32 m = 0.5f;
-        f32v3 newDir = glm::normalize(f32v3(dir.x + m * (m_rGen.genlf() - 0.5), dir.y + m * (m_rGen.genlf() - 0.5), dir.z + m * (m_rGen.genlf() - 0.5)));
-        generateBranch(startChunkOffset, x, y, z, segments - 1, length, width - 10.0f, newDir, props);
-    } else {
-        // Finish with leaves
-        generateLeaves(startChunkOffset, x, y, z, props.leafProps);
+        // Offset to the end of the ray
+        x = startX;
+        y = startY;
+        z = startZ;
+        offsetByPos(x, y, z, startChunkOffset, ray);
+
+        if (segments > 1 && width >= 2.0f) {
+            // Continue on to next segment
+            f32 m = 0.5f;
+            dir = glm::normalize(f32v3(dir.x + m * (m_rGen.genlf() - 0.5), dir.y + m * (m_rGen.genlf() - 0.5), dir.z + m * (m_rGen.genlf() - 0.5)));
+            chunkOffset = startChunkOffset;
+            --segments;
+            width -= 10.0f;
+        } else {
+            // Finish with leaves
+            generateLeaves(startChunkOffset, x, y, z, props.leafProps);
+            return;
+        }
     }
 }
 

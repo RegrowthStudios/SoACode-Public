@@ -64,7 +64,7 @@ private:
     };
 
     void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
-    void generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props);
+    void generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, f32v3 dir, const TreeBranchProperties& props);
     void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
