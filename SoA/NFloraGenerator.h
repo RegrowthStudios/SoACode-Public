@@ -33,6 +33,15 @@ struct FloraNode {
     ui32 chunkOffset; ///< Packed 00 XXXXXXXXXX YYYYYYYYYY ZZZZZZZZZZ for positional offset. 00111 == 0
 };
 
+struct SCRayNode {
+    f32v3 pos;
+};
+
+struct SCTreeRay {
+    ui32 a;
+    ui32 b;
+};
+
 class NFloraGenerator {
 public:
     /// @brief Generates flora for a chunk using its QueuedFlora.
@@ -48,6 +57,8 @@ public:
     /// Generates a specific tree's properties
     static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
     static void generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora);
+
+    void spaceColonization(std::vector<SCRayNode>& nodes, std::vector<SCTreeRay>& rays);
 
     static inline int getChunkXOffset(ui32 chunkOffset) {
         return (int)((chunkOffset >> 20) & 0x3FF) - 0x1FF;

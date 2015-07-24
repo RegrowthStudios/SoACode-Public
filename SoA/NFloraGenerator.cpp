@@ -469,6 +469,20 @@ inline void setBranchProps(TreeBranchProperties& branchProps, const TreeTypeBran
 void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree) {
     tree.age = age;
     tree.height = AGE_LERP_UI16(type->height);
+    tree.branchPoints = AGE_LERP_UI16(type->branchPoints);
+    tree.branchStep = AGE_LERP_UI16(type->branchStep);
+    tree.killMult = AGE_LERP_UI16(type->killMult);
+    // Set branch volume properties
+    tree.branchVolumes.resize(type->branchVolumes.size());
+    for (size_t i = 0; i < tree.branchVolumes.size(); ++i) {
+        BranchVolumeProperties& bp = tree.branchVolumes[i];
+        const TreeTypeBranchVolumeProperties& tbp = type->branchVolumes[i];
+        bp.height = AGE_LERP_UI16(tbp.height);
+        bp.hRadius = AGE_LERP_UI16(tbp.hRadius);
+        bp.vRadius = AGE_LERP_UI16(tbp.vRadius);
+        bp.points = AGE_LERP_UI16(tbp.points);
+    }
+    // Set trunk properties
     tree.trunkProps.resize(type->trunkProps.size());
     // TODO(Ben): no rand!!!
     tree.currentDir = rand() & 3; // & 3 == % 4
@@ -517,6 +531,93 @@ void NFloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OU
 #undef AGE_LERP_UI16
 #pragma endregion
 
+struct SCTreeNode {
+    ui32 rayNode;
+    f32v3 dir;
+};
+
+void NFloraGenerator::spaceColonization(std::vector<SCRayNode>& nodes, std::vector<SCTreeRay>& rays) {
+    // Root
+    nodes.push_back({ f32v3(0.0f) });
+    std::vector<f32v3> attractPoints;
+
+    srand(100000);
+
+    int numPoints = 500;
+
+    f32v3 volCenter(0.0f, 25.0f, 0.0f);
+    f32 volRadius = 25.0f;
+    f32 volRadius2 = volRadius * volRadius;
+    f32 volDiameter = volRadius * 2.0f;
+    f32 infRadius = 30.0f;
+    f32 infRadius2 = infRadius * infRadius;
+    f32 killRadius = 10.0f;
+    f32 killRadius2 = killRadius * killRadius;
+
+#define RAND (rand() / (float)RAND_MAX)
+
+    f32 yMul = 0.5f;
+
+    // Generate attraction points
+    for (int i = 0; i < numPoints; i++) {
+        // TODO(Ben): Optimize duh
+        f32v3 p(RAND * volDiameter - volRadius, RAND * volDiameter * yMul - volRadius * yMul, RAND * volDiameter - volRadius);
+        if (selfDot(p) < volRadius2) {
+            attractPoints.push_back(p + volCenter);
+        }
+    }
+
+    std::vector<SCTreeNode> tNodes;
+    tNodes.push_back({ 0, f32v3(0.0f) });
+
+    // Iteratively construct the tree
+    int iter = 0;
+   
+    while (++iter < 1000) {
+        if (attractPoints.size() < 5 || tNodes.empty()) return;
+
+        for (int i = (int)attractPoints.size() - 1; i >= 0; --i) {
+            f32 closestDist = FLT_MAX;
+            int closestIndex = -1;
+            for (size_t j = 0; j < tNodes.size(); j++) {
+                auto& tn = tNodes[j];
+                f32v3 v = attractPoints[i] - nodes[tn.rayNode].pos;
+                f32 dist2 = selfDot(v);
+                if (dist2 <= killRadius2) {
+                    attractPoints[i] = attractPoints.back();
+                    attractPoints.pop_back();
+                    closestIndex = -1;
+                    break;
+                } else if (dist2 <= infRadius2 && dist2 < closestDist) {
+                    closestDist = dist2;
+                    closestIndex = j;
+                }
+            }
+            if (closestIndex != -1) {
+                tNodes[closestIndex].dir += (attractPoints[i] - nodes[tNodes[closestIndex].rayNode].pos) / closestDist;
+            }
+        }
+
+        for (int i = (int)tNodes.size() - 1; i >= 0; --i) {
+            auto& tn = tNodes[i];
+            auto& n = nodes[tn.rayNode];
+            // Self dot?
+            if (tn.dir.x && tn.dir.y && tn.dir.z) {
+                f32v3 pos = n.pos + glm::normalize(tn.dir);
+                tn.dir = f32v3(0.0f);
+                rays.push_back({ tn.rayNode, (ui32)nodes.size() });
+                tNodes.push_back({ (ui32)nodes.size(), f32v3(0.0f) });
+                nodes.push_back({ pos });
+            } else {
+                // Move towards volume
+                // TODO(Ben): Preprocess this
+                tNodes[i] = tNodes.back();
+                tNodes.pop_back();
+            }
+        }
+    }
+}
+
 // TODO(Ben): Need to handle different shapes than just round
 void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props) {
     // This function is so clever
@@ -562,7 +663,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     int yOff = m_center.y * CHUNK_LAYER;
 
     // Distribute branch chance over the circumference of the core
-    f64 branchChance = props.branchChance / (2.0 * M_PI * (f64)(props.coreWidth + props.barkWidth));
+    f64 branchChance = props.branchChance / (M_2_PI * (f64)(props.coreWidth + props.barkWidth));
 
     for (int dz = -width; dz <= width; ++dz) {
         for (int dx = -width; dx <= width; ++dx) {
@@ -675,9 +776,6 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32
         start -= min;
         end -= min;
 
-        // Distribute branch chance over the circumference of the branch
-        f64 branchChance = props.branchChance / (2.0 * M_PI * (f64)(width));
-
         const f32v3 ray = (end - start);
         const f32 l2 = selfDot(ray);
         f32v3 vec(0.0f);
@@ -708,6 +806,9 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32
                     
                     f32 width2 = innerWidth * innerWidth;
                     f32 width2p1 = (innerWidth + 1) * (innerWidth + 1);
+
+                    // Distribute branch chance over the circumference of the branch
+                    f64 branchChance = props.branchChance / (M_2_PI * (f64)(innerWidth));
 
                     if (dist2 < width2) {
                         i32v3 pos(x + k, y + i, z + j);

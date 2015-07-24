@@ -166,9 +166,26 @@ struct TreeTrunkProperties {
     TreeBranchProperties branchProps;
 };
 
+struct TreeTypeBranchVolumeProperties {
+    Range<ui16> height;
+    Range<ui16> hRadius;
+    Range<ui16> vRadius;
+    Range<ui16> points;
+};
+struct BranchVolumeProperties {
+    ui16 height;
+    ui16 hRadius;
+    ui16 vRadius;
+    ui16 points;
+};
+
 struct NTreeType {
     // All ranges are for scaling between baby tree and adult tree
     Range<ui16> height;
+    Range<ui16> branchPoints;
+    Range<ui16> branchStep;
+    Range<ui16> killMult;
+    std::vector<TreeTypeBranchVolumeProperties> branchVolumes;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
     std::vector<TreeTypeTrunkProperties> trunkProps;
@@ -178,7 +195,11 @@ struct NTreeType {
 struct TreeData {
     f32 age; ///< 0 - 1
     ui16 height;
+    ui16 branchPoints;
+    ui16 branchStep;
+    ui16 killMult;
     ui16 currentDir;
+    std::vector<BranchVolumeProperties> branchVolumes;
     std::vector<TreeTrunkProperties> trunkProps;
 };
 

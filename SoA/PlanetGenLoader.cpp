@@ -428,6 +428,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
 
     TreeKegProperties* treeProps;
     // Handles
+    BranchVolumeKegProperties* branchVolProps = nullptr;
     TrunkKegProperties* trunkProps = nullptr;
     FruitKegProperties* fruitProps = nullptr;
     LeafKegProperties* leafProps = nullptr;
@@ -604,10 +605,44 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         if (trunkProps->slope[1].y < 1) trunkProps->slope[1].y = 1;
     });
 
+    // Parses a branch volume
+    auto branchVolumeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "height") {
+            PARSE_V2(i32, branchVolProps->height);
+        } else if (key == "hRadius") {
+            PARSE_V2(i32, branchVolProps->hRadius);
+        } else if (key == "vRadius") {
+            PARSE_V2(i32, branchVolProps->vRadius);
+        } else if (key == "radius") {
+            PARSE_V2(i32, branchVolProps->hRadius);
+            branchVolProps->vRadius = branchVolProps->hRadius;
+        } else if (key == "points") {
+            PARSE_V2(i32, branchVolProps->points);
+        }
+    });
+
+    // Parses array of branch volumes
+    auto branchVolumeSeqParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
+        treeProps->branchVolumes.emplace_back();
+        // Get our handle
+        branchVolProps = &treeProps->branchVolumes.back();
+        *branchVolProps = {}; // Zero it
+
+        context.reader.forAllInMap(value, branchVolumeParser);
+    });
+
     // Parses second level
     auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
             PARSE_V2(i32, treeProps->height);
+        } else if (key == "branchPoints") {
+            PARSE_V2(i32, treeProps->branchPoints);
+        } else if (key == "branchStep") {
+            PARSE_V2(i32, treeProps->branchStep);
+        } else if (key == "killMult") {
+            PARSE_V2(i32, treeProps->killMult);
+        } else if (key == "branchVolumes") {
+            context.reader.forAllInSequence(value, branchVolumeSeqParser);
         } else if (key == "trunk") {
             context.reader.forAllInSequence(value, trunkParser);
         }
@@ -629,6 +664,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     delete slopeParser;
     delete trunkParser;
     delete trunkDataParser;
+    delete branchVolumeParser;
+    delete branchVolumeSeqParser;
     delete treeParser;
     delete baseParser;
     context.reader.dispose();

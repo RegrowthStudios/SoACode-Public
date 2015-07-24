@@ -116,10 +116,21 @@ struct TrunkKegProperties {
     BranchKegProperties branchProps;
 };
 
+struct BranchVolumeKegProperties {
+    i32v2 height = i32v2(0);
+    i32v2 hRadius = i32v2(0);
+    i32v2 vRadius = i32v2(0);
+    i32v2 points = i32v2(0);
+};
+
 // Must match var names for TreeData
 struct TreeKegProperties {
     nString id = "";
-    i32v2 height = i32v2(0, 0);
+    i32v2 height = i32v2(0);
+    i32v2 branchPoints = i32v2(0);
+    i32v2 branchStep = i32v2(0);
+    i32v2 killMult = i32v2(2);
+    std::vector<BranchVolumeKegProperties> branchVolumes;
     std::vector<TrunkKegProperties> trunkProps;
 };
 

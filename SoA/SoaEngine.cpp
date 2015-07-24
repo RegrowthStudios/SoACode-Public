@@ -271,7 +271,19 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             genData->treeMap[kp.id] = i;
             // Set height range
             SET_RANGE(td, kp, height);
-
+            SET_RANGE(td, kp, branchPoints);
+            SET_RANGE(td, kp, branchStep);
+            SET_RANGE(td, kp, killMult);
+            // Set branch volume properties
+            td.branchVolumes.resize(kp.branchVolumes.size());
+            for (size_t j = 0; j < kp.branchVolumes.size(); j++) {
+                TreeTypeBranchVolumeProperties& tp = td.branchVolumes[j];
+                const BranchVolumeKegProperties& tkp = kp.branchVolumes[j];
+                SET_RANGE(tp, tkp, height);
+                SET_RANGE(tp, tkp, hRadius);
+                SET_RANGE(tp, tkp, vRadius);
+                SET_RANGE(tp, tkp, points);
+            }
             // Set trunk properties
             td.trunkProps.resize(kp.trunkProps.size());
             for (size_t j = 0; j < kp.trunkProps.size(); j++) {

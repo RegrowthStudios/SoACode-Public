@@ -9,14 +9,16 @@
 #include "LoadTaskBlockData.h"
 #include "SoaEngine.h"
 #include "SoaState.h"
+#include "RenderUtils.h"
+#include "ShaderLoader.h"
 
 #ifdef DEBUG
-#define HORIZONTAL_CHUNKS 24
+#define HORIZONTAL_CHUNKS 4
 #define VERTICAL_CHUNKS 4
 #else
 
-#define HORIZONTAL_CHUNKS 24
-#define VERTICAL_CHUNKS 26
+#define HORIZONTAL_CHUNKS 20
+#define VERTICAL_CHUNKS 20
 #endif
 
 TestBiomeScreen::TestBiomeScreen(const App* app, CommonState* state) :
@@ -26,6 +28,10 @@ m_soaState(m_commonState->state),
 m_blockArrayRecycler(1000) {
 
 }
+
+
+std::vector<SCRayNode> nodes;
+std::vector<SCTreeRay> rays;
 
 i32 TestBiomeScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
@@ -96,23 +102,30 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     }
 
     // Load blocks
-    LoadTaskBlockData blockLoader(&m_soaState->blocks,
-                                  &m_soaState->blockTextureLoader,
-                                  &m_commonState->loadContext);
-    blockLoader.load();
+  //  LoadTaskBlockData blockLoader(&m_soaState->blocks,
+  //                                &m_soaState->blockTextureLoader,
+   //                               &m_commonState->loadContext);
+  //  blockLoader.load();
 
     // Uploads all the needed textures
-    m_soaState->blockTextures->update();
+  //  m_soaState->blockTextures->update();
     
     m_genData->radius = 4500.0;
     
     // Set blocks
-    SoaEngine::initVoxelGen(m_genData, m_soaState->blocks);
+  //  SoaEngine::initVoxelGen(m_genData, m_soaState->blocks);
     
-    m_chunkGenerator.init(m_genData);
+//    m_chunkGenerator.init(m_genData);
 
-    initHeightData();
-    initChunks();
+
+    PreciseTimer timer;
+    timer.start();
+    m_floraGenerator.spaceColonization(nodes, rays);
+    std::cout << rays.size() << std::endl;
+    printf("%lf\n", timer.stop());
+
+   // initHeightData();
+  //  initChunks();
 
     printf("Generating Meshes...\n");
     // Create all chunk meshes
@@ -200,6 +213,43 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
 
     m_renderer.end();
 
+    static VGBuffer buffer = 0;
+    static vg::GLProgram program;
+    if (buffer == 0) {
+        glGenBuffers(1, &buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+        std::vector <f32v3> verts;
+        for (int i = 0; i < rays.size(); i++) {
+            verts.push_back(nodes[rays[i].a].pos);
+            verts.push_back(nodes[rays[i].b].pos);
+        }
+
+        glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(f32v3), verts.data(), GL_STATIC_DRAW);
+
+        program = ShaderLoader::createProgramFromFile("Shaders/BasicShading/BasicColorShading.vert",
+                                                      "Shaders/BasicShading/BasicColorShading.frag");
+
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    program.use();
+    glm::mat4 worldMatrix(1);
+    setMatrixTranslation(worldMatrix, f64v3(0.0), m_camera.getPosition());
+
+    f32m4 MVP = m_camera.getViewProjectionMatrix() * worldMatrix;
+
+    glUniformMatrix4fv(program.getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
+    glUniform4f(program.getUniform("unColor"), 1.0f, 1.0f, 1.0f, 1.0f);
+    glEnableVertexAttribArray(0);
+    glLineWidth(10.0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);
+
+    glDrawArrays(GL_LINES, 0, rays.size() * 2);
+
+    program.unuse();
+
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Post processing
@@ -219,6 +269,9 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_hdrTarget.getDepthTexture());
     m_hdrStage.render();
+
+   
+
 
     // Draw UI
     char buf[256];
@@ -261,6 +314,7 @@ void TestBiomeScreen::initHeightData() {
         }
     }
 }
+
 
 void TestBiomeScreen::initChunks() {
     printf("Generating chunks...\n");
