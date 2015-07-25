@@ -130,6 +130,7 @@ struct TreeKegProperties {
     i32v2 branchPoints = i32v2(0);
     i32v2 branchStep = i32v2(0);
     i32v2 killMult = i32v2(2);
+    f32v2 infRadius = f32v2(0.0f);
     std::vector<BranchVolumeKegProperties> branchVolumes;
     std::vector<TrunkKegProperties> trunkProps;
 };

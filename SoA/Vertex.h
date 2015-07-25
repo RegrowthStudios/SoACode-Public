@@ -77,6 +77,7 @@ struct BlockVertex {
                 texturePosition == rhs.texturePosition);
     }
 };
+static_assert(sizeof(BlockVertex) == 32, "Size of BlockVertex is not 32");
 
 class LiquidVertex {
 public:

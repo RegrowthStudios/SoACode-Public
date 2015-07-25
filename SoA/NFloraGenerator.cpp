@@ -307,15 +307,25 @@ const DirLookup DIR_AXIS_LOOKUP[4] = { {0, X_1, -1}, {2, Z_1, -1}, {0, X_1, 1}, 
 
 void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     // Get the properties for this tree
+    // TODO(Ben): Temp
+    age = 1.0f;
     generateTreeProperties(type, age, m_treeData);
-
     // Get handles
     m_wNodes = &wNodes;
     m_fNodes = &fNodes;
 
+    f32v3 m_startPos = f32v3(m_center) +
+        f32v3(CHUNK_WIDTH * getChunkXOffset(chunkOffset),
+        CHUNK_WIDTH * getChunkYOffset(chunkOffset),
+        CHUNK_WIDTH * getChunkZOffset(chunkOffset));
+
     // Interpolated trunk properties
     TreeTrunkProperties lerpedTrunkProps;
     const TreeTrunkProperties* trunkProps;
+
+    int scNodeStep = m_treeData.height / m_treeData.branchPoints;
+    if (scNodeStep == 0) scNodeStep = INT_MAX; // Prevent div by 0
+    int scNodeOffset = m_treeData.height % scNodeStep;
 
     ui32 pointIndex = 0;
     for (m_h = 0; m_h < m_treeData.height; ++m_h) {
@@ -339,6 +349,19 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         } else {
             // Don't need to interpolate if we are at the last data point
             trunkProps = &m_treeData.trunkProps.back();
+        }
+        // Check for potential branch point
+        if (m_h > 30 && (m_h + scNodeOffset) % scNodeStep == 0) {
+            f32 width = (f32)(trunkProps->branchProps.coreWidth + trunkProps->branchProps.barkWidth);
+            if (width > 0.0f) {
+                m_scNodes.emplace_back(m_scRayNodes.size());
+                m_scRayNodes.emplace_back(f32v3(m_center) +
+                                          f32v3(CHUNK_WIDTH * getChunkXOffset(chunkOffset),
+                                          CHUNK_WIDTH * getChunkYOffset(chunkOffset),
+                                          CHUNK_WIDTH * getChunkZOffset(chunkOffset)),
+                                          SC_NO_PARENT,
+                                          width);
+            }
         }
         // Build the trunk slice
         makeTrunkSlice(chunkOffset, *trunkProps);
@@ -366,6 +389,22 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     }
     if (trunkProps->leafProps.type == TreeLeafType::MUSHROOM) {
         generateMushroomCap(chunkOffset, m_center.x, m_center.y, m_center.z, trunkProps->leafProps);
+    }
+
+    // Branches
+    if (m_treeData.branchVolumes.size()) {
+        spaceColonization(m_startPos);
+
+        std::cout << m_scRayNodes.size() << std::endl;
+
+        // Place nodes
+        if (m_scRayNodes.size()) {
+            generateSCBranches();
+        }
+
+        std::vector<SCRayNode>().swap(m_scRayNodes);
+        std::vector<SCTreeNode>().swap(m_scNodes);
+        std::set<ui32>().swap(m_scLeafSet);
     }
 }
 
@@ -411,8 +450,8 @@ void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vec
 #pragma region age_lerping
 #define AGE_LERP_F32(var) lerp(var.max, var.min, age)
 // Lerps and rounds
-#define AGE_LERP_I32(var) fastFloor((var.max - var.min) * age + var.min + 0.5f)
-#define AGE_LERP_UI16(var) FastConversion<ui16, f32>::floor((var.max - var.min) * age + var.min + 0.5f)
+#define AGE_LERP_I32(var) fastFloor((f32)(var.max - var.min) * age + (f32)var.min + 0.5f)
+#define AGE_LERP_UI16(var) FastConversion<ui16, f32>::floor((f32)(var.max - var.min) * age + (f32)var.min + 0.5f)
 
 inline void setFruitProps(TreeFruitProperties& fruitProps, const TreeTypeFruitProperties& typeProps, f32 age) {
     fruitProps.chance = AGE_LERP_F32(typeProps.chance);
@@ -472,6 +511,7 @@ void NFloraGenerator::generateTreeProperties(const NTreeType* type, f32 age, OUT
     tree.branchPoints = AGE_LERP_UI16(type->branchPoints);
     tree.branchStep = AGE_LERP_UI16(type->branchStep);
     tree.killMult = AGE_LERP_UI16(type->killMult);
+    tree.infRadius = AGE_LERP_F32(type->infRadius);
     // Set branch volume properties
     tree.branchVolumes.resize(type->branchVolumes.size());
     for (size_t i = 0; i < tree.branchVolumes.size(); ++i) {
@@ -531,57 +571,50 @@ void NFloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OU
 #undef AGE_LERP_UI16
 #pragma endregion
 
-struct SCTreeNode {
-    ui32 rayNode;
-    f32v3 dir;
-};
-
-void NFloraGenerator::spaceColonization(std::vector<SCRayNode>& nodes, std::vector<SCTreeRay>& rays) {
-    // Root
-    nodes.push_back({ f32v3(0.0f) });
+void NFloraGenerator::spaceColonization(const f32v3& startPos) {
     std::vector<f32v3> attractPoints;
-
-    srand(100000);
 
     int numPoints = 500;
 
-    f32v3 volCenter(0.0f, 25.0f, 0.0f);
-    f32 volRadius = 25.0f;
-    f32 volRadius2 = volRadius * volRadius;
-    f32 volDiameter = volRadius * 2.0f;
-    f32 infRadius = 30.0f;
+    f32 branchStep = (f32)m_treeData.branchStep;
+    f32 infRadius = m_treeData.infRadius;
     f32 infRadius2 = infRadius * infRadius;
-    f32 killRadius = 10.0f;
+    f32 killRadius = m_treeData.branchStep * m_treeData.killMult;
     f32 killRadius2 = killRadius * killRadius;
 
-#define RAND (rand() / (float)RAND_MAX)
-
-    f32 yMul = 0.5f;
-
-    // Generate attraction points
-    for (int i = 0; i < numPoints; i++) {
-        // TODO(Ben): Optimize duh
-        f32v3 p(RAND * volDiameter - volRadius, RAND * volDiameter * yMul - volRadius * yMul, RAND * volDiameter - volRadius);
-        if (selfDot(p) < volRadius2) {
-            attractPoints.push_back(p + volCenter);
+    for (auto& it : m_treeData.branchVolumes) {
+        const f32v3 volCenter(startPos.x, startPos.y + it.height, startPos.z);
+        const f32 hRadius = (f32)it.hRadius;
+        const f32 hDiameter = hRadius * 2.0f;
+        const f32 hRadius2 = hRadius * hRadius;
+        const f32 vRadius = (f32)it.vRadius;
+        const f32 vDiameter = vRadius * 2.0f;
+        const f32 vRadius2 = vRadius * vRadius;
+        // Generate attraction points
+        for (int i = 0; i < it.points; i++) {
+            // TODO(Ben): Worry about double and float casting
+            f32v3 p(m_rGen.genlf() * hDiameter - hRadius, m_rGen.genlf() * vDiameter - vRadius, m_rGen.genlf() * hDiameter - hRadius);
+            // Ellipsoid check
+            f32 d = (p.x * p.x) / hRadius2 + (p.y * p.y) / vRadius2 + (p.z * p.z) / hRadius2;
+           
+            if (d <= 1.0f) {
+                attractPoints.push_back(p + volCenter);
+            }
         }
     }
 
-    std::vector<SCTreeNode> tNodes;
-    tNodes.push_back({ 0, f32v3(0.0f) });
-
     // Iteratively construct the tree
     int iter = 0;
-   
-    while (++iter < 1000) {
-        if (attractPoints.size() < 5 || tNodes.empty()) return;
+    while (++iter < 10000) {
+        if (attractPoints.size() < 5 || m_scNodes.empty()) return;
 
         for (int i = (int)attractPoints.size() - 1; i >= 0; --i) {
             f32 closestDist = FLT_MAX;
             int closestIndex = -1;
-            for (size_t j = 0; j < tNodes.size(); j++) {
-                auto& tn = tNodes[j];
-                f32v3 v = attractPoints[i] - nodes[tn.rayNode].pos;
+            // Get closest node and attract it towards attract point
+            for (size_t j = 0; j < m_scNodes.size(); j++) {
+                auto& tn = m_scNodes[j];
+                f32v3 v = attractPoints[i] - m_scRayNodes[tn.rayNode].pos;
                 f32 dist2 = selfDot(v);
                 if (dist2 <= killRadius2) {
                     attractPoints[i] = attractPoints.back();
@@ -594,25 +627,35 @@ void NFloraGenerator::spaceColonization(std::vector<SCRayNode>& nodes, std::vect
                 }
             }
             if (closestIndex != -1) {
-                tNodes[closestIndex].dir += (attractPoints[i] - nodes[tNodes[closestIndex].rayNode].pos) / closestDist;
+                auto& tn = m_scNodes[closestIndex];
+                tn.dir += (attractPoints[i] - m_scRayNodes[tn.rayNode].pos) / closestDist;
             }
         }
 
-        for (int i = (int)tNodes.size() - 1; i >= 0; --i) {
-            auto& tn = tNodes[i];
-            auto& n = nodes[tn.rayNode];
+        // Generate new nodes and erase unneeded ones
+        for (int i = (int)m_scNodes.size() - 1; i >= 0; --i) {
+            SCTreeNode& tn = m_scNodes.at(i);
+            const SCRayNode& n = m_scRayNodes.at(tn.rayNode);
             // Self dot?
             if (tn.dir.x && tn.dir.y && tn.dir.z) {
-                f32v3 pos = n.pos + glm::normalize(tn.dir);
+                f32v3 pos = n.pos + glm::normalize(tn.dir) * branchStep;
                 tn.dir = f32v3(0.0f);
-                rays.push_back({ tn.rayNode, (ui32)nodes.size() });
-                tNodes.push_back({ (ui32)nodes.size(), f32v3(0.0f) });
-                nodes.push_back({ pos });
+                ui32 nextIndex = m_scRayNodes.size();
+                // Change leaf node
+                // TODO(Ben): This can be a vector mebby?
+                auto& it = m_scLeafSet.find(tn.rayNode);
+                if (it != m_scLeafSet.end()) m_scLeafSet.erase(it);
+                m_scLeafSet.insert(nextIndex);
+    
+                // Have to make temp copies with emplaceback
+                f32 width = n.width;
+                m_scRayNodes.emplace_back(pos, tn.rayNode, width);
+                m_scNodes.emplace_back(nextIndex);
+
             } else {
-                // Move towards volume
-                // TODO(Ben): Preprocess this
-                tNodes[i] = tNodes.back();
-                tNodes.pop_back();
+                // Remove it since its close to nothing
+     //           m_scNodes[i] = m_scNodes.back();
+     //           m_scNodes.pop_back();
             }
         }
     }
@@ -686,7 +729,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
 
-                if (m_rGen.genlf() < branchChance) {
+                /*if (m_rGen.genlf() < branchChance) {
 
                     ui32 segments = round(m_rGen.genlf() * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
                     if (segments > 0) {
@@ -697,7 +740,8 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                         generateBranch(chunkOff, pos.x, m_center.y, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
                                        dir, props.branchProps);
                     }
-                } else if (leafWidth && leafBlockID) {
+                } else */
+                if (leafWidth && leafBlockID) {
                     m_fNodes->emplace_back(leafBlockID, blockIndex, chunkOff);
                 }
             } else if (dist2 < leafWidth2 && leafBlockID) { // Leaves
@@ -719,135 +763,168 @@ inline f32 fastCeilf(f64 x) {
     return FastConversion<f32, f32>::ceiling(x);
 }
 
-inline f32 minDistance(const f32v3& w, const f32v3& v, const f32v3& p) {
-    const f32 l2 = selfDot(v - w);  
-    if (l2 == 0.0) return glm::length(p - v);  
+void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, const TreeBranchProperties& props) {
+    
+    if (width < 1.0f) return;
+    int startX = x;
+    int startY = y;
+    int startZ = z;
+    ui32 startChunkOffset = chunkOffset;
 
-    const f32 t = glm::dot(p - v, w - v) / l2;
-    if (t < 0.0) return glm::length(p - v);   
-    else if (t > 1.0) return glm::length(p - w); 
-    const f32v3 projection = v + t * (w - v); 
-    return glm::length(p - projection);
-}
+    f32v3 start(0.0f);
+    f32v3 end = dir * length;
 
-void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, f32v3 dir, const TreeBranchProperties& props) {
-    while (true) {
-        if (width < 1.0f) return;
-        f32 endWidth = width - 10.0f;
-        if (endWidth < 0.0f) endWidth = 0.0f;
-        int startX = x;
-        int startY = y;
-        int startZ = z;
-        ui32 startChunkOffset = chunkOffset;
-        f32 maxDist = (float)props.length;
+    // Compute bounding box
+    f32 minX = 0.0f, maxX = 0.0f;
+    f32 minY = 0.0f, maxY = 0.0f;
+    f32 minZ = 0.0f, maxZ = 0.0f;
 
-        f32v3 start(0.0f);
-        f32v3 end = dir * length;
+    if (end.x < minX) minX = end.x;
+    if (end.x > maxX) maxX = end.x;
+    if (end.y < minY) minY = end.y;
+    if (end.y > maxY) maxY = end.y;
+    if (end.z < minZ) minZ = end.z;
+    if (end.z > maxZ) maxZ = end.z;
 
-        // Compute bounding box
-        f32 minX = 0.0f, maxX = 0.0f;
-        f32 minY = 0.0f, maxY = 0.0f;
-        f32 minZ = 0.0f, maxZ = 0.0f;
+    // Pad the box by width + 1
+    f32 wp1 = glm::max(width, endWidth) + 1;
+    minX -= wp1;
+    maxX += wp1;
+    minY -= wp1;
+    maxY += wp1;
+    minZ -= wp1;
+    maxZ += wp1;
 
-        if (end.x < minX) minX = end.x;
-        if (end.x > maxX) maxX = end.x;
-        if (end.y < minY) minY = end.y;
-        if (end.y > maxY) maxY = end.y;
-        if (end.z < minZ) minZ = end.z;
-        if (end.z > maxZ) maxZ = end.z;
+    // Round down to voxel position
+    i32v3 min(fastFloor(minX), fastFloor(minY), fastFloor(minZ));
+    i32v3 max(fastFloor(maxX), fastFloor(maxY), fastFloor(maxZ));
 
-        // Pad the box by width + 1
-        f32 wp1 = width + 1;
-        minX -= wp1;
-        maxX += wp1;
-        minY -= wp1;
-        maxY += wp1;
-        minZ -= wp1;
-        maxZ += wp1;
+    // Offset to back corner
+    offsetByPos(x, y, z, chunkOffset, min);
 
-        // Round down to voxel position
-        i32v3 min(fastFloor(minX), fastFloor(minY), fastFloor(minZ));
-        i32v3 max(fastFloor(maxX), fastFloor(maxY), fastFloor(maxZ));
+    // Make start and end relative to min
+    start -= min;
+    end -= min;
 
-        // Offset to back corner
-        offsetByPos(x, y, z, chunkOffset, min);
+    const f32v3 ray = (end - start);
+    const f32 l2 = selfDot(ray);
+    // Iterate the volume and check points against line segment
+    for (int i = 0; i < max.y - min.y; i++) {
+        for (int j = 0; j < max.z - min.z; j++) {
+            for (int k = 0; k < max.x - min.x; k++) {
+                // http://stackoverflow.com/a/1501725/3346893
+                const f32v3 vec(k, i, j);
+                const f32v3 v2 = vec - start;
+                const f32 t = glm::dot(v2, ray) / l2;
 
-        // Make start and end relative to min
-        start -= min;
-        end -= min;
-
-        const f32v3 ray = (end - start);
-        const f32 l2 = selfDot(ray);
-        f32v3 vec(0.0f);
-        // Iterate the volume and check points against line segment
-        for (int i = 0; i < max.y - min.y; i++) {
-            for (int j = 0; j < max.z - min.z; j++) {
-                for (int k = 0; k < max.x - min.x; k++) {
-                    // http://stackoverflow.com/a/1501725/3346893
-                    const f32v3 vec(k, i, j);
-                    const f32v3 v2 = vec - start;
-                    const f32 t = glm::dot(v2, ray) / l2;
-
-                    // Compute distance2
-                    f32 dist2;
-                    f32 innerWidth;
-                    if (t < 0.0) {
-                        dist2 = selfDot(v2);
-                        innerWidth = width;
-                    } else if (t > 1.0) {
-                        dist2 = selfDot(vec - end);
-                        innerWidth = endWidth;
-                    } else {
-                        const f32v3 projection = start + t * ray;
-                        dist2 = selfDot(vec - projection);
-                        // Lerp the branch width
-                        innerWidth = lerp(width, endWidth, t);
-                    }
+                // Compute distance2
+                f32 dist2;
+                f32 innerWidth;
+                if (t < 0.0) {
+                    dist2 = selfDot(v2);
+                    innerWidth = width;
+                } else if (t > 1.0) {
+                    dist2 = selfDot(vec - end);
+                    innerWidth = endWidth;
+                } else {
+                    const f32v3 projection = start + t * ray;
+                    dist2 = selfDot(vec - projection);
+                    // Lerp the branch width
+                    innerWidth = lerp(width, endWidth, t);
+                }
                     
-                    f32 width2 = innerWidth * innerWidth;
-                    f32 width2p1 = (innerWidth + 1) * (innerWidth + 1);
+                f32 width2 = innerWidth * innerWidth;
+                f32 width2p1 = (innerWidth + 1) * (innerWidth + 1);
 
-                    // Distribute branch chance over the circumference of the branch
-                    f64 branchChance = props.branchChance / (M_2_PI * (f64)(innerWidth));
+                // Distribute branch chance over the circumference of the branch
+                // f64 branchChance = props.branchChance / (M_2_PI * (f64)(innerWidth));
 
-                    if (dist2 < width2) {
+                if (dist2 < width2) {
+                    i32v3 pos(x + k, y + i, z + j);
+                    ui32 chunkOff = chunkOffset;
+                    addChunkOffset(pos, chunkOff);
+                    ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
+                    m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
+                } else if (dist2 < width2p1) {
+                    // Outer edge, check for branching and fruit
+                    /*if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
                         i32v3 pos(x + k, y + i, z + j);
                         ui32 chunkOff = chunkOffset;
                         addChunkOffset(pos, chunkOff);
-                        ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                        m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
-                    } else if (dist2 < width2p1) {
-                        // Outer edge, check for branching and fruit
-                        if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
-                            i32v3 pos(x + k, y + i, z + j);
-                            ui32 chunkOff = chunkOffset;
-                            addChunkOffset(pos, chunkOff);
-                            f32 m = 1.0f;
-                            f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genlf(), dir.y + m * m_rGen.genlf(), dir.z + m * m_rGen.genlf()));
-                            generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, innerWidth - 1.0f, newDir, props);
-                        }
-                    }
+                        f32 m = 1.0f;
+                        f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genlf(), dir.y + m * m_rGen.genlf(), dir.z + m * m_rGen.genlf()));
+                        generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, innerWidth - 1.0f, newDir, props);
+                    }*/
                 }
             }
         }
+    }
 
-        // Offset to the end of the ray
-        x = startX;
-        y = startY;
-        z = startZ;
-        offsetByPos(x, y, z, startChunkOffset, ray);
+    // Offset to the end of the ray
+    //x = startX;
+    //y = startY;
+    //z = startZ;
+    //offsetByPos(x, y, z, startChunkOffset, ray);
 
-        if (segments > 1 && width >= 2.0f) {
-            // Continue on to next segment
-            f32 m = 0.5f;
-            dir = glm::normalize(f32v3(dir.x + m * (m_rGen.genlf() - 0.5), dir.y + m * (m_rGen.genlf() - 0.5), dir.z + m * (m_rGen.genlf() - 0.5)));
-            chunkOffset = startChunkOffset;
-            --segments;
-            width -= 10.0f;
-        } else {
-            // Finish with leaves
-            generateLeaves(startChunkOffset, x, y, z, props.leafProps);
-            return;
+    //if (segments > 1 && width >= 2.0f) {
+    //    // Continue on to next segment
+    //    f32 m = 0.5f;
+    //    dir = glm::normalize(f32v3(dir.x + m * (m_rGen.genlf() - 0.5), dir.y + m * (m_rGen.genlf() - 0.5), dir.z + m * (m_rGen.genlf() - 0.5)));
+    //    chunkOffset = startChunkOffset;
+    //    --segments;
+    //    width -= 10.0f;
+    //} else {
+    //    // Finish with leaves
+    //    generateLeaves(startChunkOffset, x, y, z, props.leafProps);
+    //    return;
+    //}
+    
+}
+
+void NFloraGenerator::generateSCBranches() {
+    // First pass, set widths
+    for (auto& l : m_scLeafSet) {
+        ui32 i = l;
+        f32 maxWidth = m_scRayNodes[l].width;
+        m_scRayNodes[l].width = 1.0f;
+        while (true) {
+            SCRayNode& a = m_scRayNodes[i];
+            a.wasVisited = true; // a helpful flag
+            i = a.parent;
+            if (i == SC_NO_PARENT) break;
+            SCRayNode& b = m_scRayNodes[i];
+            f32 nw = a.width + 1.0f;
+            if (b.wasVisited && b.width >= nw) break;
+            b.width = nw;
+            if (b.width > maxWidth) {
+                b.width = maxWidth;
+                break;
+            }
+        }
+    }
+
+    // Second pass
+    int a = 0;
+    for (auto& l : m_scLeafSet) {
+        ui32 i = l;
+        while (true) {
+            SCRayNode& a = m_scRayNodes[i];
+            i = a.parent;
+            if (i == SC_NO_PARENT) break;
+            a.parent = SC_NO_PARENT;
+            SCRayNode& b = m_scRayNodes[i];
+
+            f32v3 dir = b.pos - a.pos;
+            f32 length = glm::length(dir);
+            dir /= length;
+
+            i32v3 iPosA(a.pos);
+            int x = 0;
+            int y = 0;
+            int z = 0;
+            ui32 chunkOffset = NO_CHUNK_OFFSET;
+            offsetByPos(x, y, z, chunkOffset, iPosA);
+            generateBranch(chunkOffset, x, y, z, length, a.width, b.width, dir, m_treeData.trunkProps[1].branchProps);
         }
     }
 }

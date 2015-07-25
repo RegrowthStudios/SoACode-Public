@@ -274,6 +274,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             SET_RANGE(td, kp, branchPoints);
             SET_RANGE(td, kp, branchStep);
             SET_RANGE(td, kp, killMult);
+            SET_RANGE(td, kp, infRadius);
             // Set branch volume properties
             td.branchVolumes.resize(kp.branchVolumes.size());
             for (size_t j = 0; j < kp.branchVolumes.size(); j++) {

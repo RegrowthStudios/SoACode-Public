@@ -177,6 +177,7 @@ struct BranchVolumeProperties {
     ui16 hRadius;
     ui16 vRadius;
     ui16 points;
+    f32 infRadius;
 };
 
 struct NTreeType {
@@ -185,6 +186,7 @@ struct NTreeType {
     Range<ui16> branchPoints;
     Range<ui16> branchStep;
     Range<ui16> killMult;
+    Range<f32> infRadius;
     std::vector<TreeTypeBranchVolumeProperties> branchVolumes;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
@@ -199,6 +201,7 @@ struct TreeData {
     ui16 branchStep;
     ui16 killMult;
     ui16 currentDir;
+    f32 infRadius;
     std::vector<BranchVolumeProperties> branchVolumes;
     std::vector<TreeTrunkProperties> trunkProps;
 };

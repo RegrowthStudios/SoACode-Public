@@ -33,13 +33,25 @@ struct FloraNode {
     ui32 chunkOffset; ///< Packed 00 XXXXXXXXXX YYYYYYYYYY ZZZZZZZZZZ for positional offset. 00111 == 0
 };
 
-struct SCRayNode {
-    f32v3 pos;
-};
+#define SC_NO_PARENT 0x7FFFFFFFu
 
-struct SCTreeRay {
-    ui32 a;
-    ui32 b;
+struct SCRayNode {
+    SCRayNode(const f32v3& pos, ui32 parent, f32 width) :
+        pos(pos), parent(parent), width(width), wasVisited(false) {};
+    f32v3 pos;
+    struct {
+        ui32 parent : 31;
+        bool wasVisited : 1;
+    };
+    f32 width;
+};
+static_assert(sizeof(SCRayNode) == 24, "Size of SCRayNode is not 24");
+
+struct SCTreeNode {
+    SCTreeNode(ui32 rayNode) :
+        rayNode(rayNode), dir(0.0f) {};
+    ui32 rayNode;
+    f32v3 dir;
 };
 
 class NFloraGenerator {
@@ -58,7 +70,7 @@ public:
     static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
     static void generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora);
 
-    void spaceColonization(std::vector<SCRayNode>& nodes, std::vector<SCTreeRay>& rays);
+    void spaceColonization(const f32v3& startPos);
 
     static inline int getChunkXOffset(ui32 chunkOffset) {
         return (int)((chunkOffset >> 20) & 0x3FF) - 0x1FF;
@@ -75,12 +87,16 @@ private:
     };
 
     void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
-    void generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, f32v3 dir, const TreeBranchProperties& props);
+    void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, const TreeBranchProperties& props);
+    void generateSCBranches();
     void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
    
+    std::set<ui32> m_scLeafSet;
+    std::vector<SCRayNode> m_scRayNodes;
+    std::vector<SCTreeNode> m_scNodes;
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;

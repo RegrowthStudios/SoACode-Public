@@ -641,6 +641,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             PARSE_V2(i32, treeProps->branchStep);
         } else if (key == "killMult") {
             PARSE_V2(i32, treeProps->killMult);
+        } else if (key == "infRadius") {
+            PARSE_V2(f32, treeProps->infRadius);
         } else if (key == "branchVolumes") {
             context.reader.forAllInSequence(value, branchVolumeSeqParser);
         } else if (key == "trunk") {

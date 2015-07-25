@@ -60,7 +60,6 @@ FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPo
     std::mt19937 slowRGen(h(facePosition.pos.x) ^ (h(facePosition.pos.y) << 1));
     f64 r = dist(slowRGen);
     if (r < 1.0 - noTreeChance) {
-        std::cout << facePosition.pos.x << " " << facePosition.pos.y << std::endl;
         // A plant exists, now we determine which one
         // TODO(Ben): Binary search?
         f64 roll = dist(slowRGen) * totalChance;
