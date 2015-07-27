@@ -351,7 +351,7 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
             trunkProps = &m_treeData.trunkProps.back();
         }
         // Check for potential branch point
-        if (m_h > 30 && (m_h + scNodeOffset) % scNodeStep == 0) {
+        if ((m_h + scNodeOffset) % scNodeStep == 0) {
             f32 width = (f32)(trunkProps->branchProps.coreWidth + trunkProps->branchProps.barkWidth);
             if (width > 0.0f) {
                 m_scNodes.emplace_back(m_scRayNodes.size());
@@ -360,7 +360,9 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
                                           CHUNK_WIDTH * getChunkYOffset(chunkOffset),
                                           CHUNK_WIDTH * getChunkZOffset(chunkOffset)),
                                           SC_NO_PARENT,
-                                          width);
+                                          width,
+                                          m_scTrunkProps.size());
+                m_scTrunkProps.push_back(*trunkProps);
             }
         }
         // Build the trunk slice
@@ -396,6 +398,16 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         spaceColonization(m_startPos);
 
         std::cout << m_scRayNodes.size() << std::endl;
+        
+        // For now, check for performance issues.
+        if (m_scRayNodes.size() > 4000) {
+            if (m_scRayNodes.size() > 32765) {
+                printf("ERROR: Tree has %d ray nodes\n", m_scRayNodes.size());
+                m_scRayNodes.clear();
+            } else {
+                printf("Performance warning: tree has %d ray nodes\n", m_scRayNodes.size());
+            }
+        }
 
         // Place nodes
         if (m_scRayNodes.size()) {
@@ -406,6 +418,7 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         std::vector<SCTreeNode>().swap(m_scNodes);
         std::set<ui32>().swap(m_scLeafSet);
     }
+    std::vector<TreeTrunkProperties>().swap(m_scTrunkProps);
 }
 
 void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
@@ -635,7 +648,7 @@ void NFloraGenerator::spaceColonization(const f32v3& startPos) {
         // Generate new nodes and erase unneeded ones
         for (int i = (int)m_scNodes.size() - 1; i >= 0; --i) {
             SCTreeNode& tn = m_scNodes.at(i);
-            const SCRayNode& n = m_scRayNodes.at(tn.rayNode);
+            const SCRayNode& n = m_scRayNodes[tn.rayNode];
             // Self dot?
             if (tn.dir.x && tn.dir.y && tn.dir.z) {
                 f32v3 pos = n.pos + glm::normalize(tn.dir) * branchStep;
@@ -647,9 +660,10 @@ void NFloraGenerator::spaceColonization(const f32v3& startPos) {
                 if (it != m_scLeafSet.end()) m_scLeafSet.erase(it);
                 m_scLeafSet.insert(nextIndex);
     
-                // Have to make temp copies with emplaceback
+                // Have to make temp copies with emplace_back
                 f32 width = n.width;
-                m_scRayNodes.emplace_back(pos, tn.rayNode, width);
+                ui16 trunkPropsIndex = n.trunkPropsIndex;
+                m_scRayNodes.emplace_back(pos, tn.rayNode, width, trunkPropsIndex);
                 m_scNodes.emplace_back(nextIndex);
 
             } else {
@@ -763,7 +777,7 @@ inline f32 fastCeilf(f64 x) {
     return FastConversion<f32, f32>::ceiling(x);
 }
 
-void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, const TreeBranchProperties& props) {
+void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, const TreeBranchProperties& props) {
     
     if (width < 1.0f) return;
     int startX = x;
@@ -860,12 +874,10 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
         }
     }
 
-    // Offset to the end of the ray
-    //x = startX;
-    //y = startY;
-    //z = startZ;
-    //offsetByPos(x, y, z, startChunkOffset, ray);
-
+    if (makeLeaves) {
+        generateLeaves(startChunkOffset, startX, startY, startZ, props.leafProps);
+    }
+    
     //if (segments > 1 && width >= 2.0f) {
     //    // Continue on to next segment
     //    f32 m = 0.5f;
@@ -885,7 +897,6 @@ void NFloraGenerator::generateSCBranches() {
     // First pass, set widths
     for (auto& l : m_scLeafSet) {
         ui32 i = l;
-        f32 maxWidth = m_scRayNodes[l].width;
         m_scRayNodes[l].width = 1.0f;
         while (true) {
             SCRayNode& a = m_scRayNodes[i];
@@ -893,11 +904,14 @@ void NFloraGenerator::generateSCBranches() {
             i = a.parent;
             if (i == SC_NO_PARENT) break;
             SCRayNode& b = m_scRayNodes[i];
+            // TODO(Ben): Kegify
             f32 nw = a.width + 1.0f;
             if (b.wasVisited && b.width >= nw) break;
+            TreeBranchProperties& tbp = m_scTrunkProps[b.trunkPropsIndex].branchProps;
             b.width = nw;
-            if (b.width > maxWidth) {
-                b.width = maxWidth;
+            if (b.width > tbp.barkWidth + tbp.coreWidth) {
+                b.width = tbp.barkWidth + tbp.coreWidth;
+                b.wasVisited = true;
                 break;
             }
         }
@@ -907,6 +921,7 @@ void NFloraGenerator::generateSCBranches() {
     int a = 0;
     for (auto& l : m_scLeafSet) {
         ui32 i = l;
+        bool hasLeaves = true;
         while (true) {
             SCRayNode& a = m_scRayNodes[i];
             i = a.parent;
@@ -917,14 +932,15 @@ void NFloraGenerator::generateSCBranches() {
             f32v3 dir = b.pos - a.pos;
             f32 length = glm::length(dir);
             dir /= length;
-
+           
             i32v3 iPosA(a.pos);
             int x = 0;
             int y = 0;
             int z = 0;
             ui32 chunkOffset = NO_CHUNK_OFFSET;
             offsetByPos(x, y, z, chunkOffset, iPosA);
-            generateBranch(chunkOffset, x, y, z, length, a.width, b.width, dir, m_treeData.trunkProps[1].branchProps);
+            generateBranch(chunkOffset, x, y, z, length, a.width, b.width, dir, hasLeaves, m_scTrunkProps[b.trunkPropsIndex].branchProps);
+            hasLeaves = false;
         }
     }
 }

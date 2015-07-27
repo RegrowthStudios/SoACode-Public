@@ -33,24 +33,25 @@ struct FloraNode {
     ui32 chunkOffset; ///< Packed 00 XXXXXXXXXX YYYYYYYYYY ZZZZZZZZZZ for positional offset. 00111 == 0
 };
 
-#define SC_NO_PARENT 0x7FFFFFFFu
+#define SC_NO_PARENT 0x7FFFu
 
 struct SCRayNode {
-    SCRayNode(const f32v3& pos, ui32 parent, f32 width) :
-        pos(pos), parent(parent), width(width), wasVisited(false) {};
+    SCRayNode(const f32v3& pos, ui16 parent, f32 width, ui16 trunkPropsIndex) :
+        pos(pos), trunkPropsIndex(trunkPropsIndex), wasVisited(false), parent(parent), width(width) {};
     f32v3 pos;
     struct {
-        ui32 parent : 31;
+        ui16 trunkPropsIndex : 15;
         bool wasVisited : 1;
     };
+    ui16 parent;
     f32 width;
 };
 static_assert(sizeof(SCRayNode) == 24, "Size of SCRayNode is not 24");
 
 struct SCTreeNode {
-    SCTreeNode(ui32 rayNode) :
+    SCTreeNode(ui16 rayNode) :
         rayNode(rayNode), dir(0.0f) {};
-    ui32 rayNode;
+    ui16 rayNode;
     f32v3 dir;
 };
 
@@ -87,7 +88,7 @@ private:
     };
 
     void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
-    void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, const TreeBranchProperties& props);
+    void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, const TreeBranchProperties& props);
     void generateSCBranches();
     void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
@@ -97,6 +98,7 @@ private:
     std::set<ui32> m_scLeafSet;
     std::vector<SCRayNode> m_scRayNodes;
     std::vector<SCTreeNode> m_scNodes;
+    std::vector<TreeTrunkProperties> m_scTrunkProps; ///< Stores branch properties for nodes
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;
