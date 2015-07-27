@@ -420,6 +420,20 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         std::vector<SCTreeNode>().swap(m_scNodes);
         std::set<ui32>().swap(m_scLeafSet);
     }
+
+    // Place leaves last to prevent node overlap
+    for (auto& it : m_leavesToPlace) {
+        m_center.x = blockIndex & 0x1F; // & 0x1F = % 32
+        m_center.y = blockIndex / CHUNK_LAYER;
+        m_center.z = (blockIndex & 0x3FF) / CHUNK_WIDTH; // & 0x3FF = % 1024
+        generateLeaves(it.chunkOffset, it.blockIndex & 0x1F,
+                       it.blockIndex / CHUNK_LAYER,
+                       (it.blockIndex & 0x3FF) / CHUNK_WIDTH,
+                       *it.leafProps);
+
+    }
+    std::vector<LeavesToPlace>().swap(m_leavesToPlace);
+
     std::cout << "SIZE: " << m_wNodes->size() << " " << m_fNodes->size() << std::endl;
     std::vector<TreeTrunkProperties>().swap(m_scTrunkProps);
     std::unordered_map<ui32, ui32>().swap(m_nodeFieldsMap);
@@ -904,7 +918,8 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
     }
 
     if (makeLeaves) {
-        generateLeaves(startChunkOffset, startX, startY, startZ, props.leafProps);
+        ui16 newIndex = (ui16)(startX + startY * CHUNK_LAYER + startZ * CHUNK_WIDTH);
+        m_leavesToPlace.emplace_back(newIndex, startChunkOffset, &props.leafProps);
     }
     
     //if (segments > 1 && width >= 2.0f) {

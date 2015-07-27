@@ -63,6 +63,15 @@ struct NodeField {
     ui8 vals[CHUNK_SIZE / 4];
 };
 
+// Defer leaf placement to prevent node overlap
+struct LeavesToPlace {
+    LeavesToPlace(ui16 blockIndex, ui32 chunkOffset, const TreeLeafProperties* leafProps) :
+    blockIndex(blockIndex), chunkOffset(chunkOffset), leafProps(leafProps) { }
+    ui16 blockIndex;
+    ui32 chunkOffset;
+    const TreeLeafProperties* leafProps;
+};
+
 class NFloraGenerator {
 public:
     /// @brief Generates flora for a chunk using its QueuedFlora.
@@ -109,6 +118,7 @@ private:
     std::vector<NodeField> m_nodeFields;
     std::vector<SCRayNode> m_scRayNodes;
     std::vector<SCTreeNode> m_scNodes;
+    std::vector<LeavesToPlace> m_leavesToPlace;
     std::vector<TreeTrunkProperties> m_scTrunkProps; ///< Stores branch properties for nodes
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
