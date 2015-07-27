@@ -309,7 +309,10 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     // Get the properties for this tree
     // TODO(Ben): Temp
     age = 1.0f;
+    m_currChunkOff = 0;
     generateTreeProperties(type, age, m_treeData);
+    m_nodeFields.reserve(m_treeData.height / CHUNK_WIDTH + 3);
+    m_nodeFieldsMap.reserve(200);
     // Get handles
     m_wNodes = &wNodes;
     m_fNodes = &fNodes;
@@ -360,7 +363,6 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
                                           CHUNK_WIDTH * getChunkYOffset(chunkOffset),
                                           CHUNK_WIDTH * getChunkZOffset(chunkOffset)),
                                           SC_NO_PARENT,
-                                          width,
                                           m_scTrunkProps.size());
                 m_scTrunkProps.push_back(*trunkProps);
             }
@@ -379,10 +381,10 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
             if (trunkProps->coreWidth + trunkProps->barkWidth == 1) {
                 if (trunkProps->coreWidth) {
                     ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
-                    m_wNodes->emplace_back(trunkProps->coreBlockID, blockIndex, chunkOffset);
+                    tryPlaceNode(m_wNodes, 3, trunkProps->coreBlockID, blockIndex, chunkOffset);
                 } else {
                     ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
-                    m_wNodes->emplace_back(trunkProps->barkBlockID, blockIndex, chunkOffset);
+                    tryPlaceNode(m_wNodes, 3, trunkProps->barkBlockID, blockIndex, chunkOffset);
                 }
             }
             const DirLookup& dir = DIR_AXIS_LOOKUP[m_treeData.currentDir];
@@ -418,7 +420,10 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         std::vector<SCTreeNode>().swap(m_scNodes);
         std::set<ui32>().swap(m_scLeafSet);
     }
+    std::cout << "SIZE: " << m_wNodes->size() << " " << m_fNodes->size() << std::endl;
     std::vector<TreeTrunkProperties>().swap(m_scTrunkProps);
+    std::unordered_map<ui32, ui32>().swap(m_nodeFieldsMap);
+    std::vector<NodeField>().swap(m_nodeFields);
 }
 
 void NFloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
@@ -661,9 +666,8 @@ void NFloraGenerator::spaceColonization(const f32v3& startPos) {
                 m_scLeafSet.insert(nextIndex);
     
                 // Have to make temp copies with emplace_back
-                f32 width = n.width;
                 ui16 trunkPropsIndex = n.trunkPropsIndex;
-                m_scRayNodes.emplace_back(pos, tn.rayNode, width, trunkPropsIndex);
+                m_scRayNodes.emplace_back(pos, tn.rayNode, trunkPropsIndex);
                 m_scNodes.emplace_back(nextIndex);
 
             } else {
@@ -672,6 +676,31 @@ void NFloraGenerator::spaceColonization(const f32v3& startPos) {
      //           m_scNodes.pop_back();
             }
         }
+    }
+}
+
+// Priority can not be bigger than 3
+inline void NFloraGenerator::tryPlaceNode(std::vector<FloraNode>* nodes, ui8 priority, ui16 blockID, ui16 blockIndex, ui32 chunkOffset) {
+    if (m_currChunkOff != chunkOffset) {
+        m_currChunkOff = chunkOffset;
+        auto& it = m_nodeFieldsMap.find(chunkOffset);
+        if (it == m_nodeFieldsMap.end()) {
+            m_currNodeField = m_nodeFields.size();
+            m_nodeFields.emplace_back();
+            m_nodeFieldsMap.insert(std::pair<ui32, int>(chunkOffset, m_currNodeField));
+        } else {
+            m_currNodeField = it->second;
+        }
+    }
+    // For memory compression we pack 4 nodes into each val
+    NodeField& nf = m_nodeFields[m_currNodeField];
+    ui8& val = nf.vals[blockIndex >> 2];
+    ui8 shift = (blockIndex & 0x3) << 1;
+    if ((((val >> shift) & 0x3) < priority)) {
+        nodes->emplace_back(blockID, blockIndex, chunkOffset);
+        // Overwrite priority
+        val &= ~(0x3 << shift);
+        val |= (priority << shift);
     }
 }
 
@@ -732,9 +761,9 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
                 if (dist2 < innerWidth2) {
-                    m_wNodes->emplace_back(props.coreBlockID, blockIndex, chunkOff);
+                    tryPlaceNode(m_wNodes, 3, props.coreBlockID, blockIndex, chunkOff);
                 } else {
-                    m_wNodes->emplace_back(props.barkBlockID, blockIndex, chunkOff);
+                    tryPlaceNode(m_wNodes, 3, props.barkBlockID, blockIndex, chunkOff);
                 }
             } else if (dist2 < woodWidth2p1) { // Fruit and branching
                 // Get position
@@ -756,7 +785,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                     }
                 } else */
                 if (leafWidth && leafBlockID) {
-                    m_fNodes->emplace_back(leafBlockID, blockIndex, chunkOff);
+                    tryPlaceNode(m_fNodes, 1, leafBlockID, blockIndex, chunkOff);
                 }
             } else if (dist2 < leafWidth2 && leafBlockID) { // Leaves
                 // Get position
@@ -764,7 +793,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 ui32 chunkOff = chunkOffset;
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
-                m_fNodes->emplace_back(leafBlockID, blockIndex, chunkOff);
+                tryPlaceNode(m_fNodes, 1, leafBlockID, blockIndex, chunkOff);
             }
         }
     }
@@ -858,7 +887,7 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                     ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                    m_wNodes->emplace_back(props.coreBlockID, newIndex, chunkOff);
+                    tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
                 } else if (dist2 < width2p1) {
                     // Outer edge, check for branching and fruit
                     /*if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
@@ -897,7 +926,6 @@ void NFloraGenerator::generateSCBranches() {
     // First pass, set widths
     for (auto& l : m_scLeafSet) {
         ui32 i = l;
-        m_scRayNodes[l].width = 1.0f;
         while (true) {
             SCRayNode& a = m_scRayNodes[i];
             a.wasVisited = true; // a helpful flag
@@ -911,8 +939,6 @@ void NFloraGenerator::generateSCBranches() {
             b.width = nw;
             if (b.width > tbp.barkWidth + tbp.coreWidth) {
                 b.width = tbp.barkWidth + tbp.coreWidth;
-                b.wasVisited = true;
-                break;
             }
         }
     }
@@ -983,7 +1009,7 @@ void NFloraGenerator::generateRoundLeaves(ui32 chunkOffset, int x, int y, int z,
                     ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                    m_fNodes->emplace_back(props.round.blockID, blockIndex, chunkOff);
+                    tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
                 }
             }
         }
@@ -1021,8 +1047,7 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
                     ui32 chunkOff = innerChunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
-
-                    m_fNodes->emplace_back(props.round.blockID, blockIndex, chunkOff);
+                    tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
                 }
             }
         }
@@ -1077,9 +1102,9 @@ void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z,
                         addChunkOffset(pos, chunkOff);
                         ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
                         if (dist2 >= capRadius2) {
-                            m_fNodes->emplace_back(props.mushroom.capBlockID, blockIndex, chunkOff);
+                            tryPlaceNode(m_fNodes, 1, props.mushroom.capBlockID, blockIndex, chunkOff);
                         } else {
-                            m_fNodes->emplace_back(props.mushroom.gillBlockID, blockIndex, chunkOff);
+                            tryPlaceNode(m_fNodes, 1, props.mushroom.gillBlockID, blockIndex, chunkOff);
                         }
                     }
                 }
@@ -1142,9 +1167,9 @@ void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z,
                         addChunkOffset(pos, chunkOff);
                         ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
                         if (dist2 >= capRadius2) {
-                            m_fNodes->emplace_back(props.mushroom.capBlockID, blockIndex, chunkOff);
+                            tryPlaceNode(m_fNodes, 1, props.mushroom.capBlockID, blockIndex, chunkOff);
                         } else {
-                            m_fNodes->emplace_back(props.mushroom.gillBlockID, blockIndex, chunkOff);
+                            tryPlaceNode(m_fNodes, 1, props.mushroom.gillBlockID, blockIndex, chunkOff);
                         }
                     }
                 }

@@ -36,15 +36,15 @@ struct FloraNode {
 #define SC_NO_PARENT 0x7FFFu
 
 struct SCRayNode {
-    SCRayNode(const f32v3& pos, ui16 parent, f32 width, ui16 trunkPropsIndex) :
-        pos(pos), trunkPropsIndex(trunkPropsIndex), wasVisited(false), parent(parent), width(width) {};
+    SCRayNode(const f32v3& pos, ui16 parent, ui16 trunkPropsIndex) :
+        pos(pos), trunkPropsIndex(trunkPropsIndex), wasVisited(false), parent(parent){};
     f32v3 pos;
     struct {
         ui16 trunkPropsIndex : 15;
         bool wasVisited : 1;
     };
     ui16 parent;
-    f32 width;
+    f32 width = 1.0f;
 };
 static_assert(sizeof(SCRayNode) == 24, "Size of SCRayNode is not 24");
 
@@ -53,6 +53,14 @@ struct SCTreeNode {
         rayNode(rayNode), dir(0.0f) {};
     ui16 rayNode;
     f32v3 dir;
+};
+
+struct NodeField {
+    NodeField() {
+        memset(vals, 0, sizeof(vals));
+    }
+    // Each node is 2 bits
+    ui8 vals[CHUNK_SIZE / 4];
 };
 
 class NFloraGenerator {
@@ -87,6 +95,7 @@ private:
         TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
     };
 
+    void tryPlaceNode(std::vector<FloraNode>* nodes, ui8 priority, ui16 blockID, ui16 blockIndex, ui32 chunkOffset);
     void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
     void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, const TreeBranchProperties& props);
     void generateSCBranches();
@@ -96,6 +105,8 @@ private:
     void generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
    
     std::set<ui32> m_scLeafSet;
+    std::unordered_map<ui32, ui32> m_nodeFieldsMap;
+    std::vector<NodeField> m_nodeFields;
     std::vector<SCRayNode> m_scRayNodes;
     std::vector<SCTreeNode> m_scNodes;
     std::vector<TreeTrunkProperties> m_scTrunkProps; ///< Stores branch properties for nodes
@@ -106,6 +117,8 @@ private:
     i32v3 m_center;
     ui32 m_h; ///< Current height along the tree
     FastRandGenerator m_rGen;
+    ui32 m_currChunkOff;
+    ui32 m_currNodeField;
 };
 
 #endif // NFloraGenerator_h__
