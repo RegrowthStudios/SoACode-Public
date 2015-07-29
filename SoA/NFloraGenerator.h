@@ -118,13 +118,14 @@ private:
 
     void tryPlaceNode(std::vector<FloraNode>* nodes, ui8 priority, ui16 blockID, ui16 blockIndex, ui32 chunkOffset);
     void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
-    void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, const TreeBranchProperties& props);
+    void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, bool hasParent, const TreeBranchProperties& props);
     void generateSCBranches();
     void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
     void generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
-   
+    void newDirFromAngle(f32v3& dir, f32 minAngle, f32 maxAngle);
+
     std::set<ui32> m_scLeafSet;
     std::unordered_map<ui32, ui32> m_nodeFieldsMap;
     std::vector<NodeField> m_nodeFields;

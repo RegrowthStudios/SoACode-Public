@@ -7,7 +7,7 @@
 #define Y_1 0x400
 #define Z_1 0x1
 
-#define OUTER_SKIP_MOD 4
+#define OUTER_SKIP_MOD 5
 
 #pragma region helpers
 /************************************************************************/
@@ -438,14 +438,7 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
             // Check end condition
             if (++i == numSegments) break;
             // Get new dir
-            f32 angle = m_rGen.genlf() * (bp.subBranchAngle.max - bp.subBranchAngle.min) + bp.subBranchAngle.min;
-            f32v3 relDir(0, cos(angle), sin(angle));
-            relDir = glm::angleAxis((f32)(m_rGen.genlf() * M_2_PI), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
-            // Transform relDir relative to dir with change of basis matrix
-            f32v3 nz = glm::cross(dir, f32v3(0.0f, 1.0f, 0.0f));
-            f32v3 nx = glm::cross(dir, nz);
-            glm::mat3 trans(nx, dir, nz);
-            dir = trans * relDir;
+            newDirFromAngle(dir, bp.angle.min, bp.angle.max);
             parent = m_scRayNodes.size() - 1;
             if (parent >= 32767) {
                 break;
@@ -457,16 +450,6 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
 
     // Place nodes for branches
     if (m_scRayNodes.size()) {
-        // For now, check for performance issues.
-        if (m_scRayNodes.size() > 4000) {
-            if (m_scRayNodes.size() > 32768) {
-                printf("ERROR: Tree has %d ray nodes but limited to 32768\n", m_scRayNodes.size());
-                m_scRayNodes.clear();
-            } else {
-                printf("Performance warning: tree has %d ray nodes\n", m_scRayNodes.size());
-            }
-        }
-
         generateSCBranches();
         std::vector<SCRayNode>().swap(m_scRayNodes);
         std::set<ui32>().swap(m_scLeafSet);
@@ -877,7 +860,7 @@ inline f32 fastCeilf(f64 x) {
     return FastConversion<f32, f32>::ceiling(x);
 }
 
-void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, const TreeBranchProperties& props) {
+void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, bool hasParent, const TreeBranchProperties& props) {
     
     if (width < 1.0f) return;
     int startX = x;
@@ -934,10 +917,13 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                 // Compute distance2
                 f32 dist2;
                 f32 innerWidth;
+                bool canFruit = false;
                 if (t < 0.0) {
                     dist2 = selfDot(v2);
                     innerWidth = width;
                 } else if (t > 1.0) {
+                    // Parent will fill these nodes in.
+                    if (hasParent) continue;
                     dist2 = selfDot(vec - end);
                     innerWidth = endWidth;
                 } else {
@@ -945,6 +931,7 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                     dist2 = selfDot(vec - projection);
                     // Lerp the branch width
                     innerWidth = lerp(width, endWidth, t);
+                    canFruit = true;
                 }
                     
                 f32 width2 = innerWidth * innerWidth;
@@ -965,16 +952,8 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                     } else {
                         tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
                     }
-                } else if (dist2 < width2p1) {
-                    // Outer edge, check for branching and fruit
-                    /*if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
-                        i32v3 pos(x + k, y + i, z + j);
-                        ui32 chunkOff = chunkOffset;
-                        addChunkOffset(pos, chunkOff);
-                        f32 m = 1.0f;
-                        f32v3 newDir = glm::normalize(f32v3(dir.x + m * m_rGen.genlf(), dir.y + m * m_rGen.genlf(), dir.z + m * m_rGen.genlf()));
-                        generateBranch(chunkOff, pos.x, pos.y, pos.z, segments, length, innerWidth - 1.0f, newDir, props);
-                    }*/
+                } else if (canFruit && dist2 < width2p1) {
+                   
                 }
             }
         }
@@ -983,25 +962,23 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
     if (makeLeaves) {
         ui16 newIndex = (ui16)(startX + startY * CHUNK_LAYER + startZ * CHUNK_WIDTH);
         m_leavesToPlace.emplace_back(newIndex, startChunkOffset, &props.leafProps);
-    }
-    
-    //if (segments > 1 && width >= 2.0f) {
-    //    // Continue on to next segment
-    //    f32 m = 0.5f;
-    //    dir = glm::normalize(f32v3(dir.x + m * (m_rGen.genlf() - 0.5), dir.y + m * (m_rGen.genlf() - 0.5), dir.z + m * (m_rGen.genlf() - 0.5)));
-    //    chunkOffset = startChunkOffset;
-    //    --segments;
-    //    width -= 10.0f;
-    //} else {
-    //    // Finish with leaves
-    //    generateLeaves(startChunkOffset, x, y, z, props.leafProps);
-    //    return;
-    //}
-    
+    }  
 }
 
 void NFloraGenerator::generateSCBranches() {
-    // First pass, set widths
+
+    // Check for performance issues.
+    if (m_scRayNodes.size() > 4000) {
+        if (m_scRayNodes.size() > 32768) {
+            printf("ERROR: Tree has %d ray nodes but limited to 32768\n", m_scRayNodes.size());
+            m_scRayNodes.clear();
+        } else {
+            printf("Performance warning: tree has %d ray nodes\n", m_scRayNodes.size());
+        }
+    }
+
+    std::vector <ui32> lNodesToAdd;
+    // Set widths and sub branches
     for (auto& l : m_scLeafSet) {
         ui32 i = l;
         while (true) {
@@ -1012,15 +989,71 @@ void NFloraGenerator::generateSCBranches() {
             SCRayNode& b = m_scRayNodes[i];
             TreeBranchProperties& tbp = m_scTrunkProps[b.trunkPropsIndex].branchProps;
             f32 nw = a.width + tbp.widthFalloff;
-            if (b.wasVisited && b.width >= nw) break;
-            b.width = nw;
-            if (b.width > tbp.barkWidth + tbp.coreWidth) {
-                b.width = tbp.barkWidth + tbp.coreWidth;
+
+            if (b.wasVisited) {
+                if (b.width >= nw) break;
+                b.width = nw;
+                if (b.width > tbp.barkWidth + tbp.coreWidth) {
+                    b.width = tbp.barkWidth + tbp.coreWidth;
+                }
+            } else {
+                b.width = nw;
+                if (b.width > tbp.barkWidth + tbp.coreWidth) {
+                    b.width = tbp.barkWidth + tbp.coreWidth;
+                }
+                
+                // Calculate sub branching
+                if (tbp.branchChance > 0.0f) {
+                    f32v3 dir = glm::normalize(b.pos - a.pos);
+                    f32 length = glm::length(dir);
+                    dir /= length;
+                    for (f32 v = 0.0f; v < length; v += 1.0f) {
+                        if (m_rGen.genlf() < tbp.branchChance) {
+                            f32 width = lerp(a.width, b.width, v / length);
+                            f32 sLength = width / tbp.widthFalloff;
+                            // Determine float position
+                            f32v3 pos = a.pos + dir * v;
+                            
+                            // Add root
+                            ui16 parent = m_scRayNodes.size();
+                            ui16 tpIndex = a.trunkPropsIndex;
+                            // a and b are invalidated with emplace_back
+                            m_scRayNodes.emplace_back(pos, SC_NO_PARENT, tpIndex);
+                            m_scRayNodes.back().width = width;
+                            // Determine chain length
+                            int numSegments = sLength * tbp.changeDirChance;
+                            numSegments++;
+                            sLength /= numSegments;
+                            // Create branch chain
+                            int j = 0;
+                            f32v3 nDir = dir;
+                            while (true) {
+                                // Get new dir
+                                newDirFromAngle(nDir, tbp.angle.min, tbp.angle.max);
+                                pos += nDir * sLength;
+                                m_scRayNodes.emplace_back(pos, parent, tpIndex);
+                                m_scRayNodes.back().width = width * ((f32)(numSegments - i - 1) / numSegments);
+                                // Check end condition
+                                if (++j == numSegments) break;
+                                parent = m_scRayNodes.size() - 1;
+                                if (parent >= 32767) {
+                                    break;
+                                }
+                            }
+                            // Last node is leaf
+                            lNodesToAdd.push_back(m_scRayNodes.size() - 1);
+                        }
+                    }
+                }
             }
         }
     }
+    for (auto& i : lNodesToAdd) {
+        m_scLeafSet.insert(i);
+    }
+    std::cout << "ADDED: " << lNodesToAdd.size() << std::endl;
 
-    // Second pass
+    // Make branches
     int a = 0;
     for (auto& l : m_scLeafSet) {
         ui32 i = l;
@@ -1042,7 +1075,8 @@ void NFloraGenerator::generateSCBranches() {
             int z = 0;
             ui32 chunkOffset = NO_CHUNK_OFFSET;
             offsetByPos(x, y, z, chunkOffset, iPosA);
-            generateBranch(chunkOffset, x, y, z, length, a.width, b.width, dir, hasLeaves, m_scTrunkProps[b.trunkPropsIndex].branchProps);
+            generateBranch(chunkOffset, x, y, z, length, a.width, b.width, dir, hasLeaves,
+                           b.parent != SC_NO_PARENT, m_scTrunkProps[b.trunkPropsIndex].branchProps);
             hasLeaves = false;
         }
     }
@@ -1266,4 +1300,15 @@ void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z,
             offsetPositive(y, Y_1, chunkOffset, 1);
         }
     }
+}
+
+inline void NFloraGenerator::newDirFromAngle(f32v3& dir, f32 minAngle, f32 maxAngle) {
+    f32 angle = m_rGen.genlf() * (maxAngle - minAngle) + minAngle;
+    f32v3 relDir(0, cos(angle), sin(angle));
+    relDir = glm::angleAxis((f32)(m_rGen.genlf() * M_2_PI), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
+    // Transform relDir relative to dir with change of basis matrix
+    f32v3 nz = glm::cross(dir, f32v3(0.0f, 1.0f, 0.0f));
+    f32v3 nx = glm::cross(dir, nz);
+    glm::mat3 trans(nx, dir, nz);
+    dir = trans * relDir;
 }
