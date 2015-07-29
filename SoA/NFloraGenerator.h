@@ -17,17 +17,20 @@
 
 #include "Flora.h"
 #include "Chunk.h"
+#include "soaUtils.h"
 
-// 00111 00111 00111 = 0x1CE7
-#define NO_CHUNK_OFFSET 0x1CE7
+// 0111111111 0111111111 0111111111 = 0x1FF7FDFF
+#define NO_CHUNK_OFFSET 0x1FF7FDFF
 
 // Will not work for chunks > 32^3
 struct FloraNode {
-    FloraNode(ui16 blockIndex, ui16 blockID, ui16 chunkOffset = NO_CHUNK_OFFSET) :
-        blockIndex(blockIndex), blockID(blockID), chunkOffset(chunkOffset) {};
-    ui16 blockIndex;
+    FloraNode(ui16 blockID, ui16 blockIndex, ui32 chunkOffset) :
+        blockID(blockID), blockIndex(blockIndex), chunkOffset(chunkOffset) {
+    };
     ui16 blockID;
-    ui16 chunkOffset; ///< Packed 0 XXXXX YYYYY ZZZZZ for positional offset. 00111 == 0
+    ui16 blockIndex;
+    // TODO(Ben): ui32 instead for massive trees? Use leftover bits for Y?
+    ui32 chunkOffset; ///< Packed 00 XXXXXXXXXX YYYYYYYYYY ZZZZZZZZZZ for positional offset. 00111 == 0
 };
 
 class NFloraGenerator {
@@ -39,16 +42,41 @@ public:
     /// @param wNodes: Returned high priority nodes, for tree "wood".
     void generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes);
     /// Generates standalone tree.
-    void generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui16 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
+    void generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates standalone flora.
-    void generateFlora(FloraData type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui16 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
+    void generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates a specific tree's properties
     static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
+    static void generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora);
+
+    static inline int getChunkXOffset(ui32 chunkOffset) {
+        return (int)((chunkOffset >> 20) & 0x3FF) - 0x1FF;
+    }
+    static inline int getChunkYOffset(ui32 chunkOffset) {
+        return (int)((chunkOffset >> 10) & 0x3FF) - 0x1FF;
+    }
+    static inline int getChunkZOffset(ui32 chunkOffset) {
+        return (int)(chunkOffset & 0x3FF) - 0x1FF;
+    }
 private:
+    enum TreeDir {
+        TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
+    };
+
+    void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
+    void generateBranch(ui32 chunkOffset, int x, int y, int z, ui32 segments, f32 length, f32 width, const f32v3& dir, const TreeBranchProperties& props);
+    void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+   
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;
     FloraData m_floraData;
+    i32v3 m_center;
+    ui32 m_h; ///< Current height along the tree
+    FastRandGenerator m_rGen;
 };
 
 #endif // NFloraGenerator_h__

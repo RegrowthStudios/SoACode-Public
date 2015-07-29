@@ -117,7 +117,7 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
 #define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
 #define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
 
-void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
+inline void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
     SET_RANGE(fp, kp, chance);
     auto& it = genData->floraMap.find(kp.flora);
     if (it != genData->floraMap.end()) {
@@ -131,25 +131,33 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
     const Block* b;
     switch (lp.type) {
         case TreeLeafType::ROUND:
-            SET_RANGE(lp, kp, round.radius);
-            TRY_SET_BLOCK(lp.round.blockID, b, kp.roundBlock);
-            break;
-        case TreeLeafType::CLUSTER:
-            SET_RANGE(lp, kp, cluster.width);
-            SET_RANGE(lp, kp, cluster.height);
-            TRY_SET_BLOCK(lp.cluster.blockID, b, kp.clusterBlock);
+            SET_RANGE(lp, kp, round.vRadius);
+            SET_RANGE(lp, kp, round.hRadius);
+            TRY_SET_BLOCK(lp.round.blockID, b, kp.block);
             break;
         case TreeLeafType::PINE:
-            SET_RANGE(lp, kp, pine.thickness);
-            TRY_SET_BLOCK(lp.pine.blockID, b, kp.pineBlock);
+            SET_RANGE(lp, kp, pine.oRadius);
+            SET_RANGE(lp, kp, pine.iRadius);
+            SET_RANGE(lp, kp, pine.period);
+            TRY_SET_BLOCK(lp.pine.blockID, b, kp.block);
             break;
         case TreeLeafType::MUSHROOM:
-            SET_RANGE(lp, kp, mushroom.lengthMod);
-            SET_RANGE(lp, kp, mushroom.curlLength);
-            SET_RANGE(lp, kp, mushroom.capThickness);
-            SET_RANGE(lp, kp, mushroom.gillThickness);
-            TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.mushGillBlock);
-            TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
+            SET_RANGE(lp, kp, mushroom.tvRadius);
+            SET_RANGE(lp, kp, mushroom.thRadius);
+            SET_RANGE(lp, kp, mushroom.bvRadius);
+            SET_RANGE(lp, kp, mushroom.bhRadius);
+            SET_RANGE(lp, kp, mushroom.bLength);
+            SET_RANGE(lp, kp, mushroom.capWidth);
+            SET_RANGE(lp, kp, mushroom.gillWidth);
+            lp.mushroom.interp = kp.mushroom.interp;
+            // Block overrides cap and gill when they are none
+            if (kp.block != "none" && kp.mushGillBlock == "none" && kp.mushCapBlock == "none") {
+                TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.block);
+                TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.block);
+            } else {
+                TRY_SET_BLOCK(lp.mushroom.gillBlockID, b, kp.mushGillBlock);
+                TRY_SET_BLOCK(lp.mushroom.capBlockID, b, kp.mushCapBlock);
+            }
             break;
         case TreeLeafType::NONE:
             break;
@@ -159,7 +167,14 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
 void setTreeBranchProperties(TreeTypeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
     SET_RANGE(bp, kp, coreWidth);
     SET_RANGE(bp, kp, barkWidth);
+    SET_RANGE(bp, kp, length);
     SET_RANGE(bp, kp, branchChance);
+    SET_RANGE(bp, kp, angle);
+    bp.endSizeMult = kp.endSizeMult;
+    bp.segments.min.min = kp.segments[0].x;
+    bp.segments.min.max = kp.segments[0].y;
+    bp.segments.max.min = kp.segments[1].x;
+    bp.segments.max.max = kp.segments[1].y;
     const Block* b;
     TRY_SET_BLOCK(bp.coreBlockID, b,kp.coreBlock);
     TRY_SET_BLOCK(bp.barkBlockID, b, kp.barkBlock);
@@ -171,10 +186,35 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
     PlanetBlockInitInfo& blockInfo = genData->blockInfo;
     if (genData) {
         // Set all block layers
-        for (size_t i = 0; i < blockInfo.blockLayerNames.size(); i++) {
-            ui16 blockID = blocks[blockInfo.blockLayerNames[i]].ID;
-            genData->blockLayers[i].block = blockID;
+        genData->blockLayers.resize(blockInfo.blockLayers.size());
+        for (size_t i = 0; i < blockInfo.blockLayers.size(); i++) {
+            BlockLayerKegProperties& kp = blockInfo.blockLayers[i];
+            BlockLayer& l = genData->blockLayers[i];
+            l.width = kp.width;
+            const Block* b = blocks.hasBlock(kp.block);
+            if (b) {
+                l.block = b->ID;
+            } else {
+                l.block = 0;
+            }
+            if (kp.surface.size()) {
+                b = blocks.hasBlock(kp.surface);
+                if (b) {
+                    l.surfaceTransform = b->ID;
+                } else {
+                    l.surfaceTransform = l.block;
+                }
+            } else {
+                l.surfaceTransform = l.block;
+            }
         }
+        // Set starts for binary search application
+        int start = 0;
+        for (auto& l : genData->blockLayers) {
+            l.start = start;
+            start += l.width;
+        }
+
         // Set liquid block
         if (blockInfo.liquidBlockName.length()) {
             if (blocks.hasBlock(blockInfo.liquidBlockName)) {
@@ -189,12 +229,36 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
         }
 
         // Set flora data
-        genData->flora.resize(blockInfo.floraBlockNames.size());
-        for (size_t i = 0; i < blockInfo.floraBlockNames.size(); i++) {
-            const Block* b = blocks.hasBlock(blockInfo.floraBlockNames[i]);
+        genData->flora.resize(blockInfo.flora.size());
+        for (size_t i = 0; i < blockInfo.flora.size(); i++) {
+            FloraKegProperties& kp = blockInfo.flora[i];
+            const Block* b = blocks.hasBlock(kp.block);
             if (b) {
-                genData->floraMap[blockInfo.floraBlockNames[i]] = i;
-                genData->flora[i].block = b->ID;
+                FloraType& ft = genData->flora[i];
+                genData->floraMap[kp.id] = i;
+                ft.block = b->ID;
+                ft.height.min = kp.height.x;
+                ft.height.max = kp.height.y;
+                ft.slope.min = kp.slope.x;
+                ft.slope.max = kp.slope.y;
+                ft.dSlope.min = kp.dSlope.x;
+                ft.dSlope.max = kp.dSlope.y;
+                ft.dir = kp.dir;
+            }
+        }
+        // Set sub-flora
+        for (size_t i = 0; i < genData->flora.size(); i++) {
+            FloraKegProperties& kp = blockInfo.flora[i];
+            FloraType& ft = genData->flora[i];
+            if (kp.nextFlora.size()) {
+                auto& it = genData->floraMap.find(kp.nextFlora);
+                if (it != genData->floraMap.end()) {
+                    ft.nextFlora = &genData->flora[it->second];
+                } else {
+                    ft.nextFlora = nullptr;
+                }
+            } else {
+                ft.nextFlora = nullptr;
             }
         }
 
@@ -206,7 +270,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             // Add to lookup map
             genData->treeMap[kp.id] = i;
             // Set height range
-            SET_RANGE(td, kp, heightRange);
+            SET_RANGE(td, kp, height);
 
             // Set trunk properties
             td.trunkProps.resize(kp.trunkProps.size());
@@ -214,17 +278,19 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 TreeTypeTrunkProperties& tp = td.trunkProps[j];
                 const TrunkKegProperties& tkp = kp.trunkProps[j];
                 const Block* b;
-                // Blocks
+                tp.loc = tkp.loc;
                 TRY_SET_BLOCK(tp.barkBlockID, b, tkp.barkBlock);
                 TRY_SET_BLOCK(tp.coreBlockID, b, tkp.coreBlock);
                 // Set ranges
                 SET_RANGE(tp, tkp, coreWidth);
                 SET_RANGE(tp, tkp, barkWidth);
                 SET_RANGE(tp, tkp, branchChance);
+                SET_RANGE(tp, tkp, changeDirChance);
                 tp.slope.min.min = tkp.slope[0].x;
                 tp.slope.min.max = tkp.slope[0].y;
                 tp.slope.max.min = tkp.slope[1].x;
                 tp.slope.max.max = tkp.slope[1].y;
+                tp.interp = tkp.interp;
                 setTreeFruitProperties(tp.fruitProps, tkp.fruitProps, genData);
                 setTreeBranchProperties(tp.branchProps, tkp.branchProps, genData, blocks);
                 setTreeLeafProperties(tp.leafProps, tkp.leafProps, genData, blocks);
@@ -244,7 +310,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                         auto& mit = genData->floraMap.find(kp.id);
                         if (mit != genData->floraMap.end()) {
                             biome.flora[i].chance = kp.chance;
-                            biome.flora[i].data = genData->flora[mit->second];
+                            biome.flora[i].data = &genData->flora[mit->second];
                             biome.flora[i].id = i;
                         } else {
                             fprintf(stderr, "Failed to find flora id %s", kp.id.c_str());

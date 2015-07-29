@@ -28,6 +28,7 @@ public:
     static ui8 getBlendMode(const BlendType& blendType);
 #define POSITION_RESOLUTION 7
 #define ATLAS_SIZE 256
+#define ATLAS_MODULUS_BITS 0xFF
 
 #define NUM_FACES 6
 #define NUM_VERTICES 72

@@ -14,14 +14,16 @@
 #define HORIZONTAL_CHUNKS 4
 #define VERTICAL_CHUNKS 4
 #else
-#define HORIZONTAL_CHUNKS 10
-#define VERTICAL_CHUNKS 10
+
+#define HORIZONTAL_CHUNKS 30
+#define VERTICAL_CHUNKS 26
 #endif
 
 TestBiomeScreen::TestBiomeScreen(const App* app, CommonState* state) :
 IAppScreen<App>(app),
 m_commonState(state),
-m_soaState(m_commonState->state) {
+m_soaState(m_commonState->state),
+m_blockArrayRecycler(1000) {
 
 }
 
@@ -84,6 +86,15 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
         m_hdrStage.hook(&m_commonState->quad);
     }
 
+    // Load test planet
+    PlanetGenLoader planetLoader;
+    m_iom.setSearchDirectory("StarSystems/Trinity/");
+    planetLoader.init(&m_iom);
+    m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
+    if (m_genData->terrainColorPixels.data) {
+        m_soaState->blockTextures->setColorMap("biome", &m_genData->terrainColorPixels);
+    }
+
     // Load blocks
     LoadTaskBlockData blockLoader(&m_soaState->blocks,
                                   &m_soaState->blockTextureLoader,
@@ -92,11 +103,7 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Uploads all the needed textures
     m_soaState->blockTextures->update();
-    // Load test planet
-    PlanetGenLoader planetLoader;
-    m_iom.setSearchDirectory("StarSystems/Trinity/");
-    planetLoader.init(&m_iom);
-    m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
+    
     m_genData->radius = 4500.0;
     
     // Set blocks
@@ -104,10 +111,10 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     
     m_chunkGenerator.init(m_genData);
 
-    printf("Generating chunks...");
+    initHeightData();
     initChunks();
 
-    printf("Generating Meshes...");
+    printf("Generating Meshes...\n");
     // Create all chunk meshes
     m_mesher.init(&m_soaState->blocks);
     for (auto& cv : m_chunks) {
@@ -140,7 +147,7 @@ void TestBiomeScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 void TestBiomeScreen::update(const vui::GameTime& gameTime) {
-    f32 speed = 5.0f;
+    f32 speed = 10.0f;
     if (m_movingFast) speed *= 5.0f;
     if (m_movingForward) {
         f32v3 offset = m_camera.getDirection() * speed * (f32)gameTime.elapsed;
@@ -223,13 +230,9 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
     vg::DepthState::FULL.set(); // Have to restore depth
 }
 
-void TestBiomeScreen::initChunks() {
-    ui16 grass = m_soaState->blocks.getBlockIndex("grass");
-    ui16 dirt = m_soaState->blocks.getBlockIndex("dirt");
-    
-    m_chunks.resize(HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS * VERTICAL_CHUNKS);
+void TestBiomeScreen::initHeightData() {
+    printf("Generating height data...\n");
     m_heightData.resize(HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS);
-
     // Init height data
     m_heightGenerator.init(m_genData);
     for (int z = 0; z < HORIZONTAL_CHUNKS; z++) {
@@ -242,6 +245,8 @@ void TestBiomeScreen::initChunks() {
                     pos.pos.y = z * CHUNK_WIDTH + i;
                     PlanetHeightData& data = hd.heightData[i * CHUNK_WIDTH + j];
                     m_heightGenerator.generateHeightData(data, pos);
+                    data.temperature = 128;
+                    data.humidity = 128;
                 }
             }
         }
@@ -255,34 +260,64 @@ void TestBiomeScreen::initChunks() {
             hd.heightData[i].height -= cHeight;
         }
     }
+}
+
+void TestBiomeScreen::initChunks() {
+    printf("Generating chunks...\n");
+    m_chunks.resize(HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS * VERTICAL_CHUNKS);
 
     // Generate chunk data
-    for (int i = 0; i < m_chunks.size(); i++) {
+    for (size_t i = 0; i < m_chunks.size(); i++) {
         ChunkPosition3D pos;
+        i32v3 gridPosition;
+        gridPosition.x = i % HORIZONTAL_CHUNKS;
+        gridPosition.y = i / (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS);
+        gridPosition.z = (i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)) / HORIZONTAL_CHUNKS;
         // Center position about origin
-        pos.pos.x = i % HORIZONTAL_CHUNKS - HORIZONTAL_CHUNKS / 2;
-        pos.pos.y = i / (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS) - VERTICAL_CHUNKS / 2;
-        pos.pos.z = (i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)) / HORIZONTAL_CHUNKS - HORIZONTAL_CHUNKS / 2;
+        pos.pos.x = gridPosition.x - HORIZONTAL_CHUNKS / 2;
+        pos.pos.y = gridPosition.y - VERTICAL_CHUNKS / 4;
+        pos.pos.z = gridPosition.z - HORIZONTAL_CHUNKS / 2;
+        // Init parameters
         m_chunks[i].chunk = new Chunk;
         m_chunks[i].chunk->init(i, pos);
-        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData);
+        m_chunks[i].gridPosition = gridPosition;
+        m_chunks[i].chunk->gridData = &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)];
+        m_chunks[i].chunk->heightData = m_chunks[i].chunk->gridData->heightData;
+        // Generate the chunk
+        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->heightData);
+        // Decompress to flat array
+        m_chunks[i].chunk->blocks.setArrayRecycler(&m_blockArrayRecycler);
+        m_chunks[i].chunk->blocks.changeState(vvox::VoxelStorageState::FLAT_ARRAY, m_chunks[i].chunk->mutex);
     }
 
     // Generate flora
     std::vector<FloraNode> lNodes;
     std::vector<FloraNode> wNodes;
-    for (int i = 0; i < m_chunks.size(); i++) {
+    // TODO(Ben): I know this is ugly
+    PreciseTimer t1;
+    t1.start();
+    for (size_t i = 0; i < m_chunks.size(); i++) {
         Chunk* chunk = m_chunks[i].chunk;
         m_floraGenerator.generateChunkFlora(chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData, lNodes, wNodes);
         for (auto& node : wNodes) {
-            // TODO(Ben): Neighbor chunks too
-            if (node.chunkOffset == NO_CHUNK_OFFSET) {
+            i32v3 gridPos = m_chunks[i].gridPosition;
+            gridPos.x += NFloraGenerator::getChunkXOffset(node.chunkOffset);
+            gridPos.y += NFloraGenerator::getChunkYOffset(node.chunkOffset);
+            gridPos.z += NFloraGenerator::getChunkZOffset(node.chunkOffset);
+            if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.z >= 0
+                && gridPos.x < HORIZONTAL_CHUNKS && gridPos.y < VERTICAL_CHUNKS && gridPos.z < HORIZONTAL_CHUNKS) {
+                Chunk* chunk = m_chunks[gridPos.x + gridPos.y * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + gridPos.z * HORIZONTAL_CHUNKS].chunk;
                 chunk->blocks.set(node.blockIndex, node.blockID);
             }
         }
         for (auto& node : lNodes) {
-            // TODO(Ben): Neighbor chunks too
-            if (node.chunkOffset == NO_CHUNK_OFFSET) {
+            i32v3 gridPos = m_chunks[i].gridPosition;
+            gridPos.x += NFloraGenerator::getChunkXOffset(node.chunkOffset);
+            gridPos.y += NFloraGenerator::getChunkYOffset(node.chunkOffset);
+            gridPos.z += NFloraGenerator::getChunkZOffset(node.chunkOffset);
+            if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.z >= 0
+                && gridPos.x < HORIZONTAL_CHUNKS && gridPos.y < VERTICAL_CHUNKS && gridPos.z < HORIZONTAL_CHUNKS) {
+                Chunk* chunk = m_chunks[gridPos.x + gridPos.y * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + gridPos.z * HORIZONTAL_CHUNKS].chunk;
                 if (chunk->blocks.get(node.blockIndex) == 0) {
                     chunk->blocks.set(node.blockIndex, node.blockID);
                 }
@@ -292,13 +327,14 @@ void TestBiomeScreen::initChunks() {
         lNodes.clear();
         wNodes.clear();
     }
+    printf("Tree Gen Time %lf\n", t1.stop());
 
 #define GET_INDEX(x, y, z) ((x) + (y) * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + (z) * HORIZONTAL_CHUNKS)
     
     // Set neighbor pointers
     for (int y = 0; y < VERTICAL_CHUNKS; y++) {
-        for (int z = 0; z < VERTICAL_CHUNKS; z++) {
-            for (int x = 0; x < VERTICAL_CHUNKS; x++) {
+        for (int z = 0; z < HORIZONTAL_CHUNKS; z++) {
+            for (int x = 0; x < HORIZONTAL_CHUNKS; x++) {
                 Chunk* chunk = m_chunks[GET_INDEX(x, y, z)].chunk;
                 if (x > 0) {
                     chunk->left = m_chunks[GET_INDEX(x - 1, y, z)].chunk;
@@ -349,6 +385,7 @@ void TestBiomeScreen::initInput() {
         if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = false;
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+        PlanetGenLoader planetLoader;
         switch (e.keyCode) {
             case VKEY_W:
                 m_movingForward = true;
@@ -395,6 +432,33 @@ void TestBiomeScreen::initInput() {
                 m_renderer.dispose();
                 m_renderer.init();
                 m_ssaoStage.reloadShaders();
+                break;
+            case VKEY_F12:
+                // Reload world
+                delete m_genData;
+                planetLoader.init(&m_iom);
+                m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
+                m_genData->radius = 4500.0;
+
+                // Set blocks
+                SoaEngine::initVoxelGen(m_genData, m_soaState->blocks);
+
+                m_chunkGenerator.init(m_genData);
+
+                for (auto& cv : m_chunks) {
+                    delete cv.chunk;
+                    m_mesher.freeChunkMesh(cv.chunkMesh);
+                }
+
+                initHeightData();
+                initChunks();
+
+                printf("Generating Meshes...\n");
+                // Create all chunk meshes
+                m_mesher.init(&m_soaState->blocks);
+                for (auto& cv : m_chunks) {
+                    cv.chunkMesh = m_mesher.easyCreateChunkMesh(cv.chunk, MeshTaskType::DEFAULT);
+                }
                 break;
         }
     });

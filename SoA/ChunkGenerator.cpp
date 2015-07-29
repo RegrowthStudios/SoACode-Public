@@ -22,7 +22,7 @@ void ChunkGenerator::submitQuery(ChunkQuery* query) {
             m_threadPool->addTask(&query->genTask);
         }
         // Store as a pending query
-        m_pendingQueries[chunk->gridData.get()].push_back(query);
+        m_pendingQueries[chunk->gridData].push_back(query);
     } else {
         if (chunk->m_genQueryData.current) {
             // Only one gen query should be active at a time so just store this one
@@ -54,7 +54,7 @@ void ChunkGenerator::update() {
             chunk->gridData->isLoading = false;
 
             // Submit all the pending queries on this grid data
-            auto& it = m_pendingQueries.find(chunk->gridData.get()); // TODO(Ben): Should this be shared?
+            auto& it = m_pendingQueries.find(chunk->gridData); // TODO(Ben): Should this be shared? ( I don't think it should )
             for (auto& p : it->second) {
                 submitQuery(p);
             }

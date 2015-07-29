@@ -137,7 +137,8 @@ inline bool dumpFramebufferImage(const nString& rootDir, const ui32v4& viewport)
     return true;
 }
 
-//No idea how this works. Something to do with prime numbers, but returns # between -1 and 1
+// No idea how this works. Something to do with prime numbers, but returns # between -1 and 1
+// It has poor distribution
 inline f64 pseudoRand(int x, int z) {
     int n = (x & 0xFFFF) + ((z & 0x7FFF) << 16);
     n = (n << 13) ^ n;
@@ -146,17 +147,59 @@ inline f64 pseudoRand(int x, int z) {
 }
 
 // Thread safe version of intel's fast random number generator
-// https://software.intel.com/en-us/articles/fast-random-number-generator-on-the-intel-pentiumr-4-processor
 inline ui32 fastRand(ui32 seed) {
     return ((214013u * seed + 2531011u) >> 16) & RAND_MAX;
 }
-// Slightly faster than pseudoRand
-inline ui32 fastRand(ui32 x, ui32 y) {
-    x = ((214013u * x + 2531011u) >> 16u) & RAND_MAX;
-    y = ((214013u * y + 2531011u) >> 16u) & RAND_MAX;
-    // Use cantor pairing function
-    return (((x + y) * (x + y + 1)) >> 1u) + x;
-}
+
+// RAND_MAX minus 1
+#define RAND_MAX_M1 0x7FFE
+
+// https://software.intel.com/en-us/articles/fast-random-number-generator-on-the-intel-pentiumr-4-processor
+// Poor distribution but fast.
+class FastRandGenerator {
+public:
+    FastRandGenerator() {};
+    FastRandGenerator(ui32 seed) : m_seed(seed) {};
+    template <typename T>
+    FastRandGenerator(T seedX, T seedY) { seed(seedX, seedY); }
+    template <typename T>
+    FastRandGenerator(T seedX, T seedY, T seedZ) { seed(seedX, seedY, seedZ); }
+
+    // Seeds the generator
+    inline void seed(ui32 seed) { m_seed = seed; }
+    template <typename T>
+    inline void seed(T seedX, T seedY) {
+        std::hash<T> h;
+        m_seed = ((h(seedX) ^ (h(seedY) << 1)) >> 1);
+    }
+    template <typename T>
+    inline void seed(T seedX, T seedY, T seedZ) {
+        std::hash<T> h;
+        m_seed = ((h(seedX) ^ (h(seedY) << 1)) >> 1) ^ (h(seedZ) << 1);
+    }
+
+    // Generates number between 0 and RAND_MAX-1
+    inline ui32 gen() {
+        m_seed = ((214013u * m_seed + 2531011u) >> 16);
+        return m_seed & RAND_MAX;
+    }
+    // Generates number between 0 and 1
+    // Granularity is 0.0000305
+    inline f32 genf() {
+        m_seed = ((214013u * m_seed + 2531011u) >> 16);
+        return (f32)(m_seed & RAND_MAX) / (RAND_MAX_M1);
+    }
+    // Generates number between 0 and 1
+    // Granularity is 1 / 2^30
+    inline f64 genlf() {
+        ui32 low = ((214013u * m_seed + 2531011u) >> 16);
+        m_seed = ((214013u * low + 2531011u) >> 16);
+        return (f64)(((m_seed & RAND_MAX) << 15) | (low & RAND_MAX)) / (f64)(0x3FFFFFFF);
+    }
+private:
+    ui32 m_seed = 0;
+};
+
 
 // Math stuff //TODO(Ben): Move this to vorb?
 // atan2 approximation for doubles for GLSL

@@ -84,10 +84,10 @@ public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
-    // TODO(Ben): I don't think this has to be shared_ptr
-    // The reason it is, is because of meshing, but there is a workaround.
-    std::shared_ptr<ChunkGridData> gridData = nullptr;
-    MetaFieldInformation meta;    
+    // Everything else uses this grid data handle
+    ChunkGridData* gridData = nullptr;
+    PlanetHeightData* heightData = nullptr;
+    MetaFieldInformation meta;
     union {
         struct {
             ChunkPtr left, right, bottom, top, back, front;
@@ -111,13 +111,13 @@ public:
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
-    // Block IDs where flora must be generated.
+    // Block indexes where flora must be generated.
     std::vector<ui16> floraToGenerate;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
 
-    ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
+    // ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
   

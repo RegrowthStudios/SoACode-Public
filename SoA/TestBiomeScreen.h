@@ -6,6 +6,7 @@
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/io/IOManager.h>
+#include <Vorb/FixedSizeArrayRecycler.hpp>
 
 #include "BlockPack.h"
 #include "Camera.h"
@@ -33,12 +34,14 @@ public:
     void update(const vui::GameTime& gameTime) override;
     void draw(const vui::GameTime& gameTime) override;
 private:
+    void initHeightData();
     void initChunks();
     void initInput();
 
     struct ViewableChunk {
         Chunk* chunk;
         ChunkMesh* chunkMesh;
+        i32v3 gridPosition;
     };
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
@@ -59,6 +62,7 @@ private:
 
     std::vector <ViewableChunk> m_chunks;
     std::vector <ChunkGridData> m_heightData;
+    vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16> m_blockArrayRecycler;
 
     vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
