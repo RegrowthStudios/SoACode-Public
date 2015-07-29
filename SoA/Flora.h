@@ -113,11 +113,11 @@ struct TreeLeafProperties {
 struct TreeTypeBranchProperties {
     Range<ui16> coreWidth;
     Range<ui16> barkWidth;
-    Range<ui16> length;
+    Range<f32> widthFalloff;
     Range<f32> branchChance;
     Range<f32> angle;
-    Range<Range<i32>> segments;
-    f32 endSizeMult;
+    Range<f32> subBranchAngle;
+    Range<f32> changeDirChance;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
     TreeTypeFruitProperties fruitProps;
@@ -125,14 +125,14 @@ struct TreeTypeBranchProperties {
 };
 struct TreeBranchProperties {
     f32 branchChance;
+    f32 widthFalloff;
+    f32 changeDirChance;
     ui16 coreWidth;
     ui16 barkWidth;
-    ui16 length;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
     Range<f32> angle;
-    Range<i32> segments;
-    f32 endSizeMult;
+    Range<f32> subBranchAngle;
     TreeFruitProperties fruitProps;
     TreeLeafProperties leafProps;
 };

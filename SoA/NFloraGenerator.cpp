@@ -263,11 +263,13 @@ inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranch
     rvProps.coreWidth = LERP_UI16(coreWidth);
     rvProps.barkWidth = LERP_UI16(barkWidth);
     rvProps.branchChance = lerp(a.branchChance, b.branchChance, l);
-    rvProps.length = LERP_UI16(length);
+    rvProps.changeDirChance = lerp(a.changeDirChance, b.changeDirChance, l);
+    rvProps.widthFalloff = lerp(a.widthFalloff, b.widthFalloff, l);
+    if (rvProps.widthFalloff == 0.0f) rvProps.widthFalloff = 0.1f; // Avoid div by zero
     rvProps.angle.min = lerp(a.angle.min, b.angle.min, l);
     rvProps.angle.max = lerp(a.angle.max, b.angle.max, l);
-    rvProps.segments.min = LERP_I32(segments.min);
-    rvProps.segments.max = LERP_I32(segments.max);
+    rvProps.subBranchAngle.min = lerp(a.subBranchAngle.min, b.subBranchAngle.min, l);
+    rvProps.subBranchAngle.max = lerp(a.subBranchAngle.max, b.subBranchAngle.max, l);
     lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
     // TODO(Ben): Lerp other properties
 }
@@ -326,69 +328,73 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     TreeTrunkProperties lerpedTrunkProps;
     const TreeTrunkProperties* trunkProps;
 
-    int scNodeStep = m_treeData.height / m_treeData.branchPoints;
-    if (scNodeStep == 0) scNodeStep = INT_MAX; // Prevent div by 0
-    int scNodeOffset = m_treeData.height % scNodeStep;
+    { // Generate the trunk
+        int scNodeStep = m_treeData.height / m_treeData.branchPoints;
+        if (scNodeStep == 0) scNodeStep = INT_MAX; // Prevent div by 0
+        int scNodeOffset = m_treeData.height % scNodeStep;
 
-    ui32 pointIndex = 0;
-    for (m_h = 0; m_h < m_treeData.height; ++m_h) {
-        // Get height ratio for interpolation purposes
-        f32 heightRatio = (f32)m_h / m_treeData.height;
-        // Do interpolation along data points
-        if (pointIndex < m_treeData.trunkProps.size() - 1) {
-            if (heightRatio > m_treeData.trunkProps[pointIndex + 1].loc) {
-                ++pointIndex;
-                if (pointIndex < m_treeData.trunkProps.size() - 1) {
+        ui32 pointIndex = 0;
+        for (m_h = 0; m_h < m_treeData.height; ++m_h) {
+            // Get height ratio for interpolation purposes
+            f32 heightRatio = (f32)m_h / m_treeData.height;
+            // Do interpolation along data points
+            if (pointIndex < m_treeData.trunkProps.size() - 1) {
+                if (heightRatio > m_treeData.trunkProps[pointIndex + 1].loc) {
+                    ++pointIndex;
+                    if (pointIndex < m_treeData.trunkProps.size() - 1) {
+                        lerpTrunkProperties(lerpedTrunkProps, m_treeData.trunkProps[pointIndex], m_treeData.trunkProps[pointIndex + 1], heightRatio);
+                        trunkProps = &lerpedTrunkProps;
+                    } else {
+                        // Don't need to interpolate if we are at the last data point
+                        trunkProps = &m_treeData.trunkProps.back();
+                    }
+                } else {
                     lerpTrunkProperties(lerpedTrunkProps, m_treeData.trunkProps[pointIndex], m_treeData.trunkProps[pointIndex + 1], heightRatio);
                     trunkProps = &lerpedTrunkProps;
-                } else {
-                    // Don't need to interpolate if we are at the last data point
-                    trunkProps = &m_treeData.trunkProps.back();
                 }
             } else {
-                lerpTrunkProperties(lerpedTrunkProps, m_treeData.trunkProps[pointIndex], m_treeData.trunkProps[pointIndex + 1], heightRatio);
-                trunkProps = &lerpedTrunkProps;
+                // Don't need to interpolate if we are at the last data point
+                trunkProps = &m_treeData.trunkProps.back();
             }
-        } else {
-            // Don't need to interpolate if we are at the last data point
-            trunkProps = &m_treeData.trunkProps.back();
-        }
-        // Check for potential branch point
-        if ((m_h + scNodeOffset) % scNodeStep == 0) {
-            f32 width = (f32)(trunkProps->branchProps.coreWidth + trunkProps->branchProps.barkWidth);
-            if (width > 0.0f) {
-                m_scNodes.emplace_back(m_scRayNodes.size());
-                m_scRayNodes.emplace_back(f32v3(m_center) +
-                                          f32v3(CHUNK_WIDTH * getChunkXOffset(chunkOffset),
-                                          CHUNK_WIDTH * getChunkYOffset(chunkOffset),
-                                          CHUNK_WIDTH * getChunkZOffset(chunkOffset)),
-                                          SC_NO_PARENT,
-                                          m_scTrunkProps.size());
-                m_scTrunkProps.push_back(*trunkProps);
-            }
-        }
-        // Build the trunk slice
-        makeTrunkSlice(chunkOffset, *trunkProps);
-        // Move up
-        offsetPositive(m_center.y, Y_1, chunkOffset, 1);
-        // Check for dir chance
-        if (m_rGen.genlf() <= trunkProps->changeDirChance) {
-            m_treeData.currentDir = m_rGen.gen() & 3; // & 3 == % 4
-        }
-        // Move sideways with slope if needed
-        if (m_h % trunkProps->slope == trunkProps->slope - 1) {
-            // Place a block so we don't have any floating parts when width is 1
-            if (trunkProps->coreWidth + trunkProps->barkWidth == 1) {
-                if (trunkProps->coreWidth) {
-                    ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
-                    tryPlaceNode(m_wNodes, 3, trunkProps->coreBlockID, blockIndex, chunkOffset);
-                } else {
-                    ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
-                    tryPlaceNode(m_wNodes, 3, trunkProps->barkBlockID, blockIndex, chunkOffset);
+            // Check for potential branch point
+            m_hasStoredTrunkProps = false;
+            if ((m_h + scNodeOffset) % scNodeStep == 0) {
+                f32 width = (f32)(trunkProps->branchProps.coreWidth + trunkProps->branchProps.barkWidth);
+                if (width > 0.0f) {
+                    m_scNodes.emplace_back(m_scRayNodes.size());
+                    m_scRayNodes.emplace_back(f32v3(m_center) +
+                                              f32v3(CHUNK_WIDTH * getChunkXOffset(chunkOffset),
+                                              CHUNK_WIDTH * getChunkYOffset(chunkOffset),
+                                              CHUNK_WIDTH * getChunkZOffset(chunkOffset)),
+                                              SC_NO_PARENT,
+                                              m_scTrunkProps.size());
+                    m_scTrunkProps.push_back(*trunkProps);
+                    m_hasStoredTrunkProps = true;
                 }
             }
-            const DirLookup& dir = DIR_AXIS_LOOKUP[m_treeData.currentDir];
-            offsetAxis(m_center[dir.axis], dir.one, chunkOffset, dir.sign);
+            // Build the trunk slice
+            makeTrunkSlice(chunkOffset, *trunkProps);
+            // Move up
+            offsetPositive(m_center.y, Y_1, chunkOffset, 1);
+            // Check for dir chance
+            if (m_rGen.genlf() <= trunkProps->changeDirChance) {
+                m_treeData.currentDir = m_rGen.gen() & 3; // & 3 == % 4
+            }
+            // Move sideways with slope if needed
+            if (m_h % trunkProps->slope == trunkProps->slope - 1) {
+                // Place a block so we don't have any floating parts when width is 1
+                if (trunkProps->coreWidth + trunkProps->barkWidth == 1) {
+                    if (trunkProps->coreWidth) {
+                        ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
+                        tryPlaceNode(m_wNodes, 3, trunkProps->coreBlockID, blockIndex, chunkOffset);
+                    } else {
+                        ui16 blockIndex = (ui16)(m_center.x + m_center.y * CHUNK_LAYER + m_center.z * CHUNK_WIDTH);
+                        tryPlaceNode(m_wNodes, 3, trunkProps->barkBlockID, blockIndex, chunkOffset);
+                    }
+                }
+                const DirLookup& dir = DIR_AXIS_LOOKUP[m_treeData.currentDir];
+                offsetAxis(m_center[dir.axis], dir.one, chunkOffset, dir.sign);
+            }
         }
     }
     if (trunkProps->leafProps.type == TreeLeafType::MUSHROOM) {
@@ -398,26 +404,65 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
     // Branches
     if (m_treeData.branchVolumes.size()) {
         spaceColonization(m_startPos);
+        std::vector<SCTreeNode>().swap(m_scNodes);
+    }
 
-        std::cout << m_scRayNodes.size() << std::endl;
-        
+    // Generate deferred branches so they don't conflict with space colonization
+    for (auto& it : m_branchesToGenerate) {
+        TreeBranchProperties& bp = m_scTrunkProps[it.trunkPropsIndex].branchProps;
+        // Defer branching so it doesn't conflict with SC
+        f32 angle = m_rGen.genlf() * (bp.angle.max - bp.angle.min) + bp.angle.min;
+        // Interpolate the angle
+        f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(it.dx, 0.0f, it.dz)), f32v3(0.0f, 1.0f, 0.0f), angle / M_PI_2F));
+        f32 width = (f32)(bp.coreWidth + bp.barkWidth);
+        f32 length = width / bp.widthFalloff;
+        // Determine float position
+        f32v3 pos;
+        pos.x = (f32)((it.blockIndex & 0x1F) + getChunkXOffset(it.chunkOffset) * CHUNK_WIDTH); // & 0x1F = % 32
+        pos.y = (f32)(it.blockIndex / CHUNK_LAYER + getChunkYOffset(it.chunkOffset) * CHUNK_WIDTH);
+        pos.z = (f32)((it.blockIndex & 0x3FF) / CHUNK_WIDTH + getChunkZOffset(it.chunkOffset) * CHUNK_WIDTH); // & 0x3FF = % 1024
+        // Add root
+        ui16 parent = m_scRayNodes.size();
+        m_scRayNodes.emplace_back(pos, SC_NO_PARENT, it.trunkPropsIndex);
+        // Determine chain length
+        int numBranches = length * bp.changeDirChance;
+        numBranches++;
+        length /= numBranches;
+        // Create branch chain
+        int i = 0;
+        while (true) {
+            pos += dir * length;
+            m_scRayNodes.emplace_back(pos, parent, it.trunkPropsIndex);
+            // Check end condition
+            if (++i == numBranches) break;
+            // Get new dir
+            f32 angle = m_rGen.genlf() * (bp.subBranchAngle.max - bp.subBranchAngle.min) + bp.subBranchAngle.min;
+            f32v3 relDir(0, cos(angle), sin(angle));
+            relDir = glm::angleAxis((f32)(m_rGen.genlf() * M_2_PI), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
+            // Transform relDir relative to dir with change of basis matrix
+            f32v3 nz = glm::cross(dir, f32v3(0.0f, 1.0f, 0.0f));
+            f32v3 nx = glm::cross(dir, nz);
+            glm::mat3 trans(nx, dir, nz);
+            dir = trans * relDir;
+        }
+        // Last node is leaf
+        m_scLeafSet.insert(m_scRayNodes.size() - 1);
+    }
+
+    // Place nodes for branches
+    if (m_scRayNodes.size()) {
         // For now, check for performance issues.
         if (m_scRayNodes.size() > 4000) {
-            if (m_scRayNodes.size() > 32765) {
-                printf("ERROR: Tree has %d ray nodes\n", m_scRayNodes.size());
+            if (m_scRayNodes.size() > 32768) {
+                printf("ERROR: Tree has %d ray nodes but limited to 32768\n", m_scRayNodes.size());
                 m_scRayNodes.clear();
             } else {
                 printf("Performance warning: tree has %d ray nodes\n", m_scRayNodes.size());
             }
         }
 
-        // Place nodes
-        if (m_scRayNodes.size()) {
-            generateSCBranches();
-        }
-
+        generateSCBranches();
         std::vector<SCRayNode>().swap(m_scRayNodes);
-        std::vector<SCTreeNode>().swap(m_scNodes);
         std::set<ui32>().swap(m_scLeafSet);
     }
 
@@ -432,9 +477,10 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
                        *it.leafProps);
 
     }
+    
+    // Clear container memory
     std::vector<LeavesToPlace>().swap(m_leavesToPlace);
-
-    std::cout << "SIZE: " << m_wNodes->size() << " " << m_fNodes->size() << std::endl;
+    std::vector<BranchToGenerate>().swap(m_branchesToGenerate);
     std::vector<TreeTrunkProperties>().swap(m_scTrunkProps);
     std::unordered_map<ui32, ui32>().swap(m_nodeFieldsMap);
     std::vector<NodeField>().swap(m_nodeFields);
@@ -527,12 +573,11 @@ inline void setBranchProps(TreeBranchProperties& branchProps, const TreeTypeBran
     branchProps.barkBlockID = typeProps.barkBlockID;
     branchProps.barkWidth = AGE_LERP_UI16(typeProps.barkWidth);
     branchProps.coreWidth = AGE_LERP_UI16(typeProps.coreWidth);
-    branchProps.segments.min = AGE_LERP_I32(typeProps.segments.min);
-    branchProps.segments.max = AGE_LERP_I32(typeProps.segments.max);
     branchProps.angle = typeProps.angle;
-    branchProps.endSizeMult = typeProps.endSizeMult;
-    branchProps.length = AGE_LERP_UI16(typeProps.length);
+    branchProps.subBranchAngle = typeProps.subBranchAngle;
+    branchProps.widthFalloff = AGE_LERP_UI16(typeProps.widthFalloff);
     branchProps.branchChance = AGE_LERP_F32(typeProps.branchChance);
+    branchProps.changeDirChance = AGE_LERP_F32(typeProps.changeDirChance);
     setLeafProps(branchProps.leafProps, typeProps.leafProps, age);
     setFruitProps(branchProps.fruitProps, typeProps.fruitProps, age);
 }
@@ -786,19 +831,14 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
 
-                /*if (m_rGen.genlf() < branchChance) {
-
-                    ui32 segments = round(m_rGen.genlf() * (props.branchProps.segments.max - props.branchProps.segments.min) + props.branchProps.segments.min);
-                    if (segments > 0) {
-                        f32 angle = m_rGen.genlf() * (props.branchProps.angle.max - props.branchProps.angle.min) + props.branchProps.angle.min;
-                        // Interpolate the angle
-                        // TODO(Ben): Disk offset
-                        f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(dx, 0.0f, dz)), f32v3(0.0f, 1.0f, 0.0f), angle / 90.0f));
-                        generateBranch(chunkOff, pos.x, m_center.y, pos.y, segments, props.branchProps.length / segments, props.branchProps.coreWidth + props.branchProps.barkWidth,
-                                       dir, props.branchProps);
+                if (m_rGen.genlf() < branchChance) {
+                    // TODO(Ben): If check
+                    if (!m_hasStoredTrunkProps) {
+                        m_scTrunkProps.push_back(props);
+                        m_hasStoredTrunkProps = true;
                     }
-                } else */
-                if (leafWidth && leafBlockID) {
+                    m_branchesToGenerate.emplace_back(blockIndex, chunkOff, dx, dz, m_scTrunkProps.size() - 1);
+                } else if (leafWidth && leafBlockID) {
                     tryPlaceNode(m_fNodes, 1, leafBlockID, blockIndex, chunkOff);
                 }
             } else if (dist2 < leafWidth2 && leafBlockID) { // Leaves
@@ -947,10 +987,9 @@ void NFloraGenerator::generateSCBranches() {
             i = a.parent;
             if (i == SC_NO_PARENT) break;
             SCRayNode& b = m_scRayNodes[i];
-            // TODO(Ben): Kegify
-            f32 nw = a.width + 1.0f;
-            if (b.wasVisited && b.width >= nw) break;
             TreeBranchProperties& tbp = m_scTrunkProps[b.trunkPropsIndex].branchProps;
+            f32 nw = a.width + tbp.widthFalloff;
+            if (b.wasVisited && b.width >= nw) break;
             b.width = nw;
             if (b.width > tbp.barkWidth + tbp.coreWidth) {
                 b.width = tbp.barkWidth + tbp.coreWidth;

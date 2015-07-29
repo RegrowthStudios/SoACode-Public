@@ -72,6 +72,18 @@ struct LeavesToPlace {
     const TreeLeafProperties* leafProps;
 };
 
+// Defer manual branch placement so it doesn't conflict with SC
+struct BranchToGenerate {
+    BranchToGenerate(ui16 blockIndex, ui32 chunkOffset, i32 dx, i32 dz, ui16 trunkPropsIndex) :
+        blockIndex(blockIndex), trunkPropsIndex(trunkPropsIndex), chunkOffset(chunkOffset), dx(dx), dz(dz) {
+    }
+    ui16 blockIndex;
+    ui16 trunkPropsIndex;
+    ui32 chunkOffset;
+    i32 dx;
+    i32 dz;
+};
+
 class NFloraGenerator {
 public:
     /// @brief Generates flora for a chunk using its QueuedFlora.
@@ -119,6 +131,7 @@ private:
     std::vector<SCRayNode> m_scRayNodes;
     std::vector<SCTreeNode> m_scNodes;
     std::vector<LeavesToPlace> m_leavesToPlace;
+    std::vector<BranchToGenerate> m_branchesToGenerate;
     std::vector<TreeTrunkProperties> m_scTrunkProps; ///< Stores branch properties for nodes
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
@@ -129,6 +142,7 @@ private:
     FastRandGenerator m_rGen;
     ui32 m_currChunkOff;
     ui32 m_currNodeField;
+    bool m_hasStoredTrunkProps;
 };
 
 #endif // NFloraGenerator_h__
