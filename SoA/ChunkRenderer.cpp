@@ -94,6 +94,8 @@ void ChunkRenderer::beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, con
 }
 
 void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const f64v3 &PlayerPos, const f32m4 &VP) const {
+    if (cm->vaoID == 0) return;
+    
     setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
     f32m4 MVP = VP * worldMatrix;
@@ -132,6 +134,8 @@ void ChunkRenderer::drawOpaque(const ChunkMesh *cm, const f64v3 &PlayerPos, cons
 }
 
 void ChunkRenderer::drawOpaqueCustom(const ChunkMesh* cm, vg::GLProgram& m_program, const f64v3& PlayerPos, const f32m4& VP) {
+    if (cm->vaoID == 0) return;
+    
     setMatrixTranslation(worldMatrix, f64v3(cm->position), PlayerPos);
 
     f32m4 MVP = VP * worldMatrix;
@@ -242,7 +246,6 @@ void ChunkRenderer::drawCutout(const ChunkMesh *cm, const f64v3 &playerPos, cons
     glDrawElements(GL_TRIANGLES, cm->renderData.cutoutVboSize, GL_UNSIGNED_INT, nullptr);
 
     glBindVertexArray(0);
-
 }
 
 void ChunkRenderer::beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {

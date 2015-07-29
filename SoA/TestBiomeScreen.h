@@ -42,6 +42,7 @@ private:
         Chunk* chunk;
         ChunkMesh* chunkMesh;
         i32v3 gridPosition;
+        bool inFrustum;
     };
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir

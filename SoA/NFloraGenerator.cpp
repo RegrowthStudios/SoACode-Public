@@ -1051,7 +1051,6 @@ void NFloraGenerator::generateSCBranches() {
     for (auto& i : lNodesToAdd) {
         m_scLeafSet.insert(i);
     }
-    std::cout << "ADDED: " << lNodesToAdd.size() << std::endl;
 
     // Make branches
     int a = 0;

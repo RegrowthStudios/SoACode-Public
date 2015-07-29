@@ -190,14 +190,21 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
     for (auto& vc : m_chunks) {
-        m_renderer.drawOpaque(vc.chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+        if (m_camera.getFrustum().sphereInFrustum(f32v3(vc.chunkMesh->position + f64v3(CHUNK_WIDTH / 2) - m_camera.getPosition()), CHUNK_DIAGONAL_LENGTH)) {
+            vc.inFrustum = true;
+            m_renderer.drawOpaque(vc.chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+        } else {
+            vc.inFrustum = false;
+        }
     }
     // Cutout
     m_renderer.beginCutout(m_soaState->blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
     for (auto& vc : m_chunks) {
-        m_renderer.drawCutout(vc.chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+        if (vc.inFrustum) {
+            m_renderer.drawCutout(vc.chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());
+        }
     }
 
     m_renderer.end();
