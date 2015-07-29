@@ -7,6 +7,8 @@
 #define Y_1 0x400
 #define Z_1 0x1
 
+#define OUTER_SKIP_MOD 4
+
 #pragma region helpers
 /************************************************************************/
 /* Helper Functions                                                     */
@@ -425,16 +427,16 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
         ui16 parent = m_scRayNodes.size();
         m_scRayNodes.emplace_back(pos, SC_NO_PARENT, it.trunkPropsIndex);
         // Determine chain length
-        int numBranches = length * bp.changeDirChance;
-        numBranches++;
-        length /= numBranches;
+        int numSegments = length * bp.changeDirChance;
+        numSegments++;
+        length /= numSegments;
         // Create branch chain
         int i = 0;
         while (true) {
             pos += dir * length;
             m_scRayNodes.emplace_back(pos, parent, it.trunkPropsIndex);
             // Check end condition
-            if (++i == numBranches) break;
+            if (++i == numSegments) break;
             // Get new dir
             f32 angle = m_rGen.genlf() * (bp.subBranchAngle.max - bp.subBranchAngle.min) + bp.subBranchAngle.min;
             f32v3 relDir(0, cos(angle), sin(angle));
@@ -444,6 +446,10 @@ void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vect
             f32v3 nx = glm::cross(dir, nz);
             glm::mat3 trans(nx, dir, nz);
             dir = trans * relDir;
+            parent = m_scRayNodes.size() - 1;
+            if (parent >= 32767) {
+                break;
+            }
         }
         // Last node is leaf
         m_scLeafSet.insert(m_scRayNodes.size() - 1);
@@ -770,6 +776,7 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
     if (width == 0) return;
     int innerWidth2 = (int)(props.coreWidth * props.coreWidth);
     int woodWidth2 = width * width;
+    int woodWidth2m1 = (width - 1) * (width - 1);
     // Should get layer right outside outer layer
     int woodWidth2p1 = (width + 1) * (width + 1);
     // For leaves
@@ -819,10 +826,20 @@ void NFloraGenerator::makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties
                 ui32 chunkOff = chunkOffset;
                 addChunkOffset(pos, chunkOff);
                 ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
-                if (dist2 < innerWidth2) {
-                    tryPlaceNode(m_wNodes, 3, props.coreBlockID, blockIndex, chunkOff);
+                if (dist2 > woodWidth2m1) {
+                    if (m_rGen.gen() % OUTER_SKIP_MOD) {
+                        if (dist2 < innerWidth2) {
+                            tryPlaceNode(m_wNodes, 3, props.coreBlockID, blockIndex, chunkOff);
+                        } else {
+                            tryPlaceNode(m_wNodes, 3, props.barkBlockID, blockIndex, chunkOff);
+                        }
+                    }
                 } else {
-                    tryPlaceNode(m_wNodes, 3, props.barkBlockID, blockIndex, chunkOff);
+                    if (dist2 < innerWidth2) {
+                        tryPlaceNode(m_wNodes, 3, props.coreBlockID, blockIndex, chunkOff);
+                    } else {
+                        tryPlaceNode(m_wNodes, 3, props.barkBlockID, blockIndex, chunkOff);
+                    }
                 }
             } else if (dist2 < woodWidth2p1) { // Fruit and branching
                 // Get position
@@ -932,6 +949,8 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                     
                 f32 width2 = innerWidth * innerWidth;
                 f32 width2p1 = (innerWidth + 1) * (innerWidth + 1);
+                f32 width2m1 = (innerWidth - 1) * (innerWidth - 1);
+                if (width2m1 == 0) width2m1 = FLT_MAX;
 
                 // Distribute branch chance over the circumference of the branch
                 // f64 branchChance = props.branchChance / (M_2_PI * (f64)(innerWidth));
@@ -941,7 +960,11 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                     ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                    tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
+                    if (dist2 > width2m1 + 1) {
+                        if (m_rGen.gen() % OUTER_SKIP_MOD) tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
+                    } else {
+                        tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
+                    }
                 } else if (dist2 < width2p1) {
                     // Outer edge, check for branching and fruit
                     /*if (segments > 1 && length >= 2.0f && m_rGen.genlf() < branchChance) {
@@ -1048,6 +1071,8 @@ inline void NFloraGenerator::generateLeaves(ui32 chunkOffset, int x, int y, int 
 void NFloraGenerator::generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
     int radius = (int)(props.round.hRadius);
     int radius2 = radius * radius;
+    int radius2m1 = (radius - 1) * (radius - 1);
+    if (radius2m1 == 0) radius2m1 = INT_MAX;
     // Get position at back left corner
     offsetNegative(x, y, z, chunkOffset, radius - 1);
 
@@ -1063,7 +1088,11 @@ void NFloraGenerator::generateRoundLeaves(ui32 chunkOffset, int x, int y, int z,
                     ui32 chunkOff = chunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
-                    tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
+                    if (dist2 > radius2m1) {
+                        if (m_rGen.gen() % OUTER_SKIP_MOD) tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
+                    } else {
+                        tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
+                    }
                 }
             }
         }
@@ -1083,6 +1112,8 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
         f32 ey = fOffset - i;
         f32 radius = sqrtf(1.0f - (ey * ey) / b) * a;
         f32 radius2 = radius * radius;
+        f32 radius2m1 = (radius - 1) * (radius - 1);
+        if (radius2m1 == 0) radius2m1 = FLT_MAX;
         const int yOff = y * CHUNK_LAYER;
         // Offset to back left
         int offset = fastFloor(radius);
@@ -1101,7 +1132,11 @@ void NFloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int 
                     ui32 chunkOff = innerChunkOffset;
                     addChunkOffset(pos, chunkOff);
                     ui16 blockIndex = (ui16)(pos.x + yOff + pos.y * CHUNK_WIDTH);
-                    tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
+                    if (dist2 > radius2m1) {
+                        if (m_rGen.gen() % OUTER_SKIP_MOD) tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
+                    } else {
+                        tryPlaceNode(m_fNodes, 1, props.round.blockID, blockIndex, chunkOff);
+                    }
                 }
             }
         }
