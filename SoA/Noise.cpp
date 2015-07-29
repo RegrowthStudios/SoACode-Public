@@ -4,7 +4,7 @@
 #include <Vorb/utils.h>
 
 KEG_TYPE_DEF_SAME_NAME(NoiseBase, kt) {
-    KEG_TYPE_INIT_ADD_MEMBER(kt, NoiseBase, base, F32);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, NoiseBase, base, F64);
     kt.addValue("funcs", keg::Value::array(offsetof(NoiseBase, funcs), keg::Value::custom(0, "TerrainFuncProperties", false)));
 }
 
@@ -34,12 +34,12 @@ KEG_TYPE_DEF_SAME_NAME(TerrainFuncProperties, kt) {
     kt.addValue("type", keg::Value::custom(offsetof(TerrainFuncProperties, func), "TerrainStage", true));
     kt.addValue("op", keg::Value::custom(offsetof(TerrainFuncProperties, op), "TerrainOp", true));
     KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, octaves, I32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, persistence, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, frequency, F32);
-    kt.addValue("val", keg::Value::basic(offsetof(TerrainFuncProperties, low), keg::BasicType::F32));
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, low, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, high, F32);
-    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, clamp, F32_V2);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, persistence, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, frequency, F64);
+    kt.addValue("val", keg::Value::basic(offsetof(TerrainFuncProperties, low), keg::BasicType::F64));
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, low, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, high, F64);
+    KEG_TYPE_INIT_ADD_MEMBER(kt, TerrainFuncProperties, clamp, F64_V2);
     kt.addValue("children", keg::Value::array(offsetof(TerrainFuncProperties, children), keg::Value::custom(0, "TerrainFuncProperties", false)));
 }
 

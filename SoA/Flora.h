@@ -24,10 +24,17 @@ typedef ui16 FloraID;
 
 /* TreeType is a breed of tree, TreeData is an individual tree.*/
 
+enum class FloraInterpType {
+    LINEAR,
+    HERMITE,
+    COSINE,
+    SINE
+};
+KEG_ENUM_DECL(FloraInterpType);
+
 enum class TreeLeafType {
     NONE,
     ROUND,
-    CLUSTER,
     PINE,
     MUSHROOM
 };
@@ -48,25 +55,27 @@ struct TreeTypeLeafProperties {
     // Mutually exclusive union based on type
     union {
         UNIONIZE(struct {
-            Range<ui16> radius;
+            Range<ui16> vRadius;
+            Range<ui16> hRadius;
             ui16 blockID;
         } round;);
         UNIONIZE(struct {
-            Range<ui16> width;
-            Range<ui16> height;
-            ui16 blockID;
-        } cluster;);
-        UNIONIZE(struct {
-            Range<ui16> thickness;
+            Range<ui16> oRadius;
+            Range<ui16> iRadius;
+            Range<ui16> period;
             ui16 blockID;
         } pine;);
         UNIONIZE(struct {
-            Range<i16> lengthMod;
-            Range<i16> curlLength;
-            Range<i16> capThickness;
-            Range<i16> gillThickness;
+            Range<ui16> tvRadius;
+            Range<ui16> thRadius;
+            Range<ui16> bvRadius;
+            Range<ui16> bhRadius;
+            Range<ui16> bLength;
+            Range<ui16> capWidth;
+            Range<ui16> gillWidth;
             ui16 gillBlockID;
             ui16 capBlockID;
+            FloraInterpType interp;
         } mushroom;);
     };
 };
@@ -76,25 +85,27 @@ struct TreeLeafProperties {
     // Mutually exclusive union based on type
     union {
         UNIONIZE(struct {
-            ui16 radius;
+            ui16 vRadius;
+            ui16 hRadius;
             ui16 blockID;
         } round;);
         UNIONIZE(struct {
-            ui16 width;
-            ui16 height;
-            ui16 blockID;
-        } cluster;);
-        UNIONIZE(struct {
-            ui16 thickness;
+            ui16 oRadius;
+            ui16 iRadius;
+            ui16 period;
             ui16 blockID;
         } pine;);
         UNIONIZE(struct {
-            i16 lengthMod;
-            i16 curlLength;
-            i16 capThickness;
-            i16 gillThickness;
+            ui16 tvRadius;
+            ui16 thRadius;
+            ui16 bvRadius;
+            ui16 bhRadius;
+            ui16 bLength;
+            ui16 capWidth;
+            ui16 gillWidth;
             ui16 gillBlockID;
             ui16 capBlockID;
+            FloraInterpType interp;
         } mushroom;);
     };
 };
@@ -102,40 +113,54 @@ struct TreeLeafProperties {
 struct TreeTypeBranchProperties {
     Range<ui16> coreWidth;
     Range<ui16> barkWidth;
+    Range<ui16> length;
     Range<f32> branchChance;
+    Range<f32> angle;
+    Range<Range<i32>> segments;
+    f32 endSizeMult;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
     TreeTypeFruitProperties fruitProps;
     TreeTypeLeafProperties leafProps;
 };
 struct TreeBranchProperties {
+    f32 branchChance;
     ui16 coreWidth;
     ui16 barkWidth;
-    f32 branchChance;
+    ui16 length;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
+    Range<f32> angle;
+    Range<i32> segments;
+    f32 endSizeMult;
     TreeFruitProperties fruitProps;
     TreeLeafProperties leafProps;
 };
 
 struct TreeTypeTrunkProperties {
+    f32 loc;
     Range<ui16> coreWidth;
     Range<ui16> barkWidth;
     Range<f32> branchChance;
+    Range<f32> changeDirChance;
     Range<Range<i32>> slope;
     ui16 coreBlockID = 0;
     ui16 barkBlockID = 0;
+    FloraInterpType interp;
     TreeTypeFruitProperties fruitProps;
     TreeTypeLeafProperties leafProps;
     TreeTypeBranchProperties branchProps;
 };
 struct TreeTrunkProperties {
+    f32 loc;
     ui16 coreWidth;
     ui16 barkWidth;
     f32 branchChance;
-    Range<i32> slope;
+    f32 changeDirChance;
+    i32 slope;
     ui16 coreBlockID;
     ui16 barkBlockID;
+    FloraInterpType interp;
     TreeFruitProperties fruitProps;
     TreeLeafProperties leafProps;
     TreeBranchProperties branchProps;
@@ -143,7 +168,7 @@ struct TreeTrunkProperties {
 
 struct NTreeType {
     // All ranges are for scaling between baby tree and adult tree
-    Range<ui16> heightRange;
+    Range<ui16> height;
     // Data points for trunk properties. Properties get interpolated between these from
     // base of tree to top of tree.
     std::vector<TreeTypeTrunkProperties> trunkProps;
@@ -153,12 +178,32 @@ struct NTreeType {
 struct TreeData {
     f32 age; ///< 0 - 1
     ui16 height;
+    ui16 currentDir;
     std::vector<TreeTrunkProperties> trunkProps;
 };
 
-// Flora specification
+enum class FloraDir {
+    UP, SIDE, DOWN
+};
+KEG_ENUM_DECL(FloraDir);
+
+struct FloraType {
+    ui16 block;
+    Range<ui16> height;
+    Range<ui16> slope;
+    Range<ui16> dSlope;
+    FloraDir dir;
+    const FloraType* nextFlora = nullptr;
+};
+
+// Specification for individual flora
 struct FloraData {
     ui16 block;
+    ui16 height;
+    ui16 dir;
+    ui16 slope;
+    ui16 dSlope;
+    const FloraType* nextFlora;
 };
 
 #endif // Flora_h__

@@ -55,9 +55,14 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             height = (int)voxPosition.pos.y;
             depth = mapHeight - height; // Get depth of voxel
 
-            // Get the block ID
-            layerIndices[c] = getBlockLayerIndex(depth);
+            // Determine the layer
+            if (depth < 0) {
+                layerIndices[c] = 0;
+            } else {
+                layerIndices[c] = getBlockLayerIndex(depth);
+            }
             BlockLayer& layer = blockLayers[layerIndices[c]];
+            // Get the block ID
             blockID = getBlockID(chunk, c, depth, mapHeight, height, heightData[c], layer);
 
             if (blockID != 0) chunk->numBlocks++;
@@ -174,18 +179,9 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
 // TODO(Ben): Too many parameters?
 ui16 ProceduralChunkGenerator::getBlockID(Chunk* chunk, int blockIndex, int depth, int mapHeight, int height, const PlanetHeightData& hd, BlockLayer& layer) const {
     ui16 blockID = 0;
-    if (depth >= 0) {
-        // TODO(Ben): Optimize
+    if (depth > 0) {
         blockID = layer.block;
-      //  blockID = 55;
-        // Check for surface block replacement
-        if (depth == 0) {
-            blockID = 55; // TODO(Ben): Stoppit!
-        //    if (blockID == m_genData->blockLayers[0].block && m_genData->surfaceBlock) {
-        //        blockID = 43/*m_genData->surfaceBlock*/;
-        //    }
-        }
-    } else {
+    } else if (depth < 0) {
         // Liquid
         if (height < 0 && m_genData->liquidBlock) {
             blockID = m_genData->liquidBlock;
@@ -193,9 +189,11 @@ ui16 ProceduralChunkGenerator::getBlockID(Chunk* chunk, int blockIndex, int dept
             if (hd.flora != FLORA_ID_NONE) {
                 // We can determine the flora from the heightData during gen.
                 // Only need to store index.
-                chunk->floraToGenerate.push_back(blockIndex);
+                chunk->floraToGenerate.push_back(blockIndex);            
             }
         }
+    } else {
+        blockID = layer.surfaceTransform;
     }
     return blockID;
 }

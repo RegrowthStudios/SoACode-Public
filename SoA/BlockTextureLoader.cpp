@@ -230,7 +230,6 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
     // For parsing textures
     auto texParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "base") {
-
             if (keg::getType(value) == keg::NodeType::MAP) {
 
             } else {
@@ -238,16 +237,13 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
                 nString base = keg::convert<nString>(value);
                 auto& it = m_layers.find(base);
                 if (it != m_layers.end()) {
-
                     texture->base = it->second;
                 }
             }
         } else if (key == "overlay") {
-
             if (keg::getType(value) == keg::NodeType::MAP) {
 
             } else {
-
                 nString overlay = keg::convert<nString>(value);
                 auto& it = m_layers.find(overlay);
                 if (it != m_layers.end()) {
@@ -256,16 +252,12 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
                 }
             }
         } else if (key == "blendMode") {
-
             nString v = keg::convert<nString>(value);
             if (v == "add") {
-
                 texture->blendMode = BlendType::ADD;
             } else if (v == "multiply") {
-
                 texture->blendMode = BlendType::MULTIPLY;
             } else if (v == "subtract") {
-
                 texture->blendMode = BlendType::SUBTRACT;
             }
         }
@@ -409,8 +401,6 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
     ui32 floraRows;
     const ui32& resolution = m_texturePack->getResolution();
 
-    layer.size.x = bitmap.width / resolution;
-    layer.size.y = bitmap.height / resolution;
     // TODO(Ben): Floraheight
 
     // Helper for checking dimensions
@@ -441,10 +431,12 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
     switch (layer.method) {
         // Need to set up numTiles and totalWeight for RANDOM method
         case ConnectedTextureMethods::CONNECTED:
+            layer.size = ui8v2(1);
             DIM_CHECK(width, CONNECTED_WIDTH, bitmap.height, CONNECTED_HEIGHT, CONNECTED);
             break;
         case ConnectedTextureMethods::RANDOM:
             layer.numTiles = bitmap.width / bitmap.height;
+            layer.size = ui32v2(1);
             if (layer.weights.size() == 0) {
                 layer.totalWeight = layer.numTiles;
             } else { // Need to check if there is the right number of weights
@@ -456,16 +448,22 @@ bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, Bloc
             }
             break;
         case ConnectedTextureMethods::GRASS:
-            layer.size = ui32v2(1);
+            layer.size = ui8v2(1);
             DIM_CHECK(width, GRASS_WIDTH, bitmap.height, GRASS_HEIGHT, GRASS);
             break;
         case ConnectedTextureMethods::HORIZONTAL:
+            layer.size.x = (ui8)(bitmap.width / resolution);
+            layer.size.y = (ui8)(bitmap.height / resolution);
             DIM_CHECK(width, HORIZONTAL_WIDTH, bitmap.height, HORIZONTAL_HEIGHT, HORIZONTAL);
             break;
         case ConnectedTextureMethods::VERTICAL:
+            layer.size.x = (ui8)(bitmap.width / resolution);
+            layer.size.y = (ui8)(bitmap.height / resolution);
             DIM_CHECK(width, HORIZONTAL_HEIGHT, bitmap.height, HORIZONTAL_WIDTH, VERTICAL);
             break;
         case ConnectedTextureMethods::REPEAT:
+            layer.size.x = (ui8)(bitmap.width / resolution);
+            layer.size.y = (ui8)(bitmap.height / resolution);
             DIM_CHECK(width, layer.size.x, bitmap.height, layer.size.y, REPEAT);
             break;
         //case ConnectedTextureMethods::FLORA:

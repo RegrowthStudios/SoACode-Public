@@ -138,9 +138,9 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     
     f32 h;
     f32v3 tmpPos;
-    f32 minX = (f32)INT_MAX, maxX = (f32)INT_MIN;
-    f32 minY = (f32)INT_MAX, maxY = (f32)INT_MIN;
-    f32 minZ = (f32)INT_MAX, maxZ = (f32)INT_MIN;
+    f32 minX = FLT_MAX, maxX = -FLT_MAX;
+    f32 minY = FLT_MAX, maxY = -FLT_MAX;
+    f32 minZ = FLT_MAX, maxZ = -FLT_MAX;
 
     // Clear water index grid
     memset(waterIndexGrid, 0, sizeof(waterIndexGrid));

@@ -56,35 +56,44 @@ struct LeafKegProperties {
     // Union based on type
     union {
         UNIONIZE(struct {
-            ui32v2 radius;
+            i32v2 vRadius;
+            i32v2 hRadius;
         } round;);
         UNIONIZE(struct {
-            ui32v2 width;
-            ui32v2 height;
-        } cluster;);
-        UNIONIZE(struct {
-            ui32v2 thickness;
+            i32v2 oRadius;
+            i32v2 iRadius;
+            i32v2 period;
         } pine;);
         UNIONIZE(struct {
-            i32v2 lengthMod;
-            i32v2 curlLength;
-            i32v2 capThickness;
-            i32v2 gillThickness;
+            i32v2 tvRadius;
+            i32v2 thRadius;
+            i32v2 bvRadius;
+            i32v2 bhRadius;
+            i32v2 bLength;
+            i32v2 capWidth;
+            i32v2 gillWidth;
+            FloraInterpType interp;
         } mushroom;);
     };
     // Don't put strings in unions
-    nString roundBlock = "";
-    nString clusterBlock = "";
-    nString pineBlock = "";
-    nString mushGillBlock = "";
-    nString mushCapBlock = "";
+    nString block = "none";
+    nString mushGillBlock = "none";
+    nString mushCapBlock = "none";
 };
 
 // Must match var names for TreeBranchProperties
 struct BranchKegProperties {
-    ui32v2 coreWidth;
-    ui32v2 barkWidth;
-    f32v2 branchChance;
+    BranchKegProperties() {
+        segments[0] = i32v2(0);
+        segments[1] = i32v2(0);
+    }
+    i32v2 coreWidth = i32v2(0);
+    i32v2 barkWidth = i32v2(0);
+    i32v2 length = i32v2(0);
+    f32v2 branchChance = f32v2(0.0f);
+    f32v2 angle = f32v2(0.0f);
+    i32v2 segments[2];
+    f32 endSizeMult = 0.0f;
     nString coreBlock = "";
     nString barkBlock = "";
     FruitKegProperties fruitProps;
@@ -94,12 +103,14 @@ struct BranchKegProperties {
 // Must match var names for TreeTrunkProperties
 struct TrunkKegProperties {
     f32 loc = 0.0f;
-    ui32v2 coreWidth;
-    ui32v2 barkWidth;
-    f32v2 branchChance;
+    i32v2 coreWidth = i32v2(0);
+    i32v2 barkWidth = i32v2(0);
+    f32v2 branchChance = f32v2(0.0f);
+    f32v2 changeDirChance = f32v2(0.0f);
     i32v2 slope[2];
     nString coreBlock = "";
     nString barkBlock = "";
+    FloraInterpType interp = FloraInterpType::HERMITE;
     FruitKegProperties fruitProps;
     LeafKegProperties leafProps;
     BranchKegProperties branchProps;
@@ -108,17 +119,34 @@ struct TrunkKegProperties {
 // Must match var names for TreeData
 struct TreeKegProperties {
     nString id = "";
-    ui32v2 heightRange = ui32v2(0, 0);
+    i32v2 height = i32v2(0, 0);
     std::vector<TrunkKegProperties> trunkProps;
 };
+
+struct FloraKegProperties {
+    nString id;
+    nString block = "";
+    nString nextFlora = "";
+    i32v2 height = i32v2(1);
+    i32v2 slope = i32v2(0);
+    i32v2 dSlope = i32v2(0);
+    FloraDir dir = FloraDir::UP;
+};
+
+struct BlockLayerKegProperties {
+    nString block = "";
+    nString surface = "";
+    ui32 width = 0;
+};
+KEG_TYPE_DECL(BlockLayerKegProperties);
 
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
     std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
     std::map<const Biome*, std::vector<BiomeTreeKegProperties>> biomeTrees;
     std::vector<TreeKegProperties> trees;
-    std::vector<nString> blockLayerNames;
-    std::vector<nString> floraBlockNames;
+    std::vector<FloraKegProperties> flora;
+    std::vector<BlockLayerKegProperties> blockLayers;
     nString liquidBlockName = "";
     nString surfaceBlockName = "";
 };
@@ -155,7 +183,7 @@ struct PlanetGenData {
     /************************************************************************/
     /* Flora and Trees                                                      */
     /************************************************************************/
-    std::vector<FloraData> flora;
+    std::vector<FloraType> flora;
     std::map<nString, ui32> floraMap;
     std::vector<NTreeType> trees;
     std::map<nString, ui32> treeMap;

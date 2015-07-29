@@ -53,15 +53,6 @@ KEG_TYPE_DEF_SAME_NAME(BiomeKegProperties, kt) {
     kt.addValue("children", Value::array(offsetof(BiomeKegProperties, children), Value::custom(0, "BiomeKegProperties", false)));
 }
 
-struct FloraKegProperties {
-    nString block = "";
-};
-KEG_TYPE_DECL(FloraKegProperties);
-KEG_TYPE_DEF_SAME_NAME(FloraKegProperties, kt) {
-    using namespace keg;
-    KEG_TYPE_INIT_ADD_MEMBER(kt, FloraKegProperties, block, STRING);
-}
-
 void PlanetGenLoader::init(vio::IOManager* ioManager) {
     m_iom = ioManager;
     m_textureCache.init(ioManager);
@@ -119,8 +110,6 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
             parseBlockLayers(context, value, genData);
         } else if (type == "liquidBlock") {
             genData->blockInfo.liquidBlockName = keg::convert<nString>(value);
-        } else if (type == "surfaceBlock") {
-            genData->blockInfo.surfaceBlockName = keg::convert<nString>(value);
         }
     });
     context.reader.forAllInMap(node, f);
@@ -357,6 +346,16 @@ void recursiveInitBiomes(Biome& biome,
     }
 }
 
+// Conditionally parses a value so it can be either a v2 or a single value
+// When its single, it sets both values of the v2 to that value
+#define PARSE_V2(type, v) \
+if (keg::getType(value) == keg::NodeType::VALUE) { \
+    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
+    ##v.y = ##v.x; \
+} else { \
+    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
+} 
+
 void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
     nString data;
@@ -373,26 +372,42 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
         return;
     }
 
+    FloraKegProperties* floraProps;
+    // Custom values, must match PARSE_V2 syntax
+    keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
+    keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
+    keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
+    keg::Value floraDirVal = keg::Value::custom(0, "FloraDir", true);
+
+    // Parses slope field
+    auto floraParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "block") {
+            keg::evalData((ui8*)&floraProps->block, &stringVal, value, context);
+        } else if (key == "child") {
+            keg::evalData((ui8*)&floraProps->nextFlora, &stringVal, value, context);
+        } else if (key == "height") {
+            PARSE_V2(i32, floraProps->height);
+        } else if (key == "slope") {
+            PARSE_V2(i32, floraProps->slope);
+        } else if (key == "dSlope") {
+            PARSE_V2(i32, floraProps->dSlope);
+        } else if (key == "dir") {
+            keg::evalData((ui8*)&floraProps->dir, &floraDirVal, value, context);
+        }
+    });
+
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         FloraKegProperties properties;
-        keg::parse((ui8*)&properties, value, context, &KEG_GLOBAL_TYPE(FloraKegProperties));
-        
-        genData->blockInfo.floraBlockNames.push_back(properties.block);
+        properties.id = key;
+        floraProps = &properties;
+        context.reader.forAllInMap(value, floraParser);
+        genData->blockInfo.flora.push_back(properties);
     });
     context.reader.forAllInMap(node, baseParser);
     delete baseParser;
+    delete floraParser;
     context.reader.dispose();
 }
-
-// Conditionally parses a value so it can be either a v2 or a single value
-// When its single, it sets both values of the v2 to that value
-#define PARSE_V2(type, v) \
-if (keg::getType(value) == keg::NodeType::VALUE) { \
-    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
-    ##v.y = ##v.x; \
-} else { \
-    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
-} 
 
 void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData) {
     // Read in the file
@@ -417,14 +432,13 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     FruitKegProperties* fruitProps = nullptr;
     LeafKegProperties* leafProps = nullptr;
     // Custom values, must match PARSE_V2 syntax
-    keg::Value ui32v2Val = keg::Value::basic(0, keg::BasicType::UI32_V2);
-    keg::Value ui32Val = keg::Value::basic(0, keg::BasicType::UI32);
     keg::Value i32v2Val = keg::Value::basic(0, keg::BasicType::I32_V2);
     keg::Value i32Val = keg::Value::basic(0, keg::BasicType::I32);
     keg::Value f32v2Val = keg::Value::basic(0, keg::BasicType::F32_V2);
     keg::Value f32Val = keg::Value::basic(0, keg::BasicType::F32);
     keg::Value stringVal = keg::Value::basic(0, keg::BasicType::STRING);
     keg::Value leafTypeVal = keg::Value::custom(0, "TreeLeafType", true);
+    keg::Value interpTypeVal = keg::Value::custom(0, "FloraInterpType", true);
 
     /************************************************************************/
     /* The following code is ugly because it must be custom parsed with     */
@@ -443,33 +457,84 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
 
     // Parses leaf field
     auto leafParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        // TODO(Ben): Other leaf types
+        // TODO(Ben): String tokenizer to get rid of string comparisons
         if (key == "type") {
             keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
-        } else if (key == "width") {
-            PARSE_V2(ui32, leafProps->cluster.width);
-        } else if (key == "height") {
-            PARSE_V2(ui32, leafProps->cluster.height);
+        } else if (key == "radius") {
+            PARSE_V2(i32, leafProps->round.vRadius);
+            leafProps->round.hRadius = leafProps->round.vRadius;
+        } else if (key == "vRadius") {
+            PARSE_V2(i32, leafProps->round.vRadius);
+        } else if (key == "hRadius") {
+            PARSE_V2(i32, leafProps->round.hRadius);
+        } else if (key == "oRadius") {
+            PARSE_V2(i32, leafProps->pine.oRadius);
+        } else if (key == "iRadius") {
+            PARSE_V2(i32, leafProps->pine.iRadius);
+        } else if (key == "period") {
+            PARSE_V2(i32, leafProps->pine.period);
         } else if (key == "block") {
-            keg::evalData((ui8*)&leafProps->clusterBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&leafProps->block, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &leafProps->fruitProps;
             context.reader.forAllInMap(value, fruitParser);
+        } else if (key == "tvRadius") {
+            PARSE_V2(i32, leafProps->mushroom.tvRadius);
+        } else if (key == "thRadius") {
+            PARSE_V2(i32, leafProps->mushroom.thRadius);
+        } else if (key == "bvRadius") {
+            PARSE_V2(i32, leafProps->mushroom.bvRadius);
+        } else if (key == "bhRadius") {
+            PARSE_V2(i32, leafProps->mushroom.bhRadius);
+        } else if (key == "bLength") {
+            PARSE_V2(i32, leafProps->mushroom.bLength);
+        } else if (key == "capWidth") {
+            PARSE_V2(i32, leafProps->mushroom.capWidth);
+        } else if (key == "gillWidth") {
+            PARSE_V2(i32, leafProps->mushroom.gillWidth);
+        } else if (key == "gillBlock") {
+            keg::evalData((ui8*)&leafProps->mushGillBlock, &stringVal, value, context);
+        } else if (key == "capBlock") {
+            keg::evalData((ui8*)&leafProps->mushCapBlock, &stringVal, value, context);
+        } else if (key == "interp") {
+            keg::evalData((ui8*)&leafProps->mushroom.interp, &interpTypeVal, value, context);
+        }
+    });
+
+    // Parses segments field
+    auto segmentsParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "min") {
+            PARSE_V2(i32, trunkProps->branchProps.segments[0]);
+        } else if (key == "max") {
+            PARSE_V2(i32, trunkProps->branchProps.segments[1]);
         }
     });
 
     // Parses branch field
     auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "coreWidth") {
-            PARSE_V2(ui32, trunkProps->branchProps.coreWidth);
+            PARSE_V2(i32, trunkProps->branchProps.coreWidth);
         } else if (key == "barkWidth") {
-            PARSE_V2(ui32, trunkProps->branchProps.barkWidth);
+            PARSE_V2(i32, trunkProps->branchProps.barkWidth);
+        } else if (key == "length") {
+            PARSE_V2(i32, trunkProps->branchProps.length);
+        } else if (key == "angle") {
+            PARSE_V2(f32, trunkProps->branchProps.angle);
+        } else if (key == "segments") {
+            context.reader.forAllInMap(value, segmentsParser);
+        } else if (key == "endSizeMult") {
+            keg::evalData((ui8*)&trunkProps->branchProps.endSizeMult, &f32Val, value, context);
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchProps.branchChance);
+        } else if (key == "length") {
+            PARSE_V2(i32, trunkProps->branchProps.length);
+        } else if (key == "block") {
+            keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
+            trunkProps->branchProps.barkBlock = trunkProps->branchProps.coreBlock;
         } else if (key == "coreBlock") {
-            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
         } else if (key == "barkBlock") {
-            keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
+            keg::evalData((ui8*)&trunkProps->branchProps.barkBlock, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &trunkProps->branchProps.fruitProps;
             context.reader.forAllInMap(value, fruitParser);
@@ -493,13 +558,18 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         if (key == "loc") {
             keg::evalData((ui8*)&trunkProps->loc, &f32Val, value, context);
         } else if (key == "coreWidth") {
-            PARSE_V2(ui32, trunkProps->coreWidth);
+            PARSE_V2(i32, trunkProps->coreWidth);
         } else if (key == "barkWidth") {
-            PARSE_V2(ui32, trunkProps->barkWidth);
+            PARSE_V2(i32, trunkProps->barkWidth);
         } else if (key == "branchChance") {
             PARSE_V2(f32, trunkProps->branchChance);
+        } else if (key == "changeDirChance") {
+            PARSE_V2(f32, trunkProps->changeDirChance);
         } else if (key == "slope") {
             context.reader.forAllInMap(value, slopeParser);
+        } else if (key == "block") {
+            keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
+            trunkProps->barkBlock = trunkProps->coreBlock;
         } else if (key == "coreBlock") {
             keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
         } else if (key == "barkBlock") {
@@ -512,6 +582,8 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         } else if (key == "leaves") {
             leafProps = &trunkProps->leafProps;
             context.reader.forAllInMap(value, leafParser);
+        } else if (key == "interp") {
+            keg::evalData((ui8*)&trunkProps->interp, &interpTypeVal, value, context);
         }
     });
 
@@ -520,13 +592,22 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         treeProps->trunkProps.emplace_back();
         // Get our handle
         trunkProps = &treeProps->trunkProps.back();
+        *trunkProps = {}; // Zero it
+        // Default slopes
+        trunkProps->slope[0] = i32v2(1000);
+        trunkProps->slope[1] = i32v2(1000);
         context.reader.forAllInMap(value, trunkDataParser);
+        // Avoid div 0
+        if (trunkProps->slope[0].x < 1) trunkProps->slope[0].x = 1;
+        if (trunkProps->slope[0].y < 1) trunkProps->slope[0].y = 1;
+        if (trunkProps->slope[1].x < 1) trunkProps->slope[1].x = 1;
+        if (trunkProps->slope[1].y < 1) trunkProps->slope[1].y = 1;
     });
 
     // Parses second level
     auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
-            PARSE_V2(ui32, treeProps->heightRange);
+            PARSE_V2(i32, treeProps->height);
         } else if (key == "trunk") {
             context.reader.forAllInSequence(value, trunkParser);
         }
@@ -536,12 +617,14 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         genData->blockInfo.trees.emplace_back();
         treeProps = &genData->blockInfo.trees.back();
+        *treeProps = {}; // Zero it
         treeProps->id = key;
         context.reader.forAllInMap(value, treeParser);
     });
     context.reader.forAllInMap(node, baseParser);
     delete fruitParser;
     delete leafParser;
+    delete segmentsParser;
     delete branchParser;
     delete slopeParser;
     delete trunkParser;
@@ -749,33 +832,11 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node nod
     }
 
     if (kegProps.colorPath.size()) {
-        // Handle RPC for texture upload
-        if (m_glRpc) {
-            vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
-                //m_textureCache.freeTexture(kegProps.colorPath);
-                //genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-                //                                                     genData->terrainColorPixels,
-                //                                                     vg::ImageIOFormat::RGB_UI8,
-                //                                                     vg::TextureTarget::TEXTURE_2D,
-                //                                                     &vg::SamplerState::LINEAR_CLAMP,
-                //                                                     vg::TextureInternalFormat::RGB8,
-                //                                                     vg::TextureFormat::RGB, true);
-            });
-            m_glRpc->invoke(&rpc, true);
-        } else {
-            //m_textureCache.freeTexture(kegProps.colorPath);
-            //genData->terrainColorMap = m_textureCache.addTexture(kegProps.colorPath,
-            //                                                     genData->terrainColorPixels,
-            //                                                     vg::ImageIOFormat::RGB_UI8,
-            //                                                     vg::TextureTarget::TEXTURE_2D,
-            //                                                     &vg::SamplerState::LINEAR_CLAMP,
-            //                                                     vg::TextureInternalFormat::RGB8,
-            //                                                     vg::TextureFormat::RGB, true);
-        }
-        // Turn into a color map
-        if (genData->terrainColorMap.id == 0) {
-            vg::ImageIO::free(genData->terrainColorPixels);
+        vio::Path p;
+        if (m_iom->resolvePath(kegProps.colorPath, p)) {
+            // Handle RPC for texture upload
+            genData->terrainColorPixels = vg::ImageIO().load(p, vg::ImageIOFormat::RGB_UI8,
+                                                             true);
         }
     }
     // TODO(Ben): stop being lazy and copy pasting
@@ -813,21 +874,11 @@ void PlanetGenLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node
     }
 
     auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
-        // Add a block
-        genData->blockInfo.blockLayerNames.emplace_back(name);
-        genData->blockLayers.emplace_back();
-
-        BlockLayer& l = genData->blockLayers.back();
-        // Load data
-        keg::parse((ui8*)&l, value, context, &KEG_GLOBAL_TYPE(BlockLayer));
+        BlockLayerKegProperties layerProps = {};
+        layerProps.block = name;
+        keg::parse((ui8*)&layerProps, value, context, &KEG_GLOBAL_TYPE(BlockLayerKegProperties));
+        genData->blockInfo.blockLayers.push_back(layerProps);
     });
     context.reader.forAllInMap(node, f);
     delete f;
-
-    // Set starts for binary search application
-    int start = 0;
-    for (auto& l : genData->blockLayers) {
-        l.start = start;
-        start += l.width;
-    }
 }

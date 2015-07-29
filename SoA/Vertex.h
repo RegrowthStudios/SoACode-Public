@@ -25,6 +25,23 @@ const ui8 MESH_FLAG_ACTIVE = 0x1;
 const ui8 MESH_FLAG_MERGE_RIGHT = 0x2;
 const ui8 MESH_FLAG_MERGE_FRONT = 0x4;
 
+// Describes atlas positioning for a BlockVertex
+struct AtlasTexturePosition {
+    struct {
+        ui8 atlas;
+        ui8 index;
+    } base;
+    struct {
+        ui8 atlas;
+        ui8 index;
+    } overlay;
+
+    bool operator==(const AtlasTexturePosition& rhs) const {
+        return (base.index == rhs.base.index && overlay.index == rhs.overlay.index &&
+                base.atlas == rhs.base.atlas && overlay.atlas == rhs.overlay.atlas);
+    }
+};
+
 // Size: 32 Bytes
 struct BlockVertex {
     union {
@@ -41,25 +58,12 @@ struct BlockVertex {
     ui8 animationLength;
     ui8 blendMode;
 
-    ui8 textureAtlas;
-    ui8 overlayTextureAtlas;
-    ui8 textureIndex;
-    ui8 overlayTextureIndex;
+    AtlasTexturePosition texturePosition;
+    AtlasTexturePosition normTexturePosition;
+    AtlasTexturePosition dispTexturePosition;
     
-    ui8 normAtlas;
-    ui8 overlayNormAtlas;
-    ui8 dispAtlas;
-    ui8 overlayDispAtlas;
-
-    ui8 normIndex;
-    ui8 overlayNormIndex;
-    ui8 dispIndex;
-    ui8 overlayDispIndex;
-
-    ui8 textureWidth;
-    ui8 textureHeight;
-    ui8 overlayTextureWidth;
-    ui8 overlayTextureHeight;
+    ui8v2 textureDims;
+    ui8v2 overlayTextureDims;
 
     UNIONIZE(color3 color);
     ui8 mesherFlags;
@@ -70,7 +74,7 @@ struct BlockVertex {
     // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.
     bool operator==(const BlockVertex& rhs) const {
         return (color == rhs.color && overlayColor == rhs.overlayColor &&
-                textureAtlas == rhs.textureAtlas && textureIndex == rhs.textureIndex);
+                texturePosition == rhs.texturePosition);
     }
 };
 

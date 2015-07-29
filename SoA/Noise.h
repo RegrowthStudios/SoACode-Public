@@ -45,17 +45,17 @@ struct TerrainFuncProperties {
     TerrainStage func = TerrainStage::NOISE;
     TerrainOp op = TerrainOp::ADD;
     int octaves = 1;
-    f32 persistence = 1.0f;
-    f32 frequency = 1.0f;
-    f32 low = -1.0f;
-    f32 high = 1.0f;
-    f32v2 clamp = f32v2(0.0f);
+    f64 persistence = 1.0;
+    f64 frequency = 1.0;
+    f64 low = -1.0;
+    f64 high = 1.0;
+    f64v2 clamp = f64v2(0.0);
     Array<TerrainFuncProperties> children;
 };
 KEG_TYPE_DECL(TerrainFuncProperties);
 
 struct NoiseBase {
-    f32 base = 0.0f;
+    f64 base = 0.0f;
     Array<TerrainFuncProperties> funcs;
 };
 KEG_TYPE_DECL(NoiseBase);

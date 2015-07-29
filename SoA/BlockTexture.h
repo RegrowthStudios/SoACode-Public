@@ -95,25 +95,27 @@ public:
     }
 
     // TODO(Ben): should it be ref color?
-    inline BlockTextureIndex getBlockTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
-        return getTextureIndex(params, BASE_TYPE_INDEX, this->index, color);
+    inline void getBlockTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT BlockTextureMethodData& data) const {
+        data.index = this->index;
+        getTextureMethodData(params, BASE_TYPE_INDEX, color, data);
     }
-    inline BlockTextureIndex getNormalTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
-        return getTextureIndex(params, NORM_TYPE_INDEX, this->normalIndex, color);
+    inline void getNormalTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT BlockTextureMethodData& data) const {
+        data.index = this->normalIndex;
+        return getTextureMethodData(params, NORM_TYPE_INDEX, color, data);
     }
-    inline BlockTextureIndex getDispTextureIndex(BlockTextureMethodParams& params, ColorRGB8& color) const {
-        return getTextureIndex(params, DISP_TYPE_INDEX, this->dispIndex, color);
+    inline void getDispTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT  BlockTextureMethodData& data) const {
+        data.index = this->dispIndex;
+        return getTextureMethodData(params, DISP_TYPE_INDEX, color, data);
     }
-    inline BlockTextureIndex getTextureIndex(BlockTextureMethodParams& params, ui32 typeIndex, BlockTextureIndex index, ColorRGB8& color) const {
+    inline void getTextureMethodData(BlockTextureMethodParams& params, ui32 typeIndex, OUT color3& color, BlockTextureMethodData& data) const {
         params.set(this, typeIndex, color);
-        blockTextureFunc(params, index);
-        return index;
+        blockTextureFunc(params, data);
     }
 
     void getFinalColor(OUT color3& color, ui8 temperature, ui8 rainfall, ui32 altColor) const;
 
     ConnectedTextureMethods method = ConnectedTextureMethods::NONE;
-    ui32v2 size = ui32v2(1);
+    ui8v2 size = ui8v2(1);
     ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
     ConnectedTextureReducedMethod reducedMethod = ConnectedTextureReducedMethod::NONE;
     BlockColorMap* colorMap = nullptr;

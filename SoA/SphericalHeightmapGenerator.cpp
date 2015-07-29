@@ -40,14 +40,33 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
 
 FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
-    // TODO(Ben): Sort trees with priority
+    f64 noTreeChance = 1.0;
+    f64 totalChance = 0.0;
+    // NOTE: Stack overflow bad mkay
+    f64* chances = (f64*)alloca(sizeof(f64) * biome->trees.size());
+    // Determine chance
     for (size_t i = 0; i < biome->trees.size(); i++) {
-        const BiomeTree& t = biome->trees[i];
-        f64 chance = t.chance.base;
-        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
-        if (roll < chance) {
-            return t.id;
+        auto& t = biome->trees[i];
+        f64 c = t.chance.base;
+        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, c);
+        totalChance += c;
+        chances[i] = totalChance;
+        noTreeChance *= (1.0 - c);
+    }
+    // Start random generator
+    FastRandGenerator rGen(facePosition.pos.x, facePosition.pos.y);
+    f64 r = rGen.genlf();
+    if (r < 1.0 - noTreeChance) {
+        // A plant exists, now we determine which one
+        // TODO(Ben): Binary search?
+        // Fast generator is shitty so we have to seed twice
+        // or the second number is always small
+        rGen.seed(facePosition.pos.y, facePosition.pos.x, 123.0); // 3rd parameter to avoid artefacts at center
+        f64 roll = rGen.genlf() * totalChance;
+        for (size_t i = 0; i < biome->trees.size(); i++) {
+            if (roll <= chances[i]) {
+                return biome->trees[i].id;
+            }
         }
     }
     return FLORA_ID_NONE;
@@ -55,14 +74,33 @@ FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPo
 
 FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelPosition2D& facePosition, const f64v3& worldPos) const {
     // TODO(Ben): Experiment with optimizations with large amounts of flora.
-    // TODO(Ben): Sort flora with priority
+    f64 noFloraChance = 1.0;
+    f64 totalChance = 0.0;
+    // NOTE: Stack overflow bad mkay
+    f64* chances = (f64*)alloca(sizeof(f64) * biome->flora.size());
+    // Determine chance
     for (size_t i = 0; i < biome->flora.size(); i++) {
-        const BiomeFlora& f = biome->flora[i];
-        f64 chance = f.chance.base;
-        getNoiseValue(worldPos, f.chance.funcs, nullptr, TerrainOp::ADD, chance);
-        f64 roll = pseudoRand((int)facePosition.pos.x, (int)facePosition.pos.y);
-        if (roll < chance) {
-            return f.id;
+        auto& t = biome->flora[i];
+        f64 c = t.chance.base;
+        getNoiseValue(worldPos, t.chance.funcs, nullptr, TerrainOp::ADD, c);
+        totalChance += c;
+        chances[i] = totalChance;
+        noFloraChance *= (1.0 - c);
+    }
+    // Start random generator
+    FastRandGenerator rGen(facePosition.pos.x, facePosition.pos.y);
+    f64 r = rGen.genlf();
+    if (r < 1.0 - noFloraChance) {
+        // A plant exists, now we determine which one
+        // TODO(Ben): Binary search?
+        // Fast generator is shitty so we have to seed twice
+        // or the second number is always small
+        rGen.seed(facePosition.pos.y, facePosition.pos.x, 123.0); // 3rd parameter to avoid artefacts at center
+        f64 roll = rGen.genlf() * totalChance;
+        for (size_t i = 0; i < biome->flora.size(); i++) {
+            if (roll <= chances[i]) {
+                return biome->flora[i].id;
+            }
         }
     }
     return FLORA_ID_NONE;
@@ -313,7 +351,7 @@ f64 doOperation(const TerrainOp& op, f64 a, f64 b) {
         case TerrainOp::MUL: return a * b;
         case TerrainOp::DIV: return a / b;
     }
-    return 0.0f;
+    return 0.0;
 }
 
 void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
@@ -326,7 +364,7 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
     for (size_t f = 0; f < funcs.size(); ++f) {
         auto& fn = funcs[f];
 
-        f64 h = 0.0f;
+        f64 h = 0.0;
         f64* nextMod;
         TerrainOp nextOp;
         // Check if its not a noise function
@@ -337,8 +375,8 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             if (modifier) {
                 h = doOperation(op, h, *modifier);
             }
-            // Optional clamp if both fields are not 0.0f
-            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+            // Optional clamp if both fields are not 0.0
+            if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
                 h = glm::clamp(*modifier, (f64)fn.clamp[0], (f64)fn.clamp[1]);
             }
             nextOp = fn.op;
@@ -347,9 +385,9 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             // Apply parent before clamping
             if (modifier) {
                 h = doOperation(op, *modifier, fn.low);
-                // Optional clamp if both fields are not 0.0f
-                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                    h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                // Optional clamp if both fields are not 0.0
+                if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
             }
             nextOp = op;
@@ -358,9 +396,9 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             // Apply parent before clamping
             if (modifier) {
                 *modifier = (*modifier) * (*modifier);
-                // Optional clamp if both fields are not 0.0f
-                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                    h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                // Optional clamp if both fields are not 0.0
+                if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
             }
             nextOp = op;
@@ -369,9 +407,9 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             // Apply parent before clamping
             if (modifier) {
                 *modifier = (*modifier) * (*modifier) * (*modifier);
-                // Optional clamp if both fields are not 0.0f
-                if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
-                    h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                // Optional clamp if both fields are not 0.0
+                if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
             }
             nextOp = op;
@@ -429,13 +467,13 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                     break;
             }
             // Conditional scaling. 
-            if (fn.low != -1.0f || fn.high != 1.0f) {
+            if (fn.low != -1.0 || fn.high != 1.0) {
                 h = total * (fn.high - fn.low) * 0.5 + (fn.high + fn.low) * 0.5;
             } else {
                 h = total;
             }
-            // Optional clamp if both fields are not 0.0f
-            if (fn.clamp[0] != 0.0f || fn.clamp[1] != 0.0f) {
+            // Optional clamp if both fields are not 0.0
+            if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
                 h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
             }
             // Apply modifier from parent if needed
