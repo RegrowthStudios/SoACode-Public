@@ -949,9 +949,7 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                 f32 width2p1 = (innerWidth + 1) * (innerWidth + 1);
                 f32 width2m1 = (innerWidth - 1) * (innerWidth - 1);
                 if (width2m1 == 0) width2m1 = FLT_MAX;
-
-                // Distribute branch chance over the circumference of the branch
-               
+      
                 if (dist2 < width2) {
                     i32v3 pos(x + k, y + i, z + j);
                     ui32 chunkOff = chunkOffset;
@@ -963,6 +961,7 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                         tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
                     }
                 } else if (canFruit && dist2 < width2p1 && props.fruitProps.flora != FLORA_ID_NONE) {
+                    // Distribute fruit chance over the circumference of the branch
                     f64 fruitChance = props.fruitProps.chance / (M_2_PI * (f64)(innerWidth));
                     if (m_rGen.genlf() <= fruitChance) {
                         i32v3 pos(x + k, y + i, z + j);

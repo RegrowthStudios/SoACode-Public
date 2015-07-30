@@ -990,60 +990,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z < m_lowestZ) m_lowestZ = quad->v0.position.z;
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
-    { // Look-Behind Greedy Merging(tm)
-        if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
-            quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
-            ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
-            // Check left merge
-            if (leftIndex != NO_QUAD_INDEX) {
-                VoxelQuad& lQuad = quads[leftIndex];
-                if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
-                    lQuad.v0.position[frontAxis] == quad->v0.position[frontAxis] &&
-                    lQuad.v1.position[frontAxis] == quad->v1.position[frontAxis] &&
-                    lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
-                    // Stretch the previous quad
-                    lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
-                    lQuad.verts[rightStretchIndex].tex.x += texOffset.x;
-                    lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
-                    lQuad.verts[rightStretchIndex + 1].tex.x += texOffset.x;
-                    // Remove the current quad
-                    quads.pop_back();
-                    m_numQuads--;
-                    quadIndex = leftIndex;
-                    quad = &lQuad;
-                }
-            }
-        }
-        // Check back merge
-        if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
-            quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
-            int backIndex = m_quadIndices[blockIndex + backOffset][face];
-            if (backIndex != NO_QUAD_INDEX) {
-                VoxelQuad* bQuad = &quads[backIndex];
-                while (!(bQuad->v0.mesherFlags & MESH_FLAG_ACTIVE)) {
-                    backIndex = bQuad->replaceQuad;
-                    bQuad = &quads[backIndex];
-                }
-                if (((bQuad->v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
-                    bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
-                    bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
-                    bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
-                    bQuad->v0.position[frontAxis] += QUAD_SIZE;
-                    bQuad->v0.tex.y += texOffset.y;
-                    bQuad->v3.position[frontAxis] += QUAD_SIZE;
-                    bQuad->v3.tex.y += texOffset.y;
-                    quadIndex = backIndex;
-                    // Mark as not in use
-                    quad->v0.mesherFlags = 0;
-                    quad->replaceQuad = backIndex;
-                    m_numQuads--;
-                }
-            }
-        }
-    }
-    
-    // Mark quadIndices so we can merge this quad later
-    m_quadIndices[blockIndex][face] = quadIndex;
+    m_numQuads -= tryMergeQuad(quad, quads, face, rightAxis, frontAxis, leftOffset, backOffset, rightStretchIndex, texOffset);
 }
 
 struct FloraQuadData {
@@ -1158,6 +1105,65 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
     if (quad.v0.position.y > m_highestY) m_highestY = quad.v0.position.y;
     if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
     if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
+}
+
+
+int ChunkMesher::tryMergeQuad(VoxelQuad* quad, std::vector<VoxelQuad>& quads, int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset) {
+    int rv = 0;
+    i16 quadIndex = quads.size() - 1;
+    if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
+        ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
+        // Check left merge
+        if (leftIndex != NO_QUAD_INDEX) {
+            VoxelQuad& lQuad = quads[leftIndex];
+            if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
+                lQuad.v0.position[frontAxis] == quad->v0.position[frontAxis] &&
+                lQuad.v1.position[frontAxis] == quad->v1.position[frontAxis] &&
+                lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
+                // Stretch the previous quad
+                lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
+                lQuad.verts[rightStretchIndex].tex.x += texOffset.x;
+                lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
+                lQuad.verts[rightStretchIndex + 1].tex.x += texOffset.x;
+                // Remove the current quad
+                quads.pop_back();
+                ++rv;
+                quadIndex = leftIndex;
+                quad = &lQuad;
+            }
+        }
+    }
+    // Check back merge
+    if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
+        int backIndex = m_quadIndices[blockIndex + backOffset][face];
+        if (backIndex != NO_QUAD_INDEX) {
+            VoxelQuad* bQuad = &quads[backIndex];
+            while (!(bQuad->v0.mesherFlags & MESH_FLAG_ACTIVE)) {
+                backIndex = bQuad->replaceQuad;
+                bQuad = &quads[backIndex];
+            }
+            if (((bQuad->v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
+                bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
+                bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
+                bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
+                bQuad->v0.position[frontAxis] += QUAD_SIZE;
+                bQuad->v0.tex.y += texOffset.y;
+                bQuad->v3.position[frontAxis] += QUAD_SIZE;
+                bQuad->v3.tex.y += texOffset.y;
+                quadIndex = backIndex;
+                // Mark as not in use
+                quad->v0.mesherFlags = 0;
+                quad->replaceQuad = backIndex;
+                ++rv;
+            }
+        }
+    }
+    // Mark quadIndices so we can merge this quad later
+    m_quadIndices[blockIndex][face] = quadIndex;
+    // Return number of merges
+    return rv;
 }
 
 //Gets the liquid level from a block index
