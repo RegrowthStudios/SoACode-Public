@@ -85,7 +85,7 @@ struct LeafKegProperties {
 struct BranchKegProperties {
     i32v2 coreWidth = i32v2(0);
     i32v2 barkWidth = i32v2(0);
-    f32v2 widthFalloff = f32v2(1.0f);
+    f32v2 widthFalloff = f32v2(0.1f);
     f32v2 branchChance = f32v2(0.0f);
     f32v2 angle = f32v2(0.0f);
     f32v2 subBranchAngle = f32v2(0.0f);

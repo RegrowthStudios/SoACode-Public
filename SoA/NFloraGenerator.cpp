@@ -988,7 +988,7 @@ void NFloraGenerator::generateSCBranches() {
             if (i == SC_NO_PARENT) break;
             SCRayNode& b = m_scRayNodes[i];
             TreeBranchProperties& tbp = m_scTrunkProps[b.trunkPropsIndex].branchProps;
-            f32 nw = a.width + tbp.widthFalloff;
+            f32 nw = a.width + tbp.widthFalloff * m_treeData.branchStep;
 
             if (b.wasVisited) {
                 if (b.width >= nw) break;
@@ -1010,6 +1010,7 @@ void NFloraGenerator::generateSCBranches() {
                     for (f32 v = 0.0f; v < length; v += 1.0f) {
                         if (m_rGen.genlf() < tbp.branchChance) {
                             f32 width = lerp(a.width, b.width, v / length);
+                            // TODO(Ben): Width falloff aint working right?
                             f32 sLength = width / tbp.widthFalloff;
                             // Determine float position
                             f32v3 pos = a.pos + dir * v;
@@ -1029,10 +1030,10 @@ void NFloraGenerator::generateSCBranches() {
                             f32v3 nDir = dir;
                             while (true) {
                                 // Get new dir
-                                newDirFromAngle(nDir, tbp.angle.min, tbp.angle.max);
+                                newDirFromAngle(nDir, tbp.subBranchAngle.min, tbp.subBranchAngle.max);
                                 pos += nDir * sLength;
                                 m_scRayNodes.emplace_back(pos, parent, tpIndex);
-                                m_scRayNodes.back().width = width * ((f32)(numSegments - i - 1) / numSegments);
+                                m_scRayNodes.back().width = width * ((f32)(numSegments - j - 1) / numSegments) + 1.0f;
                                 // Check end condition
                                 if (++j == numSegments) break;
                                 parent = m_scRayNodes.size() - 1;
@@ -1303,8 +1304,8 @@ void NFloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z,
 
 inline void NFloraGenerator::newDirFromAngle(f32v3& dir, f32 minAngle, f32 maxAngle) {
     f32 angle = m_rGen.genlf() * (maxAngle - minAngle) + minAngle;
-    f32v3 relDir(0, cos(angle), sin(angle));
-    relDir = glm::angleAxis((f32)(m_rGen.genlf() * M_2_PI), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
+    f32v3 relDir(0.0f, cos(angle), sin(angle));
+    relDir = glm::angleAxis((f32)(m_rGen.genlf() * 360.0), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
     // Transform relDir relative to dir with change of basis matrix
     f32v3 nz = glm::cross(dir, f32v3(0.0f, 1.0f, 0.0f));
     f32v3 nx = glm::cross(dir, nz);
