@@ -311,9 +311,9 @@ void TestBiomeScreen::initChunks() {
         m_floraGenerator.generateChunkFlora(chunk, m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)].heightData, lNodes, wNodes);
         for (auto& node : wNodes) {
             i32v3 gridPos = m_chunks[i].gridPosition;
-            gridPos.x += NFloraGenerator::getChunkXOffset(node.chunkOffset);
-            gridPos.y += NFloraGenerator::getChunkYOffset(node.chunkOffset);
-            gridPos.z += NFloraGenerator::getChunkZOffset(node.chunkOffset);
+            gridPos.x += FloraGenerator::getChunkXOffset(node.chunkOffset);
+            gridPos.y += FloraGenerator::getChunkYOffset(node.chunkOffset);
+            gridPos.z += FloraGenerator::getChunkZOffset(node.chunkOffset);
             if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.z >= 0
                 && gridPos.x < HORIZONTAL_CHUNKS && gridPos.y < VERTICAL_CHUNKS && gridPos.z < HORIZONTAL_CHUNKS) {
                 Chunk* chunk = m_chunks[gridPos.x + gridPos.y * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + gridPos.z * HORIZONTAL_CHUNKS].chunk;
@@ -322,9 +322,9 @@ void TestBiomeScreen::initChunks() {
         }
         for (auto& node : lNodes) {
             i32v3 gridPos = m_chunks[i].gridPosition;
-            gridPos.x += NFloraGenerator::getChunkXOffset(node.chunkOffset);
-            gridPos.y += NFloraGenerator::getChunkYOffset(node.chunkOffset);
-            gridPos.z += NFloraGenerator::getChunkZOffset(node.chunkOffset);
+            gridPos.x += FloraGenerator::getChunkXOffset(node.chunkOffset);
+            gridPos.y += FloraGenerator::getChunkYOffset(node.chunkOffset);
+            gridPos.z += FloraGenerator::getChunkZOffset(node.chunkOffset);
             if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.z >= 0
                 && gridPos.x < HORIZONTAL_CHUNKS && gridPos.y < VERTICAL_CHUNKS && gridPos.z < HORIZONTAL_CHUNKS) {
                 Chunk* chunk = m_chunks[gridPos.x + gridPos.y * HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS + gridPos.z * HORIZONTAL_CHUNKS].chunk;

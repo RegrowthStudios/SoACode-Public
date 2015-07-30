@@ -15,7 +15,7 @@
 #include "ChunkRenderer.h"
 #include "CommonState.h"
 #include "HdrRenderStage.h"
-#include "NFloraGenerator.h"
+#include "FloraGenerator.h"
 #include "SSAORenderStage.h"
 #include "SphericalHeightmapGenerator.h"
 
@@ -54,7 +54,7 @@ private:
     ChunkMesher m_mesher;
     ProceduralChunkGenerator m_chunkGenerator;
     SphericalHeightmapGenerator m_heightGenerator;
-    NFloraGenerator m_floraGenerator;
+    FloraGenerator m_floraGenerator;
     PlanetGenData* m_genData = nullptr;
     vio::IOManager m_iom;
 

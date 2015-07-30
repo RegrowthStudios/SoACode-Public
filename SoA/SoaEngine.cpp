@@ -122,7 +122,6 @@ inline void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegPr
     auto& it = genData->floraMap.find(kp.flora);
     if (it != genData->floraMap.end()) {
         fp.flora = it->second;
-        std::cout << "FOUND IT! " << fp.flora << std::endl;
     }
 }
 

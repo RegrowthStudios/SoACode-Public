@@ -607,7 +607,7 @@ EXIT 0</Command>
     <ClInclude Include="BlockTextureLoader.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkGrid.h" />
-    <ClInclude Include="NFloraGenerator.h" />
+    <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="Noise.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
@@ -750,7 +750,6 @@ EXIT 0</Command>
     <ClInclude Include="Particles.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
@@ -824,7 +823,7 @@ EXIT 0</Command>
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
-    <ClCompile Include="NFloraGenerator.cpp" />
+    <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="Octree.cpp" />
@@ -915,7 +914,6 @@ EXIT 0</Command>
     <ClCompile Include="ParticleEngine.cpp" />
     <ClCompile Include="PhysicsBlocks.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
-    <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

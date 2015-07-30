@@ -17,7 +17,6 @@
 
 #include <Vorb/IThreadPoolTask.h>
 
-#include "FloraGenerator.h"
 #include "VoxPool.h"
 
 class Chunk;
@@ -32,8 +31,6 @@ public:
 
     int numFrames = 0; ///< Number of frames left before placement attempt
     i32v3 startChunkGridPos; ///< Grid position of initial chunk
-    std::vector <TreeNode> wnodes; ///< Wood nodes
-    std::vector <TreeNode> lnodes; ///< Leaf nodes
     std::vector <i32v3> allChunkPositions; ///< Stores positions of all chunks
 };
 

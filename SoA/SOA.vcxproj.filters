@@ -239,9 +239,6 @@
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
     </ClInclude>
-    <ClInclude Include="FloraGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="FragFile.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
     </ClInclude>
@@ -863,11 +860,11 @@
     <ClInclude Include="PlanetGenLoader.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="NFloraGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="Flora.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="FloraGenerator.h">
+      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -912,9 +909,6 @@
     </ClCompile>
     <ClCompile Include="Errors.cpp">
       <Filter>SOA Files\Ext</Filter>
-    </ClCompile>
-    <ClCompile Include="FloraGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
     <ClCompile Include="FragFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
@@ -1429,11 +1423,11 @@
     <ClCompile Include="PlanetGenLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="NFloraGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="Flora.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="FloraGenerator.cpp">
+      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
