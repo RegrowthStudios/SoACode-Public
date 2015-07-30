@@ -15,21 +15,17 @@
 #ifndef ChunkGrid_h__
 #define ChunkGrid_h__
 
-#include "VoxelCoordinateSpaces.h"
-#include "ChunkGenerator.h"
-#include "concurrentqueue.h"
-#include "Chunk.h"
-
-#include <memory>
-#include <map>
-#include <vector>
+#include <concurrentqueue.h>
 #include <Vorb/utils.h>
 
-class ChunkAllocator;
+#include "VoxelCoordinateSpaces.h"
+#include "ChunkGenerator.h"
+#include "Chunk.h"
+#include "ChunkAllocator.h"
 
 class ChunkGrid {
 public:
-    void init(WorldCubeFace face, ChunkAllocator* chunkAllocator, 
+    void init(WorldCubeFace face,
               OPT vcore::ThreadPool<WorkerData>* threadPool,
               ui32 generatorsPerRow,
               PlanetGenData* genData);
@@ -62,7 +58,7 @@ private:
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    ChunkAllocator* m_allocator = nullptr;
+    PagedChunkAllocator m_allocator;
     ChunkGenerator* m_generators = nullptr;
 
     std::vector<Chunk*> m_activeChunks;

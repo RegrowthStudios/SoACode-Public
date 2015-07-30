@@ -7,17 +7,16 @@
 
 volatile ChunkID ChunkGrid::m_nextAvailableID = 0;
 
-void ChunkGrid::init(WorldCubeFace face, ChunkAllocator* chunkAllocator,
+void ChunkGrid::init(WorldCubeFace face,
                       OPT vcore::ThreadPool<WorkerData>* threadPool,
                       ui32 generatorsPerRow,
                       PlanetGenData* genData) {
     m_face = face;
-    m_allocator = chunkAllocator;
     m_generatorsPerRow = generatorsPerRow;
     m_numGenerators = generatorsPerRow * generatorsPerRow;
     m_generators = new ChunkGenerator[m_numGenerators]; // TODO(Ben): delete[]
     for (ui32 i = 0; i < m_numGenerators; i++) {
-        m_generators[i].init(chunkAllocator, threadPool, genData);
+        m_generators[i].init(&m_allocator, threadPool, genData);
     }
 }
 
@@ -50,26 +49,28 @@ void ChunkGrid::addChunk(Chunk* chunk) {
 
 void ChunkGrid::removeChunk(Chunk* chunk, int index) {
     const ChunkPosition3D& pos = chunk->getChunkPosition();
+
     // Remove from lookup hashmap
     m_chunkMap.erase(pos.pos);
 
-    { // Remove grid data
-        chunk->gridData->refCount--;
-        // Check to see if we should free the grid data
-        if (chunk->gridData->refCount == 0) {
-            m_chunkGridDataMap.erase(i32v2(pos.pos.x, pos.pos.z));
-            delete chunk->gridData;
-            chunk->gridData = nullptr;
-            chunk->heightData = nullptr;
-        }
+    // Remove and possibly free grid data
+    // TODO(Cristian): This needs to be moved
+    chunk->gridData->refCount--;
+    if (chunk->gridData->refCount == 0) {
+        m_chunkGridDataMap.erase(i32v2(pos.pos.x, pos.pos.z));
+        delete chunk->gridData;
+        chunk->gridData = nullptr;
+        chunk->heightData = nullptr;
     }
-
+    
     disconnectNeighbors(chunk);
 
-    { // Remove from active list
-        m_activeChunks[index] = m_activeChunks.back();
-        m_activeChunks.pop_back();
-    }
+    // Remove from active list
+    m_activeChunks[index] = m_activeChunks.back();
+    m_activeChunks.pop_back();
+
+    // Free the chunk
+    m_allocator.free(chunk);
 }
 
 Chunk* ChunkGrid::getChunk(const f64v3& position) {
@@ -133,7 +134,7 @@ void ChunkGrid::update() {
                 q->m_chunk->refCount++;
             }
         } else {
-            q->m_chunk = m_allocator->getNewChunk();
+            q->m_chunk = m_allocator.alloc();
             ChunkPosition3D pos;
             pos.pos = q->chunkPos;
             pos.face = m_face;

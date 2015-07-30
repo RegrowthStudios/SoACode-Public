@@ -15,13 +15,14 @@
 #ifndef ChunkGenerator_h__
 #define ChunkGenerator_h__
 
+#include <Vorb/ThreadPool.h>
+
 #include "VoxPool.h"
 #include "ProceduralChunkGenerator.h"
 #include "PlanetGenData.h"
 #include "GenerateTask.h"
-#include <Vorb/ThreadPool.h>
 
-class ChunkAllocator;
+class PagedChunkAllocator;
 class ChunkGridData;
 
 enum ChunkGenLevel { GEN_NONE = 0, GEN_TERRAIN, GEN_FLORA, GEN_SCRIPT, GEN_DONE };
@@ -70,7 +71,7 @@ private:
 class ChunkGenerator {
     friend class GenerateTask;
 public:
-    void init(ChunkAllocator* chunkAllocator,
+    void init(PagedChunkAllocator* chunkAllocator,
               vcore::ThreadPool<WorkerData>* threadPool,
               PlanetGenData* genData);
     void submitQuery(ChunkQuery* query);
@@ -83,7 +84,7 @@ private:
 
     ProceduralChunkGenerator m_proceduralGenerator;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
-    ChunkAllocator* m_allocator = nullptr;
+    PagedChunkAllocator* m_allocator = nullptr;
 };
 
 #endif // ChunkGenerator_h__
