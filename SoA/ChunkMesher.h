@@ -86,7 +86,7 @@ private:
     static void buildVao(ChunkMesh& cm);
     static void buildWaterVao(ChunkMesh& cm);
 
-    ui16 m_quadIndices[PADDED_CHUNK_SIZE][7]; // 6 faces and then flora 
+    ui16 m_quadIndices[PADDED_CHUNK_SIZE][6];
     ui16 m_wvec[CHUNK_SIZE];
 
     std::vector<BlockVertex> m_finalVerts[6];
