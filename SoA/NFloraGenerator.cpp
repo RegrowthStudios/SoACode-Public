@@ -184,7 +184,7 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
             generateFlora(b->flora[hd.flora].data, age, fNodes, wNodes, NO_CHUNK_OFFSET, blockIndex);
         } else {
             // It's a tree
-            generateTree(b->trees[hd.flora - b->flora.size()].data, age, fNodes, wNodes, NO_CHUNK_OFFSET, blockIndex);
+            generateTree(b->trees[hd.flora - b->flora.size()].data, age, fNodes, wNodes, b->genData, NO_CHUNK_OFFSET, blockIndex);
         }
     }
 }
@@ -193,6 +193,15 @@ void NFloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightD
 // Lerps and rounds
 #define LERP_UI16(var) (ui16)FastConversion<ui16, f32>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
 #define LERP_I32(var) fastFloor((f32)(b.##var - a.##var) * l + (f32)a.##var + 0.5f)
+
+inline void lerpFruitProperties(TreeFruitProperties& rvProps, const TreeFruitProperties& a, const TreeFruitProperties& b, f32 l) {
+    rvProps.chance = lerp(a.chance, b.chance, l);
+    if (l < 0.5) {
+        rvProps.flora = a.flora;
+    } else {
+        rvProps.flora = b.flora;
+    }
+}
 
 inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProperties& a, const TreeLeafProperties& b, f32 l) {
     const TreeLeafProperties* blockP;
@@ -250,6 +259,7 @@ inline void lerpLeafProperties(TreeLeafProperties& rvProps, const TreeLeafProper
         default:
             break;
     }
+    lerpFruitProperties(rvProps.fruitProps, a.fruitProps, b.fruitProps, l);
 }
 
 inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranchProperties& a, const TreeBranchProperties& b, f32 l) {
@@ -273,7 +283,7 @@ inline void lerpBranchProperties(TreeBranchProperties& rvProps, const TreeBranch
     rvProps.subBranchAngle.min = lerp(a.subBranchAngle.min, b.subBranchAngle.min, l);
     rvProps.subBranchAngle.max = lerp(a.subBranchAngle.max, b.subBranchAngle.max, l);
     lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
-    // TODO(Ben): Lerp other properties
+    lerpFruitProperties(rvProps.fruitProps, a.fruitProps, b.fruitProps, l);
 }
 
 inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkProperties& a, const TreeTrunkProperties& b, f32 heightRatio) {
@@ -299,7 +309,7 @@ inline void lerpTrunkProperties(TreeTrunkProperties& rvProps, const TreeTrunkPro
     rvProps.slope = LERP_I32(slope);
     lerpBranchProperties(rvProps.branchProps, a.branchProps, b.branchProps, l);
     lerpLeafProperties(rvProps.leafProps, a.leafProps, b.leafProps, l);
-    // TODO(Ben): Lerp other properties
+    lerpFruitProperties(rvProps.fruitProps, a.fruitProps, b.fruitProps, l);
 }
 
 struct DirLookup {
@@ -309,9 +319,10 @@ struct DirLookup {
 };
 const DirLookup DIR_AXIS_LOOKUP[4] = { {0, X_1, -1}, {2, Z_1, -1}, {0, X_1, 1}, {2, Z_1, 1} };
 
-void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
+void NFloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, const PlanetGenData* genData, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     // Get the properties for this tree
     // TODO(Ben): Temp
+    m_genData = genData;
     age = 1.0f;
     m_currChunkOff = 0;
     generateTreeProperties(type, age, m_treeData);
@@ -940,8 +951,7 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                 if (width2m1 == 0) width2m1 = FLT_MAX;
 
                 // Distribute branch chance over the circumference of the branch
-                // f64 branchChance = props.branchChance / (M_2_PI * (f64)(innerWidth));
-
+               
                 if (dist2 < width2) {
                     i32v3 pos(x + k, y + i, z + j);
                     ui32 chunkOff = chunkOffset;
@@ -952,8 +962,15 @@ void NFloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 
                     } else {
                         tryPlaceNode(m_wNodes, 3, props.coreBlockID, newIndex, chunkOff);
                     }
-                } else if (canFruit && dist2 < width2p1) {
-                   
+                } else if (canFruit && dist2 < width2p1 && props.fruitProps.flora != FLORA_ID_NONE) {
+                    f64 fruitChance = props.fruitProps.chance / (M_2_PI * (f64)(innerWidth));
+                    if (m_rGen.genlf() <= fruitChance) {
+                        i32v3 pos(x + k, y + i, z + j);
+                        ui32 chunkOff = chunkOffset;
+                        addChunkOffset(pos, chunkOff);
+                        ui16 newIndex = (ui16)(pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH);
+                        generateFlora(&m_genData->flora.at(props.fruitProps.flora), 1.0f, *m_fNodes, *m_wNodes, chunkOff, newIndex);
+                    }
                 }
             }
         }

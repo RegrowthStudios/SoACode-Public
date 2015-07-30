@@ -22,6 +22,8 @@
 // 0111111111 0111111111 0111111111 = 0x1FF7FDFF
 #define NO_CHUNK_OFFSET 0x1FF7FDFF
 
+struct PlanetGenData;
+
 // Will not work for chunks > 32^3
 struct FloraNode {
     FloraNode(ui16 blockID, ui16 blockIndex, ui32 chunkOffset) :
@@ -93,7 +95,7 @@ public:
     /// @param wNodes: Returned high priority nodes, for tree "wood".
     void generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes);
     /// Generates standalone tree.
-    void generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
+    void generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, const PlanetGenData* genData, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates standalone flora.
     void generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
     /// Generates a specific tree's properties
@@ -143,6 +145,7 @@ private:
     FastRandGenerator m_rGen;
     ui32 m_currChunkOff;
     ui32 m_currNodeField;
+    const PlanetGenData* m_genData;
     bool m_hasStoredTrunkProps;
 };
 

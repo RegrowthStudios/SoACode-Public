@@ -122,6 +122,7 @@ inline void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegPr
     auto& it = genData->floraMap.find(kp.flora);
     if (it != genData->floraMap.end()) {
         fp.flora = it->second;
+        std::cout << "FOUND IT! " << fp.flora << std::endl;
     }
 }
 
@@ -309,6 +310,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
 
         // Set biome trees and flora
         for (auto& biome : genData->biomes) {
+            biome.genData = genData;
             { // Flora
                 auto& it = blockInfo.biomeFlora.find(&biome);
                 if (it != blockInfo.biomeFlora.end()) {

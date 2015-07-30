@@ -451,7 +451,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     auto fruitParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "id") {
             keg::evalData((ui8*)&fruitProps->flora, &stringVal, value, context);
-        } else if (key == "max") {
+        } else if (key == "chance") {
             PARSE_V2(f32, fruitProps->chance);
         }
     });
