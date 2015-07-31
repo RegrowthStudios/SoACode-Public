@@ -189,6 +189,9 @@
     <Filter Include="SOA Files\Voxel\Models">
       <UniqueIdentifier>{57f94b81-194d-4aa7-91bb-c4855307dd0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Access">
+      <UniqueIdentifier>{7438a4f1-7ecc-4b92-bc2a-6865f0686297}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -866,6 +869,9 @@
     <ClInclude Include="FloraGenerator.h">
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkAccessor.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1428,6 +1434,9 @@
     </ClCompile>
     <ClCompile Include="FloraGenerator.cpp">
       <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkAccessor.cpp">
+      <Filter>SOA Files\Voxel\Access</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

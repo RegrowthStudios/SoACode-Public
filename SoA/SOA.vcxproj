@@ -535,6 +535,7 @@ EXIT 0</Command>
     <ClInclude Include="AmbiencePlayer.h" />
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="ChunkAccessor.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
@@ -771,6 +772,7 @@ EXIT 0</Command>
     <ClCompile Include="BlockTexturePack.cpp" />
     <ClCompile Include="BloomRenderStage.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkAccessor.cpp" />
     <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />

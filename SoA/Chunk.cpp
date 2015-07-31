@@ -19,6 +19,7 @@ void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
     m_id = id;
     numBlocks = 0;
     hasCreatedMesh = false;
+    accessor = nullptr;
 }
 
 void Chunk::initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
