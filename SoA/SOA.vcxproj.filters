@@ -692,9 +692,6 @@
     <ClInclude Include="TestNoiseScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkHandle.h">
-      <Filter>SOA Files\Voxel\API</Filter>
-    </ClInclude>
     <ClInclude Include="MetaSection.h">
       <Filter>SOA Files\Voxel\API</Filter>
     </ClInclude>
@@ -870,6 +867,9 @@
       <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
     <ClInclude Include="ChunkAccessor.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkHandle.h">
       <Filter>SOA Files\Voxel\Access</Filter>
     </ClInclude>
   </ItemGroup>
