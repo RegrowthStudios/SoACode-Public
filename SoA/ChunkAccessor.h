@@ -20,7 +20,7 @@
 
 class ChunkHandle {
 public:
-    void aquire();
+    ChunkHandle aquire();
     void release();
 
     operator Chunk&() { return *chunk; }
@@ -33,10 +33,13 @@ class ChunkAccessor {
     friend class ChunkHandle;
 public:
     void init(PagedChunkAllocator* allocator);
+    void destroy();
+
+    ChunkHandle aquire(ChunkID id);
 
 private:
-    ChunkHandle aquire(ChunkID id);
-    void release(ChunkHandle chunk);
+    ChunkHandle aquire(ChunkHandle& chunk);
+    void release(ChunkHandle& chunk);
 
     std::unordered_map<ChunkID, ChunkHandle> m_chunkLookup;
     PagedChunkAllocator* m_allocator = nullptr;

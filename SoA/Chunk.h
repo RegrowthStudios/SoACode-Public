@@ -43,6 +43,7 @@ public:
 };
 
 class Chunk {
+    friend class ChunkAccessor;
     friend class ChunkGenerator;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
@@ -122,6 +123,9 @@ private:
     // ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
+
+    // TODO(Ben): Thread safety
+    ui32 m_hRefCount = 0;
   
     ChunkID m_id;
 };
