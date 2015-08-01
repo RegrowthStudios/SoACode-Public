@@ -23,15 +23,10 @@ void ChunkAccessor::destroy() {
 }
 
 ChunkHandle ChunkAccessor::acquire(ChunkID id) {
-    auto& it = m_chunkLookup.find(id);
-    if (it == m_chunkLookup.end()) {
-        ChunkHandle& rv = m_chunkLookup[id];
-        rv.m_chunk = m_allocator->alloc();
-        rv->m_handleRefCount = 1;
-        return rv;
-    } else {
-        return acquire(it->second);
-    }
+    // TODO(Cristian): Try to not lock down everything
+    bool wasOld;
+    ChunkHandle chunk = safeAdd(id, wasOld);
+    return wasOld ? acquire(chunk) : chunk;
 }
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     // Skip this for now
@@ -46,13 +41,13 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
         InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ALIVE, HANDLE_STATE_BIRTHING);
         break;
     case HANDLE_STATE_ALIVE:
-        { // Make sure that this is kept alive
-            ui32 state = chunk->m_handleState;
-            while ((state = InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ALIVE)) != HANDLE_STATE_BIRTHING) {
-                // Push. Puuuuusssshhh. PUUUUSHHHHH!!!!!!!
-                continue;
-            }
+    { // Make sure that this is kept alive
+        ui32 state = chunk->m_handleState;
+        while ((state = InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ALIVE)) != HANDLE_STATE_BIRTHING) {
+            // Push. Puuuuusssshhh. PUUUUSHHHHH!!!!!!!
+            continue;
         }
+    }
     case HANDLE_STATE_ZOMBIE:
         // Someone is trying to kill this chunk, don't let them
     case HANDLE_STATE_DEAD:
@@ -70,7 +65,15 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
     // TODO(Cristian): Heavy thread-safety
     ui32 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
     if (currentCount == 0) {
+        // If the chunk is alive, set it to zombie mode. Otherwise, it's being birthed.
+        if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ZOMBIE, HANDLE_STATE_ALIVE) == HANDLE_STATE_ZOMBIE) {
+            // Now that it's a zombie, we kill it.
+            if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_DEAD, HANDLE_STATE_ZOMBIE) == HANDLE_STATE_DEAD) {
+                safeRemove(chunk->m_id);
+            }
+        }
         // TODO(Cristian): This needs to be added to a free-list
+
 
         // Make sure it can't be accessed until acquired again
         chunk->accessor = nullptr;
@@ -79,4 +82,25 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
         m_allocator->free(chunk.m_chunk);
     }
     chunk.m_chunk = nullptr;
+}
+
+ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
+    std::unique_lock<std::mutex> l(m_lckLookup);
+    auto& it = m_chunkLookup.find(id);
+    if (it == m_chunkLookup.end()) {
+        wasOld = false;
+        ChunkHandle& rv = m_chunkLookup[id];
+        rv->m_handleState = HANDLE_STATE_ALIVE;
+        rv->m_handleRefCount = 1;
+        rv.m_chunk = m_allocator->alloc();
+        return rv;
+    } else {
+        wasOld = true;
+        return it->second;
+    }
+}
+
+void ChunkAccessor::safeRemove(ChunkID id) {
+    std::unique_lock<std::mutex> l(m_lckLookup);
+    m_chunkLookup.erase(id);
 }

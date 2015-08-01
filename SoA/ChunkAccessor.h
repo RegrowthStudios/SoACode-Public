@@ -29,6 +29,10 @@ private:
     ChunkHandle acquire(ChunkHandle& chunk);
     void release(ChunkHandle& chunk);
 
+    ChunkHandle safeAdd(ChunkID id, bool& wasOld);
+    void safeRemove(ChunkID id);
+
+    std::mutex m_lckLookup;
     std::unordered_map<ChunkID, ChunkHandle> m_chunkLookup;
     PagedChunkAllocator* m_allocator = nullptr;
 };
