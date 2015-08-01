@@ -125,7 +125,9 @@ private:
     VoxelPosition3D m_voxelPosition;
 
     // TODO(Ben): Thread safety
-    ui32 m_hRefCount = 0;
+    __declspec(align(4)) volatile ui32 m_handleState = 0;
+    __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
+
   
     ChunkID m_id;
 };
