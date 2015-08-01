@@ -17,28 +17,32 @@
 
 #include <concurrentqueue.h>
 #include <Vorb/utils.h>
+#include <Vorb/IDGenerator.h>
 
 #include "VoxelCoordinateSpaces.h"
 #include "ChunkGenerator.h"
 #include "Chunk.h"
 #include "ChunkAllocator.h"
+#include "ChunkAccessor.h"
+#include "ChunkHandle.h"
 
 class ChunkGrid {
 public:
     void init(WorldCubeFace face,
               OPT vcore::ThreadPool<WorkerData>* threadPool,
               ui32 generatorsPerRow,
-              PlanetGenData* genData);
+              PlanetGenData* genData,
+              PagedChunkAllocator* allocator);
 
     void addChunk(Chunk* chunk);
 
     void removeChunk(Chunk* chunk, int index);
 
-    Chunk* getChunk(const f64v3& voxelPos);
+    ChunkHandle getChunk(const f64v3& voxelPos);
 
-    Chunk* getChunk(const i32v3& chunkPos);
+    ChunkHandle getChunk(const i32v3& chunkPos);
 
-    const Chunk* getChunk(const i32v3& chunkPos) const;
+    const ChunkHandle getChunk(const i32v3& chunkPos) const;
 
     // Will generate chunk if it doesn't exist
     void submitQuery(ChunkQuery* query);
@@ -58,15 +62,17 @@ private:
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    PagedChunkAllocator m_allocator;
+    ChunkAccessor m_accessor;
     ChunkGenerator* m_generators = nullptr;
 
     std::vector<Chunk*> m_activeChunks;
 
-    std::unordered_map<i32v3, Chunk*> m_chunkMap; ///< hashmap of chunks
+    std::unordered_map<i32v3, ChunkHandle> m_chunkMap; ///< hashmap of chunks
     // TODO(Ben): Compare to std::map performance
     std::unordered_map<i32v2, ChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
     
+    vcore::IDGenerator<ChunkID> m_idGenerator;
+
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;
     WorldCubeFace m_face = FACE_NONE;

@@ -4,10 +4,8 @@
 #include "ChunkAllocator.h"
 #include "Chunk.h"
 
-void ChunkGenerator::init(PagedChunkAllocator* chunkAllocator,
-                          vcore::ThreadPool<WorkerData>* threadPool,
+void ChunkGenerator::init(vcore::ThreadPool<WorkerData>* threadPool,
                           PlanetGenData* genData) {
-    m_allocator = chunkAllocator;
     m_threadPool = threadPool;
     m_proceduralGenerator.init(genData);
 }

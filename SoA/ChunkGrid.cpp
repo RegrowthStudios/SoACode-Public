@@ -10,14 +10,16 @@ volatile ChunkID ChunkGrid::m_nextAvailableID = 0;
 void ChunkGrid::init(WorldCubeFace face,
                       OPT vcore::ThreadPool<WorkerData>* threadPool,
                       ui32 generatorsPerRow,
-                      PlanetGenData* genData) {
+                      PlanetGenData* genData,
+                      PagedChunkAllocator* allocator) {
     m_face = face;
     m_generatorsPerRow = generatorsPerRow;
     m_numGenerators = generatorsPerRow * generatorsPerRow;
     m_generators = new ChunkGenerator[m_numGenerators]; // TODO(Ben): delete[]
     for (ui32 i = 0; i < m_numGenerators; i++) {
-        m_generators[i].init(&m_allocator, threadPool, genData);
+        m_generators[i].init(threadPool, genData);
     }
+    m_accessor.init(allocator);
 }
 
 void ChunkGrid::addChunk(Chunk* chunk) {
@@ -73,7 +75,7 @@ void ChunkGrid::removeChunk(Chunk* chunk, int index) {
     m_allocator.free(chunk);
 }
 
-Chunk* ChunkGrid::getChunk(const f64v3& position) {
+ChunkHandle ChunkGrid::getChunk(const f64v3& position) {
 
     i32v3 chPos(fastFloor(position.x / (f64)CHUNK_WIDTH),
                 fastFloor(position.y / (f64)CHUNK_WIDTH),
@@ -84,13 +86,13 @@ Chunk* ChunkGrid::getChunk(const f64v3& position) {
     return it->second;
 }
 
-Chunk* ChunkGrid::getChunk(const i32v3& chunkPos) {
+ChunkHandle ChunkGrid::getChunk(const i32v3& chunkPos) {
     auto it = m_chunkMap.find(chunkPos);
     if (it == m_chunkMap.end()) return nullptr;
     return it->second;
 }
 
-const Chunk* ChunkGrid::getChunk(const i32v3& chunkPos) const {
+const ChunkHandle ChunkGrid::getChunk(const i32v3& chunkPos) const {
     auto it = m_chunkMap.find(chunkPos);
     if (it == m_chunkMap.end()) return nullptr;
     return it->second;

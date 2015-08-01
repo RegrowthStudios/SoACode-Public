@@ -872,6 +872,9 @@
     <ClInclude Include="ChunkHandle.h">
       <Filter>SOA Files\Voxel\Access</Filter>
     </ClInclude>
+    <ClInclude Include="ChunkQuery.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
