@@ -31,33 +31,24 @@ ChunkHandle ChunkAccessor::acquire(ChunkID id) {
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     // If it's dead, we want to make it come to life
 REVIVAL:
-    switch (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_DEAD)) {
+    switch (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE)) {
     case HANDLE_STATE_BIRTHING:
-ACQUIRE:
+    case HANDLE_STATE_ALIVE:
+ACQUIRE :
         // We can safely increment here
         InterlockedIncrement(&chunk->m_handleRefCount);
         // Make this alive
         InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ALIVE, HANDLE_STATE_BIRTHING);
         return chunk;
-    case HANDLE_STATE_ALIVE:
-    { // Make sure that this is kept alive
-        ui32 state = chunk->m_handleState;
-        while ((state = InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ALIVE)) != HANDLE_STATE_BIRTHING) {
-            // Push. Puuuuusssshhh. PUUUUSHHHHH!!!!!!!
-            continue;
-        }
-        goto ACQUIRE;
-    }
     case HANDLE_STATE_ZOMBIE:
-        // Someone is trying to kill this chunk, don't let them
-    {
+    { // Someone is trying to kill this chunk, don't let them
         std::unique_lock<std::mutex>(chunk->mutex);
-        ui32 state = chunk->m_handleState;
-        while ((state = InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE)) != HANDLE_STATE_BIRTHING) {
-            // Push. Puuuuusssshhh. PUUUUSHHHHH!!!!!!!
-            continue;
+        if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE) != HANDLE_STATE_DEAD) {
+            goto ACQUIRE;
+        } else {
+            std::this_thread::yield();
+            goto REVIVAL;
         }
-        goto ACQUIRE;
     }
     case HANDLE_STATE_DEAD:
         // It's dead, it must be revived
@@ -72,9 +63,9 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
     ui32 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
     if (currentCount == 0) {
         // If the chunk is alive, set it to zombie mode. Otherwise, it's being birthed or already dead.
-        if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ZOMBIE, HANDLE_STATE_ALIVE) == HANDLE_STATE_ZOMBIE) {
+        if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ZOMBIE, HANDLE_STATE_ALIVE) == HANDLE_STATE_ALIVE) {
             // Now that it's a zombie, we kill it.
-            if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_DEAD, HANDLE_STATE_ZOMBIE) == HANDLE_STATE_DEAD) {
+            if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_DEAD, HANDLE_STATE_ZOMBIE) == HANDLE_STATE_ZOMBIE) {
                 // Highlander... there can only be one... killer of chunks
                 std::unique_lock<std::mutex> chunkLock(chunk->mutex);
                 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
