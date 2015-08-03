@@ -90,9 +90,11 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     if (it == m_chunkLookup.end()) {
         wasOld = false;
         ChunkHandle& rv = m_chunkLookup[id];
+        rv.m_chunk = m_allocator->alloc();
+        rv->m_id = id;
+        rv->accessor = this;
         rv->m_handleState = HANDLE_STATE_ALIVE;
         rv->m_handleRefCount = 1;
-        rv.m_chunk = m_allocator->alloc();
         return rv;
     } else {
         wasOld = true;
