@@ -5,7 +5,7 @@
 #include "ChunkGenerator.h"
 
 void GenerateTask::execute(WorkerData* workerData) {
-    Chunk* chunk = query->getChunk();
+    Chunk* chunk = query->chunk;
 
     // Check if this is a heightmap gen
     if (chunk->gridData->isLoading) {
@@ -28,7 +28,7 @@ void GenerateTask::execute(WorkerData* workerData) {
         query->m_isFinished = true;
         query->m_cond.notify_one();
         // TODO(Ben): Not true for all gen?
-        query->m_chunk->isAccessible = true;
+        chunk->isAccessible = true;
     }
     chunkGenerator->onQueryFinish(query);
 }

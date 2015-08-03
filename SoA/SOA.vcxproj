@@ -536,6 +536,7 @@ EXIT 0</Command>
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ChunkAccessor.h" />
+    <ClInclude Include="ChunkID.h" />
     <ClInclude Include="ChunkQuery.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />

@@ -34,15 +34,10 @@ public:
               PlanetGenData* genData,
               PagedChunkAllocator* allocator);
 
-    void addChunk(Chunk* chunk);
-
-    void removeChunk(Chunk* chunk, int index);
+    void removeChunk(ChunkHandle chunk, int index);
 
     ChunkHandle getChunk(const f64v3& voxelPos);
-
     ChunkHandle getChunk(const i32v3& chunkPos);
-
-    const ChunkHandle getChunk(const i32v3& chunkPos) const;
 
     // Will generate chunk if it doesn't exist
     void submitQuery(ChunkQuery* query);
@@ -57,8 +52,9 @@ public:
     const std::vector<Chunk*>& getActiveChunks() const { return m_activeChunks; }
 
 private:
-    void connectNeighbors(Chunk* chunk);
-    void disconnectNeighbors(Chunk* chunk);
+    void addChunk(ChunkHandle chunk);
+    void connectNeighbors(Chunk& chunk);
+    void disconnectNeighbors(Chunk& chunk);
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
@@ -67,7 +63,6 @@ private:
 
     std::vector<Chunk*> m_activeChunks;
 
-    std::unordered_map<i32v3, ChunkHandle> m_chunkMap; ///< hashmap of chunks
     // TODO(Ben): Compare to std::map performance
     std::unordered_map<i32v2, ChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
     
@@ -76,8 +71,6 @@ private:
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;
     WorldCubeFace m_face = FACE_NONE;
-
-    static volatile ChunkID m_nextAvailableID;
 };
 
 #endif // ChunkGrid_h__

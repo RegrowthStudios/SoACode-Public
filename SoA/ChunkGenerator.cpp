@@ -3,6 +3,7 @@
 
 #include "ChunkAllocator.h"
 #include "Chunk.h"
+#include "ChunkHandle.h"
 
 void ChunkGenerator::init(vcore::ThreadPool<WorkerData>* threadPool,
                           PlanetGenData* genData) {
@@ -44,58 +45,58 @@ void ChunkGenerator::update() {
     size_t numQueries = m_finishedQueries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
-        Chunk* chunk = q->getChunk();
-        chunk->m_genQueryData.current = nullptr;
+        Chunk& chunk = q->chunk;
+        chunk.m_genQueryData.current = nullptr;
         // Check if it was a heightmap gen
-        if (chunk->gridData->isLoading) {
-            chunk->gridData->isLoaded = true;
-            chunk->gridData->isLoading = false;
+        if (chunk.gridData->isLoading) {
+            chunk.gridData->isLoaded = true;
+            chunk.gridData->isLoading = false;
 
             // Submit all the pending queries on this grid data
-            auto& it = m_pendingQueries.find(chunk->gridData); // TODO(Ben): Should this be shared? ( I don't think it should )
+            auto& it = m_pendingQueries.find(chunk.gridData); // TODO(Ben): Should this be shared? ( I don't think it should )
             for (auto& p : it->second) {
                 submitQuery(p);
             }
             m_pendingQueries.erase(it);
-        } else if (chunk->genLevel == GEN_DONE) {
-            if (q->shouldDelete) delete q;
+        } else if (chunk.genLevel == GEN_DONE) {
             // If the chunk is done generating, we can signal all queries as done.
-            for (auto& q2 : chunk->m_genQueryData.pending) {
+            for (auto& q2 : chunk.m_genQueryData.pending) {
                 q2->m_isFinished = true;
                 q2->m_cond.notify_one();
-                q2->m_chunk->refCount--;
-                q->m_chunk->isAccessible = true;
-                if (q2->shouldDelete) delete q;
+                chunk.isAccessible = true;
+                q2->chunk.release();
+                if (q2->shouldDelete) delete q2;
             }
-            std::vector<ChunkQuery*>().swap(chunk->m_genQueryData.pending);
-            chunk->refCount--;
-        } else {
+            std::vector<ChunkQuery*>().swap(chunk.m_genQueryData.pending);
+            q->chunk.release();
             if (q->shouldDelete) delete q;
+        } else {
             // Otherwise possibly only some queries are done
-            for (size_t i = 0; i < chunk->m_genQueryData.pending.size();) {
-                q = chunk->m_genQueryData.pending[i];
-                if (q->genLevel <= chunk->genLevel) {
-                    q->m_isFinished = true;
-                    q->m_cond.notify_one();
-                    q->m_chunk->refCount--;
-                    q->m_chunk->isAccessible = true;
-                    if (q->shouldDelete) delete q;
+            for (size_t i = 0; i < chunk.m_genQueryData.pending.size();) {
+                auto q2 = chunk.m_genQueryData.pending[i];
+                if (q2->genLevel <= chunk.genLevel) {
+                    q2->m_isFinished = true;
+                    q2->m_cond.notify_one();
+                    chunk.isAccessible = true;
+                    if (q2->shouldDelete) delete q2;
                     // TODO(Ben): Do we care about order?
-                    chunk->m_genQueryData.pending[i] = chunk->m_genQueryData.pending.back();
-                    chunk->m_genQueryData.pending.pop_back();
+                    chunk.m_genQueryData.pending[i] = chunk.m_genQueryData.pending.back();
+                    chunk.m_genQueryData.pending.pop_back();
+                    q2->chunk.release();
                 } else {
                     i++;
                 }
             }
             // Submit a pending query
-            if (chunk->m_genQueryData.pending.size()) {
+            if (chunk.m_genQueryData.pending.size()) {
                 // Submit for generation
-                q = chunk->m_genQueryData.pending.back();
-                chunk->m_genQueryData.pending.pop_back();
-                chunk->m_genQueryData.current = q;
+                q = chunk.m_genQueryData.pending.back();
+                chunk.m_genQueryData.pending.pop_back();
+                chunk.m_genQueryData.current = q;
                 m_threadPool->addTask(&q->genTask);
             }
-            chunk->refCount--;
+            q->chunk.release();
+            if (q->shouldDelete) delete q;
         }
     }
 }

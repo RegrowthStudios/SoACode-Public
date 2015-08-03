@@ -27,6 +27,13 @@ public:
         return *m_chunk;
     }
 
+    operator Chunk*() {
+        return m_chunk;
+    }
+    operator const Chunk*() const {
+        return m_chunk;
+    }
+
     Chunk* operator->() {
         return m_chunk;
     }

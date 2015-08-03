@@ -21,11 +21,11 @@
 #include "PlanetHeightData.h"
 #include "MetaSection.h"
 #include "ChunkGenerator.h"
+#include "ChunkID.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
 class Chunk;
 typedef Chunk* ChunkPtr;
-typedef ui32 ChunkID;
 
 class ChunkGridData {
 public:
@@ -49,9 +49,9 @@ class Chunk {
     friend class ChunkMeshTask;
 public:
     // Initializes the chunk but does not set voxel data
-    void init(ChunkID id, const ChunkPosition3D& pos);
+    void init(const ChunkPosition3D& pos);
     // Initializes the chunk and sets all voxel data to 0
-    void initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
+    void initAndFillEmpty(const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
@@ -101,7 +101,6 @@ public:
     bool isInRange;
     f32 distance2; //< Squared distance
     int numBlocks;
-    volatile int refCount; ///< Only change on main thread
     std::mutex mutex;
 
     ui32 numNeighbors = 0u;
