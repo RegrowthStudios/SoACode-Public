@@ -17,6 +17,7 @@
 
 #include <Vorb/IThreadPoolTask.h>
 
+#include "ChunkHandle.h"
 #include "Constants.h"
 #include "VoxPool.h"
 
@@ -41,14 +42,14 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Initializes the task
-    void init(Chunk* ch, MeshTaskType cType, moodycamel::ConcurrentQueue<Chunk*>* depFlushList, const BlockPack* blockPack, ChunkMeshManager* meshManager);
+    void init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
 
     MeshTaskType type; 
-    Chunk* chunk = nullptr;
+    ChunkHandle chunk;
     ChunkMeshManager* meshManager = nullptr;
     const BlockPack* blockPack = nullptr;
-    moodycamel::ConcurrentQueue<Chunk*>* depFlushList = nullptr; ///< Put finished chunks on here to flush dependencies
 private:
+    void removeMeshDependencies(ChunkHandle chunk);
     void updateLight(VoxelLightEngine* voxelLightEngine);
 };
 

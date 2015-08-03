@@ -20,10 +20,11 @@
 #include "Camera.h"
 #include "MainMenuSystemViewer.h"
 
-#include "ModPathResolver.h"
 #include "BlockPack.h"
-#include "BlockTexturePack.h"
 #include "BlockTextureLoader.h"
+#include "BlockTexturePack.h"
+#include "ChunkAllocator.h"
+#include "ModPathResolver.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
@@ -45,6 +46,8 @@ struct SoaState {
     // TODO(Ben): BAD!
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;
+    // TODO(Ben): Clean up this dumping ground
+    PagedChunkAllocator chunkAllocator;
 
     // TODO(Ben): Commonstate
     DebugRenderer* debugRenderer = nullptr;

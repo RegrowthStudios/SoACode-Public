@@ -327,7 +327,7 @@ void TestConnectedTextureScreen::initInput() {
 
 Chunk* TestConnectedTextureScreen::addChunk(const nString& name) {
     Chunk* chunk = new Chunk;
-    chunk->initAndFillEmpty(0, ChunkPosition3D());
+    chunk->initAndFillEmpty(ChunkPosition3D());
     // TODO(Ben): AOS
     ViewableChunk viewable;
     viewable.chunk = chunk;

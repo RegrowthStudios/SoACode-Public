@@ -4,26 +4,27 @@
 #include "VoxelSpaceConversions.h"
 
 
-void Chunk::init(ChunkID id, const ChunkPosition3D& pos) {
+void Chunk::init(const ChunkPosition3D& pos) {
     memset(neighbors, 0, sizeof(neighbors));  
     numNeighbors = 0u;
     distance2 = FLT_MAX;
     m_chunkPosition = pos;
     m_voxelPosition = VoxelSpaceConversions::chunkToVoxel(m_chunkPosition);
-    refCount = 0;
     m_genQueryData.current = nullptr;
     remeshFlags = 1;
     gridData = nullptr;
     // Maybe do this after its done being used in grid?
     std::vector<ChunkQuery*>().swap(m_genQueryData.pending);
-    m_id = id;
     numBlocks = 0;
     hasCreatedMesh = false;
     accessor = nullptr;
+    m_id.x = pos.pos.x;
+    m_id.y = pos.pos.y;
+    m_id.z = pos.pos.z;
 }
 
-void Chunk::initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
-    init(id, pos);
+void Chunk::initAndFillEmpty(const ChunkPosition3D& pos, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
+    init(pos);
     IntervalTree<ui16>::LNode blockNode;
     IntervalTree<ui16>::LNode tertiaryNode;
     blockNode.set(0, CHUNK_SIZE, 0);

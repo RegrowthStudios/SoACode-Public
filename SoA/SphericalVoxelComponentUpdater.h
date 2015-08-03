@@ -15,6 +15,8 @@
 #ifndef SphericalVoxelComponentUpdater_h__
 #define SphericalVoxelComponentUpdater_h__
 
+#include "ChunkHandle.h"
+
 class Camera;
 class Chunk;
 class FloraTask;
@@ -49,13 +51,11 @@ private:
 
     void tryLoadChunkNeighbor(const VoxelPosition3D& agentPosition, f32 loadDist2, const f64v3& pos);
 
-    void requestChunkMesh(Chunk* chunk);
+    void requestChunkMesh(ChunkHandle chunk);
 
-    void disposeChunk(Chunk* chunk);
+    void disposeChunkMesh(Chunk* chunk);
 
-    bool trySetMeshDependencies(Chunk* chunk);
-
-    void removeMeshDependencies(Chunk* chunk);
+    bool trySetMeshDependencies(ChunkHandle chunk);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

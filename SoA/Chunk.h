@@ -21,11 +21,11 @@
 #include "PlanetHeightData.h"
 #include "MetaSection.h"
 #include "ChunkGenerator.h"
+#include "ChunkID.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
 class Chunk;
 typedef Chunk* ChunkPtr;
-typedef ui32 ChunkID;
 
 class ChunkGridData {
 public:
@@ -47,11 +47,12 @@ class Chunk {
     friend class ChunkGenerator;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
+    friend class SphericalVoxelComponentUpdater;
 public:
     // Initializes the chunk but does not set voxel data
-    void init(ChunkID id, const ChunkPosition3D& pos);
+    void init(const ChunkPosition3D& pos);
     // Initializes the chunk and sets all voxel data to 0
-    void initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
+    void initAndFillEmpty(const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
@@ -90,18 +91,19 @@ public:
     PlanetHeightData* heightData = nullptr;
     MetaFieldInformation meta;
     union {
-        struct {
-            ChunkPtr left, right, bottom, top, back, front;
-        };
-        ChunkPtr neighbors[6];
+        UNIONIZE(ChunkHandle left;
+                 ChunkHandle right;
+                 ChunkHandle bottom;
+                 ChunkHandle top;
+                 ChunkHandle back;
+                 ChunkHandle front);
+        UNIONIZE(ChunkHandle neighbors[6]);
     };
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     bool hasCreatedMesh = false;
     bool isDirty;
-    bool isInRange;
     f32 distance2; //< Squared distance
     int numBlocks;
-    volatile int refCount; ///< Only change on main thread
     std::mutex mutex;
 
     ui32 numNeighbors = 0u;
@@ -124,11 +126,12 @@ private:
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
 
+    bool m_inLoadRange = false;
+
     // TODO(Ben): Thread safety
     __declspec(align(4)) volatile ui32 m_handleState = 0;
     __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
 
-  
     ChunkID m_id;
 };
 

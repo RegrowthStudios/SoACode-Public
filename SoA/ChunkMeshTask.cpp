@@ -47,8 +47,8 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     msg.messageID = ChunkMeshMessageID::UPDATE;
     msg.chunkID = chunk->getID();
     // We no longer care about chunk
-    depFlushList->enqueue(chunk);
-    chunk = nullptr;
+    removeMeshDependencies(chunk);
+
     // Create the actual mesh
     msg.data = workerData->chunkMesher->createChunkMeshData(type);
 
@@ -56,13 +56,60 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     meshManager->sendMessage(msg);
 }
 
-void ChunkMeshTask::init(Chunk* ch, MeshTaskType cType, moodycamel::ConcurrentQueue<Chunk*>* depFlushList, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void ChunkMeshTask::init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
     chunk = ch;
     chunk->queuedForMesh = true;
     this->blockPack = blockPack;
     this->meshManager = meshManager;
-    this->depFlushList = depFlushList;
+}
+
+void ChunkMeshTask::removeMeshDependencies(ChunkHandle chunk) {
+#define RELEASE_HANDLE(a) tmp = a; tmp.release();
+
+    ChunkHandle tmp;
+
+    // Some tmp handles for less dereferencing
+    ChunkHandle left = chunk->left;
+    ChunkHandle right = chunk->right;
+    ChunkHandle bottom = chunk->bottom;
+    ChunkHandle top = chunk->top;
+    ChunkHandle back = chunk->back;
+    ChunkHandle front = chunk->front;
+    ChunkHandle leftTop = left->top;
+    ChunkHandle leftBot = left->bottom;
+    ChunkHandle rightTop = right->top;
+    ChunkHandle rightBot = right->bottom;
+
+    // Remove dependencies
+    RELEASE_HANDLE(left->back);
+    RELEASE_HANDLE(left->front);
+    RELEASE_HANDLE(leftTop->back);
+    RELEASE_HANDLE(leftTop->front);
+    RELEASE_HANDLE(leftTop);
+    RELEASE_HANDLE(leftBot->back);
+    RELEASE_HANDLE(leftBot->front);
+    RELEASE_HANDLE(leftBot);
+    RELEASE_HANDLE(right->back);
+    RELEASE_HANDLE(right->front);
+    RELEASE_HANDLE(rightTop->back);
+    RELEASE_HANDLE(rightTop->front);
+    RELEASE_HANDLE(rightTop);
+    RELEASE_HANDLE(rightBot->back);
+    RELEASE_HANDLE(rightBot->front);
+    RELEASE_HANDLE(rightBot);
+    RELEASE_HANDLE(top->back);
+    RELEASE_HANDLE(top->front);
+    RELEASE_HANDLE(bottom->back);
+    RELEASE_HANDLE(bottom->front);
+    chunk.release();
+    left.release();
+    right.release();
+    bottom.release();
+    top.release();
+    back.release();
+    front.release();
+#undef RELEASE_HANDLE
 }
 
 // TODO(Ben): uhh

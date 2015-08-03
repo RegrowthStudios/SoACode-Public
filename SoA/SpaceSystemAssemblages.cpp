@@ -240,7 +240,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
                                                                       vecs::ComponentID axisRotationComponent,
                                                                       vecs::ComponentID namePositionComponent,
                                                                       WorldCubeFace worldFace,
-                                                                      const SoaState* soaState) {
+                                                                      SoaState* soaState) {
 
     vecs::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
     if (svCmpId == 0) {
@@ -264,14 +264,12 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.blockPack = &soaState->blocks;
 
     svcmp.threadPool = soaState->threadPool;
-    
-    svcmp.meshDepsFlushList = new moodycamel::ConcurrentQueue<Chunk*>();
 
     svcmp.chunkIo->beginThread();
 
     svcmp.chunkGrids = new ChunkGrid[6];
     for (int i = 0; i < 6; i++) {
-        svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.threadPool, 1, ftcmp.planetGenData);
+        svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.threadPool, 1, ftcmp.planetGenData, &soaState->chunkAllocator);
     }
 
     svcmp.planetGenData = ftcmp.planetGenData;

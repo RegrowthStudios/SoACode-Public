@@ -14,17 +14,27 @@
 
 #ifndef ChunkHandle_h__
 
+class Chunk;
+
 class ChunkHandle {
     friend class ChunkAccessor;
 public:
     ChunkHandle acquire();
     void release();
+    bool isAquired() const { return m_chunk != nullptr; }
 
     operator Chunk&() {
         return *m_chunk;
     }
     operator const Chunk&() const {
         return *m_chunk;
+    }
+
+    operator Chunk*() {
+        return m_chunk;
+    }
+    operator const Chunk*() const {
+        return m_chunk;
     }
 
     Chunk* operator->() {
@@ -34,7 +44,7 @@ public:
         return m_chunk;
     }
 private:
-    Chunk* m_chunk;
+    Chunk* m_chunk = nullptr;
 };
 
 #endif // ChunkHandle_h__
