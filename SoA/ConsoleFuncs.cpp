@@ -7,6 +7,7 @@
 #include "SoAState.h"
 #include "SoaController.h"
 #include "SoaEngine.h"
+#include "ConsoleTests.h"
 
 void runScript(vscript::Environment* env, const cString file) {
     env->load(file);
@@ -89,4 +90,15 @@ void registerFuncs(vscript::Environment& env) {
     env.addCRDelegate("startGame", makeRDelegate(startGame));
     env.addCDelegate("stopGame", makeDelegate(stopGame));
     env.addCDelegate("setStartingPlanet", makeDelegate(setStartingPlanet));
+
+    /************************************************************************/
+    /* Test methods                                                         */
+    /************************************************************************/
+    env.setNamespaces("CAS");
+    env.addCRDelegate("create", makeRDelegate(createCASData));
+    env.addCDelegate("run", makeDelegate(runCAS));
+    env.addCDelegate("free", makeDelegate(freeCAS));
+
+
+    env.setNamespaces();
 }

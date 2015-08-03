@@ -536,6 +536,7 @@ EXIT 0</Command>
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="ChunkAccessor.h" />
+    <ClInclude Include="ConsoleTests.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
@@ -784,6 +785,7 @@ EXIT 0</Command>
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="ConsoleFuncs.cpp" />
     <ClCompile Include="ConsoleMain.cpp" />
+    <ClCompile Include="ConsoleTests.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />

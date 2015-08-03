@@ -872,6 +872,9 @@
     <ClInclude Include="ChunkHandle.h">
       <Filter>SOA Files\Voxel\Access</Filter>
     </ClInclude>
+    <ClInclude Include="ConsoleTests.h">
+      <Filter>SOA Files\Console</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1437,6 +1440,9 @@
     </ClCompile>
     <ClCompile Include="ChunkAccessor.cpp">
       <Filter>SOA Files\Voxel\Access</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleTests.cpp">
+      <Filter>SOA Files\Console</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
