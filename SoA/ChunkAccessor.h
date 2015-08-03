@@ -30,7 +30,7 @@ private:
     void release(ChunkHandle& chunk);
 
     ChunkHandle safeAdd(ChunkID id, bool& wasOld);
-    void safeRemove(ChunkID id);
+    void safeRemove(ChunkHandle& chunk);
 
     std::mutex m_lckLookup;
     std::unordered_map<ChunkID, ChunkHandle> m_chunkLookup;
