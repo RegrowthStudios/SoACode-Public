@@ -31,6 +31,7 @@ class BlockPack;
 
 enum class MeshTaskType { DEFAULT, LIQUID };
 
+#define NUM_NEIGHBOR_HANDLES 26
 #define CHUNK_MESH_TASK_ID 0
 
 // Represents A Mesh Creation Task
@@ -48,8 +49,8 @@ public:
     ChunkHandle chunk;
     ChunkMeshManager* meshManager = nullptr;
     const BlockPack* blockPack = nullptr;
+    ChunkHandle neighborHandles[NUM_NEIGHBOR_HANDLES];
 private:
-    void removeMeshDependencies(ChunkHandle chunk);
     void updateLight(VoxelLightEngine* voxelLightEngine);
 };
 

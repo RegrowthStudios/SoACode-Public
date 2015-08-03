@@ -148,15 +148,13 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(ChunkHandle chunk) {
         return;
     }
 
-    if (/*chunk->inFrustum && */!chunk->queuedForMesh && trySetMeshDependencies(chunk)) {
+    if (/*chunk->inFrustum && */!chunk->queuedForMesh) {
+        ChunkMeshTask* meshTask = trySetMeshDependencies(chunk);
 
-        ChunkMeshTask* newRenderTask = new ChunkMeshTask;
-
-        newRenderTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
-
-        m_cmp->threadPool->addTask(newRenderTask);
-
-        chunk->remeshFlags = 0;
+        if (meshTask) {
+            m_cmp->threadPool->addTask(meshTask);
+            chunk->remeshFlags = 0;
+        }
     }
 }
 
@@ -171,7 +169,7 @@ void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
     }
 }
 
-bool SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
+ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
 
     ChunkHandle left = chunk->left;
     ChunkHandle right = chunk->right;
@@ -183,69 +181,73 @@ bool SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
     //// Check that neighbors are loaded
     if (!left->isAccessible || !right->isAccessible ||
         !front->isAccessible || !back->isAccessible ||
-        !top->isAccessible || !bottom->isAccessible) return false;
+        !top->isAccessible || !bottom->isAccessible) return nullptr;
     
     // Left half
-    if (!left->back.isAquired() || !left->back->isAccessible) return false;
-    if (!left->front.isAquired() || !left->front->isAccessible) return false;
+    if (!left->back.isAquired() || !left->back->isAccessible) return nullptr;
+    if (!left->front.isAquired() || !left->front->isAccessible) return nullptr;
 
     ChunkHandle leftTop = left->top;
     ChunkHandle leftBot = left->bottom;
-    if (!leftTop.isAquired() || !leftTop->isAccessible) return false;
-    if (!leftBot.isAquired() || !leftBot->isAccessible) return false;
-    if (!leftTop->back.isAquired() || !leftTop->back->isAccessible) return false;
-    if (!leftTop->front.isAquired() || !leftTop->front->isAccessible) return false;
-    if (!leftBot->back.isAquired() || !leftBot->back->isAccessible) return false;
-    if (!leftBot->front.isAquired() || !leftBot->front->isAccessible) return false;
+    if (!leftTop.isAquired() || !leftTop->isAccessible) return nullptr;
+    if (!leftBot.isAquired() || !leftBot->isAccessible) return nullptr;
+    if (!leftTop->back.isAquired() || !leftTop->back->isAccessible) return nullptr;
+    if (!leftTop->front.isAquired() || !leftTop->front->isAccessible) return nullptr;
+    if (!leftBot->back.isAquired() || !leftBot->back->isAccessible) return nullptr;
+    if (!leftBot->front.isAquired() || !leftBot->front->isAccessible) return nullptr;
 
     // right half
-    if (!right->back.isAquired() || !right->back->isAccessible) return false;
-    if (!right->front.isAquired() || !right->front->isAccessible) return false;
+    if (!right->back.isAquired() || !right->back->isAccessible) return nullptr;
+    if (!right->front.isAquired() || !right->front->isAccessible) return nullptr;
 
     ChunkHandle rightTop = right->top;
     ChunkHandle rightBot = right->bottom;
-    if (!rightTop.isAquired() || !rightTop->isAccessible) return false;
-    if (!rightBot.isAquired() || !rightBot->isAccessible) return false;
-    if (!rightTop->back.isAquired() || !rightTop->back->isAccessible) return false;
-    if (!rightTop->front.isAquired() || !rightTop->front->isAccessible) return false;
-    if (!rightBot->back.isAquired() || !rightBot->back->isAccessible) return false;
-    if (!rightBot->front.isAquired() || !rightBot->front->isAccessible) return false;
+    if (!rightTop.isAquired() || !rightTop->isAccessible) return nullptr;
+    if (!rightBot.isAquired() || !rightBot->isAccessible) return nullptr;
+    if (!rightTop->back.isAquired() || !rightTop->back->isAccessible) return nullptr;
+    if (!rightTop->front.isAquired() || !rightTop->front->isAccessible) return nullptr;
+    if (!rightBot->back.isAquired() || !rightBot->back->isAccessible) return nullptr;
+    if (!rightBot->front.isAquired() || !rightBot->front->isAccessible) return nullptr;
 
-    if (!top->back.isAquired() || !top->back->isAccessible) return false;
-    if (!top->front.isAquired() || !top->front->isAccessible) return false;
+    if (!top->back.isAquired() || !top->back->isAccessible) return nullptr;
+    if (!top->front.isAquired() || !top->front->isAccessible) return nullptr;
 
-    if (!bottom->back.isAquired() || !bottom->back->isAccessible) return false;
-    if (!bottom->front.isAquired() || !bottom->front->isAccessible) return false;
+    if (!bottom->back.isAquired() || !bottom->back->isAccessible) return nullptr;
+    if (!bottom->front.isAquired() || !bottom->front->isAccessible) return nullptr;
+
+    // TODO(Ben): Recycler
+    ChunkMeshTask* meshTask = new ChunkMeshTask;
+    meshTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
     // Set dependencies
-    chunk.acquire();
-    left.acquire();
-    right.acquire();
-    chunk->front.acquire();
-    chunk->back.acquire();
-    chunk->top.acquire();
-    chunk->bottom.acquire();
-    left->back.acquire();
-    left->front.acquire();
-    leftTop.acquire();
-    leftBot.acquire();
-    leftTop->back.acquire();
-    leftTop->front.acquire();
-    leftBot->back.acquire();
-    leftBot->front.acquire();
-    right->back.acquire();
-    right->front.acquire();
-    rightTop.acquire();
-    rightBot.acquire();
-    rightTop->back.acquire();
-    rightTop->front.acquire();
-    rightBot->back.acquire();
-    rightBot->front.acquire();
-    top->back.acquire();
-    top->front.acquire();
-    bottom->back.acquire();
-    bottom->front.acquire();
+    meshTask->chunk.acquire();
+    meshTask->neighborHandles[0] = left.acquire();
+    meshTask->neighborHandles[1] = right.acquire();
+    meshTask->neighborHandles[2] = chunk->front.acquire();
+    meshTask->neighborHandles[3] = chunk->back.acquire();
+    meshTask->neighborHandles[4] = chunk->top.acquire();
+    meshTask->neighborHandles[5] = chunk->bottom.acquire();
+    meshTask->neighborHandles[6] = left->back.acquire();
+    meshTask->neighborHandles[7] = left->front.acquire();
+    meshTask->neighborHandles[8] = leftTop.acquire();
+    meshTask->neighborHandles[9] = leftBot.acquire();
+    meshTask->neighborHandles[10] = leftTop->back.acquire();
+    meshTask->neighborHandles[11] = leftTop->front.acquire();
+    meshTask->neighborHandles[12] = leftBot->back.acquire();
+    meshTask->neighborHandles[13] = leftBot->front.acquire();
+    meshTask->neighborHandles[14] = right->back.acquire();
+    meshTask->neighborHandles[15] = right->front.acquire();
+    meshTask->neighborHandles[16] = rightTop.acquire();
+    meshTask->neighborHandles[17] = rightBot.acquire();
+    meshTask->neighborHandles[18] = rightTop->back.acquire();
+    meshTask->neighborHandles[19] = rightTop->front.acquire();
+    meshTask->neighborHandles[20] = rightBot->back.acquire();
+    meshTask->neighborHandles[21] = rightBot->front.acquire();
+    meshTask->neighborHandles[22] = top->back.acquire();
+    meshTask->neighborHandles[23] = top->front.acquire();
+    meshTask->neighborHandles[24] = bottom->back.acquire();
+    meshTask->neighborHandles[25] = bottom->front.acquire();
 
-    return true;
+    return meshTask;
 }
 
