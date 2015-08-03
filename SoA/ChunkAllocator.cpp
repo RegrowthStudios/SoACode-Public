@@ -19,6 +19,8 @@ PagedChunkAllocator::~PagedChunkAllocator() {
 
 Chunk* PagedChunkAllocator::alloc() {
     // TODO(Ben): limit
+    std::unique_lock<std::mutex> lock(m_lock);
+
     // Allocate chunk pages if needed
     if (m_freeChunks.empty()) {
         ChunkPage* page = new ChunkPage();
@@ -38,5 +40,6 @@ Chunk* PagedChunkAllocator::alloc() {
 
 void PagedChunkAllocator::free(Chunk* chunk) {
     // TODO(Ben): Deletion if there is a lot?
+    std::unique_lock<std::mutex> lock(m_lock);
     m_freeChunks.push_back(chunk);
 }
