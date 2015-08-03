@@ -18,7 +18,7 @@ struct ChunkAccessSpeedData {
     ChunkHandle* handles;
 };
 
-ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ChunkID maxID) {
+ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64 maxID) {
     ChunkAccessSpeedData* data = new ChunkAccessSpeedData;
 
     data->accessor.init(&data->allocator);

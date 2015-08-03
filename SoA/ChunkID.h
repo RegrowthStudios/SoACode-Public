@@ -22,9 +22,9 @@ struct ChunkID {
     ChunkID(ui64 id) : id(id) {};
     union {
         struct {
-            i32 x : 24;
-            i32 y : 16;
-            i32 z : 24;
+            i64 x : 24;
+            i64 y : 16;
+            i64 z : 24;
         };
         ui64 id;
     };
@@ -39,5 +39,7 @@ struct std::hash<ChunkID> {
         return h(id.id);
     }
 };
+
+static_assert(sizeof(ChunkID) == 8, "ChunkID is not 64 bits");
 
 #endif // ChunkID_h__
