@@ -12,7 +12,7 @@ void SpaceSystemUpdater::init(const SoaState* soaState) {
     m_orbitComponentUpdater.update(soaState->spaceSystem, soaState->time);
 }
 
-void SpaceSystemUpdater::update(const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
+void SpaceSystemUpdater::update(SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos) {
 
     // Get handles
     SpaceSystem* spaceSystem = soaState->spaceSystem;

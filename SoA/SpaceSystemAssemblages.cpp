@@ -264,8 +264,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.blockPack = &soaState->blocks;
 
     svcmp.threadPool = soaState->threadPool;
-    
-    svcmp.meshDepsFlushList = new moodycamel::ConcurrentQueue<Chunk*>();
 
     svcmp.chunkIo->beginThread();
 

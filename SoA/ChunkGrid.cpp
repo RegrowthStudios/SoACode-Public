@@ -20,6 +20,33 @@ void ChunkGrid::init(WorldCubeFace face,
     m_accessor.init(allocator);
 }
 
+void ChunkGrid::addChunk(ChunkHandle chunk) {
+    chunk.acquire();
+
+    const ChunkPosition3D& pos = chunk->getChunkPosition();
+
+    i32v2 gridPos(pos.x, pos.z);
+
+    { // Get grid data
+        // Check and see if the grid data is already allocated here
+        chunk->gridData = getChunkGridData(gridPos);
+        if (chunk->gridData == nullptr) {
+            // If its not allocated, make a new one with a new voxelMapData
+            // TODO(Ben): Cache this
+            chunk->gridData = new ChunkGridData(pos);
+            m_chunkGridDataMap[gridPos] = chunk->gridData;
+        } else {
+            chunk->gridData->refCount++;
+        }
+        chunk->heightData = chunk->gridData->heightData;
+    }
+
+    connectNeighbors(chunk);
+
+    // Add to active list
+    m_activeChunks.push_back(chunk);
+}
+
 void ChunkGrid::removeChunk(ChunkHandle chunk, int index) {
     const ChunkPosition3D& pos = chunk->getChunkPosition();
 
@@ -27,7 +54,7 @@ void ChunkGrid::removeChunk(ChunkHandle chunk, int index) {
     // TODO(Cristian): This needs to be moved
     chunk->gridData->refCount--;
     if (chunk->gridData->refCount == 0) {
-        m_chunkGridDataMap.erase(i32v2(pos.pos.x, pos.pos.z));
+        m_chunkGridDataMap.erase(i32v2(pos.x, pos.z));
         delete chunk->gridData;
         chunk->gridData = nullptr;
         chunk->heightData = nullptr;
@@ -80,19 +107,18 @@ void ChunkGrid::update() {
     size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
-        Chunk* chunk = getChunk(q->chunkPos);
-        if (chunk) {
+        if (q->isFinished()) {
             // Check if we don't need to do any generation
-            if (chunk->genLevel <= q->genLevel) {
+            if (q->chunk->genLevel <= q->genLevel) {
                 q->m_isFinished = true;
                 q->m_cond.notify_one();
+                ChunkHandle chunk = q->chunk;
+                chunk.release();
                 if (q->shouldDelete) delete q;
                 continue;
-            } else {
-                q->m_chunk->refCount++;
             }
-        } else {
-            q->m_chunk = m_allocator.alloc();
+        } else if (!q->chunk->m_genQueryData.current) {
+            // If its not in a query, it needs an init
             ChunkPosition3D pos;
             pos.pos = q->chunkPos;
             pos.face = m_face;
@@ -100,7 +126,7 @@ void ChunkGrid::update() {
             addChunk(q->chunk);
         }
         // TODO(Ben): Handle generator distribution
-        q->genTask.init(q, q->m_chunk->gridData->heightData, &m_generators[0]);
+        q->genTask.init(q, q->chunk->gridData->heightData, &m_generators[0]);
         m_generators[0].submitQuery(q);
     }
 
@@ -108,116 +134,89 @@ void ChunkGrid::update() {
     std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
 }
 
-void ChunkGrid::addChunk(ChunkHandle chunk) {
-    chunk.acquire();
-
-    const ChunkPosition3D& pos = chunk->getChunkPosition();
-    // TODO(Ben): use the () thingy
-    i32v2 gridPos(pos.pos.x, pos.pos.z);
-
-    { // Get grid data
-        // Check and see if the grid data is already allocated here
-        chunk->gridData = getChunkGridData(gridPos);
-        if (chunk->gridData == nullptr) {
-            // If its not allocated, make a new one with a new voxelMapData
-            // TODO(Ben): Cache this
-            chunk->gridData = new ChunkGridData(pos);
-            m_chunkGridDataMap[gridPos] = chunk->gridData;
-        } else {
-            chunk->gridData->refCount++;
-        }
-        chunk->heightData = chunk->gridData->heightData;
-    }
-
-    connectNeighbors(chunk);
-
-    // Add to active list
-    m_activeChunks.push_back(chunk);
-}
-
-void ChunkGrid::connectNeighbors(Chunk& chunk) {
-    const i32v3& pos = chunk.getChunkPosition().pos;
+void ChunkGrid::connectNeighbors(ChunkHandle chunk) {
+    const i32v3& pos = chunk->getChunkPosition().pos;
     { // Left
-        i32v3 newPos(pos.x - 1, pos.y, pos.z);
-        chunk.left = getChunk(newPos);
-        if (chunk.left) {
-            chunk.left->right = &chunk;
-            chunk.left->numNeighbors++;
-            chunk.numNeighbors++;
-        }
+        ChunkID id = chunk->getID();
+        id.x--;
+        chunk->left = m_accessor.acquire(id);
+        chunk->left->right = chunk.acquire();
+        chunk->left->numNeighbors++;
+        chunk->numNeighbors++;
     }
     { // Right
-        i32v3 newPos(pos.x + 1, pos.y, pos.z);
-        chunk.right = getChunk(newPos);
-        if (chunk.right) {
-            chunk.right->left = &chunk;
-            chunk.right->numNeighbors++;
-            chunk.numNeighbors++;
-        }
+        ChunkID id = chunk->getID();
+        id.x++;
+        chunk->right = m_accessor.acquire(id);
+        chunk->right->left = chunk.acquire();
+        chunk->right->numNeighbors++;
+        chunk->numNeighbors++;
     }
     { // Bottom
-        i32v3 newPos(pos.x, pos.y - 1, pos.z);
-        chunk.bottom = getChunk(newPos);
-        if (chunk.bottom) {
-            chunk.bottom->top = &chunk;
-            chunk.bottom->numNeighbors++;
-            chunk.numNeighbors++;
-        }
+        ChunkID id = chunk->getID();
+        id.y--;
+        chunk->bottom = m_accessor.acquire(id);
+        chunk->bottom->top = chunk.acquire();
+        chunk->bottom->numNeighbors++;
+        chunk->numNeighbors++;
     }
     { // Top
-        i32v3 newPos(pos.x, pos.y + 1, pos.z);
-        chunk.top = getChunk(newPos);
-        if (chunk.top) {
-            chunk.top->bottom = &chunk;
-            chunk.top->numNeighbors++;
-            chunk.numNeighbors++;
-        }
+        ChunkID id = chunk->getID();
+        id.y++;
+        chunk->top = m_accessor.acquire(id);
+        chunk->top->bottom = chunk.acquire();
+        chunk->top->numNeighbors++;
+        chunk->numNeighbors++;
     }
     { // Back
-        i32v3 newPos(pos.x, pos.y, pos.z - 1);
-        chunk.back = getChunk(newPos);
-        if (chunk.back) {
-            chunk.back->front = &chunk;
-            chunk.back->numNeighbors++;
-            chunk.numNeighbors++;
-        }
+        ChunkID id = chunk->getID();
+        id.z--;
+        chunk->back = m_accessor.acquire(id);
+        chunk->back->front = chunk.acquire();
+        chunk->back->numNeighbors++;
+        chunk->numNeighbors++;
     }
     { // Front
-        i32v3 newPos(pos.x, pos.y, pos.z + 1);
-        chunk.front = getChunk(newPos);
-        if (chunk.front) {
-            chunk.front->back = &chunk;
-            chunk.front->numNeighbors++;
-            chunk.numNeighbors++;
-        }
+        ChunkID id = chunk->getID();
+        id.z++;
+        chunk->front = m_accessor.acquire(id);
+        chunk->front->back = chunk.acquire();
+        chunk->front->numNeighbors++;
+        chunk->numNeighbors++;
     } 
 }
 
-void ChunkGrid::disconnectNeighbors(Chunk& chunk) {
-    if (chunk.left) {
-        chunk.left->right = nullptr;
-        chunk.left->numNeighbors--;
+void ChunkGrid::disconnectNeighbors(ChunkHandle chunk) {
+    if (chunk->left.isAquired()) {
+        chunk->left->right.release();
+        chunk->left->numNeighbors--;
+        chunk->left.release();
     }
-    if (chunk.right) {
-        chunk.right->left = nullptr;
-        chunk.right->numNeighbors--;
+    if (chunk->right.isAquired()) {
+        chunk->right->left.release();
+        chunk->right->numNeighbors--;
+        chunk->right.release();
     }
-    if (chunk.bottom) {
-        chunk.bottom->top = nullptr;
-        chunk.bottom->numNeighbors--;
+    if (chunk->bottom.isAquired()) {
+        chunk->bottom->top.release();
+        chunk->bottom->numNeighbors--;
+        chunk->bottom.release();
     }
-    if (chunk.top) {
-        chunk.top->bottom = nullptr;
-        chunk.top->numNeighbors--;
+    if (chunk->top.isAquired()) {
+        chunk->top->bottom.release();
+        chunk->top->numNeighbors--;
+        chunk->top.release();
     }
-    if (chunk.back) {
-        chunk.back->front = nullptr;
-        chunk.back->numNeighbors--;
+    if (chunk->back.isAquired()) {
+        chunk->back->front.release();
+        chunk->back->numNeighbors--;
+        chunk->back.release();
     }
-    if (chunk.front) {
-        chunk.front->back = nullptr;
-        chunk.front->numNeighbors--;
+    if (chunk->front.isAquired()) {
+        chunk->front->back.release();
+        chunk->front->numNeighbors--;
+        chunk->front.release();
     }
-    memset(chunk.neighbors, 0, sizeof(chunk.neighbors));
-    chunk.numNeighbors = 0;
+    
+    chunk->numNeighbors = 0;
 }

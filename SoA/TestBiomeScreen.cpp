@@ -51,7 +51,8 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
     // Init game state
     SoaEngine::initState(m_commonState->state);
-
+    // Init access
+    m_accessor.init(&m_allocator);
     // Init renderer
     m_renderer.init();
 
@@ -288,8 +289,9 @@ void TestBiomeScreen::initChunks() {
         pos.pos.y = gridPosition.y - VERTICAL_CHUNKS / 4;
         pos.pos.z = gridPosition.z - HORIZONTAL_CHUNKS / 2;
         // Init parameters
-        m_chunks[i].chunk = new Chunk;
-        m_chunks[i].chunk->init(i, pos);
+        ChunkID id(pos.x, pos.y, pos.z);
+        m_chunks[i].chunk = m_accessor.acquire(id);
+        m_chunks[i].chunk->init(pos);
         m_chunks[i].gridPosition = gridPosition;
         m_chunks[i].chunk->gridData = &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)];
         m_chunks[i].chunk->heightData = m_chunks[i].chunk->gridData->heightData;
@@ -346,28 +348,29 @@ void TestBiomeScreen::initChunks() {
         for (int z = 0; z < HORIZONTAL_CHUNKS; z++) {
             for (int x = 0; x < HORIZONTAL_CHUNKS; x++) {
                 Chunk* chunk = m_chunks[GET_INDEX(x, y, z)].chunk;
+                // TODO(Ben): Release these too.
                 if (x > 0) {
-                    chunk->left = m_chunks[GET_INDEX(x - 1, y, z)].chunk;
+                    chunk->left = m_chunks[GET_INDEX(x - 1, y, z)].chunk.acquire();
                     chunk->numNeighbors++;
                 }
                 if (x < HORIZONTAL_CHUNKS - 1) {
-                    chunk->right = m_chunks[GET_INDEX(x + 1, y, z)].chunk;
+                    chunk->right = m_chunks[GET_INDEX(x + 1, y, z)].chunk.acquire();
                     chunk->numNeighbors++;
                 }
                 if (y > 0) {
-                    chunk->bottom = m_chunks[GET_INDEX(x, y - 1, z)].chunk;
+                    chunk->bottom = m_chunks[GET_INDEX(x, y - 1, z)].chunk.acquire();
                     chunk->numNeighbors++;
                 }
                 if (y < VERTICAL_CHUNKS - 1) {
-                    chunk->top = m_chunks[GET_INDEX(x, y + 1, z)].chunk;
+                    chunk->top = m_chunks[GET_INDEX(x, y + 1, z)].chunk.acquire();
                     chunk->numNeighbors++;
                 }
                 if (z > 0) {
-                    chunk->back = m_chunks[GET_INDEX(x, y, z - 1)].chunk;
+                    chunk->back = m_chunks[GET_INDEX(x, y, z - 1)].chunk.acquire();
                     chunk->numNeighbors++;
                 }
                 if (z < HORIZONTAL_CHUNKS - 1) {
-                    chunk->front = m_chunks[GET_INDEX(x, y, z + 1)].chunk;
+                    chunk->front = m_chunks[GET_INDEX(x, y, z + 1)].chunk.acquire();
                     chunk->numNeighbors++;
                 }
             }
@@ -380,7 +383,7 @@ void TestBiomeScreen::initInput() {
     m_mouseButtons[1] = false;
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
-            m_camera.rotateFromMouse(-e.dx, -e.dy, 0.1f);
+            m_camera.rotateFromMouse((f32)-e.dx, (f32)-e.dy, 0.1f);
         }
         if (m_mouseButtons[1]) {
             m_camera.rollFromMouse((f32)e.dx, 0.1f);
@@ -456,8 +459,8 @@ void TestBiomeScreen::initInput() {
                 m_chunkGenerator.init(m_genData);
 
                 for (auto& cv : m_chunks) {
-                    delete cv.chunk;
                     m_mesher.freeChunkMesh(cv.chunkMesh);
+                    cv.chunk.release();
                 }
 
                 initHeightData();

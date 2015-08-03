@@ -11,7 +11,7 @@
 #include "PlanetGenLoader.h"
 #include "soaUtils.h"
 
-void SphericalTerrainComponentUpdater::update(const SoaState* state, const f64v3& cameraPos) {
+void SphericalTerrainComponentUpdater::update(SoaState* state, const f64v3& cameraPos) {
 
     SpaceSystem* spaceSystem = state->spaceSystem;
     for (auto& it : spaceSystem->sphericalTerrain) {
@@ -109,7 +109,7 @@ void SphericalTerrainComponentUpdater::initPatches(SphericalTerrainComponent& cm
     }
 }
 
-void SphericalTerrainComponentUpdater::updateVoxelComponentLogic(const SoaState* state, vecs::EntityID eid, SphericalTerrainComponent& stCmp) {
+void SphericalTerrainComponentUpdater::updateVoxelComponentLogic(SoaState* state, vecs::EntityID eid, SphericalTerrainComponent& stCmp) {
     SpaceSystem* spaceSystem = state->spaceSystem;
     // Handle voxel component
     if (stCmp.needsVoxelComponent) {

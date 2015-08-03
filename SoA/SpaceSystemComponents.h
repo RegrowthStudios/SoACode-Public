@@ -164,8 +164,6 @@ struct SphericalVoxelComponent {
     vecs::ComponentID namePositionComponent = 0;
     vecs::ComponentID axisRotationComponent = 0;
 
-    moodycamel::ConcurrentQueue<Chunk*>* meshDepsFlushList = nullptr;
-
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;
 

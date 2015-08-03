@@ -30,6 +30,7 @@ class ChunkGridData;
 struct ChunkGenQueryData {
     friend class ChunkGenerator;
     friend class Chunk;
+    friend class ChunkGrid;
 private:
     ChunkQuery* current = nullptr;
     std::vector<ChunkQuery*> pending;

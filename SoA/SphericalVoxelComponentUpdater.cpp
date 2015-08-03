@@ -55,15 +55,6 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
 
     updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition);
 
-    // Clear mesh dependencies
-#define MAX_MESH_DEPS_CHUNKS 200
-    Chunk* buffer[MAX_MESH_DEPS_CHUNKS];
-    if (size_t numFlushed = m_cmp->meshDepsFlushList->try_dequeue_bulk(buffer, MAX_MESH_DEPS_CHUNKS)) {
-        for (size_t i = 0; i < numFlushed; i++) {
-            removeMeshDependencies(buffer[i]);
-        }
-    }
-
     // TODO(Ben): This doesn't scale for multiple agents
     m_cmp->chunkGrids[agentPosition.face].update();
 }
@@ -75,9 +66,9 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
 
     // Loop through all currently active chunks
     // TODO(Ben): Chunk should only become active after load?
-    const std::vector<Chunk*>& chunks = grid.getActiveChunks();
-    for (int i = (int)chunks.size() - 1; i >= 0; i--) {
-        Chunk* chunk = chunks[i];
+    const std::vector<ChunkHandle>& chunks = grid.getActiveChunks();
+    for (int i = (int)chunks.size() - 1; i >= 0; i) {
+        ChunkHandle chunk = chunks[i];
         // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
         chunk->distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
 
@@ -88,19 +79,25 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
 
         // Check for unload
         if (chunk->distance2 > renderDist2) {
-            if (chunk->refCount == 0) {
+            if (chunk->m_inLoadRange) {
                 // Unload the chunk
-                disposeChunk(chunk);
+                disposeChunkMesh(chunk);
+                chunk->m_inLoadRange = false;
                 grid.removeChunk(chunk, i);
             }
         } else {
             // Check for neighbor loading TODO(Ben): Don't keep redundantly checking edges? Distance threshold?
-            if (!chunk->hasAllNeighbors()){
-                if (chunk->genLevel > GEN_TERRAIN) {
-                    tryLoadChunkNeighbors(chunk, agentPosition, renderDist2);
+            if (chunk->m_inLoadRange) {
+                if (!chunk->hasAllNeighbors()) {
+                    if (chunk->genLevel > GEN_TERRAIN) {
+                        tryLoadChunkNeighbors(chunk, agentPosition, renderDist2);
+                    }
+                } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
+                    requestChunkMesh(chunk);
                 }
-            } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
-                requestChunkMesh(chunk);
+            } else {
+                chunk->m_inLoadRange = true;
+                grid.addChunk(chunk);
             }
         }
     }
@@ -108,31 +105,30 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
 
 void SphericalVoxelComponentUpdater::tryLoadChunkNeighbors(Chunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2) {
     const f64v3& pos = chunk->getVoxelPosition().pos;
-    if (!chunk->left) {
+    if (!chunk->left.isAquired()) {
         f64v3 newPos(pos.x - (f64)CHUNK_WIDTH, pos.y, pos.z);
         tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
     }
-    if (!chunk->right) {
+    if (!chunk->right.isAquired()) {
         f64v3 newPos(pos.x + (f64)CHUNK_WIDTH, pos.y, pos.z);
         tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
     }
-    if (!chunk->bottom) {
+    if (!chunk->bottom.isAquired()) {
         f64v3 newPos(pos.x, pos.y - (f64)CHUNK_WIDTH, pos.z);
         tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
     }
-    if (!chunk->top) {
+    if (!chunk->top.isAquired()) {
         f64v3 newPos(pos.x, pos.y + (f64)CHUNK_WIDTH, pos.z);
         tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
     }
-    if (!chunk->back) {
+    if (!chunk->back.isAquired()) {
         f64v3 newPos(pos.x, pos.y, pos.z - (f64)CHUNK_WIDTH);
         tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
     }
-    if (!chunk->front) {
+    if (!chunk->front.isAquired()) {
         f64v3 newPos(pos.x, pos.y, pos.z + (f64)CHUNK_WIDTH);
         tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
     }
-    
 }
 
 void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(const VoxelPosition3D& agentPosition, f32 loadDist2, const f64v3& pos) {
@@ -141,10 +137,11 @@ void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(const VoxelPosition3D&
         ChunkQuery* q = new ChunkQuery;
         q->set(VoxelSpaceConversions::voxelToChunk(pos), GEN_DONE, true);
         m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
+        q->chunk->m_inLoadRange = true;
     }
 }
 
-void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
+void SphericalVoxelComponentUpdater::requestChunkMesh(ChunkHandle chunk) {
     // If it has no solid blocks, don't mesh it
     if (chunk->numBlocks <= 0) {
         chunk->remeshFlags = 0;
@@ -155,16 +152,15 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(Chunk* chunk) {
 
         ChunkMeshTask* newRenderTask = new ChunkMeshTask;
 
-        newRenderTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->meshDepsFlushList, m_cmp->blockPack, m_cmp->chunkMeshManager);
+        newRenderTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
-        chunk->refCount++;
         m_cmp->threadPool->addTask(newRenderTask);
 
         chunk->remeshFlags = 0;
     }
 }
 
-void SphericalVoxelComponentUpdater::disposeChunk(Chunk* chunk) {
+void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
     // delete the mesh!
     if (chunk->hasCreatedMesh) {
         ChunkMeshMessage msg;
@@ -175,14 +171,14 @@ void SphericalVoxelComponentUpdater::disposeChunk(Chunk* chunk) {
     }
 }
 
-bool SphericalVoxelComponentUpdater::trySetMeshDependencies(Chunk* chunk) {
+bool SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* bottom = chunk->bottom;
-    Chunk* top = chunk->top;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
+    ChunkHandle left = chunk->left;
+    ChunkHandle right = chunk->right;
+    ChunkHandle bottom = chunk->bottom;
+    ChunkHandle top = chunk->top;
+    ChunkHandle back = chunk->back;
+    ChunkHandle front = chunk->front;
 
     //// Check that neighbors are loaded
     if (!left->isAccessible || !right->isAccessible ||
@@ -190,120 +186,66 @@ bool SphericalVoxelComponentUpdater::trySetMeshDependencies(Chunk* chunk) {
         !top->isAccessible || !bottom->isAccessible) return false;
     
     // Left half
-    if (!left->back || !left->back->isAccessible) return false;
-    if (!left->front || !left->front->isAccessible) return false;
+    if (!left->back.isAquired() || !left->back->isAccessible) return false;
+    if (!left->front.isAquired() || !left->front->isAccessible) return false;
 
-    Chunk* leftTop = left->top;
-    Chunk* leftBot = left->bottom;
-    if (!leftTop || !leftTop->isAccessible) return false;
-    if (!leftBot || !leftBot->isAccessible) return false;
-    if (!leftTop->back || !leftTop->back->isAccessible) return false;
-    if (!leftTop->front || !leftTop->front->isAccessible) return false;
-    if (!leftBot->back || !leftBot->back->isAccessible) return false;
-    if (!leftBot->front || !leftBot->front->isAccessible) return false;
+    ChunkHandle leftTop = left->top;
+    ChunkHandle leftBot = left->bottom;
+    if (!leftTop.isAquired() || !leftTop->isAccessible) return false;
+    if (!leftBot.isAquired() || !leftBot->isAccessible) return false;
+    if (!leftTop->back.isAquired() || !leftTop->back->isAccessible) return false;
+    if (!leftTop->front.isAquired() || !leftTop->front->isAccessible) return false;
+    if (!leftBot->back.isAquired() || !leftBot->back->isAccessible) return false;
+    if (!leftBot->front.isAquired() || !leftBot->front->isAccessible) return false;
 
     // right half
-    if (!right->back || !right->back->isAccessible) return false;
-    if (!right->front || !right->front->isAccessible) return false;
+    if (!right->back.isAquired() || !right->back->isAccessible) return false;
+    if (!right->front.isAquired() || !right->front->isAccessible) return false;
 
-    Chunk* rightTop = right->top;
-    Chunk* rightBot = right->bottom;
-    if (!rightTop || !rightTop->isAccessible) return false;
-    if (!rightBot || !rightBot->isAccessible) return false;
-    if (!rightTop->back || !rightTop->back->isAccessible) return false;
-    if (!rightTop->front || !rightTop->front->isAccessible) return false;
-    if (!rightBot->back || !rightBot->back->isAccessible) return false;
-    if (!rightBot->front || !rightBot->front->isAccessible) return false;
+    ChunkHandle rightTop = right->top;
+    ChunkHandle rightBot = right->bottom;
+    if (!rightTop.isAquired() || !rightTop->isAccessible) return false;
+    if (!rightBot.isAquired() || !rightBot->isAccessible) return false;
+    if (!rightTop->back.isAquired() || !rightTop->back->isAccessible) return false;
+    if (!rightTop->front.isAquired() || !rightTop->front->isAccessible) return false;
+    if (!rightBot->back.isAquired() || !rightBot->back->isAccessible) return false;
+    if (!rightBot->front.isAquired() || !rightBot->front->isAccessible) return false;
 
-    if (!top->back || !top->back->isAccessible) return false;
-    if (!top->front || !top->front->isAccessible) return false;
+    if (!top->back.isAquired() || !top->back->isAccessible) return false;
+    if (!top->front.isAquired() || !top->front->isAccessible) return false;
 
-    if (!bottom->back || !bottom->back->isAccessible) return false;
-    if (!bottom->front || !bottom->front->isAccessible) return false;
+    if (!bottom->back.isAquired() || !bottom->back->isAccessible) return false;
+    if (!bottom->front.isAquired() || !bottom->front->isAccessible) return false;
 
     // Set dependencies
-    ++chunk->left->refCount;
-    ++chunk->right->refCount;
-    ++chunk->front->refCount;
-    ++chunk->back->refCount;
-    ++chunk->top->refCount;
-    ++chunk->bottom->refCount;
-
-    ++left->back->refCount;
-    ++left->front->refCount;
-
-    ++leftTop->refCount;
-    ++leftBot->refCount;
-    ++leftTop->back->refCount;
-    ++leftTop->front->refCount;
-    ++leftBot->back->refCount;
-    ++leftBot->front->refCount;
-
-    ++right->back->refCount;
-    ++right->front->refCount;
-
-    ++rightTop->refCount;
-    ++rightBot->refCount;
-    ++rightTop->back->refCount;
-    ++rightTop->front->refCount;
-    ++rightBot->back->refCount;
-    ++rightBot->front->refCount;
-
-    ++top->back->refCount;
-    ++top->front->refCount;
-
-    ++bottom->back->refCount;
-    ++bottom->front->refCount;
+    chunk.acquire();
+    left.acquire();
+    right.acquire();
+    chunk->front.acquire();
+    chunk->back.acquire();
+    chunk->top.acquire();
+    chunk->bottom.acquire();
+    left->back.acquire();
+    left->front.acquire();
+    leftTop.acquire();
+    leftBot.acquire();
+    leftTop->back.acquire();
+    leftTop->front.acquire();
+    leftBot->back.acquire();
+    leftBot->front.acquire();
+    right->back.acquire();
+    right->front.acquire();
+    rightTop.acquire();
+    rightBot.acquire();
+    rightTop->back.acquire();
+    rightTop->front.acquire();
+    rightBot->back.acquire();
+    rightBot->front.acquire();
+    top->back.acquire();
+    top->front.acquire();
+    bottom->back.acquire();
+    bottom->front.acquire();
 
     return true;
 }
 
-void SphericalVoxelComponentUpdater::removeMeshDependencies(Chunk* chunk) {
-
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* bottom = chunk->bottom;
-    Chunk* top = chunk->top;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
-    Chunk* leftTop = left->top;
-    Chunk* leftBot = left->bottom;
-    Chunk* rightTop = right->top;
-    Chunk* rightBot = right->bottom;
-
-    --chunk->refCount;
-
-    // Remove dependencies
-    --chunk->left->refCount;
-    --chunk->right->refCount;
-    --chunk->front->refCount;
-    --chunk->back->refCount;
-    --chunk->top->refCount;
-    --chunk->bottom->refCount;
-
-    --left->back->refCount;
-    --left->front->refCount;
-
-    --leftTop->refCount;
-    --leftBot->refCount;
-    --leftTop->back->refCount;
-    --leftTop->front->refCount;
-    --leftBot->back->refCount;
-    --leftBot->front->refCount;
-
-    --right->back->refCount;
-    --right->front->refCount;
-
-    --rightTop->refCount;
-    --rightBot->refCount;
-    --rightTop->back->refCount;
-    --rightTop->front->refCount;
-    --rightBot->back->refCount;
-    --rightBot->front->refCount;
-
-    --top->back->refCount;
-    --top->front->refCount;
-
-    --bottom->back->refCount;
-    --bottom->front->refCount;
-}

@@ -12,23 +12,23 @@ void ChunkGenerator::init(vcore::ThreadPool<WorkerData>* threadPool,
 }
 
 void ChunkGenerator::submitQuery(ChunkQuery* query) {
-    Chunk* chunk = query->getChunk();
-    if (!chunk->gridData->isLoaded) {
+    Chunk& chunk = query->chunk;
+    if (!chunk.gridData->isLoaded) {
         // If this heightmap isn't already loading, send it
-        if (!chunk->gridData->isLoading) {
+        if (!chunk.gridData->isLoading) {
             // Send heightmap gen query
-            chunk->gridData->isLoading = true;
+            chunk.gridData->isLoading = true;
             m_threadPool->addTask(&query->genTask);
         }
         // Store as a pending query
-        m_pendingQueries[chunk->gridData].push_back(query);
+        m_pendingQueries[chunk.gridData].push_back(query);
     } else {
-        if (chunk->m_genQueryData.current) {
+        if (chunk.m_genQueryData.current) {
             // Only one gen query should be active at a time so just store this one
-            chunk->m_genQueryData.pending.push_back(query);
+            chunk.m_genQueryData.pending.push_back(query);
         } else {
             // Submit for generation
-            chunk->m_genQueryData.current = query;
+            chunk.m_genQueryData.current = query;
             m_threadPool->addTask(&query->genTask);
         }
     }

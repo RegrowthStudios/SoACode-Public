@@ -22,22 +22,40 @@ enum WorldCubeFace {
 };
 
 struct ChunkPosition2D {
-    i32v2 pos = i32v2(0);
+    union {
+        UNIONIZE(i32v2 pos;);
+        UNIONIZE(i32 x;
+                 i32 z);
+    };
     WorldCubeFace face = FACE_TOP;
 };
 
 struct ChunkPosition3D {
-    i32v3 pos = i32v3(0);
+    union {
+        UNIONIZE(i32v3 pos;);
+        UNIONIZE(i32 x;
+                 i32 y;
+                 i32 z);
+    };
     WorldCubeFace face = FACE_TOP;
 };
 
 struct VoxelPosition2D {
-    f64v2 pos = f64v2(0.0);
+    union {
+        UNIONIZE(f64v2 pos;);
+        UNIONIZE(f64 x;
+                 f64 z);
+    };
     WorldCubeFace face = FACE_TOP;
 };
 
 struct VoxelPosition3D {
-    f64v3 pos = f64v3(0.0);
+    union {
+        UNIONIZE(f64v3 pos);
+        UNIONIZE(f64 x;
+                 f64 y;
+                 f64 z);
+    };
     WorldCubeFace face = FACE_TOP;
 };
 
