@@ -15,25 +15,37 @@
 namespace {
     struct ConsolePrinter {
     public:
+        void setColor(ui32 color) {
+            if (m_lastColor != color) {
+                fflush(stdout);
+                fflush(stderr);
+            }
+            m_lastColor = color;
+            SetConsoleTextAttribute(hndConsole, color);
+        }
         void out(Sender, const cString msg) {
-            SetConsoleTextAttribute(hndConsole, SOA_CONSOLE_COLOR_OUTPUT);
+            setColor(SOA_CONSOLE_COLOR_OUTPUT);
             puts(msg);
         }
         void err(Sender, const cString msg) {
-            SetConsoleTextAttribute(hndConsole, SOA_CONSOLE_COLOR_ERROR);
+            setColor(SOA_CONSOLE_COLOR_ERROR);
             puts(msg);
         }
 
         HANDLE hndConsole;
+    private:
+        ui32 m_lastColor = 0;
     };
 }
 
 void consoleMain() {
     // Get console for manipulation
     HANDLE hndConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    ConsolePrinter printer = {};
+    printer.hndConsole = hndConsole;
 
     // Write out that we are using the console version
-    SetConsoleTextAttribute(hndConsole, SOA_CONSOLE_COLOR_HEADER);
+    printer.setColor(SOA_CONSOLE_COLOR_HEADER);
     puts(R"(
      _________________
     /                /
@@ -44,20 +56,18 @@ void consoleMain() {
 ==========================
 )");
 
-    vscript::Environment env;
+    vscript::Environment env = {};
     vscript::REPL repl(&env);
     registerFuncs(env);
 
-    ConsolePrinter printer;
-    printer.hndConsole = hndConsole;
     repl.onStream[VORB_REPL_STREAM_OUT] += makeDelegate(printer, &ConsolePrinter::out);
     repl.onStream[VORB_REPL_STREAM_ERR] += makeDelegate(printer, &ConsolePrinter::err);
     char buf[1024];
     
     while (true) {
-        SetConsoleTextAttribute(hndConsole, SOA_CONSOLE_COLOR_PROMPT);
+        printer.setColor(SOA_CONSOLE_COLOR_PROMPT);
         printf(">>> ");
-        SetConsoleTextAttribute(hndConsole, SOA_CONSOLE_COLOR_MAIN);
+        printer.setColor(SOA_CONSOLE_COLOR_MAIN);
         std::cin.getline(buf, 1024);
         repl.invokeCommand(buf);
     }
