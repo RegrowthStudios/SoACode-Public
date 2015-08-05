@@ -81,6 +81,8 @@ void runCAS(ChunkAccessSpeedData* data) {
 }
 
 void freeCAS(ChunkAccessSpeedData* data) {
+    printf("Chunks Alive: %d\n", data->accessor.getCountAlive());
+    fflush(stdout);
     data->accessor.destroy();
     delete[] data->ids;
     delete[] data->handles;

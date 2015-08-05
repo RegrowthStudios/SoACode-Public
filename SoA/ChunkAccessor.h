@@ -28,6 +28,10 @@ public:
 
     ChunkHandle acquire(ChunkID id);
 
+    size_t getCountAlive() const {
+        return m_chunkLookup.size();
+    }
+
     Event<ChunkHandle> onAdd; ///< Called when a handle is added
     Event<ChunkHandle> onRemove; ///< Called when a handle is removed
 private:
