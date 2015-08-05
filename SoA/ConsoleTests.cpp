@@ -4,6 +4,9 @@
 #include "ChunkAllocator.h"
 #include "ChunkAccessor.h"
 
+#include <random>
+#include <Vorb/Timing.h>
+
 struct ChunkAccessSpeedData {
     size_t numThreads;
     std::thread* threads;
@@ -34,14 +37,19 @@ ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64
                 data->cv.wait(lock);
             }
 
+            std::mt19937 rEngine(threadID);
+            std::uniform_int_distribution<int> release(0, 1);
+
             // Begin requesting chunks
             printf("Thread %d starting\n", threadID);
+            PreciseTimer timer;
+            timer.start();
             ChunkID* id = data->ids + (requestCount * threadID);
             ChunkHandle* hndAcquire = data->handles + (requestCount * threadID);
             ChunkHandle* hndRelease = hndAcquire;
             ChunkHandle* hndEnd = hndRelease + requestCount;
             while (hndRelease != hndEnd) {
-                if ((hndAcquire > hndRelease) && (rand() & 0xff) > 127) {
+                if ((hndAcquire > hndRelease) && release(rEngine)) {
                     // Release a handle
                     hndRelease->release();
                     hndRelease++;
@@ -52,7 +60,7 @@ ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64
                     id++;
                 }
             }
-            printf("Thread %d finished\n", threadID);
+            printf("Thread %d finished in %lf ms\n", threadID, timer.stop());
         }).swap(data->threads[threadID]);
         data->threads[threadID].detach();
     }
@@ -79,5 +87,3 @@ void freeCAS(ChunkAccessSpeedData* data) {
     delete[] data->threads;
     delete data;
 }
-
-
