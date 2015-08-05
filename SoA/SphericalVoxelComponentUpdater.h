@@ -56,6 +56,9 @@ private:
     void disposeChunkMesh(Chunk* chunk);
 
     ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
+
+    i32v3 m_lastChunkPos = i32v3(INT_MAX);
+    ChunkHandle m_centerHandle;
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

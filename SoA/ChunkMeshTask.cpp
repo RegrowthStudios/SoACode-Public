@@ -42,7 +42,6 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     // Pre-processing
     workerData->chunkMesher->prepareDataAsync(chunk);
     
-
     ChunkMeshMessage msg;
     msg.messageID = ChunkMeshMessageID::UPDATE;
     msg.chunkID = chunk->getID();

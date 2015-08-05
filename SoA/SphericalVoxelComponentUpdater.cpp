@@ -46,11 +46,13 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
 void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agentPosition) { 
     // Always make a chunk at camera location
     i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition.pos);
-    if (m_cmp->chunkGrids[agentPosition.face].getChunk(chunkPosition) == nullptr) {
+    if (chunkPosition != m_lastChunkPos) {
+        if (m_centerHandle.isAquired()) m_centerHandle.release();
         // TODO(Ben): Minimize new calls
         ChunkQuery* q = new ChunkQuery;
         q->set(chunkPosition, GEN_DONE, true);
         m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
+        m_centerHandle = q->chunk.acquire();
     }
 
     updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition);
@@ -67,7 +69,7 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
     // Loop through all currently active chunks
     // TODO(Ben): Chunk should only become active after load?
     const std::vector<ChunkHandle>& chunks = grid.getActiveChunks();
-    for (int i = (int)chunks.size() - 1; i >= 0; i) {
+    for (int i = (int)chunks.size() - 1; i >= 0; i--) {
         ChunkHandle chunk = chunks[i];
         // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
         chunk->distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
