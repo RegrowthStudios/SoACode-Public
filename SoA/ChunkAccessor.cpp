@@ -54,6 +54,7 @@ ACQUIRE :
         // It's dead, it must be revived
         return acquire(chunk->m_id);
     default:
+        throw new nString("Invalid HANDLE_STATE");
         return chunk;
     }
 }
