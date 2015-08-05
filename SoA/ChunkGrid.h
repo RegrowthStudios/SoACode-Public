@@ -43,7 +43,7 @@ public:
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
-    ChunkGridData* getChunkGridData(const i32v2& gridPos) const;
+    ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
     // Processes chunk queries
     void update();
@@ -65,9 +65,11 @@ private:
     ChunkAccessor m_accessor;
     ChunkGenerator* m_generators = nullptr;
 
+    std::mutex m_lckActiveChunks;
     std::vector<ChunkHandle> m_activeChunks;
 
     // TODO(Ben): Compare to std::map performance
+    std::mutex m_lckGridData;
     std::unordered_map<i32v2, ChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
     
     vcore::IDGenerator<ChunkID> m_idGenerator;

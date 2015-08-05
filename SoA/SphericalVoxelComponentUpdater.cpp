@@ -101,6 +101,7 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
                 q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
                 m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
             } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
+                // TODO(Ben): Get meshing outa here
                 requestChunkMesh(chunk);
             }
         }
@@ -131,7 +132,8 @@ void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
         msg.chunkID = chunk->getID();
         msg.messageID = ChunkMeshMessageID::DESTROY;
         m_cmp->chunkMeshManager->sendMessage(msg);
-        chunk->hasCreatedMesh = true;
+        chunk->hasCreatedMesh = false;
+        chunk->remeshFlags |= 1;
     }
 }
 

@@ -45,7 +45,8 @@ void ChunkGrid::submitQuery(ChunkQuery* query) {
     m_queries.enqueue(query);
 }
 
-ChunkGridData* ChunkGrid::getChunkGridData(const i32v2& gridPos) const {
+ChunkGridData* ChunkGrid::getChunkGridData(const i32v2& gridPos) {
+    std::lock_guard<std::mutex> l(m_lckGridData);
     auto it = m_chunkGridDataMap.find(gridPos);
     if (it == m_chunkGridDataMap.end()) return nullptr;
     return it->second;
@@ -130,40 +131,52 @@ void ChunkGrid::disconnectNeighbors(ChunkHandle chunk) {
 }
 
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
-    // Add to active list
-    chunk->m_activeIndex = m_activeChunks.size();
-    m_activeChunks.push_back(chunk);
+    { // Add to active list
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        chunk->m_activeIndex = m_activeChunks.size();
+        m_activeChunks.push_back(chunk);
+    }
 
     // Init the chunk
     chunk->init(m_face);
 
     i32v2 gridPos = chunk->getChunkPosition();
-    /* Get grid data */
-    // Check and see if the grid data is already allocated here
-    chunk->gridData = getChunkGridData(gridPos);
-    if (chunk->gridData == nullptr) {
-        // If its not allocated, make a new one with a new voxelMapData
-        // TODO(Ben): Cache this
-        chunk->gridData = new ChunkGridData(chunk->getChunkPosition());
-        m_chunkGridDataMap[gridPos] = chunk->gridData;
-    } else {
-        chunk->gridData->refCount++;
+
+    { // Get grid data
+        std::lock_guard<std::mutex> l(m_lckGridData);
+        // Check and see if the grid data is already allocated here
+        auto it = m_chunkGridDataMap.find(gridPos);
+        if (it == m_chunkGridDataMap.end()) {
+            // If its not allocated, make a new one with a new voxelMapData
+            // TODO(Ben): Cache this
+            chunk->gridData = new ChunkGridData(chunk->getChunkPosition());
+            m_chunkGridDataMap[gridPos] = chunk->gridData;
+        } else {
+            chunk->gridData = it->second;
+            chunk->gridData->refCount++;
+        }
     }
     chunk->heightData = chunk->gridData->heightData;
 }
 
 void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle chunk) {
-    // Remove from active list
-    m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();
-    m_activeChunks[chunk->m_activeIndex]->m_activeIndex = chunk->m_activeIndex;
-    m_activeChunks.pop_back();
+    { // Remove from active list
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();
+        m_activeChunks[chunk->m_activeIndex]->m_activeIndex = chunk->m_activeIndex;
+        m_activeChunks.pop_back();
+    }
 
-    // Remove and possibly free grid data
-    chunk->gridData->refCount--;
-    if (chunk->gridData->refCount == 0) {
-        m_chunkGridDataMap.erase(chunk->getChunkPosition());
-        delete chunk->gridData;
-        chunk->gridData = nullptr;
-        chunk->heightData = nullptr;
+    // TODO(Ben): Could be slightly faster with InterlockedDecrement and FSM?
+    { // Remove and possibly free grid data
+        std::unique_lock<std::mutex> l(m_lckGridData);
+        chunk->gridData->refCount--;
+        if (chunk->gridData->refCount == 0) {
+            m_chunkGridDataMap.erase(chunk->getChunkPosition());
+            l.unlock();
+            delete chunk->gridData;
+            chunk->gridData = nullptr;
+            chunk->heightData = nullptr;
+        }
     }
 }
