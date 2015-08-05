@@ -90,9 +90,11 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
         rv->accessor = this;
         rv->m_handleState = HANDLE_STATE_ALIVE;
         rv->m_handleRefCount = 1;
+        onAdd(rv);
         return rv;
     } else {
         wasOld = true;
+        onAdd(it->second);
         return it->second;
     }
 }
@@ -106,5 +108,7 @@ void ChunkAccessor::safeRemove(ChunkHandle& chunk) {
 
     // TODO(Ben): Time based free?
     m_chunkLookup.erase(chunk->m_id);
+    // Fire event before deallocating
+    onRemove(chunk);
     m_allocator->free(chunk.m_chunk);
 }

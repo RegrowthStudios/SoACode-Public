@@ -50,9 +50,10 @@ class Chunk {
     friend class SphericalVoxelComponentUpdater;
 public:
     // Initializes the chunk but does not set voxel data
-    void init(const ChunkPosition3D& pos);
+    // Should be called after ChunkAccessor sets m_id
+    void init(WorldCubeFace face);
     // Initializes the chunk and sets all voxel data to 0
-    void initAndFillEmpty(const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
+    void initAndFillEmpty(WorldCubeFace face, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
@@ -61,7 +62,6 @@ public:
     /************************************************************************/
     const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
     const VoxelPosition3D& getVoxelPosition() const { return m_voxelPosition; }
-    bool hasAllNeighbors() const { return numNeighbors == 6u; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
@@ -100,13 +100,13 @@ public:
         UNIONIZE(ChunkHandle neighbors[6]);
     };
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
     bool hasCreatedMesh = false;
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
     std::mutex mutex;
 
-    ui32 numNeighbors = 0u;
     ui8 remeshFlags;
     volatile bool isAccessible = false;
     volatile bool queuedForMesh = false;
@@ -126,6 +126,7 @@ private:
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
 
+    int m_activeIndex; ///< Position in active list for m_chunkGrid
     bool m_inLoadRange = false;
 
     // TODO(Ben): Thread safety

@@ -327,7 +327,8 @@ void TestConnectedTextureScreen::initInput() {
 
 Chunk* TestConnectedTextureScreen::addChunk(const nString& name) {
     Chunk* chunk = new Chunk;
-    chunk->initAndFillEmpty(ChunkPosition3D());
+    // TODO(Ben): This is wrong now, need accessor
+    chunk->initAndFillEmpty(WorldCubeFace::FACE_TOP);
     // TODO(Ben): AOS
     ViewableChunk viewable;
     viewable.chunk = chunk;

@@ -18,6 +18,8 @@
 #include "Chunk.h"
 #include "ChunkHandle.h"
 
+#include <Vorb/Events.hpp>
+
 class ChunkAccessor {
     friend class ChunkHandle;
 public:
@@ -25,6 +27,9 @@ public:
     void destroy();
 
     ChunkHandle acquire(ChunkID id);
+
+    Event<ChunkHandle> onAdd; ///< Called when a handle is added
+    Event<ChunkHandle> onRemove; ///< Called when a handle is removed
 private:
     ChunkHandle acquire(ChunkHandle& chunk);
     void release(ChunkHandle& chunk);

@@ -47,6 +47,7 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
     // Always make a chunk at camera location
     i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition.pos);
     if (chunkPosition != m_lastChunkPos) {
+        m_lastChunkPos = chunkPosition;
         if (m_centerHandle.isAquired()) m_centerHandle.release();
         // TODO(Ben): Minimize new calls
         ChunkQuery* q = new ChunkQuery;
@@ -82,64 +83,27 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
         // Check for unload
         if (chunk->distance2 > renderDist2) {
             if (chunk->m_inLoadRange) {
-                // Unload the chunk
+                // Dispose the mesh and disconnect neighbors
                 disposeChunkMesh(chunk);
                 chunk->m_inLoadRange = false;
-                grid.removeChunk(chunk, i);
+                grid.disconnectNeighbors(chunk);
             }
         } else {
-            // Check for neighbor loading TODO(Ben): Don't keep redundantly checking edges? Distance threshold?
-            if (chunk->m_inLoadRange) {
-                if (!chunk->hasAllNeighbors()) {
-                    if (chunk->genLevel > GEN_TERRAIN) {
-                        tryLoadChunkNeighbors(chunk, agentPosition, renderDist2);
-                    }
-                } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
-                    requestChunkMesh(chunk);
-                }
-            } else {
+            // Check for connecting neighbors
+            if (!chunk->m_inLoadRange) {
                 chunk->m_inLoadRange = true;
-                grid.addChunk(chunk);
+                grid.connectNeighbors(chunk);
+            }
+            // Check for generation
+            if (chunk->pendingGenLevel != GEN_DONE) {
+                // Submit a generation query
+                ChunkQuery* q = new ChunkQuery;
+                q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
+                m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
+            } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
+                requestChunkMesh(chunk);
             }
         }
-    }
-}
-
-void SphericalVoxelComponentUpdater::tryLoadChunkNeighbors(Chunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2) {
-    const f64v3& pos = chunk->getVoxelPosition().pos;
-    if (!chunk->left.isAquired()) {
-        f64v3 newPos(pos.x - (f64)CHUNK_WIDTH, pos.y, pos.z);
-        tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
-    }
-    if (!chunk->right.isAquired()) {
-        f64v3 newPos(pos.x + (f64)CHUNK_WIDTH, pos.y, pos.z);
-        tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
-    }
-    if (!chunk->bottom.isAquired()) {
-        f64v3 newPos(pos.x, pos.y - (f64)CHUNK_WIDTH, pos.z);
-        tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
-    }
-    if (!chunk->top.isAquired()) {
-        f64v3 newPos(pos.x, pos.y + (f64)CHUNK_WIDTH, pos.z);
-        tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
-    }
-    if (!chunk->back.isAquired()) {
-        f64v3 newPos(pos.x, pos.y, pos.z - (f64)CHUNK_WIDTH);
-        tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
-    }
-    if (!chunk->front.isAquired()) {
-        f64v3 newPos(pos.x, pos.y, pos.z + (f64)CHUNK_WIDTH);
-        tryLoadChunkNeighbor(agentPosition, loadDist2, newPos);
-    }
-}
-
-void SphericalVoxelComponentUpdater::tryLoadChunkNeighbor(const VoxelPosition3D& agentPosition, f32 loadDist2, const f64v3& pos) {
-    f32 dist2 = computeDistance2FromChunk(pos, agentPosition.pos);
-    if (dist2 <= loadDist2) {
-        ChunkQuery* q = new ChunkQuery;
-        q->set(VoxelSpaceConversions::voxelToChunk(pos), GEN_DONE, true);
-        m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
-        q->chunk->m_inLoadRange = true;
     }
 }
 

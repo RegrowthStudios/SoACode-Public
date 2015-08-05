@@ -47,10 +47,6 @@ private:
 
     void updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition);
 
-    void tryLoadChunkNeighbors(Chunk* chunk, const VoxelPosition3D& agentPosition, f32 loadDist2);
-
-    void tryLoadChunkNeighbor(const VoxelPosition3D& agentPosition, f32 loadDist2, const f64v3& pos);
-
     void requestChunkMesh(ChunkHandle chunk);
 
     void disposeChunkMesh(Chunk* chunk);

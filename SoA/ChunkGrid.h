@@ -33,9 +33,7 @@ public:
               ui32 generatorsPerRow,
               PlanetGenData* genData,
               PagedChunkAllocator* allocator);
-
-    void addChunk(ChunkHandle chunk);
-    void removeChunk(ChunkHandle chunk, int index);
+    void dispose();
 
     ChunkHandle getChunk(const f64v3& voxelPos);
     ChunkHandle getChunk(const i32v3& chunkPos);
@@ -50,11 +48,17 @@ public:
     // Processes chunk queries
     void update();
 
+    void connectNeighbors(ChunkHandle chunk);
+    void disconnectNeighbors(ChunkHandle chunk);
+
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 
 private:
-    void connectNeighbors(ChunkHandle chunk);
-    void disconnectNeighbors(ChunkHandle chunk);
+    /************************************************************************/
+    /* Event Handlers                                                       */
+    /************************************************************************/
+    void onAccessorAdd(Sender s, ChunkHandle chunk);
+    void onAccessorRemove(Sender s, ChunkHandle chunk);
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 

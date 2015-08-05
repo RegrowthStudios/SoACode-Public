@@ -291,7 +291,7 @@ void TestBiomeScreen::initChunks() {
         // Init parameters
         ChunkID id(pos.x, pos.y, pos.z);
         m_chunks[i].chunk = m_accessor.acquire(id);
-        m_chunks[i].chunk->init(pos);
+        m_chunks[i].chunk->init(WorldCubeFace::FACE_TOP);
         m_chunks[i].gridPosition = gridPosition;
         m_chunks[i].chunk->gridData = &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)];
         m_chunks[i].chunk->heightData = m_chunks[i].chunk->gridData->heightData;
@@ -351,27 +351,21 @@ void TestBiomeScreen::initChunks() {
                 // TODO(Ben): Release these too.
                 if (x > 0) {
                     chunk->left = m_chunks[GET_INDEX(x - 1, y, z)].chunk.acquire();
-                    chunk->numNeighbors++;
                 }
                 if (x < HORIZONTAL_CHUNKS - 1) {
                     chunk->right = m_chunks[GET_INDEX(x + 1, y, z)].chunk.acquire();
-                    chunk->numNeighbors++;
                 }
                 if (y > 0) {
                     chunk->bottom = m_chunks[GET_INDEX(x, y - 1, z)].chunk.acquire();
-                    chunk->numNeighbors++;
                 }
                 if (y < VERTICAL_CHUNKS - 1) {
                     chunk->top = m_chunks[GET_INDEX(x, y + 1, z)].chunk.acquire();
-                    chunk->numNeighbors++;
                 }
                 if (z > 0) {
                     chunk->back = m_chunks[GET_INDEX(x, y, z - 1)].chunk.acquire();
-                    chunk->numNeighbors++;
                 }
                 if (z < HORIZONTAL_CHUNKS - 1) {
                     chunk->front = m_chunks[GET_INDEX(x, y, z + 1)].chunk.acquire();
-                    chunk->numNeighbors++;
                 }
             }
         }

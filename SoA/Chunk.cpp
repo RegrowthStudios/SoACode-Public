@@ -4,27 +4,30 @@
 #include "VoxelSpaceConversions.h"
 
 
-void Chunk::init(const ChunkPosition3D& pos) {
-    memset(neighbors, 0, sizeof(neighbors));  
-    numNeighbors = 0u;
+void Chunk::init(WorldCubeFace face) {
+    memset(neighbors, 0, sizeof(neighbors));
     distance2 = FLT_MAX;
-    m_chunkPosition = pos;
+    accessor = nullptr;
+    // Get position from ID
+    m_chunkPosition.x = m_id.x;
+    m_chunkPosition.y = m_id.y;
+    m_chunkPosition.z = m_id.z;
+    m_chunkPosition.face = face;
     m_voxelPosition = VoxelSpaceConversions::chunkToVoxel(m_chunkPosition);
     m_genQueryData.current = nullptr;
     remeshFlags = 1;
     gridData = nullptr;
+    m_inLoadRange = false;
     // Maybe do this after its done being used in grid?
     std::vector<ChunkQuery*>().swap(m_genQueryData.pending);
     numBlocks = 0;
     hasCreatedMesh = false;
-    accessor = nullptr;
-    m_id.x = pos.pos.x;
-    m_id.y = pos.pos.y;
-    m_id.z = pos.pos.z;
+    genLevel = ChunkGenLevel::GEN_NONE;
+    pendingGenLevel = ChunkGenLevel::GEN_NONE;
 }
 
-void Chunk::initAndFillEmpty(const ChunkPosition3D& pos, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
-    init(pos);
+void Chunk::initAndFillEmpty(WorldCubeFace face, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
+    init(face);
     IntervalTree<ui16>::LNode blockNode;
     IntervalTree<ui16>::LNode tertiaryNode;
     blockNode.set(0, CHUNK_SIZE, 0);

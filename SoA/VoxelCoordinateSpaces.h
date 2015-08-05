@@ -22,6 +22,8 @@ enum WorldCubeFace {
 };
 
 struct ChunkPosition2D {
+    operator i32v2&() { return pos; }
+    operator const i32v2&() const { return pos; }
     union {
         UNIONIZE(i32v2 pos;);
         UNIONIZE(i32 x;
@@ -31,6 +33,9 @@ struct ChunkPosition2D {
 };
 
 struct ChunkPosition3D {
+    operator i32v2() const { return i32v2(pos.x, pos.z); }
+    operator i32v3&() { return pos; }
+    operator const i32v3&() const { return pos; }
     union {
         UNIONIZE(i32v3 pos;);
         UNIONIZE(i32 x;
@@ -41,6 +46,8 @@ struct ChunkPosition3D {
 };
 
 struct VoxelPosition2D {
+    operator f64v2&() { return pos; }
+    operator const f64v2&() const { return pos; }
     union {
         UNIONIZE(f64v2 pos;);
         UNIONIZE(f64 x;
@@ -50,6 +57,9 @@ struct VoxelPosition2D {
 };
 
 struct VoxelPosition3D {
+    operator f64v2() const { return f64v2(pos.x, pos.z); }
+    operator f64v3&() { return pos; }
+    operator const f64v3&() const { return pos; }
     union {
         UNIONIZE(f64v3 pos);
         UNIONIZE(f64 x;

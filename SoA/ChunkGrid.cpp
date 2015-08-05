@@ -2,6 +2,7 @@
 #include "ChunkGrid.h"
 #include "Chunk.h"
 #include "ChunkAllocator.h"
+#include "soaUtils.h"
 
 #include <Vorb/utils.h>
 
@@ -18,56 +19,13 @@ void ChunkGrid::init(WorldCubeFace face,
         m_generators[i].init(threadPool, genData);
     }
     m_accessor.init(allocator);
+    m_accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
+    m_accessor.onRemove += makeDelegate(*this, &ChunkGrid::onAccessorRemove);
 }
 
-void ChunkGrid::addChunk(ChunkHandle chunk) {
-    chunk.acquire();
-
-    const ChunkPosition3D& pos = chunk->getChunkPosition();
-
-    i32v2 gridPos(pos.x, pos.z);
-
-    { // Get grid data
-        // Check and see if the grid data is already allocated here
-        chunk->gridData = getChunkGridData(gridPos);
-        if (chunk->gridData == nullptr) {
-            // If its not allocated, make a new one with a new voxelMapData
-            // TODO(Ben): Cache this
-            chunk->gridData = new ChunkGridData(pos);
-            m_chunkGridDataMap[gridPos] = chunk->gridData;
-        } else {
-            chunk->gridData->refCount++;
-        }
-        chunk->heightData = chunk->gridData->heightData;
-    }
-
-    connectNeighbors(chunk);
-
-    // Add to active list
-    m_activeChunks.push_back(chunk);
-}
-
-void ChunkGrid::removeChunk(ChunkHandle chunk, int index) {
-    const ChunkPosition3D& pos = chunk->getChunkPosition();
-
-    // Remove and possibly free grid data
-    // TODO(Cristian): This needs to be moved
-    chunk->gridData->refCount--;
-    if (chunk->gridData->refCount == 0) {
-        m_chunkGridDataMap.erase(i32v2(pos.x, pos.z));
-        delete chunk->gridData;
-        chunk->gridData = nullptr;
-        chunk->heightData = nullptr;
-    }
-    
-    disconnectNeighbors(chunk);
-
-    // Remove from active list
-    m_activeChunks[index] = m_activeChunks.back();
-    m_activeChunks.pop_back();
-
-    // Release the chunk ownership
-    chunk.release();
+void ChunkGrid::dispose() {
+    m_accessor.onAdd -= makeDelegate(*this, &ChunkGrid::onAccessorAdd);
+    m_accessor.onRemove -= makeDelegate(*this, &ChunkGrid::onAccessorRemove);
 }
 
 ChunkHandle ChunkGrid::getChunk(const f64v3& voxelPos) {
@@ -117,14 +75,8 @@ void ChunkGrid::update() {
                 if (q->shouldDelete) delete q;
                 continue;
             }
-        } else if (!q->chunk->m_genQueryData.current) {
-            // If its not in a query, it needs an init
-            ChunkPosition3D pos;
-            pos.pos = q->chunkPos;
-            pos.face = m_face;
-            q->chunk->init(pos);
-            addChunk(q->chunk);
         }
+
         // TODO(Ben): Handle generator distribution
         q->genTask.init(q, q->chunk->gridData->heightData, &m_generators[0]);
         m_generators[0].submitQuery(q);
@@ -141,82 +93,100 @@ void ChunkGrid::connectNeighbors(ChunkHandle chunk) {
         id.x--;
         chunk->left = m_accessor.acquire(id);
         chunk->left->right = chunk.acquire();
-        chunk->left->numNeighbors++;
-        chunk->numNeighbors++;
     }
     { // Right
         ChunkID id = chunk->getID();
         id.x++;
         chunk->right = m_accessor.acquire(id);
         chunk->right->left = chunk.acquire();
-        chunk->right->numNeighbors++;
-        chunk->numNeighbors++;
     }
     { // Bottom
         ChunkID id = chunk->getID();
         id.y--;
         chunk->bottom = m_accessor.acquire(id);
         chunk->bottom->top = chunk.acquire();
-        chunk->bottom->numNeighbors++;
-        chunk->numNeighbors++;
     }
     { // Top
         ChunkID id = chunk->getID();
         id.y++;
         chunk->top = m_accessor.acquire(id);
         chunk->top->bottom = chunk.acquire();
-        chunk->top->numNeighbors++;
-        chunk->numNeighbors++;
     }
     { // Back
         ChunkID id = chunk->getID();
         id.z--;
         chunk->back = m_accessor.acquire(id);
         chunk->back->front = chunk.acquire();
-        chunk->back->numNeighbors++;
-        chunk->numNeighbors++;
     }
     { // Front
         ChunkID id = chunk->getID();
         id.z++;
         chunk->front = m_accessor.acquire(id);
         chunk->front->back = chunk.acquire();
-        chunk->front->numNeighbors++;
-        chunk->numNeighbors++;
     } 
 }
 
 void ChunkGrid::disconnectNeighbors(ChunkHandle chunk) {
     if (chunk->left.isAquired()) {
         chunk->left->right.release();
-        chunk->left->numNeighbors--;
-        chunk->left.release();
     }
     if (chunk->right.isAquired()) {
         chunk->right->left.release();
-        chunk->right->numNeighbors--;
         chunk->right.release();
     }
     if (chunk->bottom.isAquired()) {
         chunk->bottom->top.release();
-        chunk->bottom->numNeighbors--;
         chunk->bottom.release();
     }
     if (chunk->top.isAquired()) {
         chunk->top->bottom.release();
-        chunk->top->numNeighbors--;
         chunk->top.release();
     }
     if (chunk->back.isAquired()) {
         chunk->back->front.release();
-        chunk->back->numNeighbors--;
         chunk->back.release();
     }
     if (chunk->front.isAquired()) {
         chunk->front->back.release();
-        chunk->front->numNeighbors--;
         chunk->front.release();
     }
-    
-    chunk->numNeighbors = 0;
+}
+
+// Don't need thread safety for these since they are protected via mutex in ChunkAccessor
+void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
+    // Add to active list
+    chunk->m_activeIndex = m_activeChunks.size();
+    m_activeChunks.push_back(chunk);
+
+    // Init the chunk
+    chunk->init(m_face);
+
+    i32v2 gridPos = chunk->getChunkPosition();
+    /* Get grid data */
+    // Check and see if the grid data is already allocated here
+    chunk->gridData = getChunkGridData(gridPos);
+    if (chunk->gridData == nullptr) {
+        // If its not allocated, make a new one with a new voxelMapData
+        // TODO(Ben): Cache this
+        chunk->gridData = new ChunkGridData(chunk->getChunkPosition());
+        m_chunkGridDataMap[gridPos] = chunk->gridData;
+    } else {
+        chunk->gridData->refCount++;
+    }
+    chunk->heightData = chunk->gridData->heightData;
+}
+void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle chunk) {
+    // Remove from active list
+    m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();
+    m_activeChunks[chunk->m_activeIndex]->m_activeIndex = chunk->m_activeIndex;
+    m_activeChunks.pop_back();
+
+    // Remove and possibly free grid data
+    chunk->gridData->refCount--;
+    if (chunk->gridData->refCount == 0) {
+        m_chunkGridDataMap.erase(chunk->getChunkPosition());
+        delete chunk->gridData;
+        chunk->gridData = nullptr;
+        chunk->heightData = nullptr;
+    }
 }
