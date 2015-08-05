@@ -250,7 +250,8 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
         blockData[destIndex] = ch->getBlockData(srcIndex); \
         tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
                 } \
-    ch->unlock();
+    ch->unlock(); \
+    ch.release();
 
 #define GET_EDGE_Y(ch, sx, sz, dx, dz) \
     ch->lock(); \
@@ -260,7 +261,8 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
         blockData[destIndex] = ch->getBlockData(srcIndex); \
         tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
             } \
-    ch->unlock();
+    ch->unlock(); \
+    ch.release();
 
 #define GET_EDGE_Z(ch, sx, sy, dx, dy) \
     ch->lock(); \
@@ -270,7 +272,8 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
         blockData[destIndex] = ch->getBlockData(srcIndex); \
         tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
         } \
-    ch->unlock();
+    ch->unlock(); \
+    ch.release();
 
 #define GET_CORNER(ch, sx, sy, sz, dx, dy, dz) \
     srcIndex = (sy) * CHUNK_LAYER + (sz) * CHUNK_WIDTH + (sx); \
@@ -278,17 +281,12 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
     ch->lock(); \
     blockData[destIndex] = ch->getBlockData(srcIndex); \
     tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
-    ch->unlock();
+    ch->unlock(); \
+    ch.release();
 
-void ChunkMesher::prepareDataAsync(Chunk* chunk) {
+void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM_NEIGHBOR_HANDLES]) {
     int x, y, z, srcIndex, destIndex;
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* bottom = chunk->bottom;
-    Chunk* top = chunk->top;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
     int wc;
     int c = 0;
 
@@ -370,7 +368,9 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     chunk->unlock();
+    chunk.release();
 
+    ChunkHandle& left = neighbors[NEIGHBOR_HANDLE_LEFT];
     left->lock();
     for (y = 1; y < PADDED_WIDTH - 1; y++) {
         for (z = 1; z < PADDED_WIDTH - 1; z++) {
@@ -382,7 +382,9 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     left->unlock();
+    left.release();
 
+    ChunkHandle& right = neighbors[NEIGHBOR_HANDLE_RIGHT];
     right->lock();
     for (y = 1; y < PADDED_WIDTH - 1; y++) {
         for (z = 1; z < PADDED_WIDTH - 1; z++) {
@@ -394,7 +396,9 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     right->unlock();
+    right.release();
 
+    ChunkHandle& bottom = neighbors[NEIGHBOR_HANDLE_BOT];
     bottom->lock();
     for (z = 1; z < PADDED_WIDTH - 1; z++) {
         for (x = 1; x < PADDED_WIDTH - 1; x++) {
@@ -406,7 +410,9 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     bottom->unlock();
+    bottom.release();
 
+    ChunkHandle& top = neighbors[NEIGHBOR_HANDLE_TOP];
     top->lock();
     for (z = 1; z < PADDED_WIDTH - 1; z++) {
         for (x = 1; x < PADDED_WIDTH - 1; x++) {
@@ -418,7 +424,9 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     top->unlock();
+    top.release();
 
+    ChunkHandle& back = neighbors[NEIGHBOR_HANDLE_BACK];
     back->lock();
     for (y = 1; y < PADDED_WIDTH - 1; y++) {
         for (x = 1; x < PADDED_WIDTH - 1; x++) {
@@ -430,7 +438,9 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     back->unlock();
+    back.release();
 
+    ChunkHandle& front = neighbors[NEIGHBOR_HANDLE_FRONT];
     front->lock();
     for (y = 1; y < PADDED_WIDTH - 1; y++) {
         for (x = 1; x < PADDED_WIDTH - 1; x++) {
@@ -442,72 +452,73 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
         }
     }
     front->unlock();
+    front.release();
 
     // Top Back
-    Chunk* topBack = top->back;
+    ChunkHandle& topBack = neighbors[NEIGHBOR_HANDLE_TOP_BACK];
     GET_EDGE_X(topBack, 0, CHUNK_WIDTH - 1, PADDED_WIDTH - 1, 0);
     // Top Front
-    Chunk* topFront = top->front;
+    ChunkHandle& topFront = neighbors[NEIGHBOR_HANDLE_TOP_FRONT];
     GET_EDGE_X(topFront, 0, 0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
 
     // Bottom Back
-    Chunk* bottomBack = bottom->back;
+    ChunkHandle& bottomBack = neighbors[NEIGHBOR_HANDLE_BOT_BACK];
     GET_EDGE_X(bottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
     // Bottom Front
-    Chunk* bottomFront = bottom->front;
+    ChunkHandle& bottomFront = neighbors[NEIGHBOR_HANDLE_BOT_FRONT];
     GET_EDGE_X(bottomFront, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
 
     // Left half
     int srcXOff = CHUNK_WIDTH - 1;
     int dstXOff = 0;
-    Chunk* leftBack = left->back;
+    ChunkHandle& leftBack = neighbors[NEIGHBOR_HANDLE_LEFT_BACK];
     GET_EDGE_Y(leftBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-    Chunk* leftFront = left->front;
+    ChunkHandle& leftFront = neighbors[NEIGHBOR_HANDLE_LEFT_FRONT];
     GET_EDGE_Y(leftFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
 
-    Chunk* leftTop = left->top;
+    ChunkHandle& leftTop = neighbors[NEIGHBOR_HANDLE_LEFT_TOP];
     GET_EDGE_Z(leftTop, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
-    Chunk* leftBot = left->bottom;
+    ChunkHandle& leftBot = neighbors[NEIGHBOR_HANDLE_LEFT_BOT];
     GET_EDGE_Z(leftBot, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
 
     // Right half
     srcXOff = 0;
     dstXOff = PADDED_WIDTH - 1;
-    Chunk* rightBack = right->back;
+    ChunkHandle& rightBack = neighbors[NEIGHBOR_HANDLE_RIGHT_BACK];
     GET_EDGE_Y(rightBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-    Chunk* rightFront = right->front;
+    ChunkHandle& rightFront = neighbors[NEIGHBOR_HANDLE_RIGHT_FRONT];
     GET_EDGE_Y(rightFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
 
-    Chunk* rightTop = right->top;
+    ChunkHandle& rightTop = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP];
     GET_EDGE_Z(rightTop, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
-    Chunk* rightBot = right->bottom;
+    ChunkHandle& rightBot = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT];
     GET_EDGE_Z(rightBot, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
 
     // 8 Corners
     // Left Corners
-    Chunk* leftTopBack = leftTop->back;
+    ChunkHandle& leftTopBack = neighbors[NEIGHBOR_HANDLE_LEFT_TOP_BACK];
     GET_CORNER(leftTopBack, CHUNK_WIDTH - 1, 0, CHUNK_WIDTH - 1,
                0, PADDED_WIDTH - 1, 0);
-    Chunk* leftTopFront = leftTop->front;
+    ChunkHandle& leftTopFront = neighbors[NEIGHBOR_HANDLE_LEFT_TOP_FRONT];
     GET_CORNER(leftTopFront, CHUNK_WIDTH - 1, 0, 0,
                0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-    Chunk* leftBottomBack = leftBot->back;
+    ChunkHandle& leftBottomBack = neighbors[NEIGHBOR_HANDLE_LEFT_BOT_BACK];
     GET_CORNER(leftBottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
                0, 0, 0);
-    Chunk* leftBottomFront = leftBot->front;
+    ChunkHandle& leftBottomFront = neighbors[NEIGHBOR_HANDLE_LEFT_BOT_FRONT];
     GET_CORNER(leftBottomFront, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0,
                0, 0, PADDED_WIDTH - 1);
     // Right Corners
-    Chunk* rightTopBack = rightTop->back;
+    ChunkHandle& rightTopBack = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP_BACK];
     GET_CORNER(rightTopBack, 0, 0, CHUNK_WIDTH - 1,
                PADDED_WIDTH - 1, PADDED_WIDTH - 1, 0);
-    Chunk* rightTopFront = rightTop->front;
+    ChunkHandle& rightTopFront = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT];
     GET_CORNER(rightTopFront, 0, 0, 0,
                PADDED_WIDTH - 1, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-    Chunk* rightBottomBack = rightBot->back;
+    ChunkHandle& rightBottomBack = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT_BACK];
     GET_CORNER(rightBottomBack, 0, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
                PADDED_WIDTH - 1, 0, 0);
-    Chunk* rightBottomFront = rightBot->front;
+    ChunkHandle& rightBottomFront = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT];
     GET_CORNER(rightBottomFront, 0, CHUNK_WIDTH - 1, 0,
                PADDED_WIDTH - 1, 0, PADDED_WIDTH - 1);
 }

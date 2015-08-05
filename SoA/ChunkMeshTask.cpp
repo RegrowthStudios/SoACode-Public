@@ -38,16 +38,13 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
         workerData->chunkMesher = new ChunkMesher;
         workerData->chunkMesher->init(blockPack);
     }
-
-    // Pre-processing
-    workerData->chunkMesher->prepareDataAsync(chunk);
-    
+    // Prepare message
     ChunkMeshMessage msg;
     msg.messageID = ChunkMeshMessageID::UPDATE;
     msg.chunkID = chunk->getID();
-    // We no longer care about neighbors or chunk
-    chunk.release();
-    for (int i = 0; i < NUM_NEIGHBOR_HANDLES; i++) neighborHandles[i].release();
+
+    // Pre-processing
+    workerData->chunkMesher->prepareDataAsync(chunk, neighborHandles);
 
     // Create the actual mesh
     msg.data = workerData->chunkMesher->createChunkMeshData(type);

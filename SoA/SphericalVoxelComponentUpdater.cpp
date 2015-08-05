@@ -138,6 +138,7 @@ void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
 }
 
 ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
+
     // TODO(Ben): This could be optimized a bit
     ChunkHandle left = chunk->left;
     ChunkHandle right = chunk->right;
@@ -189,33 +190,32 @@ ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandl
 
     // Set dependencies
     meshTask->chunk.acquire();
-    meshTask->neighborHandles[0] = left.acquire();
-    meshTask->neighborHandles[1] = right.acquire();
-    meshTask->neighborHandles[2] = chunk->front.acquire();
-    meshTask->neighborHandles[3] = chunk->back.acquire();
-    meshTask->neighborHandles[4] = chunk->top.acquire();
-    meshTask->neighborHandles[5] = chunk->bottom.acquire();
-    meshTask->neighborHandles[6] = left->back.acquire();
-    meshTask->neighborHandles[7] = left->front.acquire();
-    meshTask->neighborHandles[8] = leftTop.acquire();
-    meshTask->neighborHandles[9] = leftBot.acquire();
-    meshTask->neighborHandles[10] = leftTop->back.acquire();
-    meshTask->neighborHandles[11] = leftTop->front.acquire();
-    meshTask->neighborHandles[12] = leftBot->back.acquire();
-    meshTask->neighborHandles[13] = leftBot->front.acquire();
-    meshTask->neighborHandles[14] = right->back.acquire();
-    meshTask->neighborHandles[15] = right->front.acquire();
-    meshTask->neighborHandles[16] = rightTop.acquire();
-    meshTask->neighborHandles[17] = rightBot.acquire();
-    meshTask->neighborHandles[18] = rightTop->back.acquire();
-    meshTask->neighborHandles[19] = rightTop->front.acquire();
-    meshTask->neighborHandles[20] = rightBot->back.acquire();
-    meshTask->neighborHandles[21] = rightBot->front.acquire();
-    meshTask->neighborHandles[22] = top->back.acquire();
-    meshTask->neighborHandles[23] = top->front.acquire();
-    meshTask->neighborHandles[24] = bottom->back.acquire();
-    meshTask->neighborHandles[25] = bottom->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT] = left.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT] = right.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_FRONT] = chunk->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_BACK] = chunk->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP] = chunk->top.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT] = chunk->bottom.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BACK] = left->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_FRONT] = left->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP] = leftTop.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT] = leftBot.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_BACK] = leftTop->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_FRONT] = leftTop->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_BACK] = leftBot->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_FRONT] = leftBot->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BACK] = right->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_FRONT] = right->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP] = rightTop.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT] = rightBot.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_BACK] = rightTop->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT] = rightTop->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_BACK] = rightBot->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT] = rightBot->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP_BACK] = top->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP_FRONT] = top->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT_BACK] = bottom->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT_FRONT] = bottom->front.acquire();
 
     return meshTask;
 }
-
