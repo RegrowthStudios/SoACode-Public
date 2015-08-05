@@ -22,6 +22,8 @@ void ChunkAccessor::destroy() {
     std::unordered_map<ChunkID, ChunkHandle>().swap(m_chunkLookup);
 }
 
+#ifdef FAST_CHUNK_ACCESS
+
 ChunkHandle ChunkAccessor::acquire(ChunkID id) {
     // TODO(Cristian): Try to not lock down everything
     bool wasOld;
@@ -58,7 +60,6 @@ ACQUIRE :
         return chunk;
     }
 }
-
 void ChunkAccessor::release(ChunkHandle& chunk) {
     // TODO(Cristian): Heavy thread-safety
     ui32 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
@@ -80,6 +81,36 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
     chunk.m_chunk = nullptr;
 }
 
+#else
+
+ChunkHandle ChunkAccessor::acquire(ChunkID id) {
+    bool wasOld;
+    ChunkHandle chunk = safeAdd(id, wasOld);
+    return wasOld ? acquire(chunk) : chunk;
+}
+ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
+    std::lock_guard<std::mutex> lChunk(chunk->mutex);
+    if (chunk->m_handleRefCount == 0) {
+        // We need to re-add the chunk
+        bool wasOld = false;
+        return safeAdd(chunk->m_id, wasOld);
+    } else {
+        chunk->m_handleRefCount++;
+        return chunk;
+    }
+}
+void ChunkAccessor::release(ChunkHandle& chunk) {
+    std::lock_guard<std::mutex> lChunk(chunk->mutex);
+    chunk->m_handleRefCount--;
+    if (chunk->m_handleRefCount == 0) {
+        // We need to remove the chunk
+        safeRemove(chunk);
+    }
+    chunk.m_chunk = nullptr;
+}
+
+#endif
+
 ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     std::unique_lock<std::mutex> l(m_lckLookup);
     auto& it = m_chunkLookup.find(id);
@@ -91,17 +122,14 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
         h->accessor = this;
         h->m_handleState = HANDLE_STATE_ALIVE;
         h->m_handleRefCount = 1;
-        // Make a tmp object in case reference is invalidated after unlock
-        ChunkHandle rv = h;
         l.unlock();
-        onAdd(rv);
-        return rv;
+        onAdd(ChunkHandle(h));
+        return h;
     } else {
         wasOld = true;
         return it->second;
     }
 }
-
 void ChunkAccessor::safeRemove(ChunkHandle& chunk) {
     { // TODO(Cristian): This needs to be added to a free-list?
         std::lock_guard<std::mutex> l(m_lckLookup);
