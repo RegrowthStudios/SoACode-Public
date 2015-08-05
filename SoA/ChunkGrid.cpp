@@ -82,77 +82,53 @@ void ChunkGrid::update() {
         m_generators[0].submitQuery(q);
     }
 
+    // TODO(Ben): Thread safety
     // Sort chunks
-    std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
+   // std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
 }
 
 void ChunkGrid::connectNeighbors(ChunkHandle chunk) {
-    const i32v3& pos = chunk->getChunkPosition().pos;
     { // Left
         ChunkID id = chunk->getID();
         id.x--;
         chunk->left = m_accessor.acquire(id);
-        chunk->left->right = chunk.acquire();
     }
     { // Right
         ChunkID id = chunk->getID();
         id.x++;
         chunk->right = m_accessor.acquire(id);
-        chunk->right->left = chunk.acquire();
     }
     { // Bottom
         ChunkID id = chunk->getID();
         id.y--;
         chunk->bottom = m_accessor.acquire(id);
-        chunk->bottom->top = chunk.acquire();
     }
     { // Top
         ChunkID id = chunk->getID();
         id.y++;
         chunk->top = m_accessor.acquire(id);
-        chunk->top->bottom = chunk.acquire();
     }
     { // Back
         ChunkID id = chunk->getID();
         id.z--;
         chunk->back = m_accessor.acquire(id);
-        chunk->back->front = chunk.acquire();
     }
     { // Front
         ChunkID id = chunk->getID();
         id.z++;
         chunk->front = m_accessor.acquire(id);
-        chunk->front->back = chunk.acquire();
     } 
 }
 
 void ChunkGrid::disconnectNeighbors(ChunkHandle chunk) {
-    if (chunk->left.isAquired()) {
-        chunk->left->right.release();
-    }
-    if (chunk->right.isAquired()) {
-        chunk->right->left.release();
-        chunk->right.release();
-    }
-    if (chunk->bottom.isAquired()) {
-        chunk->bottom->top.release();
-        chunk->bottom.release();
-    }
-    if (chunk->top.isAquired()) {
-        chunk->top->bottom.release();
-        chunk->top.release();
-    }
-    if (chunk->back.isAquired()) {
-        chunk->back->front.release();
-        chunk->back.release();
-    }
-    if (chunk->front.isAquired()) {
-        chunk->front->back.release();
-        chunk->front.release();
-    }
+    chunk->left.release();
+    chunk->right.release();
+    chunk->back.release();
+    chunk->front.release();
+    chunk->bottom.release();
+    chunk->top.release();
 }
 
-// Don't need thread safety for these since they are protected via mutex in ChunkAccessor
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
     // Add to active list
     chunk->m_activeIndex = m_activeChunks.size();
@@ -175,6 +151,7 @@ void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
     }
     chunk->heightData = chunk->gridData->heightData;
 }
+
 void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle chunk) {
     // Remove from active list
     m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();

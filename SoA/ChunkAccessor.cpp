@@ -42,7 +42,7 @@ ACQUIRE :
         return chunk;
     case HANDLE_STATE_ZOMBIE:
     { // Someone is trying to kill this chunk, don't let them
-        std::unique_lock<std::mutex>(chunk->mutex);
+        std::lock_guard<std::mutex>(chunk->mutex);
         if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE) != HANDLE_STATE_DEAD) {
             goto ACQUIRE;
         } else {
@@ -67,7 +67,7 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
             // Now that it's a zombie, we kill it.
             if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_DEAD, HANDLE_STATE_ZOMBIE) == HANDLE_STATE_ZOMBIE) {
                 // Highlander... there can only be one... killer of chunks
-                std::unique_lock<std::mutex> chunkLock(chunk->mutex);
+                std::lock_guard<std::mutex> chunkLock(chunk->mutex);
                 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
                 if (currentCount == -1) {
                     // We are able to kill this chunk
@@ -84,30 +84,33 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     auto& it = m_chunkLookup.find(id);
     if (it == m_chunkLookup.end()) {
         wasOld = false;
-        ChunkHandle& rv = m_chunkLookup[id];
-        rv.m_chunk = m_allocator->alloc();
-        rv->m_id = id;
-        rv->accessor = this;
-        rv->m_handleState = HANDLE_STATE_ALIVE;
-        rv->m_handleRefCount = 1;
+        ChunkHandle& h = m_chunkLookup[id];
+        h.m_chunk = m_allocator->alloc();
+        h->m_id = id;
+        h->accessor = this;
+        h->m_handleState = HANDLE_STATE_ALIVE;
+        h->m_handleRefCount = 1;
+        // Make a tmp object in case reference is invalidated after unlock
+        ChunkHandle rv = h;
+        l.unlock();
         onAdd(rv);
         return rv;
     } else {
         wasOld = true;
-        onAdd(it->second);
         return it->second;
     }
 }
 
 void ChunkAccessor::safeRemove(ChunkHandle& chunk) {
-    // TODO(Cristian): This needs to be added to a free-list?
-    std::unique_lock<std::mutex> l(m_lckLookup);
+    { // TODO(Cristian): This needs to be added to a free-list?
+        std::lock_guard<std::mutex> l(m_lckLookup);
 
-    // Make sure it can't be accessed until acquired again
-    chunk->accessor = nullptr;
+        // Make sure it can't be accessed until acquired again
+        chunk->accessor = nullptr;
 
-    // TODO(Ben): Time based free?
-    m_chunkLookup.erase(chunk->m_id);
+        // TODO(Ben): Time based free?
+        m_chunkLookup.erase(chunk->m_id);
+    }
     // Fire event before deallocating
     onRemove(chunk);
     m_allocator->free(chunk.m_chunk);

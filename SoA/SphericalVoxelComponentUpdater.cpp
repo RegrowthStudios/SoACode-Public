@@ -136,7 +136,7 @@ void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
 }
 
 ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
-
+    // TODO(Ben): This could be optimized a bit
     ChunkHandle left = chunk->left;
     ChunkHandle right = chunk->right;
     ChunkHandle bottom = chunk->bottom;

@@ -7,7 +7,6 @@
 void Chunk::init(WorldCubeFace face) {
     memset(neighbors, 0, sizeof(neighbors));
     distance2 = FLT_MAX;
-    accessor = nullptr;
     // Get position from ID
     m_chunkPosition.x = m_id.x;
     m_chunkPosition.y = m_id.y;
