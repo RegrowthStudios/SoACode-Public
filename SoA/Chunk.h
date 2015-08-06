@@ -47,6 +47,7 @@ class Chunk {
     friend class ChunkGenerator;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
+    friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
 public:
     // Initializes the chunk but does not set voxel data
@@ -129,11 +130,14 @@ private:
     int m_activeIndex; ///< Position in active list for m_chunkGrid
     bool m_inLoadRange = false;
 
+    ChunkID m_id;
+
+    /************************************************************************/
+    /* Chunk Handle Data                                                    */
+    /************************************************************************/
     std::mutex m_handleMutex;
     __declspec(align(4)) volatile ui32 m_handleState = 0;
     __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
-
-    ChunkID m_id;
 };
 
 #endif // NChunk_h__

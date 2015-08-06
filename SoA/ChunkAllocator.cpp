@@ -36,6 +36,19 @@ Chunk* PagedChunkAllocator::alloc() {
     Chunk* chunk = m_freeChunks.back();
     m_freeChunks.pop_back();
 
+    // Set defaults
+    chunk->remeshFlags = 1;
+    chunk->gridData = nullptr;
+    chunk->m_inLoadRange = false;
+    chunk->numBlocks = 0;
+    chunk->hasCreatedMesh = false;
+    chunk->genLevel = ChunkGenLevel::GEN_NONE;
+    chunk->pendingGenLevel = ChunkGenLevel::GEN_NONE;
+    chunk->isAccessible = false;
+    chunk->distance2 = FLT_MAX;
+    memset(chunk->neighbors, 0, sizeof(chunk->neighbors));
+    chunk->m_genQueryData.current = nullptr;
+
     return chunk;
 }
 
@@ -47,4 +60,5 @@ void PagedChunkAllocator::free(Chunk* chunk) {
     // Free data
     chunk->blocks.clear();
     chunk->tertiary.clear();
+    std::vector<ChunkQuery*>().swap(chunk->m_genQueryData.pending);
 }
