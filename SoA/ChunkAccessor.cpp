@@ -44,7 +44,7 @@ ACQUIRE :
         return chunk;
     case HANDLE_STATE_ZOMBIE:
     { // Someone is trying to kill this chunk, don't let them
-        std::lock_guard<std::mutex>(chunk->mutex);
+        std::lock_guard<std::mutex>(chunk->m_handleMutex);
         if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE) != HANDLE_STATE_DEAD) {
             goto ACQUIRE;
         } else {
@@ -69,7 +69,7 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
             // Now that it's a zombie, we kill it.
             if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_DEAD, HANDLE_STATE_ZOMBIE) == HANDLE_STATE_ZOMBIE) {
                 // Highlander... there can only be one... killer of chunks
-                std::lock_guard<std::mutex> chunkLock(chunk->mutex);
+                std::lock_guard<std::mutex> chunkLock(chunk->m_handleMutex);
                 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
                 if (currentCount == -1) {
                     // We are able to kill this chunk
@@ -89,7 +89,7 @@ ChunkHandle ChunkAccessor::acquire(ChunkID id) {
     return wasOld ? acquire(chunk) : chunk;
 }
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
-    std::lock_guard<std::mutex> lChunk(chunk->mutex);
+    std::lock_guard<std::mutex> lChunk(chunk->m_handleMutex);
     if (chunk->m_handleRefCount == 0) {
         // We need to re-add the chunk
         bool wasOld = false;
@@ -100,7 +100,7 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
-    std::lock_guard<std::mutex> lChunk(chunk->mutex);
+    std::lock_guard<std::mutex> lChunk(chunk->m_handleMutex);
     chunk->m_handleRefCount--;
     if (chunk->m_handleRefCount == 0) {
         // We need to remove the chunk
@@ -116,14 +116,15 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     auto& it = m_chunkLookup.find(id);
     if (it == m_chunkLookup.end()) {
         wasOld = false;
-        ChunkHandle& h = m_chunkLookup[id];
+        ChunkHandle h = {};
         h.m_chunk = m_allocator->alloc();
+        m_chunkLookup[id] = h;
         h->m_id = id;
         h->accessor = this;
         h->m_handleState = HANDLE_STATE_ALIVE;
         h->m_handleRefCount = 1;
         l.unlock();
-        onAdd(ChunkHandle(h));
+        onAdd(h);
         return h;
     } else {
         wasOld = true;

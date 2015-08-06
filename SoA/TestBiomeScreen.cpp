@@ -299,7 +299,7 @@ void TestBiomeScreen::initChunks() {
         m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->heightData);
         // Decompress to flat array
         m_chunks[i].chunk->blocks.setArrayRecycler(&m_blockArrayRecycler);
-        m_chunks[i].chunk->blocks.changeState(vvox::VoxelStorageState::FLAT_ARRAY, m_chunks[i].chunk->mutex);
+        m_chunks[i].chunk->blocks.changeState(vvox::VoxelStorageState::FLAT_ARRAY, m_chunks[i].chunk->dataMutex);
     }
 
     // Generate flora

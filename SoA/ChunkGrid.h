@@ -48,8 +48,8 @@ public:
     // Processes chunk queries
     void update();
 
-    void connectNeighbors(ChunkHandle chunk);
-    void disconnectNeighbors(ChunkHandle chunk);
+    void acquireNeighbors(ChunkHandle chunk);
+    void releaseNeighbors(ChunkHandle chunk);
 
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 

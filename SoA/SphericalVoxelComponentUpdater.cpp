@@ -86,13 +86,13 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
                 // Dispose the mesh and disconnect neighbors
                 disposeChunkMesh(chunk);
                 chunk->m_inLoadRange = false;
-                grid.disconnectNeighbors(chunk);
+                grid.releaseNeighbors(chunk);
             }
         } else {
             // Check for connecting neighbors
             if (!chunk->m_inLoadRange) {
                 chunk->m_inLoadRange = true;
-                grid.connectNeighbors(chunk);
+                grid.acquireNeighbors(chunk);
             }
             // Check for generation
             if (chunk->pendingGenLevel != GEN_DONE) {

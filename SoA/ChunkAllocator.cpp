@@ -35,6 +35,7 @@ Chunk* PagedChunkAllocator::alloc() {
     // Grab a free chunk
     Chunk* chunk = m_freeChunks.back();
     m_freeChunks.pop_back();
+
     return chunk;
 }
 
@@ -42,4 +43,8 @@ void PagedChunkAllocator::free(Chunk* chunk) {
     // TODO(Ben): Deletion if there is a lot?
     std::lock_guard<std::mutex> lock(m_lock);
     m_freeChunks.push_back(chunk);
+
+    // Free data
+    chunk->blocks.clear();
+    chunk->tertiary.clear();
 }

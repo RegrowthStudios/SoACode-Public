@@ -13,9 +13,18 @@ void ChunkGenerator::init(vcore::ThreadPool<WorkerData>* threadPool,
 
 void ChunkGenerator::submitQuery(ChunkQuery* query) {
     Chunk& chunk = query->chunk;
+    // Check if its already done
+    if (chunk.genLevel >= query->genLevel) {
+        query->m_isFinished = true;
+        query->m_cond.notify_one();
+        query->chunk.release();
+        return;
+    }
+
     if (chunk.pendingGenLevel < query->genLevel) {
         chunk.pendingGenLevel = query->genLevel;
     }
+    
     if (!chunk.gridData->isLoaded) {
         // If this heightmap isn't already loading, send it
         if (!chunk.gridData->isLoading) {

@@ -41,6 +41,6 @@ void Chunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortR
 }
 
 void Chunk::updateContainers() {
-    blocks.update(mutex);
-    tertiary.update(mutex);
+    blocks.update(dataMutex);
+    tertiary.update(dataMutex);
 }

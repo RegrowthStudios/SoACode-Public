@@ -88,7 +88,7 @@ void ChunkGrid::update() {
    // std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
 }
 
-void ChunkGrid::connectNeighbors(ChunkHandle chunk) {
+void ChunkGrid::acquireNeighbors(ChunkHandle chunk) {
     { // Left
         ChunkID id = chunk->getID();
         id.x--;
@@ -121,7 +121,7 @@ void ChunkGrid::connectNeighbors(ChunkHandle chunk) {
     } 
 }
 
-void ChunkGrid::disconnectNeighbors(ChunkHandle chunk) {
+void ChunkGrid::releaseNeighbors(ChunkHandle chunk) {
     chunk->left.release();
     chunk->right.release();
     chunk->back.release();

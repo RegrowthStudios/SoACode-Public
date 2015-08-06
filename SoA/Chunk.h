@@ -80,8 +80,8 @@ public:
     void flagDirty() { isDirty = true; remeshFlags |= 1; }
 
     // TODO(Ben): This can be better
-    void lock() { mutex.lock(); }
-    void unlock() { mutex.unlock(); }
+    void lock() { dataMutex.lock(); }
+    void unlock() { dataMutex.unlock(); }
 
     /************************************************************************/
     /* Members                                                              */
@@ -105,7 +105,7 @@ public:
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
-    std::mutex mutex;
+    std::mutex dataMutex;
 
     ui8 remeshFlags;
     volatile bool isAccessible = false;
@@ -129,7 +129,7 @@ private:
     int m_activeIndex; ///< Position in active list for m_chunkGrid
     bool m_inLoadRange = false;
 
-    // TODO(Ben): Thread safety
+    std::mutex m_handleMutex;
     __declspec(align(4)) volatile ui32 m_handleState = 0;
     __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
 
