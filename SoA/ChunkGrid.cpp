@@ -57,9 +57,33 @@ bool chunkSort(const Chunk* a, const Chunk* b) {
 }
 
 void ChunkGrid::update() {
+    /* Update active list */
+
+    // Temp vectors to minimize lock time
+    std::vector <ChunkHandle> toRemove;
+    std::vector <ChunkHandle> toAdd;
+    { // Swap data
+        std::lock_guard<std::mutex> l(m_lckActiveChunksToRemove);
+        toRemove.swap(m_activeChunksToRemove);
+    }
+    for (auto& h : toRemove) {
+        m_activeChunks[h->m_activeIndex] = m_activeChunks.back();
+        m_activeChunks[h->m_activeIndex]->m_activeIndex = h->m_activeIndex;
+        m_activeChunks.pop_back();
+    }
+    { // Swap data
+        std::lock_guard<std::mutex> l(m_lckActiveChunksToAdd);
+        toAdd.swap(m_activeChunksToAdd);
+    }
+    for (auto& h : toAdd) {
+        h->m_activeIndex = m_activeChunks.size();
+        m_activeChunks.push_back(h);
+    }
+    
     // TODO(Ben): Handle generator distribution
     m_generators[0].update();
 
+    /* Update Queries */
     // Needs to be big so we can flush it every frame.
 #define MAX_QUERIES 5000
     ChunkQuery* queries[MAX_QUERIES];
@@ -83,9 +107,9 @@ void ChunkGrid::update() {
         m_generators[0].submitQuery(q);
     }
 
-    // TODO(Ben): Thread safety
     // Sort chunks
-   // std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
+    // TODO(Ben): Sorting
+    //std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
 }
 
 void ChunkGrid::acquireNeighbors(ChunkHandle chunk) {
@@ -132,9 +156,8 @@ void ChunkGrid::releaseNeighbors(ChunkHandle chunk) {
 
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
     { // Add to active list
-        std::lock_guard<std::mutex> l(m_lckActiveChunks);
-        chunk->m_activeIndex = m_activeChunks.size();
-        m_activeChunks.push_back(chunk);
+        std::lock_guard<std::mutex> l(m_lckActiveChunksToAdd);
+        m_activeChunksToAdd.push_back(chunk);
     }
 
     // Init the chunk
@@ -161,10 +184,8 @@ void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
 
 void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle chunk) {
     { // Remove from active list
-        std::lock_guard<std::mutex> l(m_lckActiveChunks);
-        m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();
-        m_activeChunks[chunk->m_activeIndex]->m_activeIndex = chunk->m_activeIndex;
-        m_activeChunks.pop_back();
+        std::lock_guard<std::mutex> l(m_lckActiveChunksToRemove);
+        m_activeChunksToRemove.push_back(chunk);
     }
 
     // TODO(Ben): Could be slightly faster with InterlockedDecrement and FSM?

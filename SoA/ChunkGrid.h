@@ -45,7 +45,7 @@ public:
     /// @param gridPos: The grid position for the data
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
-    // Processes chunk queries
+    // Processes chunk queries and set active chunks
     void update();
 
     void acquireNeighbors(ChunkHandle chunk);
@@ -65,8 +65,12 @@ private:
     ChunkAccessor m_accessor;
     ChunkGenerator* m_generators = nullptr;
 
-    std::mutex m_lckActiveChunks;
+    
     std::vector<ChunkHandle> m_activeChunks;
+    std::mutex m_lckActiveChunksToAdd;
+    std::vector<ChunkHandle> m_activeChunksToAdd;
+    std::mutex m_lckActiveChunksToRemove;
+    std::vector<ChunkHandle> m_activeChunksToRemove;
 
     // TODO(Ben): Compare to std::map performance
     std::mutex m_lckGridData;

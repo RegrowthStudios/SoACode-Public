@@ -45,7 +45,15 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
 
 void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agentPosition) { 
     // Always make a chunk at camera location
-    i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition.pos);
+    
+    i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition);
+    // Don't generate when moving too fast
+    bool doGen = true;
+    if (glm::length(m_lastAgentPos - agentPosition.pos) > 8.0f) {
+        doGen = false;
+    }
+    m_lastAgentPos = agentPosition;
+
     if (chunkPosition != m_lastChunkPos) {
         m_lastChunkPos = chunkPosition;
         if (m_centerHandle.isAquired()) m_centerHandle.release();
@@ -54,15 +62,16 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
         q->set(chunkPosition, GEN_DONE, true);
         m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
         m_centerHandle = q->chunk.acquire();
+        doGen = false; // Don't do generation queries when moving fast
     }
 
-    updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition);
+    updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition, doGen);
 
     // TODO(Ben): This doesn't scale for multiple agents
     m_cmp->chunkGrids[agentPosition.face].update();
 }
 
-void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition) {
+void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition, bool doGen) {
     // Get render distance squared
     f32 renderDist2 = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH);
     renderDist2 *= renderDist2;
@@ -70,6 +79,7 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
     // Loop through all currently active chunks
     // TODO(Ben): Chunk should only become active after load?
     const std::vector<ChunkHandle>& chunks = grid.getActiveChunks();
+    // TODO(Ben): Race condition!
     for (int i = (int)chunks.size() - 1; i >= 0; i--) {
         ChunkHandle chunk = chunks[i];
         // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
@@ -95,14 +105,16 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
                 grid.acquireNeighbors(chunk);
             }
             // Check for generation
-            if (chunk->pendingGenLevel != GEN_DONE) {
-                // Submit a generation query
-                ChunkQuery* q = new ChunkQuery;
-                q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
-                m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
-            } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
-                // TODO(Ben): Get meshing outa here
-                requestChunkMesh(chunk);
+            if (doGen) {
+                if (chunk->pendingGenLevel != GEN_DONE) {
+                    // Submit a generation query
+                    ChunkQuery* q = new ChunkQuery;
+                    q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
+                    m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
+                } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
+                    // TODO(Ben): Get meshing outa here
+                    requestChunkMesh(chunk);
+                }
             }
         }
     }
@@ -138,7 +150,7 @@ void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
 }
 
 ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
-
+    return false;
     // TODO(Ben): This could be optimized a bit
     ChunkHandle& left = chunk->left;
     ChunkHandle& right = chunk->right;

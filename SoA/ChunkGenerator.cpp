@@ -18,6 +18,7 @@ void ChunkGenerator::submitQuery(ChunkQuery* query) {
         query->m_isFinished = true;
         query->m_cond.notify_one();
         query->chunk.release();
+        if (query->shouldDelete) delete query;
         return;
     }
 

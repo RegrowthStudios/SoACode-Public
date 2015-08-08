@@ -322,7 +322,6 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
                 if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
                     m_wvec[s++] = wc;
                 }
-
             }
         }
         wSize = s;
