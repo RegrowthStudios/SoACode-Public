@@ -57,11 +57,8 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
     if (chunkPosition != m_lastChunkPos) {
         m_lastChunkPos = chunkPosition;
         if (m_centerHandle.isAquired()) m_centerHandle.release();
-        // TODO(Ben): Minimize new calls
-        ChunkQuery* q = new ChunkQuery;
-        q->set(chunkPosition, GEN_DONE, true);
-        m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
-        m_centerHandle = q->chunk.acquire();
+        // Submit a generation query
+        m_centerHandle = m_cmp->chunkGrids[agentPosition.face].submitQuery(chunkPosition, GEN_DONE, true)->chunk.acquire();
         doGen = false; // Don't do generation queries when moving fast
     }
 
@@ -108,9 +105,9 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
             if (doGen) {
                 if (chunk->pendingGenLevel != GEN_DONE) {
                     // Submit a generation query
-                    ChunkQuery* q = new ChunkQuery;
-                    q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
-                    m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
+                 //   ChunkQuery* q = new ChunkQuery;
+                 //   q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
+                //    m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
                 } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
                     // TODO(Ben): Get meshing outa here
                     requestChunkMesh(chunk);

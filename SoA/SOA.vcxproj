@@ -780,6 +780,7 @@ EXIT 0</Command>
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
     <ClCompile Include="ChunkMeshTask.cpp" />
+    <ClCompile Include="ChunkQuery.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />

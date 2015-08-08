@@ -38,8 +38,13 @@ public:
     ChunkHandle getChunk(const f64v3& voxelPos);
     ChunkHandle getChunk(const i32v3& chunkPos);
 
-    // Will generate chunk if it doesn't exist
-    void submitQuery(ChunkQuery* query);
+    /// Will generate chunk if it doesn't exist
+    /// @param gridPos: The position of the chunk to get.
+    /// @param genLevel: The required generation level.
+    /// @param shouldRelease: Will automatically release when true.
+    ChunkQuery* submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldRelease);
+    /// Releases and recycles a query.
+    void releaseQuery(ChunkQuery* query);
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
@@ -65,7 +70,6 @@ private:
     ChunkAccessor m_accessor;
     ChunkGenerator* m_generators = nullptr;
 
-    
     std::vector<ChunkHandle> m_activeChunks;
     std::mutex m_lckActiveChunksToAdd;
     std::vector<ChunkHandle> m_activeChunksToAdd;
@@ -77,6 +81,9 @@ private:
     std::unordered_map<i32v2, ChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
     
     vcore::IDGenerator<ChunkID> m_idGenerator;
+
+    std::mutex m_lckQueryRecycler;
+    PtrRecycler<ChunkQuery> m_queryRecycler;
 
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;

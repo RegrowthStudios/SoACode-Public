@@ -1450,6 +1450,9 @@
     <ClCompile Include="ConsoleTests.cpp">
       <Filter>SOA Files\Console</Filter>
     </ClCompile>
+    <ClCompile Include="ChunkQuery.cpp">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\resources.rc">

@@ -18,7 +18,7 @@ void ChunkGenerator::submitQuery(ChunkQuery* query) {
         query->m_isFinished = true;
         query->m_cond.notify_one();
         query->chunk.release();
-        if (query->shouldDelete) delete query;
+        if (query->shouldRelease) query->release();
         return;
     }
 
@@ -78,11 +78,11 @@ void ChunkGenerator::update() {
                 q2->m_cond.notify_one();
                 chunk.isAccessible = true;
                 q2->chunk.release();
-                if (q2->shouldDelete) delete q2;
+                if (q2->shouldRelease) q2->release();
             }
             std::vector<ChunkQuery*>().swap(chunk.m_genQueryData.pending);
             q->chunk.release();
-            if (q->shouldDelete) delete q;
+            if (q->shouldRelease) q->release();
         } else {
             // Otherwise possibly only some queries are done
             for (size_t i = 0; i < chunk.m_genQueryData.pending.size();) {
@@ -91,11 +91,11 @@ void ChunkGenerator::update() {
                     q2->m_isFinished = true;
                     q2->m_cond.notify_one();
                     chunk.isAccessible = true;
-                    if (q2->shouldDelete) delete q2;
                     // TODO(Ben): Do we care about order?
                     chunk.m_genQueryData.pending[i] = chunk.m_genQueryData.pending.back();
                     chunk.m_genQueryData.pending.pop_back();
                     q2->chunk.release();
+                    if (q2->shouldRelease) q2->release();
                 } else {
                     i++;
                 }
@@ -109,7 +109,7 @@ void ChunkGenerator::update() {
                 m_threadPool->addTask(&q->genTask);
             }
             q->chunk.release();
-            if (q->shouldDelete) delete q;
+            if (q->shouldRelease) q->release();
         }
     }
 }

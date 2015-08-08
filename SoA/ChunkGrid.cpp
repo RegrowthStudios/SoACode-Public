@@ -39,10 +39,34 @@ ChunkHandle ChunkGrid::getChunk(const i32v3& chunkPos) {
     return m_accessor.acquire(ChunkID(chunkPos.x, chunkPos.y, chunkPos.z));
 }
 
-void ChunkGrid::submitQuery(ChunkQuery* query) {
+ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldRelease) {
+    ChunkQuery* query;
+    {
+        std::lock_guard<std::mutex> l(m_lckQueryRecycler);
+        query = m_queryRecycler.create();
+    }
+    query->chunkPos = chunkPos;
+    query->genLevel = genLevel;
+    query->shouldRelease = shouldRelease;
+    query->m_grid = this;
+    query->m_isFinished = false;
+
     ChunkID id(query->chunkPos.x, query->chunkPos.y, query->chunkPos.z);
     query->chunk = m_accessor.acquire(id);
     m_queries.enqueue(query);
+    // TODO(Ben): RACE CONDITION HERE: There is actually a very small chance that
+    // query will get freed before the callee can acquire the chunk, if this runs
+    // on another thread.
+    return query;
+}
+
+void ChunkGrid::releaseQuery(ChunkQuery* query) {
+    assert(query->m_grid);
+    query->m_grid = nullptr;
+    {
+        std::lock_guard<std::mutex> l(m_lckQueryRecycler);
+        m_queryRecycler.recycle(query);
+    }
 }
 
 ChunkGridData* ChunkGrid::getChunkGridData(const i32v2& gridPos) {
@@ -90,25 +114,13 @@ void ChunkGrid::update() {
     size_t numQueries = m_queries.try_dequeue_bulk(queries, MAX_QUERIES);
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
-        if (q->isFinished()) {
-            // Check if we don't need to do any generation
-            if (q->chunk->genLevel <= q->genLevel) {
-                q->m_isFinished = true;
-                q->m_cond.notify_one();
-                ChunkHandle chunk = q->chunk;
-                chunk.release();
-                if (q->shouldDelete) delete q;
-                continue;
-            }
-        }
-
         // TODO(Ben): Handle generator distribution
         q->genTask.init(q, q->chunk->gridData->heightData, &m_generators[0]);
         m_generators[0].submitQuery(q);
     }
 
     // Sort chunks
-    // TODO(Ben): Sorting
+    // TODO(Ben): Sorting screws up the indices
     //std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
 }
 
