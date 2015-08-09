@@ -3,6 +3,8 @@
 
 #include <Vorb/ecs/ECS.h>
 
+#include "ChunkHandle.h"
+#include "ChunkSphereComponentUpdater.h"
 #include "GameSystem.h"
 
 vecs::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
@@ -106,6 +108,26 @@ vecs::ComponentID GameSystemAssemblages::addVoxelPosition(GameSystem* gameSystem
 
 void GameSystemAssemblages::removeVoxelPosition(GameSystem* gameSystem, vecs::EntityID entity) {
     gameSystem->deleteComponent("VoxelPosition", entity);
+}
+
+vecs::ComponentID GameSystemAssemblages::addChunkSphere(GameSystem* gameSystem, vecs::EntityID entity,
+                                 vecs::ComponentID voxelPosition,
+                                 const i32v3& centerPosition,
+                                 ui32 radius,
+                                 ChunkAccessor* accessor) {
+    vecs::ComponentID vpid = gameSystem->addComponent("ChunkSphere", entity);
+    auto& cmp = gameSystem->chunkSphere.get(vpid);
+
+    cmp.radius = radius;
+    cmp.centerPosition = centerPosition;
+    cmp.offset = i32v3(0);
+    cmp.accessor = accessor;
+
+    ChunkSphereComponentUpdater::setRadius(cmp, radius);
+}
+
+void GameSystemAssemblages::removeChunkSphere(GameSystem* gameSystem, vecs::EntityID entity) {
+    gameSystem->deleteComponent("ChunkSphere", entity);
 }
 
 extern vecs::ComponentID GameSystemAssemblages::addFrustumComponent(GameSystem* gameSystem, vecs::EntityID entity,

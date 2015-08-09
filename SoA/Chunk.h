@@ -127,7 +127,7 @@ private:
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
 
-    int m_activeIndex; ///< Position in active list for m_chunkGrid
+    ui32 m_activeIndex; ///< Position in active list for m_chunkGrid
     bool m_inLoadRange = false;
 
     ChunkID m_id;

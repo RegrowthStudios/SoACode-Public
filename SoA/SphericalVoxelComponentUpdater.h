@@ -55,7 +55,6 @@ private:
 
     i32v3 m_lastChunkPos = i32v3(INT_MAX);
     f64v3 m_lastAgentPos = f64v3(FLT_MAX);
-    ChunkHandle m_centerHandle;
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

@@ -58,6 +58,7 @@ public:
 
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 
+    std::mutex m_lckAddOrRemove;
 private:
     /************************************************************************/
     /* Event Handlers                                                       */
@@ -71,10 +72,9 @@ private:
     ChunkGenerator* m_generators = nullptr;
 
     std::vector<ChunkHandle> m_activeChunks;
-    std::mutex m_lckActiveChunksToAdd;
-    std::vector<ChunkHandle> m_activeChunksToAdd;
-    std::mutex m_lckActiveChunksToRemove;
-    std::vector<ChunkHandle> m_activeChunksToRemove;
+
+    // To prevent needing lock on m_activeChunks;
+    std::vector<std::pair<ChunkHandle, bool /*true = add*/>> m_activeChunksToAddOrRemove;
 
     // TODO(Ben): Compare to std::map performance
     std::mutex m_lckGridData;

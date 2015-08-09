@@ -19,6 +19,7 @@
 struct ChunkID {
     ChunkID() : id(0) {};
     ChunkID(i32 x, i32 y, i32 z) : x(x), y(y), z(z) {};
+    ChunkID(const i32v3& p) : x(p.x), y(p.y), z(p.z) {};
     ChunkID(ui64 id) : id(id) {};
     union {
         struct {

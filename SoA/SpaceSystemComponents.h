@@ -149,7 +149,6 @@ struct SphericalVoxelComponent {
     ChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
-    VoxelLightEngine voxelLightEngine;
 
     SphericalHeightmapGenerator* generator = nullptr;
 

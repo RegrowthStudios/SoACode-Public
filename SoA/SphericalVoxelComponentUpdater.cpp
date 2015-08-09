@@ -56,10 +56,8 @@ void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agen
 
     if (chunkPosition != m_lastChunkPos) {
         m_lastChunkPos = chunkPosition;
-        if (m_centerHandle.isAquired()) m_centerHandle.release();
         // Submit a generation query
-        m_centerHandle = m_cmp->chunkGrids[agentPosition.face].submitQuery(chunkPosition, GEN_DONE, true)->chunk.acquire();
-        doGen = false; // Don't do generation queries when moving fast
+        m_cmp->chunkGrids[agentPosition.face].submitQuery(chunkPosition, GEN_DONE, true);
     }
 
     updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition, doGen);
@@ -75,6 +73,8 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
 
     // Loop through all currently active chunks
     // TODO(Ben): Chunk should only become active after load?
+    std::vector<ChunkHandle> disconnects;
+    std::vector<ChunkHandle> connects;
     const std::vector<ChunkHandle>& chunks = grid.getActiveChunks();
     // TODO(Ben): Race condition!
     for (int i = (int)chunks.size() - 1; i >= 0; i--) {
@@ -93,13 +93,15 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
                 // Dispose the mesh and disconnect neighbors
                 disposeChunkMesh(chunk);
                 chunk->m_inLoadRange = false;
-                grid.releaseNeighbors(chunk);
+                ChunkHandle(chunk).release();
+                disconnects.push_back(chunk);
             }
         } else {
             // Check for connecting neighbors
             if (!chunk->m_inLoadRange) {
                 chunk->m_inLoadRange = true;
-                grid.acquireNeighbors(chunk);
+                connects.push_back(chunk);
+                ChunkHandle(chunk).acquire();
             }
             // Check for generation
             if (doGen) {
@@ -114,6 +116,13 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
                 }
             }
         }
+    }
+
+    for (auto& h : connects) {
+        grid.acquireNeighbors(h);
+    }
+    for (auto& h : disconnects) {
+        grid.releaseNeighbors(h);
     }
 }
 
