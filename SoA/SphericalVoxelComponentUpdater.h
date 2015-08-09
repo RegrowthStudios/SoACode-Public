@@ -43,18 +43,15 @@ private:
 
     SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
 
-    void updateComponent(const VoxelPosition3D& agentPosition);
+    void updateComponent(SphericalVoxelComponent& cmp);
 
-    void updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition, bool doGen);
+    void updateChunks(ChunkGrid& grid, bool doGen);
 
     void requestChunkMesh(ChunkHandle chunk);
 
     void disposeChunkMesh(Chunk* chunk);
 
     ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
-
-    i32v3 m_lastChunkPos = i32v3(INT_MAX);
-    f64v3 m_lastAgentPos = f64v3(FLT_MAX);
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

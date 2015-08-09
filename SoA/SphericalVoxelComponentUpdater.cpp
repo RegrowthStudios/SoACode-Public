@@ -30,43 +30,24 @@ void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
     SpaceSystem* spaceSystem = soaState->spaceSystem;
     GameSystem* gameSystem = soaState->gameSystem;
     if (spaceSystem->sphericalVoxel.getComponentListSize() > 1) {
-
-        // TODO(Ben): This is temporary hard coded player stuff.
-        auto& playerPosCmp = gameSystem->voxelPosition.getFromEntity(soaState->playerEntity);
-
         for (auto& it : spaceSystem->sphericalVoxel) {
             if (it.second.chunkGrids) {
-                m_cmp = &it.second;
-                updateComponent(playerPosCmp.gridPosition);
+                updateComponent(it.second);
             }
         }
     }
 }
 
-void SphericalVoxelComponentUpdater::updateComponent(const VoxelPosition3D& agentPosition) { 
-    // Always make a chunk at camera location
-    
-    i32v3 chunkPosition = VoxelSpaceConversions::voxelToChunk(agentPosition);
-    // Don't generate when moving too fast
-    bool doGen = true;
-    if (glm::length(m_lastAgentPos - agentPosition.pos) > 8.0f) {
-        doGen = false;
+void SphericalVoxelComponentUpdater::updateComponent(SphericalVoxelComponent& cmp) {
+    m_cmp = &cmp;
+    // Update each world cube face
+    for (int i = 0; i < 6; i++) {
+        updateChunks(cmp.chunkGrids[i], true);
+        cmp.chunkGrids[i].update();
     }
-    m_lastAgentPos = agentPosition;
-
-    if (chunkPosition != m_lastChunkPos) {
-        m_lastChunkPos = chunkPosition;
-        // Submit a generation query
-        m_cmp->chunkGrids[agentPosition.face].submitQuery(chunkPosition, GEN_DONE, true);
-    }
-
-    updateChunks(m_cmp->chunkGrids[agentPosition.face], agentPosition, doGen);
-
-    // TODO(Ben): This doesn't scale for multiple agents
-    m_cmp->chunkGrids[agentPosition.face].update();
 }
 
-void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPosition3D& agentPosition, bool doGen) {
+void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, bool doGen) {
     // Get render distance squared
     f32 renderDist2 = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH);
     renderDist2 *= renderDist2;
@@ -79,43 +60,44 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, const VoxelPo
     // TODO(Ben): Race condition!
     for (int i = (int)chunks.size() - 1; i >= 0; i--) {
         ChunkHandle chunk = chunks[i];
-        // Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
-        chunk->distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
+        // TODO(Ben): Implement for new method
+        //// Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
+        //chunk->distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
 
-        // Check container update
-        if (chunk->genLevel == GEN_DONE) {
-        //    chunk->updateContainers();
-        }
+        //// Check container update
+        //if (chunk->genLevel == GEN_DONE) {
+        ////    chunk->updateContainers();
+        //}
 
-        // Check for unload
-        if (chunk->distance2 > renderDist2) {
-            if (chunk->m_inLoadRange) {
-                // Dispose the mesh and disconnect neighbors
-                disposeChunkMesh(chunk);
-                chunk->m_inLoadRange = false;
-                ChunkHandle(chunk).release();
-                disconnects.push_back(chunk);
-            }
-        } else {
-            // Check for connecting neighbors
-            if (!chunk->m_inLoadRange) {
-                chunk->m_inLoadRange = true;
-                connects.push_back(chunk);
-                ChunkHandle(chunk).acquire();
-            }
-            // Check for generation
-            if (doGen) {
-                if (chunk->pendingGenLevel != GEN_DONE) {
-                    // Submit a generation query
-                 //   ChunkQuery* q = new ChunkQuery;
-                 //   q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
-                //    m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
-                } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
-                    // TODO(Ben): Get meshing outa here
-                    requestChunkMesh(chunk);
-                }
-            }
-        }
+        //// Check for unload
+        //if (chunk->distance2 > renderDist2) {
+        //    if (chunk->m_inLoadRange) {
+        //        // Dispose the mesh and disconnect neighbors
+        //        disposeChunkMesh(chunk);
+        //        chunk->m_inLoadRange = false;
+        //        ChunkHandle(chunk).release();
+        //        disconnects.push_back(chunk);
+        //    }
+        //} else {
+        //    // Check for connecting neighbors
+        //    if (!chunk->m_inLoadRange) {
+        //        chunk->m_inLoadRange = true;
+        //        connects.push_back(chunk);
+        //        ChunkHandle(chunk).acquire();
+        //    }
+        //    // Check for generation
+        //    if (doGen) {
+        //        if (chunk->pendingGenLevel != GEN_DONE) {
+        //            // Submit a generation query
+        //         //   ChunkQuery* q = new ChunkQuery;
+        //         //   q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
+        //        //    m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
+        //        } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
+        //            // TODO(Ben): Get meshing outa here
+        //            requestChunkMesh(chunk);
+        //        }
+        //    }
+        //}
     }
 
     for (auto& h : connects) {
