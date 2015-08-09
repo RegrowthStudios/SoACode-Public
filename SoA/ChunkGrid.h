@@ -58,7 +58,7 @@ public:
 
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 
-    std::mutex m_lckAddOrRemove;
+    ChunkAccessor accessor;
 private:
     /************************************************************************/
     /* Event Handlers                                                       */
@@ -68,12 +68,12 @@ private:
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    ChunkAccessor m_accessor;
     ChunkGenerator* m_generators = nullptr;
 
     std::vector<ChunkHandle> m_activeChunks;
 
     // To prevent needing lock on m_activeChunks;
+    std::mutex m_lckAddOrRemove;
     std::vector<std::pair<ChunkHandle, bool /*true = add*/>> m_activeChunksToAddOrRemove;
 
     // TODO(Ben): Compare to std::map performance

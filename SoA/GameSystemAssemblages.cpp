@@ -113,17 +113,20 @@ void GameSystemAssemblages::removeVoxelPosition(GameSystem* gameSystem, vecs::En
 vecs::ComponentID GameSystemAssemblages::addChunkSphere(GameSystem* gameSystem, vecs::EntityID entity,
                                  vecs::ComponentID voxelPosition,
                                  const i32v3& centerPosition,
-                                 ui32 radius,
-                                 ChunkAccessor* accessor) {
-    vecs::ComponentID vpid = gameSystem->addComponent("ChunkSphere", entity);
-    auto& cmp = gameSystem->chunkSphere.get(vpid);
+                                 ui32 radius) {
+    vecs::ComponentID id = gameSystem->addComponent("ChunkSphere", entity);
+    auto& cmp = gameSystem->chunkSphere.get(id);
 
     cmp.radius = radius;
     cmp.centerPosition = centerPosition;
     cmp.offset = i32v3(0);
-    cmp.accessor = accessor;
+    cmp.voxelPosition = voxelPosition;
 
-    ChunkSphereComponentUpdater::setRadius(cmp, radius);
+    cmp.radius = radius;
+    cmp.width = cmp.radius * 2 + 1;
+    cmp.layer = cmp.width * cmp.width;
+    cmp.size = cmp.layer * cmp.width;
+    return id;
 }
 
 void GameSystemAssemblages::removeChunkSphere(GameSystem* gameSystem, vecs::EntityID entity) {

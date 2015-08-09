@@ -18,25 +18,25 @@ void ChunkGrid::init(WorldCubeFace face,
     for (ui32 i = 0; i < m_numGenerators; i++) {
         m_generators[i].init(threadPool, genData);
     }
-    m_accessor.init(allocator);
-    m_accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
-    m_accessor.onRemove += makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    accessor.init(allocator);
+    accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
+    accessor.onRemove += makeDelegate(*this, &ChunkGrid::onAccessorRemove);
 }
 
 void ChunkGrid::dispose() {
-    m_accessor.onAdd -= makeDelegate(*this, &ChunkGrid::onAccessorAdd);
-    m_accessor.onRemove -= makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    accessor.onAdd -= makeDelegate(*this, &ChunkGrid::onAccessorAdd);
+    accessor.onRemove -= makeDelegate(*this, &ChunkGrid::onAccessorRemove);
 }
 
 ChunkHandle ChunkGrid::getChunk(const f64v3& voxelPos) {
     ChunkID id(fastFloor(voxelPos.x / (f64)CHUNK_WIDTH),
                fastFloor(voxelPos.y / (f64)CHUNK_WIDTH),
                fastFloor(voxelPos.z / (f64)CHUNK_WIDTH));
-    return m_accessor.acquire(id);
+    return accessor.acquire(id);
 }
 
 ChunkHandle ChunkGrid::getChunk(const i32v3& chunkPos) {
-    return m_accessor.acquire(ChunkID(chunkPos.x, chunkPos.y, chunkPos.z));
+    return accessor.acquire(ChunkID(chunkPos.x, chunkPos.y, chunkPos.z));
 }
 
 ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldRelease) {
@@ -52,7 +52,7 @@ ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel
     query->m_isFinished = false;
 
     ChunkID id(query->chunkPos.x, query->chunkPos.y, query->chunkPos.z);
-    query->chunk = m_accessor.acquire(id);
+    query->chunk = accessor.acquire(id);
     m_queries.enqueue(query);
     // TODO(Ben): RACE CONDITION HERE: There is actually a very small chance that
     // query will get freed before the callee can acquire the chunk, if this runs
@@ -129,32 +129,32 @@ void ChunkGrid::acquireNeighbors(ChunkHandle chunk) {
     { // Left
         ChunkID id = chunk->getID();
         id.x--;
-        chunk->left = m_accessor.acquire(id);
+        chunk->left = accessor.acquire(id);
     }
     { // Right
         ChunkID id = chunk->getID();
         id.x++;
-        chunk->right = m_accessor.acquire(id);
+        chunk->right = accessor.acquire(id);
     }
     { // Bottom
         ChunkID id = chunk->getID();
         id.y--;
-        chunk->bottom = m_accessor.acquire(id);
+        chunk->bottom = accessor.acquire(id);
     }
     { // Top
         ChunkID id = chunk->getID();
         id.y++;
-        chunk->top = m_accessor.acquire(id);
+        chunk->top = accessor.acquire(id);
     }
     { // Back
         ChunkID id = chunk->getID();
         id.z--;
-        chunk->back = m_accessor.acquire(id);
+        chunk->back = accessor.acquire(id);
     }
     { // Front
         ChunkID id = chunk->getID();
         id.z++;
-        chunk->front = m_accessor.acquire(id);
+        chunk->front = accessor.acquire(id);
     } 
 }
 

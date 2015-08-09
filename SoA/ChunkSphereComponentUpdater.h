@@ -17,15 +17,21 @@
 
 #include "ChunkHandle.h"
 #include "GameSystemComponents.h"
-#include "GameSystem.h"
 
+class GameSystem;
+class SpaceSystem;
 class ChunkAccessor;
 
 class ChunkSphereComponentUpdater {
 public:
-    void update(GameSystem* gameSystem);
+    void update(GameSystem* gameSystem, SpaceSystem* spaceSystem);
 
-    static void setRadius(ChunkSphereComponent& cmp, ui32 radius);
+    void setRadius(ChunkSphereComponent& cmp, ui32 radius);
+
+private:
+    void shiftDirection(ChunkSphereComponent& cmp, int axis1, int axis2, int axis3, int offset);
+    void releaseHandles(ChunkSphereComponent& cmp);
+    void initSphere(ChunkSphereComponent& cmp);
 };
 
 #endif // ChunkSphereAcquirer_h__

@@ -40,9 +40,6 @@ public:
     void update(const SoaState* soaState);
 
 private:
-
-    SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
-
     void updateComponent(SphericalVoxelComponent& cmp);
 
     void updateChunks(ChunkGrid& grid, bool doGen);
@@ -52,6 +49,8 @@ private:
     void disposeChunkMesh(Chunk* chunk);
 
     ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
+
+    SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
 };
 
 #endif // SphericalVoxelComponentUpdater_h__

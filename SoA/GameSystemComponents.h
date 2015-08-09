@@ -93,12 +93,13 @@ struct ChunkSphereComponent {
     // TODO(Ben): Chunk position?
     i32v3 offset = i32v3(0);
     i32v3 centerPosition = i32v3(0);
-    ui32 radius = 0;
     ChunkAccessor* accessor = nullptr;
     ChunkHandle* handleGrid = nullptr;
     // For fast 1 chunk shift
     std::vector<i32v3> acquireOffsets;
+    WorldCubeFace currentCubeFace = FACE_NONE;
 
+    i32 radius = 0;
     i32 width = 0;
     i32 layer = 0;
     i32 size = 0;
@@ -108,6 +109,8 @@ public:
     virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override {
         ChunkSphereComponent& cmp = _components[cID].second;
         delete[] cmp.handleGrid;
+        cmp.handleGrid = nullptr;
+        cmp.accessor = nullptr;
     }
 };
 

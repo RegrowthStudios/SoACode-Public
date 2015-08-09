@@ -68,8 +68,7 @@ namespace GameSystemAssemblages {
     vecs::ComponentID addChunkSphere(GameSystem* gameSystem, vecs::EntityID entity,
                                      vecs::ComponentID voxelPosition,
                                      const i32v3& centerPosition,
-                                     ui32 radius,
-                                     ChunkAccessor* accessor);
+                                     ui32 radius);
     void removeChunkSphere(GameSystem* gameSystem, vecs::EntityID entity);
     /// Frustum Component
     vecs::ComponentID addFrustumComponent(GameSystem* gameSystem, vecs::EntityID entity,

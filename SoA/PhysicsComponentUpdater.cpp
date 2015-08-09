@@ -52,6 +52,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         // TODO(Ben): Orient this
         pyCmp.velocity = f64v3(0.0);
         GameSystemAssemblages::removeVoxelPosition(gameSystem, entity);
+        GameSystemAssemblages::removeChunkSphere(gameSystem, entity);
         return;
     }
 
@@ -178,6 +179,10 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                                                                                   stCmp.sphericalVoxelComponent,
                                                                                   voxOrientation,
                                                                                   stCmp.startVoxelPosition);
+                
+                // Make the Chunk Sphere component
+                GameSystemAssemblages::addChunkSphere(gameSystem, entity, vpid, VoxelSpaceConversions::voxelToChunk(stCmp.startVoxelPosition), 7);
+                
                 pyCmp.voxelPositionComponent = vpid;
 
                 // TODO(Ben): Calculate velocity change properly
