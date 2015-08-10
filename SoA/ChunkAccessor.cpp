@@ -4,9 +4,9 @@
 #include "ChunkAllocator.h"
 
 const ui32 HANDLE_STATE_DEAD = 0;
-const ui32 HANDLE_STATE_BIRTHING = 1;
+const ui32 HANDLE_STATE_ACQUIRING = 1;
 const ui32 HANDLE_STATE_ALIVE = 2;
-const ui32 HANDLE_STATE_ZOMBIE = 3;
+const ui32 HANDLE_STATE_FREEING = 3;
 
 ChunkHandle ChunkHandle::acquire() {
     return m_chunk->accessor->acquire(*this);
@@ -25,59 +25,73 @@ void ChunkAccessor::destroy() {
 #ifdef FAST_CHUNK_ACCESS
 
 ChunkHandle ChunkAccessor::acquire(ChunkID id) {
-    // TODO(Cristian): Try to not lock down everything
-    bool wasOld;
-    ChunkHandle chunk = safeAdd(id, wasOld);
-    return wasOld ? acquire(chunk) : chunk;
+    std::unique_lock<std::mutex> lMap(m_lckLookup);
+    auto& it = m_chunkLookup.find(id);
+    if (it == m_chunkLookup.end()) {
+        ChunkHandle& h = m_chunkLookup[id];
+        h.m_chunk = m_allocator->alloc();
+        h->m_handleRefCount = 1;
+        h->m_id = id;
+        h->accessor = this;
+        h->m_handleState = HANDLE_STATE_ALIVE;
+        lMap.unlock();
+        onAdd(ChunkHandle(h));
+        return h;
+    } else {
+        InterlockedIncrement(&it->second->m_handleRefCount);
+        it->second->m_handleState = HANDLE_STATE_ALIVE;
+        return it->second;
+    }
 }
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
-    // If it's dead, we want to make it come to life
-REVIVAL:
-    switch (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE)) {
-    case HANDLE_STATE_BIRTHING:
-    case HANDLE_STATE_ALIVE:
-ACQUIRE :
-        // We can safely increment here
-        InterlockedIncrement(&chunk->m_handleRefCount);
-        // Make this alive
-        InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ALIVE, HANDLE_STATE_BIRTHING);
-        return chunk;
-    case HANDLE_STATE_ZOMBIE:
-    { // Someone is trying to kill this chunk, don't let them
-        std::lock_guard<std::mutex>(chunk->mutex);
-        if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_BIRTHING, HANDLE_STATE_ZOMBIE) != HANDLE_STATE_DEAD) {
-            goto ACQUIRE;
-        } else {
-            std::this_thread::yield();
-            goto REVIVAL;
-        }
-    }
-    case HANDLE_STATE_DEAD:
-        // It's dead, it must be revived
+    switch (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ACQUIRING, HANDLE_STATE_ALIVE)) {
+    case HANDLE_STATE_FREEING:
         return acquire(chunk->m_id);
-    default:
+    case HANDLE_STATE_ACQUIRING:
+        InterlockedIncrement(&chunk->m_handleRefCount);
+        return chunk;
+    case HANDLE_STATE_ALIVE:
+        InterlockedIncrement(&chunk->m_handleRefCount);
+        InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ALIVE, HANDLE_STATE_ACQUIRING);
         return chunk;
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
+    ui32 retries = 0;
+
     // TODO(Cristian): Heavy thread-safety
     ui32 currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
+RETEST_CHUNK_LIVELINESS:
     if (currentCount == 0) {
         // If the chunk is alive, set it to zombie mode. Otherwise, it's being birthed or already dead.
-        if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ZOMBIE, HANDLE_STATE_ALIVE) == HANDLE_STATE_ALIVE) {
-            // Now that it's a zombie, we kill it.
-            if (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_DEAD, HANDLE_STATE_ZOMBIE) == HANDLE_STATE_ZOMBIE) {
-                // Highlander... there can only be one... killer of chunks
-                std::lock_guard<std::mutex> chunkLock(chunk->mutex);
-                currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
-                if (currentCount == -1) {
-                    // We are able to kill this chunk
-                    safeRemove(chunk);
-                }
+        switch (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_FREEING, HANDLE_STATE_ALIVE)) {
+        case HANDLE_STATE_ALIVE:
+        { // Highlander... there can only be one... killer of chunks
+            std::lock_guard<std::mutex> chunkLock(chunk->mutex);
+            currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
+            if (chunk->m_handleState == HANDLE_STATE_FREEING) {
+                // We are able to kill this chunk
+                safeRemove(chunk);
             }
         }
+        case HANDLE_STATE_FREEING:
+            // Let the other thread do the work
+            break;
+        case HANDLE_STATE_ACQUIRING:
+            // Need to retry
+            std::this_thread::yield();
+            currentCount = chunk->m_handleRefCount;
+            retries++;
+            goto RETEST_CHUNK_LIVELINESS;
+        }
     }
+
+    // Invalidate the handle
     chunk.m_chunk = nullptr;
+    if (retries > 2) {
+        printf("A lot of release retries occurred: %d\n", retries);
+        fflush(stdout);
+    }
 }
 
 #else
@@ -121,8 +135,9 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
         h->accessor = this;
         h->m_handleState = HANDLE_STATE_ALIVE;
         h->m_handleRefCount = 1;
+        ChunkHandle tmp(h);
         l.unlock();
-        onAdd(ChunkHandle(h));
+        onAdd(tmp);
         return h;
     } else {
         wasOld = true;
