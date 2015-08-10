@@ -30,5 +30,5 @@ void GenerateTask::execute(WorkerData* workerData) {
         // TODO(Ben): Not true for all gen?
         chunk.isAccessible = true;
     }
-    chunkGenerator->onQueryFinish(query);
+    chunkGenerator->finishQuery(query);
 }

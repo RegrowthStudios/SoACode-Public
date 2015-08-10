@@ -42,9 +42,11 @@ public:
     void init(vcore::ThreadPool<WorkerData>* threadPool,
               PlanetGenData* genData);
     void submitQuery(ChunkQuery* query);
-    void onQueryFinish(ChunkQuery* query);
+    void finishQuery(ChunkQuery* query);
     // Updates finished queries
     void update();
+
+    Event<ChunkHandle, ChunkGenLevel> onGenFinish;
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_finishedQueries;
     std::map < ChunkGridData*, std::vector<ChunkQuery*> >m_pendingQueries; ///< Queries waiting on height map
