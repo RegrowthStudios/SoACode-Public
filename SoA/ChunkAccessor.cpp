@@ -69,7 +69,7 @@ RETEST_CHUNK_LIVELINESS:
         switch (InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_FREEING, HANDLE_STATE_ALIVE)) {
         case HANDLE_STATE_ALIVE:
         { // Highlander... there can only be one... killer of chunks
-            std::lock_guard<std::mutex> chunkLock(chunk->mutex);
+            std::lock_guard<std::mutex> chunkLock(chunk->m_handleMutex);
             currentCount = InterlockedDecrement(&chunk->m_handleRefCount);
             if (chunk->m_handleState == HANDLE_STATE_FREEING) {
                 // We are able to kill this chunk

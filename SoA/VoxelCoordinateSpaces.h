@@ -7,7 +7,7 @@
 /// All Rights Reserved
 ///
 /// Summary:
-/// Contains the voxel coordinate space definitions
+/// Contains the voxel coordinate space definitions.
 ///
 
 #pragma once

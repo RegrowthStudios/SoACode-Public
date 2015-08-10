@@ -80,10 +80,6 @@ public:
     // Marks the chunks as dirty and flags for a re-mesh
     void flagDirty() { isDirty = true; remeshFlags |= 1; }
 
-    // TODO(Ben): This can be better
-    void lock() { dataMutex.lock(); }
-    void unlock() { dataMutex.unlock(); }
-
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/

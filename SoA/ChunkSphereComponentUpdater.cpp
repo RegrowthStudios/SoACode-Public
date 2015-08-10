@@ -47,7 +47,6 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
                 cmp.centerPosition = chunkPos.pos;
             } else {
                 // Slow version. Multi-chunk shift.
-                std::cout << "BIG SHIFT";
                 cmp.centerPosition = chunkPos.pos;
                 int radius2 = cmp.radius * cmp.radius;
                 // TODO(Ben): Could be optimized
