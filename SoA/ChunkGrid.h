@@ -38,21 +38,27 @@ public:
     ChunkHandle getChunk(const f64v3& voxelPos);
     ChunkHandle getChunk(const i32v3& chunkPos);
 
-    // Will generate chunk if it doesn't exist
-    void submitQuery(ChunkQuery* query);
+    /// Will generate chunk if it doesn't exist
+    /// @param gridPos: The position of the chunk to get.
+    /// @param genLevel: The required generation level.
+    /// @param shouldRelease: Will automatically release when true.
+    ChunkQuery* submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldRelease);
+    /// Releases and recycles a query.
+    void releaseQuery(ChunkQuery* query);
 
     /// Gets a chunkGridData for a specific 2D position
     /// @param gridPos: The grid position for the data
     ChunkGridData* getChunkGridData(const i32v2& gridPos);
 
-    // Processes chunk queries
+    // Processes chunk queries and set active chunks
     void update();
 
-    void connectNeighbors(ChunkHandle chunk);
-    void disconnectNeighbors(ChunkHandle chunk);
+    void acquireNeighbors(ChunkHandle chunk);
+    void releaseNeighbors(ChunkHandle chunk);
 
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 
+    ChunkAccessor accessor;
 private:
     /************************************************************************/
     /* Event Handlers                                                       */
@@ -62,17 +68,22 @@ private:
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    ChunkAccessor m_accessor;
     ChunkGenerator* m_generators = nullptr;
 
-    std::mutex m_lckActiveChunks;
     std::vector<ChunkHandle> m_activeChunks;
+
+    // To prevent needing lock on m_activeChunks;
+    std::mutex m_lckAddOrRemove;
+    std::vector<std::pair<ChunkHandle, bool /*true = add*/>> m_activeChunksToAddOrRemove;
 
     // TODO(Ben): Compare to std::map performance
     std::mutex m_lckGridData;
     std::unordered_map<i32v2, ChunkGridData*> m_chunkGridDataMap; ///< 2D grid specific data
     
     vcore::IDGenerator<ChunkID> m_idGenerator;
+
+    std::mutex m_lckQueryRecycler;
+    PtrRecycler<ChunkQuery> m_queryRecycler;
 
     ui32 m_generatorsPerRow;
     ui32 m_numGenerators;

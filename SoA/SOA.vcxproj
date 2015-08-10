@@ -538,6 +538,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkAccessor.h" />
     <ClInclude Include="ChunkID.h" />
     <ClInclude Include="ChunkQuery.h" />
+    <ClInclude Include="ChunkSphereComponentUpdater.h" />
     <ClInclude Include="ConsoleTests.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
@@ -780,6 +781,8 @@ EXIT 0</Command>
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
     <ClCompile Include="ChunkMeshTask.cpp" />
+    <ClCompile Include="ChunkQuery.cpp" />
+    <ClCompile Include="ChunkSphereComponentUpdater.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />

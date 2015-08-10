@@ -5,24 +5,10 @@
 
 
 void Chunk::init(WorldCubeFace face) {
-    memset(neighbors, 0, sizeof(neighbors));
-    distance2 = FLT_MAX;
     // Get position from ID
-    m_chunkPosition.x = m_id.x;
-    m_chunkPosition.y = m_id.y;
-    m_chunkPosition.z = m_id.z;
+    m_chunkPosition.pos = i32v3(m_id.x, m_id.y, m_id.z);
     m_chunkPosition.face = face;
     m_voxelPosition = VoxelSpaceConversions::chunkToVoxel(m_chunkPosition);
-    m_genQueryData.current = nullptr;
-    remeshFlags = 1;
-    gridData = nullptr;
-    m_inLoadRange = false;
-    // Maybe do this after its done being used in grid?
-    std::vector<ChunkQuery*>().swap(m_genQueryData.pending);
-    numBlocks = 0;
-    hasCreatedMesh = false;
-    genLevel = ChunkGenLevel::GEN_NONE;
-    pendingGenLevel = ChunkGenLevel::GEN_NONE;
 }
 
 void Chunk::initAndFillEmpty(WorldCubeFace face, vvox::VoxelStorageState /*= vvox::VoxelStorageState::INTERVAL_TREE*/) {
@@ -41,6 +27,6 @@ void Chunk::setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortR
 }
 
 void Chunk::updateContainers() {
-    blocks.update(mutex);
-    tertiary.update(mutex);
+    blocks.update(dataMutex);
+    tertiary.update(dataMutex);
 }

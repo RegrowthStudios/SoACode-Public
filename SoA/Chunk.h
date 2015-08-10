@@ -47,6 +47,7 @@ class Chunk {
     friend class ChunkGenerator;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
+    friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
 public:
     // Initializes the chunk but does not set voxel data
@@ -80,8 +81,8 @@ public:
     void flagDirty() { isDirty = true; remeshFlags |= 1; }
 
     // TODO(Ben): This can be better
-    void lock() { mutex.lock(); }
-    void unlock() { mutex.unlock(); }
+    void lock() { dataMutex.lock(); }
+    void unlock() { dataMutex.unlock(); }
 
     /************************************************************************/
     /* Members                                                              */
@@ -105,7 +106,7 @@ public:
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
-    std::mutex mutex;
+    std::mutex dataMutex;
 
     ui8 remeshFlags;
     volatile bool isAccessible = false;
@@ -126,14 +127,17 @@ private:
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
 
-    int m_activeIndex; ///< Position in active list for m_chunkGrid
+    ui32 m_activeIndex; ///< Position in active list for m_chunkGrid
     bool m_inLoadRange = false;
 
-    // TODO(Ben): Thread safety
+    ChunkID m_id;
+
+    /************************************************************************/
+    /* Chunk Handle Data                                                    */
+    /************************************************************************/
+    std::mutex m_handleMutex;
     __declspec(align(4)) volatile ui32 m_handleState = 0;
     __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
-
-    ChunkID m_id;
 };
 
 #endif // NChunk_h__

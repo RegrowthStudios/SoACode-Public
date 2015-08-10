@@ -16,6 +16,9 @@
 #define ChunkQuery_h__
 
 #include "ChunkHandle.h"
+#include "GenerateTask.h"
+
+#include <Vorb/PtrRecycler.hpp>
 
 enum ChunkGenLevel { GEN_NONE = 0, GEN_TERRAIN, GEN_FLORA, GEN_SCRIPT, GEN_DONE };
 
@@ -24,11 +27,7 @@ class ChunkQuery {
     friend class GenerateTask;
     friend class ChunkGrid;
 public:
-    void set(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldDelete) {
-        this->chunkPos = chunkPos;
-        this->genLevel = genLevel;
-        this->shouldDelete = shouldDelete;
-    }
+    void release();
 
     /// Blocks current thread until the query is finished
     void block() {
@@ -43,11 +42,12 @@ public:
     ChunkGenLevel genLevel;
     GenerateTask genTask; ///< For if the query results in generation
     ChunkHandle chunk; ///< Gets set on submitQuery
-    bool shouldDelete = false;
+    bool shouldRelease;
 private:
-    bool m_isFinished = false;
+    bool m_isFinished;
     std::mutex m_lock;
     std::condition_variable m_cond;
+    ChunkGrid* m_grid;
 };
 
 #endif // ChunkQuery_h__

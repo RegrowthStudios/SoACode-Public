@@ -13,9 +13,19 @@ void ChunkGenerator::init(vcore::ThreadPool<WorkerData>* threadPool,
 
 void ChunkGenerator::submitQuery(ChunkQuery* query) {
     Chunk& chunk = query->chunk;
+    // Check if its already done
+    if (chunk.genLevel >= query->genLevel) {
+        query->m_isFinished = true;
+        query->m_cond.notify_one();
+        query->chunk.release();
+        if (query->shouldRelease) query->release();
+        return;
+    }
+
     if (chunk.pendingGenLevel < query->genLevel) {
         chunk.pendingGenLevel = query->genLevel;
     }
+    
     if (!chunk.gridData->isLoaded) {
         // If this heightmap isn't already loading, send it
         if (!chunk.gridData->isLoading) {
@@ -68,11 +78,11 @@ void ChunkGenerator::update() {
                 q2->m_cond.notify_one();
                 chunk.isAccessible = true;
                 q2->chunk.release();
-                if (q2->shouldDelete) delete q2;
+                if (q2->shouldRelease) q2->release();
             }
             std::vector<ChunkQuery*>().swap(chunk.m_genQueryData.pending);
             q->chunk.release();
-            if (q->shouldDelete) delete q;
+            if (q->shouldRelease) q->release();
         } else {
             // Otherwise possibly only some queries are done
             for (size_t i = 0; i < chunk.m_genQueryData.pending.size();) {
@@ -81,11 +91,11 @@ void ChunkGenerator::update() {
                     q2->m_isFinished = true;
                     q2->m_cond.notify_one();
                     chunk.isAccessible = true;
-                    if (q2->shouldDelete) delete q2;
                     // TODO(Ben): Do we care about order?
                     chunk.m_genQueryData.pending[i] = chunk.m_genQueryData.pending.back();
                     chunk.m_genQueryData.pending.pop_back();
                     q2->chunk.release();
+                    if (q2->shouldRelease) q2->release();
                 } else {
                     i++;
                 }
@@ -99,7 +109,7 @@ void ChunkGenerator::update() {
                 m_threadPool->addTask(&q->genTask);
             }
             q->chunk.release();
-            if (q->shouldDelete) delete q;
+            if (q->shouldRelease) q->release();
         }
     }
 }

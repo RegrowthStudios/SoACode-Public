@@ -21,7 +21,7 @@ class CollisionComponentUpdater {
 public:
     /// Updates collision components
     /// @param gameSystem: Game ECS
-    void update(OUT GameSystem* gameSystem);
+    void update(GameSystem* gameSystem);
 };
 
 #endif // CollisionComponentUpdater_h__

@@ -17,6 +17,7 @@
 
 #include <Vorb/ecs/Entity.h>
 
+class ChunkAccessor;
 class GameSystem;
 
 #include "GameSystemComponents.h"
@@ -26,54 +27,60 @@ namespace GameSystemAssemblages {
     /* Entity Factories                                                     */
     /************************************************************************/
     /// Player entity
-    extern vecs::EntityID createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
+    vecs::EntityID createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
                                       const f64q& orientation, f32 massKg, const f64v3& initialVel,
                                       vecs::EntityID parentEntity,
                                       vecs::ComponentID parentGravComponent,
                                       vecs::ComponentID parentSphericalTerrainComponent);
-    extern void destroyPlayer(GameSystem* gameSystem, vecs::EntityID playerEntity);
+    void destroyPlayer(GameSystem* gameSystem, vecs::EntityID playerEntity);
 
     /************************************************************************/
     /* Component Factories                                                  */
     /************************************************************************/
     /// Free movement component
-    extern vecs::ComponentID addFreeMoveInput(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addFreeMoveInput(GameSystem* gameSystem, vecs::EntityID entity,
                                                vecs::ComponentID physicsComponent);
-    extern void removeFreeMoveInput(GameSystem* gameSystem, vecs::EntityID entity);
+    void removeFreeMoveInput(GameSystem* gameSystem, vecs::EntityID entity);
     /// Physics component
-    extern vecs::ComponentID addPhysics(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addPhysics(GameSystem* gameSystem, vecs::EntityID entity,
                                          f32 massKg, const f64v3& initialVel,
                                          vecs::ComponentID spacePositionComponent,
                                          vecs::ComponentID voxelPositionComponent = 0);
-    extern void removePhysics(GameSystem* gameSystem, vecs::EntityID entity);
+    void removePhysics(GameSystem* gameSystem, vecs::EntityID entity);
     /// Space position component
-    extern vecs::ComponentID addSpacePosition(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addSpacePosition(GameSystem* gameSystem, vecs::EntityID entity,
                                                const f64v3& position, const f64q& orientation,
                                                vecs::EntityID parentEntity,
                                                vecs::ComponentID parentGravComponent = 0,
                                                vecs::ComponentID parentSphericalTerrainComponent = 0);
-    extern void removeSpacePosition(GameSystem* gameSystem, vecs::EntityID entity);
+    void removeSpacePosition(GameSystem* gameSystem, vecs::EntityID entity);
     /// AABB Collision component
-    extern vecs::ComponentID addAabbCollidable(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addAabbCollidable(GameSystem* gameSystem, vecs::EntityID entity,
                                                 const f32v3& box, const f32v3& offset);
-    extern void removeAabbCollidable(GameSystem* gameSystem, vecs::EntityID entity);
+    void removeAabbCollidable(GameSystem* gameSystem, vecs::EntityID entity);
     /// Voxel Position Component
-    extern vecs::ComponentID addVoxelPosition(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addVoxelPosition(GameSystem* gameSystem, vecs::EntityID entity,
                                                vecs::ComponentID parentVoxelComponent,
                                                const f64q& orientation,
                                                const VoxelPosition3D& gridPosition);
-    extern void removeVoxelPosition(GameSystem* gameSystem, vecs::EntityID entity);
+    void removeVoxelPosition(GameSystem* gameSystem, vecs::EntityID entity);
+    /// Voxel Position Component
+    vecs::ComponentID addChunkSphere(GameSystem* gameSystem, vecs::EntityID entity,
+                                     vecs::ComponentID voxelPosition,
+                                     const i32v3& centerPosition,
+                                     ui32 radius);
+    void removeChunkSphere(GameSystem* gameSystem, vecs::EntityID entity);
     /// Frustum Component
-    extern vecs::ComponentID addFrustumComponent(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addFrustumComponent(GameSystem* gameSystem, vecs::EntityID entity,
                                                   f32 fov, f32 aspectRatio, f32 znear, f32 zfar,
                                                   vecs::ComponentID spacePosition = 0,
                                                   vecs::ComponentID voxelPosition = 0,
                                                   vecs::ComponentID head = 0);
-    extern void removeFrustumComponent(GameSystem* gameSystem, vecs::EntityID entity);
+    void removeFrustumComponent(GameSystem* gameSystem, vecs::EntityID entity);
     /// Head Component
-    extern vecs::ComponentID addHeadComponent(GameSystem* gameSystem, vecs::EntityID entity,
+    vecs::ComponentID addHeadComponent(GameSystem* gameSystem, vecs::EntityID entity,
                                                f64 neckLength);
-    extern void removeHeadComponent(GameSystem* gameSystem, vecs::EntityID entity);
+    void removeHeadComponent(GameSystem* gameSystem, vecs::EntityID entity);
 }
 
 #endif // GameSystemAssemblages_h__

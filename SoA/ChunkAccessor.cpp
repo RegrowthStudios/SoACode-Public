@@ -54,6 +54,8 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
         InterlockedIncrement(&chunk->m_handleRefCount);
         InterlockedCompareExchange(&chunk->m_handleState, HANDLE_STATE_ALIVE, HANDLE_STATE_ACQUIRING);
         return chunk;
+    default:
+        throw std::invalid_argument("INVALID CHUNK HANDLE STATE");
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
@@ -102,7 +104,7 @@ ChunkHandle ChunkAccessor::acquire(ChunkID id) {
     return wasOld ? acquire(chunk) : chunk;
 }
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
-    std::lock_guard<std::mutex> lChunk(chunk->mutex);
+    std::lock_guard<std::mutex> lChunk(chunk->m_handleMutex);
     if (chunk->m_handleRefCount == 0) {
         // We need to re-add the chunk
         bool wasOld = false;
@@ -113,7 +115,7 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
-    std::lock_guard<std::mutex> lChunk(chunk->mutex);
+    std::lock_guard<std::mutex> lChunk(chunk->m_handleMutex);
     chunk->m_handleRefCount--;
     if (chunk->m_handleRefCount == 0) {
         // We need to remove the chunk
@@ -129,8 +131,9 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     auto& it = m_chunkLookup.find(id);
     if (it == m_chunkLookup.end()) {
         wasOld = false;
-        ChunkHandle& h = m_chunkLookup[id];
+        ChunkHandle h = {};
         h.m_chunk = m_allocator->alloc();
+        m_chunkLookup[id] = h;
         h->m_id = id;
         h->accessor = this;
         h->m_handleState = HANDLE_STATE_ALIVE;

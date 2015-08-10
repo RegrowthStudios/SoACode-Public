@@ -29,8 +29,8 @@ class ChunkGridData;
 // Data stored in Chunk and used only by ChunkGenerator
 struct ChunkGenQueryData {
     friend class ChunkGenerator;
-    friend class Chunk;
     friend class ChunkGrid;
+    friend class PagedChunkAllocator;
 private:
     ChunkQuery* current = nullptr;
     std::vector<ChunkQuery*> pending;

@@ -30,6 +30,7 @@ public:
     vecs::ComponentTable<VoxelPositionComponent> voxelPosition;
     vecs::ComponentTable<FrustumComponent> frustum;
     vecs::ComponentTable<HeadComponent> head;
+    ChunkSphereComponentTable chunkSphere;
 };
 
 #endif // GameSystem_h__
