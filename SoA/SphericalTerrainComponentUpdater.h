@@ -33,14 +33,14 @@ const int ST_TOTAL_PATCHES = ST_PATCHES_PER_FACE * NUM_FACES;
 
 class SphericalTerrainComponentUpdater {
 public:
-    void update(const SoaState* state, const f64v3& cameraPos);
+    void update(SoaState* state, const f64v3& cameraPos);
 
     /// Updates openGL specific stuff. Call on render thread
     void glUpdate(const SoaState* soaState);
 
 private:
     void initPatches(SphericalTerrainComponent& cmp);
-    void updateVoxelComponentLogic(const SoaState* state, vecs::EntityID eid, SphericalTerrainComponent& stCmp);
+    void updateVoxelComponentLogic(SoaState* state, vecs::EntityID eid, SphericalTerrainComponent& stCmp);
 };
 
 #endif // SphericalTerrainComponentUpdater_h__

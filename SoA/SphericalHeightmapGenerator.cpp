@@ -5,6 +5,7 @@
 #include "VoxelSpaceConversions.h"
 #include "Noise.h"
 #include "soaUtils.h"
+#include <random>
 
 #define WEIGHT_THRESHOLD 0.001
 
@@ -53,16 +54,15 @@ FloraID SphericalHeightmapGenerator::getTreeID(const Biome* biome, const VoxelPo
         chances[i] = totalChance;
         noTreeChance *= (1.0 - c);
     }
-    // Start random generator
-    FastRandGenerator rGen(facePosition.pos.x, facePosition.pos.y);
-    f64 r = rGen.genlf();
+    // ITS SLOW
+    std::hash<f64> h;
+    std::uniform_real_distribution<f64> dist(0.0, 1.0);
+    std::mt19937 slowRGen(h(facePosition.pos.x) ^ (h(facePosition.pos.y) << 1));
+    f64 r = dist(slowRGen);
     if (r < 1.0 - noTreeChance) {
         // A plant exists, now we determine which one
         // TODO(Ben): Binary search?
-        // Fast generator is shitty so we have to seed twice
-        // or the second number is always small
-        rGen.seed(facePosition.pos.y, facePosition.pos.x, 123.0); // 3rd parameter to avoid artefacts at center
-        f64 roll = rGen.genlf() * totalChance;
+        f64 roll = dist(slowRGen) * totalChance;
         for (size_t i = 0; i < biome->trees.size(); i++) {
             if (roll <= chances[i]) {
                 return biome->trees[i].id;
@@ -88,15 +88,13 @@ FloraID SphericalHeightmapGenerator::getFloraID(const Biome* biome, const VoxelP
         noFloraChance *= (1.0 - c);
     }
     // Start random generator
-    FastRandGenerator rGen(facePosition.pos.x, facePosition.pos.y);
-    f64 r = rGen.genlf();
+    // ITS SLOW
+    std::hash<f64> h;
+    std::uniform_real_distribution<f64> dist(0.0, 1.0);
+    std::mt19937 slowRGen(h(facePosition.pos.x) ^ (h(facePosition.pos.y) << 1));
+    f64 r = dist(slowRGen);
     if (r < 1.0 - noFloraChance) {
-        // A plant exists, now we determine which one
-        // TODO(Ben): Binary search?
-        // Fast generator is shitty so we have to seed twice
-        // or the second number is always small
-        rGen.seed(facePosition.pos.y, facePosition.pos.x, 123.0); // 3rd parameter to avoid artefacts at center
-        f64 roll = rGen.genlf() * totalChance;
+        f64 roll = dist(slowRGen) * totalChance;
         for (size_t i = 0; i < biome->flora.size(); i++) {
             if (roll <= chances[i]) {
                 return biome->flora[i].id;

@@ -151,53 +151,73 @@ inline ui32 fastRand(ui32 seed) {
     return ((214013u * seed + 2531011u) >> 16) & RAND_MAX;
 }
 
-// RAND_MAX minus 1
-#define RAND_MAX_M1 0x7FFE
+#define FULL_64 0xFFFFFFFFFFFFFFFFu
 
-// https://software.intel.com/en-us/articles/fast-random-number-generator-on-the-intel-pentiumr-4-processor
-// Poor distribution but fast.
+// Great distribution and only a bit slower than rand()
 class FastRandGenerator {
 public:
-    FastRandGenerator() {};
-    FastRandGenerator(ui32 seed) : m_seed(seed) {};
-    template <typename T>
+    FastRandGenerator() { m_seed[0] = 214013u; m_seed[1] = 2531011u; };
+    template<typename T>
+    FastRandGenerator(T seedX) { seed(seedX); }
+    template<typename T>
     FastRandGenerator(T seedX, T seedY) { seed(seedX, seedY); }
-    template <typename T>
+    template<typename T>
     FastRandGenerator(T seedX, T seedY, T seedZ) { seed(seedX, seedY, seedZ); }
 
     // Seeds the generator
-    inline void seed(ui32 seed) { m_seed = seed; }
-    template <typename T>
+    // TODO(Ben): Not sure how good this seeding is...
+    template<typename T>
+    inline void seed(T seed) {
+        std::hash<T> h;
+        m_seed[0] = ((ui64)h(seed) << 32) | (ui64)seed;
+        m_seed[1] = m_seed[0] | (m_seed[0] << 32);
+        gen();
+    }
+    template<typename T>
     inline void seed(T seedX, T seedY) {
         std::hash<T> h;
-        m_seed = ((h(seedX) ^ (h(seedY) << 1)) >> 1);
+        ui64 hx = h(seedX);
+        ui64 hy = h(seedY);
+        m_seed[0] = (ui64)fastRand(hx) | ((ui64)hy + 214013u << 32);
+        m_seed[1] = (ui64)fastRand(hy) | (m_seed[0] << 32);
+        gen();
     }
-    template <typename T>
+    template<typename T>
     inline void seed(T seedX, T seedY, T seedZ) {
         std::hash<T> h;
-        m_seed = ((h(seedX) ^ (h(seedY) << 1)) >> 1) ^ (h(seedZ) << 1);
+        ui64 hx = h(seedX);
+        ui64 hy = h(seedY);
+        m_seed[0] = (ui64)hx | ((ui64)hy << 32);
+        m_seed[1] = (ui64)hy | ((ui64)hx << 32) ^ (ui64)seedZ;
+        gen();
     }
 
-    // Generates number between 0 and RAND_MAX-1
-    inline ui32 gen() {
-        m_seed = ((214013u * m_seed + 2531011u) >> 16);
-        return m_seed & RAND_MAX;
+    // Generates a random 64 bit number
+    inline ui64 gen() {
+        ui64 x = m_seed[0];
+        const ui64 y = m_seed[1];
+        m_seed[0] = y;
+        x ^= x << 23; // a
+        x ^= x >> 17; // b
+        x ^= y ^ (y >> 26); // c
+        m_seed[1] = x;
+        return x + y;
     }
+   
     // Generates number between 0 and 1
-    // Granularity is 0.0000305
-    inline f32 genf() {
-        m_seed = ((214013u * m_seed + 2531011u) >> 16);
-        return (f32)(m_seed & RAND_MAX) / (RAND_MAX_M1);
-    }
-    // Generates number between 0 and 1
-    // Granularity is 1 / 2^30
     inline f64 genlf() {
-        ui32 low = ((214013u * m_seed + 2531011u) >> 16);
-        m_seed = ((214013u * low + 2531011u) >> 16);
-        return (f64)(((m_seed & RAND_MAX) << 15) | (low & RAND_MAX)) / (f64)(0x3FFFFFFF);
+        ui64 x = m_seed[0];
+        const ui64 y = m_seed[1];
+        m_seed[0] = y;
+        x ^= x << 23; // a
+        x ^= x >> 17; // b
+        x ^= y ^ (y >> 26); // c
+        m_seed[1] = x;
+        return (f64)(x + y) / (f64)FULL_64;
     }
+
 private:
-    ui32 m_seed = 0;
+    ui64 m_seed[2];
 };
 
 

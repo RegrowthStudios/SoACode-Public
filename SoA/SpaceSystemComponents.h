@@ -147,10 +147,8 @@ struct SphericalGravityComponent {
 
 struct SphericalVoxelComponent {
     ChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
-    PagedChunkAllocator* chunkAllocator = nullptr;
     ChunkIOManager* chunkIo = nullptr;
     ChunkMeshManager* chunkMeshManager = nullptr;
-    VoxelLightEngine voxelLightEngine;
 
     SphericalHeightmapGenerator* generator = nullptr;
 
@@ -164,8 +162,6 @@ struct SphericalVoxelComponent {
     vecs::ComponentID farTerrainComponent = 0;
     vecs::ComponentID namePositionComponent = 0;
     vecs::ComponentID axisRotationComponent = 0;
-
-    moodycamel::ConcurrentQueue<Chunk*>* meshDepsFlushList = nullptr;
 
     /// The threadpool for generating chunks and meshes
     vcore::ThreadPool<WorkerData>* threadPool = nullptr;

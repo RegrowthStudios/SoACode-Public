@@ -23,14 +23,14 @@ GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputMapper* inputM
 }
 
 GameSystemUpdater::~GameSystemUpdater() {
- 
+    
 }
 
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
-
-    // Update entity tables
+    // Update component tables
     m_freeMoveUpdater.update(gameSystem, spaceSystem);
     m_physicsUpdater.update(gameSystem, spaceSystem);
     m_collisionUpdater.update(gameSystem);
+    m_chunkSphereUpdater.update(gameSystem, spaceSystem);
     m_frustumUpdater.update(gameSystem);
 }

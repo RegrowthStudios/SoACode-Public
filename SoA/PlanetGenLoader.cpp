@@ -428,6 +428,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
 
     TreeKegProperties* treeProps;
     // Handles
+    BranchVolumeKegProperties* branchVolProps = nullptr;
     TrunkKegProperties* trunkProps = nullptr;
     FruitKegProperties* fruitProps = nullptr;
     LeafKegProperties* leafProps = nullptr;
@@ -450,7 +451,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     auto fruitParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "id") {
             keg::evalData((ui8*)&fruitProps->flora, &stringVal, value, context);
-        } else if (key == "max") {
+        } else if (key == "chance") {
             PARSE_V2(f32, fruitProps->chance);
         }
     });
@@ -501,33 +502,26 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         }
     });
 
-    // Parses segments field
-    auto segmentsParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
-        if (key == "min") {
-            PARSE_V2(i32, trunkProps->branchProps.segments[0]);
-        } else if (key == "max") {
-            PARSE_V2(i32, trunkProps->branchProps.segments[1]);
-        }
-    });
-
     // Parses branch field
     auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "coreWidth") {
             PARSE_V2(i32, trunkProps->branchProps.coreWidth);
         } else if (key == "barkWidth") {
             PARSE_V2(i32, trunkProps->branchProps.barkWidth);
-        } else if (key == "length") {
-            PARSE_V2(i32, trunkProps->branchProps.length);
+        } else if (key == "widthFalloff") {
+            PARSE_V2(f32, trunkProps->branchProps.widthFalloff);
         } else if (key == "angle") {
             PARSE_V2(f32, trunkProps->branchProps.angle);
-        } else if (key == "segments") {
-            context.reader.forAllInMap(value, segmentsParser);
-        } else if (key == "endSizeMult") {
-            keg::evalData((ui8*)&trunkProps->branchProps.endSizeMult, &f32Val, value, context);
-        } else if (key == "branchChance") {
+            // Transform degrees to radians
+            trunkProps->branchProps.angle *= DEG_TO_RAD;
+        } else if (key == "changeDirChance") {
+            PARSE_V2(f32, trunkProps->branchProps.changeDirChance);
+        } else if (key == "subBranchAngle") {
+            PARSE_V2(f32, trunkProps->branchProps.subBranchAngle);
+            // Transform degrees to radians
+            trunkProps->branchProps.subBranchAngle *= DEG_TO_RAD;
+        } else if (key == "branchChance" || key == "subBranchChance") {
             PARSE_V2(f32, trunkProps->branchProps.branchChance);
-        } else if (key == "length") {
-            PARSE_V2(i32, trunkProps->branchProps.length);
         } else if (key == "block") {
             keg::evalData((ui8*)&trunkProps->branchProps.coreBlock, &stringVal, value, context);
             trunkProps->branchProps.barkBlock = trunkProps->branchProps.coreBlock;
@@ -604,10 +598,46 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         if (trunkProps->slope[1].y < 1) trunkProps->slope[1].y = 1;
     });
 
+    // Parses a branch volume
+    auto branchVolumeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+        if (key == "height") {
+            PARSE_V2(i32, branchVolProps->height);
+        } else if (key == "hRadius") {
+            PARSE_V2(i32, branchVolProps->hRadius);
+        } else if (key == "vRadius") {
+            PARSE_V2(i32, branchVolProps->vRadius);
+        } else if (key == "radius") {
+            PARSE_V2(i32, branchVolProps->hRadius);
+            branchVolProps->vRadius = branchVolProps->hRadius;
+        } else if (key == "points") {
+            PARSE_V2(i32, branchVolProps->points);
+        }
+    });
+
+    // Parses array of branch volumes
+    auto branchVolumeSeqParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
+        treeProps->branchVolumes.emplace_back();
+        // Get our handle
+        branchVolProps = &treeProps->branchVolumes.back();
+        *branchVolProps = {}; // Zero it
+
+        context.reader.forAllInMap(value, branchVolumeParser);
+    });
+
     // Parses second level
     auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
             PARSE_V2(i32, treeProps->height);
+        } else if (key == "branchPoints") {
+            PARSE_V2(i32, treeProps->branchPoints);
+        } else if (key == "branchStep") {
+            PARSE_V2(i32, treeProps->branchStep);
+        } else if (key == "killMult") {
+            PARSE_V2(i32, treeProps->killMult);
+        } else if (key == "infRadius") {
+            PARSE_V2(f32, treeProps->infRadius);
+        } else if (key == "branchVolumes") {
+            context.reader.forAllInSequence(value, branchVolumeSeqParser);
         } else if (key == "trunk") {
             context.reader.forAllInSequence(value, trunkParser);
         }
@@ -624,11 +654,12 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     context.reader.forAllInMap(node, baseParser);
     delete fruitParser;
     delete leafParser;
-    delete segmentsParser;
     delete branchParser;
     delete slopeParser;
     delete trunkParser;
     delete trunkDataParser;
+    delete branchVolumeParser;
+    delete branchVolumeSeqParser;
     delete treeParser;
     delete baseParser;
     context.reader.dispose();

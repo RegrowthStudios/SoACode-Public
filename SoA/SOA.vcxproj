@@ -535,6 +535,11 @@ EXIT 0</Command>
     <ClInclude Include="AmbiencePlayer.h" />
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="ChunkAccessor.h" />
+    <ClInclude Include="ChunkID.h" />
+    <ClInclude Include="ChunkQuery.h" />
+    <ClInclude Include="ChunkSphereComponentUpdater.h" />
+    <ClInclude Include="ConsoleTests.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
@@ -607,7 +612,7 @@ EXIT 0</Command>
     <ClInclude Include="BlockTextureLoader.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkGrid.h" />
-    <ClInclude Include="NFloraGenerator.h" />
+    <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
     <ClInclude Include="Noise.h" />
     <ClInclude Include="NoiseShaderCode.hpp" />
@@ -750,7 +755,6 @@ EXIT 0</Command>
     <ClInclude Include="Particles.h" />
     <ClInclude Include="readerwriterqueue.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
@@ -772,10 +776,13 @@ EXIT 0</Command>
     <ClCompile Include="BlockTexturePack.cpp" />
     <ClCompile Include="BloomRenderStage.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkAccessor.cpp" />
     <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
     <ClCompile Include="ChunkMeshManager.cpp" />
     <ClCompile Include="ChunkMeshTask.cpp" />
+    <ClCompile Include="ChunkQuery.cpp" />
+    <ClCompile Include="ChunkSphereComponentUpdater.cpp" />
     <ClCompile Include="CloudsComponentRenderer.cpp" />
     <ClCompile Include="CollisionComponentUpdater.cpp" />
     <ClCompile Include="ColoredFullQuadRenderer.cpp" />
@@ -783,6 +790,7 @@ EXIT 0</Command>
     <ClCompile Include="Computer.cpp" />
     <ClCompile Include="ConsoleFuncs.cpp" />
     <ClCompile Include="ConsoleMain.cpp" />
+    <ClCompile Include="ConsoleTests.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
     <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
@@ -824,7 +832,7 @@ EXIT 0</Command>
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkGrid.cpp" />
-    <ClCompile Include="NFloraGenerator.cpp" />
+    <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="Octree.cpp" />
@@ -915,7 +923,6 @@ EXIT 0</Command>
     <ClCompile Include="ParticleEngine.cpp" />
     <ClCompile Include="PhysicsBlocks.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
-    <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

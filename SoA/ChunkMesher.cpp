@@ -243,52 +243,54 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
 }
 
 #define GET_EDGE_X(ch, sy, sz, dy, dz) \
-    ch->lock(); \
-    for (int x = 0; x < CHUNK_WIDTH; x++) { \
-        srcIndex = (sy) * CHUNK_LAYER + (sz) * CHUNK_WIDTH + x; \
-        destIndex = (dy) * PADDED_LAYER + (dz) * PADDED_WIDTH + (x + 1); \
-        blockData[destIndex] = ch->getBlockData(srcIndex); \
-        tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
-                } \
-    ch->unlock();
+    { \
+      std::lock_guard<std::mutex> l(ch->dataMutex); \
+      for (int x = 0; x < CHUNK_WIDTH; x++) { \
+          srcIndex = (sy) * CHUNK_LAYER + (sz) * CHUNK_WIDTH + x; \
+          destIndex = (dy) * PADDED_LAYER + (dz) * PADDED_WIDTH + (x + 1); \
+          blockData[destIndex] = ch->getBlockData(srcIndex); \
+          tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
+      } \
+    } \
+    ch.release();
 
 #define GET_EDGE_Y(ch, sx, sz, dx, dz) \
-    ch->lock(); \
-    for (int y = 0; y < CHUNK_WIDTH; y++) { \
+    { \
+      std::lock_guard<std::mutex> l(ch->dataMutex); \
+      for (int y = 0; y < CHUNK_WIDTH; y++) { \
         srcIndex = y * CHUNK_LAYER + (sz) * CHUNK_WIDTH + (sx); \
         destIndex = (y + 1) * PADDED_LAYER + (dz) * PADDED_WIDTH + (dx); \
         blockData[destIndex] = ch->getBlockData(srcIndex); \
         tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
-            } \
-    ch->unlock();
+      } \
+    } \
+    ch.release();
 
 #define GET_EDGE_Z(ch, sx, sy, dx, dy) \
-    ch->lock(); \
-    for (int z = 0; z < CHUNK_WIDTH; z++) { \
+    { \
+      std::lock_guard<std::mutex> l(ch->dataMutex); \
+      for (int z = 0; z < CHUNK_WIDTH; z++) { \
         srcIndex = z * CHUNK_WIDTH + (sy) * CHUNK_LAYER + (sx); \
         destIndex = (z + 1) * PADDED_WIDTH + (dy) * PADDED_LAYER + (dx); \
         blockData[destIndex] = ch->getBlockData(srcIndex); \
         tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
-        } \
-    ch->unlock();
+      } \
+    } \
+    ch.release();
 
 #define GET_CORNER(ch, sx, sy, sz, dx, dy, dz) \
     srcIndex = (sy) * CHUNK_LAYER + (sz) * CHUNK_WIDTH + (sx); \
     destIndex = (dy) * PADDED_LAYER + (dz) * PADDED_WIDTH + (dx); \
-    ch->lock(); \
-    blockData[destIndex] = ch->getBlockData(srcIndex); \
-    tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
-    ch->unlock();
+    { \
+      std::lock_guard<std::mutex> l(ch->dataMutex); \
+      blockData[destIndex] = ch->getBlockData(srcIndex); \
+      tertiaryData[destIndex] = ch->getTertiaryData(srcIndex); \
+    } \
+    ch.release();
 
-void ChunkMesher::prepareDataAsync(Chunk* chunk) {
+void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM_NEIGHBOR_HANDLES]) {
     int x, y, z, srcIndex, destIndex;
 
-    Chunk* left = chunk->left;
-    Chunk* right = chunk->right;
-    Chunk* bottom = chunk->bottom;
-    Chunk* top = chunk->top;
-    Chunk* back = chunk->back;
-    Chunk* front = chunk->front;
     int wc;
     int c = 0;
 
@@ -306,208 +308,227 @@ void ChunkMesher::prepareDataAsync(Chunk* chunk) {
 
     // TODO(Ben): Do this last so we can be queued for mesh longer?
     // TODO(Ben): Dude macro this or something.
-    chunk->lock();
-    chunk->queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
-    if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    { // Main chunk
+        std::lock_guard<std::mutex> l(chunk->dataMutex);
+        chunk->queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
+        if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
-        int s = 0;
-        //block data
-        auto& dataTree = chunk->blocks.getTree();
-        for (size_t i = 0; i < dataTree.size(); i++) {
-            for (size_t j = 0; j < dataTree[i].length; j++) {
-                c = dataTree[i].getStart() + j;
+            int s = 0;
+            //block data
+            auto& dataTree = chunk->blocks.getTree();
+            for (size_t i = 0; i < dataTree.size(); i++) {
+                for (size_t j = 0; j < dataTree[i].length; j++) {
+                    c = dataTree[i].getStart() + j;
 
-                getPosFromBlockIndex(c, pos);
+                    getPosFromBlockIndex(c, pos);
 
-                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-                blockData[wc] = dataTree[i].data;
-                if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
-                    m_wvec[s++] = wc;
-                }
-
-            }
-        }
-        wSize = s;
-    } else {
-        int s = 0;
-        for (y = 0; y < CHUNK_WIDTH; y++) {
-            for (z = 0; z < CHUNK_WIDTH; z++) {
-                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
-                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    blockData[wc] = chunk->blocks[c];
+                    wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+                    blockData[wc] = dataTree[i].data;
                     if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
                         m_wvec[s++] = wc;
                     }
                 }
             }
-        }
-        wSize = s;
-    }
-    if (chunk->tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        //tertiary data
-        c = 0;
-        auto& dataTree = chunk->tertiary.getTree();
-        for (size_t i = 0; i < dataTree.size(); i++) {
-            for (size_t j = 0; j < dataTree[i].length; j++) {
-                c = dataTree[i].getStart() + j;
-
-                getPosFromBlockIndex(c, pos);
-                wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
-
-                tertiaryData[wc] = dataTree[i].data;
+            wSize = s;
+        } else {
+            int s = 0;
+            for (y = 0; y < CHUNK_WIDTH; y++) {
+                for (z = 0; z < CHUNK_WIDTH; z++) {
+                    for (x = 0; x < CHUNK_WIDTH; x++, c++) {
+                        wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                        blockData[wc] = chunk->blocks[c];
+                        if (GETBLOCK(blockData[wc]).meshType == MeshType::LIQUID) {
+                            m_wvec[s++] = wc;
+                        }
+                    }
+                }
             }
+            wSize = s;
         }
+        if (chunk->tertiary.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+            //tertiary data
+            c = 0;
+            auto& dataTree = chunk->tertiary.getTree();
+            for (size_t i = 0; i < dataTree.size(); i++) {
+                for (size_t j = 0; j < dataTree[i].length; j++) {
+                    c = dataTree[i].getStart() + j;
 
-    } else {
-        c = 0;
-        for (y = 0; y < CHUNK_WIDTH; y++) {
-            for (z = 0; z < CHUNK_WIDTH; z++) {
-                for (x = 0; x < CHUNK_WIDTH; x++, c++) {
-                    wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
-                    tertiaryData[wc] = chunk->tertiary.get(c);
+                    getPosFromBlockIndex(c, pos);
+                    wc = (pos.y + 1)*PADDED_LAYER + (pos.z + 1)*PADDED_WIDTH + (pos.x + 1);
+
+                    tertiaryData[wc] = dataTree[i].data;
+                }
+            }
+
+        } else {
+            c = 0;
+            for (y = 0; y < CHUNK_WIDTH; y++) {
+                for (z = 0; z < CHUNK_WIDTH; z++) {
+                    for (x = 0; x < CHUNK_WIDTH; x++, c++) {
+                        wc = (y + 1)*PADDED_LAYER + (z + 1)*PADDED_WIDTH + (x + 1);
+                        tertiaryData[wc] = chunk->tertiary.get(c);
+                    }
                 }
             }
         }
     }
-    chunk->unlock();
+    chunk.release();
 
-    left->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+    ChunkHandle& left = neighbors[NEIGHBOR_HANDLE_LEFT];
+    { // Left
+        std::lock_guard<std::mutex> l(left->dataMutex);
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (z = 1; z < PADDED_WIDTH - 1; z++) {
+                srcIndex = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+                destIndex = z*PADDED_WIDTH + y*PADDED_LAYER;
+
+                blockData[destIndex] = left->getBlockData(srcIndex + CHUNK_WIDTH - 1);
+                tertiaryData[destIndex] = left->getTertiaryData(srcIndex + CHUNK_WIDTH - 1);
+            }
+        }
+    }
+    left.release();
+
+    ChunkHandle& right = neighbors[NEIGHBOR_HANDLE_RIGHT];
+    { // Right
+        std::lock_guard<std::mutex> l(right->dataMutex);
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (z = 1; z < PADDED_WIDTH - 1; z++) {
+                srcIndex = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
+                destIndex = z*PADDED_WIDTH + y*PADDED_LAYER + PADDED_WIDTH - 1;
+
+                blockData[destIndex] = (right->getBlockData(srcIndex));
+                tertiaryData[destIndex] = right->getTertiaryData(srcIndex);
+            }
+        }
+    }
+    right.release();
+
+    ChunkHandle& bottom = neighbors[NEIGHBOR_HANDLE_BOT];
+    { // Bottom
+        std::lock_guard<std::mutex> l(bottom->dataMutex);
         for (z = 1; z < PADDED_WIDTH - 1; z++) {
-            srcIndex = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
-            destIndex = z*PADDED_WIDTH + y*PADDED_LAYER;
-
-            blockData[destIndex] = left->getBlockData(srcIndex + CHUNK_WIDTH - 1);
-            tertiaryData[destIndex] = left->getTertiaryData(srcIndex + CHUNK_WIDTH - 1);
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                srcIndex = (z - 1)*CHUNK_WIDTH + x - 1 + CHUNK_SIZE - CHUNK_LAYER;
+                destIndex = z*PADDED_WIDTH + x;
+                //data
+                blockData[destIndex] = (bottom->getBlockData(srcIndex)); //bottom
+                tertiaryData[destIndex] = bottom->getTertiaryData(srcIndex);
+            }
         }
     }
-    left->unlock();
+    bottom.release();
 
-    right->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
+    ChunkHandle& top = neighbors[NEIGHBOR_HANDLE_TOP];
+    { // Top
+        std::lock_guard<std::mutex> l(top->dataMutex);
         for (z = 1; z < PADDED_WIDTH - 1; z++) {
-            srcIndex = (z - 1)*CHUNK_WIDTH + (y - 1)*CHUNK_LAYER;
-            destIndex = z*PADDED_WIDTH + y*PADDED_LAYER + PADDED_WIDTH - 1;
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                srcIndex = (z - 1)*CHUNK_WIDTH + x - 1;
+                destIndex = z*PADDED_WIDTH + x + PADDED_SIZE - PADDED_LAYER;
 
-            blockData[destIndex] = (right->getBlockData(srcIndex));
-            tertiaryData[destIndex] = right->getTertiaryData(srcIndex);
+                blockData[destIndex] = (top->getBlockData(srcIndex)); //top
+                tertiaryData[destIndex] = top->getTertiaryData(srcIndex);
+            }
         }
     }
-    right->unlock();
+    top.release();
 
-    bottom->lock();
-    for (z = 1; z < PADDED_WIDTH - 1; z++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            srcIndex = (z - 1)*CHUNK_WIDTH + x - 1 + CHUNK_SIZE - CHUNK_LAYER;
-            destIndex = z*PADDED_WIDTH + x;
-            //data
-            blockData[destIndex] = (bottom->getBlockData(srcIndex)); //bottom
-            tertiaryData[destIndex] = bottom->getTertiaryData(srcIndex);
+    ChunkHandle& back = neighbors[NEIGHBOR_HANDLE_BACK];
+    { // Back
+        std::lock_guard<std::mutex> l(back->dataMutex);
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                srcIndex = (x - 1) + (y - 1)*CHUNK_LAYER + CHUNK_LAYER - CHUNK_WIDTH;
+                destIndex = x + y*PADDED_LAYER;
+
+                blockData[destIndex] = back->getBlockData(srcIndex);
+                tertiaryData[destIndex] = back->getTertiaryData(srcIndex);
+            }
         }
     }
-    bottom->unlock();
+    back.release();
 
-    top->lock();
-    for (z = 1; z < PADDED_WIDTH - 1; z++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            srcIndex = (z - 1)*CHUNK_WIDTH + x - 1;
-            destIndex = z*PADDED_WIDTH + x + PADDED_SIZE - PADDED_LAYER;
+    ChunkHandle& front = neighbors[NEIGHBOR_HANDLE_FRONT];
+    { // Front
+        std::lock_guard<std::mutex> l(front->dataMutex);
+        for (y = 1; y < PADDED_WIDTH - 1; y++) {
+            for (x = 1; x < PADDED_WIDTH - 1; x++) {
+                srcIndex = (x - 1) + (y - 1)*CHUNK_LAYER;
+                destIndex = x + y*PADDED_LAYER + PADDED_LAYER - PADDED_WIDTH;
 
-            blockData[destIndex] = (top->getBlockData(srcIndex)); //top
-            tertiaryData[destIndex] = top->getTertiaryData(srcIndex);
+                blockData[destIndex] = front->getBlockData(srcIndex);
+                tertiaryData[destIndex] = front->getTertiaryData(srcIndex);
+            }
         }
     }
-    top->unlock();
-
-    back->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            srcIndex = (x - 1) + (y - 1)*CHUNK_LAYER + CHUNK_LAYER - CHUNK_WIDTH;
-            destIndex = x + y*PADDED_LAYER;
-
-            blockData[destIndex] = back->getBlockData(srcIndex);
-            tertiaryData[destIndex] = back->getTertiaryData(srcIndex);
-        }
-    }
-    back->unlock();
-
-    front->lock();
-    for (y = 1; y < PADDED_WIDTH - 1; y++) {
-        for (x = 1; x < PADDED_WIDTH - 1; x++) {
-            srcIndex = (x - 1) + (y - 1)*CHUNK_LAYER;
-            destIndex = x + y*PADDED_LAYER + PADDED_LAYER - PADDED_WIDTH;
-
-            blockData[destIndex] = front->getBlockData(srcIndex);
-            tertiaryData[destIndex] = front->getTertiaryData(srcIndex);
-        }
-    }
-    front->unlock();
+    front.release();
 
     // Top Back
-    Chunk* topBack = top->back;
+    ChunkHandle& topBack = neighbors[NEIGHBOR_HANDLE_TOP_BACK];
     GET_EDGE_X(topBack, 0, CHUNK_WIDTH - 1, PADDED_WIDTH - 1, 0);
     // Top Front
-    Chunk* topFront = top->front;
+    ChunkHandle& topFront = neighbors[NEIGHBOR_HANDLE_TOP_FRONT];
     GET_EDGE_X(topFront, 0, 0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
 
     // Bottom Back
-    Chunk* bottomBack = bottom->back;
+    ChunkHandle& bottomBack = neighbors[NEIGHBOR_HANDLE_BOT_BACK];
     GET_EDGE_X(bottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
     // Bottom Front
-    Chunk* bottomFront = bottom->front;
+    ChunkHandle& bottomFront = neighbors[NEIGHBOR_HANDLE_BOT_FRONT];
     GET_EDGE_X(bottomFront, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
 
     // Left half
     int srcXOff = CHUNK_WIDTH - 1;
     int dstXOff = 0;
-    Chunk* leftBack = left->back;
+    ChunkHandle& leftBack = neighbors[NEIGHBOR_HANDLE_LEFT_BACK];
     GET_EDGE_Y(leftBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-    Chunk* leftFront = left->front;
+    ChunkHandle& leftFront = neighbors[NEIGHBOR_HANDLE_LEFT_FRONT];
     GET_EDGE_Y(leftFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
 
-    Chunk* leftTop = left->top;
+    ChunkHandle& leftTop = neighbors[NEIGHBOR_HANDLE_LEFT_TOP];
     GET_EDGE_Z(leftTop, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
-    Chunk* leftBot = left->bottom;
+    ChunkHandle& leftBot = neighbors[NEIGHBOR_HANDLE_LEFT_BOT];
     GET_EDGE_Z(leftBot, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
 
     // Right half
     srcXOff = 0;
     dstXOff = PADDED_WIDTH - 1;
-    Chunk* rightBack = right->back;
+    ChunkHandle& rightBack = neighbors[NEIGHBOR_HANDLE_RIGHT_BACK];
     GET_EDGE_Y(rightBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-    Chunk* rightFront = right->front;
+    ChunkHandle& rightFront = neighbors[NEIGHBOR_HANDLE_RIGHT_FRONT];
     GET_EDGE_Y(rightFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
 
-    Chunk* rightTop = right->top;
+    ChunkHandle& rightTop = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP];
     GET_EDGE_Z(rightTop, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
-    Chunk* rightBot = right->bottom;
+    ChunkHandle& rightBot = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT];
     GET_EDGE_Z(rightBot, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
 
     // 8 Corners
     // Left Corners
-    Chunk* leftTopBack = leftTop->back;
+    ChunkHandle& leftTopBack = neighbors[NEIGHBOR_HANDLE_LEFT_TOP_BACK];
     GET_CORNER(leftTopBack, CHUNK_WIDTH - 1, 0, CHUNK_WIDTH - 1,
                0, PADDED_WIDTH - 1, 0);
-    Chunk* leftTopFront = leftTop->front;
+    ChunkHandle& leftTopFront = neighbors[NEIGHBOR_HANDLE_LEFT_TOP_FRONT];
     GET_CORNER(leftTopFront, CHUNK_WIDTH - 1, 0, 0,
                0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-    Chunk* leftBottomBack = leftBot->back;
+    ChunkHandle& leftBottomBack = neighbors[NEIGHBOR_HANDLE_LEFT_BOT_BACK];
     GET_CORNER(leftBottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
                0, 0, 0);
-    Chunk* leftBottomFront = leftBot->front;
+    ChunkHandle& leftBottomFront = neighbors[NEIGHBOR_HANDLE_LEFT_BOT_FRONT];
     GET_CORNER(leftBottomFront, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0,
                0, 0, PADDED_WIDTH - 1);
     // Right Corners
-    Chunk* rightTopBack = rightTop->back;
+    ChunkHandle& rightTopBack = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP_BACK];
     GET_CORNER(rightTopBack, 0, 0, CHUNK_WIDTH - 1,
                PADDED_WIDTH - 1, PADDED_WIDTH - 1, 0);
-    Chunk* rightTopFront = rightTop->front;
+    ChunkHandle& rightTopFront = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT];
     GET_CORNER(rightTopFront, 0, 0, 0,
                PADDED_WIDTH - 1, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-    Chunk* rightBottomBack = rightBot->back;
+    ChunkHandle& rightBottomBack = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT_BACK];
     GET_CORNER(rightBottomBack, 0, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
                PADDED_WIDTH - 1, 0, 0);
-    Chunk* rightBottomFront = rightBot->front;
+    ChunkHandle& rightBottomFront = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT];
     GET_CORNER(rightBottomFront, 0, CHUNK_WIDTH - 1, 0,
                PADDED_WIDTH - 1, 0, PADDED_WIDTH - 1);
 }
@@ -990,60 +1011,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     if (quad->v0.position.z < m_lowestZ) m_lowestZ = quad->v0.position.z;
     if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
 
-    { // Look-Behind Greedy Merging(tm)
-        if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
-            quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
-            ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
-            // Check left merge
-            if (leftIndex != NO_QUAD_INDEX) {
-                VoxelQuad& lQuad = quads[leftIndex];
-                if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
-                    lQuad.v0.position[frontAxis] == quad->v0.position[frontAxis] &&
-                    lQuad.v1.position[frontAxis] == quad->v1.position[frontAxis] &&
-                    lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
-                    // Stretch the previous quad
-                    lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
-                    lQuad.verts[rightStretchIndex].tex.x += texOffset.x;
-                    lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
-                    lQuad.verts[rightStretchIndex + 1].tex.x += texOffset.x;
-                    // Remove the current quad
-                    quads.pop_back();
-                    m_numQuads--;
-                    quadIndex = leftIndex;
-                    quad = &lQuad;
-                }
-            }
-        }
-        // Check back merge
-        if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
-            quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
-            int backIndex = m_quadIndices[blockIndex + backOffset][face];
-            if (backIndex != NO_QUAD_INDEX) {
-                VoxelQuad* bQuad = &quads[backIndex];
-                while (!(bQuad->v0.mesherFlags & MESH_FLAG_ACTIVE)) {
-                    backIndex = bQuad->replaceQuad;
-                    bQuad = &quads[backIndex];
-                }
-                if (((bQuad->v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
-                    bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
-                    bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
-                    bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
-                    bQuad->v0.position[frontAxis] += QUAD_SIZE;
-                    bQuad->v0.tex.y += texOffset.y;
-                    bQuad->v3.position[frontAxis] += QUAD_SIZE;
-                    bQuad->v3.tex.y += texOffset.y;
-                    quadIndex = backIndex;
-                    // Mark as not in use
-                    quad->v0.mesherFlags = 0;
-                    quad->replaceQuad = backIndex;
-                    m_numQuads--;
-                }
-            }
-        }
-    }
-    
-    // Mark quadIndices so we can merge this quad later
-    m_quadIndices[blockIndex][face] = quadIndex;
+    m_numQuads -= tryMergeQuad(quad, quads, face, rightAxis, frontAxis, leftOffset, backOffset, rightStretchIndex, texOffset);
 }
 
 struct FloraQuadData {
@@ -1158,6 +1126,65 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
     if (quad.v0.position.y > m_highestY) m_highestY = quad.v0.position.y;
     if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
     if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
+}
+
+
+int ChunkMesher::tryMergeQuad(VoxelQuad* quad, std::vector<VoxelQuad>& quads, int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset) {
+    int rv = 0;
+    i16 quadIndex = quads.size() - 1;
+    if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
+        quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
+        ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
+        // Check left merge
+        if (leftIndex != NO_QUAD_INDEX) {
+            VoxelQuad& lQuad = quads[leftIndex];
+            if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
+                lQuad.v0.position[frontAxis] == quad->v0.position[frontAxis] &&
+                lQuad.v1.position[frontAxis] == quad->v1.position[frontAxis] &&
+                lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
+                // Stretch the previous quad
+                lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
+                lQuad.verts[rightStretchIndex].tex.x += texOffset.x;
+                lQuad.verts[rightStretchIndex + 1].position[rightAxis] += QUAD_SIZE;
+                lQuad.verts[rightStretchIndex + 1].tex.x += texOffset.x;
+                // Remove the current quad
+                quads.pop_back();
+                ++rv;
+                quadIndex = leftIndex;
+                quad = &lQuad;
+            }
+        }
+    }
+    // Check back merge
+    if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
+        quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
+        int backIndex = m_quadIndices[blockIndex + backOffset][face];
+        if (backIndex != NO_QUAD_INDEX) {
+            VoxelQuad* bQuad = &quads[backIndex];
+            while (!(bQuad->v0.mesherFlags & MESH_FLAG_ACTIVE)) {
+                backIndex = bQuad->replaceQuad;
+                bQuad = &quads[backIndex];
+            }
+            if (((bQuad->v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
+                bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
+                bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
+                bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
+                bQuad->v0.position[frontAxis] += QUAD_SIZE;
+                bQuad->v0.tex.y += texOffset.y;
+                bQuad->v3.position[frontAxis] += QUAD_SIZE;
+                bQuad->v3.tex.y += texOffset.y;
+                quadIndex = backIndex;
+                // Mark as not in use
+                quad->v0.mesherFlags = 0;
+                quad->replaceQuad = backIndex;
+                ++rv;
+            }
+        }
+    }
+    // Mark quadIndices so we can merge this quad later
+    m_quadIndices[blockIndex][face] = quadIndex;
+    // Return number of merges
+    return rv;
 }
 
 //Gets the liquid level from a block index

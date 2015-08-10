@@ -15,6 +15,7 @@
 #ifndef GameSystemUpdater_h__
 #define GameSystemUpdater_h__
 
+#include "ChunkSphereComponentUpdater.h"
 #include "CollisionComponentUpdater.h"
 #include "FreeMoveComponentUpdater.h"
 #include "FrustumComponentUpdater.h"
@@ -51,6 +52,7 @@ private:
     PhysicsComponentUpdater m_physicsUpdater;
     CollisionComponentUpdater m_collisionUpdater;
     FreeMoveComponentUpdater m_freeMoveUpdater;
+    ChunkSphereComponentUpdater m_chunkSphereUpdater;
     FrustumComponentUpdater m_frustumUpdater;
 
     const SoaState* m_soaState = nullptr;

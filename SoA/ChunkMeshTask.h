@@ -17,6 +17,7 @@
 
 #include <Vorb/IThreadPoolTask.h>
 
+#include "ChunkHandle.h"
 #include "Constants.h"
 #include "VoxPool.h"
 
@@ -30,6 +31,36 @@ class BlockPack;
 
 enum class MeshTaskType { DEFAULT, LIQUID };
 
+enum MeshNeighborHandles {
+    NEIGHBOR_HANDLE_LEFT = 0,
+    NEIGHBOR_HANDLE_RIGHT,
+    NEIGHBOR_HANDLE_FRONT,
+    NEIGHBOR_HANDLE_BACK,
+    NEIGHBOR_HANDLE_TOP,
+    NEIGHBOR_HANDLE_BOT,
+    NEIGHBOR_HANDLE_LEFT_BACK,
+    NEIGHBOR_HANDLE_LEFT_FRONT,
+    NEIGHBOR_HANDLE_LEFT_TOP,
+    NEIGHBOR_HANDLE_LEFT_BOT,
+    NEIGHBOR_HANDLE_LEFT_TOP_BACK,
+    NEIGHBOR_HANDLE_LEFT_TOP_FRONT,
+    NEIGHBOR_HANDLE_LEFT_BOT_BACK,
+    NEIGHBOR_HANDLE_LEFT_BOT_FRONT,
+    NEIGHBOR_HANDLE_RIGHT_BACK,
+    NEIGHBOR_HANDLE_RIGHT_FRONT,
+    NEIGHBOR_HANDLE_RIGHT_TOP,
+    NEIGHBOR_HANDLE_RIGHT_BOT,
+    NEIGHBOR_HANDLE_RIGHT_TOP_BACK,
+    NEIGHBOR_HANDLE_RIGHT_TOP_FRONT,
+    NEIGHBOR_HANDLE_RIGHT_BOT_BACK,
+    NEIGHBOR_HANDLE_RIGHT_BOT_FRONT,
+    NEIGHBOR_HANDLE_TOP_BACK,
+    NEIGHBOR_HANDLE_TOP_FRONT,
+    NEIGHBOR_HANDLE_BOT_BACK,
+    NEIGHBOR_HANDLE_BOT_FRONT,
+    NUM_NEIGHBOR_HANDLES ///< Has to be last
+};
+
 #define CHUNK_MESH_TASK_ID 0
 
 // Represents A Mesh Creation Task
@@ -41,13 +72,13 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Initializes the task
-    void init(Chunk* ch, MeshTaskType cType, moodycamel::ConcurrentQueue<Chunk*>* depFlushList, const BlockPack* blockPack, ChunkMeshManager* meshManager);
+    void init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
 
     MeshTaskType type; 
-    Chunk* chunk = nullptr;
+    ChunkHandle chunk;
     ChunkMeshManager* meshManager = nullptr;
     const BlockPack* blockPack = nullptr;
-    moodycamel::ConcurrentQueue<Chunk*>* depFlushList = nullptr; ///< Put finished chunks on here to flush dependencies
+    ChunkHandle neighborHandles[NUM_NEIGHBOR_HANDLES];
 private:
     void updateLight(VoxelLightEngine* voxelLightEngine);
 };

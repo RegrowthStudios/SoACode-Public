@@ -35,7 +35,7 @@ public:
     // Call one of these before createChunkMesh
     void prepareData(const Chunk* chunk);
     // For use with threadpool
-    void prepareDataAsync(Chunk* chunk);
+    void prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM_NEIGHBOR_HANDLES]);
 
     // TODO(Ben): Unique ptr?
     // Must call prepareData or prepareDataAsync first
@@ -71,6 +71,7 @@ private:
     void computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]);
     void addFlora();
     void addFloraQuad(const ui8v3* positions, FloraQuadData& data);
+    int tryMergeQuad(VoxelQuad* quad, std::vector<VoxelQuad>& quads, int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset);
     void addLiquid();
 
     int getLiquidLevel(int blockIndex, const Block& block);

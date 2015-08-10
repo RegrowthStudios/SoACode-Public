@@ -167,14 +167,11 @@ void setTreeLeafProperties(TreeTypeLeafProperties& lp, const LeafKegProperties& 
 void setTreeBranchProperties(TreeTypeBranchProperties& bp, const BranchKegProperties& kp, const PlanetGenData* genData, const BlockPack& blocks) {
     SET_RANGE(bp, kp, coreWidth);
     SET_RANGE(bp, kp, barkWidth);
-    SET_RANGE(bp, kp, length);
+    SET_RANGE(bp, kp, widthFalloff);
     SET_RANGE(bp, kp, branchChance);
     SET_RANGE(bp, kp, angle);
-    bp.endSizeMult = kp.endSizeMult;
-    bp.segments.min.min = kp.segments[0].x;
-    bp.segments.min.max = kp.segments[0].y;
-    bp.segments.max.min = kp.segments[1].x;
-    bp.segments.max.max = kp.segments[1].y;
+    SET_RANGE(bp, kp, subBranchAngle);
+    SET_RANGE(bp, kp, changeDirChance);
     const Block* b;
     TRY_SET_BLOCK(bp.coreBlockID, b,kp.coreBlock);
     TRY_SET_BLOCK(bp.barkBlockID, b, kp.barkBlock);
@@ -271,7 +268,20 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             genData->treeMap[kp.id] = i;
             // Set height range
             SET_RANGE(td, kp, height);
-
+            SET_RANGE(td, kp, branchPoints);
+            SET_RANGE(td, kp, branchStep);
+            SET_RANGE(td, kp, killMult);
+            SET_RANGE(td, kp, infRadius);
+            // Set branch volume properties
+            td.branchVolumes.resize(kp.branchVolumes.size());
+            for (size_t j = 0; j < kp.branchVolumes.size(); j++) {
+                TreeTypeBranchVolumeProperties& tp = td.branchVolumes[j];
+                const BranchVolumeKegProperties& tkp = kp.branchVolumes[j];
+                SET_RANGE(tp, tkp, height);
+                SET_RANGE(tp, tkp, hRadius);
+                SET_RANGE(tp, tkp, vRadius);
+                SET_RANGE(tp, tkp, points);
+            }
             // Set trunk properties
             td.trunkProps.resize(kp.trunkProps.size());
             for (size_t j = 0; j < kp.trunkProps.size(); j++) {
@@ -299,6 +309,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
 
         // Set biome trees and flora
         for (auto& biome : genData->biomes) {
+            biome.genData = genData;
             { // Flora
                 auto& it = blockInfo.biomeFlora.find(&biome);
                 if (it != blockInfo.biomeFlora.end()) {

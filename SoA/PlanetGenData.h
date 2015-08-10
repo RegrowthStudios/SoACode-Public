@@ -83,17 +83,13 @@ struct LeafKegProperties {
 
 // Must match var names for TreeBranchProperties
 struct BranchKegProperties {
-    BranchKegProperties() {
-        segments[0] = i32v2(0);
-        segments[1] = i32v2(0);
-    }
     i32v2 coreWidth = i32v2(0);
     i32v2 barkWidth = i32v2(0);
-    i32v2 length = i32v2(0);
+    f32v2 widthFalloff = f32v2(0.1f);
     f32v2 branchChance = f32v2(0.0f);
     f32v2 angle = f32v2(0.0f);
-    i32v2 segments[2];
-    f32 endSizeMult = 0.0f;
+    f32v2 subBranchAngle = f32v2(0.0f);
+    f32v2 changeDirChance = f32v2(0.0f);
     nString coreBlock = "";
     nString barkBlock = "";
     FruitKegProperties fruitProps;
@@ -116,10 +112,22 @@ struct TrunkKegProperties {
     BranchKegProperties branchProps;
 };
 
+struct BranchVolumeKegProperties {
+    i32v2 height = i32v2(0);
+    i32v2 hRadius = i32v2(0);
+    i32v2 vRadius = i32v2(0);
+    i32v2 points = i32v2(0);
+};
+
 // Must match var names for TreeData
 struct TreeKegProperties {
     nString id = "";
-    i32v2 height = i32v2(0, 0);
+    i32v2 height = i32v2(0);
+    i32v2 branchPoints = i32v2(0);
+    i32v2 branchStep = i32v2(0);
+    i32v2 killMult = i32v2(2);
+    f32v2 infRadius = f32v2(0.0f);
+    std::vector<BranchVolumeKegProperties> branchVolumes;
     std::vector<TrunkKegProperties> trunkProps;
 };
 

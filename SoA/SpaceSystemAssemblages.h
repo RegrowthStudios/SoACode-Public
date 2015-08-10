@@ -101,7 +101,7 @@ namespace SpaceSystemAssemblages {
                                                          vecs::ComponentID axisRotationComponent,
                                                          vecs::ComponentID namePositionComponent,
                                                          WorldCubeFace worldFace,
-                                                         const SoaState* soaState);
+                                                         SoaState* soaState);
     extern void removeSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
 
     /// Axis rotation component

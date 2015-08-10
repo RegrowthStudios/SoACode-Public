@@ -28,7 +28,7 @@ struct SoaState;
 class SpaceSystemUpdater {
 public:
     void init(const SoaState* soaState);
-    void update(const SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos);
+    void update(SoaState* soaState, const f64v3& spacePos, const f64v3& voxelPos);
 
     /// Updates OpenGL specific stuff, should be called on render thread
     void glUpdate(const SoaState* soaState);

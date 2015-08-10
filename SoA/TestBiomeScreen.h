@@ -11,11 +11,12 @@
 #include "BlockPack.h"
 #include "Camera.h"
 #include "Chunk.h"
+#include "ChunkAllocator.h"
 #include "ChunkMesher.h"
 #include "ChunkRenderer.h"
 #include "CommonState.h"
+#include "FloraGenerator.h"
 #include "HdrRenderStage.h"
-#include "NFloraGenerator.h"
 #include "SSAORenderStage.h"
 #include "SphericalHeightmapGenerator.h"
 
@@ -39,9 +40,10 @@ private:
     void initInput();
 
     struct ViewableChunk {
-        Chunk* chunk;
+        ChunkHandle chunk;
         ChunkMesh* chunkMesh;
         i32v3 gridPosition;
+        bool inFrustum;
     };
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
@@ -53,9 +55,11 @@ private:
     ChunkMesher m_mesher;
     ProceduralChunkGenerator m_chunkGenerator;
     SphericalHeightmapGenerator m_heightGenerator;
-    NFloraGenerator m_floraGenerator;
+    FloraGenerator m_floraGenerator;
     PlanetGenData* m_genData = nullptr;
     vio::IOManager m_iom;
+    PagedChunkAllocator m_allocator;
+    ChunkAccessor m_accessor;
 
     vg::SpriteBatch m_sb;
     vg::SpriteFont m_font;

@@ -189,6 +189,9 @@
     <Filter Include="SOA Files\Voxel\Models">
       <UniqueIdentifier>{57f94b81-194d-4aa7-91bb-c4855307dd0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\Voxel\Access">
+      <UniqueIdentifier>{7438a4f1-7ecc-4b92-bc2a-6865f0686297}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -238,9 +241,6 @@
     </ClInclude>
     <ClInclude Include="Errors.h">
       <Filter>SOA Files\Ext</Filter>
-    </ClInclude>
-    <ClInclude Include="FloraGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClInclude>
     <ClInclude Include="FragFile.h">
       <Filter>SOA Files\Data\IO Utils</Filter>
@@ -692,9 +692,6 @@
     <ClInclude Include="TestNoiseScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkHandle.h">
-      <Filter>SOA Files\Voxel\API</Filter>
-    </ClInclude>
     <ClInclude Include="MetaSection.h">
       <Filter>SOA Files\Voxel\API</Filter>
     </ClInclude>
@@ -863,11 +860,29 @@
     <ClInclude Include="PlanetGenLoader.h">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClInclude>
-    <ClInclude Include="NFloraGenerator.h">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClInclude>
     <ClInclude Include="Flora.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="FloraGenerator.h">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkAccessor.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkHandle.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkQuery.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkID.h">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleTests.h">
+      <Filter>SOA Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkSphereComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -912,9 +927,6 @@
     </ClCompile>
     <ClCompile Include="Errors.cpp">
       <Filter>SOA Files\Ext</Filter>
-    </ClCompile>
-    <ClCompile Include="FloraGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
     </ClCompile>
     <ClCompile Include="FragFile.cpp">
       <Filter>SOA Files\Data\IO Utils</Filter>
@@ -1429,11 +1441,23 @@
     <ClCompile Include="PlanetGenLoader.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="NFloraGenerator.cpp">
-      <Filter>SOA Files\Voxel\Generation</Filter>
-    </ClCompile>
     <ClCompile Include="Flora.cpp">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="FloraGenerator.cpp">
+      <Filter>SOA Files\Voxel\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkAccessor.cpp">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleTests.cpp">
+      <Filter>SOA Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkQuery.cpp">
+      <Filter>SOA Files\Voxel\Access</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkSphereComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

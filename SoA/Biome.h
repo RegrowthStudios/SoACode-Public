@@ -17,6 +17,8 @@
 #include "Noise.h"
 #include "Flora.h"
 
+struct PlanetGenData;
+
 // TODO(Ben): Also support L-system trees.
 struct BiomeTree {
     NoiseBase chance;
@@ -86,6 +88,7 @@ struct Biome {
     f64v2 heightScale;
     f64v2 noiseRange;
     f64v2 noiseScale;
+    const PlanetGenData* genData;
 };
 
 static const Biome DEFAULT_BIOME;

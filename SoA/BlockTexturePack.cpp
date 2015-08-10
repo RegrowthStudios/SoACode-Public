@@ -286,7 +286,6 @@ void BlockTexturePack::allocatePages() {
     
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-
    
     // Anisotropic filtering
     float anisotropy;

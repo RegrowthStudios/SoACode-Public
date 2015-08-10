@@ -21,11 +21,11 @@
 #include "PlanetHeightData.h"
 #include "MetaSection.h"
 #include "ChunkGenerator.h"
+#include "ChunkID.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
 class Chunk;
 typedef Chunk* ChunkPtr;
-typedef ui32 ChunkID;
 
 class ChunkGridData {
 public:
@@ -43,14 +43,18 @@ public:
 };
 
 class Chunk {
+    friend class ChunkAccessor;
     friend class ChunkGenerator;
     friend class ChunkGrid;
     friend class ChunkMeshTask;
+    friend class PagedChunkAllocator;
+    friend class SphericalVoxelComponentUpdater;
 public:
     // Initializes the chunk but does not set voxel data
-    void init(ChunkID id, const ChunkPosition3D& pos);
+    // Should be called after ChunkAccessor sets m_id
+    void init(WorldCubeFace face);
     // Initializes the chunk and sets all voxel data to 0
-    void initAndFillEmpty(ChunkID id, const ChunkPosition3D& pos, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
+    void initAndFillEmpty(WorldCubeFace face, vvox::VoxelStorageState = vvox::VoxelStorageState::INTERVAL_TREE);
     void setRecyclers(vcore::FixedSizeArrayRecycler<CHUNK_SIZE, ui16>* shortRecycler);
     void updateContainers();
 
@@ -59,7 +63,6 @@ public:
     /************************************************************************/
     const ChunkPosition3D& getChunkPosition() const { return m_chunkPosition; }
     const VoxelPosition3D& getVoxelPosition() const { return m_voxelPosition; }
-    bool hasAllNeighbors() const { return numNeighbors == 6u; }
     const ChunkID& getID() const { return m_id; }
 
     inline ui16 getBlockData(int c) const {
@@ -77,10 +80,6 @@ public:
     // Marks the chunks as dirty and flags for a re-mesh
     void flagDirty() { isDirty = true; remeshFlags |= 1; }
 
-    // TODO(Ben): This can be better
-    void lock() { mutex.lock(); }
-    void unlock() { mutex.unlock(); }
-
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
@@ -89,21 +88,22 @@ public:
     PlanetHeightData* heightData = nullptr;
     MetaFieldInformation meta;
     union {
-        struct {
-            ChunkPtr left, right, bottom, top, back, front;
-        };
-        ChunkPtr neighbors[6];
+        UNIONIZE(ChunkHandle left;
+                 ChunkHandle right;
+                 ChunkHandle bottom;
+                 ChunkHandle top;
+                 ChunkHandle back;
+                 ChunkHandle front);
+        UNIONIZE(ChunkHandle neighbors[6]);
     };
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
     bool hasCreatedMesh = false;
     bool isDirty;
-    bool isInRange;
     f32 distance2; //< Squared distance
     int numBlocks;
-    volatile int refCount; ///< Only change on main thread
-    std::mutex mutex;
+    std::mutex dataMutex;
 
-    ui32 numNeighbors = 0u;
     ui8 remeshFlags;
     volatile bool isAccessible = false;
     volatile bool queuedForMesh = false;
@@ -113,6 +113,8 @@ public:
     vvox::SmartVoxelContainer<ui16> tertiary;
     // Block indexes where flora must be generated.
     std::vector<ui16> floraToGenerate;
+
+    ChunkAccessor* accessor = nullptr;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;
@@ -120,8 +122,18 @@ private:
     // ui32 m_loadingNeighbors = 0u; ///< Seems like a good idea to get rid of isAccesible
     ChunkPosition3D m_chunkPosition;
     VoxelPosition3D m_voxelPosition;
-  
+
+    ui32 m_activeIndex; ///< Position in active list for m_chunkGrid
+    bool m_inLoadRange = false;
+
     ChunkID m_id;
+
+    /************************************************************************/
+    /* Chunk Handle Data                                                    */
+    /************************************************************************/
+    std::mutex m_handleMutex;
+    __declspec(align(4)) volatile ui32 m_handleState = 0;
+    __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
 };
 
 #endif // NChunk_h__

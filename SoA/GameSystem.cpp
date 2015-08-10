@@ -9,4 +9,5 @@ GameSystem::GameSystem() : vecs::ECS() {
     addComponentTable("VoxelPosition", &voxelPosition);
     addComponentTable("Frustum", &frustum);
     addComponentTable("Head", &head);
+    addComponentTable("ChunkSphere", &chunkSphere);
 }
