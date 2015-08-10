@@ -6,9 +6,7 @@
 
 void Chunk::init(WorldCubeFace face) {
     // Get position from ID
-    m_chunkPosition.x = m_id.x;
-    m_chunkPosition.y = m_id.y;
-    m_chunkPosition.z = m_id.z;
+    m_chunkPosition.pos = i32v3(m_id.x, m_id.y, m_id.z);
     m_chunkPosition.face = face;
     m_voxelPosition = VoxelSpaceConversions::chunkToVoxel(m_chunkPosition);
 }
