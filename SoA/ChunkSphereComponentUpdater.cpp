@@ -35,7 +35,7 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
             i32 dx2 = offset.x * offset.x;
             i32 dy2 = offset.y * offset.y;
             i32 dz2 = offset.z * offset.z;
-            if (0 && dx2 + dy2 + dz2 == 1) {
+            if (dx2 + dy2 + dz2 == 1) {
                 // Hideous but fast version. Shift by 1.
                 if (dx2) {
                     shiftDirection(cmp, X_AXIS, Y_AXIS, Z_AXIS, offset.x);
@@ -57,7 +57,6 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
                 int radius2 = cmp.radius * cmp.radius;
 
                 // Get all in range slots
-                // TODO(Ben): Don't release chunks that are still in range
                 for (int y = -cmp.radius; y <= cmp.radius; y++) {
                     for (int z = -cmp.radius; z <= cmp.radius; z++) {
                         for (int x = -cmp.radius; x <= cmp.radius; x++) {
@@ -200,11 +199,7 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
 
 ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& cmp, const i32v3& chunkPos) {
     ChunkHandle h = cmp.chunkGrid->submitQuery(chunkPos, GEN_DONE, true)->chunk.acquire();
-    for (int i = 0; i < cmp.size; i++) {
-        if (cmp.handleGrid[i].isAquired() && cmp.handleGrid[i]->getID() == h->getID()) {
-            std::cout << "OH";
-        }
-    }
+
     // Acquire neighbors
     // TODO(Ben): Could optimize
     ChunkAccessor& accessor = cmp.chunkGrid->accessor;
