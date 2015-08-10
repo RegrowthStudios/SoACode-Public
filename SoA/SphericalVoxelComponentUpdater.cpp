@@ -99,13 +99,6 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, bool doGen) {
         //    }
         //}
     }
-
-    for (auto& h : connects) {
-        grid.acquireNeighbors(h);
-    }
-    for (auto& h : disconnects) {
-        grid.releaseNeighbors(h);
-    }
 }
 
 void SphericalVoxelComponentUpdater::requestChunkMesh(ChunkHandle chunk) {

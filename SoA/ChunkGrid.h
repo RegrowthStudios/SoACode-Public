@@ -35,9 +35,6 @@ public:
               PagedChunkAllocator* allocator);
     void dispose();
 
-    ChunkHandle getChunk(const f64v3& voxelPos);
-    ChunkHandle getChunk(const i32v3& chunkPos);
-
     /// Will generate chunk if it doesn't exist
     /// @param gridPos: The position of the chunk to get.
     /// @param genLevel: The required generation level.
@@ -52,9 +49,6 @@ public:
 
     // Processes chunk queries and set active chunks
     void update();
-
-    void acquireNeighbors(ChunkHandle chunk);
-    void releaseNeighbors(ChunkHandle chunk);
 
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 

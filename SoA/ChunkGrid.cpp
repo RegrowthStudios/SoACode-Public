@@ -28,17 +28,6 @@ void ChunkGrid::dispose() {
     accessor.onRemove -= makeDelegate(*this, &ChunkGrid::onAccessorRemove);
 }
 
-ChunkHandle ChunkGrid::getChunk(const f64v3& voxelPos) {
-    ChunkID id(fastFloor(voxelPos.x / (f64)CHUNK_WIDTH),
-               fastFloor(voxelPos.y / (f64)CHUNK_WIDTH),
-               fastFloor(voxelPos.z / (f64)CHUNK_WIDTH));
-    return accessor.acquire(id);
-}
-
-ChunkHandle ChunkGrid::getChunk(const i32v3& chunkPos) {
-    return accessor.acquire(ChunkID(chunkPos.x, chunkPos.y, chunkPos.z));
-}
-
 ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldRelease) {
     ChunkQuery* query;
     {
@@ -51,11 +40,11 @@ ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel
     query->m_grid = this;
     query->m_isFinished = false;
 
-    ChunkID id(query->chunkPos.x, query->chunkPos.y, query->chunkPos.z);
+    ChunkID id(query->chunkPos);
     query->chunk = accessor.acquire(id);
     m_queries.enqueue(query);
     // TODO(Ben): RACE CONDITION HERE: There is actually a very small chance that
-    // query will get freed before the callee can acquire the chunk, if this runs
+    // chunk will get freed before the callee can acquire the chunk, if this runs
     // on another thread.
     return query;
 }
@@ -76,11 +65,8 @@ ChunkGridData* ChunkGrid::getChunkGridData(const i32v2& gridPos) {
     return it->second;
 }
 
-bool chunkSort(const Chunk* a, const Chunk* b) {
-    return a->distance2 > b->distance2;
-}
-
 void ChunkGrid::update() {
+    std::vector<ChunkHandle> toRelease;
     { // Update active list
         // Have to use a single vector so order is consistent
         std::lock_guard<std::mutex> l(m_lckAddOrRemove);
@@ -90,6 +76,7 @@ void ChunkGrid::update() {
                 // Add case
                 h->m_activeIndex = m_activeChunks.size();
                 m_activeChunks.push_back(h);
+                toRelease.push_back(h);
             } else {
                 // Remove case
                 m_activeChunks[h->m_activeIndex] = m_activeChunks.back();
@@ -99,7 +86,10 @@ void ChunkGrid::update() {
         }
         m_activeChunksToAddOrRemove.clear();
     }
-   
+    for (auto& h : toRelease) {
+        h.release();
+    }
+
     // TODO(Ben): Handle generator distribution
     m_generators[0].update();
 
@@ -112,64 +102,14 @@ void ChunkGrid::update() {
         ChunkQuery* q = queries[i];
         // TODO(Ben): Handle generator distribution
         q->genTask.init(q, q->chunk->gridData->heightData, &m_generators[0]);
-        q->chunk.release();
-        // m_generators[0].submitQuery(q);
+        m_generators[0].submitQuery(q);
     }
-
-    // TODO(Ben): Not every frame.
-   // std::sort(m_activeChunks.begin(), m_activeChunks.end(), chunkSort);
-    // Set active indices in case they got changed
-    // TODO(Ben): This blows. Make a new container.
-    for (size_t i = 0; i < m_activeChunks.size(); i++) {
-   //     m_activeChunks[i]->m_activeIndex = i;
-    }
-}
-
-void ChunkGrid::acquireNeighbors(ChunkHandle chunk) {
-    { // Left
-        ChunkID id = chunk->getID();
-        id.x--;
-        chunk->left = accessor.acquire(id);
-    }
-    { // Right
-        ChunkID id = chunk->getID();
-        id.x++;
-        chunk->right = accessor.acquire(id);
-    }
-    { // Bottom
-        ChunkID id = chunk->getID();
-        id.y--;
-        chunk->bottom = accessor.acquire(id);
-    }
-    { // Top
-        ChunkID id = chunk->getID();
-        id.y++;
-        chunk->top = accessor.acquire(id);
-    }
-    { // Back
-        ChunkID id = chunk->getID();
-        id.z--;
-        chunk->back = accessor.acquire(id);
-    }
-    { // Front
-        ChunkID id = chunk->getID();
-        id.z++;
-        chunk->front = accessor.acquire(id);
-    } 
-}
-
-void ChunkGrid::releaseNeighbors(ChunkHandle chunk) {
-    chunk->left.release();
-    chunk->right.release();
-    chunk->back.release();
-    chunk->front.release();
-    chunk->bottom.release();
-    chunk->top.release();
 }
 
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
     { // Add to active list
         std::lock_guard<std::mutex> l(m_lckAddOrRemove);
+        chunk.acquire();
         m_activeChunksToAddOrRemove.emplace_back(chunk, true);
     }
 

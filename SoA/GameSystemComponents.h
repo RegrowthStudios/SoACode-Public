@@ -23,6 +23,7 @@
 #include "VoxelCoordinateSpaces.h"
 
 class ChunkAccessor;
+class ChunkGrid;
 
 struct AabbCollidableComponent {
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
@@ -93,7 +94,7 @@ struct ChunkSphereComponent {
     // TODO(Ben): Chunk position?
     i32v3 offset = i32v3(0);
     i32v3 centerPosition = i32v3(0);
-    ChunkAccessor* accessor = nullptr;
+    ChunkGrid* chunkGrid = nullptr;
     ChunkHandle* handleGrid = nullptr;
     // For fast 1 chunk shift
     std::vector<i32v3> acquireOffsets;
@@ -110,7 +111,7 @@ public:
         ChunkSphereComponent& cmp = _components[cID].second;
         delete[] cmp.handleGrid;
         cmp.handleGrid = nullptr;
-        cmp.accessor = nullptr;
+        cmp.chunkGrid = nullptr;
     }
 };
 
