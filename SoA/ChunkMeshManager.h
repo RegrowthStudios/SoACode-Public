@@ -19,6 +19,7 @@
 #include "concurrentqueue.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
+#include "SpaceSystemAssemblages.h"
 #include <mutex>
 
 enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
@@ -55,7 +56,17 @@ private:
     void updateMeshDistances(const f64v3& cameraPosition);
 
     void updateMeshStorage();
+    /************************************************************************/
+    /* Event Handlers                                                       */
+    /************************************************************************/
+    void onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
+    void onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
+    void onGenFinish(Sender s, ChunkHandle chunk, ChunkGenLevel gen);
+    void onAccessorRemove(Sender s, ChunkHandle chunk);
 
+    /************************************************************************/
+    /* Members                                                              */
+    /************************************************************************/
     std::vector <ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
     moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
 

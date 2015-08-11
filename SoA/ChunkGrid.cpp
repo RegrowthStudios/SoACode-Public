@@ -12,11 +12,11 @@ void ChunkGrid::init(WorldCubeFace face,
                       PlanetGenData* genData,
                       PagedChunkAllocator* allocator) {
     m_face = face;
-    m_generatorsPerRow = generatorsPerRow;
-    m_numGenerators = generatorsPerRow * generatorsPerRow;
-    m_generators = new ChunkGenerator[m_numGenerators]; // TODO(Ben): delete[]
-    for (ui32 i = 0; i < m_numGenerators; i++) {
-        m_generators[i].init(threadPool, genData);
+    generatorsPerRow = generatorsPerRow;
+    numGenerators = generatorsPerRow * generatorsPerRow;
+    generators = new ChunkGenerator[numGenerators];
+    for (ui32 i = 0; i < numGenerators; i++) {
+        generators[i].init(threadPool, genData);
     }
     accessor.init(allocator);
     accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
@@ -26,6 +26,8 @@ void ChunkGrid::init(WorldCubeFace face,
 void ChunkGrid::dispose() {
     accessor.onAdd -= makeDelegate(*this, &ChunkGrid::onAccessorAdd);
     accessor.onRemove -= makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    delete[] generators;
+    generators = nullptr;
 }
 
 ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel, bool shouldRelease) {
@@ -91,7 +93,7 @@ void ChunkGrid::update() {
     }
 
     // TODO(Ben): Handle generator distribution
-    m_generators[0].update();
+    generators[0].update();
 
     /* Update Queries */
     // Needs to be big so we can flush it every frame.
@@ -101,8 +103,8 @@ void ChunkGrid::update() {
     for (size_t i = 0; i < numQueries; i++) {
         ChunkQuery* q = queries[i];
         // TODO(Ben): Handle generator distribution
-        q->genTask.init(q, q->chunk->gridData->heightData, &m_generators[0]);
-        m_generators[0].submitQuery(q);
+        q->genTask.init(q, q->chunk->gridData->heightData, &generators[0]);
+        generators[0].submitQuery(q);
     }
 }
 

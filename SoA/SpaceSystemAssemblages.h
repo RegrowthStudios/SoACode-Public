@@ -25,13 +25,14 @@ class SpaceSystem;
 #include <Vorb/graphics/gtypes.h>
 
 struct PlanetGenData;
-struct SoaState;
 struct GasGiantProperties;
 struct PlanetProperties;
+struct SoaState;
+struct SphericalTerrainComponent;
+struct SphericalVoxelComponent;
 struct StarProperties;
 struct SystemBody;
 struct SystemOrbitProperties;
-struct SphericalTerrainComponent;
 
 DECL_VG(
     class GLProgram;
@@ -103,6 +104,8 @@ namespace SpaceSystemAssemblages {
                                                          WorldCubeFace worldFace,
                                                          SoaState* soaState);
     extern void removeSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity);
+    extern Event<SphericalVoxelComponent&, vecs::EntityID> onAddSphericalVoxelComponent;
+    extern Event<SphericalVoxelComponent&, vecs::EntityID> onRemoveSphericalVoxelComponent;
 
     /// Axis rotation component
     extern vecs::ComponentID addAxisRotationComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,

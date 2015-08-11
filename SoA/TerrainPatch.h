@@ -49,7 +49,7 @@ struct TerrainPatchData { // TODO(Ben): probably dont need this
     vcore::ThreadPool<WorkerData>* threadPool;
 };
 
-// TODO(Ben): Sorting, Atmosphere, Frustum Culling
+// TODO(Ben): Sorting
 // fix redundant quality changes
 class TerrainPatch {
 public:

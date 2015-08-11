@@ -2,9 +2,10 @@
 #include "ChunkMeshManager.h"
 
 #include "ChunkMesh.h"
-#include "ChunkRenderer.h"
 #include "ChunkMeshTask.h"
 #include "ChunkMesher.h"
+#include "ChunkRenderer.h"
+#include "SpaceSystemComponents.h"
 #include "soaUtils.h"
 
 #define MAX_UPDATES_PER_FRAME 300
@@ -15,6 +16,9 @@ ChunkMeshManager::ChunkMeshManager(ui32 startMeshes /*= 128*/) {
     for (ui32 i = 0; i < startMeshes; i++) {
         m_freeMeshes[i] = i;
     }
+
+    SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onAddSphericalVoxelComponent);
+    SpaceSystemAssemblages::onRemoveSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onRemoveSphericalVoxelComponent);
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
@@ -174,4 +178,33 @@ void ChunkMeshManager::updateMeshStorage() {
             m_activeChunkMeshes[i] = &m_meshStorage[tmp[i]];
         }
     }
+}
+
+void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e) {
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
+            cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
+        }
+        cmp.chunkGrids[i].accessor.onRemove += makeDelegate(*this, &ChunkMeshManager::onAccessorRemove);
+    }
+}
+
+void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e) {
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
+            cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
+        }
+        cmp.chunkGrids[i].accessor.onRemove -= makeDelegate(*this, &ChunkMeshManager::onAccessorRemove);
+    }
+}
+
+void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle chunk, ChunkGenLevel gen) {
+    // Can be meshed.
+    if (gen == GEN_DONE) {
+
+    }
+}
+
+void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle chunk) {
+
 }

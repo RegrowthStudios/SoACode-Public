@@ -27,6 +27,7 @@
 #include "ChunkHandle.h"
 
 class ChunkGrid {
+    friend class ChunkMeshManager;
 public:
     void init(WorldCubeFace face,
               OPT vcore::ThreadPool<WorkerData>* threadPool,
@@ -52,6 +53,10 @@ public:
 
     const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
 
+    ChunkGenerator* generators = nullptr;
+    ui32 generatorsPerRow;
+    ui32 numGenerators;
+
     ChunkAccessor accessor;
 private:
     /************************************************************************/
@@ -62,7 +67,7 @@ private:
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    ChunkGenerator* m_generators = nullptr;
+    
 
     std::vector<ChunkHandle> m_activeChunks;
 
@@ -79,8 +84,7 @@ private:
     std::mutex m_lckQueryRecycler;
     PtrRecycler<ChunkQuery> m_queryRecycler;
 
-    ui32 m_generatorsPerRow;
-    ui32 m_numGenerators;
+
     WorldCubeFace m_face = FACE_NONE;
 };
 

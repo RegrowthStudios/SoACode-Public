@@ -25,6 +25,9 @@
 
 #define SEC_PER_HOUR 3600.0
 
+Event<SphericalVoxelComponent&, vecs::EntityID> SpaceSystemAssemblages::onAddSphericalVoxelComponent;
+Event<SphericalVoxelComponent&, vecs::EntityID> SpaceSystemAssemblages::onRemoveSphericalVoxelComponent;
+
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
                                                    const SystemOrbitProperties* sysProps,
                                                    SystemBody* body, f64 bodyRadius) {
@@ -283,10 +286,13 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     if (svcmp.planetGenData->liquidColorMap.id) {
         soaState->clientState.blockTextures->setColorMap("liquid", &svcmp.planetGenData->liquidColorPixels);
     }
+
+    onAddSphericalVoxelComponent(svcmp, entity);
     return svCmpId;
 }
 
 void SpaceSystemAssemblages::removeSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
+    onRemoveSphericalVoxelComponent(spaceSystem->sphericalVoxel.getFromEntity(entity), entity);
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
 }
 
