@@ -49,7 +49,12 @@ private:
 
     void createMesh(ChunkMeshMessage& message);
 
+    ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
+
     void destroyMesh(ChunkMeshMessage& message);
+
+    void disposeChunkMesh(Chunk* chunk);
+
     /// Uploads a mesh and adds to list if needed
     void updateMesh(ChunkMeshMessage& message);
 
