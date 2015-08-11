@@ -97,6 +97,8 @@ void runCHS() {
 
 
     ChunkHandle h1 = accessor.acquire(1);
-    ChunkHandle h2 = std::move(h1);
-    ChunkHandle h3 = h2.acquire();
+    ChunkHandle h2 = h1;
+    h2 = h2.acquire();
+    h2.release();
+    h1.release();
 }

@@ -27,19 +27,8 @@ public:
         m_id({}) {
         // Empty
     }
-    ChunkHandle(const ChunkHandle& other) :
-        m_acquired(false),
-        m_chunk(other.m_chunk),
-        m_id(other.m_id) {
-        // Empty
-    }
-    ChunkHandle& operator= (const ChunkHandle& other) {
-        m_acquired = false;
-        m_chunk = other.m_acquired ? other.m_chunk : nullptr;
-        m_id = other.m_id;
-     
-        return *this;
-    }
+    ChunkHandle(const ChunkHandle& other);
+    ChunkHandle& operator= (const ChunkHandle& other);
     ChunkHandle(ChunkHandle&& other) :
         m_acquired(other.m_acquired),
         m_chunk(other.m_chunk),

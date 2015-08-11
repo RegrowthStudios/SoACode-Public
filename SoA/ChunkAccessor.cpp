@@ -8,12 +8,22 @@ const ui32 HANDLE_STATE_ACQUIRING = 1;
 const ui32 HANDLE_STATE_ALIVE = 2;
 const ui32 HANDLE_STATE_FREEING = 3;
 
+ChunkHandle::ChunkHandle(const ChunkHandle& other) :
+    m_acquired(false),
+    m_accessor(other.m_acquired ? other.m_chunk->accessor : other.m_accessor),
+    m_id(other.m_id) {
+    // Empty
+}
+ChunkHandle& ChunkHandle::operator= (const ChunkHandle& other) {
+    m_acquired = false;
+    m_accessor = other.m_acquired ? other.m_chunk->accessor : other.m_accessor;
+    m_id = other.m_id;
+
+    return *this;
+}
+
 void ChunkHandle::acquireSelf() {
-    if (m_acquired) {
-        m_chunk->accessor->acquire(*this);
-    } else {
-        *this = std::move(m_accessor->acquire(m_id));
-    }
+    if (!m_acquired) m_chunk->accessor->acquire(*this);
 }
 ChunkHandle ChunkHandle::acquire() {
     if (m_acquired) {
@@ -26,7 +36,7 @@ ChunkHandle ChunkHandle::acquire() {
     }
 }
 void ChunkHandle::release() {
-    m_chunk->accessor->release(*this);
+    if (m_acquired) m_chunk->accessor->release(*this);
 }
 
 void ChunkAccessor::init(PagedChunkAllocator* allocator) {
@@ -152,9 +162,8 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     auto& it = m_chunkLookup.find(id);
     if (it == m_chunkLookup.end()) {
         wasOld = false;
-        ChunkHandle h = {};
+        ChunkHandle& h = m_chunkLookup[id];
         h.m_chunk = m_allocator->alloc();
-        m_chunkLookup[id] = h;
         h.m_id = id;
         h->m_id = id;
         h->accessor = this;
