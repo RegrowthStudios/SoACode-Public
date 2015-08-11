@@ -89,3 +89,14 @@ void freeCAS(ChunkAccessSpeedData* data) {
     delete[] data->threads;
     delete data;
 }
+
+void runCHS() {
+    PagedChunkAllocator allocator = {};
+    ChunkAccessor accessor = {};
+    accessor.init(&allocator);
+
+
+    ChunkHandle h1 = accessor.acquire(1);
+    ChunkHandle h2 = std::move(h1);
+    ChunkHandle h3 = h2.acquire();
+}

@@ -99,6 +99,8 @@ void registerFuncs(vscript::Environment& env) {
     env.addCDelegate("run", makeDelegate(runCAS));
     env.addCDelegate("free", makeDelegate(freeCAS));
 
+    env.setNamespaces("CHS");
+    env.addCDelegate("run", makeDelegate(runCHS));
 
     env.setNamespaces();
 }

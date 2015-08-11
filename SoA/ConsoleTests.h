@@ -25,4 +25,6 @@ ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64
 void runCAS(ChunkAccessSpeedData* data);
 void freeCAS(ChunkAccessSpeedData* data);
 
+void runCHS();
+
 #endif // !ConsoleTests_h__
