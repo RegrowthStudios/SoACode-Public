@@ -14,6 +14,8 @@
 
 #ifndef ChunkHandle_h__
 
+#include "ChunkID.h"
+
 class Chunk;
 
 class ChunkHandle {
@@ -43,8 +45,13 @@ public:
     const Chunk* operator->() const {
         return m_chunk;
     }
+
+    const ChunkID& getID() const {
+        return m_id;
+    }
 private:
     Chunk* m_chunk = nullptr;
+    ChunkID m_id;
 };
 
 #endif // ChunkHandle_h__

@@ -134,6 +134,7 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
         ChunkHandle h = {};
         h.m_chunk = m_allocator->alloc();
         m_chunkLookup[id] = h;
+        h.m_id = id;
         h->m_id = id;
         h->accessor = this;
         h->m_handleState = HANDLE_STATE_ALIVE;
