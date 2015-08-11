@@ -70,13 +70,13 @@ void SoaEngine::initState(SoaState* state) {
     }
 
     // TODO(Ben): Move somewhere else
-    initClientState(state->clientState);
+    initClientState(state, state->clientState);
 }
 
-void SoaEngine::initClientState(ClientState& state) {
+void SoaEngine::initClientState(SoaState* soaState, ClientState& state) {
     state.debugRenderer = new DebugRenderer;
     state.meshManager = new MeshManager;
-    state.chunkMeshManager = new ChunkMeshManager;
+    state.chunkMeshManager = new ChunkMeshManager(soaState->threadPool, &soaState->blocks);
     state.systemViewer = new MainMenuSystemViewer;
     // TODO(Ben): This is also elsewhere?
     state.texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",

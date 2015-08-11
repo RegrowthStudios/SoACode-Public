@@ -41,7 +41,6 @@ Chunk* PagedChunkAllocator::alloc() {
     chunk->gridData = nullptr;
     chunk->m_inLoadRange = false;
     chunk->numBlocks = 0;
-    chunk->hasCreatedMesh = false;
     chunk->genLevel = ChunkGenLevel::GEN_NONE;
     chunk->pendingGenLevel = ChunkGenLevel::GEN_NONE;
     chunk->isAccessible = false;

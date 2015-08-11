@@ -191,8 +191,6 @@ void GameplayScreen::updateMTRenderState() {
                 state->debugChunkData.emplace_back();
                 state->debugChunkData.back().genLevel = chunk->genLevel;
                 state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
-                // Temporary
-                if (chunk->hasCreatedMesh) state->debugChunkData.back().genLevel = GEN_FLORA;
             }
         }
     } else {

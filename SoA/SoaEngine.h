@@ -39,7 +39,7 @@ public:
     /// Initializes SoaState resources
     static void initState(SoaState* state);
 
-    static void initClientState(ClientState& state);
+    static void initClientState(SoaState* soaState, ClientState& state);
     
     /// Loads and initializes the SpaceSystem
     static bool loadSpaceSystem(SoaState* state, const nString& filePath);

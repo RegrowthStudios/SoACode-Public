@@ -108,7 +108,7 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     if (chunk->m_handleRefCount == 0) {
         // We need to re-add the chunk
         bool wasOld = false;
-        return safeAdd(chunk->m_id, wasOld);
+        return safeAdd(chunk.m_id, wasOld);
     } else {
         chunk->m_handleRefCount++;
         return chunk;
@@ -156,7 +156,7 @@ void ChunkAccessor::safeRemove(ChunkHandle& chunk) {
         chunk->accessor = nullptr;
 
         // TODO(Ben): Time based free?
-        m_chunkLookup.erase(chunk->m_id);
+        m_chunkLookup.erase(chunk.m_id);
     }
     // Fire event before deallocating
     onRemove(chunk);

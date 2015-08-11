@@ -73,14 +73,14 @@ void SphericalVoxelComponentUpdater::requestChunkMesh(ChunkHandle chunk) {
 
 void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
     // delete the mesh!
-    if (chunk->hasCreatedMesh) {
-        ChunkMeshMessage msg;
-        msg.chunkID = chunk->getID();
-        msg.messageID = ChunkMeshMessageID::DESTROY;
-       // m_cmp->chunkMeshManager->sendMessage(msg);
-        chunk->hasCreatedMesh = false;
-        chunk->remeshFlags |= 1;
-    }
+    //if (chunk->hasCreatedMesh) {
+    //    ChunkMeshMessage msg;
+    //    msg.chunkID = chunk->getID();
+    //    msg.messageID = ChunkMeshMessageID::DESTROY;
+    //   // m_cmp->chunkMeshManager->sendMessage(msg);
+    //    chunk->hasCreatedMesh = false;
+    //    chunk->remeshFlags |= 1;
+    //}
 }
 
 ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
@@ -132,7 +132,7 @@ ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandl
 
     // TODO(Ben): Recycler
     ChunkMeshTask* meshTask = new ChunkMeshTask;
- //   meshTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
+    //meshTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
     // Set dependencies
     meshTask->chunk.acquire();

@@ -10,13 +10,15 @@
 
 #define MAX_UPDATES_PER_FRAME 300
 
-ChunkMeshManager::ChunkMeshManager(ui32 startMeshes /*= 128*/) {
+ChunkMeshManager::ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack, ui32 startMeshes /*= 128*/) {
     m_meshStorage.resize(startMeshes);
     m_freeMeshes.resize(startMeshes);
     for (ui32 i = 0; i < startMeshes; i++) {
         m_freeMeshes[i] = i;
     }
 
+    m_threadPool = threadPool;
+    m_blockPack = blockPack;
     SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onAddSphericalVoxelComponent);
     SpaceSystemAssemblages::onRemoveSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onRemoveSphericalVoxelComponent);
 }
@@ -60,8 +62,9 @@ void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
+    ChunkHandle& h = message.chunk;
     // Check if we are supposed to be destroyed
-    auto& it = m_pendingDestroy.find(message.chunkID);
+    auto& it = m_pendingDestroy.find(h.getID());
     if (it != m_pendingDestroy.end()) {
         m_pendingDestroy.erase(it);
         return;
@@ -75,7 +78,7 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
     mesh.id = id;
 
     // Set the position
-    mesh.position = static_cast<VoxelPosition3D*>(message.data)->pos;
+    mesh.position = h->m_voxelPosition;
 
     // Zero buffers
     memset(mesh.vbos, 0, sizeof(mesh.vbos));
@@ -84,15 +87,23 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
     mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
 
     // Register chunk as active and give it a mesh
-    m_activeChunks[message.chunkID] = id;
+    m_activeChunks[h.getID()] = id;
+
+    // TODO(Ben): Recycler
+    ChunkMeshTask* meshTask = new ChunkMeshTask;
+    meshTask->init(h, MeshTaskType::DEFAULT, m_blockPack, this);
+    
+    // TODO(Ben): Mesh dependencies
+    //m_threadPool->addTask(meshTask);
 }
 
 void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
+    ChunkHandle& h = message.chunk;
     // Get the mesh object
-    auto& it = m_activeChunks.find(message.chunkID);
+    auto& it = m_activeChunks.find(h.getID());
     // Check for rare case where destroy comes before create, just re-enqueue.
     if (it == m_activeChunks.end()) {
-        m_pendingDestroy.insert(message.chunkID);
+        m_pendingDestroy.insert(h.getID());
         return;
     }
 
@@ -117,17 +128,17 @@ void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
 }
 
 void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {   
-    ChunkMeshData* meshData = static_cast<ChunkMeshData*>(message.data);
+    ChunkHandle& h = message.chunk;
     // Get the mesh object
-    auto& it = m_activeChunks.find(message.chunkID);
+    auto& it = m_activeChunks.find(h.getID());
     if (it == m_activeChunks.end()) {
-        delete meshData;
+        delete message.meshData;
         return; /// The mesh was already released, so ignore!
     }
 
     ChunkMesh &mesh = m_meshStorage[it->second];
 
-    if (ChunkMesher::uploadMeshData(mesh, meshData)) {
+    if (ChunkMesher::uploadMeshData(mesh, message.meshData)) {
         // Add to active list if its not there
         if (mesh.activeMeshesIndex == ACTIVE_MESH_INDEX_NONE) {
             mesh.activeMeshesIndex = m_activeChunkMeshes.size();
@@ -144,7 +155,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
     }
 
     // TODO(Ben): come on...
-    delete meshData;
+    delete message.meshData;
 }
 
 void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
@@ -201,10 +212,15 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
 void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle chunk, ChunkGenLevel gen) {
     // Can be meshed.
     if (gen == GEN_DONE) {
-
+        // Create message
+        ChunkMeshMessage msg;
+        chunk.acquire();
+        msg.chunk = chunk;
+        msg.messageID = ChunkMeshMessageID::CREATE;
+        m_messages.enqueue(msg);
     }
 }
 
 void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle chunk) {
-
+    // TODO(Ben): Implement
 }

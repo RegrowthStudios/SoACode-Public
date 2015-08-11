@@ -13,18 +13,6 @@
 #include "VoxelUtils.h"
 
 void ChunkMeshTask::execute(WorkerData* workerData) {
-
-    // Make the mesh!
-    if (!chunk->hasCreatedMesh) {
-        ChunkMeshMessage msg;
-        msg.chunkID = chunk->getID();
-        msg.data = &chunk->m_voxelPosition;
-        msg.messageID = ChunkMeshMessageID::CREATE;
-
-        meshManager->sendMessage(msg);
-        chunk->hasCreatedMesh = true;
-    }
-
     // Mesh updates are accompanied by light updates // TODO(Ben): Seems wasteful.
     if (workerData->voxelLightEngine == nullptr) {
         workerData->voxelLightEngine = new VoxelLightEngine();
@@ -41,13 +29,13 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     // Prepare message
     ChunkMeshMessage msg;
     msg.messageID = ChunkMeshMessageID::UPDATE;
-    msg.chunkID = chunk->getID();
+    msg.chunk = chunk;
 
     // Pre-processing
     workerData->chunkMesher->prepareDataAsync(chunk, neighborHandles);
 
     // Create the actual mesh
-    msg.data = workerData->chunkMesher->createChunkMeshData(type);
+    msg.meshData = workerData->chunkMesher->createChunkMeshData(type);
 
     // Send it for update
     meshManager->sendMessage(msg);

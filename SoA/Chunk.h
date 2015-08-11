@@ -46,6 +46,7 @@ class Chunk {
     friend class ChunkAccessor;
     friend class ChunkGenerator;
     friend class ChunkGrid;
+    friend class ChunkMeshManager;
     friend class ChunkMeshTask;
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
@@ -98,7 +99,6 @@ public:
     };
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
-    bool hasCreatedMesh = false;
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;

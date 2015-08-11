@@ -25,14 +25,14 @@
 enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
 
 struct ChunkMeshMessage {
-    ChunkID chunkID;
+    ChunkHandle chunk;
     ChunkMeshMessageID messageID;
-    void* data;
+    ChunkMeshData* meshData = nullptr;
 };
 
 class ChunkMeshManager {
 public:
-    ChunkMeshManager(ui32 startMeshes = 128);
+    ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack, ui32 startMeshes = 128);
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
     /// Adds a mesh for updating
@@ -69,6 +69,9 @@ private:
     /************************************************************************/
     std::vector <ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
     moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
+
+    BlockPack* m_blockPack = nullptr;
+    vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
 
     std::vector <ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
     std::vector <ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
