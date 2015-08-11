@@ -79,12 +79,12 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Load blocks
     LoadTaskBlockData blockLoader(&m_soaState->blocks,
-                                  &m_soaState->blockTextureLoader,
+                                  &m_soaState->clientState.blockTextureLoader,
                                   &m_commonState->loadContext);
     blockLoader.load();
 
     // Uploads all the needed textures
-    m_soaState->blockTextures->update();
+    m_soaState->clientState.blockTextures->update();
 
     initChunks();
 
@@ -155,7 +155,7 @@ void TestConnectedTextureScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    m_renderer.beginOpaque(m_soaState->blockTextures->getAtlasTexture(),
+    m_renderer.beginOpaque(m_soaState->clientState.blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
     m_renderer.drawOpaque(m_chunks[m_activeChunk].chunkMesh, m_camera.getPosition(), m_camera.getViewProjectionMatrix());

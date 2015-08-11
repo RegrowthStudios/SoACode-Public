@@ -49,19 +49,7 @@ void SoaEngine::initOptions(SoaOptions& options) {
 void SoaEngine::initState(SoaState* state) {
     state->gameSystem = new GameSystem;
     state->spaceSystem = new SpaceSystem;
-    state->debugRenderer = new DebugRenderer;
-    state->meshManager = new MeshManager;
-    state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
-    state->systemViewer = new MainMenuSystemViewer;
-    // TODO(Ben): This is also elsewhere?
-    state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
-                                    "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
-   
-    // TODO(Ben): Don't hardcode this. Load a texture pack file
-    state->blockTextures = new BlockTexturePack;
-    state->blockTextures->init(32, 4096);
-    state->blockTextureLoader.init(&state->texturePathResolver, state->blockTextures);
 
     { // Threadpool init
         size_t hc = std::thread::hardware_concurrency();
@@ -80,6 +68,24 @@ void SoaEngine::initState(SoaState* state) {
         // Give some time for the threads to spin up
         SDL_Delay(100);
     }
+
+    // TODO(Ben): Move somewhere else
+    initClientState(state->clientState);
+}
+
+void SoaEngine::initClientState(ClientState& state) {
+    state.debugRenderer = new DebugRenderer;
+    state.meshManager = new MeshManager;
+    state.chunkMeshManager = new ChunkMeshManager;
+    state.systemViewer = new MainMenuSystemViewer;
+    // TODO(Ben): This is also elsewhere?
+    state.texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
+                                    "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
+
+    // TODO(Ben): Don't hardcode this. Load a texture pack file
+    state.blockTextures = new BlockTexturePack;
+    state.blockTextures->init(32, 4096);
+    state.blockTextureLoader.init(&state.texturePathResolver, state.blockTextures);
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
@@ -405,15 +411,19 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
 void SoaEngine::destroyAll(SoaState* state) {
     delete state->spaceSystem;
     delete state->gameSystem;
-    delete state->debugRenderer;
-    delete state->meshManager;
-    delete state->chunkMeshManager;
-    delete state->systemViewer;
     delete state->systemIoManager;
     delete state->options;
-    delete state->blockTextures;
+    destroyClientState(state->clientState);
     destroyGameSystem(state);
     destroySpaceSystem(state);
+}
+
+void SoaEngine::destroyClientState(ClientState& state) {
+    delete state.debugRenderer;
+    delete state.meshManager;
+    delete state.chunkMeshManager;
+    delete state.systemViewer;
+    delete state.blockTextures;
 }
 
 void SoaEngine::destroyGameSystem(SoaState* state) {

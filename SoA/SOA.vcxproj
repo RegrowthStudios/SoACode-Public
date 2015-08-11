@@ -539,6 +539,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkID.h" />
     <ClInclude Include="ChunkQuery.h" />
     <ClInclude Include="ChunkSphereComponentUpdater.h" />
+    <ClInclude Include="ClientState.h" />
     <ClInclude Include="ConsoleTests.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />

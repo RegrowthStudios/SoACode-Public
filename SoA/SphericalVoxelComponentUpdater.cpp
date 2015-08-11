@@ -52,53 +52,6 @@ void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, bool doGen) {
     f32 renderDist2 = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH);
     renderDist2 *= renderDist2;
 
-    // Loop through all currently active chunks
-    // TODO(Ben): Chunk should only become active after load?
-    std::vector<ChunkHandle> disconnects;
-    std::vector<ChunkHandle> connects;
-    const std::vector<ChunkHandle>& chunks = grid.getActiveChunks();
-    // TODO(Ben): Race condition!
-    for (int i = (int)chunks.size() - 1; i >= 0; i--) {
-        ChunkHandle chunk = chunks[i];
-        // TODO(Ben): Implement for new method
-        //// Calculate distance TODO(Ben): Maybe don't calculate this every frame? Or use sphere approx?
-        //chunk->distance2 = computeDistance2FromChunk(chunk->getVoxelPosition().pos, agentPosition.pos);
-
-        //// Check container update
-        //if (chunk->genLevel == GEN_DONE) {
-        ////    chunk->updateContainers();
-        //}
-
-        //// Check for unload
-        //if (chunk->distance2 > renderDist2) {
-        //    if (chunk->m_inLoadRange) {
-        //        // Dispose the mesh and disconnect neighbors
-        //        disposeChunkMesh(chunk);
-        //        chunk->m_inLoadRange = false;
-        //        ChunkHandle(chunk).release();
-        //        disconnects.push_back(chunk);
-        //    }
-        //} else {
-        //    // Check for connecting neighbors
-        //    if (!chunk->m_inLoadRange) {
-        //        chunk->m_inLoadRange = true;
-        //        connects.push_back(chunk);
-        //        ChunkHandle(chunk).acquire();
-        //    }
-        //    // Check for generation
-        //    if (doGen) {
-        //        if (chunk->pendingGenLevel != GEN_DONE) {
-        //            // Submit a generation query
-        //         //   ChunkQuery* q = new ChunkQuery;
-        //         //   q->set(chunk->getChunkPosition().pos, GEN_DONE, true);
-        //        //    m_cmp->chunkGrids[agentPosition.face].submitQuery(q);
-        //        } else if (chunk->genLevel == GEN_DONE && chunk->needsRemesh()) {
-        //            // TODO(Ben): Get meshing outa here
-        //            requestChunkMesh(chunk);
-        //        }
-        //    }
-        //}
-    }
 }
 
 void SphericalVoxelComponentUpdater::requestChunkMesh(ChunkHandle chunk) {
@@ -124,14 +77,14 @@ void SphericalVoxelComponentUpdater::disposeChunkMesh(Chunk* chunk) {
         ChunkMeshMessage msg;
         msg.chunkID = chunk->getID();
         msg.messageID = ChunkMeshMessageID::DESTROY;
-        m_cmp->chunkMeshManager->sendMessage(msg);
+       // m_cmp->chunkMeshManager->sendMessage(msg);
         chunk->hasCreatedMesh = false;
         chunk->remeshFlags |= 1;
     }
 }
 
 ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandle chunk) {
-    return false;
+
     // TODO(Ben): This could be optimized a bit
     ChunkHandle& left = chunk->left;
     ChunkHandle& right = chunk->right;
@@ -179,7 +132,7 @@ ChunkMeshTask* SphericalVoxelComponentUpdater::trySetMeshDependencies(ChunkHandl
 
     // TODO(Ben): Recycler
     ChunkMeshTask* meshTask = new ChunkMeshTask;
-    meshTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
+ //   meshTask->init(chunk, MeshTaskType::DEFAULT, m_cmp->blockPack, m_cmp->chunkMeshManager);
 
     // Set dependencies
     meshTask->chunk.acquire();

@@ -119,7 +119,7 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     // TODO(Ben): Move to glUpdate for voxel component
     // TODO(Ben): Don't hardcode for a single player
     auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
-    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, true);
+    m_soaState->clientState.chunkMeshManager->update(vpCmp.gridPosition.pos, true);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();

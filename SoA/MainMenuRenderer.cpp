@@ -135,7 +135,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
 
 void MainMenuRenderer::hook() {
     m_commonState->stages.skybox.hook(m_state);
-    m_commonState->stages.spaceSystem.hook(m_state, &m_state->spaceCamera, &m_state->localCamera);
+    m_commonState->stages.spaceSystem.hook(m_state, &m_state->clientState.spaceCamera, &m_state->clientState.localCamera);
     m_commonState->stages.hdr.hook(&m_commonState->quad);
     stages.colorFilter.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
@@ -153,13 +153,13 @@ void MainMenuRenderer::render() {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // Main render passes
-    m_commonState->stages.skybox.render(&m_state->spaceCamera);
+    m_commonState->stages.skybox.render(&m_state->clientState.spaceCamera);
 
     // Check fore wireframe mode
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     m_commonState->stages.spaceSystem.setShowAR(m_showAR);
-    m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
+    m_commonState->stages.spaceSystem.render(&m_state->clientState.spaceCamera);
 
     // Restore fill
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -211,7 +211,7 @@ void MainMenuRenderer::render() {
 
     // original depth texture
     m_hdrTarget.bindDepthTexture(1);
-    m_commonState->stages.hdr.render(&m_state->spaceCamera);
+    m_commonState->stages.hdr.render(&m_state->clientState.spaceCamera);
 
     if (m_showUI) m_mainMenuUI->draw();
 

@@ -32,8 +32,8 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     // Get window dimensions
     f32v2 windowDims(m_viewport.z, m_viewport.w);
 
-    m_state->spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
-    m_state->localCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_state->clientState.spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_state->clientState.localCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Init Stages
     stages.opaqueVoxel.init(window, context);
@@ -166,7 +166,7 @@ void GameplayRenderer::load(StaticLoadContext& context) {
 void GameplayRenderer::hook() {
     // Note: Common stages are hooked in MainMenuRenderer, no need to re-hook
     // Grab mesh manager handle
-    m_meshManager = m_state->chunkMeshManager;
+    m_meshManager = m_state->clientState.chunkMeshManager;
     stages.opaqueVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
     stages.cutoutVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
     stages.transparentVoxel.hook(&m_chunkRenderer, &m_gameRenderParams);
@@ -203,32 +203,32 @@ void GameplayRenderer::render() {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
     // TODO(Ben): Is this causing the camera slide discrepancy? SHouldn't we use MTRenderState?
-    m_gameRenderParams.calculateParams(m_state->spaceCamera.getPosition(), &m_state->localCamera,
-                                       pos, 100, m_meshManager, &m_state->blocks, m_state->blockTextures, false);
+    m_gameRenderParams.calculateParams(m_state->clientState.spaceCamera.getPosition(), &m_state->clientState.localCamera,
+                                       pos, 100, m_meshManager, &m_state->blocks, m_state->clientState.blockTextures, false);
     // Bind the FBO
     m_hdrTarget.useGeometry();
   
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // worldCamera passes
-    m_commonState->stages.skybox.render(&m_state->spaceCamera);
+    m_commonState->stages.skybox.render(&m_state->clientState.spaceCamera);
 
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_commonState->stages.spaceSystem.setShowAR(false);
     m_commonState->stages.spaceSystem.setRenderState(m_renderState);
-    m_commonState->stages.spaceSystem.render(&m_state->spaceCamera);
+    m_commonState->stages.spaceSystem.render(&m_state->clientState.spaceCamera);
 
     if (m_voxelsActive) {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        stages.opaqueVoxel.render(&m_state->localCamera);
+        stages.opaqueVoxel.render(&m_state->clientState.localCamera);
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->playerEntity).parentVoxelComponent;
         stages.chunkGrid.setState(m_renderState);
-        stages.chunkGrid.render(&m_state->localCamera);
+        stages.chunkGrid.render(&m_state->clientState.localCamera);
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
     }
@@ -252,7 +252,7 @@ void GameplayRenderer::render() {
     // TODO(Ben): This is broken
     if (stages.ssao.isActive()) {
         stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
-        stages.ssao.render(&m_state->localCamera);
+        stages.ssao.render(&m_state->clientState.localCamera);
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
@@ -375,39 +375,41 @@ void GameplayRenderer::updateCameras() {
     const SpaceSystem* ss = m_state->spaceSystem;
 
     // Get the physics component
+    Camera& localCamera = m_state->clientState.localCamera;
     auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        m_state->localCamera.setFocalLength(0.0f);
-        m_state->localCamera.setClippingPlane(0.1f, 10000.0f);
-        m_state->localCamera.setPosition(vpcmp.gridPosition.pos);
-        m_state->localCamera.setOrientation(vpcmp.orientation);
-        m_state->localCamera.update();
+        localCamera.setFocalLength(0.0f);
+        localCamera.setClippingPlane(0.1f, 10000.0f);
+        localCamera.setPosition(vpcmp.gridPosition.pos);
+        localCamera.setOrientation(vpcmp.orientation);
+        localCamera.update();
 
         m_voxelsActive = true;
     } else {
         m_voxelsActive = false;
     }
     // Player is relative to a planet, so add position if needed
+    CinematicCamera& spaceCamera = m_state->clientState.spaceCamera;
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
     if (spcmp.parentGravityID) {
         auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
         if (it != m_renderState->spaceBodyPositions.end()) {
-            m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
+            spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {
             auto& gcmp = ss->sphericalGravity.get(spcmp.parentGravityID);
             auto& npcmp = ss->namePosition.get(gcmp.namePositionComponent);
-            m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
+            spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
         }
     } else {
-        m_state->spaceCamera.setPosition(m_renderState->spaceCameraPos);
+        spaceCamera.setPosition(m_renderState->spaceCameraPos);
     }
-    m_state->spaceCamera.setIsDynamic(false);
-    m_state->spaceCamera.setFocalLength(0.0f);
-    m_state->spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
+    spaceCamera.setIsDynamic(false);
+    spaceCamera.setFocalLength(0.0f);
+    spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
    
-    m_state->spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
-    m_state->spaceCamera.update();
+    spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
+    spaceCamera.update();
 }
 
 void GameplayRenderer::dumpScreenshot() {

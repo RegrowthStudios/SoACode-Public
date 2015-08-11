@@ -884,6 +884,9 @@
     <ClInclude Include="ChunkSphereComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClInclude>
+    <ClInclude Include="ClientState.h">
+      <Filter>SOA Files\Client</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">

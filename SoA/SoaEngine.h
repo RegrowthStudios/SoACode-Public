@@ -24,6 +24,7 @@ class GameSystem;
 class BlockPack;
 class SpaceSystem;
 struct SoaState;
+struct ClientState;
 struct PlanetGenData;
 
 DECL_VCORE(class RPCManager)
@@ -37,6 +38,8 @@ public:
 
     /// Initializes SoaState resources
     static void initState(SoaState* state);
+
+    static void initClientState(ClientState& state);
     
     /// Loads and initializes the SpaceSystem
     static bool loadSpaceSystem(SoaState* state, const nString& filePath);
@@ -51,6 +54,8 @@ public:
 
     /// Destroys the SoaState completely
     static void destroyAll(SoaState* state);
+
+    static void destroyClientState(ClientState& state);
 
     static void destroyGameSystem(SoaState* state);
 

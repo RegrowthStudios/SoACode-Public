@@ -38,7 +38,7 @@ void GameplayLoadScreen::destroy(const vui::GameTime& gameTime) {
 void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
 
     addLoadTask("BlockData", new LoadTaskBlockData(&m_commonState->state->blocks,
-        &m_commonState->state->blockTextureLoader,
+        &m_commonState->state->clientState.blockTextureLoader,
         &m_commonState->loadContext));
 
   //  addLoadTask("Textures", new LoadTaskTextures);
@@ -77,8 +77,8 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
             auto& cmp = it.second;
             SoaEngine::initVoxelGen(it.second.planetGenData, m_commonState->state->blocks);
         }
-        m_commonState->state->blockTextures->update();
-        m_commonState->state->blockTextures->writeDebugAtlases();
+        m_commonState->state->clientState.blockTextures->update();
+        m_commonState->state->clientState.blockTextures->writeDebugAtlases();
         //m_commonState->state->blockTextures->save(&m_commonState->state->blocks);
         m_state = vui::ScreenState::CHANGE_NEXT;
         loadedTextures = true;
@@ -86,7 +86,7 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
 }
 
 void GameplayLoadScreen::draw(const vui::GameTime& gameTime) {
-    m_commonState->state->spaceCamera.updateProjection();
+    m_commonState->state->clientState.spaceCamera.updateProjection();
     m_mainMenuScreen->m_renderer.render();
 }
 

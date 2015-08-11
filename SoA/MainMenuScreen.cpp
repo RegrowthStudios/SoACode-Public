@@ -63,16 +63,16 @@ void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
 void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Get the state handle
-    m_mainMenuSystemViewer = m_soaState->systemViewer;
+    m_mainMenuSystemViewer = m_soaState->clientState.systemViewer;
 
-    m_soaState->spaceCamera.init(m_window->getAspectRatio());
+    m_soaState->clientState.spaceCamera.init(m_window->getAspectRatio());
     
 
     initInput();
 
-    m_soaState->systemViewer->init(m_window->getViewportDims(),
-                                                                      &m_soaState->spaceCamera, m_soaState->spaceSystem, m_inputMapper);
-    m_mainMenuSystemViewer = m_soaState->systemViewer;
+    m_soaState->clientState.systemViewer->init(m_window->getViewportDims(),
+                                               &m_soaState->clientState.spaceCamera, m_soaState->spaceSystem, m_inputMapper);
+    m_mainMenuSystemViewer = m_soaState->clientState.systemViewer;
 
     m_ambLibrary = new AmbienceLibrary;
     m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
@@ -113,7 +113,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
     m_formFont.dispose();
     m_ui.dispose();
 
-    m_soaState->systemViewer->stopInput();
+    m_soaState->clientState.systemViewer->stopInput();
 
     m_threadRunning = false;
     //m_updateThread->join();
@@ -149,14 +149,14 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
             m_soaState->time += TIME_WARP_SPEED;
         }
         if (isWarping) {
-            m_soaState->spaceCamera.setSpeed(1.0);
+            m_soaState->clientState.spaceCamera.setSpeed(1.0);
         } else {
-            m_soaState->spaceCamera.setSpeed(0.3);
+            m_soaState->clientState.spaceCamera.setSpeed(0.3);
         }
     }
 
     //m_soaState->time += m_soaState->timeStep;
-    m_spaceSystemUpdater->update(m_soaState, m_soaState->spaceCamera.getPosition(), f64v3(0.0));
+    m_spaceSystemUpdater->update(m_soaState, m_soaState->clientState.spaceCamera.getPosition(), f64v3(0.0));
     m_spaceSystemUpdater->glUpdate(m_soaState);
     m_mainMenuSystemViewer->update();
 
@@ -165,7 +165,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 }
 
 void MainMenuScreen::draw(const vui::GameTime& gameTime) {
-    m_soaState->spaceCamera.updateProjection();
+    m_soaState->clientState.spaceCamera.updateProjection();
     m_renderer.render();
 }
 
@@ -225,15 +225,15 @@ void MainMenuScreen::newGame(const nString& fileName) {
         return;
     }
 
-    m_soaState->isNewGame = true;
-    m_soaState->startSpacePos = m_mainMenuSystemViewer->getClickPos();
-    f64v3 normal = glm::normalize(m_soaState->startSpacePos);
+    m_soaState->clientState.isNewGame = true;
+    m_soaState->clientState.startSpacePos = m_mainMenuSystemViewer->getClickPos();
+    f64v3 normal = glm::normalize(m_soaState->clientState.startSpacePos);
     // Don't spawn underwater
-    if (glm::length(m_soaState->startSpacePos) < m_mainMenuSystemViewer->getTargetRadius()) {
-        m_soaState->startSpacePos = normal * m_mainMenuSystemViewer->getTargetRadius();
+    if (glm::length(m_soaState->clientState.startSpacePos) < m_mainMenuSystemViewer->getTargetRadius()) {
+        m_soaState->clientState.startSpacePos = normal * m_mainMenuSystemViewer->getTargetRadius();
     }
     // Push out by 5 voxels
-    m_soaState->startSpacePos += glm::normalize(m_soaState->startSpacePos) * 5.0 * KM_PER_VOXEL;
+    m_soaState->clientState.startSpacePos += glm::normalize(m_soaState->clientState.startSpacePos) * 5.0 * KM_PER_VOXEL;
 
     m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
     vecs::EntityID startingPlanet = m_soaState->startingPlanet;
@@ -242,7 +242,7 @@ void MainMenuScreen::newGame(const nString& fileName) {
         SpaceSystem* spaceSystem = m_soaState->spaceSystem;
         auto& arcmp = spaceSystem->axisRotation.getFromEntity(startingPlanet);
 
-        m_soaState->startSpacePos = arcmp.currentOrientation * m_soaState->startSpacePos;
+        m_soaState->clientState.startSpacePos = arcmp.currentOrientation * m_soaState->clientState.startSpacePos;
     }
 
     std::cout << "Making new game: " << fileName << std::endl;
@@ -278,11 +278,11 @@ void MainMenuScreen::reloadUI() {
 void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     SoaEngine::destroySpaceSystem(m_soaState);
     SoaEngine::loadSpaceSystem(m_soaState, "StarSystems/Trinity");
-    CinematicCamera tmp = m_soaState->spaceCamera; // Store camera so the view doesn't change
-    m_soaState->systemViewer->init(m_window->getViewportDims(),
-                                   &m_soaState->spaceCamera, m_soaState->spaceSystem,
+    CinematicCamera tmp = m_soaState->clientState.spaceCamera; // Store camera so the view doesn't change
+    m_soaState->clientState.systemViewer->init(m_window->getViewportDims(),
+                                               &m_soaState->clientState.spaceCamera, m_soaState->spaceSystem,
                                    m_inputMapper);
-    m_soaState->spaceCamera = tmp; // Restore old camera
+    m_soaState->clientState.spaceCamera = tmp; // Restore old camera
     m_renderer.dispose(m_commonState->loadContext);
     initRenderPipeline();
 }
@@ -304,7 +304,7 @@ void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
     if (m_uiEnabled) m_ui.onOptionsChanged();
-    m_soaState->spaceCamera.setAspectRatio(m_window->getAspectRatio());
+    m_soaState->clientState.spaceCamera.setAspectRatio(m_window->getAspectRatio());
     m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
 

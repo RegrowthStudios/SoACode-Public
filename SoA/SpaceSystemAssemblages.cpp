@@ -260,7 +260,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.generator = ftcmp.cpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkMeshManager = soaState->chunkMeshManager;
     svcmp.blockPack = &soaState->blocks;
 
     svcmp.threadPool = soaState->threadPool;
@@ -279,10 +278,10 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     // Set color maps
     // TODO(Ben): This assumes a single SVC!
     if (svcmp.planetGenData->terrainColorMap.id) {
-        soaState->blockTextures->setColorMap("biome", &svcmp.planetGenData->terrainColorPixels);
+        soaState->clientState.blockTextures->setColorMap("biome", &svcmp.planetGenData->terrainColorPixels);
     }
     if (svcmp.planetGenData->liquidColorMap.id) {
-        soaState->blockTextures->setColorMap("liquid", &svcmp.planetGenData->liquidColorPixels);
+        soaState->clientState.blockTextures->setColorMap("liquid", &svcmp.planetGenData->liquidColorPixels);
     }
     return svCmpId;
 }

@@ -22,17 +22,17 @@ void SoaController::startGame(SoaState* state) {
     GameSystem* gameSystem = state->gameSystem;
     SpaceSystem* spaceSystem = state->spaceSystem;
 
-    if (state->isNewGame) {
+    if (state->clientState.isNewGame) {
         // Create the player entity and make the initial planet his parent
         if (state->startingPlanet) {
-            state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
+            state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->clientState.startSpacePos,
                                                                       f64q(), 73.0f,
                                                                       f64v3(0.0),
                                                                       state->startingPlanet,
                                                                       spaceSystem->sphericalGravity.getComponentID(state->startingPlanet),
                                                                       spaceSystem->sphericalTerrain.getComponentID(state->startingPlanet));
         } else {
-            state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->startSpacePos,
+            state->playerEntity = GameSystemAssemblages::createPlayer(state->gameSystem, state->clientState.startSpacePos,
                                                                       f64q(), 73.0f,
                                                                       f64v3(0.0),
                                                                       0, 0, 0);

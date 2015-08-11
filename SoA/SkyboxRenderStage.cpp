@@ -24,7 +24,7 @@ void SkyboxRenderStage::init(vui::GameWindow* window, StaticLoadContext& context
 }
 
 void SkyboxRenderStage::hook(SoaState* state) {
-    m_textureResolver = &state->texturePathResolver;
+    m_textureResolver = &state->clientState.texturePathResolver;
 }
 
 void SkyboxRenderStage::load(StaticLoadContext& context) {
