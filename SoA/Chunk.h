@@ -113,6 +113,7 @@ public:
     vvox::SmartVoxelContainer<ui16> tertiary;
     // Block indexes where flora must be generated.
     std::vector<ui16> floraToGenerate;
+    volatile ui32 updateVersion;
 
     ChunkAccessor* accessor = nullptr;
 private:

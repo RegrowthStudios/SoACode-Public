@@ -66,20 +66,21 @@ private:
     /************************************************************************/
     void onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
     void onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
-    void onGenFinish(Sender s, ChunkHandle chunk, ChunkGenLevel gen);
-    void onAccessorRemove(Sender s, ChunkHandle chunk);
+    void onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen);
+    void onAccessorRemove(Sender s, ChunkHandle& chunk);
 
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
-    std::vector <ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
+    std::vector<ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
     moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
 
     BlockPack* m_blockPack = nullptr;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
 
-    std::vector <ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
-    std::vector <ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
+    std::vector<ChunkHandle> m_pendingMeshes; ///< Chunks that need to be meshed
+    std::vector<ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
+    std::vector<ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
     std::unordered_map<ChunkID, ChunkMesh::ID> m_activeChunks; ///< Stores chunk IDs that have meshes
     std::set<ChunkID> m_pendingDestroy;
 };

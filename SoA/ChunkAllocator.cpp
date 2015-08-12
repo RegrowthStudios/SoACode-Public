@@ -6,6 +6,8 @@
 #define NUM_SHORT_VOXEL_ARRAYS 3
 #define NUM_BYTE_VOXEL_ARRAYS 1
 
+#define INITIAL_UPDATE_VERSION 1
+
 PagedChunkAllocator::PagedChunkAllocator() :
 m_shortFixedSizeArrayRecycler(MAX_VOXEL_ARRAYS_TO_CACHE * NUM_SHORT_VOXEL_ARRAYS) {
     // Empty
@@ -45,6 +47,7 @@ Chunk* PagedChunkAllocator::alloc() {
     chunk->pendingGenLevel = ChunkGenLevel::GEN_NONE;
     chunk->isAccessible = false;
     chunk->distance2 = FLT_MAX;
+    chunk->updateVersion = INITIAL_UPDATE_VERSION;
     memset(chunk->neighbors, 0, sizeof(chunk->neighbors));
     chunk->m_genQueryData.current = nullptr;
 

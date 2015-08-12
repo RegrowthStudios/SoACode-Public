@@ -46,7 +46,7 @@ public:
     // Updates finished queries
     void update();
 
-    Event<ChunkHandle, ChunkGenLevel> onGenFinish;
+    Event<ChunkHandle&, ChunkGenLevel> onGenFinish;
 private:
     moodycamel::ConcurrentQueue<ChunkQuery*> m_finishedQueries;
     std::map < ChunkGridData*, std::vector<ChunkQuery*> >m_pendingQueries; ///< Queries waiting on height map

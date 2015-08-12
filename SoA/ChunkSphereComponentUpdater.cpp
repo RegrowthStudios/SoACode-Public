@@ -204,32 +204,32 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
     // TODO(Ben): Could optimize
     ChunkAccessor& accessor = cmp.chunkGrid->accessor;
     { // Left
-        ChunkID id = h->getID();
+        ChunkID id = h.getID();
         id.x--;
         h->left = accessor.acquire(id);
     }
     { // Right
-        ChunkID id = h->getID();
+        ChunkID id = h.getID();
         id.x++;
         h->right = accessor.acquire(id);
     }
     { // Bottom
-        ChunkID id = h->getID();
+        ChunkID id = h.getID();
         id.y--;
         h->bottom = accessor.acquire(id);
     }
     { // Top
-        ChunkID id = h->getID();
+        ChunkID id = h.getID();
         id.y++;
         h->top = accessor.acquire(id);
     }
     { // Back
-        ChunkID id = h->getID();
+        ChunkID id = h.getID();
         id.z--;
         h->back = accessor.acquire(id);
     }
     { // Front
-        ChunkID id = h->getID();
+        ChunkID id = h.getID();
         id.z++;
         h->front = accessor.acquire(id);
     }

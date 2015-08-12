@@ -1,6 +1,7 @@
 #pragma once
 #include "Vertex.h"
 #include "BlockTextureMethods.h"
+#include "ChunkHandle.h"
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/gtypes.h>
 
@@ -123,8 +124,10 @@ public:
     f64 distance2 = 32.0;
     f64v3 position;
     ui32 activeMeshesIndex = ACTIVE_MESH_INDEX_NONE; ///< Index into active meshes array
+    ui32 updateVersion;
     bool inFrustum = false;
     bool needsSort = true;
+    ChunkHandle chunk;
     ID id;
 
     //*** Transparency info for sorting ***

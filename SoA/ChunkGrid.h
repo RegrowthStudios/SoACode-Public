@@ -62,8 +62,8 @@ private:
     /************************************************************************/
     /* Event Handlers                                                       */
     /************************************************************************/
-    void onAccessorAdd(Sender s, ChunkHandle chunk);
-    void onAccessorRemove(Sender s, ChunkHandle chunk);
+    void onAccessorAdd(Sender s, ChunkHandle& chunk);
+    void onAccessorRemove(Sender s, ChunkHandle& chunk);
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 

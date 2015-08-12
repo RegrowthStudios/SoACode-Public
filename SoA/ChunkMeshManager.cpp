@@ -32,6 +32,19 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
         }
     }
 
+    // TODO(Ben): Race conditions...
+    // Check for mesh updates
+    for (auto& m : m_activeChunkMeshes) {
+        if (m->updateVersion < m->chunk->updateVersion) {
+            ChunkMeshTask* task = trySetMeshDependencies(m->chunk);
+            if (task) {
+                m->updateVersion = m->chunk->updateVersion;
+                m_threadPool->addTask(task);
+                m->chunk->remeshFlags = 0;
+            }
+        }
+    }
+
     // TODO(Ben): This is redundant with the chunk manager! Find a way to share! (Pointer?)
     updateMeshDistances(cameraPosition);
     if (shouldSort) {
@@ -76,6 +89,7 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
     m_freeMeshes.pop_back();
     ChunkMesh& mesh = m_meshStorage[id];
     mesh.id = id;
+    mesh.chunk = h;
 
     // Set the position
     mesh.position = h->m_voxelPosition;
@@ -88,21 +102,11 @@ void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
 
     // Register chunk as active and give it a mesh
     m_activeChunks[h.getID()] = id;
-
-    // TODO(Ben): Recycler
-    ChunkMeshTask* meshTask = new ChunkMeshTask;
-    meshTask->init(h, MeshTaskType::DEFAULT, m_blockPack, this);
     
     // TODO(Ben): Mesh dependencies
     if (h->numBlocks <= 0) {
         h->remeshFlags = 0;
         return;
-    }
-
-    ChunkMeshTask* task = trySetMeshDependencies(h);
-    if (task) {
-        m_threadPool->addTask(meshTask);
-        h->remeshFlags = 0;
     }
 }
 
@@ -158,7 +162,6 @@ ChunkMeshTask* ChunkMeshManager::trySetMeshDependencies(ChunkHandle chunk) {
     meshTask->init(chunk, MeshTaskType::DEFAULT, m_blockPack, this);
 
     // Set dependencies
-    meshTask->chunk.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT] = left.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT] = right.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_FRONT] = chunk->front.acquire();
@@ -249,6 +252,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
         // Add to active list if its not there
         if (mesh.activeMeshesIndex == ACTIVE_MESH_INDEX_NONE) {
             mesh.activeMeshesIndex = m_activeChunkMeshes.size();
+            mesh.updateVersion = 0;
             m_activeChunkMeshes.push_back(&mesh);
         }
     } else {
@@ -316,18 +320,22 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
     }
 }
 
-void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle chunk, ChunkGenLevel gen) {
+void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen) {
     // Can be meshed.
     if (gen == GEN_DONE) {
         // Create message
         ChunkMeshMessage msg;
-        chunk.acquire();
-        msg.chunk = chunk;
+        msg.chunk = chunk.acquire();
         msg.messageID = ChunkMeshMessageID::CREATE;
         m_messages.enqueue(msg);
     }
 }
 
-void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle chunk) {
-    // TODO(Ben): Implement
+void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle& chunk) {
+    chunk->updateVersion = 0;
+    // Destroy message
+    ChunkMeshMessage msg;
+    msg.chunk = chunk;
+    msg.messageID = ChunkMeshMessageID::DESTROY;
+    m_messages.enqueue(msg);
 }

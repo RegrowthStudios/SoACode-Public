@@ -108,11 +108,11 @@ void ChunkGrid::update() {
     }
 }
 
-void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
+void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle& chunk) {
     { // Add to active list
         std::lock_guard<std::mutex> l(m_lckAddOrRemove);
-        chunk.acquire();
         m_activeChunksToAddOrRemove.emplace_back(chunk, true);
+        m_activeChunksToAddOrRemove.back().first.acquireSelf();
     }
 
     // Init the chunk
@@ -137,7 +137,7 @@ void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle chunk) {
     chunk->heightData = chunk->gridData->heightData;
 }
 
-void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle chunk) {
+void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle& chunk) {
     { // Remove from active list
         std::lock_guard<std::mutex> l(m_lckAddOrRemove);
         m_activeChunksToAddOrRemove.emplace_back(chunk, false);
