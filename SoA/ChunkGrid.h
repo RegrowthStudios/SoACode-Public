@@ -51,7 +51,12 @@ public:
     // Processes chunk queries and set active chunks
     void update();
 
-    const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
+    // Locks and gets active chunks. Must call releaseActiveChunks() later.
+    const std::vector<ChunkHandle>& acquireActiveChunks() { 
+        m_lckActiveChunks.lock(); 
+        return m_activeChunks;
+    }
+    void releaseActiveChunks() { m_lckActiveChunks.unlock(); }
 
     ChunkGenerator* generators = nullptr;
     ui32 generatorsPerRow;
@@ -67,13 +72,8 @@ private:
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    
-
+    std::mutex m_lckActiveChunks;
     std::vector<ChunkHandle> m_activeChunks;
-
-    // To prevent needing lock on m_activeChunks;
-    std::mutex m_lckAddOrRemove;
-    std::vector<std::pair<ChunkHandle, bool /*true = add*/>> m_activeChunksToAddOrRemove;
 
     // TODO(Ben): Compare to std::map performance
     std::mutex m_lckGridData;

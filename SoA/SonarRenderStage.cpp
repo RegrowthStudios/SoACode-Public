@@ -26,8 +26,6 @@ SonarRenderStage::SonarRenderStage(const GameRenderParams* gameRenderParams) :
 void SonarRenderStage::render(const Camera* camera) {
     glDisable(GL_DEPTH_TEST);
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
-    if (chunkMeshes.empty()) return;
 
     if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgramFromFile("Shaders/BlockShading/standardShading.vert",
@@ -50,11 +48,15 @@ void SonarRenderStage::render(const Camera* camera) {
 
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
-
-    for (unsigned int i = 0; i < chunkMeshes.size(); i++) {
-        ChunkRenderer::drawOpaqueCustom(chunkMeshes[i], m_program,
-                                       m_gameRenderParams->chunkCamera->getPosition(),
-                                       m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
+    {
+        std::lock_guard<std::mutex> l(cmm->lckActiveChunkMeshes);
+        if (chunkMeshes.empty()) return;
+        for (unsigned int i = 0; i < chunkMeshes.size(); i++) {
+            ChunkRenderer::drawOpaqueCustom(chunkMeshes[i], m_program,
+                                            m_gameRenderParams->chunkCamera->getPosition(),
+                                            m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+        }
     }
 
     glDepthMask(GL_TRUE);

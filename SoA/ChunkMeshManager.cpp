@@ -10,13 +10,7 @@
 
 #define MAX_UPDATES_PER_FRAME 300
 
-ChunkMeshManager::ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack, ui32 startMeshes /*= 128*/) {
-    m_meshStorage.resize(startMeshes);
-    m_freeMeshes.resize(startMeshes);
-    for (ui32 i = 0; i < startMeshes; i++) {
-        m_freeMeshes[i] = i;
-    }
-
+ChunkMeshManager::ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack) {
     m_threadPool = threadPool;
     m_blockPack = blockPack;
     SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onAddSphericalVoxelComponent);
@@ -24,23 +18,36 @@ ChunkMeshManager::ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, Bl
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
-    ChunkMeshMessage updateBuffer[MAX_UPDATES_PER_FRAME];
+    ChunkMeshUpdateMessage updateBuffer[MAX_UPDATES_PER_FRAME];
     size_t numUpdates;
     if (numUpdates = m_messages.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
         for (size_t i = 0; i < numUpdates; i++) {
-            processMessage(updateBuffer[i]);
+            updateMesh(updateBuffer[i]);
         }
     }
 
-    // TODO(Ben): Race conditions...
-    // Check for mesh updates
-    for (auto& m : m_activeChunkMeshes) {
-        if (m->updateVersion < m->chunk->updateVersion) {
-            ChunkMeshTask* task = trySetMeshDependencies(m->chunk);
+    // Update chunks that are pending neighbors
+    // TODO(Ben): Optimize. Only do every N frames or something.
+    {
+        std::lock_guard<std::mutex> l(m_lckPendingNeighbors);
+        for (auto it = m_pendingNeighbors.begin(); it != m_pendingNeighbors.end(); ) {
+            ChunkMeshTask* task = trySetMeshDependencies(*it);
             if (task) {
-                m->updateVersion = m->chunk->updateVersion;
+                ChunkMesh* mesh;
+                std::lock_guard<std::mutex> l(m_lckActiveChunks);
+                auto& ait = m_activeChunks.find(task->chunk.getID());
+                if (ait == m_activeChunks.end()) {
+                    m_pendingNeighbors.erase(it++);
+                    continue;
+                } else {
+                    mesh = ait->second;
+                }
+                mesh->updateVersion = task->chunk->updateVersion;
                 m_threadPool->addTask(task);
-                m->chunk->remeshFlags = 0;
+                task->chunk->remeshFlags = 0;
+                m_pendingNeighbors.erase(it++);
+            } else {
+                ++it;
             }
         }
     }
@@ -54,63 +61,43 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
 
 void ChunkMeshManager::destroy() {
     std::vector <ChunkMesh*>().swap(m_activeChunkMeshes);
-    moodycamel::ConcurrentQueue<ChunkMeshMessage>().swap(m_messages);
-    std::vector <ChunkMesh::ID>().swap(m_freeMeshes);
-    std::vector <ChunkMesh>().swap(m_meshStorage);
-    std::unordered_map<ChunkID, ChunkMesh::ID>().swap(m_activeChunks);
+    moodycamel::ConcurrentQueue<ChunkMeshUpdateMessage>().swap(m_messages);
+    std::unordered_map<ChunkID, ChunkMesh*>().swap(m_activeChunks);
 }
 
-void ChunkMeshManager::processMessage(ChunkMeshMessage& message) {
-    switch (message.messageID) {
-        case ChunkMeshMessageID::CREATE:
-            createMesh(message);
-            break;
-        case ChunkMeshMessageID::DESTROY:
-            destroyMesh(message);
-            break;
-        case ChunkMeshMessageID::UPDATE:
-            updateMesh(message);
-            break;
+ChunkMesh* ChunkMeshManager::createMesh(ChunkHandle& h) {
+    ChunkMesh* mesh;
+    { // Get a free mesh
+        std::lock_guard<std::mutex> l(m_lckMeshRecycler);
+        mesh = m_meshRecycler.create();
     }
-}
-
-void ChunkMeshManager::createMesh(ChunkMeshMessage& message) {
-    ChunkHandle& h = message.chunk;
-    // Check if we are supposed to be destroyed
-    auto& it = m_pendingDestroy.find(h.getID());
-    if (it != m_pendingDestroy.end()) {
-        m_pendingDestroy.erase(it);
-        return;
-    }
-    // Make sure we can even get a free mesh
-    updateMeshStorage();
-    // Get a free mesh
-    ChunkMesh::ID id = m_freeMeshes.back();
-    m_freeMeshes.pop_back();
-    ChunkMesh& mesh = m_meshStorage[id];
-    mesh.id = id;
-    mesh.chunk = h;
+    mesh->id = h.getID();
 
     // Set the position
-    mesh.position = h->m_voxelPosition;
+    mesh->position = h->m_voxelPosition;
 
     // Zero buffers
-    memset(mesh.vbos, 0, sizeof(mesh.vbos));
-    memset(mesh.vaos, 0, sizeof(mesh.vaos));
-    mesh.transIndexID = 0;
-    mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
+    memset(mesh->vbos, 0, sizeof(mesh->vbos));
+    memset(mesh->vaos, 0, sizeof(mesh->vaos));
+    mesh->transIndexID = 0;
+    mesh->activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
 
-    // Register chunk as active and give it a mesh
-    m_activeChunks[h.getID()] = id;
+    { // Register chunk as active and give it a mesh
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        m_activeChunks[h.getID()] = mesh;
+    }
     
     // TODO(Ben): Mesh dependencies
     if (h->numBlocks <= 0) {
         h->remeshFlags = 0;
-        return;
     }
+
+    h.release();
+    return mesh;
 }
 
 ChunkMeshTask* ChunkMeshManager::trySetMeshDependencies(ChunkHandle chunk) {
+    // TODO(Ben): Race conditions galore.
 
     // TODO(Ben): This could be optimized a bit
     ChunkHandle& left = chunk->left;
@@ -121,9 +108,12 @@ ChunkMeshTask* ChunkMeshManager::trySetMeshDependencies(ChunkHandle chunk) {
     ChunkHandle& front = chunk->front;
 
     //// Check that neighbors are loaded
-    if (!left->isAccessible || !right->isAccessible ||
-        !front->isAccessible || !back->isAccessible ||
-        !top->isAccessible || !bottom->isAccessible) return nullptr;
+    if (!left.isAquired() || !left->isAccessible ||
+        !right.isAquired() || !right->isAccessible ||
+        !front.isAquired() || !front->isAccessible ||
+        !back.isAquired() || !back->isAccessible ||
+        !top.isAquired() || !top->isAccessible ||
+        !bottom.isAquired() || !bottom->isAccessible) return nullptr;
 
     // Left half
     if (!left->back.isAquired() || !left->back->isAccessible) return nullptr;
@@ -192,76 +182,58 @@ ChunkMeshTask* ChunkMeshManager::trySetMeshDependencies(ChunkHandle chunk) {
     return meshTask;
 }
 
-
-void ChunkMeshManager::destroyMesh(ChunkMeshMessage& message) {
-    ChunkHandle& h = message.chunk;
-    // Get the mesh object
-    auto& it = m_activeChunks.find(h.getID());
-    // Check for rare case where destroy comes before create, just re-enqueue.
-    if (it == m_activeChunks.end()) {
-        m_pendingDestroy.insert(h.getID());
-        return;
-    }
-
-    ChunkMesh::ID& id = it->second;
-    ChunkMesh& mesh = m_meshStorage[id];
-
+void ChunkMeshManager::disposeMesh(ChunkMesh* mesh) {
     // De-allocate buffer objects
-    glDeleteBuffers(4, mesh.vbos);
-    glDeleteVertexArrays(4, mesh.vaos);
-    if (mesh.transIndexID) glDeleteBuffers(1, &mesh.transIndexID);
+    glDeleteBuffers(4, mesh->vbos);
+    glDeleteVertexArrays(4, mesh->vaos);
+    if (mesh->transIndexID) glDeleteBuffers(1, &mesh->transIndexID);
 
-    // Remove from mesh list
-    if (mesh.activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
-        m_activeChunkMeshes[mesh.activeMeshesIndex] = m_activeChunkMeshes.back();
-        m_activeChunkMeshes[mesh.activeMeshesIndex]->activeMeshesIndex = mesh.activeMeshesIndex;
-        m_activeChunkMeshes.pop_back();
-        mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
+    { // Remove from mesh list
+        std::lock_guard<std::mutex> l(lckActiveChunkMeshes);
+        if (mesh->activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
+            m_activeChunkMeshes[mesh->activeMeshesIndex] = m_activeChunkMeshes.back();
+            m_activeChunkMeshes[mesh->activeMeshesIndex]->activeMeshesIndex = mesh->activeMeshesIndex;
+            m_activeChunkMeshes.pop_back();
+            mesh->activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
+        }
     }
-    // Release the mesh object
-    m_freeMeshes.push_back(id);
-    m_activeChunks.erase(it);
+    
+    { // Release the mesh
+        std::lock_guard<std::mutex> l(m_lckMeshRecycler);
+        m_meshRecycler.recycle(mesh);
+    }
 }
 
-
-void ChunkMeshManager::disposeChunkMesh(Chunk* chunk) {
-    // delete the mesh!
-    //if (chunk->hasCreatedMesh) {
-    //    ChunkMeshMessage msg;
-    //    msg.chunkID = chunk->getID();
-    //    msg.messageID = ChunkMeshMessageID::DESTROY;
-    //   // m_cmp->chunkMeshManager->sendMessage(msg);
-    //    chunk->hasCreatedMesh = false;
-    //    chunk->remeshFlags |= 1;
-    //}
-}
-
-
-void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {   
-    ChunkHandle& h = message.chunk;
-    // Get the mesh object
-    auto& it = m_activeChunks.find(h.getID());
-    if (it == m_activeChunks.end()) {
-        delete message.meshData;
-        return; /// The mesh was already released, so ignore!
+void ChunkMeshManager::updateMesh(ChunkMeshUpdateMessage& message) {
+    ChunkMesh *mesh;
+    { // Get the mesh object
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        auto& it = m_activeChunks.find(message.chunkID);
+        if (it == m_activeChunks.end()) {
+            delete message.meshData;
+            m_lckActiveChunks.unlock();
+            return; /// The mesh was already released, so ignore!
+        }
+        mesh = it->second;
     }
+    
 
-    ChunkMesh &mesh = m_meshStorage[it->second];
-
-    if (ChunkMesher::uploadMeshData(mesh, message.meshData)) {
+    if (ChunkMesher::uploadMeshData(*mesh, message.meshData)) {
         // Add to active list if its not there
-        if (mesh.activeMeshesIndex == ACTIVE_MESH_INDEX_NONE) {
-            mesh.activeMeshesIndex = m_activeChunkMeshes.size();
-            mesh.updateVersion = 0;
-            m_activeChunkMeshes.push_back(&mesh);
+        std::lock_guard<std::mutex> l(lckActiveChunkMeshes);
+        if (mesh->activeMeshesIndex == ACTIVE_MESH_INDEX_NONE) {
+            mesh->activeMeshesIndex = m_activeChunkMeshes.size();
+            mesh->updateVersion = 0;
+            m_activeChunkMeshes.push_back(mesh);
         }
     } else {
         // Remove from active list
-        if (mesh.activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
-            m_activeChunkMeshes[mesh.activeMeshesIndex] = m_activeChunkMeshes.back();
-            m_activeChunkMeshes[mesh.activeMeshesIndex]->activeMeshesIndex = mesh.activeMeshesIndex;
+        std::lock_guard<std::mutex> l(lckActiveChunkMeshes);
+        if (mesh->activeMeshesIndex != ACTIVE_MESH_INDEX_NONE) {
+            m_activeChunkMeshes[mesh->activeMeshesIndex] = m_activeChunkMeshes.back();
+            m_activeChunkMeshes[mesh->activeMeshesIndex]->activeMeshesIndex = mesh->activeMeshesIndex;
             m_activeChunkMeshes.pop_back();
-            mesh.activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
+            mesh->activeMeshesIndex = ACTIVE_MESH_INDEX_NONE;
         }
     }
 
@@ -271,7 +243,8 @@ void ChunkMeshManager::updateMesh(ChunkMeshMessage& message) {
 
 void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     static const f64v3 CHUNK_DIMS(CHUNK_WIDTH);
-
+    // TODO(Ben): Spherical instead?
+    std::lock_guard<std::mutex> l(lckActiveChunkMeshes);
     for (auto& mesh : m_activeChunkMeshes) { //update distances for all chunk meshes
         //calculate distance
         f64v3 closestPoint = getClosestPointOnAABB(cameraPosition, mesh->position, CHUNK_DIMS);
@@ -280,31 +253,9 @@ void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     }
 }
 
-void ChunkMeshManager::updateMeshStorage() {
-    if (m_freeMeshes.empty()) {
-        // Need to cache all indices
-        std::vector<ChunkMesh::ID> tmp(m_activeChunkMeshes.size());
-        for (size_t i = 0; i < tmp.size(); i++) {
-            tmp[i] = m_activeChunkMeshes[i]->id;
-        }
-
-        // Resize the storage
-        ui32 i = m_meshStorage.size();
-        m_meshStorage.resize((ui32)(m_meshStorage.size() * 1.5f));
-        for (; i < m_meshStorage.size(); i++) {
-            m_freeMeshes.push_back(i);
-        }
-
-        // Set the pointers again, since they were invalidated
-        for (size_t i = 0; i < tmp.size(); i++) {
-            m_activeChunkMeshes[i] = &m_meshStorage[tmp[i]];
-        }
-    }
-}
-
 void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e) {
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
+    for (ui32 i = 0; i < 6; i++) {
+        for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
         cmp.chunkGrids[i].accessor.onRemove += makeDelegate(*this, &ChunkMeshManager::onAccessorRemove);
@@ -312,8 +263,8 @@ void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
 }
 
 void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e) {
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
+    for (ui32 i = 0; i < 6; i++) {
+        for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
         cmp.chunkGrids[i].accessor.onRemove -= makeDelegate(*this, &ChunkMeshManager::onAccessorRemove);
@@ -324,18 +275,40 @@ void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel g
     // Can be meshed.
     if (gen == GEN_DONE) {
         // Create message
-        ChunkMeshMessage msg;
-        msg.chunk = chunk.acquire();
-        msg.messageID = ChunkMeshMessageID::CREATE;
-        m_messages.enqueue(msg);
+        if (chunk->numBlocks) {
+            // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
+            ChunkMesh* mesh = createMesh(chunk);
+            ChunkMeshTask* task = trySetMeshDependencies(chunk);
+            if (task) {
+                mesh->updateVersion = chunk->updateVersion;
+                m_threadPool->addTask(task);
+                chunk->remeshFlags = 0;
+            } else {
+                std::lock_guard<std::mutex> l(m_lckPendingNeighbors);
+                m_pendingNeighbors.emplace(chunk);
+            }
+        }
     }
 }
 
 void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle& chunk) {
     chunk->updateVersion = 0;
     // Destroy message
-    ChunkMeshMessage msg;
-    msg.chunk = chunk;
-    msg.messageID = ChunkMeshMessageID::DESTROY;
-    m_messages.enqueue(msg);
+    ChunkMeshUpdateMessage msg;
+    ChunkMesh* mesh;
+    {
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        auto& it = m_activeChunks.find(chunk.getID());
+        if (it == m_activeChunks.end()) {
+            return;
+        } else {
+            mesh = it->second;
+            m_activeChunks.erase(it);
+        }
+    }
+    {
+        std::lock_guard<std::mutex> l(m_lckPendingNeighbors);
+        auto& it = m_pendingNeighbors.find(chunk);
+    }
+    disposeMesh(mesh);
 }

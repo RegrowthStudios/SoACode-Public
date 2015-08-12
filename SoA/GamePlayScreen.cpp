@@ -187,11 +187,12 @@ void GameplayScreen::updateMTRenderState() {
         auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
         state->debugChunkData.clear();
         if (svcmp.chunkGrids) {
-            for (ChunkHandle chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks()) {
+            for (ChunkHandle chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].acquireActiveChunks()) {
                 state->debugChunkData.emplace_back();
                 state->debugChunkData.back().genLevel = chunk->genLevel;
                 state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
             }
+            svcmp.chunkGrids[vpCmp.gridPosition.face].releaseActiveChunks();
         }
     } else {
         std::vector<DebugChunkData>().swap(state->debugChunkData);

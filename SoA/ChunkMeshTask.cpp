@@ -27,9 +27,8 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
         workerData->chunkMesher->init(blockPack);
     }
     // Prepare message
-    ChunkMeshMessage msg;
-    msg.messageID = ChunkMeshMessageID::UPDATE;
-    msg.chunk = chunk;
+    ChunkMeshUpdateMessage msg;
+    msg.chunkID = chunk.getID();
 
     // Pre-processing
     workerData->chunkMesher->prepareDataAsync(chunk, neighborHandles);
@@ -43,7 +42,8 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
 
 void ChunkMeshTask::init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
-    chunk = ch.acquire();
+    chunk = ch;
+    chunk.acquireSelf();
     chunk->queuedForMesh = true;
     this->blockPack = blockPack;
     this->meshManager = meshManager;

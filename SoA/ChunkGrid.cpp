@@ -68,30 +68,6 @@ ChunkGridData* ChunkGrid::getChunkGridData(const i32v2& gridPos) {
 }
 
 void ChunkGrid::update() {
-    std::vector<ChunkHandle> toRelease;
-    { // Update active list
-        // Have to use a single vector so order is consistent
-        std::lock_guard<std::mutex> l(m_lckAddOrRemove);
-        for (auto& it : m_activeChunksToAddOrRemove) {
-            ChunkHandle& h = it.first;
-            if (it.second) {
-                // Add case
-                h->m_activeIndex = m_activeChunks.size();
-                m_activeChunks.push_back(h);
-                toRelease.push_back(h);
-            } else {
-                // Remove case
-                m_activeChunks[h->m_activeIndex] = m_activeChunks.back();
-                m_activeChunks[h->m_activeIndex]->m_activeIndex = h->m_activeIndex;
-                m_activeChunks.pop_back();
-            }
-        }
-        m_activeChunksToAddOrRemove.clear();
-    }
-    for (auto& h : toRelease) {
-        h.release();
-    }
-
     // TODO(Ben): Handle generator distribution
     generators[0].update();
 
@@ -110,9 +86,9 @@ void ChunkGrid::update() {
 
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle& chunk) {
     { // Add to active list
-        std::lock_guard<std::mutex> l(m_lckAddOrRemove);
-        m_activeChunksToAddOrRemove.emplace_back(chunk, true);
-        m_activeChunksToAddOrRemove.back().first.acquireSelf();
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        chunk->m_activeIndex = m_activeChunks.size();
+        m_activeChunks.push_back(chunk);
     }
 
     // Init the chunk
@@ -139,8 +115,10 @@ void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle& chunk) {
 
 void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle& chunk) {
     { // Remove from active list
-        std::lock_guard<std::mutex> l(m_lckAddOrRemove);
-        m_activeChunksToAddOrRemove.emplace_back(chunk, false);
+        std::lock_guard<std::mutex> l(m_lckActiveChunks);
+        m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();
+        m_activeChunks[chunk->m_activeIndex]->m_activeIndex = chunk->m_activeIndex;
+        m_activeChunks.pop_back();
     }
 
     // TODO(Ben): Could be slightly faster with InterlockedDecrement and FSM?

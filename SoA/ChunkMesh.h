@@ -99,8 +99,6 @@ public:
         vaoID(0), transVaoID(0),
         cutoutVaoID(0), waterVaoID(0) {}
 
-    typedef ui32 ID;
-
     ChunkMeshRenderData renderData;
     union {
         struct {
@@ -127,11 +125,10 @@ public:
     ui32 updateVersion;
     bool inFrustum = false;
     bool needsSort = true;
-    ChunkHandle chunk;
-    ID id;
+    ChunkID id;
 
     //*** Transparency info for sorting ***
     VGIndexBuffer transIndexID = 0;
-    std::vector <i8v3> transQuadPositions;
-    std::vector <ui32> transQuadIndices;
+    std::vector<i8v3> transQuadPositions;
+    std::vector<ui32> transQuadIndices;
 };

@@ -23,8 +23,6 @@ void TransparentVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRender
 void TransparentVoxelRenderStage::render(const Camera* camera) {
     glDepthMask(GL_FALSE);
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
-    if (chunkMeshes.empty()) return;
 
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
 
@@ -45,31 +43,35 @@ void TransparentVoxelRenderStage::render(const Camera* camera) {
         sort = true;
         oldPos = intPosition;
     }
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
+    {
+        std::lock_guard<std::mutex> l(cmm->lckActiveChunkMeshes);
+        if (chunkMeshes.empty()) return;
+        for (size_t i = 0; i < chunkMeshes.size(); i++) {
+            ChunkMesh* cm = chunkMeshes[i];
+            if (sort) cm->needsSort = true;
 
-    for (size_t i = 0; i < chunkMeshes.size(); i++) {
-        ChunkMesh* cm = chunkMeshes[i];
-        if (sort) cm->needsSort = true;
+            if (cm->inFrustum) {
+                // TODO(Ben): We should probably do this outside of a lock
+                if (cm->needsSort) {
+                    cm->needsSort = false;
+                    if (cm->transQuadIndices.size() != 0) {
+                        GeometrySorter::sortTransparentBlocks(cm, intPosition);
 
-        if (cm->inFrustum) {
+                        //update index data buffer
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, cm->transQuadIndices.size() * sizeof(ui32), NULL, GL_STATIC_DRAW);
+                        void* v = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, cm->transQuadIndices.size() * sizeof(ui32), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-            if (cm->needsSort) {
-                cm->needsSort = false;
-                if (cm->transQuadIndices.size() != 0) {
-                    GeometrySorter::sortTransparentBlocks(cm, intPosition);
-
-                    //update index data buffer
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cm->transIndexID);
-                    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cm->transQuadIndices.size() * sizeof(ui32), NULL, GL_STATIC_DRAW);
-                    void* v = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, cm->transQuadIndices.size() * sizeof(ui32), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-                    if (v == NULL) pError("Failed to map sorted transparency buffer.");
-                    memcpy(v, &(cm->transQuadIndices[0]), cm->transQuadIndices.size() * sizeof(ui32));
-                    glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+                        if (v == NULL) pError("Failed to map sorted transparency buffer.");
+                        memcpy(v, &(cm->transQuadIndices[0]), cm->transQuadIndices.size() * sizeof(ui32));
+                        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+                    }
                 }
-            }
 
-            m_renderer->drawTransparent(cm, position,
-                                        m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+                m_renderer->drawTransparent(cm, position,
+                                            m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+            }
         }
     }
     glEnable(GL_CULL_FACE);

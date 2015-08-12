@@ -22,45 +22,38 @@
 #include "SpaceSystemAssemblages.h"
 #include <mutex>
 
-enum class ChunkMeshMessageID { CREATE, UPDATE, DESTROY };
-
-struct ChunkMeshMessage {
-    ChunkHandle chunk;
-    ChunkMeshMessageID messageID;
+struct ChunkMeshUpdateMessage {
+    ChunkID chunkID;
     ChunkMeshData* meshData = nullptr;
 };
 
 class ChunkMeshManager {
 public:
-    ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack, ui32 startMeshes = 128);
+    ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack);
     /// Updates the meshManager, uploading any needed meshes
     void update(const f64v3& cameraPosition, bool shouldSort);
     /// Adds a mesh for updating
-    void sendMessage(const ChunkMeshMessage& message) { m_messages.enqueue(message); }
+    void sendMessage(const ChunkMeshUpdateMessage& message) { m_messages.enqueue(message); }
     /// Destroys all meshes
     void destroy();
 
-    const std::vector <ChunkMesh *>& getChunkMeshes() { return m_activeChunkMeshes; }
-
+    // Be sure to lock lckActiveChunkMeshes
+    const std::vector <ChunkMesh*>& getChunkMeshes() { return m_activeChunkMeshes; }
+    std::mutex lckActiveChunkMeshes;
 private:
     VORB_NON_COPYABLE(ChunkMeshManager);
 
-    void processMessage(ChunkMeshMessage& message);
-
-    void createMesh(ChunkMeshMessage& message);
+    ChunkMesh* createMesh(ChunkHandle& h);
 
     ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
 
-    void destroyMesh(ChunkMeshMessage& message);
-
-    void disposeChunkMesh(Chunk* chunk);
+    void disposeMesh(ChunkMesh* mesh);
 
     /// Uploads a mesh and adds to list if needed
-    void updateMesh(ChunkMeshMessage& message);
+    void updateMesh(ChunkMeshUpdateMessage& message);
 
     void updateMeshDistances(const f64v3& cameraPosition);
 
-    void updateMeshStorage();
     /************************************************************************/
     /* Event Handlers                                                       */
     /************************************************************************/
@@ -73,16 +66,17 @@ private:
     /* Members                                                              */
     /************************************************************************/
     std::vector<ChunkMesh*> m_activeChunkMeshes; ///< Meshes that should be drawn
-    moodycamel::ConcurrentQueue<ChunkMeshMessage> m_messages; ///< Lock-free queue of messages
-
+    moodycamel::ConcurrentQueue<ChunkMeshUpdateMessage> m_messages; ///< Lock-free queue of messages
+   
     BlockPack* m_blockPack = nullptr;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
 
-    std::vector<ChunkHandle> m_pendingMeshes; ///< Chunks that need to be meshed
-    std::vector<ChunkMesh::ID> m_freeMeshes; ///< Stack of free mesh indices
-    std::vector<ChunkMesh> m_meshStorage; ///< Cache friendly mesh object storage
-    std::unordered_map<ChunkID, ChunkMesh::ID> m_activeChunks; ///< Stores chunk IDs that have meshes
-    std::set<ChunkID> m_pendingDestroy;
+    std::mutex m_lckPendingNeighbors;
+    std::set<ChunkHandle> m_pendingNeighbors; ///< Meshes that need valid neighbors
+    std::mutex m_lckMeshRecycler;
+    PtrRecycler<ChunkMesh> m_meshRecycler;
+    std::mutex m_lckActiveChunks;
+    std::unordered_map<ChunkID, ChunkMesh*> m_activeChunks; ///< Stores chunk IDs that have meshes
 };
 
 #endif // ChunkMeshManager_h__
