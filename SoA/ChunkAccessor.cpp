@@ -139,9 +139,11 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
         chunk.m_acquired = true;
         return std::move(safeAdd(chunk.m_id, wasOld));
     } else {
-        chunk->m_handleRefCount++;
-        chunk.m_acquired = true;
-        return std::move(chunk);
+        ChunkHandle retValue = {};
+        memcpy(&retValue, &chunk, sizeof(ChunkHandle));
+        retValue->m_handleRefCount++;
+        retValue.m_acquired = true;
+        return std::move(retValue);
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
