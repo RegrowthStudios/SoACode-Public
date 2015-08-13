@@ -26,32 +26,6 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
         }
     }
 
-    // Update chunks that are pending neighbors
-    // TODO(Ben): Optimize. Only do every N frames or something.
-    {
-        std::lock_guard<std::mutex> l(m_lckPendingNeighbors);
-        for (auto it = m_pendingNeighbors.begin(); it != m_pendingNeighbors.end(); ) {
-            ChunkMeshTask* task = trySetMeshDependencies(*it);
-            if (task) {
-                ChunkMesh* mesh;
-                std::lock_guard<std::mutex> l(m_lckActiveChunks);
-                auto& ait = m_activeChunks.find(task->chunk.getID());
-                if (ait == m_activeChunks.end()) {
-                    m_pendingNeighbors.erase(it++);
-                    continue;
-                } else {
-                    mesh = ait->second;
-                }
-                mesh->updateVersion = task->chunk->updateVersion;
-                m_threadPool->addTask(task);
-                task->chunk->remeshFlags = 0;
-                m_pendingNeighbors.erase(it++);
-            } else {
-                ++it;
-            }
-        }
-    }
-
     // TODO(Ben): This is redundant with the chunk manager! Find a way to share! (Pointer?)
     updateMeshDistances(cameraPosition);
     if (shouldSort) {
@@ -92,7 +66,6 @@ ChunkMesh* ChunkMeshManager::createMesh(ChunkHandle& h) {
         h->remeshFlags = 0;
     }
 
-    h.release();
     return mesh;
 }
 
@@ -258,7 +231,8 @@ void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].accessor.onRemove += makeDelegate(*this, &ChunkMeshManager::onAccessorRemove);
+        cmp.chunkGrids[i].onNeighborsAcquire += makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
+        cmp.chunkGrids[i].onNeighborsRelease += makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
     }
 }
 
@@ -267,7 +241,8 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].accessor.onRemove -= makeDelegate(*this, &ChunkMeshManager::onAccessorRemove);
+        cmp.chunkGrids[i].onNeighborsAcquire -= makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
+        cmp.chunkGrids[i].onNeighborsRelease -= makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
     }
 }
 
@@ -276,22 +251,28 @@ void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel g
     if (gen == GEN_DONE) {
         // Create message
         if (chunk->numBlocks) {
-            // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
-            ChunkMesh* mesh = createMesh(chunk);
+            ChunkMesh* mesh;
+            { // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
+                std::lock_guard<std::mutex> l(m_lckActiveChunks);
+                auto& it = m_activeChunks.find(chunk.getID());
+                if (it == m_activeChunks.end()) return;
+                mesh = it->second;
+            }
             ChunkMeshTask* task = trySetMeshDependencies(chunk);
             if (task) {
                 mesh->updateVersion = chunk->updateVersion;
                 m_threadPool->addTask(task);
                 chunk->remeshFlags = 0;
-            } else {
-                std::lock_guard<std::mutex> l(m_lckPendingNeighbors);
-                m_pendingNeighbors.emplace(chunk);
             }
         }
     }
 }
 
-void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle& chunk) {
+void ChunkMeshManager::onNeighborsAcquire(Sender s, ChunkHandle& chunk) {
+    ChunkMesh* mesh = createMesh(chunk);
+}
+
+void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
     chunk->updateVersion = 0;
     // Destroy message
     ChunkMeshUpdateMessage msg;
@@ -306,9 +287,6 @@ void ChunkMeshManager::onAccessorRemove(Sender s, ChunkHandle& chunk) {
             m_activeChunks.erase(it);
         }
     }
-    {
-        std::lock_guard<std::mutex> l(m_lckPendingNeighbors);
-        auto& it = m_pendingNeighbors.find(chunk);
-    }
+
     disposeMesh(mesh);
 }

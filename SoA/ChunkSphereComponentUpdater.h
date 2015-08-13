@@ -32,7 +32,7 @@ private:
     void shiftDirection(ChunkSphereComponent& cmp, int axis1, int axis2, int axis3, int offset);
     // Submits a gen query and connects to neighbors
     ChunkHandle submitAndConnect(ChunkSphereComponent& cmp, const i32v3& chunkPos);
-    void releaseAndDisconnect(ChunkHandle& h);
+    void releaseAndDisconnect(ChunkSphereComponent& cmp, ChunkHandle& h);
     void releaseHandles(ChunkSphereComponent& cmp);
     void initSphere(ChunkSphereComponent& cmp);
 };

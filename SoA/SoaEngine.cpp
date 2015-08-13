@@ -65,8 +65,6 @@ void SoaEngine::initState(SoaState* state) {
         // Initialize the threadpool with hc threads
         state->threadPool = new vcore::ThreadPool<WorkerData>();
         state->threadPool->init(hc);
-        // Give some time for the threads to spin up
-        SDL_Delay(100);
     }
 
     // TODO(Ben): Move somewhere else

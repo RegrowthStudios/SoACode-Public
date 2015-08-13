@@ -63,6 +63,9 @@ public:
     ui32 numGenerators;
 
     ChunkAccessor accessor;
+
+    Event<ChunkHandle&> onNeighborsAcquire;
+    Event<ChunkHandle&> onNeighborsRelease;
 private:
     /************************************************************************/
     /* Event Handlers                                                       */

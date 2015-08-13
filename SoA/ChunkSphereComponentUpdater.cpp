@@ -77,7 +77,7 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
                                 if (d2 <= radius2) {
                                     continue; // Still in range
                                 } else {
-                                    releaseAndDisconnect(cmp.handleGrid[index]);
+                                    releaseAndDisconnect(cmp, cmp.handleGrid[index]);
                                 }
                             }
                             // Check if its in range
@@ -128,7 +128,7 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
                     p[i] -= cmp.width;
                 }
             }
-            releaseAndDisconnect(cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)]);
+            releaseAndDisconnect(cmp, cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)]);
         }
         // Acquire
         for (auto& o : cmp.acquireOffsets) {
@@ -167,7 +167,7 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
                     p[i] -= cmp.width;
                 }
             }
-            releaseAndDisconnect(cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)]);
+            releaseAndDisconnect(cmp, cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)]);
         }
         // Acquire
         for (auto& o : cmp.acquireOffsets) {
@@ -233,24 +233,25 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
         id.z++;
         h->front = accessor.acquire(id);
     }
-
-    return h;
+    cmp.chunkGrid->onNeighborsAcquire(h);
+    return std::move(h);
 }
 
-void ChunkSphereComponentUpdater::releaseAndDisconnect(ChunkHandle& h) {
+void ChunkSphereComponentUpdater::releaseAndDisconnect(ChunkSphereComponent& cmp, ChunkHandle& h) {
     h->left.release();
     h->right.release();
     h->back.release();
     h->front.release();
     h->bottom.release();
     h->top.release();
+    cmp.chunkGrid->onNeighborsRelease(h);
     h.release();
 }
 
 void ChunkSphereComponentUpdater::releaseHandles(ChunkSphereComponent& cmp) {
     if (cmp.handleGrid) {
         for (int i = 0; i < cmp.size; i++) {
-            if (cmp.handleGrid[i].isAquired()) releaseAndDisconnect(cmp.handleGrid[i]);
+            if (cmp.handleGrid[i].isAquired()) releaseAndDisconnect(cmp, cmp.handleGrid[i]);
         }
         delete[] cmp.handleGrid;
         cmp.handleGrid = nullptr;
