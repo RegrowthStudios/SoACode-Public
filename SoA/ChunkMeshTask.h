@@ -72,7 +72,7 @@ public:
     void execute(WorkerData* workerData) override;
 
     // Initializes the task
-    void init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
+    void init(ChunkHandle& ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager);
 
     MeshTaskType type; 
     ChunkHandle chunk;

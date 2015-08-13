@@ -69,56 +69,13 @@ ChunkMesh* ChunkMeshManager::createMesh(ChunkHandle& h) {
     return mesh;
 }
 
-ChunkMeshTask* ChunkMeshManager::trySetMeshDependencies(ChunkHandle chunk) {
-    // TODO(Ben): Race conditions galore.
-
-    // TODO(Ben): This could be optimized a bit
+ChunkMeshTask* ChunkMeshManager::createMeshTask(ChunkHandle& chunk) {
     ChunkHandle& left = chunk->left;
     ChunkHandle& right = chunk->right;
     ChunkHandle& bottom = chunk->bottom;
     ChunkHandle& top = chunk->top;
     ChunkHandle& back = chunk->back;
     ChunkHandle& front = chunk->front;
-
-    //// Check that neighbors are loaded
-    if (!left.isAquired() || !left->isAccessible ||
-        !right.isAquired() || !right->isAccessible ||
-        !front.isAquired() || !front->isAccessible ||
-        !back.isAquired() || !back->isAccessible ||
-        !top.isAquired() || !top->isAccessible ||
-        !bottom.isAquired() || !bottom->isAccessible) return nullptr;
-
-    // Left half
-    if (!left->back.isAquired() || !left->back->isAccessible) return nullptr;
-    if (!left->front.isAquired() || !left->front->isAccessible) return nullptr;
-
-    ChunkHandle leftTop = left->top;
-    ChunkHandle leftBot = left->bottom;
-    if (!leftTop.isAquired() || !leftTop->isAccessible) return nullptr;
-    if (!leftBot.isAquired() || !leftBot->isAccessible) return nullptr;
-    if (!leftTop->back.isAquired() || !leftTop->back->isAccessible) return nullptr;
-    if (!leftTop->front.isAquired() || !leftTop->front->isAccessible) return nullptr;
-    if (!leftBot->back.isAquired() || !leftBot->back->isAccessible) return nullptr;
-    if (!leftBot->front.isAquired() || !leftBot->front->isAccessible) return nullptr;
-
-    // right half
-    if (!right->back.isAquired() || !right->back->isAccessible) return nullptr;
-    if (!right->front.isAquired() || !right->front->isAccessible) return nullptr;
-
-    ChunkHandle rightTop = right->top;
-    ChunkHandle rightBot = right->bottom;
-    if (!rightTop.isAquired() || !rightTop->isAccessible) return nullptr;
-    if (!rightBot.isAquired() || !rightBot->isAccessible) return nullptr;
-    if (!rightTop->back.isAquired() || !rightTop->back->isAccessible) return nullptr;
-    if (!rightTop->front.isAquired() || !rightTop->front->isAccessible) return nullptr;
-    if (!rightBot->back.isAquired() || !rightBot->back->isAccessible) return nullptr;
-    if (!rightBot->front.isAquired() || !rightBot->front->isAccessible) return nullptr;
-
-    if (!top->back.isAquired() || !top->back->isAccessible) return nullptr;
-    if (!top->front.isAquired() || !top->front->isAccessible) return nullptr;
-
-    if (!bottom->back.isAquired() || !bottom->back->isAccessible) return nullptr;
-    if (!bottom->front.isAquired() || !bottom->front->isAccessible) return nullptr;
 
     // TODO(Ben): Recycler
     ChunkMeshTask* meshTask = new ChunkMeshTask;
@@ -127,26 +84,26 @@ ChunkMeshTask* ChunkMeshManager::trySetMeshDependencies(ChunkHandle chunk) {
     // Set dependencies
     meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT] = left.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT] = right.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_FRONT] = chunk->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_BACK] = chunk->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP] = chunk->top.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT] = chunk->bottom.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_FRONT] = front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_BACK] = back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP] = top.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT] = bottom.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BACK] = left->back.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_FRONT] = left->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP] = leftTop.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT] = leftBot.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_BACK] = leftTop->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_FRONT] = leftTop->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_BACK] = leftBot->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_FRONT] = leftBot->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP] = left->top.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT] = left->bottom.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_BACK] = left->top->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_FRONT] = left->top->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_BACK] = left->bottom->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_FRONT] = left->bottom->front.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BACK] = right->back.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_FRONT] = right->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP] = rightTop.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT] = rightBot.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_BACK] = rightTop->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT] = rightTop->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_BACK] = rightBot->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT] = rightBot->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP] = right->top.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT] = right->bottom.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_BACK] = right->top->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT] = right->top->front.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_BACK] = right->bottom->back.acquire();
+    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT] = right->bottom->front.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP_BACK] = top->back.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP_FRONT] = top->front.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT_BACK] = bottom->back.acquire();
@@ -231,7 +188,7 @@ void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].onNeighborsAcquire += makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
+        cmp.chunkGrids[i].onNeighborsMeshable += makeDelegate(*this, &ChunkMeshManager::onNeighborsMeshable);
         cmp.chunkGrids[i].onNeighborsRelease += makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
     }
 }
@@ -241,7 +198,7 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].onNeighborsAcquire -= makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
+        cmp.chunkGrids[i].onNeighborsMeshable -= makeDelegate(*this, &ChunkMeshManager::onNeighborsMeshable);
         cmp.chunkGrids[i].onNeighborsRelease -= makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
     }
 }
@@ -252,24 +209,42 @@ void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel g
         // Create message
         if (chunk->numBlocks) {
             ChunkMesh* mesh;
+            ChunkMeshTask* task;
             { // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
                 std::lock_guard<std::mutex> l(m_lckActiveChunks);
                 auto& it = m_activeChunks.find(chunk.getID());
                 if (it == m_activeChunks.end()) return;
                 mesh = it->second;
+                task = createMeshTask(chunk);
             }
-            ChunkMeshTask* task = trySetMeshDependencies(chunk);
-            if (task) {
-                mesh->updateVersion = chunk->updateVersion;
-                m_threadPool->addTask(task);
-                chunk->remeshFlags = 0;
-            }
+             
+            mesh->updateVersion = chunk->updateVersion;
+            m_threadPool->addTask(task);
+            chunk->remeshFlags = 0;
         }
     }
 }
 
-void ChunkMeshManager::onNeighborsAcquire(Sender s, ChunkHandle& chunk) {
+void ChunkMeshManager::onNeighborsMeshable(Sender s, ChunkHandle& chunk) {
     ChunkMesh* mesh = createMesh(chunk);
+    if (chunk->genLevel == GEN_DONE) {
+        // Create message
+        if (chunk->numBlocks) {
+            ChunkMesh* mesh;
+            ChunkMeshTask* task;
+            { // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
+                std::lock_guard<std::mutex> l(m_lckActiveChunks);
+                auto& it = m_activeChunks.find(chunk.getID());
+                if (it == m_activeChunks.end()) return;
+                mesh = it->second;
+                task = createMeshTask(chunk);
+            }
+
+            mesh->updateVersion = chunk->updateVersion;
+            m_threadPool->addTask(task);
+            chunk->remeshFlags = 0;
+        }
+    }
 }
 
 void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {

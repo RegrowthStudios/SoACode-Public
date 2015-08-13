@@ -85,4 +85,6 @@ const f64 DOUBLE_SENTINEL = 10000000000000000000000000000000000000000000.0;
 
 const f64 DEG_TO_RAD = M_PI / 180.0;
 
+#define BIT(i) (1 << (i))
+
 #endif // Constants_h__

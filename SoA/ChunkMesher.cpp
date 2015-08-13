@@ -310,7 +310,6 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
     // TODO(Ben): Dude macro this or something.
     { // Main chunk
         std::lock_guard<std::mutex> l(chunk->dataMutex);
-        chunk->queuedForMesh = false; ///< Indicate that we are no longer queued for a mesh
         if (chunk->blocks.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
 
             int s = 0;

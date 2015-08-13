@@ -45,7 +45,7 @@ private:
 
     ChunkMesh* createMesh(ChunkHandle& h);
 
-    ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
+    ChunkMeshTask* createMeshTask(ChunkHandle& chunk);
 
     void disposeMesh(ChunkMesh* mesh);
 
@@ -60,7 +60,7 @@ private:
     void onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
     void onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
     void onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen);
-    void onNeighborsAcquire(Sender s, ChunkHandle& chunk);
+    void onNeighborsMeshable(Sender s, ChunkHandle& chunk);
     void onNeighborsRelease(Sender s, ChunkHandle& chunk);
 
     /************************************************************************/

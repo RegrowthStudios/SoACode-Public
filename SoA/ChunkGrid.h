@@ -64,7 +64,7 @@ public:
 
     ChunkAccessor accessor;
 
-    Event<ChunkHandle&> onNeighborsAcquire;
+    Event<ChunkHandle&> onNeighborsMeshable;
     Event<ChunkHandle&> onNeighborsRelease;
 private:
     /************************************************************************/

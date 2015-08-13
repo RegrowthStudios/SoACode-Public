@@ -40,7 +40,8 @@ class ChunkGenerator {
     friend class GenerateTask;
 public:
     void init(vcore::ThreadPool<WorkerData>* threadPool,
-              PlanetGenData* genData);
+              PlanetGenData* genData,
+              ChunkGrid* grid);
     void submitQuery(ChunkQuery* query);
     void finishQuery(ChunkQuery* query);
     // Updates finished queries
@@ -48,9 +49,13 @@ public:
 
     Event<ChunkHandle&, ChunkGenLevel> onGenFinish;
 private:
+    void tryFlagMeshableNeighbors(ChunkHandle& ch);
+    void flagMeshbleNeighbor(ChunkHandle& n, ui32 bit);
+
     moodycamel::ConcurrentQueue<ChunkQuery*> m_finishedQueries;
     std::map < ChunkGridData*, std::vector<ChunkQuery*> >m_pendingQueries; ///< Queries waiting on height map
 
+    ChunkGrid* m_grid = nullptr;
     ProceduralChunkGenerator m_proceduralGenerator;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
 };

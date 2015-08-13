@@ -40,11 +40,9 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
     meshManager->sendMessage(msg);
 }
 
-void ChunkMeshTask::init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void ChunkMeshTask::init(ChunkHandle& ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
-    chunk = ch;
-    chunk.acquireSelf();
-    chunk->queuedForMesh = true;
+    chunk = ch.acquire();
     this->blockPack = blockPack;
     this->meshManager = meshManager;
 }

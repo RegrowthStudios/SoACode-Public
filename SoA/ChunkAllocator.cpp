@@ -50,6 +50,7 @@ Chunk* PagedChunkAllocator::alloc() {
     chunk->updateVersion = INITIAL_UPDATE_VERSION;
     memset(chunk->neighbors, 0, sizeof(chunk->neighbors));
     chunk->m_genQueryData.current = nullptr;
+    chunk->meshableNeighbors = 0;
 
     return chunk;
 }

@@ -16,7 +16,7 @@ void ChunkGrid::init(WorldCubeFace face,
     numGenerators = generatorsPerRow * generatorsPerRow;
     generators = new ChunkGenerator[numGenerators];
     for (ui32 i = 0; i < numGenerators; i++) {
-        generators[i].init(threadPool, genData);
+        generators[i].init(threadPool, genData, this);
     }
     accessor.init(allocator);
     accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
