@@ -88,27 +88,6 @@ ChunkMeshTask* ChunkMeshManager::createMeshTask(ChunkHandle& chunk) {
     meshTask->neighborHandles[NEIGHBOR_HANDLE_BACK] = back.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP] = top.acquire();
     meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT] = bottom.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BACK] = left->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_FRONT] = left->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP] = left->top.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT] = left->bottom.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_BACK] = left->top->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_TOP_FRONT] = left->top->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_BACK] = left->bottom->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_LEFT_BOT_FRONT] = left->bottom->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BACK] = right->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_FRONT] = right->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP] = right->top.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT] = right->bottom.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_BACK] = right->top->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT] = right->top->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_BACK] = right->bottom->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT] = right->bottom->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP_BACK] = top->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_TOP_FRONT] = top->front.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT_BACK] = bottom->back.acquire();
-    meshTask->neighborHandles[NEIGHBOR_HANDLE_BOT_FRONT] = bottom->front.acquire();
-
     return meshTask;
 }
 

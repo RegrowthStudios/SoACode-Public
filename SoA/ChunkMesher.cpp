@@ -463,73 +463,79 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
     }
     front.release();
 
-    // Top Back
-    ChunkHandle& topBack = neighbors[NEIGHBOR_HANDLE_TOP_BACK];
-    GET_EDGE_X(topBack, 0, CHUNK_WIDTH - 1, PADDED_WIDTH - 1, 0);
-    // Top Front
-    ChunkHandle& topFront = neighbors[NEIGHBOR_HANDLE_TOP_FRONT];
-    GET_EDGE_X(topFront, 0, 0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-
-    // Bottom Back
-    ChunkHandle& bottomBack = neighbors[NEIGHBOR_HANDLE_BOT_BACK];
-    GET_EDGE_X(bottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
-    // Bottom Front
-    ChunkHandle& bottomFront = neighbors[NEIGHBOR_HANDLE_BOT_FRONT];
-    GET_EDGE_X(bottomFront, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
-
-    // Left half
-    int srcXOff = CHUNK_WIDTH - 1;
-    int dstXOff = 0;
-    ChunkHandle& leftBack = neighbors[NEIGHBOR_HANDLE_LEFT_BACK];
-    GET_EDGE_Y(leftBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-    ChunkHandle& leftFront = neighbors[NEIGHBOR_HANDLE_LEFT_FRONT];
-    GET_EDGE_Y(leftFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
-
-    ChunkHandle& leftTop = neighbors[NEIGHBOR_HANDLE_LEFT_TOP];
-    GET_EDGE_Z(leftTop, CHUNK_WIDTH - 1, 0, 0, PADDED_WIDTH - 1);
-    ChunkHandle& leftBot = neighbors[NEIGHBOR_HANDLE_LEFT_BOT];
-    GET_EDGE_Z(leftBot, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0, 0);
-
-    // Right half
-    srcXOff = 0;
-    dstXOff = PADDED_WIDTH - 1;
-    ChunkHandle& rightBack = neighbors[NEIGHBOR_HANDLE_RIGHT_BACK];
-    GET_EDGE_Y(rightBack, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-    ChunkHandle& rightFront = neighbors[NEIGHBOR_HANDLE_RIGHT_FRONT];
-    GET_EDGE_Y(rightFront, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
-
-    ChunkHandle& rightTop = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP];
-    GET_EDGE_Z(rightTop, srcXOff, 0, dstXOff, PADDED_WIDTH - 1);
-    ChunkHandle& rightBot = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT];
-    GET_EDGE_Z(rightBot, srcXOff, CHUNK_WIDTH - 1, dstXOff, 0);
-
-    // 8 Corners
-    // Left Corners
-    ChunkHandle& leftTopBack = neighbors[NEIGHBOR_HANDLE_LEFT_TOP_BACK];
-    GET_CORNER(leftTopBack, CHUNK_WIDTH - 1, 0, CHUNK_WIDTH - 1,
-               0, PADDED_WIDTH - 1, 0);
-    ChunkHandle& leftTopFront = neighbors[NEIGHBOR_HANDLE_LEFT_TOP_FRONT];
-    GET_CORNER(leftTopFront, CHUNK_WIDTH - 1, 0, 0,
-               0, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-    ChunkHandle& leftBottomBack = neighbors[NEIGHBOR_HANDLE_LEFT_BOT_BACK];
-    GET_CORNER(leftBottomBack, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
-               0, 0, 0);
-    ChunkHandle& leftBottomFront = neighbors[NEIGHBOR_HANDLE_LEFT_BOT_FRONT];
-    GET_CORNER(leftBottomFront, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1, 0,
-               0, 0, PADDED_WIDTH - 1);
-    // Right Corners
-    ChunkHandle& rightTopBack = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP_BACK];
-    GET_CORNER(rightTopBack, 0, 0, CHUNK_WIDTH - 1,
-               PADDED_WIDTH - 1, PADDED_WIDTH - 1, 0);
-    ChunkHandle& rightTopFront = neighbors[NEIGHBOR_HANDLE_RIGHT_TOP_FRONT];
-    GET_CORNER(rightTopFront, 0, 0, 0,
-               PADDED_WIDTH - 1, PADDED_WIDTH - 1, PADDED_WIDTH - 1);
-    ChunkHandle& rightBottomBack = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT_BACK];
-    GET_CORNER(rightBottomBack, 0, CHUNK_WIDTH - 1, CHUNK_WIDTH - 1,
-               PADDED_WIDTH - 1, 0, 0);
-    ChunkHandle& rightBottomFront = neighbors[NEIGHBOR_HANDLE_RIGHT_BOT_FRONT];
-    GET_CORNER(rightBottomFront, 0, CHUNK_WIDTH - 1, 0,
-               PADDED_WIDTH - 1, 0, PADDED_WIDTH - 1);
+    // Clone edge data
+    // TODO(Ben): Light gradient calc
+    // X horizontal rows
+    for (x = 1; x < PADDED_WIDTH_M1; x++) {
+        // Bottom Back
+        srcIndex = x + PADDED_WIDTH;
+        destIndex = x;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Bottom Front
+        srcIndex = x + PADDED_LAYER - PADDED_WIDTH * 2;
+        destIndex = srcIndex + PADDED_WIDTH;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Top Back
+        srcIndex = x + PADDED_WIDTH + PADDED_SIZE - PADDED_LAYER;
+        destIndex = srcIndex - PADDED_WIDTH;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Top Front
+        srcIndex = x + PADDED_SIZE - PADDED_WIDTH * 2;
+        destIndex = srcIndex + PADDED_WIDTH;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+    }
+    // Z horizontal rows
+    for (z = 1; z < PADDED_WIDTH_M1; z++) {
+        int zi = z * PADDED_WIDTH_M1;
+        // Bottom Left
+        srcIndex = zi;
+        destIndex = srcIndex - 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Bottom Right
+        srcIndex = zi + PADDED_WIDTH - 2;
+        destIndex = srcIndex + 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Top Left
+        srcIndex = zi + PADDED_SIZE - PADDED_LAYER + 1;
+        destIndex = srcIndex - 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Top Right
+        srcIndex = zi + PADDED_SIZE - PADDED_LAYER + PADDED_WIDTH - 2;
+        destIndex = srcIndex + 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+    }
+    // Vertical columns
+    for (y = 0; y < PADDED_WIDTH; y++) {
+        int yi = y * PADDED_LAYER;
+        // Left back
+        srcIndex = yi + 1;
+        destIndex = yi;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Left front
+        srcIndex = yi + PADDED_LAYER - PADDED_WIDTH + 1;
+        destIndex = srcIndex - 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Right back
+        srcIndex = yi + PADDED_WIDTH - 2;
+        destIndex = srcIndex + 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+        // Right front
+        srcIndex = yi + PADDED_LAYER - 2;
+        destIndex = srcIndex + 1;
+        blockData[destIndex] = blockData[srcIndex];
+        tertiaryData[destIndex] = tertiaryData[srcIndex];
+    }
 }
 
 CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type) {
