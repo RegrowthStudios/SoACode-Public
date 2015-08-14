@@ -72,6 +72,9 @@ private:
     BlockPack* m_blockPack = nullptr;
     vcore::ThreadPool<WorkerData>* m_threadPool = nullptr;
 
+    std::mutex m_lckPendingMesh;
+    std::map<ChunkID, ChunkHandle> m_pendingMesh;
+
     std::mutex m_lckMeshRecycler;
     PtrRecycler<ChunkMesh> m_meshRecycler;
     std::mutex m_lckActiveChunks;

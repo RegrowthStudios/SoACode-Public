@@ -39,7 +39,6 @@ Chunk* PagedChunkAllocator::alloc() {
     m_freeChunks.pop_back();
 
     // Set defaults
-    chunk->remeshFlags = 1;
     chunk->gridData = nullptr;
     chunk->m_inLoadRange = false;
     chunk->numBlocks = 0;

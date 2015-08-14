@@ -26,6 +26,25 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
         }
     }
 
+    // Update pending meshes
+    {
+        std::lock_guard<std::mutex> l(m_lckPendingMesh);
+        for (auto it = m_pendingMesh.begin(); it != m_pendingMesh.end();) {
+            ChunkMeshTask* task = createMeshTask(it->second);
+            if (task) {
+                {
+                    std::lock_guard<std::mutex> l(m_lckMeshRecycler);
+                    m_activeChunks[it->first]->updateVersion = it->second->updateVersion;
+                }
+                m_threadPool->addTask(task);
+                it->second.release();
+                m_pendingMesh.erase(it++);
+            } else {
+                ++it;
+            }
+        }
+    }
+
     // TODO(Ben): This is redundant with the chunk manager! Find a way to share! (Pointer?)
     updateMeshDistances(cameraPosition);
     if (shouldSort) {
@@ -60,11 +79,6 @@ ChunkMesh* ChunkMeshManager::createMesh(ChunkHandle& h) {
         std::lock_guard<std::mutex> l(m_lckActiveChunks);
         m_activeChunks[h.getID()] = mesh;
     }
-    
-    // TODO(Ben): Mesh dependencies
-    if (h->numBlocks <= 0) {
-        h->remeshFlags = 0;
-    }
 
     return mesh;
 }
@@ -76,6 +90,10 @@ ChunkMeshTask* ChunkMeshManager::createMeshTask(ChunkHandle& chunk) {
     ChunkHandle& top = chunk->top;
     ChunkHandle& back = chunk->back;
     ChunkHandle& front = chunk->front;
+
+    if (left->genLevel != GEN_DONE || right->genLevel != GEN_DONE ||
+        back->genLevel != GEN_DONE || front->genLevel != GEN_DONE ||
+        bottom->genLevel != GEN_DONE || top->genLevel != GEN_DONE) return nullptr;
 
     // TODO(Ben): Recycler
     ChunkMeshTask* meshTask = new ChunkMeshTask;
@@ -187,19 +205,8 @@ void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel g
     if (gen == GEN_DONE) {
         // Create message
         if (chunk->numBlocks) {
-            ChunkMesh* mesh;
-            ChunkMeshTask* task;
-            { // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
-                std::lock_guard<std::mutex> l(m_lckActiveChunks);
-                auto& it = m_activeChunks.find(chunk.getID());
-                if (it == m_activeChunks.end()) return;
-                mesh = it->second;
-                task = createMeshTask(chunk);
-            }
-             
-            mesh->updateVersion = chunk->updateVersion;
-            m_threadPool->addTask(task);
-            chunk->remeshFlags = 0;
+            std::lock_guard<std::mutex> l(m_lckPendingMesh);
+            m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
         }
     }
 }
@@ -209,27 +216,14 @@ void ChunkMeshManager::onNeighborsAcquire(Sender s, ChunkHandle& chunk) {
     if (chunk->genLevel == GEN_DONE) {
         // Create message
         if (chunk->numBlocks) {
-            ChunkMesh* mesh;
-            ChunkMeshTask* task;
-            { // TODO(Ben): With gen beyond GEN_DONE this could be redundantly called.
-                std::lock_guard<std::mutex> l(m_lckActiveChunks);
-                auto& it = m_activeChunks.find(chunk.getID());
-                if (it == m_activeChunks.end()) return;
-                mesh = it->second;
-                task = createMeshTask(chunk);
-            }
-
-            mesh->updateVersion = chunk->updateVersion;
-            m_threadPool->addTask(task);
-            chunk->remeshFlags = 0;
+            std::lock_guard<std::mutex> l(m_lckPendingMesh);
+            m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
         }
     }
 }
 
 void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
-    chunk->updateVersion = 0;
     // Destroy message
-    ChunkMeshUpdateMessage msg;
     ChunkMesh* mesh;
     {
         std::lock_guard<std::mutex> l(m_lckActiveChunks);
@@ -239,6 +233,14 @@ void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
         } else {
             mesh = it->second;
             m_activeChunks.erase(it);
+        }
+    }
+    {
+        std::lock_guard<std::mutex> l(m_lckPendingMesh);
+        auto& it = m_pendingMesh.find(chunk.getID());
+        if (it != m_pendingMesh.end()) {
+            it->second.release();
+            m_pendingMesh.erase(it);
         }
     }
 

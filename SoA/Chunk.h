@@ -76,10 +76,8 @@ public:
         blocks.set(x + y * CHUNK_LAYER + z * CHUNK_WIDTH, id);
     }
 
-    // True when the chunk needs to be meshed
-    bool needsRemesh() { return remeshFlags != 0; }
     // Marks the chunks as dirty and flags for a re-mesh
-    void flagDirty() { isDirty = true; remeshFlags |= 1; }
+    void flagDirty() { isDirty = true; }
 
     /************************************************************************/
     /* Members                                                              */
@@ -104,7 +102,6 @@ public:
     int numBlocks;
     std::mutex dataMutex;
 
-    ui8 remeshFlags;
     volatile bool isAccessible = false;
 
     // TODO(Ben): Think about data locality.
