@@ -60,7 +60,7 @@ private:
     void onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
     void onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
     void onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen);
-    void onNeighborsMeshable(Sender s, ChunkHandle& chunk);
+    void onNeighborsAcquire(Sender s, ChunkHandle& chunk);
     void onNeighborsRelease(Sender s, ChunkHandle& chunk);
 
     /************************************************************************/

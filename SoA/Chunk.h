@@ -99,7 +99,6 @@ public:
     };
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
-    ui32 meshableNeighbors;
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;

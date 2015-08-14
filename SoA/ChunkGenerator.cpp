@@ -87,8 +87,6 @@ void ChunkGenerator::update() {
             std::vector<ChunkQuery*>().swap(chunk.m_genQueryData.pending);
             // Notify listeners that this chunk is finished
             onGenFinish(q->chunk, q->genLevel);
-            // Check for neighbor connect
-            tryFlagMeshableNeighbors(q->chunk);
             q->chunk.release();
             if (q->shouldRelease) q->release();
         } else {
@@ -119,53 +117,8 @@ void ChunkGenerator::update() {
             }
             // Notify listeners that this chunk is finished
             onGenFinish(q->chunk, q->genLevel);
-            // Check for neighbor connect
-            tryFlagMeshableNeighbors(q->chunk);
             q->chunk.release();
             if (q->shouldRelease) q->release();
         }
     }
 }
-
-#define FULL_26_BITS 0x3FFFFFF
-
-void ChunkGenerator::tryFlagMeshableNeighbors(ChunkHandle& ch) {
-    if (ch->genLevel != GEN_DONE || !ch->left.isAquired()) return;
-
-    flagMeshbleNeighbor(ch->left, BIT(0));
-    flagMeshbleNeighbor(ch->left->back, BIT(1));
-    flagMeshbleNeighbor(ch->left->front, BIT(2));
-    flagMeshbleNeighbor(ch->left->bottom, BIT(3));
-    flagMeshbleNeighbor(ch->left->bottom->back, BIT(4));
-    flagMeshbleNeighbor(ch->left->bottom->front, BIT(5));
-    flagMeshbleNeighbor(ch->left->top, BIT(6));
-    flagMeshbleNeighbor(ch->left->top->back, BIT(7));
-    flagMeshbleNeighbor(ch->left->top->front, BIT(8));
-    flagMeshbleNeighbor(ch->right, BIT(9));
-    flagMeshbleNeighbor(ch->right->back, BIT(10));
-    flagMeshbleNeighbor(ch->right->front, BIT(11));
-    flagMeshbleNeighbor(ch->right->bottom, BIT(12));
-    flagMeshbleNeighbor(ch->right->bottom->back, BIT(13));
-    flagMeshbleNeighbor(ch->right->bottom->front, BIT(14));
-    flagMeshbleNeighbor(ch->right->top, BIT(15));
-    flagMeshbleNeighbor(ch->right->top->back, BIT(16));
-    flagMeshbleNeighbor(ch->right->top->front, BIT(17));
-    flagMeshbleNeighbor(ch->bottom, BIT(18));
-    flagMeshbleNeighbor(ch->bottom->back, BIT(19));
-    flagMeshbleNeighbor(ch->bottom->front, BIT(20));
-    flagMeshbleNeighbor(ch->top, BIT(21));
-    flagMeshbleNeighbor(ch->top->back, BIT(22));
-    flagMeshbleNeighbor(ch->top->front, BIT(23));
-    flagMeshbleNeighbor(ch->back, BIT(24));
-    flagMeshbleNeighbor(ch->front, BIT(25));
-}
-
-inline void ChunkGenerator::flagMeshbleNeighbor(ChunkHandle& n, ui32 bit) {
-    if (n->meshableNeighbors != FULL_26_BITS) {
-        n->meshableNeighbors |= bit;
-        if (n->meshableNeighbors == FULL_26_BITS) {
-            m_grid->onNeighborsMeshable(n);
-        }
-    }
-}
-

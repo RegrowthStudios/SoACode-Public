@@ -188,7 +188,7 @@ void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].onNeighborsMeshable += makeDelegate(*this, &ChunkMeshManager::onNeighborsMeshable);
+        cmp.chunkGrids[i].onNeighborsAcquire += makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
         cmp.chunkGrids[i].onNeighborsRelease += makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
     }
 }
@@ -198,7 +198,7 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].onNeighborsMeshable -= makeDelegate(*this, &ChunkMeshManager::onNeighborsMeshable);
+        cmp.chunkGrids[i].onNeighborsAcquire -= makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
         cmp.chunkGrids[i].onNeighborsRelease -= makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
     }
 }
@@ -225,7 +225,7 @@ void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel g
     }
 }
 
-void ChunkMeshManager::onNeighborsMeshable(Sender s, ChunkHandle& chunk) {
+void ChunkMeshManager::onNeighborsAcquire(Sender s, ChunkHandle& chunk) {
     ChunkMesh* mesh = createMesh(chunk);
     if (chunk->genLevel == GEN_DONE) {
         // Create message

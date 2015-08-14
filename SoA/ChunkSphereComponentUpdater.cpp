@@ -197,50 +197,6 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
 
 #undef GET_INDEX
 
-// Helper function to get left and right side of neighbors
-inline void getNeighborSide(ChunkHandle& h, const ChunkID& id, ChunkAccessor& accessor) {
-    { // Back
-        ChunkID id2 = id;
-        id2.z--;
-        h->back = accessor.acquire(id2);
-    }
-    { // Front
-        ChunkID id2 = id;
-        id2.z++;
-        h->front = accessor.acquire(id2);
-    }
-    { // Bottom
-        ChunkID id2 = id;
-        id2.y--;
-        h->bottom = accessor.acquire(id2);
-        { // Bottom Back
-            ChunkID id3 = id2;
-            id3.z--;
-            h->bottom->back = accessor.acquire(id3);
-        }
-        { // Bottom Front
-            ChunkID id3 = id2;
-            id3.z++;
-            h->bottom->front = accessor.acquire(id3);
-        }
-    }
-    { // Top
-        ChunkID id2 = id;
-        id2.y++;
-        h->top = accessor.acquire(id2);
-        { // Top Back
-            ChunkID id3 = id2;
-            id3.z--;
-            h->top->back = accessor.acquire(id3);
-        }
-        { // Top Front
-            ChunkID id3 = id2;
-            id3.z++;
-            h->top->front = accessor.acquire(id3);
-        }
-    }
-}
-
 ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& cmp, const i32v3& chunkPos) {
     ChunkHandle h = cmp.chunkGrid->submitQuery(chunkPos, GEN_DONE, true)->chunk.acquire();
     // TODO(Ben): meshableNeighbors
@@ -251,43 +207,21 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
         ChunkID id = h.getID();
         id.x--;
         h->left = accessor.acquire(id);
-        getNeighborSide(h->left, id, accessor);
     }
     { // Right
         ChunkID id = h.getID();
         id.x++;
         h->right = accessor.acquire(id);
-        getNeighborSide(h->right, id, accessor);
     }
     { // Bottom
         ChunkID id = h.getID();
         id.y--;
         h->bottom = accessor.acquire(id);
-        { // Bottom Back
-            ChunkID id2 = id;
-            id2.z--;
-            h->bottom->back = accessor.acquire(id2);
-        }
-        { // Bottom Front
-            ChunkID id2 = id;
-            id2.z++;
-            h->bottom->front = accessor.acquire(id2);
-        }
     }
     { // Top
         ChunkID id = h.getID();
         id.y++;
         h->top = accessor.acquire(id);
-        { // Top Back
-            ChunkID id2 = id;
-            id2.z--;
-            h->top->back = accessor.acquire(id2);
-        }
-        { // Top Front
-            ChunkID id2 = id;
-            id2.z++;
-            h->top->front = accessor.acquire(id2);
-        }
     }
     { // Back
         ChunkID id = h.getID();
@@ -299,6 +233,7 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
         id.z++;
         h->front = accessor.acquire(id);
     }
+    cmp.chunkGrid->onNeighborsAcquire(h);
     return std::move(h);
 
 #undef GET_HALF
