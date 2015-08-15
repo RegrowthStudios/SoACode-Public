@@ -76,7 +76,9 @@ void SoaEngine::initState(SoaState* state) {
     state->templateLib.registerFactory<PhysicsComponentBuilder>(GAME_SYSTEM_CT_PHYSICS_NAME);
     state->templateLib.registerFactory<FrustumComponentBuilder>(GAME_SYSTEM_CT_FRUSTUM_NAME);
     state->templateLib.registerFactory<HeadComponentBuilder>(GAME_SYSTEM_CT_HEAD_NAME);
-    
+    state->templateLib.registerFactory<ParkourInputComponentBuilder>(GAME_SYSTEM_CT_PARKOURINPUT_NAME);
+    state->templateLib.registerFactory<AttributeComponentBuilder>(GAME_SYSTEM_CT_ATTRIBUTES_NAME);
+
     { // Load ECS templates
         vio::IOManager iom;
         vio::DirectoryEntries entries;
@@ -420,7 +422,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     }
 
     // TODO(Ben): this doesn't work too well.
-    auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
+    auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->clientState.playerEntity);
     pCmp.parentSphericalTerrainID = stCmpID;
     pCmp.parentGravityID = spaceSystem->sphericalGravity.getComponentID(eid);
     pCmp.parentEntity = eid;

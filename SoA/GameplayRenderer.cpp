@@ -197,7 +197,7 @@ void GameplayRenderer::render() {
     const GameSystem* gs = m_state->gameSystem;
 
     // Get the physics component
-    auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
+    auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
     VoxelPosition3D pos;
     if (phycmp.voxelPositionComponent) {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
@@ -226,7 +226,7 @@ void GameplayRenderer::render() {
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
-        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->playerEntity).parentVoxelComponent;
+        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->clientState.playerEntity).parentVoxelComponent;
         stages.chunkGrid.setState(m_renderState);
         stages.chunkGrid.render(&m_state->clientState.localCamera);
         //  m_liquidVoxelRenderStage->render();
@@ -376,7 +376,7 @@ void GameplayRenderer::updateCameras() {
 
     // Get the physics component
     Camera& localCamera = m_state->clientState.localCamera;
-    auto& phycmp = gs->physics.getFromEntity(m_state->playerEntity);
+    auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
     if (phycmp.voxelPositionComponent) {
         auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
         localCamera.setFocalLength(0.0f);

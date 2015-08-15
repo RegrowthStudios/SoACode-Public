@@ -235,8 +235,8 @@ void MainMenuScreen::newGame(const nString& fileName) {
     // Push out by 5 voxels
     m_soaState->clientState.startSpacePos += glm::normalize(m_soaState->clientState.startSpacePos) * 5.0 * KM_PER_VOXEL;
 
-    m_soaState->startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
-    vecs::EntityID startingPlanet = m_soaState->startingPlanet;
+    m_soaState->clientState.startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
+    vecs::EntityID startingPlanet = m_soaState->clientState.startingPlanet;
 
     { // Compute start location
         SpaceSystem* spaceSystem = m_soaState->spaceSystem;

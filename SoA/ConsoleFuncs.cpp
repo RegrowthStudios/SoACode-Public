@@ -66,7 +66,7 @@ void stopGame(std::thread* t) {
 }
 
 void setStartingPlanet(SoaState* s, vecs::EntityID eID) {
-    s->startingPlanet = eID;
+    s->clientState.startingPlanet = eID;
 }
 
 void registerFuncs(vscript::Environment& env) {

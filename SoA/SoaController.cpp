@@ -22,23 +22,25 @@ void SoaController::startGame(SoaState* state) {
     GameSystem* gameSystem = state->gameSystem;
     SpaceSystem* spaceSystem = state->spaceSystem;
 
-    if (state->clientState.isNewGame) {
+    // TODO(Ben): Client only
+    ClientState& clientState = state->clientState;
+    if (clientState.isNewGame) {
         // Create the player entity and make the initial planet his parent
-        if (state->startingPlanet) {
-            state->playerEntity = state->templateLib.build(*gameSystem, "Player");
+        if (clientState.startingPlanet) {
+            clientState.playerEntity = state->templateLib.build(*gameSystem, "Player");
 
-            auto& spacePos = gameSystem->spacePosition.getFromEntity(state->playerEntity);
-            spacePos.position = state->clientState.startSpacePos;
-            spacePos.parentEntity = state->startingPlanet;
-            spacePos.parentGravityID = spaceSystem->sphericalGravity.getComponentID(state->startingPlanet);
-            spacePos.parentSphericalTerrainID = spaceSystem->sphericalTerrain.getComponentID(state->startingPlanet);
+            auto& spacePos = gameSystem->spacePosition.getFromEntity(clientState.playerEntity);
+            spacePos.position = clientState.startSpacePos;
+            spacePos.parentEntity = clientState.startingPlanet;
+            spacePos.parentGravityID = spaceSystem->sphericalGravity.getComponentID(clientState.startingPlanet);
+            spacePos.parentSphericalTerrainID = spaceSystem->sphericalTerrain.getComponentID(clientState.startingPlanet);
         
-            auto& physics = gameSystem->physics.getFromEntity(state->playerEntity);
-            physics.spacePositionComponent = gameSystem->spacePosition.getComponentID(state->playerEntity);
+            auto& physics = gameSystem->physics.getFromEntity(clientState.playerEntity);
+            physics.spacePositionComponent = gameSystem->spacePosition.getComponentID(clientState.playerEntity);
         } else {
-            state->playerEntity = state->templateLib.build(*gameSystem, "Player");
+            clientState.playerEntity = state->templateLib.build(*gameSystem, "Player");
 
-            auto& spacePos = gameSystem->spacePosition.getFromEntity(state->playerEntity);
+            auto& spacePos = gameSystem->spacePosition.getFromEntity(clientState.playerEntity);
             spacePos.position = state->clientState.startSpacePos;
         }
     } else {

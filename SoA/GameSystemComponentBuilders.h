@@ -25,7 +25,7 @@ public:
     ParkourInputComponent component;
 };
 
-class AttributeBuilder : public ECSComponentBuilder {
+class AttributeComponentBuilder : public ECSComponentBuilder {
 public:
     virtual void load(keg::ReadContext& reader, keg::Node node) override;
     virtual void build(vecs::ECS& ecs, vecs::EntityID eID) override;

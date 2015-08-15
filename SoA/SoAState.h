@@ -38,9 +38,6 @@ struct SoaState {
     SpaceSystem* spaceSystem = nullptr;
     GameSystem* gameSystem = nullptr;
 
-    // TODO(Ben): BAD!
-    vecs::EntityID startingPlanet = 0;
-    vecs::EntityID playerEntity = 0;
     // TODO(Ben): Clean up this dumping ground
     PagedChunkAllocator chunkAllocator;
 

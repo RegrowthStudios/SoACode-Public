@@ -37,7 +37,10 @@ struct ClientState {
     BlockTexturePack* blockTextures = nullptr;
     ModPathResolver texturePathResolver;
 
-    // TODO(Ben): This is temporary?
+    vecs::EntityID startingPlanet = 0;
+    vecs::EntityID playerEntity = 0;
+
+    // TODO(Ben): This is temporary!
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
     Camera localCamera; ///< Camera for voxels and far terrain
 
