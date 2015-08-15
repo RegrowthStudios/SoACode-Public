@@ -25,6 +25,13 @@ void ParkourInputComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
     ((GameSystem&)ecs).parkourInput.get(m_cID) = component;
 }
 
+void ParkourInputComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID) {
+    GameSystem& gecs = static_cast<GameSystem&>(ecs);
+    auto& cmp = gecs.parkourInput.getFromEntity(eID);
+    cmp.physicsComponent = gecs.physics.getComponentID(eID);
+    cmp.attributeComponent = gecs.attributes.getComponentID(eID);
+}
+
 void AttributeComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(AttributeComponent));

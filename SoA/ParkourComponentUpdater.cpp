@@ -29,9 +29,9 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
         }
 
         if (parkour.moveLeft) {
-            targetVel.x = -1.0f;
-        } else if (parkour.moveRight) {
             targetVel.x = 1.0f;
+        } else if (parkour.moveRight) {
+            targetVel.x = -1.0f;
         }
 
         // Normalize for diagonal

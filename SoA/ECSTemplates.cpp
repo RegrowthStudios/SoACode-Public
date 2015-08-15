@@ -5,14 +5,17 @@
 #include <Vorb/io/Keg.h>
 
 vecs::EntityID ECSTemplate::create(vecs::ECS& ecs) {
-    // Create entity
+    // Create entity.
     auto e = ecs.addEntity();
 
-    // Add all components
+    // Add all components.
     for(auto& kvp : m_components) kvp.second->m_cID = ecs.addComponent(kvp.first, e);
 
-    // Build all components
+    // Build all components.
     for(auto& kvp : m_components) kvp.second->build(ecs, e);
+
+    // Run post-build for dependencies and such.
+    for (auto& kvp : m_components) kvp.second->postBuild(ecs, e);
 
     return e;
 }
