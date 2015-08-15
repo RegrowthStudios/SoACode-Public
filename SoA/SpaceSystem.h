@@ -61,18 +61,18 @@ public:
     SpaceSystem();
     ~SpaceSystem();
 
-    vecs::ComponentTable<NamePositionComponent> namePosition;
-    vecs::ComponentTable<AxisRotationComponent> axisRotation;
+    NamePositionComponentTable namePosition;
+    AxisRotationComponentTable axisRotation;
     OrbitComponentTable orbit;
-    vecs::ComponentTable<SphericalGravityComponent> sphericalGravity;
+    SphericalGravityComponentTable sphericalGravity;
     SphericalTerrainComponentTable sphericalTerrain;
-    vecs::ComponentTable<GasGiantComponent> gasGiant;
-    vecs::ComponentTable<StarComponent> star;
+    GasGiantComponentTable gasGiant;
+    StarComponentTable star;
     FarTerrainComponentTable farTerrain;
-    vecs::ComponentTable<SpaceLightComponent> spaceLight;
-    vecs::ComponentTable<AtmosphereComponent> atmosphere;
-    vecs::ComponentTable<PlanetRingsComponent> planetRings;
-    vecs::ComponentTable<CloudsComponent> clouds;
+    SpaceLightComponentTable spaceLight;
+    AtmosphereComponentTable atmosphere;
+    PlanetRingsComponentTable planetRings;
+    CloudsComponentTable clouds;
     SphericalVoxelComponentTable sphericalVoxel;
     
     f32 age = 0.0f; ///< age of the system
@@ -80,6 +80,11 @@ public:
 
     // vVv   TODO(Cristian): Holy fuck, get rid of these from here   vVv
     std::map<nString, std::pair<f32v4, f32v4> > pathColorMap; ///< Map of body type to path colors
+
+    vecs::ComponentID getComponent(nString name, vecs::EntityID eID);
+
+private:
+    VORB_NON_COPYABLE(SpaceSystem);
 };
 
 #endif // SpaceSystem_h__

@@ -2,12 +2,19 @@
 #include "GameSystem.h"
 
 GameSystem::GameSystem() : vecs::ECS() {
-    addComponentTable("AABBCollidable", &aabbCollidable);
-    addComponentTable("FreeMove", &freeMoveInput);
-    addComponentTable("Physics", &physics);
-    addComponentTable("SpacePosition", &spacePosition);
-    addComponentTable("VoxelPosition", &voxelPosition);
-    addComponentTable("Frustum", &frustum);
-    addComponentTable("Head", &head);
-    addComponentTable("ChunkSphere", &chunkSphere);
+    //Add all component tables
+    addComponentTable(GAME_SYSTEM_CT_AABBCOLLIDABLE_NAME, &aabbCollidable);
+    addComponentTable(GAME_SYSTEM_CT_FREEMOVEINPUT_NAME, &freeMoveInput);
+    addComponentTable(GAME_SYSTEM_CT_PARKOURINPUT_NAME, &parkourInput);
+    addComponentTable(GAME_SYSTEM_CT_PHYSICS_NAME, &physics);
+    addComponentTable(GAME_SYSTEM_CT_SPACEPOSITION_NAME, &spacePosition);
+    addComponentTable(GAME_SYSTEM_CT_VOXELPOSITION_NAME, &voxelPosition);
+    addComponentTable(GAME_SYSTEM_CT_FRUSTUM_NAME, &frustum);
+    addComponentTable(GAME_SYSTEM_CT_HEAD_NAME, &head);
+    addComponentTable(GAME_SYSTEM_CT_CHUNKSPHERE_NAME, &chunkSphere);
+}
+
+vecs::ComponentID GameSystem::getComponent(const nString& name, vecs::EntityID eID) {
+    auto& table = *getComponentTable(name);
+    return table.getComponentID(eID);
 }

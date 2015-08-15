@@ -568,6 +568,7 @@ EXIT 0</Command>
     <ClInclude Include="DLLLoader.h" />
     <ClInclude Include="Density.h" />
     <ClInclude Include="DualContouringMesher.h" />
+    <ClInclude Include="ECSTemplates.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
     <ClInclude Include="FarTerrainComponentUpdater.h" />
     <ClInclude Include="FarTerrainPatch.h" />
@@ -581,6 +582,7 @@ EXIT 0</Command>
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
     <ClInclude Include="GameSystem.h" />
+    <ClInclude Include="GameSystemComponentBuilders.h" />
     <ClInclude Include="GameSystemComponents.h" />
     <ClInclude Include="GameSystemAssemblages.h" />
     <ClInclude Include="GameSystemEvents.h" />
@@ -649,6 +651,7 @@ EXIT 0</Command>
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemComponentBuilders.h" />
     <ClInclude Include="SpaceSystemComponents.h" />
     <ClInclude Include="SpaceSystemAssemblages.h" />
     <ClInclude Include="SpaceSystemLoader.h" />
@@ -797,6 +800,7 @@ EXIT 0</Command>
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
     <ClCompile Include="DualContouringMesher.cpp" />
+    <ClCompile Include="ECSTemplates.cpp" />
     <ClCompile Include="FarTerrainComponentRenderer.cpp" />
     <ClCompile Include="FarTerrainComponentUpdater.cpp" />
     <ClCompile Include="FarTerrainPatch.cpp" />
@@ -809,6 +813,8 @@ EXIT 0</Command>
     <ClCompile Include="GameRenderParams.cpp" />
     <ClCompile Include="GameSystem.cpp" />
     <ClCompile Include="GameSystemAssemblages.cpp" />
+    <ClCompile Include="GameSystemComponentBuilders.cpp" />
+    <ClCompile Include="GameSystemComponents.cpp" />
     <ClCompile Include="GameSystemEvents.cpp" />
     <ClCompile Include="GameSystemUpdater.cpp" />
     <ClCompile Include="GasGiantComponentRenderer.cpp" />
@@ -866,6 +872,7 @@ EXIT 0</Command>
     <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="SpaceSystemAssemblages.cpp" />
+    <ClCompile Include="SpaceSystemComponentBuilders.cpp" />
     <ClCompile Include="SpaceSystemLoader.cpp" />
     <ClCompile Include="SpaceSystemLoadStructs.cpp" />
     <ClCompile Include="SpaceSystemRenderStage.cpp" />

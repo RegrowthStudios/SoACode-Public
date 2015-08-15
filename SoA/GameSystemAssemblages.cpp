@@ -7,31 +7,6 @@
 #include "ChunkSphereComponentUpdater.h"
 #include "GameSystem.h"
 
-vecs::EntityID GameSystemAssemblages::createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
-                                                    const f64q& orientation, f32 massKg, const f64v3& initialVel,
-                                                    vecs::EntityID parentEntity,
-                                                    vecs::ComponentID parentGravComponent,
-                                                    vecs::ComponentID parentSphericalTerrainComponent) {
-    vecs::EntityID id = gameSystem->addEntity();
-
-    vecs::ComponentID spCmpId = addSpacePosition(gameSystem, id, spacePosition, orientation,
-                                                 parentEntity, parentGravComponent, parentSphericalTerrainComponent);
-
-    vecs::ComponentID pyCmpId = addPhysics(gameSystem, id, massKg, initialVel, spCmpId);
-
-    addAabbCollidable(gameSystem, id, f32v3(1.7f, 3.7f, 1.7f), f32v3(0.0f));
-
-    addFreeMoveInput(gameSystem, id, pyCmpId);
-
-    vecs::ComponentID hCmpId = addHeadComponent(gameSystem, id, 0.1f);
-
-    return id;
-}
-
-void GameSystemAssemblages::destroyPlayer(GameSystem* gameSystem, vecs::EntityID playerEntity) {
-    gameSystem->deleteEntity(playerEntity);
-}
-
 vecs::ComponentID GameSystemAssemblages::addFreeMoveInput(GameSystem* gameSystem, vecs::EntityID entity,
                                                                 vecs::ComponentID physicsComponent) {
     vecs::ComponentID vmCmpId = gameSystem->addComponent("FreeMove", entity);

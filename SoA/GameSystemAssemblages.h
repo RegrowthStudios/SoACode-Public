@@ -23,16 +23,6 @@ class GameSystem;
 #include "GameSystemComponents.h"
 
 namespace GameSystemAssemblages {
-    /************************************************************************/
-    /* Entity Factories                                                     */
-    /************************************************************************/
-    /// Player entity
-    vecs::EntityID createPlayer(GameSystem* gameSystem, const f64v3& spacePosition,
-                                      const f64q& orientation, f32 massKg, const f64v3& initialVel,
-                                      vecs::EntityID parentEntity,
-                                      vecs::ComponentID parentGravComponent,
-                                      vecs::ComponentID parentSphericalTerrainComponent);
-    void destroyPlayer(GameSystem* gameSystem, vecs::EntityID playerEntity);
 
     /************************************************************************/
     /* Component Factories                                                  */

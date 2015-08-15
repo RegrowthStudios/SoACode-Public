@@ -10,6 +10,7 @@
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
+#include "GameSystemComponentBuilders.h"
 
 #define M_PER_KM 1000.0
 
@@ -66,6 +67,25 @@ void SoaEngine::initState(SoaState* state) {
         state->threadPool = new vcore::ThreadPool<WorkerData>();
         state->threadPool->init(hc);
     }
+
+    // Init ECS
+    // TODO(Ben): Mod packs
+    state->templateLib.registerFactory<AABBCollidableComponentBuilder>(GAME_SYSTEM_CT_AABBCOLLIDABLE_NAME);
+    state->templateLib.registerFactory<SpacePositionComponentBuilder>(GAME_SYSTEM_CT_SPACEPOSITION_NAME);
+    state->templateLib.registerFactory<VoxelPositionComponentBuilder>(GAME_SYSTEM_CT_VOXELPOSITION_NAME);
+    state->templateLib.registerFactory<PhysicsComponentBuilder>(GAME_SYSTEM_CT_PHYSICS_NAME);
+    state->templateLib.registerFactory<FrustumComponentBuilder>(GAME_SYSTEM_CT_FRUSTUM_NAME);
+    state->templateLib.registerFactory<HeadComponentBuilder>(GAME_SYSTEM_CT_HEAD_NAME);
+    
+    { // Load ECS templates
+        vio::IOManager iom;
+        vio::DirectoryEntries entries;
+        iom.getDirectoryEntries("Data/ECS", entries);
+        for (auto& p : entries) {
+            if (p.isFile()) state->templateLib.loadTemplate(p);
+        }
+    }
+
 
     // TODO(Ben): Move somewhere else
     initClientState(state, state->clientState);

@@ -37,3 +37,8 @@ SpaceSystem::~SpaceSystem() {
         sphericalTerrain.disposeComponent(sphericalTerrain.getComponentID(it.first), it.first);
     }
 }
+
+vecs::ComponentID SpaceSystem::getComponent(nString name, vecs::EntityID eID) {
+    auto& table = *getComponentTable(name);
+    return table.getComponentID(eID);
+}

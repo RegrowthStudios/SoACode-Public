@@ -22,6 +22,8 @@
 #include "ChunkAllocator.h"
 #include "ClientState.h"
 
+#include "ECSTemplates.h"
+
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
@@ -42,6 +44,7 @@ struct SoaState {
     // TODO(Ben): Clean up this dumping ground
     PagedChunkAllocator chunkAllocator;
 
+    ECSTemplateLibrary templateLib;
     
     // TODO(Ben): Move somewhere else.
     ClientState clientState;

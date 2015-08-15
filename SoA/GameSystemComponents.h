@@ -15,8 +15,12 @@
 #ifndef GameSystemComponents_h__
 #define GameSystemComponents_h__
 
+#include <Vorb/io/Keg.h>
 #include <Vorb/ecs/Entity.h>
+
+#include <Vorb/ecs/ECS.h>
 #include <Vorb/ecs/ComponentTable.hpp>
+#include <Vorb/script/Function.h>
 
 #include "ChunkHandle.h"
 #include "Frustum.h"
@@ -29,6 +33,8 @@ struct AabbCollidableComponent {
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
     f32v3 offset = f32v3(0.0f); ///< x, y, z offsets in blocks
 };
+typedef vecs::ComponentTable<AabbCollidableComponent> AABBCollidableComponentTable;
+KEG_TYPE_DECL(AabbCollidableComponent);
 
 struct ParkourInputComponent {
     // Bitfield inputs
@@ -49,6 +55,8 @@ struct ParkourInputComponent {
     float acceleration;
     float maxSpeed;
 };
+typedef vecs::ComponentTable<ParkourInputComponent> ParkourInputComponentTable;
+//KEG_TYPE_DECL(ParkourInputComponent);
 
 struct FreeMoveInputComponent {
     // Bitfield inputs
@@ -69,14 +77,18 @@ struct FreeMoveInputComponent {
     vecs::ComponentID physicsComponent = 0;
     float speed = 0.3f;
 };
+typedef vecs::ComponentTable<FreeMoveInputComponent> FreeMoveInputComponentTable;
+//KEG_TYPE_DECL(FreeMoveInputComponent);
 
 struct SpacePositionComponent {
+    f64v3 position = f64v3(0.0);
+    f64q orientation;
     vecs::EntityID parentEntity = 0;
     vecs::ComponentID parentGravityID = 0; ///< Gravity component of parent system body
     vecs::ComponentID parentSphericalTerrainID = 0; ///< ST component of parent system body
-    f64v3 position = f64v3(0.0);
-    f64q orientation;
 };
+typedef vecs::ComponentTable<SpacePositionComponent> SpacePositionComponentTable;
+KEG_TYPE_DECL(SpacePositionComponent);
 
 typedef f64v3 VoxelPosition;
 
@@ -85,6 +97,8 @@ struct VoxelPositionComponent {
     VoxelPosition3D gridPosition;
     vecs::ComponentID parentVoxelComponent = 0;
 };
+typedef vecs::ComponentTable<VoxelPositionComponent> VoxelPositionComponentTable;
+KEG_TYPE_DECL(VoxelPositionComponent);
 
 struct ChunkSphereComponent {
     vecs::ComponentID voxelPosition;
@@ -116,23 +130,29 @@ public:
 };
 
 struct PhysicsComponent {
-    vecs::ComponentID spacePositionComponent = 0; ///< Optional
-    vecs::ComponentID voxelPositionComponent = 0; ///< Optional
     f64v3 velocity = f64v3(0.0);
     f32 mass;
+    vecs::ComponentID spacePositionComponent = 0; ///< Optional
+    vecs::ComponentID voxelPositionComponent = 0; ///< Optional
 };
+typedef vecs::ComponentTable<PhysicsComponent> PhysicsComponentTable;
+KEG_TYPE_DECL(PhysicsComponent);
 
 struct FrustumComponent {
+    Frustum frustum;
     vecs::ComponentID spacePositionComponent = 0; ///< Optional
     vecs::ComponentID voxelPositionComponent = 0; ///< Optional
     vecs::ComponentID headComponent = 0; ///< Optional
-    Frustum frustum;
 };
+typedef vecs::ComponentTable<FrustumComponent> FrustumComponentTable;
+KEG_TYPE_DECL(FrustumComponent);
 
 struct HeadComponent {
     f64q relativeOrientation;
     f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units
     f64 neckLength = 0.0; ///< Neck length in voxel units
 };
+typedef vecs::ComponentTable<HeadComponent> HeadComponentTable;
+KEG_TYPE_DECL(HeadComponent);
 
 #endif // GameSystemComponents_h__

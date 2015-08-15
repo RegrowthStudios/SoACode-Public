@@ -192,6 +192,9 @@
     <Filter Include="SOA Files\Voxel\Access">
       <UniqueIdentifier>{7438a4f1-7ecc-4b92-bc2a-6865f0686297}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\ComponentBuilders">
+      <UniqueIdentifier>{8abe075e-c1df-4773-9ffd-b200f0dd9087}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -854,6 +857,15 @@
     <ClInclude Include="SystemBodyLoader.h">
       <Filter>SOA Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ECSTemplates.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemComponentBuilders.h">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemComponentBuilders.h">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+	</ClInclude>
     <ClInclude Include="TestBiomeScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -1147,9 +1159,6 @@
     <ClCompile Include="AmbiencePlayer.cpp">
       <Filter>SOA Files\Sound\Ambience</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystem.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="SpaceSystemLoadStructs.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
@@ -1438,6 +1447,21 @@
     <ClCompile Include="SystemBodyLoader.cpp">
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
+    <ClCompile Include="GameSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSTemplates.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemComponentBuilders.cpp">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemComponentBuilders.cpp">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemComponents.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+	</ClCompile>
     <ClCompile Include="TestBiomeScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
