@@ -12,6 +12,7 @@ GameSystem::GameSystem() : vecs::ECS() {
     addComponentTable(GAME_SYSTEM_CT_FRUSTUM_NAME, &frustum);
     addComponentTable(GAME_SYSTEM_CT_HEAD_NAME, &head);
     addComponentTable(GAME_SYSTEM_CT_CHUNKSPHERE_NAME, &chunkSphere);
+    addComponentTable(GAME_SYSTEM_CT_ATTRIBUTES_NAME, &attributes);
 }
 
 vecs::ComponentID GameSystem::getComponent(const nString& name, vecs::EntityID eID) {

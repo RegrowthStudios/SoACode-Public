@@ -17,20 +17,23 @@ void AABBCollidableComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
     ((GameSystem&)ecs).aabbCollidable.get(m_cID) = component;
 }
 
-/*
 void ParkourInputComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
-    
+    // Do nothing
 }
-void ParkourInputComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
-    
-}
-void ParkourInputComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
 
-}
 void ParkourInputComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
-    
+    ((GameSystem&)ecs).parkourInput.get(m_cID) = component;
 }
-*/
+
+void AttributeBuilder::load(keg::ReadContext& context, keg::Node node) {
+    // Simple read
+    keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(AttributeComponent));
+}
+
+void AttributeBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
+    ((GameSystem&)ecs).attributes.get(m_cID) = component;
+}
+
 void SpacePositionComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Default value
     component.position = f64v3(0.0f);

@@ -22,13 +22,15 @@
 
 #define GAME_SYSTEM_CT_AABBCOLLIDABLE_NAME "AABBCollidable"
 #define GAME_SYSTEM_CT_FREEMOVEINPUT_NAME "FreeMoveInput"
-#define GAME_SYSTEM_CT_PARKOURINPUT_NAME "ParkourInput"
+#define GAME_SYSTEM_CT_PARKOURINPUT_NAME "Parkour"
 #define GAME_SYSTEM_CT_PHYSICS_NAME "Physics"
 #define GAME_SYSTEM_CT_SPACEPOSITION_NAME "SpacePosition"
 #define GAME_SYSTEM_CT_VOXELPOSITION_NAME "VoxelPosition"
 #define GAME_SYSTEM_CT_FRUSTUM_NAME "Frustum"
 #define GAME_SYSTEM_CT_HEAD_NAME "Head"
 #define GAME_SYSTEM_CT_CHUNKSPHERE_NAME "ChunkSphere"
+#define GAME_SYSTEM_CT_ATTRIBUTES_NAME "Attributes"
+
 
 class GameSystem : public vecs::ECS {
 public:
@@ -43,6 +45,7 @@ public:
     FrustumComponentTable frustum;
     HeadComponentTable head;
     ChunkSphereComponentTable chunkSphere;
+    AttributeComponentTable attributes;
 
     vecs::ComponentID getComponent(const nString& name, vecs::EntityID eID);
 

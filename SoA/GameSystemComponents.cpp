@@ -6,15 +6,20 @@ KEG_TYPE_DEF(AabbCollidableComponent, AabbCollidableComponent, kt) {
     kt.addValue("box", Value::basic(offsetof(AabbCollidableComponent, box), BasicType::F32_V3));
     kt.addValue("offset", Value::basic(offsetof(AabbCollidableComponent, offset), BasicType::F32_V3));
 }
-/*
-//TODO(Ben): Properly implement this including the bitfields
-KEG_TYPE_DEF(ParkourInputComponent, ParkourInputComponent, kt) {
+
+KEG_TYPE_DEF(AttributeComponent, AttributeComponent, kt) {
     using namespace keg;
-    kt.addValue("Acceleration", Value::basic(offsetof(ParkourInputComponent, acceleration), BasicType::F32));
-    kt.addValue("MaxSpeed", Value::basic(offsetof(ParkourInputComponent, maxSpeed), BasicType::F32));
+    kt.addValue("strength", Value::basic(offsetof(AttributeComponent, strength), BasicType::F64));
+    kt.addValue("perception", Value::basic(offsetof(AttributeComponent, perception), BasicType::F64));
+    kt.addValue("endurance", Value::basic(offsetof(AttributeComponent, endurance), BasicType::F64));
+    kt.addValue("charisma", Value::basic(offsetof(AttributeComponent, charisma), BasicType::F64));
+    kt.addValue("intelligence", Value::basic(offsetof(AttributeComponent, intelligence), BasicType::F64));
+    kt.addValue("agility", Value::basic(offsetof(AttributeComponent, agility), BasicType::F64));
+    kt.addValue("height", Value::basic(offsetof(AttributeComponent, perception), BasicType::F64));
 }
 
-//TODO(BEN): Properly implement this including the bitfields
+/*
+//TODO(BEN): Properly implement this
 KEG_TYPE_DEF(FreeMoveInputComponent, FreeMoveInputComponent, kt) {
     using namespace keg;
     kt.addValue("Speed", Value::basic(offsetof(FreeMoveInputComponent, speed), BasicType::F32));

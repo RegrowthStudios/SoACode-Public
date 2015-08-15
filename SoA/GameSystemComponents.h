@@ -36,27 +36,37 @@ struct AabbCollidableComponent {
 typedef vecs::ComponentTable<AabbCollidableComponent> AABBCollidableComponentTable;
 KEG_TYPE_DECL(AabbCollidableComponent);
 
+struct AttributeComponent {
+    f64 strength = 0.0;
+    f64 perception = 0.0;
+    f64 endurance = 0.0;
+    f64 charisma = 0.0;
+    f64 intelligence = 0.0;
+    f64 agility = 0.0;
+    f64 height = 4.0;
+};
+typedef vecs::ComponentTable<AttributeComponent> AttributeComponentTable;
+KEG_TYPE_DECL(AttributeComponent);
+
 struct ParkourInputComponent {
     // Bitfield inputs
     union {
         struct {
-            bool tryMoveForward : 1; ///< True when moving forward
-            bool tryMoveBackward : 1; ///< True when moving backward
-            bool tryMoveLeft : 1; ///< True when moving left
-            bool tryMoveRight : 1; ///< True when moving right
-            bool tryJump : 1; ///< True when attempting to jump
-            bool tryCrouch : 1; ///< True when attempting to crouch
-            bool tryParkour : 1; ///< True when parkouring
-            bool trySprint : 1; ///< True when sprinting
+            bool moveForward : 1; ///< True when moving forward
+            bool moveBackward : 1; ///< True when moving backward
+            bool moveLeft : 1; ///< True when moving left
+            bool moveRight : 1; ///< True when moving right
+            bool jump : 1; ///< True when attempting to jump
+            bool crouch : 1; ///< True when attempting to crouch
+            bool parkour : 1; ///< True when parkouring
+            bool sprint : 1; ///< True when sprinting
         };
         ui8 moveFlags = 0;
     };
     vecs::ComponentID physicsComponent;
-    float acceleration;
-    float maxSpeed;
+    vecs::ComponentID attributeComponent;
 };
 typedef vecs::ComponentTable<ParkourInputComponent> ParkourInputComponentTable;
-//KEG_TYPE_DECL(ParkourInputComponent);
 
 struct FreeMoveInputComponent {
     // Bitfield inputs

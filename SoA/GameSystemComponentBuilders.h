@@ -17,7 +17,6 @@ public:
     AabbCollidableComponent component;
 };
 
-/* TODO(BEN): Implement these component builders
 class ParkourInputComponentBuilder: public ECSComponentBuilder {
 public:
     virtual void load(keg::ReadContext& reader, keg::Node node) override;
@@ -26,6 +25,15 @@ public:
     ParkourInputComponent component;
 };
 
+class AttributeBuilder : public ECSComponentBuilder {
+public:
+    virtual void load(keg::ReadContext& reader, keg::Node node) override;
+    virtual void build(vecs::ECS& ecs, vecs::EntityID eID) override;
+
+    AttributeComponent component;
+};
+
+/* TODO(BEN): Implement these component builders
 class FreeMoveInputComponentBuilder: public ECSComponentBuilder {
 public:
     virtual void load(keg::ReadContext& reader, keg::Node node) override;
