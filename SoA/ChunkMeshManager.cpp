@@ -33,7 +33,7 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
             ChunkMeshTask* task = createMeshTask(it->second);
             if (task) {
                 {
-                    std::lock_guard<std::mutex> l(m_lckMeshRecycler);
+                    std::lock_guard<std::mutex> l(m_lckActiveChunks);
                     m_activeChunks[it->first]->updateVersion = it->second->updateVersion;
                 }
                 m_threadPool->addTask(task);
@@ -201,24 +201,19 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
 }
 
 void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen) {
-    // Can be meshed.
-    if (gen == GEN_DONE) {
-        // Create message
-        if (chunk->numBlocks) {
-            std::lock_guard<std::mutex> l(m_lckPendingMesh);
-            m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
-        }
+    // Check if can be meshed.
+    if (chunk->genLevel == GEN_DONE && chunk->left.isAquired() && chunk->numBlocks) {
+        std::lock_guard<std::mutex> l(m_lckPendingMesh);
+        m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
     }
 }
 
 void ChunkMeshManager::onNeighborsAcquire(Sender s, ChunkHandle& chunk) {
     ChunkMesh* mesh = createMesh(chunk);
-    if (chunk->genLevel == GEN_DONE) {
-        // Create message
-        if (chunk->numBlocks) {
-            std::lock_guard<std::mutex> l(m_lckPendingMesh);
-            m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
-        }
+    // Check if can be meshed.
+    if (chunk->genLevel == GEN_DONE && chunk->numBlocks) {
+        std::lock_guard<std::mutex> l(m_lckPendingMesh);
+        m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
     }
 }
 

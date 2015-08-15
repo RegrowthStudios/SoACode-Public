@@ -206,9 +206,8 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
 
     const MTRenderState* renderState;
     // Don't render the same state twice.
-
-    while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
-        Sleep(0);
+    if ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
+        return;
     }
     m_prevRenderState = renderState;
 
