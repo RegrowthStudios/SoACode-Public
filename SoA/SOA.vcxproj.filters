@@ -620,9 +620,6 @@
     <ClInclude Include="ColoredFullQuadRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemEvents.h">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderLoader.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -865,7 +862,7 @@
     </ClInclude>
     <ClInclude Include="SpaceSystemComponentBuilders.h">
       <Filter>SOA Files\ECS\ComponentBuilders</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="TestBiomeScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -1252,9 +1249,6 @@
     <ClCompile Include="InputMapper.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystemEvents.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClCompile>
@@ -1461,7 +1455,7 @@
     </ClCompile>
     <ClCompile Include="GameSystemComponents.cpp">
       <Filter>SOA Files\ECS\Components</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="TestBiomeScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>

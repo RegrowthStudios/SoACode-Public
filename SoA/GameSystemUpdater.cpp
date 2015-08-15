@@ -4,7 +4,6 @@
 #include "FreeMoveComponentUpdater.h"
 #include "GameSystem.h"
 #include "GameSystemAssemblages.h"
-#include "GameSystemEvents.h"
 #include "Inputs.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
@@ -18,8 +17,6 @@
 GameSystemUpdater::GameSystemUpdater(OUT SoaState* soaState, InputMapper* inputMapper) :
     m_soaState(soaState),
     m_inputMapper(inputMapper) {
-
-    m_events = std::make_unique<GameSystemEvents>(this);
 }
 
 GameSystemUpdater::~GameSystemUpdater() {

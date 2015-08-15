@@ -46,9 +46,6 @@ private:
 
     int m_frameCounter = 0; ///< Counts frames for updateVoxelPlanetTransitions updates
 
-    // Events
-    std::unique_ptr<GameSystemEvents> m_events = nullptr;
-
     /// Updaters
     PhysicsComponentUpdater m_physicsUpdater;
     CollisionComponentUpdater m_collisionUpdater;
