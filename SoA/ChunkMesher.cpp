@@ -462,7 +462,7 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
         }
     }
     front.release();
-
+    return;
     // Clone edge data
     // TODO(Ben): Light gradient calc
     // X horizontal rows
@@ -490,7 +490,7 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
     }
     // Z horizontal rows
     for (z = 1; z < PADDED_WIDTH_M1; z++) {
-        int zi = z * PADDED_WIDTH_M1;
+        int zi = z * PADDED_WIDTH;
         // Bottom Left
         srcIndex = zi;
         destIndex = srcIndex - 1;
