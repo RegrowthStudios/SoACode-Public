@@ -21,6 +21,9 @@
 #include <Vorb/graphics/gtypes.h>
 #include <Vorb/voxel/VoxelTextureStitcher.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/ecs/Entity.h>
+
+struct SphericalVoxelComponent;
 
 DECL_VG(class BitmapResource; class Texture);
 
@@ -82,6 +85,11 @@ private:
     void writeToAtlas(BlockTextureIndex texIndex, color4* pixels, ui32 pixelWidth, ui32 pixelHeight, ui32 tileWidth);
 
     void writeToAtlasContiguous(BlockTextureIndex texIndex, color4* pixels, ui32 width, ui32 height, ui32 numTiles);
+
+    /************************************************************************/
+    /* Event Handlers                                                       */
+    /************************************************************************/
+    void onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
 
     struct AtlasPage {
         color4* pixels = nullptr;

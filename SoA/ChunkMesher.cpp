@@ -95,7 +95,7 @@ void ChunkMesher::prepareData(const Chunk* chunk) {
 
     wSize = 0;
     chunkVoxelPos = chunk->getVoxelPosition();
-    if (chunk->heightData) {
+    if (chunk->gridData) {
         m_chunkHeightData = chunk->gridData->heightData;
     } else {
         m_chunkHeightData = defaultChunkHeightData;
@@ -298,9 +298,9 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
 
     wSize = 0;
     chunkVoxelPos = chunk->getVoxelPosition();
-    if (chunk->heightData) {
+    if (chunk->gridData) {
         // If its async we copy to avoid storing a shared_ptr
-        memcpy(heightDataBuffer, chunk->heightData, sizeof(heightData));
+        memcpy(heightDataBuffer, chunk->gridData->heightData, sizeof(heightDataBuffer));
         m_chunkHeightData = heightDataBuffer;
     } else {
         m_chunkHeightData = defaultChunkHeightData;
@@ -462,7 +462,6 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
         }
     }
     front.release();
-    return;
     // Clone edge data
     // TODO(Ben): Light gradient calc
     // X horizontal rows
@@ -492,8 +491,8 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
     for (z = 1; z < PADDED_WIDTH_M1; z++) {
         int zi = z * PADDED_WIDTH;
         // Bottom Left
-        srcIndex = zi;
-        destIndex = srcIndex - 1;
+        srcIndex = zi + 1;
+        destIndex = zi;
         blockData[destIndex] = blockData[srcIndex];
         tertiaryData[destIndex] = tertiaryData[srcIndex];
         // Bottom Right
@@ -923,6 +922,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
 void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]) {
     // Get texture TODO(Ben): Null check?
     const BlockTexture* texture = block->textures[face];
+
     // Get colors
     // TODO(Ben): altColors
     color3 blockColor[2];

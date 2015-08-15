@@ -84,7 +84,6 @@ public:
     /************************************************************************/
     // Everything else uses this grid data handle
     ChunkGridData* gridData = nullptr;
-    PlanetHeightData* heightData = nullptr;
     MetaFieldInformation meta;
     union {
         UNIONIZE(ChunkHandle left;

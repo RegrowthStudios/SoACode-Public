@@ -138,13 +138,11 @@ void ChunkMeshManager::updateMesh(ChunkMeshUpdateMessage& message) {
         auto& it = m_activeChunks.find(message.chunkID);
         if (it == m_activeChunks.end()) {
             delete message.meshData;
-            m_lckActiveChunks.unlock();
             return; /// The mesh was already released, so ignore!
         }
         mesh = it->second;
     }
     
-
     if (ChunkMesher::uploadMeshData(*mesh, message.meshData)) {
         // Add to active list if its not there
         std::lock_guard<std::mutex> l(lckActiveChunkMeshes);

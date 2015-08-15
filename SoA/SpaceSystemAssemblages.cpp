@@ -277,15 +277,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.planetGenData = ftcmp.planetGenData;
     svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
-    
-    // Set color maps
-    // TODO(Ben): This assumes a single SVC!
-    if (svcmp.planetGenData->terrainColorMap.id) {
-        soaState->clientState.blockTextures->setColorMap("biome", &svcmp.planetGenData->terrainColorPixels);
-    }
-    if (svcmp.planetGenData->liquidColorMap.id) {
-        soaState->clientState.blockTextures->setColorMap("liquid", &svcmp.planetGenData->liquidColorPixels);
-    }
 
     onAddSphericalVoxelComponent(svcmp, entity);
     return svCmpId;

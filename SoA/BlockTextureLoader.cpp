@@ -104,7 +104,8 @@ bool BlockTextureLoader::loadLayerProperties() {
         } else if (key == "color") {
             switch (keg::getType(value)) {
                 case keg::NodeType::VALUE:
-                    lp->colorMap = this->getTexturePack()->getColorMap(keg::convert<nString>(value));
+                    lp->colorMapPath = keg::convert<nString>(value);
+                    lp->colorMap = this->getTexturePack()->getColorMap(lp->colorMapPath);
                     break;
                 case keg::NodeType::SEQUENCE:
                     keg::evalData((ui8*)&lp->color, &colorVal, value, context);

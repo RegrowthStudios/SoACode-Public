@@ -294,9 +294,8 @@ void TestBiomeScreen::initChunks() {
         m_chunks[i].chunk->init(WorldCubeFace::FACE_TOP);
         m_chunks[i].gridPosition = gridPosition;
         m_chunks[i].chunk->gridData = &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)];
-        m_chunks[i].chunk->heightData = m_chunks[i].chunk->gridData->heightData;
         // Generate the chunk
-        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->heightData);
+        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->gridData->heightData);
         // Decompress to flat array
         m_chunks[i].chunk->blocks.setArrayRecycler(&m_blockArrayRecycler);
         m_chunks[i].chunk->blocks.changeState(vvox::VoxelStorageState::FLAT_ARRAY, m_chunks[i].chunk->dataMutex);

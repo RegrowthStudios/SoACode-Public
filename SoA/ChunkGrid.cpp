@@ -110,7 +110,6 @@ void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle& chunk) {
             chunk->gridData->refCount++;
         }
     }
-    chunk->heightData = chunk->gridData->heightData;
 }
 
 void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle& chunk) {
@@ -130,7 +129,6 @@ void ChunkGrid::onAccessorRemove(Sender s, ChunkHandle& chunk) {
             l.unlock();
             delete chunk->gridData;
             chunk->gridData = nullptr;
-            chunk->heightData = nullptr;
         }
     }
 }
