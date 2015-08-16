@@ -896,6 +896,9 @@
     <ClInclude Include="ClientState.h">
       <Filter>SOA Files\Client</Filter>
     </ClInclude>
+    <ClInclude Include="HeadComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1478,6 +1481,9 @@
       <Filter>SOA Files\Voxel\Access</Filter>
     </ClCompile>
     <ClCompile Include="ChunkSphereComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="HeadComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClCompile>
   </ItemGroup>

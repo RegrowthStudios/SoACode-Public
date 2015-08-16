@@ -589,6 +589,7 @@ EXIT 0</Command>
     <ClInclude Include="GasGiantComponentRenderer.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
+    <ClInclude Include="HeadComponentUpdater.h" />
     <ClInclude Include="ImageAssetLoader.h" />
     <ClInclude Include="IRenderStage.h" />
     <ClInclude Include="LenseFlareRenderer.h" />
@@ -819,6 +820,7 @@ EXIT 0</Command>
     <ClCompile Include="GenerateTask.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
+    <ClCompile Include="HeadComponentUpdater.cpp" />
     <ClCompile Include="ImageAssetLoader.cpp" />
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />

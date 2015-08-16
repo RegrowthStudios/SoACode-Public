@@ -53,7 +53,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
 
         // Check for pitch (Should be no pitch)
         if (euler.x != 0.0) {
-            euler.x *= 0.8;
+            euler.x *= 0.95;
             if (ABS(euler.x) < 0.01) {
                 euler.x = 0.0;
             }
@@ -61,7 +61,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
         }
         // Check for roll (Should be no roll)
         if (euler.z != 0.0) {
-            euler.z *= 0.8;
+            euler.z *= 0.95;
             if (ABS(euler.z) < 0.01) {
                 euler.z = 0.0;
             }
@@ -77,7 +77,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
         if (l < step) {
             physics.velocity = targetVel;
         } else {
-            physics.velocity += (dVel / l) * step;
+            physics.velocity += dVel * step;
         }
     }
 }

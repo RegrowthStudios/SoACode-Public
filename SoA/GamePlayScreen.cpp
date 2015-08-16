@@ -8,7 +8,6 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/utils.h>
 
-#include "soaUtils.h"
 #include "App.h"
 #include "ChunkMesh.h"
 #include "ChunkMeshManager.h"
@@ -20,19 +19,21 @@
 #include "GameManager.h"
 #include "GameSystem.h"
 #include "GameSystemUpdater.h"
+#include "HeadComponentUpdater.h"
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "MainMenuScreen.h"
 #include "MeshManager.h"
-#include "SoaOptions.h"
 #include "ParticleMesh.h"
 #include "PhysicsBlocks.h"
 #include "SoaEngine.h"
+#include "SoaOptions.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
 #include "VoxelEditor.h"
+#include "soaUtils.h"
 
 GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
@@ -356,6 +357,11 @@ void GameplayScreen::initInput() {
         });
         m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
+        });
+        // Mouse movement
+        vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, e.dx, e.dy, 0.05f);
         });
     }
 

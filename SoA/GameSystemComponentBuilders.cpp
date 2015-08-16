@@ -114,3 +114,8 @@ void HeadComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
 void HeadComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
     ((GameSystem&)ecs).head.get(m_cID) = component;
 }
+void HeadComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID) {
+    GameSystem& gecs = static_cast<GameSystem&>(ecs);
+    auto& cmp = gecs.head.getFromEntity(eID);
+    cmp.voxelPosition = gecs.voxelPosition.getComponentID(eID);
+}

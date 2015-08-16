@@ -158,8 +158,10 @@ typedef vecs::ComponentTable<FrustumComponent> FrustumComponentTable;
 KEG_TYPE_DECL(FrustumComponent);
 
 struct HeadComponent {
+    vecs::ComponentID voxelPosition;
     f64q relativeOrientation;
-    f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units
+    f64v3 eulerAngles = f64v3(0.0); ///< Pitch, Yaw, Roll in radians.
+    f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units relative to entity position
     f64 neckLength = 0.0; ///< Neck length in voxel units
 };
 typedef vecs::ComponentTable<HeadComponent> HeadComponentTable;
