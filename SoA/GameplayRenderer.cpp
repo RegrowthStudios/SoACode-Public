@@ -403,7 +403,12 @@ void GameplayRenderer::updateCameras() {
     spaceCamera.setFocalLength(0.0f);
     spaceCamera.setClippingPlane(0.1f, 100000000000.0f);
    
-    spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
+    if (m_renderState->hasVoxelPos) {
+        spaceCamera.setOrientation(m_renderState->spaceCameraOrientation * m_renderState->playerHead.relativeOrientation);
+    } else {
+        spaceCamera.setOrientation(m_renderState->spaceCameraOrientation);
+    }
+    
     spaceCamera.update();
 }
 

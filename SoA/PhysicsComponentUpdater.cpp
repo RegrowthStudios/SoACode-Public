@@ -38,9 +38,9 @@ f64v3 PhysicsComponentUpdater::calculateGravityAcceleration(f64v3 relativePositi
     return relativePosition * ((fgrav / M_PER_KM) / FPS); // Return acceleration vector
 }
 
+// TODO(Ben): This is a clusterfuck
 void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSystem* spaceSystem,
                                                  PhysicsComponent& pyCmp, vecs::EntityID entity) {
-
 
     // Get the position component
     auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
