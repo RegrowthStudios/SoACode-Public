@@ -172,20 +172,30 @@ void GameplayScreen::updateMTRenderState() {
     MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
 
     SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+    GameSystem* gameSystem = m_soaState->gameSystem;
     // Set all space positions
     for (auto& it : spaceSystem->namePosition) {
         state->spaceBodyPositions[it.first] = it.second.position;
     }
     // Set camera position
-    auto& spCmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
+    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
     state->spaceCameraPos = spCmp.position;
     state->spaceCameraOrientation = spCmp.orientation;
 
+    // Set player data
+    auto& physics = gameSystem->physics.getFromEntity(m_soaState->clientState.playerEntity);
+    if (physics.voxelPositionComponent) {
+        state->playerHead = gameSystem->head.getFromEntity(m_soaState->clientState.playerEntity);
+        state->playerPosition = gameSystem->voxelPosition.get(physics.voxelPositionComponent);
+        state->hasVoxelPos = true;
+    } else {
+        state->hasVoxelPos = false;
+    }
     // Debug chunk grid
     if (m_renderer.stages.chunkGrid.isActive() && m_soaState->clientState.startingPlanet) {
         // TODO(Ben): This doesn't let you go to different planets!!!
-        auto& svcmp = m_soaState->spaceSystem->sphericalVoxel.getFromEntity(m_soaState->clientState.startingPlanet);
-        auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity);
+        auto& svcmp = spaceSystem->sphericalVoxel.getFromEntity(m_soaState->clientState.startingPlanet);
+        auto& vpCmp = gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity);
         state->debugChunkData.clear();
         if (svcmp.chunkGrids) {
             for (ChunkHandle chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].acquireActiveChunks()) {
@@ -361,7 +371,7 @@ void GameplayScreen::initInput() {
         // Mouse movement
         vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
         m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
-            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, e.dx, e.dy, 0.05f);
+            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, -e.dx, e.dy, 0.01f);
         });
     }
 

@@ -6,6 +6,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "GameSystem.h"
+#include "soaUtils.h"
 
 void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::ComponentID cmpID, float dx, float dy, float speed) {
     auto& cmp = gameSystem->head.get(cmpID);
@@ -28,4 +29,5 @@ void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::Compone
         vpCmp.orientation = f64q(euler);
         cmp.eulerAngles.y = M_PI_2;
     }
+    cmp.relativeOrientation = f64q(cmp.eulerAngles);
 }

@@ -42,7 +42,6 @@ struct ClientState {
 
     // TODO(Ben): This is temporary!
     CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
-    Camera localCamera; ///< Camera for voxels and far terrain
 
     bool isNewGame = true;
     f64v3 startSpacePos = f64v3(0.0f); ///< Starting position of player entity

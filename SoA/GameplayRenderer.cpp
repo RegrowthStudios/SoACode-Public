@@ -33,7 +33,7 @@ void GameplayRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     f32v2 windowDims(m_viewport.z, m_viewport.w);
 
     m_state->clientState.spaceCamera.setAspectRatio(windowDims.x / windowDims.y);
-    m_state->clientState.localCamera.setAspectRatio(windowDims.x / windowDims.y);
+    m_voxelCamera.setAspectRatio(windowDims.x / windowDims.y);
 
     // Init Stages
     stages.opaqueVoxel.init(window, context);
@@ -203,7 +203,7 @@ void GameplayRenderer::render() {
         pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
     }
     // TODO(Ben): Is this causing the camera slide discrepancy? SHouldn't we use MTRenderState?
-    m_gameRenderParams.calculateParams(m_state->clientState.spaceCamera.getPosition(), &m_state->clientState.localCamera,
+    m_gameRenderParams.calculateParams(m_state->clientState.spaceCamera.getPosition(), &m_voxelCamera,
                                        pos, 100, m_meshManager, &m_state->blocks, m_state->clientState.blockTextures, false);
     // Bind the FBO
     m_hdrTarget.useGeometry();
@@ -218,17 +218,17 @@ void GameplayRenderer::render() {
     m_commonState->stages.spaceSystem.setRenderState(m_renderState);
     m_commonState->stages.spaceSystem.render(&m_state->clientState.spaceCamera);
 
-    if (m_voxelsActive) {
+    if (m_renderState->hasVoxelPos) {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        stages.opaqueVoxel.render(&m_state->clientState.localCamera);
+        stages.opaqueVoxel.render(&m_voxelCamera);
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
         auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->clientState.playerEntity).parentVoxelComponent;
         stages.chunkGrid.setState(m_renderState);
-        stages.chunkGrid.render(&m_state->clientState.localCamera);
+        stages.chunkGrid.render(&m_voxelCamera);
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
     }
@@ -252,7 +252,7 @@ void GameplayRenderer::render() {
     // TODO(Ben): This is broken
     if (stages.ssao.isActive()) {
         stages.ssao.set(m_hdrTarget.getDepthTexture(), m_hdrTarget.getGeometryTexture(1), m_hdrTarget.getGeometryTexture(0), m_swapChain.getCurrent().getID());
-        stages.ssao.render(&m_state->clientState.localCamera);
+        stages.ssao.render(&m_voxelCamera);
         m_swapChain.swap();
         m_swapChain.use(0, false);
     }
@@ -375,22 +375,17 @@ void GameplayRenderer::updateCameras() {
     const SpaceSystem* ss = m_state->spaceSystem;
 
     // Get the physics component
-    Camera& localCamera = m_state->clientState.localCamera;
-    auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
-    if (phycmp.voxelPositionComponent) {
-        auto& vpcmp = gs->voxelPosition.get(phycmp.voxelPositionComponent);
-        localCamera.setFocalLength(0.0f);
-        localCamera.setClippingPlane(0.1f, 10000.0f);
-        localCamera.setPosition(vpcmp.gridPosition.pos);
-        localCamera.setOrientation(vpcmp.orientation);
-        localCamera.update();
-
-        m_voxelsActive = true;
-    } else {
-        m_voxelsActive = false;
+    if (m_renderState->hasVoxelPos) {
+        m_voxelCamera.setFocalLength(0.0f);
+        m_voxelCamera.setClippingPlane(0.1f, 10000.0f);
+        m_voxelCamera.setPosition(m_renderState->playerPosition.gridPosition.pos + m_renderState->playerHead.relativePosition);
+        m_voxelCamera.setOrientation(m_renderState->playerPosition.orientation * m_renderState->playerHead.relativeOrientation);
+        m_voxelCamera.update();
     }
     // Player is relative to a planet, so add position if needed
     CinematicCamera& spaceCamera = m_state->clientState.spaceCamera;
+    // TODO(Ben): Shouldn't be touching ECS here.
+    auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
     auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
     if (spcmp.parentGravityID) {
         auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
