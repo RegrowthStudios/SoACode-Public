@@ -23,7 +23,7 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
             releaseHandles(cmp);
             cmp.centerPosition = chunkPos;
             cmp.currentCubeFace = chunkPos.face;
-            auto& sphericalVoxel = spaceSystem->sphericalVoxel.get(voxelPos.parentVoxelComponent);
+            auto& sphericalVoxel = spaceSystem->sphericalVoxel.get(voxelPos.parentVoxel);
             cmp.chunkGrid = &sphericalVoxel.chunkGrids[chunkPos.face];
             initSphere(cmp);
         }

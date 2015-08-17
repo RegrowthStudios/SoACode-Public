@@ -25,8 +25,8 @@ vecs::ComponentID GameSystemAssemblages::addPhysics(GameSystem* gameSystem, vecs
                                                      vecs::ComponentID voxelPositionComponent /*= 0*/) {
     vecs::ComponentID pCmpId = gameSystem->addComponent("Physics", entity);
     auto& pCmp = gameSystem->physics.get(pCmpId);
-    pCmp.spacePositionComponent = spacePositionComponent;
-    pCmp.voxelPositionComponent = voxelPositionComponent;
+    pCmp.spacePosition = spacePositionComponent;
+    pCmp.voxelPosition = voxelPositionComponent;
     pCmp.velocity = initialVel;
     pCmp.mass = massKg;
     return pCmpId;
@@ -46,8 +46,8 @@ vecs::ComponentID GameSystemAssemblages::addSpacePosition(GameSystem* gameSystem
     spCmp.position = position;
     spCmp.orientation = orientation;
     spCmp.parentEntity = parentEntity;
-    spCmp.parentGravityID = parentGravComponent;
-    spCmp.parentSphericalTerrainID = parentSphericalTerrainComponent;
+    spCmp.parentGravity = parentGravComponent;
+    spCmp.parentSphericalTerrain = parentSphericalTerrainComponent;
     return spCmpId;
 }
 
@@ -75,7 +75,7 @@ vecs::ComponentID GameSystemAssemblages::addVoxelPosition(GameSystem* gameSystem
     // We need to transition to the voxels
     vecs::ComponentID vpid = gameSystem->addComponent("VoxelPosition", entity);
     auto& vpcmp = gameSystem->voxelPosition.get(vpid);
-    vpcmp.parentVoxelComponent = parentVoxelComponent;
+    vpcmp.parentVoxel = parentVoxelComponent;
     vpcmp.gridPosition = gridPosition;
     vpcmp.orientation = orientation;
     return vpid;
@@ -116,9 +116,9 @@ extern vecs::ComponentID GameSystemAssemblages::addFrustumComponent(GameSystem* 
     vecs::ComponentID fid = gameSystem->addComponent("Frustum", entity);
     auto& fcmp = gameSystem->frustum.get(fid);
     fcmp.frustum.setCamInternals(fov, aspectRatio, znear, zfar);
-    fcmp.spacePositionComponent = spacePosition;
-    fcmp.voxelPositionComponent = voxelPosition;
-    fcmp.headComponent = head;
+    fcmp.spacePosition = spacePosition;
+    fcmp.voxelPosition = voxelPosition;
+    fcmp.head = head;
     return fid;
 }
 

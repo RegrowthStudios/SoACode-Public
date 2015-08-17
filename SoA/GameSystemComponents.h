@@ -94,8 +94,8 @@ struct SpacePositionComponent {
     f64v3 position = f64v3(0.0);
     f64q orientation;
     vecs::EntityID parentEntity = 0;
-    vecs::ComponentID parentGravityID = 0; ///< Gravity component of parent system body
-    vecs::ComponentID parentSphericalTerrainID = 0; ///< ST component of parent system body
+    vecs::ComponentID parentGravity = 0; ///< Gravity component of parent system body
+    vecs::ComponentID parentSphericalTerrain = 0; ///< ST component of parent system body
 };
 typedef vecs::ComponentTable<SpacePositionComponent> SpacePositionComponentTable;
 KEG_TYPE_DECL(SpacePositionComponent);
@@ -105,7 +105,7 @@ typedef f64v3 VoxelPosition;
 struct VoxelPositionComponent {
     f64q orientation;
     VoxelPosition3D gridPosition;
-    vecs::ComponentID parentVoxelComponent = 0;
+    vecs::ComponentID parentVoxel = 0;
 };
 typedef vecs::ComponentTable<VoxelPositionComponent> VoxelPositionComponentTable;
 KEG_TYPE_DECL(VoxelPositionComponent);
@@ -142,17 +142,17 @@ public:
 struct PhysicsComponent {
     f64v3 velocity = f64v3(0.0);
     f32 mass;
-    vecs::ComponentID spacePositionComponent = 0; ///< Optional
-    vecs::ComponentID voxelPositionComponent = 0; ///< Optional
+    vecs::ComponentID spacePosition = 0; ///< Optional
+    vecs::ComponentID voxelPosition = 0; ///< Optional
 };
 typedef vecs::ComponentTable<PhysicsComponent> PhysicsComponentTable;
 KEG_TYPE_DECL(PhysicsComponent);
 
 struct FrustumComponent {
     Frustum frustum;
-    vecs::ComponentID spacePositionComponent = 0; ///< Optional
-    vecs::ComponentID voxelPositionComponent = 0; ///< Optional
-    vecs::ComponentID headComponent = 0; ///< Optional
+    vecs::ComponentID spacePosition = 0; ///< Optional
+    vecs::ComponentID voxelPosition = 0; ///< Optional
+    vecs::ComponentID head = 0; ///< Optional
 };
 typedef vecs::ComponentTable<FrustumComponent> FrustumComponentTable;
 KEG_TYPE_DECL(FrustumComponent);

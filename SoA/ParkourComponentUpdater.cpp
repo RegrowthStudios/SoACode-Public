@@ -12,10 +12,10 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
     for (auto& it : gameSystem->parkourInput) {
         auto& parkour = it.second;
         auto& physics = gameSystem->physics.get(parkour.physicsComponent);
-        if (physics.voxelPositionComponent == 0) return;
+        if (physics.voxelPosition == 0) return;
 
         auto& attributes = gameSystem->attributes.get(parkour.attributeComponent);
-        auto& voxelPosition = gameSystem->voxelPosition.get(physics.voxelPositionComponent);
+        auto& voxelPosition = gameSystem->voxelPosition.get(physics.voxelPosition);
 
         // TODO(Ben): Timestep
         // TODO(Ben): Account mass

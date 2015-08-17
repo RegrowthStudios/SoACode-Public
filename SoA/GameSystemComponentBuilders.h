@@ -63,6 +63,7 @@ class PhysicsComponentBuilder: public ECSComponentBuilder {
 public:
     virtual void load(keg::ReadContext& reader, keg::Node node) override;
     virtual void build(vecs::ECS& ecs, vecs::EntityID eID) override;
+    virtual void postBuild(vecs::ECS& ecs, vecs::EntityID eID) override;
 
     PhysicsComponent component;
 };

@@ -23,7 +23,7 @@ void PhysicsComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
     for (auto& it : gameSystem->physics) {
         auto& cmp = it.second;
         // Voxel position dictates space position
-        if (cmp.voxelPositionComponent) {
+        if (cmp.voxelPosition) {
             updateVoxelPhysics(gameSystem, spaceSystem, cmp, it.first);
         } else {
             updateSpacePhysics(gameSystem, spaceSystem, cmp, it.first);
@@ -43,12 +43,12 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
                                                  PhysicsComponent& pyCmp, vecs::EntityID entity) {
 
     // Get the position component
-    auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
+    auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePosition);
     // Check for removal of spherical voxel component
-    auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrainID);
+    auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
     if (stCmp.sphericalVoxelComponent == 0) {
         // We need to transition to space
-        pyCmp.voxelPositionComponent = 0;
+        pyCmp.voxelPosition = 0;
         // TODO(Ben): Orient this
         pyCmp.velocity = f64v3(0.0);
         GameSystemAssemblages::removeVoxelPosition(gameSystem, entity);
@@ -56,14 +56,14 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         return;
     }
 
-    auto& vpcmp = gameSystem->voxelPosition.get(pyCmp.voxelPositionComponent);
-    auto& svcmp = spaceSystem->sphericalVoxel.get(vpcmp.parentVoxelComponent);
+    auto& vpcmp = gameSystem->voxelPosition.get(pyCmp.voxelPosition);
+    auto& svcmp = spaceSystem->sphericalVoxel.get(vpcmp.parentVoxel);
     auto& npcmp = spaceSystem->namePosition.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->axisRotation.get(svcmp.axisRotationComponent);
 
     // Apply gravity
-    if (spCmp.parentGravityID) {
-        auto& gravCmp = spaceSystem->sphericalGravity.get(spCmp.parentGravityID);
+    if (spCmp.parentGravity) {
+        auto& gravCmp = spaceSystem->sphericalGravity.get(spCmp.parentGravity);
         f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
         f64 fgrav = M_G * gravCmp.mass / (height * height);
         // We don't account mass since we only calculate force on the object
@@ -99,8 +99,8 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 
     // Check transitions
     // TODO(Ben): This assumes a single player entity!
-    if (spCmp.parentSphericalTerrainID) {
-        auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrainID);
+    if (spCmp.parentSphericalTerrain) {
+        auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
 
         f64 distance = glm::length(spCmp.position);
         // Check transition to Space
@@ -137,12 +137,12 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                                                  PhysicsComponent& pyCmp, vecs::EntityID entity) {
 
     // Get the position component
-    auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePositionComponent);
+    auto& spCmp = gameSystem->spacePosition.get(pyCmp.spacePosition);
 
     // Apply gravity
     // TODO(Ben): Optimize and fix with timestep
-    if (spCmp.parentGravityID) {
-        auto& gravCmp = spaceSystem->sphericalGravity.get(spCmp.parentGravityID);
+    if (spCmp.parentGravity) {
+        auto& gravCmp = spaceSystem->sphericalGravity.get(spCmp.parentGravity);
         pyCmp.velocity += calculateGravityAcceleration(-spCmp.position, gravCmp.mass);
     } else {
         // TODO(Ben): Check gravity on all planets? check transition to parent?
@@ -153,8 +153,8 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
     // Check transition to planet
     // TODO(Ben): This assumes a single player entity!
-    if (spCmp.parentSphericalTerrainID) {
-        auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrainID);
+    if (spCmp.parentSphericalTerrain) {
+        auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
         auto& npCmp = spaceSystem->namePosition.get(stCmp.namePositionComponent);
 
         f64 distance = glm::length(spCmp.position);
@@ -167,7 +167,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 stCmp.needsVoxelComponent = true;
                 // Start the fade transition
                 stCmp.alpha = TERRAIN_DEC_START_ALPHA;
-            } else if (!pyCmp.voxelPositionComponent && stCmp.sphericalVoxelComponent) { // Check if we need to create the voxelPosition component
+            } else if (!pyCmp.voxelPosition && stCmp.sphericalVoxelComponent) { // Check if we need to create the voxelPosition component
 
                 auto& arCmp = spaceSystem->axisRotation.getFromEntity(stCmp.axisRotationComponent);
                 // Calculate voxel relative orientation
@@ -183,14 +183,16 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
                 // Make the Chunk Sphere component
                 GameSystemAssemblages::addChunkSphere(gameSystem, entity, vpid, VoxelSpaceConversions::voxelToChunk(stCmp.startVoxelPosition), 7);
                 
-                pyCmp.voxelPositionComponent = vpid;
+                auto& hcmp = gameSystem->head.getFromEntity(entity);
+                hcmp.voxelPosition = vpid;
+                pyCmp.voxelPosition = vpid;
 
                 // TODO(Ben): Calculate velocity change properly
                 //pyCmp.velocity = voxOrientation * pyCmp.velocity;
                 pyCmp.velocity = f64v3(0); // VOXELS_PER_KM;
 
                 // Update dependencies for frustum
-                gameSystem->frustum.getFromEntity(entity).voxelPositionComponent = vpid;
+                gameSystem->frustum.getFromEntity(entity).voxelPosition = vpid;
             }
         }
     }

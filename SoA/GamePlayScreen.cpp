@@ -156,7 +156,7 @@ void GameplayScreen::updateECS() {
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
     auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
-    auto parentNpCmpId = spaceSystem->sphericalGravity.get(spCmp.parentGravityID).namePositionComponent;
+    auto parentNpCmpId = spaceSystem->sphericalGravity.get(spCmp.parentGravity).namePositionComponent;
     auto& parentNpCmp = spaceSystem->namePosition.get(parentNpCmpId);
     // Calculate non-relative space position
     f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
@@ -184,9 +184,9 @@ void GameplayScreen::updateMTRenderState() {
 
     // Set player data
     auto& physics = gameSystem->physics.getFromEntity(m_soaState->clientState.playerEntity);
-    if (physics.voxelPositionComponent) {
+    if (physics.voxelPosition) {
         state->playerHead = gameSystem->head.getFromEntity(m_soaState->clientState.playerEntity);
-        state->playerPosition = gameSystem->voxelPosition.get(physics.voxelPositionComponent);
+        state->playerPosition = gameSystem->voxelPosition.get(physics.voxelPosition);
         state->hasVoxelPos = true;
     } else {
         state->hasVoxelPos = false;

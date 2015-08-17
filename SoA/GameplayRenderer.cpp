@@ -199,8 +199,8 @@ void GameplayRenderer::render() {
     // Get the physics component
     auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
     VoxelPosition3D pos;
-    if (phycmp.voxelPositionComponent) {
-        pos = gs->voxelPosition.get(phycmp.voxelPositionComponent).gridPosition;
+    if (phycmp.voxelPosition) {
+        pos = gs->voxelPosition.get(phycmp.voxelPosition).gridPosition;
     }
     // TODO(Ben): Is this causing the camera slide discrepancy? SHouldn't we use MTRenderState?
     m_gameRenderParams.calculateParams(m_state->clientState.spaceCamera.getPosition(), &m_voxelCamera,
@@ -226,7 +226,7 @@ void GameplayRenderer::render() {
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
-        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->clientState.playerEntity).parentVoxelComponent;
+        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->clientState.playerEntity).parentVoxel;
         stages.chunkGrid.setState(m_renderState);
         stages.chunkGrid.render(&m_voxelCamera);
         //  m_liquidVoxelRenderStage->render();
@@ -386,13 +386,13 @@ void GameplayRenderer::updateCameras() {
     CinematicCamera& spaceCamera = m_state->clientState.spaceCamera;
     // TODO(Ben): Shouldn't be touching ECS here.
     auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
-    auto& spcmp = gs->spacePosition.get(phycmp.spacePositionComponent);
-    if (spcmp.parentGravityID) {
+    auto& spcmp = gs->spacePosition.get(phycmp.spacePosition);
+    if (spcmp.parentGravity) {
         auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
         if (it != m_renderState->spaceBodyPositions.end()) {
             spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {
-            auto& gcmp = ss->sphericalGravity.get(spcmp.parentGravityID);
+            auto& gcmp = ss->sphericalGravity.get(spcmp.parentGravity);
             auto& npcmp = ss->namePosition.get(gcmp.namePositionComponent);
             spaceCamera.setPosition(m_renderState->spaceCameraPos + npcmp.position);
         }

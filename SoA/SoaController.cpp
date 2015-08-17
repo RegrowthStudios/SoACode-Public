@@ -32,11 +32,11 @@ void SoaController::startGame(SoaState* state) {
             auto& spacePos = gameSystem->spacePosition.getFromEntity(clientState.playerEntity);
             spacePos.position = clientState.startSpacePos;
             spacePos.parentEntity = clientState.startingPlanet;
-            spacePos.parentGravityID = spaceSystem->sphericalGravity.getComponentID(clientState.startingPlanet);
-            spacePos.parentSphericalTerrainID = spaceSystem->sphericalTerrain.getComponentID(clientState.startingPlanet);
+            spacePos.parentGravity = spaceSystem->sphericalGravity.getComponentID(clientState.startingPlanet);
+            spacePos.parentSphericalTerrain = spaceSystem->sphericalTerrain.getComponentID(clientState.startingPlanet);
         
             auto& physics = gameSystem->physics.getFromEntity(clientState.playerEntity);
-            physics.spacePositionComponent = gameSystem->spacePosition.getComponentID(clientState.playerEntity);
+            physics.spacePosition = gameSystem->spacePosition.getComponentID(clientState.playerEntity);
         } else {
             clientState.playerEntity = state->templateLib.build(*gameSystem, "Player");
 

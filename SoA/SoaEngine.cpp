@@ -423,8 +423,8 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
 
     // TODO(Ben): this doesn't work too well.
     auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->clientState.playerEntity);
-    pCmp.parentSphericalTerrainID = stCmpID;
-    pCmp.parentGravityID = spaceSystem->sphericalGravity.getComponentID(eid);
+    pCmp.parentSphericalTerrain = stCmpID;
+    pCmp.parentGravity = spaceSystem->sphericalGravity.getComponentID(eid);
     pCmp.parentEntity = eid;
 }
 

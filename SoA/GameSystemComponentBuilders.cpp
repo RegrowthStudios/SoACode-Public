@@ -46,8 +46,8 @@ void SpacePositionComponentBuilder::load(keg::ReadContext& context, keg::Node no
     component.position = f64v3(0.0f);
     component.orientation = f64q(0.0, 0.0, 0.0, 1.0);
     component.parentEntity = 0;
-    component.parentGravityID = 0;
-    component.parentSphericalTerrainID = 0;
+    component.parentGravity = 0;
+    component.parentSphericalTerrain = 0;
     
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(SpacePositionComponent));
@@ -63,7 +63,7 @@ void VoxelPositionComponentBuilder::load(keg::ReadContext& context, keg::Node no
     pos.pos = f64v3(0.0);
     pos.face = FACE_TOP;
     component.gridPosition = pos;
-    component.parentVoxelComponent = 0;
+    component.parentVoxel = 0;
 
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(VoxelPositionComponent));
@@ -76,8 +76,8 @@ void PhysicsComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Default value
     component.velocity = f64v3(0.0);
     component.mass = 1.0;
-    component.spacePositionComponent = 0;
-    component.voxelPositionComponent = 0;
+    component.spacePosition = 0;
+    component.voxelPosition = 0;
 
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(PhysicsComponent));
@@ -86,14 +86,20 @@ void PhysicsComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
     ((GameSystem&)ecs).physics.get(m_cID) = component;
 }
 
+void PhysicsComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID) {
+    GameSystem& gecs = static_cast<GameSystem&>(ecs);
+    auto& cmp = gecs.physics.getFromEntity(eID);
+    cmp.voxelPosition = gecs.voxelPosition.getComponentID(eID);
+}
+
 void FrustumComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Default value
     Frustum frustum;
     frustum.setCamInternals(1.0f, 16.0f / 9.0f, 0.1f, 100.0f);
     component.frustum = frustum;
-    component.spacePositionComponent = 0;
-    component.voxelPositionComponent = 0;
-    component.headComponent = 0;
+    component.spacePosition = 0;
+    component.voxelPosition = 0;
+    component.head = 0;
     // Simple read
     keg::parse((ui8*)&frustum, node, context, &KEG_GLOBAL_TYPE(FrustumComponent));
     component.frustum = frustum;

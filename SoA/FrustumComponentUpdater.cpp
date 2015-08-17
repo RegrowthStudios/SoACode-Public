@@ -12,15 +12,15 @@ void FrustumComponentUpdater::update(OUT GameSystem* gameSystem) {
         auto& cmp = it.second;
         
         // Get orientation based on position and head
-        if (cmp.voxelPositionComponent) {
-            auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPositionComponent);
+        if (cmp.voxelPosition) {
+            auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPosition);
             orientation = vpCmp.orientation;     
         } else {
-            auto& spCmp = gameSystem->spacePosition.get(cmp.spacePositionComponent);
+            auto& spCmp = gameSystem->spacePosition.get(cmp.spacePosition);
             orientation = spCmp.orientation;
         }
-        if (cmp.headComponent) {
-            auto& hCmp = gameSystem->head.get(cmp.headComponent);
+        if (cmp.head) {
+            auto& hCmp = gameSystem->head.get(cmp.head);
             orientation = orientation * hCmp.relativeOrientation;
         }
 
