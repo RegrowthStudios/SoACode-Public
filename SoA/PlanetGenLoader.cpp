@@ -158,7 +158,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore
     // Load textures
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+        rpc.data.f = makeFunctor([&](Sender s, void* userData) {
             //genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             //genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             //genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
@@ -448,7 +448,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     /************************************************************************/
 
     // Parses fruit field
-    auto fruitParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto fruitParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "id") {
             keg::evalData((ui8*)&fruitProps->flora, &stringVal, value, context);
         } else if (key == "chance") {
@@ -457,7 +457,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses leaf field
-    auto leafParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto leafParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         // TODO(Ben): String tokenizer to get rid of string comparisons
         if (key == "type") {
             keg::evalData((ui8*)&leafProps->type, &leafTypeVal, value, context);
@@ -503,7 +503,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses branch field
-    auto branchParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto branchParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "coreWidth") {
             PARSE_V2(i32, trunkProps->branchProps.coreWidth);
         } else if (key == "barkWidth") {
@@ -539,7 +539,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses slope field
-    auto slopeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto slopeParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "min") {
             PARSE_V2(i32, trunkProps->slope[0]);
         } else if (key == "max") {
@@ -548,7 +548,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses fourth level
-    auto trunkDataParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto trunkDataParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "loc") {
             keg::evalData((ui8*)&trunkProps->loc, &f32Val, value, context);
         } else if (key == "coreWidth") {
@@ -582,7 +582,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses third level
-    auto trunkParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
+    auto trunkParser = makeFunctor([&](Sender, size_t size, keg::Node value) {
         treeProps->trunkProps.emplace_back();
         // Get our handle
         trunkProps = &treeProps->trunkProps.back();
@@ -599,7 +599,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses a branch volume
-    auto branchVolumeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto branchVolumeParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
             PARSE_V2(i32, branchVolProps->height);
         } else if (key == "hRadius") {
@@ -615,7 +615,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses array of branch volumes
-    auto branchVolumeSeqParser = makeFunctor<Sender, size_t, keg::Node>([&](Sender, size_t size, keg::Node value) {
+    auto branchVolumeSeqParser = makeFunctor([&](Sender, size_t size, keg::Node value) {
         treeProps->branchVolumes.emplace_back();
         // Get our handle
         branchVolProps = &treeProps->branchVolumes.back();
@@ -625,7 +625,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses second level
-    auto treeParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto treeParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "height") {
             PARSE_V2(i32, treeProps->height);
         } else if (key == "branchPoints") {
@@ -644,7 +644,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses top level
-    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto baseParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         genData->blockInfo.trees.emplace_back();
         treeProps = &genData->blockInfo.trees.back();
         *treeProps = {}; // Zero it
@@ -690,7 +690,7 @@ void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData
 
     // Load yaml data
     int i = 0;
-    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto baseParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         // Parse based on type
         if (key == "baseLookupMap") {
             vpath texPath;
@@ -804,7 +804,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
     if (kegProps.colorPath.size()) {
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
                 //m_textureCache.freeTexture(kegProps.colorPath);
                 //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                 //                                                    genData->liquidColorPixels,
@@ -834,7 +834,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
                 //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
@@ -875,7 +875,7 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node nod
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
                 //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
@@ -887,7 +887,7 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node nod
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
                 //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
@@ -904,7 +904,7 @@ void PlanetGenLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node
         return;
     }
 
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& name, keg::Node value) {
         BlockLayerKegProperties layerProps = {};
         layerProps.block = name;
         keg::parse((ui8*)&layerProps, value, context, &KEG_GLOBAL_TYPE(BlockLayerKegProperties));

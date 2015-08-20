@@ -541,6 +541,7 @@ EXIT 0</Command>
     <ClInclude Include="ChunkSphereComponentUpdater.h" />
     <ClInclude Include="ClientState.h" />
     <ClInclude Include="ConsoleTests.h" />
+    <ClInclude Include="Density.h" />
     <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
     <ClInclude Include="AtmosphereComponentRenderer.h" />
@@ -566,7 +567,6 @@ EXIT 0</Command>
     <ClInclude Include="ConsoleFuncs.h" />
     <ClInclude Include="ConsoleMain.h" />
     <ClInclude Include="DLLLoader.h" />
-    <ClInclude Include="Density.h" />
     <ClInclude Include="DualContouringMesher.h" />
     <ClInclude Include="ECSTemplates.h" />
     <ClInclude Include="FarTerrainComponentRenderer.h" />
@@ -714,7 +714,6 @@ EXIT 0</Command>
     <ClInclude Include="TextureAtlas.h" />
     <ClInclude Include="TextureData.h" />
     <ClInclude Include="TextureStack.h" />
-    <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleMesh.h" />
     <ClInclude Include="RegionFileManager.h" />
     <ClInclude Include="stdafx.h" />
@@ -750,9 +749,7 @@ EXIT 0</Command>
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="SoaOptions.h" />
-    <ClInclude Include="Particles.h" />
     <ClInclude Include="readerwriterqueue.h" />
-    <ClInclude Include="Rendering.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
@@ -918,7 +915,6 @@ EXIT 0</Command>
     <ClCompile Include="BlockData.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Inputs.cpp" />
-    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -951,7 +947,6 @@ EXIT 0</Command>
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SoaOptions.cpp" />
-    <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />

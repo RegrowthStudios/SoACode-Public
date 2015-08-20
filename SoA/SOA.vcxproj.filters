@@ -269,13 +269,7 @@
     <ClInclude Include="LoadBar.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="Particle.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleMesh.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="readerwriterqueue.h">
@@ -283,9 +277,6 @@
     </ClInclude>
     <ClInclude Include="RegionFileManager.h">
       <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -803,9 +794,6 @@
     <ClInclude Include="DualContouringMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="Density.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
     <ClInclude Include="MarchingCubesTable.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -881,6 +869,9 @@
     <ClInclude Include="HeadComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Density.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -946,14 +937,8 @@
     <ClCompile Include="main.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
-    <ClCompile Include="Particle.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
     <ClCompile Include="RegionFileManager.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
@@ -1363,9 +1348,6 @@
     <ClCompile Include="PlanetGenData.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="Density.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
     <ClCompile Include="DualContouringMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
@@ -1449,6 +1431,9 @@
     </ClCompile>
     <ClCompile Include="HeadComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Density.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

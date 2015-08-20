@@ -22,7 +22,6 @@
 #include "ModPathResolver.h"
 
 class DebugRenderer;
-class MeshManager;
 
 class ChunkMeshManager;
 
@@ -30,7 +29,6 @@ struct ClientState {
     ChunkMeshManager* chunkMeshManager = nullptr;
     // TODO(Ben): Commonstate
     DebugRenderer* debugRenderer = nullptr;
-    MeshManager* meshManager = nullptr;
     MainMenuSystemViewer* systemViewer = nullptr;
 
     BlockTextureLoader blockTextureLoader;

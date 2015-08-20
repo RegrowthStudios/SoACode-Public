@@ -11,7 +11,7 @@
 
 class Chunk;
 
-class ChunkIOManager {
+class ChunkIOManager{
 public:
     ChunkIOManager(const nString& saveDir);
     ~ChunkIOManager();

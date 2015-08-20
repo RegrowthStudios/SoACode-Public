@@ -26,7 +26,7 @@ public:
     /// Draws the render stage
     virtual void render(const Camera* camera = nullptr) override;
 
-    void setColor(const f32v4 color) { m_color = color; }
+    void setColor(const f32v4& color) { m_color = color; }
 private:
     f32v4 m_color;
     vg::FullQuadVBO* m_quad = nullptr;

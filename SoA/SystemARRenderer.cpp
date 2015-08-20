@@ -207,7 +207,7 @@ void SystemARRenderer::drawHUD() {
             f32 hoverTime = bodyArData->hoverTime;
 
             // Get screen position 
-            f32v3 screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
+            f32v3 screenCoords = m_camera->worldToScreenPointLogZ(relativePos, (f64)m_camera->getFarClip());
             f32v2 xyScreenCoords(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
             // Get a smooth interpolator with hermite
@@ -278,7 +278,7 @@ void SystemARRenderer::drawHUD() {
                 // Text offset and scaling
                 const f32v2 textOffset(selectorSize / 2.0f, -selectorSize / 2.0f);
                 const f32v2 textScale((((selectorSize - MainMenuSystemViewer::MIN_SELECTOR_SIZE) /
-                    (MainMenuSystemViewer::MAX_SELECTOR_SIZE - MainMenuSystemViewer::MIN_SELECTOR_SIZE)) * 0.5 + 0.5) * 0.6);
+                    (MainMenuSystemViewer::MAX_SELECTOR_SIZE - MainMenuSystemViewer::MIN_SELECTOR_SIZE)) * 0.5f + 0.5f) * 0.6f);
 
                 // Draw Text
                 if (textColor.a > 0) {
@@ -305,7 +305,7 @@ void SystemARRenderer::drawHUD() {
                 relativePos = (position + f64v3(selectedPos)) - m_camera->getPosition();
                 // Bring it close to the camera so it doesn't get occluded by anything
                 relativePos = glm::normalize(relativePos) * ((f64)m_camera->getNearClip() + 0.0001);
-                screenCoords = m_camera->worldToScreenPointLogZ(relativePos, m_camera->getFarClip());
+                screenCoords = m_camera->worldToScreenPointLogZ(relativePos, (f64)m_camera->getFarClip());
                 xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 
                 color4 sColor = color::Red;

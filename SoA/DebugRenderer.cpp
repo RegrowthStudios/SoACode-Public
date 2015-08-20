@@ -116,7 +116,7 @@ void DebugRenderer::drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPo
     _linesToRender.push_back(line);
 }
 
-void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderIcospheres(const f32m4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     for(auto i = _icospheresToRender.begin(); i != _icospheresToRender.end(); i++) {
         SimpleMesh* mesh = _icosphereMeshes.at(i->lod);
         glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBufferID);
@@ -137,7 +137,7 @@ void DebugRenderer::renderIcospheres(const glm::mat4 &vp, const f32m4& w, const 
     _icospheresToRender.erase(std::remove_if(_icospheresToRender.begin(), _icospheresToRender.end(), [](const Icosphere& sphere) { return sphere.timeTillDeletion <= 0; }), _icospheresToRender.end());
 }
 
-void DebugRenderer::renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderCubes(const f32m4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _cubeMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _cubeMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
@@ -156,7 +156,7 @@ void DebugRenderer::renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::
     _cubesToRender.erase(std::remove_if(_cubesToRender.begin(), _cubesToRender.end(), [](const Cube& cube) { return cube.timeTillDeletion <= 0; }), _cubesToRender.end());
 }
 
-void DebugRenderer::renderLines(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
+void DebugRenderer::renderLines(const f32m4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT) {
     glBindBuffer(GL_ARRAY_BUFFER, _lineMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _lineMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
@@ -182,11 +182,11 @@ void DebugRenderer::createIcosphere(const int lod) {
     _icosphereMeshes[lod] = createMesh(positions.data(), positions.size(), indices.data(), indices.size());
 }
 
-inline glm::vec3 findMidpoint(glm::vec3 vertex1, glm::vec3 vertex2) {
+inline glm::vec3 findMidpoint(const f32v3& vertex1, const f32v3& vertex2) {
     return glm::normalize(glm::vec3((vertex1.x + vertex2.x) / 2.0f, (vertex1.y + vertex2.y) / 2.0f, (vertex1.z + vertex2.z) / 2.0f));
 }
 
-SimpleMesh* DebugRenderer::createMesh(const glm::vec3* vertices, const int numVertices, const GLuint* indices, const int numIndices) {
+SimpleMesh* DebugRenderer::createMesh(const f32v3* vertices, const int numVertices, const GLuint* indices, const int numIndices) {
     SimpleMesh* mesh = new SimpleMesh();
 
     mesh->numVertices = numVertices;
@@ -207,6 +207,6 @@ SimpleMesh* DebugRenderer::createMesh(const glm::vec3* vertices, const int numVe
     return mesh;
 }
 
-SimpleMesh* DebugRenderer::createMesh(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices) {
+SimpleMesh* DebugRenderer::createMesh(const std::vector<f32v3>& vertices, const std::vector<GLuint>& indices) {
     return createMesh(vertices.data(), vertices.size(), indices.data(), indices.size());
 }

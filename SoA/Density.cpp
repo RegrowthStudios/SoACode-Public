@@ -2,7 +2,8 @@
 #include "density.h"
 #include "VoxelMatrix.h"
 
-#include <glm/ext.hpp>
+#include <glm/gtc/noise.hpp>
+
 using namespace glm;
 
 const VoxelMatrix* gMatrix;

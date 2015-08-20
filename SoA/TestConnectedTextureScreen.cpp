@@ -237,7 +237,7 @@ void TestConnectedTextureScreen::initInput() {
     m_mouseButtons[1] = false;
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
-            m_camera.rotateFromMouse(-e.dx, -e.dy, 0.1f);
+            m_camera.rotateFromMouse((f32)-e.dx, (f32)-e.dy, 0.1f);
         }
         if (m_mouseButtons[1]) {
             m_camera.rollFromMouse((f32)e.dx, 0.1f);

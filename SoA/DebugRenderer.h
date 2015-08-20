@@ -87,14 +87,14 @@ public:
     void drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPoint, const glm::vec4 &color, const double duration = -1.0f);
 
 private:
-    void renderIcospheres(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
-    void renderCubes(const glm::mat4 &vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
-    void renderLines(const glm::mat4 &v, const f32m4& w, const glm::vec3& playerPosp, const double deltaT);
+    void renderIcospheres(const f32m4& vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
+    void renderCubes(const f32m4& vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
+    void renderLines(const f32m4& v, const f32m4& w, const glm::vec3& playerPosp, const double deltaT);
 
     void createIcosphere(const int lod);
 
-    SimpleMesh* DebugRenderer::createMesh(const glm::vec3* vertices, const int numVertices, const GLuint* indices, const int numIndices);
-    SimpleMesh* createMesh(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices);
+    SimpleMesh* DebugRenderer::createMesh(const f32v3* vertices, const int numVertices, const GLuint* indices, const int numIndices);
+    SimpleMesh* createMesh(const std::vector<f32v3>& vertices, const std::vector<GLuint>& indices);
 
     std::vector<Icosphere> _icospheresToRender;
     std::vector<Cube> _cubesToRender;

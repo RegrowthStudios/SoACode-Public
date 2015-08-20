@@ -18,12 +18,12 @@ void Camera::init(float aspectRatio) {
     m_aspectRatio = aspectRatio;
 }
 
-void Camera::offsetPosition(glm::dvec3 offset) {
+void Camera::offsetPosition(const f64v3& offset) {
     m_position += offset;
     m_viewChanged = true;
 }
 
-void Camera::offsetPosition(glm::vec3 offset) {
+void Camera::offsetPosition(const f32v3& offset) {
     m_position += offset;
     m_viewChanged = true;
 }

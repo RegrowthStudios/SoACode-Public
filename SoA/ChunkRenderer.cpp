@@ -8,7 +8,6 @@
 #include "GameManager.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
-#include "PhysicsBlocks.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 #include "SoaOptions.h"

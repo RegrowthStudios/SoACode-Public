@@ -27,6 +27,12 @@ const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
 const int MAXLIGHT = 31;
 
+// Shorter aliases
+#define PADDED_WIDTH PADDED_CHUNK_WIDTH
+#define PADDED_LAYER PADDED_CHUNK_LAYER
+#define PADDED_SIZE PADDED_CHUNK_SIZE
+const int PADDED_WIDTH_M1 = PADDED_WIDTH - 1;
+
 #define NO_QUAD_INDEX 0xFFFF
 
 #define QUAD_SIZE 7

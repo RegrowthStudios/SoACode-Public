@@ -11,7 +11,7 @@ class VoxelModelRenderer {
 public:
     void initGL();
     void dispose();
-    void draw(VoxelModelMesh* mesh, f32m4 mVP, const f64v3& relativePos, const f64q& orientation);
+    void draw(VoxelModelMesh* mesh, const f32m4& mVP, const f64v3& relativePos, const f64q& orientation);
 private:
     vg::GLProgram m_program;
 };

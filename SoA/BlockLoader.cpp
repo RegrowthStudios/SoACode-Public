@@ -99,7 +99,7 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
         COND_WRITE_KEG("explosionResistance", explosionResistance);
         COND_WRITE_KEG("flammability", flammability);
         COND_WRITE_KEG("floatingAction", floatingAction);
-        COND_WRITE_KEG("lightColorFilter", colorFilter);
+        if (b.colorFilter != d.colorFilter) { writer.push(keg::WriterParam::KEY) << nString("lightColorFilter"); writer.push(keg::WriterParam::VALUE) << keg::kegf32v3(b.colorFilter); }
         if (b.meshType != d.meshType) {
             writer.push(keg::WriterParam::KEY) << nString("meshType");
             switch (b.meshType) {

@@ -94,7 +94,6 @@ void SoaEngine::initState(SoaState* state) {
 
 void SoaEngine::initClientState(SoaState* soaState, ClientState& state) {
     state.debugRenderer = new DebugRenderer;
-    state.meshManager = new MeshManager;
     state.chunkMeshManager = new ChunkMeshManager(soaState->threadPool, &soaState->blocks);
     state.systemViewer = new MainMenuSystemViewer;
     // TODO(Ben): This is also elsewhere?
@@ -439,7 +438,6 @@ void SoaEngine::destroyAll(SoaState* state) {
 
 void SoaEngine::destroyClientState(ClientState& state) {
     delete state.debugRenderer;
-    delete state.meshManager;
     delete state.chunkMeshManager;
     delete state.systemViewer;
     delete state.blockTextures;

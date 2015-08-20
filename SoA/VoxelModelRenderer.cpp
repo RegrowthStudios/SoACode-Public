@@ -18,7 +18,7 @@ void VoxelModelRenderer::dispose() {
     if (m_program.isCreated()) m_program.dispose();
 }
 
-void VoxelModelRenderer::draw(VoxelModelMesh* mesh, f32m4 mVP, const f64v3& relativePos, const f64q& orientation) {
+void VoxelModelRenderer::draw(VoxelModelMesh* mesh, const f32m4& mVP, const f64v3& relativePos, const f64q& orientation) {
 
     // Convert f64q to f32q
     f32q orientationF32;

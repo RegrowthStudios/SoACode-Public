@@ -5,7 +5,6 @@
 
 #include "Camera.h"
 #include "GameManager.h"
-#include "Rendering.h"
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        const Camera* ChunkCamera,
@@ -81,7 +80,5 @@ void GameRenderParams::calculateSunlight(float theta) {
     if (theta < 0) {
         sunHeight = 0;
     }
-    sunlightColor.r = ((float)sunColor[sunHeight][0] / 255.0f) * diffVal;
-    sunlightColor.g = ((float)sunColor[sunHeight][1] / 255.0f) * diffVal;
-    sunlightColor.b = ((float)sunColor[sunHeight][2] / 255.0f) * diffVal;
+    sunlightColor = f32v3(1.0f) * diffVal;
 }

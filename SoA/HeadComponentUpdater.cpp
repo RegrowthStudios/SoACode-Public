@@ -20,7 +20,6 @@ void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::Compone
     f64v3 e = glm::eulerAngles(qq);
     printVec("AAAH ", e);
 
-
     // Check if we need to rotate the body
     if (cmp.eulerAngles.y < 0.0) {
         auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPosition);

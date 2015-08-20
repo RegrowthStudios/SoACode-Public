@@ -217,7 +217,7 @@ void TestBlockView::draw(const vui::GameTime& gameTime) {
 
     m_program.use();
     f32 tCenter = (f32)TEST_CHUNK_SIZE * -0.5f;
-    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, TEST_CHUNK_SIZE), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(tCenter, tCenter, tCenter);
+    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, TEST_CHUNK_SIZE), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(f32v3(tCenter, tCenter, tCenter));
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();

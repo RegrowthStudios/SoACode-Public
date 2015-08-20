@@ -6,8 +6,8 @@ class Camera
 public:
     Camera();
     void init(float aspectRatio);
-    void offsetPosition(glm::dvec3 offset);
-    void offsetPosition(glm::vec3 offset);
+    void offsetPosition(const f64v3& offset);
+    void offsetPosition(const f32v3& offset);
     void update();
     void updateProjection();
     virtual void applyRotation(const f32q& rot);
@@ -20,11 +20,11 @@ public:
 
     //setters
     void setOrientation(const f64q& orientation);
-    void setFocalPoint(glm::dvec3 focalPoint) { m_focalPoint = focalPoint; m_viewChanged = 1; }
-    void setPosition(glm::dvec3 position){ m_focalPoint = position; m_position = position; m_focalLength = 0;  m_viewChanged = 1; }
-    void setDirection(glm::vec3 direction){ m_direction = direction; m_viewChanged = 1; }
-    void setRight(glm::vec3 right){ m_right = right; m_viewChanged = 1; }
-    void setUp(glm::vec3 up){ m_up = up; m_viewChanged = 1; }
+    void setFocalPoint(const f64v3& focalPoint) { m_focalPoint = focalPoint; m_viewChanged = 1; }
+    void setPosition(const f64v3& position) { m_focalPoint = position; m_position = position; m_focalLength = 0;  m_viewChanged = 1; }
+    void setDirection(const f32v3& direction) { m_direction = direction; m_viewChanged = 1; }
+    void setRight(const f32v3& right) { m_right = right; m_viewChanged = 1; }
+    void setUp(const f32v3& up) { m_up = up; m_viewChanged = 1; }
     void setClippingPlane(float zNear, float zFar){ m_zNear = zNear; m_zFar = zFar; m_projectionChanged = 1; }
     void setFieldOfView(float fieldOfView){ m_fieldOfView = fieldOfView; m_projectionChanged = 1; }
     void setFocalLength(float focalLength) { m_focalLength = focalLength; m_viewChanged = 1; }
@@ -39,9 +39,9 @@ public:
 
     //getters
     const glm::dvec3& getPosition() const { return m_position; }
-    const glm::vec3& getDirection() const { return m_direction; }
-    const glm::vec3& getRight() const { return m_right; }
-    const glm::vec3& getUp() const { return m_up; }
+    const f32v3& getDirection() const { return m_direction; }
+    const f32v3& getRight() const { return m_right; }
+    const f32v3& getUp() const { return m_up; }
 
     const f32m4& getProjectionMatrix() const { return m_projectionMatrix; }
     const f32m4& getViewMatrix() const { return m_viewMatrix; }
