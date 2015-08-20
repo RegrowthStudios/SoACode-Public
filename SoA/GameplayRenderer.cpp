@@ -11,7 +11,6 @@
 #include "GameSystem.h"
 #include "GameplayScreen.h"
 #include "MTRenderState.h"
-#include "MeshManager.h"
 #include "PauseMenu.h"
 #include "SoAState.h"
 #include "SoaOptions.h"

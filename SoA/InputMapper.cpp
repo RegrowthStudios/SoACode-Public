@@ -81,7 +81,7 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
     }
 
     // Manually parse yml file
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor([&] (Sender, const nString& name, keg::Node value) {
         InputKegArray kegArray;
         
         keg::parse((ui8*)&kegArray, value, context, &KEG_GET_TYPE(InputKegArray));

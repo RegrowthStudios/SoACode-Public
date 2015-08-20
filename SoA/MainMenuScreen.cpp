@@ -21,7 +21,6 @@
 #include "MainMenuLoadScreen.h"
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
-#include "MeshManager.h"
 #include "SoaOptions.h"
 #include "SoAState.h"
 #include "SoaEngine.h"

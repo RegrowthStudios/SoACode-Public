@@ -272,26 +272,11 @@
     <ClInclude Include="Particle.h">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleBatch.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEngine.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleMesh.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Particles.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsBlocks.h">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsEngine.h">
-      <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
     <ClInclude Include="readerwriterqueue.h">
       <Filter>SOA Files\Ext\ADT</Filter>
@@ -358,9 +343,6 @@
     </ClInclude>
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshManager.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -967,21 +949,6 @@
     <ClCompile Include="Particle.cpp">
       <Filter>SOA Files\Game\Particles</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleBatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEngine.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsBlocks.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsEngine.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="RegionFileManager.cpp">
       <Filter>SOA Files\Data</Filter>
     </ClCompile>
@@ -1035,9 +1002,6 @@
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="PDA.cpp">
       <Filter>SOA Files\Game\Tools</Filter>

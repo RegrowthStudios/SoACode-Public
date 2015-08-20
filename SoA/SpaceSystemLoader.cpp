@@ -70,7 +70,7 @@ bool SpaceSystemLoader::loadPathColors() {
     }
 
     bool goodParse = true;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& name, keg::Node value) {
         PathColorKegProps props;
         keg::Error err = keg::parse((ui8*)&props, value, context, &KEG_GLOBAL_TYPE(PathColorKegProps));
         if (err != keg::Error::NONE) {
@@ -105,7 +105,7 @@ bool SpaceSystemLoader::loadSystemProperties() {
     }
 
     bool goodParse = true;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
             m_spaceSystem->systemDescription = keg::convert<nString>(value);

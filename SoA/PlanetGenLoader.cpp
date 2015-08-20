@@ -80,7 +80,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
     nString treesPath = "";
     bool didLoadBiomes = false;
 
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
         if (type == "biomes") {
             biomePath = keg::convert<nString>(value);
@@ -380,7 +380,7 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
     keg::Value floraDirVal = keg::Value::custom(0, "FloraDir", true);
 
     // Parses slope field
-    auto floraParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto floraParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "block") {
             keg::evalData((ui8*)&floraProps->block, &stringVal, value, context);
         } else if (key == "child") {
@@ -396,7 +396,7 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
         }
     });
 
-    auto baseParser = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto baseParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         FloraKegProperties properties;
         properties.id = key;
         floraProps = &properties;

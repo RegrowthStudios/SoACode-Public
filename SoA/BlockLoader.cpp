@@ -177,7 +177,7 @@ bool BlockLoader::load(const vio::IOManager& iom, const cString filePath, BlockP
 
     // Load all block nodes
     std::vector<Block> loadedBlocks;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&] (Sender, const nString& key, keg::Node value) {
+    auto f = makeFunctor([&] (Sender, const nString& key, keg::Node value) {
         // Add a block
         loadedBlocks.emplace_back();
         Block& b = loadedBlocks.back();

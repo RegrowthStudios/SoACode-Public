@@ -604,7 +604,6 @@ EXIT 0</Command>
     <ClInclude Include="MainMenuScriptedUI.h" />
     <ClInclude Include="MainMenuSystemViewer.h" />
     <ClInclude Include="MarchingCubesTable.h" />
-    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ModelMesher.h" />
     <ClInclude Include="MetaSection.h" />
     <ClInclude Include="ModInformation.h" />
@@ -716,9 +715,6 @@ EXIT 0</Command>
     <ClInclude Include="TextureData.h" />
     <ClInclude Include="TextureStack.h" />
     <ClInclude Include="Particle.h" />
-    <ClInclude Include="ParticleBatch.h" />
-    <ClInclude Include="ParticleEmitter.h" />
-    <ClInclude Include="ParticleEngine.h" />
     <ClInclude Include="ParticleMesh.h" />
     <ClInclude Include="RegionFileManager.h" />
     <ClInclude Include="stdafx.h" />
@@ -750,8 +746,6 @@ EXIT 0</Command>
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GenerateTask.h" />
-    <ClInclude Include="PhysicsBlocks.h" />
-    <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
     <ClInclude Include="Vertex.h" />
@@ -831,7 +825,6 @@ EXIT 0</Command>
     <ClCompile Include="LoadMonitor.cpp" />
     <ClCompile Include="MainMenuScriptedUI.cpp" />
     <ClCompile Include="MainMenuSystemViewer.cpp" />
-    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="ModelMesher.cpp" />
     <ClCompile Include="MetaSection.cpp" />
     <ClCompile Include="ModPathResolver.cpp" />
@@ -926,11 +919,6 @@ EXIT 0</Command>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Inputs.cpp" />
     <ClCompile Include="Particle.cpp" />
-    <ClCompile Include="ParticleBatch.cpp" />
-    <ClCompile Include="ParticleEmitter.cpp" />
-    <ClCompile Include="ParticleEngine.cpp" />
-    <ClCompile Include="PhysicsBlocks.cpp" />
-    <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -14,8 +14,6 @@
 #include "FloraTask.h"
 #include "GameSystem.h"
 #include "GenerateTask.h"
-#include "ParticleEngine.h"
-#include "PhysicsEngine.h"
 #include "PlanetGenData.h"
 #include "SoaOptions.h"
 #include "SoaState.h"

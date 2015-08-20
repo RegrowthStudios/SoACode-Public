@@ -7,7 +7,6 @@
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
-#include "MeshManager.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"

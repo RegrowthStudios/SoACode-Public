@@ -145,7 +145,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     VGTexture tex;
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+        rpc.data.f = makeFunctor([&](Sender s, void* userData) {
             //tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
             //                                   vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
         });
@@ -156,7 +156,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     }
 
     // Handle Gaussian blur
-    auto f = makeFunctor<Sender, void*>([&](Sender s, void* userData) {
+    auto f = makeFunctor([&](Sender s, void* userData) {
         if (!m_blurPrograms[0].isCreated()) {
             m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                     "Shaders/PostProcessing/Blur.frag", nullptr,

@@ -9,7 +9,6 @@
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
 #include "GeometrySorter.h"
-#include "MeshManager.h"
 #include "Chunk.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"

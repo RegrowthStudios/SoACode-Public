@@ -38,7 +38,7 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
 
     bool goodParse = true;
     bool foundOne = false;
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& type, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& type, keg::Node value) {
         if (foundOne) return;
 
         // Parse based on type

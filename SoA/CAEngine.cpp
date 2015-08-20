@@ -7,8 +7,6 @@
 #include "Chunk.h"
 #include "ChunkUpdater.h"
 #include "GameManager.h"
-#include "ParticleEngine.h"
-#include "PhysicsEngine.h"
 #include "VoxelUtils.h"
 
 CaPhysicsTypeDict CaPhysicsType::typesCache;

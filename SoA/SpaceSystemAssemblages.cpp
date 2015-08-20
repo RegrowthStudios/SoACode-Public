@@ -6,8 +6,6 @@
 #include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"
 #include "OrbitComponentUpdater.h"
-#include "ParticleEngine.h"
-#include "PhysicsEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"

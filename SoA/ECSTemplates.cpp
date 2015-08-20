@@ -41,7 +41,7 @@ void ECSTemplateLibrary::loadTemplate(const vpath& file) {
     }
 
     auto node = context.reader.getFirst();
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender s, const nString& component, keg::Node node) {
+    auto f = makeFunctor([&](Sender s, const nString& component, keg::Node node) {
         auto& bb = m_builders.find(component);
         if(bb != m_builders.end()) {
             ECSComponentBuilder* builder = bb->second();

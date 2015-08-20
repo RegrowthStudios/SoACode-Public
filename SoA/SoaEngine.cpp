@@ -5,7 +5,6 @@
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
 #include "DebugRenderer.h"
-#include "MeshManager.h"
 #include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
