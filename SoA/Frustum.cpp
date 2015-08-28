@@ -4,13 +4,13 @@
 #include "Constants.h"
 
 void Frustum::Plane::setNormalAndPoint(const f32v3 &normal, const f32v3 &point) {
-    this->normal = glm::normalize(normal);
-    d = -(glm::dot(this->normal, point));
+    this->normal = vmath::normalize(normal);
+    d = -(vmath::dot(this->normal, point));
 }
 
 void Frustum::Plane::setCoefficients(float a, float b, float c, float d) {
     //compute the length of the vector
-    float l = glm::length(f32v3(a, b, c));
+    float l = vmath::length(f32v3(a, b, c));
     // normalize the vector
     normal = f32v3(a / l, b / l, c / l);
     // and divide d by th length as well
@@ -18,7 +18,7 @@ void Frustum::Plane::setCoefficients(float a, float b, float c, float d) {
 }
 
 float Frustum::Plane::distance(const f32v3 &p) const {
-    return (d + glm::dot(normal, p));
+    return (d + vmath::dot(normal, p));
 }
 
 void Frustum::setCamInternals(float fov, float aspectRatio, float znear, float zfar) {
@@ -77,13 +77,13 @@ void Frustum::update(const f32v3& position, const f32v3& dir, const f32v3& up) {
     // Compute the Z axis of camera
     // This axis points in the opposite direction from 
     // the looking direction
-    Z = glm::normalize(position - dir);
+    Z = vmath::normalize(position - dir);
 
     // X axis of camera with given "up" vector and Z axis
-    X = glm::normalize(glm::cross(up, Z));
+    X = vmath::normalize(vmath::cross(up, Z));
 
     // The real "up" vector is the cross product of Z and X
-    Y = glm::cross(Z, X);
+    Y = vmath::cross(Z, X);
 
     // compute the centers of the near and far planes
     nc = position - Z * m_znear;
@@ -94,20 +94,20 @@ void Frustum::update(const f32v3& position, const f32v3& dir, const f32v3& up) {
 
     f32v3 aux, normal;
 
-    aux = glm::normalize((nc + Y * m_nh) - position);
-    normal = glm::cross(aux, X);
+    aux = vmath::normalize((nc + Y * m_nh) - position);
+    normal = vmath::cross(aux, X);
     m_planes[TOPP].setNormalAndPoint(normal, nc + Y * m_nh);
 
-    aux = glm::normalize((nc - Y * m_nh) - position);
-    normal = glm::cross(X, aux);
+    aux = vmath::normalize((nc - Y * m_nh) - position);
+    normal = vmath::cross(X, aux);
     m_planes[BOTTOMP].setNormalAndPoint(normal, nc - Y * m_nh);
 
-    aux = glm::normalize((nc - X * m_nw) - position);
-    normal = glm::cross(aux, Y);
+    aux = vmath::normalize((nc - X * m_nw) - position);
+    normal = vmath::cross(aux, Y);
     m_planes[LEFTP].setNormalAndPoint(normal, nc - X * m_nw);
 
-    aux = glm::normalize((nc + X * m_nw) - position);
-    normal = glm::cross(Y, aux);
+    aux = vmath::normalize((nc + X * m_nw) - position);
+    normal = vmath::cross(Y, aux);
     m_planes[RIGHTP].setNormalAndPoint(normal, nc + X * m_nw);
 }
 

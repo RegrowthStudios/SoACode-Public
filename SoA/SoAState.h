@@ -17,22 +17,17 @@
 
 #include "SpaceSystem.h"
 #include "GameSystem.h"
-#include "Camera.h"
-#include "MainMenuSystemViewer.h"
 
 #include "BlockPack.h"
-#include "BlockTextureLoader.h"
-#include "BlockTexturePack.h"
 #include "ChunkAllocator.h"
-#include "ModPathResolver.h"
+#include "ClientState.h"
+
+#include "ECSTemplates.h"
 
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/VorbPreDecl.inl>
 
-class ChunkMeshManager;
-class DebugRenderer;
-class MeshManager;
 class PlanetGenLoader;
 class SoaOptions;
 DECL_VIO(class IOManager);
@@ -43,17 +38,13 @@ struct SoaState {
     SpaceSystem* spaceSystem = nullptr;
     GameSystem* gameSystem = nullptr;
 
-    // TODO(Ben): BAD!
-    vecs::EntityID startingPlanet = 0;
-    vecs::EntityID playerEntity = 0;
     // TODO(Ben): Clean up this dumping ground
     PagedChunkAllocator chunkAllocator;
 
-    // TODO(Ben): Commonstate
-    DebugRenderer* debugRenderer = nullptr;
-    MeshManager* meshManager = nullptr;
-    ChunkMeshManager* chunkMeshManager = nullptr;
-    MainMenuSystemViewer* systemViewer = nullptr;
+    ECSTemplateLibrary templateLib;
+    
+    // TODO(Ben): Move somewhere else.
+    ClientState clientState;
 
     vio::IOManager* systemIoManager = nullptr;
 
@@ -62,17 +53,9 @@ struct SoaState {
     SoaOptions* options = nullptr; // Lives in App
 
     BlockPack blocks;
-    BlockTextureLoader blockTextureLoader;
-    BlockTexturePack* blockTextures = nullptr;
-
-    // TODO(Ben): This is temporary?
-    CinematicCamera spaceCamera; ///< The camera that looks at the planet from space
-    Camera localCamera; ///< Camera for voxels and far terrain
-
+    
     vio::IOManager saveFileIom;
-    ModPathResolver texturePathResolver;
-    bool isNewGame = true;
-    f64v3 startSpacePos = f64v3(0.0f); ///< Starting position of player entity
+
     f64 time = 0.0;
     bool isInputEnabled = true;
     float timeStep = 0.016f;

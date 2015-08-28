@@ -6,8 +6,6 @@
 #include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"
 #include "OrbitComponentUpdater.h"
-#include "ParticleEngine.h"
-#include "PhysicsEngine.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
@@ -21,9 +19,10 @@
 #include "GameManager.h"
 #include "PlanetGenData.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #define SEC_PER_HOUR 3600.0
+
+Event<SphericalVoxelComponent&, vecs::EntityID> SpaceSystemAssemblages::onAddSphericalVoxelComponent;
+Event<SphericalVoxelComponent&, vecs::EntityID> SpaceSystemAssemblages::onRemoveSphericalVoxelComponent;
 
 vecs::EntityID SpaceSystemAssemblages::createOrbit(SpaceSystem* spaceSystem,
                                                    const SystemOrbitProperties* sysProps,
@@ -206,7 +205,7 @@ vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* s
         r1.innerRadius = r2.innerRadius;
         r1.outerRadius = r2.outerRadius;
         r1.texturePath = r2.colorLookup;
-        r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
+        r1.orientation = vmath::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * vmath::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
     }
     return prCmpId;
 }
@@ -260,7 +259,6 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
 
     svcmp.generator = ftcmp.cpuGenerator;
     svcmp.chunkIo = new ChunkIOManager("TESTSAVEDIR"); // TODO(Ben): Fix
-    svcmp.chunkMeshManager = soaState->chunkMeshManager;
     svcmp.blockPack = &soaState->blocks;
 
     svcmp.threadPool = soaState->threadPool;
@@ -275,19 +273,13 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.planetGenData = ftcmp.planetGenData;
     svcmp.sphericalTerrainData = ftcmp.sphericalTerrainData;
     svcmp.saveFileIom = &soaState->saveFileIom;
-    
-    // Set color maps
-    // TODO(Ben): This assumes a single SVC!
-    if (svcmp.planetGenData->terrainColorMap.id) {
-        soaState->blockTextures->setColorMap("biome", &svcmp.planetGenData->terrainColorPixels);
-    }
-    if (svcmp.planetGenData->liquidColorMap.id) {
-        soaState->blockTextures->setColorMap("liquid", &svcmp.planetGenData->liquidColorPixels);
-    }
+
+    onAddSphericalVoxelComponent(svcmp, entity);
     return svCmpId;
 }
 
 void SpaceSystemAssemblages::removeSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
+    onRemoveSphericalVoxelComponent(spaceSystem->sphericalVoxel.getFromEntity(entity), entity);
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
 }
 
@@ -297,7 +289,7 @@ vecs::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(SpaceSystem* 
     vecs::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->axisRotation.get(arCmpId);
     arCmp.tilt = aTilt;
-    arCmp.axisOrientation = glm::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
+    arCmp.axisOrientation = vmath::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * vmath::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
     arCmp.currentRotation = startAngle;
     arCmp.period = rotationalPeriod;
     return arCmpId;

@@ -18,8 +18,8 @@ public:
     static void placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
   
-    static void removeBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
-    static void removeBlockSafe(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, glm::vec3 explodeDir = glm::vec3(0.0f));
+    static void removeBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, f32v3 explodeDir = f32v3(0.0f));
+    static void removeBlockSafe(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force = 0.0, f32v3 explodeDir = f32v3(0.0f));
     static void removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
     static void removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex);
 
@@ -31,7 +31,7 @@ public:
 
 private:
     //TODO: Replace with emitterOnBreak
-    static void breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force = 0.0f, glm::vec3 extraForce = glm::vec3(0.0f));
+    static void breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force = 0.0f, f32v3 extraForce = f32v3(0.0f));
 
     static void placeFlora(Chunk* chunk, int blockIndex, int blockID);
     static void removeFlora(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockID);

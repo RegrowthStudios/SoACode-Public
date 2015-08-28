@@ -3,6 +3,8 @@
 
 #include "BlockPack.h" // TEMPORARY
 #include "BlockTexture.h"
+#include "SpaceSystemComponents.h"
+#include "SpaceSystemAssemblages.h"
 
 #include <SDL/SDL.h>
 
@@ -39,6 +41,8 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     memset(bmap.pixels, 255, sizeof(bmap.pixels));
     BlockColorMap& lmap = m_colorMaps["liquid"];
     memset(lmap.pixels, 255, sizeof(lmap.pixels));
+
+    SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(*this, &BlockTexturePack::onAddSphericalVoxelComponent);
 }
 
 // TODO(Ben): Lock?
@@ -148,16 +152,7 @@ BlockTexture* BlockTexturePack::getNextFreeTexture(const nString& filePath) {
 BlockColorMap* BlockTexturePack::getColorMap(const nString& path) {
     auto& it = m_colorMaps.find(path);
     if (it != m_colorMaps.end()) return &it->second;
-
-    // Load it
-    vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGB_UI8);
-    if (!rs.data) {
-        fprintf(stderr, "Warning: Could not find color map %s\n", path.c_str());
-        return nullptr;
-    }
-   
-    // Add it
-    return setColorMap(path, &rs);
+    return nullptr;
 }
 
 BlockColorMap* BlockTexturePack::setColorMap(const nString& name, const vg::BitmapResource* rs) {
@@ -238,8 +233,11 @@ void BlockTexturePack::dispose() {
     std::vector<AtlasPage>().swap(m_pages);
     m_stitcher.dispose();
     std::map<nString, ui32>().swap(m_textureLookup);
+    m_nextFree = 0;
     delete[] m_textures;
     m_textures = nullptr;
+
+    SpaceSystemAssemblages::onAddSphericalVoxelComponent -= makeDelegate(*this, &BlockTexturePack::onAddSphericalVoxelComponent);
 }
 
 nString getName(nString name) {
@@ -358,6 +356,33 @@ void BlockTexturePack::writeToAtlasContiguous(BlockTextureIndex texIndex, color4
             color4* src = pixels + y * pixelsPerTileRow + x * m_resolution;
 
             writeToAtlas(texIndex++, src, m_resolution, m_resolution, width);
+        }
+    }
+}
+
+void BlockTexturePack::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e) {
+    // Set color maps
+    // TODO(Ben): This assumes a single SVC!
+    if (cmp.planetGenData->terrainColorPixels.data) {
+        BlockColorMap* m = setColorMap("biome", &cmp.planetGenData->terrainColorPixels);
+        // Set all layers
+        for (int i = 0; i < m_nextFree; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (m_textures[i].layers[j].colorMapPath == "biome") {
+                    m_textures[i].layers[j].colorMap = m;
+                }
+            }
+        }
+    }
+    if (cmp.planetGenData->liquidColorMap.id) {
+        BlockColorMap* m = setColorMap("liquid", &cmp.planetGenData->liquidColorPixels);
+        // Set all layers
+        for (int i = 0; i < m_nextFree; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (m_textures[i].layers[j].colorMapPath == "liquid") {
+                    m_textures[i].layers[j].colorMap = m;
+                }
+            }
         }
     }
 }

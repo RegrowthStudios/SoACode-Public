@@ -138,6 +138,7 @@ public:
     nString path = "";
     nString normalPath = "";
     nString dispPath = "";
+    nString colorMapPath = "";
     BlockTextureFunc blockTextureFunc = BlockTextureMethods::getDefaultTextureIndex;
 
     /// "less than" operator for inserting into sets in TexturePackLoader

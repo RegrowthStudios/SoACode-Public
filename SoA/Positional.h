@@ -22,7 +22,7 @@
 #define soffsetof(T, M) static_cast<size_t>((ptrdiff_t)&(((T*)nullptr)->M))
 
 typedef i32 VoxelPositionType;
-typedef glm::detail::tvec3<VoxelPositionType> VoxelVectorType;
+typedef vorb::Vector3<VoxelPositionType> VoxelVectorType;
 
 inline VoxelPositionType wrapInBounds(VoxelPositionType v) {
     return v & (CHUNK_WIDTH - 1);

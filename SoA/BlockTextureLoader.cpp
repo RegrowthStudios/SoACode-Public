@@ -94,7 +94,7 @@ bool BlockTextureLoader::loadLayerProperties() {
     keg::Value methodVal = keg::Value::custom(0, "ConnectedTextureMethods", true);
  
     // Custom layer parse
-    auto lf = makeFunctor<Sender, const nString&, keg::Node>([&, this](Sender, const nString& key, keg::Node value) {
+    auto lf = makeFunctor([&, this](Sender, const nString& key, keg::Node value) {
         if (key == "path") {
             lp->path = keg::convert<nString>(value);
         } else if (key == "normalMap") {
@@ -104,7 +104,8 @@ bool BlockTextureLoader::loadLayerProperties() {
         } else if (key == "color") {
             switch (keg::getType(value)) {
                 case keg::NodeType::VALUE:
-                    lp->colorMap = this->getTexturePack()->getColorMap(keg::convert<nString>(value));
+                    lp->colorMapPath = keg::convert<nString>(value);
+                    lp->colorMap = this->getTexturePack()->getColorMap(lp->colorMapPath);
                     break;
                 case keg::NodeType::SEQUENCE:
                     keg::evalData((ui8*)&lp->color, &colorVal, value, context);
@@ -119,7 +120,7 @@ bool BlockTextureLoader::loadLayerProperties() {
         }
     });
     // Load all layers
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         BlockTextureLayer layer;
         lp = &layer;
 
@@ -188,12 +189,12 @@ bool BlockTextureLoader::loadTextureProperties() {
     }
 
     BlockTexture* texture;
-    auto valf = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto valf = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         TEXTURE_PARSE_CODE;
     });
 
     // Load all layers
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         texture = m_texturePack->getNextFreeTexture(key);
         context.reader.forAllInMap(value, valf);
     });
@@ -228,7 +229,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
     }
 
     // For parsing textures
-    auto texParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto texParseFunctor = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         if (key == "base") {
             if (keg::getType(value) == keg::NodeType::MAP) {
 
@@ -265,7 +266,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
 
     nString *texNames;
 
-    auto valParseFunctor = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto valParseFunctor = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         nString name;
         // Conditional parsing, map vs value
         if (keg::getType(value) == keg::NodeType::MAP) {
@@ -300,7 +301,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
     });
 
     // Load all layers
-    auto f = makeFunctor<Sender, const nString&, keg::Node>([&](Sender, const nString& key, keg::Node value) {
+    auto f = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         BlockTextureNames tNames = {};
         // So we can prioritize.
         nString textureNames[10];

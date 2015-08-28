@@ -126,6 +126,7 @@ private:
     void updateCameras();
     void dumpScreenshot();
 
+    Camera m_voxelCamera;
     ChunkRenderer m_chunkRenderer;
 
     ColoredFullQuadRenderer m_coloredQuadRenderer; ///< For rendering full screen colored quads
@@ -151,7 +152,6 @@ private:
     ui32v4 m_viewport; ///< Viewport to draw to
     ChunkMeshManager* m_meshManager; ///< Handle to the meshes
     const MTRenderState* m_renderState = nullptr; ///< The current MT render state
-    bool m_voxelsActive = false;
     float m_coloredQuadAlpha = 0.0f;
     bool m_increaseQuadAlpha = false;
     bool m_wireframe = false;

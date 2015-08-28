@@ -34,7 +34,7 @@ public:
     // Draws the render stage
     virtual void render(const Camera* camera) override;
 private:
-    void drawSpace(glm::mat4 &VP);
+    void drawSpace(f32m4 &VP);
     // Update projection matrix
     void updateProjectionMatrix(const Camera* camera);
     void loadTexture(const char* relPath, int index);

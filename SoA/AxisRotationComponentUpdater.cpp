@@ -3,7 +3,6 @@
 
 #include "SpaceSystem.h"
 #include "Constants.h"
-#include <glm/gtc/quaternion.hpp>
 
 void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
     for (auto& it : spaceSystem->axisRotation) {
@@ -19,6 +18,6 @@ void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
 
         // Calculate total orientation
         cmp.currentOrientation = cmp.axisOrientation * rotationQuat;
-        cmp.invCurrentOrientation = glm::inverse(cmp.currentOrientation);
+        cmp.invCurrentOrientation = vmath::inverse(cmp.currentOrientation);
     }
 }

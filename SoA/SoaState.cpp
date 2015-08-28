@@ -4,7 +4,6 @@
 #include <Vorb/io/IOManager.h>
 
 #include "DebugRenderer.h"
-#include "MeshManager.h"
 #include "PlanetGenLoader.h"
 #include "ChunkMeshManager.h"
 #include "PlanetGenLoader.h"

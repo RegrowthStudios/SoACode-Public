@@ -10,7 +10,6 @@
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
-#include "MeshManager.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "soaUtils.h"
@@ -23,8 +22,6 @@ void OpaqueVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParam
 
 void OpaqueVoxelRenderStage::render(const Camera* camera) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
-    if (chunkMeshes.empty()) return;
 
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
 
@@ -34,17 +31,21 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
     f64v3 closestPoint;
     static const f64v3 boxDims(CHUNK_WIDTH);
     static const f64v3 boxDims_2(CHUNK_WIDTH / 2);
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
+    {
+        std::lock_guard<std::mutex> l(cmm->lckActiveChunkMeshes);
+        if (chunkMeshes.empty()) return;
+        for (int i = chunkMeshes.size() - 1; i >= 0; i--) {
+            ChunkMesh* cm = chunkMeshes[i];
 
-    for (int i = chunkMeshes.size() - 1; i >= 0; i--) {
-        ChunkMesh* cm = chunkMeshes[i];
-
-        if (m_gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
-            // TODO(Ben): Implement perfect fade
-            cm->inFrustum = 1;
-            m_renderer->drawOpaque(cm, position,
-                                   m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
-        } else {
-            cm->inFrustum = 0;
+            if (m_gameRenderParams->chunkCamera->sphereInFrustum(f32v3(cm->position + boxDims_2 - position), CHUNK_DIAGONAL_LENGTH)) {
+                // TODO(Ben): Implement perfect fade
+                cm->inFrustum = 1;
+                m_renderer->drawOpaque(cm, position,
+                                       m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+            } else {
+                cm->inFrustum = 0;
+            }
         }
     }
     

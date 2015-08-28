@@ -8,7 +8,6 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/utils.h>
 
-#include "soaUtils.h"
 #include "App.h"
 #include "ChunkMesh.h"
 #include "ChunkMeshManager.h"
@@ -20,19 +19,19 @@
 #include "GameManager.h"
 #include "GameSystem.h"
 #include "GameSystemUpdater.h"
+#include "HeadComponentUpdater.h"
 #include "InputMapper.h"
 #include "Inputs.h"
 #include "MainMenuScreen.h"
-#include "MeshManager.h"
-#include "SoaOptions.h"
 #include "ParticleMesh.h"
-#include "PhysicsBlocks.h"
 #include "SoaEngine.h"
+#include "SoaOptions.h"
 #include "SoaState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
 #include "VoxelEditor.h"
+#include "soaUtils.h"
 
 GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
@@ -67,11 +66,11 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
-    initInput();
-
     m_soaState = m_mainMenuScreen->getSoAState();
 
     controller.startGame(m_soaState);
+
+    initInput();
 
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputMapper);
@@ -118,8 +117,8 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
 
     // TODO(Ben): Move to glUpdate for voxel component
     // TODO(Ben): Don't hardcode for a single player
-    auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
-    m_soaState->chunkMeshManager->update(vpCmp.gridPosition.pos, true);
+    auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity);
+    m_soaState->clientState.chunkMeshManager->update(vpCmp.gridPosition.pos, true);
 
     // Update the PDA
     if (m_pda.isOpen()) m_pda.update();
@@ -133,7 +132,7 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
         printf("Reloading Target\n");
         m_soaState->threadPool->clearTasks();
         Sleep(200);
-        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->startingPlanet, nullptr);
+        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->clientState.startingPlanet, nullptr);
         m_shouldReloadTarget = false;
         m_reloadLock.unlock();
     }
@@ -154,15 +153,15 @@ void GameplayScreen::updateECS() {
 
     m_soaState->time += m_soaState->timeStep;
     // TODO(Ben): Don't hardcode for a single player
-    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
-    auto parentNpCmpId = spaceSystem->sphericalGravity.get(spCmp.parentGravityID).namePositionComponent;
+    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
+    auto parentNpCmpId = spaceSystem->sphericalGravity.get(spCmp.parentGravity).namePositionComponent;
     auto& parentNpCmp = spaceSystem->namePosition.get(parentNpCmpId);
     // Calculate non-relative space position
     f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
 
     m_spaceSystemUpdater->update(m_soaState,
                                  trueSpacePosition,
-                                 m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity).gridPosition.pos);
+                                 m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity).gridPosition.pos);
 
     m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 }
@@ -171,29 +170,38 @@ void GameplayScreen::updateMTRenderState() {
     MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
 
     SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+    GameSystem* gameSystem = m_soaState->gameSystem;
     // Set all space positions
     for (auto& it : spaceSystem->namePosition) {
         state->spaceBodyPositions[it.first] = it.second.position;
     }
     // Set camera position
-    auto& spCmp = m_soaState->gameSystem->spacePosition.getFromEntity(m_soaState->playerEntity);
+    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
     state->spaceCameraPos = spCmp.position;
     state->spaceCameraOrientation = spCmp.orientation;
 
+    // Set player data
+    auto& physics = gameSystem->physics.getFromEntity(m_soaState->clientState.playerEntity);
+    if (physics.voxelPosition) {
+        state->playerHead = gameSystem->head.getFromEntity(m_soaState->clientState.playerEntity);
+        state->playerPosition = gameSystem->voxelPosition.get(physics.voxelPosition);
+        state->hasVoxelPos = true;
+    } else {
+        state->hasVoxelPos = false;
+    }
     // Debug chunk grid
-    if (m_renderer.stages.chunkGrid.isActive() && m_soaState->startingPlanet) {
+    if (m_renderer.stages.chunkGrid.isActive() && m_soaState->clientState.startingPlanet) {
         // TODO(Ben): This doesn't let you go to different planets!!!
-        auto& svcmp = m_soaState->spaceSystem->sphericalVoxel.getFromEntity(m_soaState->startingPlanet);
-        auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->playerEntity);
+        auto& svcmp = spaceSystem->sphericalVoxel.getFromEntity(m_soaState->clientState.startingPlanet);
+        auto& vpCmp = gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity);
         state->debugChunkData.clear();
         if (svcmp.chunkGrids) {
-            for (ChunkHandle chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].getActiveChunks()) {
+            for (ChunkHandle chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].acquireActiveChunks()) {
                 state->debugChunkData.emplace_back();
                 state->debugChunkData.back().genLevel = chunk->genLevel;
                 state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
-                // Temporary
-                if (chunk->hasCreatedMesh) state->debugChunkData.back().genLevel = GEN_FLORA;
             }
+            svcmp.chunkGrids[vpCmp.gridPosition.face].releaseActiveChunks();
         }
     } else {
         std::vector<DebugChunkData>().swap(state->debugChunkData);
@@ -207,9 +215,8 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
 
     const MTRenderState* renderState;
     // Don't render the same state twice.
-
-    while ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
-        Sleep(0);
+    if ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
+        return;
     }
     m_prevRenderState = renderState;
 
@@ -307,6 +314,64 @@ void GameplayScreen::initInput() {
         m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
     });
+
+    { // Player movement events
+        vecs::ComponentID parkourCmp = m_soaState->gameSystem->parkourInput.getComponentID(m_soaState->clientState.playerEntity);
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveForward = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveForward = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveBackward = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveBackward = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveLeft = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveLeft = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveRight = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveRight = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).jump = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).jump = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).crouch = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).crouch = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).sprint = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).sprint = false;
+        });
+        // TODO(Ben): Different parkour input
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
+        });
+        // Mouse movement
+        vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, -e.dx, e.dy, 0.01f);
+        });
+    }
 
     vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
 

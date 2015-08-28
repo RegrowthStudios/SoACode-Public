@@ -20,17 +20,37 @@
 
 #include "GameSystemComponents.h"
 
+#define GAME_SYSTEM_CT_AABBCOLLIDABLE_NAME "AABBCollidable"
+#define GAME_SYSTEM_CT_FREEMOVEINPUT_NAME "FreeMoveInput"
+#define GAME_SYSTEM_CT_PARKOURINPUT_NAME "Parkour"
+#define GAME_SYSTEM_CT_PHYSICS_NAME "Physics"
+#define GAME_SYSTEM_CT_SPACEPOSITION_NAME "SpacePosition"
+#define GAME_SYSTEM_CT_VOXELPOSITION_NAME "VoxelPosition"
+#define GAME_SYSTEM_CT_FRUSTUM_NAME "Frustum"
+#define GAME_SYSTEM_CT_HEAD_NAME "Head"
+#define GAME_SYSTEM_CT_CHUNKSPHERE_NAME "ChunkSphere"
+#define GAME_SYSTEM_CT_ATTRIBUTES_NAME "Attributes"
+
+
 class GameSystem : public vecs::ECS {
 public:
     GameSystem();
-    vecs::ComponentTable<AabbCollidableComponent> aabbCollidable;
-    vecs::ComponentTable<FreeMoveInputComponent> freeMoveInput;
-    vecs::ComponentTable<PhysicsComponent> physics;
-    vecs::ComponentTable<SpacePositionComponent> spacePosition;
-    vecs::ComponentTable<VoxelPositionComponent> voxelPosition;
-    vecs::ComponentTable<FrustumComponent> frustum;
-    vecs::ComponentTable<HeadComponent> head;
+
+    AABBCollidableComponentTable aabbCollidable;
+    FreeMoveInputComponentTable freeMoveInput;
+    ParkourInputComponentTable parkourInput;
+    PhysicsComponentTable physics;
+    SpacePositionComponentTable spacePosition;
+    VoxelPositionComponentTable voxelPosition;
+    FrustumComponentTable frustum;
+    HeadComponentTable head;
     ChunkSphereComponentTable chunkSphere;
+    AttributeComponentTable attributes;
+
+    vecs::ComponentID getComponent(const nString& name, vecs::EntityID eID);
+
+private:
+    VORB_NON_COPYABLE(GameSystem);
 };
 
 #endif // GameSystem_h__

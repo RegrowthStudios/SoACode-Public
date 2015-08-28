@@ -95,17 +95,17 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     planetLoader.init(&m_iom);
     m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
     if (m_genData->terrainColorPixels.data) {
-        m_soaState->blockTextures->setColorMap("biome", &m_genData->terrainColorPixels);
+        m_soaState->clientState.blockTextures->setColorMap("biome", &m_genData->terrainColorPixels);
     }
 
     // Load blocks
     LoadTaskBlockData blockLoader(&m_soaState->blocks,
-                                  &m_soaState->blockTextureLoader,
+                                  &m_soaState->clientState.blockTextureLoader,
                                   &m_commonState->loadContext);
     blockLoader.load();
 
     // Uploads all the needed textures
-    m_soaState->blockTextures->update();
+    m_soaState->clientState.blockTextures->update();
     
     m_genData->radius = 4500.0;
     
@@ -187,7 +187,7 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
     if (m_wireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Opaque
-    m_renderer.beginOpaque(m_soaState->blockTextures->getAtlasTexture(),
+    m_renderer.beginOpaque(m_soaState->clientState.blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
     for (auto& vc : m_chunks) {
@@ -199,7 +199,7 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
         }
     }
     // Cutout
-    m_renderer.beginCutout(m_soaState->blockTextures->getAtlasTexture(),
+    m_renderer.beginCutout(m_soaState->clientState.blockTextures->getAtlasTexture(),
                            f32v3(0.0f, 0.0f, -1.0f), f32v3(1.0f),
                            f32v3(0.3f));
     for (auto& vc : m_chunks) {
@@ -294,9 +294,8 @@ void TestBiomeScreen::initChunks() {
         m_chunks[i].chunk->init(WorldCubeFace::FACE_TOP);
         m_chunks[i].gridPosition = gridPosition;
         m_chunks[i].chunk->gridData = &m_heightData[i % (HORIZONTAL_CHUNKS * HORIZONTAL_CHUNKS)];
-        m_chunks[i].chunk->heightData = m_chunks[i].chunk->gridData->heightData;
         // Generate the chunk
-        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->heightData);
+        m_chunkGenerator.generateChunk(m_chunks[i].chunk, m_chunks[i].chunk->gridData->heightData);
         // Decompress to flat array
         m_chunks[i].chunk->blocks.setArrayRecycler(&m_blockArrayRecycler);
         m_chunks[i].chunk->blocks.changeState(vvox::VoxelStorageState::FLAT_ARRAY, m_chunks[i].chunk->dataMutex);

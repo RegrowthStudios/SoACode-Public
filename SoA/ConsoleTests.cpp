@@ -89,3 +89,16 @@ void freeCAS(ChunkAccessSpeedData* data) {
     delete[] data->threads;
     delete data;
 }
+
+void runCHS() {
+    PagedChunkAllocator allocator = {};
+    ChunkAccessor accessor = {};
+    accessor.init(&allocator);
+
+
+    ChunkHandle h1 = accessor.acquire(1);
+    ChunkHandle h2 = h1;
+    h2 = h2.acquire();
+    h2.release();
+    h1.release();
+}

@@ -5,11 +5,11 @@
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
 #include "DebugRenderer.h"
-#include "MeshManager.h"
 #include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
+#include "GameSystemComponentBuilders.h"
 
 #define M_PER_KM 1000.0
 
@@ -49,19 +49,7 @@ void SoaEngine::initOptions(SoaOptions& options) {
 void SoaEngine::initState(SoaState* state) {
     state->gameSystem = new GameSystem;
     state->spaceSystem = new SpaceSystem;
-    state->debugRenderer = new DebugRenderer;
-    state->meshManager = new MeshManager;
-    state->chunkMeshManager = new ChunkMeshManager;
     state->systemIoManager = new vio::IOManager;
-    state->systemViewer = new MainMenuSystemViewer;
-    // TODO(Ben): This is also elsewhere?
-    state->texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
-                                    "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
-   
-    // TODO(Ben): Don't hardcode this. Load a texture pack file
-    state->blockTextures = new BlockTexturePack;
-    state->blockTextures->init(32, 4096);
-    state->blockTextureLoader.init(&state->texturePathResolver, state->blockTextures);
 
     { // Threadpool init
         size_t hc = std::thread::hardware_concurrency();
@@ -77,9 +65,45 @@ void SoaEngine::initState(SoaState* state) {
         // Initialize the threadpool with hc threads
         state->threadPool = new vcore::ThreadPool<WorkerData>();
         state->threadPool->init(hc);
-        // Give some time for the threads to spin up
-        SDL_Delay(100);
     }
+
+    // Init ECS
+    // TODO(Ben): Mod packs
+    state->templateLib.registerFactory<AABBCollidableComponentBuilder>(GAME_SYSTEM_CT_AABBCOLLIDABLE_NAME);
+    state->templateLib.registerFactory<SpacePositionComponentBuilder>(GAME_SYSTEM_CT_SPACEPOSITION_NAME);
+    state->templateLib.registerFactory<VoxelPositionComponentBuilder>(GAME_SYSTEM_CT_VOXELPOSITION_NAME);
+    state->templateLib.registerFactory<PhysicsComponentBuilder>(GAME_SYSTEM_CT_PHYSICS_NAME);
+    state->templateLib.registerFactory<FrustumComponentBuilder>(GAME_SYSTEM_CT_FRUSTUM_NAME);
+    state->templateLib.registerFactory<HeadComponentBuilder>(GAME_SYSTEM_CT_HEAD_NAME);
+    state->templateLib.registerFactory<ParkourInputComponentBuilder>(GAME_SYSTEM_CT_PARKOURINPUT_NAME);
+    state->templateLib.registerFactory<AttributeComponentBuilder>(GAME_SYSTEM_CT_ATTRIBUTES_NAME);
+
+    { // Load ECS templates
+        vio::IOManager iom;
+        vio::DirectoryEntries entries;
+        iom.getDirectoryEntries("Data/ECS", entries);
+        for (auto& p : entries) {
+            if (p.isFile()) state->templateLib.loadTemplate(p);
+        }
+    }
+
+
+    // TODO(Ben): Move somewhere else
+    initClientState(state, state->clientState);
+}
+
+void SoaEngine::initClientState(SoaState* soaState, ClientState& state) {
+    state.debugRenderer = new DebugRenderer;
+    state.chunkMeshManager = new ChunkMeshManager(soaState->threadPool, &soaState->blocks);
+    state.systemViewer = new MainMenuSystemViewer;
+    // TODO(Ben): This is also elsewhere?
+    state.texturePathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
+                                    "Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").value + "/");
+
+    // TODO(Ben): Don't hardcode this. Load a texture pack file
+    state.blockTextures = new BlockTexturePack;
+    state.blockTextures->init(32, 4096);
+    state.blockTextureLoader.init(&state.texturePathResolver, state.blockTextures);
 }
 
 bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
@@ -396,24 +420,27 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     }
 
     // TODO(Ben): this doesn't work too well.
-    auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->playerEntity);
-    pCmp.parentSphericalTerrainID = stCmpID;
-    pCmp.parentGravityID = spaceSystem->sphericalGravity.getComponentID(eid);
+    auto& pCmp = state->gameSystem->spacePosition.getFromEntity(state->clientState.playerEntity);
+    pCmp.parentSphericalTerrain = stCmpID;
+    pCmp.parentGravity = spaceSystem->sphericalGravity.getComponentID(eid);
     pCmp.parentEntity = eid;
 }
 
 void SoaEngine::destroyAll(SoaState* state) {
     delete state->spaceSystem;
     delete state->gameSystem;
-    delete state->debugRenderer;
-    delete state->meshManager;
-    delete state->chunkMeshManager;
-    delete state->systemViewer;
     delete state->systemIoManager;
     delete state->options;
-    delete state->blockTextures;
+    destroyClientState(state->clientState);
     destroyGameSystem(state);
     destroySpaceSystem(state);
+}
+
+void SoaEngine::destroyClientState(ClientState& state) {
+    delete state.debugRenderer;
+    delete state.chunkMeshManager;
+    delete state.systemViewer;
+    delete state.blockTextures;
 }
 
 void SoaEngine::destroyGameSystem(SoaState* state) {

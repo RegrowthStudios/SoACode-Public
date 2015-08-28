@@ -255,7 +255,7 @@ f32 ModelMesher::getMarchingPotential(const VoxelMatrix& matrix, int x, int y, i
 // This gets color for marching cubes vertices by averaging nearby voxel colors
 // TODO: Figure out a metter method?
 color3 ModelMesher::getColor(const f32v3& pos, const VoxelMatrix& matrix) {
-    ui32v3 ipos(glm::round(pos));
+    ui32v3 ipos(vmath::round(pos));
     if (ipos.x >= matrix.size.x) ipos.x = matrix.size.x - 1;
     if (ipos.y >= matrix.size.y) ipos.y = matrix.size.y - 1;
     if (ipos.z >= matrix.size.z) ipos.z = matrix.size.z - 1;

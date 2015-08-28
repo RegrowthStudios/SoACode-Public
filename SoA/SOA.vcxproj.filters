@@ -192,6 +192,9 @@
     <Filter Include="SOA Files\Voxel\Access">
       <UniqueIdentifier>{7438a4f1-7ecc-4b92-bc2a-6865f0686297}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOA Files\ECS\ComponentBuilders">
+      <UniqueIdentifier>{8abe075e-c1df-4773-9ffd-b200f0dd9087}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -266,38 +269,14 @@
     <ClInclude Include="LoadBar.h">
       <Filter>SOA Files\Screens\Load</Filter>
     </ClInclude>
-    <ClInclude Include="Particle.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleBatch.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEngine.h">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleMesh.h">
       <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles.h">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsBlocks.h">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsEngine.h">
-      <Filter>SOA Files\Game\Physics</Filter>
     </ClInclude>
     <ClInclude Include="readerwriterqueue.h">
       <Filter>SOA Files\Ext\ADT</Filter>
     </ClInclude>
     <ClInclude Include="RegionFileManager.h">
       <Filter>SOA Files\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="Rendering.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="RenderUtils.h">
       <Filter>SOA Files\Rendering</Filter>
@@ -355,9 +334,6 @@
     </ClInclude>
     <ClInclude Include="BlockLoader.h">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshManager.h">
-      <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -617,9 +593,6 @@
     <ClInclude Include="ColoredFullQuadRenderer.h">
       <Filter>SOA Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="GameSystemEvents.h">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderLoader.h">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
     </ClInclude>
@@ -821,9 +794,6 @@
     <ClInclude Include="DualContouringMesher.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
-    <ClInclude Include="Density.h">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClInclude>
     <ClInclude Include="MarchingCubesTable.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
@@ -854,6 +824,15 @@
     <ClInclude Include="SystemBodyLoader.h">
       <Filter>SOA Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="ECSTemplates.h">
+      <Filter>SOA Files\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSystemComponentBuilders.h">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceSystemComponentBuilders.h">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClInclude>
     <ClInclude Include="TestBiomeScreen.h">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClInclude>
@@ -883,6 +862,15 @@
     </ClInclude>
     <ClInclude Include="ChunkSphereComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientState.h">
+      <Filter>SOA Files\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="HeadComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Density.h">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -949,29 +937,8 @@
     <ClCompile Include="main.cpp">
       <Filter>SOA Files</Filter>
     </ClCompile>
-    <ClCompile Include="Particle.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleBatch.cpp">
-      <Filter>SOA Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEngine.cpp">
-      <Filter>SOA Files\Game\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsBlocks.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsEngine.cpp">
-      <Filter>SOA Files\Game\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="RegionFileManager.cpp">
       <Filter>SOA Files\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="Rendering.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>SOA Files</Filter>
@@ -1020,9 +987,6 @@
     </ClCompile>
     <ClCompile Include="BlockLoader.cpp">
       <Filter>SOA Files\Screens\Load</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshManager.cpp">
-      <Filter>SOA Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="PDA.cpp">
       <Filter>SOA Files\Game\Tools</Filter>
@@ -1144,9 +1108,6 @@
     <ClCompile Include="AmbiencePlayer.cpp">
       <Filter>SOA Files\Sound\Ambience</Filter>
     </ClCompile>
-    <ClCompile Include="GameSystem.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="SpaceSystemLoadStructs.cpp">
       <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
@@ -1239,9 +1200,6 @@
     </ClCompile>
     <ClCompile Include="InputMapper.cpp">
       <Filter>SOA Files\Ext\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSystemEvents.cpp">
-      <Filter>SOA Files\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>SOA Files\Rendering\Wrappers</Filter>
@@ -1390,9 +1348,6 @@
     <ClCompile Include="PlanetGenData.cpp">
       <Filter>SOA Files\Game\Universe</Filter>
     </ClCompile>
-    <ClCompile Include="Density.cpp">
-      <Filter>SOA Files\Voxel\Meshing</Filter>
-    </ClCompile>
     <ClCompile Include="DualContouringMesher.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
@@ -1435,6 +1390,21 @@
     <ClCompile Include="SystemBodyLoader.cpp">
       <Filter>SOA Files\Game</Filter>
     </ClCompile>
+    <ClCompile Include="GameSystem.cpp">
+      <Filter>SOA Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ECSTemplates.cpp">
+      <Filter>SOA Files\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemComponentBuilders.cpp">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystemComponentBuilders.cpp">
+      <Filter>SOA Files\ECS\ComponentBuilders</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSystemComponents.cpp">
+      <Filter>SOA Files\ECS\Components</Filter>
+    </ClCompile>
     <ClCompile Include="TestBiomeScreen.cpp">
       <Filter>SOA Files\Screens\Test</Filter>
     </ClCompile>
@@ -1458,6 +1428,12 @@
     </ClCompile>
     <ClCompile Include="ChunkSphereComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="HeadComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Density.cpp">
+      <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

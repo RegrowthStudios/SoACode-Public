@@ -122,25 +122,25 @@ bool VoxelEditor::isEditing() {
     return (_startPosition.x != INT_MAX && _endPosition.x != INT_MAX);
 }
 
-void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const glm::mat4 &VP, int blockID)
+void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const f32m4 &VP, int blockID)
 {
     switch (_currentTool) {
         case EDITOR_TOOLS::AABOX:
             const float BOX_PAD = 0.001f;
 
             i32v3 startPosition;
-            startPosition.x = glm::min(_startPosition.x, _endPosition.x);
-            startPosition.y = glm::min(_startPosition.y, _endPosition.y);
-            startPosition.z = glm::min(_startPosition.z, _endPosition.z);
+            startPosition.x = vmath::min(_startPosition.x, _endPosition.x);
+            startPosition.y = vmath::min(_startPosition.y, _endPosition.y);
+            startPosition.z = vmath::min(_startPosition.z, _endPosition.z);
 
-            const i32v3 size = glm::abs(_endPosition - _startPosition) + i32v3(1);
+            const i32v3 size = vmath::abs(_endPosition - _startPosition) + i32v3(1);
 
             if (blockID != 0){
-                DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(0.0, 0.0, 1.0, 1.0));
-                DrawWireBox(program, startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(0.0, 0.0, 1.0, 1.0));
+          //      DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, f32v4(0.0, 0.0, 1.0, 1.0));
+          //      DrawWireBox(program, startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, f32v4(0.0, 0.0, 1.0, 1.0));
             } else{
-                DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(1.0, 0.0, 0.0, 1.0));
-                DrawWireBox(program, startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, glm::vec4(1.0, 0.0, 0.0, 1.0));
+          //      DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, f32v4(1.0, 0.0, 0.0, 1.0));
+          //      DrawWireBox(program, startPosition.x + BOX_PAD, startPosition.y + BOX_PAD, startPosition.z + BOX_PAD, size.x - BOX_PAD * 2, size.y - BOX_PAD * 2, size.z - BOX_PAD * 2, 2, cameraPos, VP, f32v4(1.0, 0.0, 0.0, 1.0));
             }
             break;
     }

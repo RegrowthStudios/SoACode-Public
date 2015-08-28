@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "FreeMoveComponentUpdater.h"
 
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include "SpaceSystem.h"
 #include "GameSystem.h"
 #include "Constants.h"
@@ -19,25 +16,25 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* space
         f64q* orientation;
         f64 acceleration = (f64)fmcmp.speed * 0.01;
         // If there is a voxel component, we use voxel position
-        if (physcmp.voxelPositionComponent) {
+        if (physcmp.voxelPosition) {
             // No acceleration on voxels
             physcmp.velocity = f64v3(0.0);
             acceleration = 1.0;
-            auto& vpCmp = gameSystem->voxelPosition.get(physcmp.voxelPositionComponent);
-            f64 radius = spaceSystem->sphericalGravity.get(vpCmp.parentVoxelComponent).radius;
+            auto& vpCmp = gameSystem->voxelPosition.get(physcmp.voxelPosition);
+            f64 radius = spaceSystem->sphericalGravity.get(vpCmp.parentVoxel).radius;
             orientation = &vpCmp.orientation;
             if (fmcmp.superSpeed) {
                 static const f64 SS_Mult = 0.01;
-                acceleration *= glm::min(600.0, glm::max(2.0, (SS_Mult * vpCmp.gridPosition.pos.y))); // temporary
+                acceleration *= vmath::min(600.0, vmath::max(2.0, (SS_Mult * vpCmp.gridPosition.pos.y))); // temporary
             }
         } else {
-            auto& spCmp = gameSystem->spacePosition.get(physcmp.spacePositionComponent);
-            f64 radius = spaceSystem->sphericalGravity.get(spCmp.parentGravityID).radius;
+            auto& spCmp = gameSystem->spacePosition.get(physcmp.spacePosition);
+            f64 radius = spaceSystem->sphericalGravity.get(spCmp.parentGravity).radius;
             orientation = &spCmp.orientation;
             acceleration *= KM_PER_VOXEL;
             if (fmcmp.superSpeed) {
                 static const f64 SS_Mult = 0.1;
-                acceleration *= glm::max(2.0, (SS_Mult * (glm::length(spCmp.position) - radius))); // temporary, assumes a parent
+                acceleration *= vmath::max(2.0, (SS_Mult * (vmath::length(spCmp.position) - radius))); // temporary, assumes a parent
             }
         }
        
@@ -69,10 +66,10 @@ void FreeMoveComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* space
         #define ROLL_SPEED 0.7
         if (fmcmp.tryRollLeft) {
             forward = *orientation * f64v3(0.0, 0.0, 1.0);
-            *orientation = glm::angleAxis(-ROLL_SPEED, forward) * (*orientation);
+            *orientation = vmath::angleAxis(-ROLL_SPEED, forward) * (*orientation);
         } else if (fmcmp.tryRollRight) {
             forward = *orientation * f64v3(0.0, 0.0, 1.0);
-            *orientation = glm::angleAxis(ROLL_SPEED, forward) * (*orientation);
+            *orientation = vmath::angleAxis(ROLL_SPEED, forward) * (*orientation);
         }
     }
 }
@@ -83,17 +80,17 @@ void FreeMoveComponentUpdater::rotateFromMouse(GameSystem* gameSystem, FreeMoveI
 
     f64q* orientation;
     // If there is a voxel component, we use voxel position
-    if (physcmp.voxelPositionComponent) {
-        orientation = &gameSystem->voxelPosition.get(physcmp.voxelPositionComponent).orientation;
+    if (physcmp.voxelPosition) {
+        orientation = &gameSystem->voxelPosition.get(physcmp.voxelPosition).orientation;
     } else {
-        orientation = &gameSystem->spacePosition.get(physcmp.spacePositionComponent).orientation;
+        orientation = &gameSystem->spacePosition.get(physcmp.spacePosition).orientation;
     }
 
     f64v3 right = *orientation * f64v3(1.0, 0.0, 0.0);
     f64v3 up = *orientation * f64v3(0.0, 1.0, 0.0);
 
-    f64q upQuat = glm::angleAxis((f64)(dy * speed), right);
-    f64q rightQuat = glm::angleAxis((f64)(dx * speed), up);
+    f64q upQuat = vmath::angleAxis((f64)(dy * speed), right);
+    f64q rightQuat = vmath::angleAxis((f64)(dx * speed), up);
 
     *orientation = upQuat * rightQuat * (*orientation);
 }

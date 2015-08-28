@@ -44,12 +44,6 @@ private:
 
     void updateChunks(ChunkGrid& grid, bool doGen);
 
-    void requestChunkMesh(ChunkHandle chunk);
-
-    void disposeChunkMesh(Chunk* chunk);
-
-    ChunkMeshTask* trySetMeshDependencies(ChunkHandle chunk);
-
     SphericalVoxelComponent* m_cmp = nullptr; ///< Component we are updating
 };
 

@@ -66,7 +66,7 @@ void stopGame(std::thread* t) {
 }
 
 void setStartingPlanet(SoaState* s, vecs::EntityID eID) {
-    s->startingPlanet = eID;
+    s->clientState.startingPlanet = eID;
 }
 
 void registerFuncs(vscript::Environment& env) {
@@ -99,6 +99,8 @@ void registerFuncs(vscript::Environment& env) {
     env.addCDelegate("run", makeDelegate(runCAS));
     env.addCDelegate("free", makeDelegate(freeCAS));
 
+    env.setNamespaces("CHS");
+    env.addCDelegate("run", makeDelegate(runCHS));
 
     env.setNamespaces();
 }

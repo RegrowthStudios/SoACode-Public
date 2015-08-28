@@ -8,7 +8,7 @@
 #include "Octree.h"
 
 void DualContouringMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {
-    int octreeSize = glm::max(glm::max(matrix.size.x, matrix.size.y), matrix.size.z);
+    int octreeSize = vmath::max(vmath::max(matrix.size.x, matrix.size.y), matrix.size.z);
 
     gMatrix = &matrix;
     octreeSize = 128;
@@ -17,7 +17,7 @@ void DualContouringMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<
     const float THRESHOLDS[MAX_THRESHOLDS] = { -1.f, 0.1f, 1.f, 10.f, 50.f };
     int thresholdIndex = 3;
     PreciseTimer timer;
-    OctreeNode* root = BuildOctree(glm::ivec3(-octreeSize / 2), octreeSize, THRESHOLDS[thresholdIndex]);
+    OctreeNode* root = BuildOctree(i32v3(-octreeSize / 2), octreeSize, THRESHOLDS[thresholdIndex]);
     std::cout << timer.stop() << std::endl;
     timer.start();
     GenerateMeshFromOctree(root, vertices, indices);

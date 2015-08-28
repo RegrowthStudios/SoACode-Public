@@ -232,7 +232,9 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
     BlockTextureIndex tex = result.index;
 
     // Bottom Front
-    const Block* block = &GETBLOCK(blockIDData[blockIndex - upDir + frontDir]);
+    int index = blockIndex - upDir + frontDir;
+    int id = blockIDData[index];
+    const Block* block = &GETBLOCK(id);
 
     if (/*cm->levelOfDetail > 1 || */ TEXTURE_INDEX == tex) {
         block = &GETBLOCK(blockIDData[blockIndex]);

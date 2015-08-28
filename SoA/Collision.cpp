@@ -20,7 +20,7 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk* * chunks, ui8 s
     //double dx, dy, dz, bdx, bdy, bdz;
     //NChunk* chunk;
 
-    //glm::vec3 *playerBox = nullptr; // &(player->boundingBox);
+    //f32v3 *playerBox = nullptr; // &(player->boundingBox);
     //boxX = playerBox->x;
     //boxY = playerBox->y/2.0; //the box point is dead center of the player
     //boxZ = playerBox->z;
@@ -217,7 +217,7 @@ void blockCollision(Player *player, Chunk* chunk, Chunk*  lockedChunk, GLushort 
 {
 //    if (chunks[i]->data[blx + bly + blz] == WATER) continue; //no clip water
 
-//    glm::dvec3 *playerPos = &(player->gridPosition);
+//    f64v3 *playerPos = &(player->gridPosition);
 //    double boxX = player->boundingBox.x;
 //    double boxY = player->boundingBox.y/2.0;
 //    double boxZ = player->boundingBox.z;

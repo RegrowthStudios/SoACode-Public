@@ -8,8 +8,6 @@
 #include "ChunkIOManager.h"
 #include "FarTerrainPatch.h"
 #include "ChunkGrid.h"
-#include "ParticleEngine.h"
-#include "PhysicsEngine.h"
 #include "PlanetGenData.h"
 #include "SphericalHeightmapGenerator.h"
 #include "TerrainPatch.h"

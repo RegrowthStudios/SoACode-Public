@@ -8,8 +8,6 @@
 #include "soaUtils.h"
 #include "ShaderLoader.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include <Vorb/io/IOManager.h>

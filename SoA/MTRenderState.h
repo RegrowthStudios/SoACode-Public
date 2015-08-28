@@ -18,6 +18,8 @@
 
 #include "Chunk.h" // for DebugChunkData
 
+#include "GameSystemComponents.h"
+
 #include <Vorb/ecs/ECS.h>
 #include <map>
 
@@ -31,6 +33,9 @@ struct DebugChunkData {
 struct MTRenderState {
     f64q spaceCameraOrientation; ///< Orientation in space
     f64v3 spaceCameraPos; ///< Position in space, relative to parent body
+    bool hasVoxelPos;
+    HeadComponent playerHead;
+    VoxelPositionComponent playerPosition;
     std::map<vecs::EntityID, f64v3> spaceBodyPositions; ///< Space entity positions
     std::vector<DebugChunkData> debugChunkData;
 };

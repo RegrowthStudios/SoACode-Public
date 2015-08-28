@@ -9,7 +9,6 @@
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
-#include "MeshManager.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
@@ -21,8 +20,7 @@ void CutoutVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParam
 
 void CutoutVoxelRenderStage::render(const Camera* camera) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
-    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
-    if (chunkMeshes.empty()) return;
+    
 
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
 
@@ -42,12 +40,17 @@ void CutoutVoxelRenderStage::render(const Camera* camera) {
 
     ChunkMesh *cm;
 
-    for (int i = chunkMeshes.size() - 1; i >= 0; i--) {
-        cm = chunkMeshes[i];
+    const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
+    {
+        std::lock_guard<std::mutex> l(cmm->lckActiveChunkMeshes);
+        if (chunkMeshes.empty()) return;
+        for (int i = chunkMeshes.size() - 1; i >= 0; i--) {
+            cm = chunkMeshes[i];
 
-        if (cm->inFrustum) {
-            m_renderer->drawCutout(cm, position,
-                                   m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+            if (cm->inFrustum) {
+                m_renderer->drawCutout(cm, position,
+                                       m_gameRenderParams->chunkCamera->getViewProjectionMatrix());
+            }
         }
     }
     glEnable(GL_CULL_FACE);

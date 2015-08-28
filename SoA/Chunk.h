@@ -46,6 +46,7 @@ class Chunk {
     friend class ChunkAccessor;
     friend class ChunkGenerator;
     friend class ChunkGrid;
+    friend class ChunkMeshManager;
     friend class ChunkMeshTask;
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
@@ -75,17 +76,14 @@ public:
         blocks.set(x + y * CHUNK_LAYER + z * CHUNK_WIDTH, id);
     }
 
-    // True when the chunk needs to be meshed
-    bool needsRemesh() { return remeshFlags != 0; }
     // Marks the chunks as dirty and flags for a re-mesh
-    void flagDirty() { isDirty = true; remeshFlags |= 1; }
+    void flagDirty() { isDirty = true; }
 
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
     // Everything else uses this grid data handle
     ChunkGridData* gridData = nullptr;
-    PlanetHeightData* heightData = nullptr;
     MetaFieldInformation meta;
     union {
         UNIONIZE(ChunkHandle left;
@@ -98,21 +96,19 @@ public:
     };
     ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
-    bool hasCreatedMesh = false;
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
     std::mutex dataMutex;
 
-    ui8 remeshFlags;
     volatile bool isAccessible = false;
-    volatile bool queuedForMesh = false;
 
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
     vvox::SmartVoxelContainer<ui16> tertiary;
     // Block indexes where flora must be generated.
     std::vector<ui16> floraToGenerate;
+    volatile ui32 updateVersion;
 
     ChunkAccessor* accessor = nullptr;
 private:

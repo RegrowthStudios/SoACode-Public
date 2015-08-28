@@ -23,8 +23,8 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
             releaseHandles(cmp);
             cmp.centerPosition = chunkPos;
             cmp.currentCubeFace = chunkPos.face;
-            auto& sphericalVoxel = spaceSystem->sphericalVoxel.get(voxelPos.parentVoxelComponent);
-            cmp.accessor = &sphericalVoxel.chunkGrids[chunkPos.face].accessor;
+            auto& sphericalVoxel = spaceSystem->sphericalVoxel.get(voxelPos.parentVoxel);
+            cmp.chunkGrid = &sphericalVoxel.chunkGrids[chunkPos.face];
             initSphere(cmp);
         }
 
@@ -47,24 +47,46 @@ void ChunkSphereComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* sp
                 cmp.centerPosition = chunkPos.pos;
             } else {
                 // Slow version. Multi-chunk shift.
+                cmp.offset += chunkPos.pos - cmp.centerPosition;
+                // Scale back to the range
+                for (int i = 0; i < 3; i++) {
+                    while (cmp.offset[i] > cmp.radius) cmp.offset[i] -= cmp.width;
+                    while (cmp.offset[i] < -cmp.radius) cmp.offset[i] += cmp.width;
+                }
                 cmp.centerPosition = chunkPos.pos;
                 int radius2 = cmp.radius * cmp.radius;
-                // TODO(Ben): Could be optimized
-                cmp.offset = i32v3(0);
 
                 // Get all in range slots
                 for (int y = -cmp.radius; y <= cmp.radius; y++) {
                     for (int z = -cmp.radius; z <= cmp.radius; z++) {
                         for (int x = -cmp.radius; x <= cmp.radius; x++) {
+                            i32v3 p = cmp.offset + i32v3(x, y, z);
+                            // Wrap (I hope this gets optimized)
+                            for (int i = 0; i < 3; i++) {
+                                if (p[i] < -cmp.radius) {
+                                    p[i] += cmp.width;
+                                } else if (p[i] > cmp.radius) {
+                                    p[i] -= cmp.width;
+                                }
+                            }
+
+                            int index = (p.y + cmp.radius) * cmp.layer + (p.z + cmp.radius) * cmp.width + (p.x + cmp.radius);
+                            if (cmp.handleGrid[index].isAquired()) {
+                                i32v3 diff = cmp.handleGrid[index]->getChunkPosition().pos - cmp.centerPosition;
+                                int d2 = selfDot(diff);
+                                if (d2 <= radius2) {
+                                    continue; // Still in range
+                                } else {
+                                    releaseAndDisconnect(cmp, cmp.handleGrid[index]);
+                                }
+                            }
                             // Check if its in range
                             if (x * x + y * y + z * z <= radius2) {
-                                int index = (y + cmp.radius) * cmp.layer + (z + cmp.radius) * cmp.width + (x + cmp.radius);
-                                ChunkID id;
-                                id.x = cmp.centerPosition.x + x;
-                                id.y = cmp.centerPosition.y + y;
-                                id.z = cmp.centerPosition.z + z;
-                                if (cmp.handleGrid[index].isAquired()) cmp.handleGrid[index].release();
-                                cmp.handleGrid[index] = cmp.accessor->acquire(id);
+                                i32v3 chunkPos(cmp.centerPosition.x + x,
+                                               cmp.centerPosition.y + y,
+                                               cmp.centerPosition.z + z);
+                                // TODO(Ben): Sort
+                                cmp.handleGrid[index] = submitAndConnect(cmp, chunkPos);
                             }
                         }
                     }
@@ -106,7 +128,7 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
                     p[i] -= cmp.width;
                 }
             }
-            cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)].release();
+            releaseAndDisconnect(cmp, cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)]);
         }
         // Acquire
         for (auto& o : cmp.acquireOffsets) {
@@ -122,15 +144,11 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
                     p[i] -= cmp.width;
                 }
             }
-            ChunkID id;
             i32v3 off;
             off[axis1] = o.x;
             off[axis2] = o.y;
             off[axis3] = o.z;
-            id.x = cmp.centerPosition.x + off.x;
-            id.y = cmp.centerPosition.y + off.y;
-            id.z = cmp.centerPosition.z + off.z;
-            cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)] = cmp.accessor->acquire(id);
+            cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)] = submitAndConnect(cmp, cmp.centerPosition + off);
         }
 
         cmp.offset[axis1]++;
@@ -149,7 +167,7 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
                     p[i] -= cmp.width;
                 }
             }
-            cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)].release();
+            releaseAndDisconnect(cmp, cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)]);
         }
         // Acquire
         for (auto& o : cmp.acquireOffsets) {
@@ -165,15 +183,11 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
                     p[i] -= cmp.width;
                 }
             }
-            ChunkID id;
             i32v3 off;
             off[axis1] = -o.x;
             off[axis2] = o.y;
             off[axis3] = o.z;
-            id.x = cmp.centerPosition.x + off.x;
-            id.y = cmp.centerPosition.y + off.y;
-            id.z = cmp.centerPosition.z + off.z;
-            cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)] = cmp.accessor->acquire(id);
+            cmp.handleGrid[GET_INDEX(p.x, p.y, p.z)] = submitAndConnect(cmp, cmp.centerPosition + off);
         }
 
         cmp.offset[axis1]--;
@@ -183,10 +197,63 @@ void ChunkSphereComponentUpdater::shiftDirection(ChunkSphereComponent& cmp, int 
 
 #undef GET_INDEX
 
+ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& cmp, const i32v3& chunkPos) {
+    ChunkHandle h = cmp.chunkGrid->submitQuery(chunkPos, GEN_DONE, true)->chunk.acquire();
+    // TODO(Ben): meshableNeighbors
+    // Acquire the 26 neighbors
+    // TODO(Ben): Could optimize
+    ChunkAccessor& accessor = cmp.chunkGrid->accessor;
+    { // Left
+        ChunkID id = h.getID();
+        id.x--;
+        h->left = accessor.acquire(id);
+    }
+    { // Right
+        ChunkID id = h.getID();
+        id.x++;
+        h->right = accessor.acquire(id);
+    }
+    { // Bottom
+        ChunkID id = h.getID();
+        id.y--;
+        h->bottom = accessor.acquire(id);
+    }
+    { // Top
+        ChunkID id = h.getID();
+        id.y++;
+        h->top = accessor.acquire(id);
+    }
+    { // Back
+        ChunkID id = h.getID();
+        id.z--;
+        h->back = accessor.acquire(id);
+    }
+    { // Front
+        ChunkID id = h.getID();
+        id.z++;
+        h->front = accessor.acquire(id);
+    }
+    cmp.chunkGrid->onNeighborsAcquire(h);
+    return std::move(h);
+
+#undef GET_HALF
+}
+
+void ChunkSphereComponentUpdater::releaseAndDisconnect(ChunkSphereComponent& cmp, ChunkHandle& h) {
+    h->left.release();
+    h->right.release();
+    h->back.release();
+    h->front.release();
+    h->bottom.release();
+    h->top.release();
+    cmp.chunkGrid->onNeighborsRelease(h);
+    h.release();
+}
+
 void ChunkSphereComponentUpdater::releaseHandles(ChunkSphereComponent& cmp) {
     if (cmp.handleGrid) {
         for (int i = 0; i < cmp.size; i++) {
-            if (cmp.handleGrid[i].isAquired()) cmp.handleGrid[i].release();
+            if (cmp.handleGrid[i].isAquired()) releaseAndDisconnect(cmp, cmp.handleGrid[i]);
         }
         delete[] cmp.handleGrid;
         cmp.handleGrid = nullptr;
@@ -207,11 +274,11 @@ void ChunkSphereComponentUpdater::initSphere(ChunkSphereComponent& cmp) {
                 // Check if its in range
                 if (x * x + y * y + z * z <= radius2) {
                     int index = (y + cmp.radius) * cmp.layer + (z + cmp.radius) * cmp.width + (x + cmp.radius);
-                    ChunkID id;
-                    id.x = cmp.centerPosition.x + x;
-                    id.y = cmp.centerPosition.y + y;
-                    id.z = cmp.centerPosition.z + z;
-                    cmp.handleGrid[index] = cmp.accessor->acquire(id);
+                    i32v3 chunkPos(cmp.centerPosition.x + x,
+                                   cmp.centerPosition.y + y,
+                                   cmp.centerPosition.z + z);
+                    // TODO(Ben): Sort
+                    cmp.handleGrid[index] = submitAndConnect(cmp, chunkPos);
                 }
             }
         }

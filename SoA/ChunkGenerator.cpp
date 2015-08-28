@@ -4,11 +4,14 @@
 #include "ChunkAllocator.h"
 #include "Chunk.h"
 #include "ChunkHandle.h"
+#include "ChunkGrid.h"
 
 void ChunkGenerator::init(vcore::ThreadPool<WorkerData>* threadPool,
-                          PlanetGenData* genData) {
+                          PlanetGenData* genData,
+                          ChunkGrid* grid) {
     m_threadPool = threadPool;
     m_proceduralGenerator.init(genData);
+    m_grid = grid;
 }
 
 void ChunkGenerator::submitQuery(ChunkQuery* query) {
@@ -47,7 +50,7 @@ void ChunkGenerator::submitQuery(ChunkQuery* query) {
     }
 }
 
-void ChunkGenerator::onQueryFinish(ChunkQuery* query) {
+void ChunkGenerator::finishQuery(ChunkQuery* query) {
     m_finishedQueries.enqueue(query);
 }
 
@@ -60,6 +63,7 @@ void ChunkGenerator::update() {
         ChunkQuery* q = queries[i];
         Chunk& chunk = q->chunk;
         chunk.m_genQueryData.current = nullptr;
+        
         // Check if it was a heightmap gen
         if (chunk.gridData->isLoading) {
             chunk.gridData->isLoaded = true;
@@ -81,6 +85,8 @@ void ChunkGenerator::update() {
                 if (q2->shouldRelease) q2->release();
             }
             std::vector<ChunkQuery*>().swap(chunk.m_genQueryData.pending);
+            // Notify listeners that this chunk is finished
+            onGenFinish(q->chunk, q->genLevel);
             q->chunk.release();
             if (q->shouldRelease) q->release();
         } else {
@@ -88,6 +94,7 @@ void ChunkGenerator::update() {
             for (size_t i = 0; i < chunk.m_genQueryData.pending.size();) {
                 auto q2 = chunk.m_genQueryData.pending[i];
                 if (q2->genLevel <= chunk.genLevel) {
+                    // TODO(Ben): This looks wrong. We don't remove from pending.
                     q2->m_isFinished = true;
                     q2->m_cond.notify_one();
                     chunk.isAccessible = true;
@@ -108,6 +115,8 @@ void ChunkGenerator::update() {
                 chunk.m_genQueryData.current = q;
                 m_threadPool->addTask(&q->genTask);
             }
+            // Notify listeners that this chunk is finished
+            onGenFinish(q->chunk, q->genLevel);
             q->chunk.release();
             if (q->shouldRelease) q->release();
         }

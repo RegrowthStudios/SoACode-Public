@@ -41,7 +41,7 @@ void TestDeferredScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
-    m_eyePos = glm::vec3(0, 0, 4);
+    m_eyePos = f32v3(0, 0, 4);
     buildGeometry();
     buildLightMaps();
 
@@ -108,7 +108,7 @@ void TestDeferredScreen::onExit(const vui::GameTime& gameTime) {
 
 void TestDeferredScreen::update(const vui::GameTime& gameTime) {
     // Empty
-    glm::vec4 rotated = glm::vec4(m_eyePos, 1) * glm::rotate(glm::mat4(), (float)(10 * gameTime.elapsed), glm::vec3(0, 1, 0));
+    f32v4 rotated = f32v4(m_eyePos, 1) * vmath::rotate(f32m4(), (float)(10 * gameTime.elapsed), f32v3(0, 1, 0));
     m_eyePos.x = rotated.x;
     m_eyePos.y = rotated.y;
     m_eyePos.z = rotated.z;
@@ -126,8 +126,8 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
     m_deferredPrograms.clear.use();
     m_quad.draw();
     
-    f32m4 mVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(m_eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
-    f32m4 mVPInv = glm::inverse(mVP);
+    f32m4 mVP = vmath::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * vmath::lookAt(m_eyePos, f32v3(0, 0, 0), f32v3(0, 1, 0));
+    f32m4 mVPInv = vmath::inverse(mVP);
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
@@ -145,20 +145,20 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_inds);
 
-    f32m4 mW = glm::translate(f32m4(1.0f), f32v3(-1.3f, -1, 0));
-    f32m3 mWIT = f32m3(glm::transpose(glm::inverse(mW)));
+    f32m4 mW = vmath::translate(f32m4(1.0f), f32v3(-1.3f, -1, 0));
+    f32m3 mWIT = f32m3(vmath::transpose(vmath::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
-    mW = glm::translate(f32m4(1.0f), f32v3(1.3f, 1, 0));
-    mWIT = f32m3(glm::transpose(glm::inverse(mW)));
+    mW = vmath::translate(f32m4(1.0f), f32v3(1.3f, 1, 0));
+    mWIT = f32m3(vmath::transpose(vmath::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
-    mW = glm::translate(f32m4(1.0f), f32v3(0, 0, -2));
-    mWIT = f32m3(glm::transpose(glm::inverse(mW)));
+    mW = vmath::translate(f32m4(1.0f), f32v3(0, 0, -2));
+    mWIT = f32m3(vmath::transpose(vmath::inverse(mW)));
     glUniformMatrix4fv(progGeo.getUniform("unWorld"), 1, false, (f32*)&mW[0][0]);
     glUniformMatrix3fv(progGeo.getUniform("unWorldIT"), 1, false, (f32*)&mWIT[0][0]);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
@@ -211,7 +211,7 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
         //    //f32v3(1.0, 0.0, 1.0)
         //};
         //for (size_t i = 0; i < NUM_LIGHTS; i++) {
-        //    f32v3 lightDir = glm::normalize(lightDirs[i]);
+        //    f32v3 lightDir = vmath::normalize(lightDirs[i]);
         //    glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
         //    f32v3 lightColor = lightColors[i];
         //    glUniform3f(progLight.getUniform("unLightIntensity"), lightColor.x, lightColor.y, lightColor.z);
@@ -243,7 +243,7 @@ void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
             f32v3(1.0, 0.0, 1.0)
         };
         for (size_t i = 0; i < NUM_LIGHTS; i++) {
-            f32v3 lightDir = glm::normalize(lightDirs[i]);
+            f32v3 lightDir = vmath::normalize(lightDirs[i]);
             glUniform3f(progLight.getUniform("unLightDirection"), lightDir.x, lightDir.y, lightDir.z);
             f32v3 lightColor = lightColors[i];
             glUniform3f(progLight.getUniform("unLightColor"), lightColor.x, lightColor.y, lightColor.z);
@@ -298,10 +298,10 @@ void TestDeferredScreen::buildGeometry() {
             pos.x *= 2.0f;
             pos.z -= 0.5f;
             pos.z *= 2.0f;
-            pos.x = glm::sign(pos.x) * (sin(abs(pos.x) * 1.57079f));
-            pos.z = glm::sign(pos.z) * (sin(abs(pos.z) * 1.57079f));
+            pos.x = vmath::sign(pos.x) * (sin(abs(pos.x) * 1.57079f));
+            pos.z = vmath::sign(pos.z) * (sin(abs(pos.z) * 1.57079f));
 
-            f32 lp = glm::length(pos);
+            f32 lp = vmath::length(pos);
             if (lp < 0.00001) {
                 pos.y = 1.0f;
             } else {
@@ -312,10 +312,10 @@ void TestDeferredScreen::buildGeometry() {
             }
 
             verts[i].position = pos;
-            verts[i].normal = glm::normalize(verts[i].position);
+            verts[i].normal = vmath::normalize(verts[i].position);
             pos.y = -pos.y;
             verts[gridPoints + i].position = pos;
-            verts[gridPoints + i].normal = glm::normalize(verts[gridPoints + i].position);
+            verts[gridPoints + i].normal = vmath::normalize(verts[gridPoints + i].position);
             i++;
         }
     }

@@ -2,26 +2,23 @@
 #include "density.h"
 #include "VoxelMatrix.h"
 
-#include <glm/ext.hpp>
-using namespace glm;
-
 const VoxelMatrix* gMatrix;
 
 // ----------------------------------------------------------------------------
 
-float Sphere(const vec3& worldPosition, const vec3& origin, float radius) {
-    return length(worldPosition - origin) - radius;
+float Sphere(const f32v3& worldPosition, const f32v3& origin, float radius) {
+    return vmath::length(worldPosition - origin) - radius;
 }
 
 // ----------------------------------------------------------------------------
 
-float Cuboid(const vec3& worldPosition, const vec3& origin, const vec3& halfDimensions) {
-    const vec3& local_pos = worldPosition - origin;
-    const vec3& pos = local_pos;
+float Cuboid(const f32v3& worldPosition, const f32v3& origin, const f32v3& halfDimensions) {
+    const f32v3& local_pos = worldPosition - origin;
+    const f32v3& pos = local_pos;
 
-    const vec3& d = glm::abs(pos) - halfDimensions;
-    const float m = max(d.x, max(d.y, d.z));
-    return min(m, length(max(d, vec3(0.f))));
+    const f32v3& d = vmath::abs(pos) - halfDimensions;
+    const float m = vmath::max(d.x, vmath::max(d.y, d.z));
+    return vmath::min(m, vmath::length(vmath::max(d, f32v3(0.f))));
 }
 
 // ----------------------------------------------------------------------------
@@ -31,16 +28,16 @@ float FractalNoise(
     const float frequency,
     const float lacunarity,
     const float persistence,
-    const vec2& position) {
+    const f32v2& position) {
     const float SCALE = 1.f / 128.f;
-    vec2 p = position * SCALE;
+    f32v2 p = position * SCALE;
     float noise = 0.f;
 
     float amplitude = 1.f;
     p *= frequency;
 
     for (int i = 0; i < octaves; i++) {
-        noise += simplex(p) * amplitude;
+    //    noise += simplex(p) * amplitude;
         p *= lacunarity;
         amplitude *= persistence;
     }
@@ -51,8 +48,8 @@ float FractalNoise(
 
 // ----------------------------------------------------------------------------
 
-float Density_Func(const vec3& worldPosition) {
-    i32v3 pos(glm::round(worldPosition));
+float Density_Func(const f32v3& worldPosition) {
+    i32v3 pos(vmath::round(worldPosition));
     float rv = 0.0f;
     if (gMatrix->getColorAndCheckBounds(pos + i32v3(gMatrix->size.x / 2, gMatrix->size.y / 2, gMatrix->size.z / 2)).a != 0) {
         rv += 100.0f;
@@ -66,7 +63,7 @@ float Density_Func(const vec3& worldPosition) {
   //  const float terrain = worldPosition.y - (MAX_HEIGHT * noise);
 
   //  const float cube = Cuboid(worldPosition, vec3(-4., 10.f, -4.f), vec3(12.f));
-    const float sphere = Sphere(worldPosition, vec3(15.f, 2.5f, 1.f), 16.f);
+    const float sphere = Sphere(worldPosition, f32v3(15.f, 2.5f, 1.f), 16.f);
 
     return sphere + rv;
 }

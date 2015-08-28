@@ -89,7 +89,7 @@ inline void stepTowards(T& val, const T& target, const T& step) {
     }
 }
 
-/// Gets dot product with self, cheaper than glm::dot because less copy
+/// Gets dot product with self, cheaper than vmath::dot because less copy
 inline f32 selfDot(const f32v3& v) {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }

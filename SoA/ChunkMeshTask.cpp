@@ -13,18 +13,6 @@
 #include "VoxelUtils.h"
 
 void ChunkMeshTask::execute(WorkerData* workerData) {
-
-    // Make the mesh!
-    if (!chunk->hasCreatedMesh) {
-        ChunkMeshMessage msg;
-        msg.chunkID = chunk->getID();
-        msg.data = &chunk->m_voxelPosition;
-        msg.messageID = ChunkMeshMessageID::CREATE;
-
-        meshManager->sendMessage(msg);
-        chunk->hasCreatedMesh = true;
-    }
-
     // Mesh updates are accompanied by light updates // TODO(Ben): Seems wasteful.
     if (workerData->voxelLightEngine == nullptr) {
         workerData->voxelLightEngine = new VoxelLightEngine();
@@ -39,24 +27,22 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
         workerData->chunkMesher->init(blockPack);
     }
     // Prepare message
-    ChunkMeshMessage msg;
-    msg.messageID = ChunkMeshMessageID::UPDATE;
-    msg.chunkID = chunk->getID();
+    ChunkMeshUpdateMessage msg;
+    msg.chunkID = chunk.getID();
 
     // Pre-processing
     workerData->chunkMesher->prepareDataAsync(chunk, neighborHandles);
 
     // Create the actual mesh
-    msg.data = workerData->chunkMesher->createChunkMeshData(type);
+    msg.meshData = workerData->chunkMesher->createChunkMeshData(type);
 
     // Send it for update
     meshManager->sendMessage(msg);
 }
 
-void ChunkMeshTask::init(ChunkHandle ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
+void ChunkMeshTask::init(ChunkHandle& ch, MeshTaskType cType, const BlockPack* blockPack, ChunkMeshManager* meshManager) {
     type = cType;
-    chunk = ch;
-    chunk->queuedForMesh = true;
+    chunk = ch.acquire();
     this->blockPack = blockPack;
     this->meshManager = meshManager;
 }

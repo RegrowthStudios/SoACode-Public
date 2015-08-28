@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "TestDisplacementMappingScreen.h"
 
-#include <glm/gtx/transform.hpp>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/graphics/ImageIO.h>
@@ -180,7 +179,7 @@ void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
     m_program.use();
     //m_displacementScale = (sinf(gameTime.total * 4.0) * 0.5f + 0.5f) * 0.1f;
 
-    f32m4 unModelMatrix = glm::translate(0.0f, 0.0f, -3.0f - m_view.z) * glm::rotate(m_view.x, f32v3(1.0f, 0.0f, 0.0f)) * glm::rotate(m_view.y, f32v3(0.0f, 1.0f, 0.0f));
+    f32m4 unModelMatrix = vmath::translate(f32v3(0.0f, 0.0f, -3.0f - m_view.z)) * vmath::rotate(m_view.x, f32v3(1.0f, 0.0f, 0.0f)) * vmath::rotate(m_view.y, f32v3(0.0f, 1.0f, 0.0f));
     glUniformMatrix4fv(m_program.getUniform("unModelMatrix"), 1, false, (f32*)&unModelMatrix[0][0]);
     f32m4 unMVP = m_camera.getViewProjectionMatrix() * unModelMatrix;
     glUniformMatrix4fv(m_program.getUniform("unMVP"), 1, false, (f32*)&unMVP[0][0]);

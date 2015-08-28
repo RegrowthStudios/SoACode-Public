@@ -10,7 +10,6 @@
 #include "ChunkMesh.h"
 #include "BlockTexture.h"
 #include "Constants.h"
-#include "Rendering.h"
 #include "Item.h"
 
 #define GETFLAGS(a) ((a) >> 12)

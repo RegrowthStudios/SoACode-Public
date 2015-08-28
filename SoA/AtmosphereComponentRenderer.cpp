@@ -39,7 +39,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     setMatrixTranslation(WVP, -relCamPos);
     WVP = VP * WVP;
 
-    f32 camHeight = glm::length(relCamPos);
+    f32 camHeight = vmath::length(relCamPos);
     f32 camHeight2 = camHeight * camHeight;
 
     // Upload uniforms

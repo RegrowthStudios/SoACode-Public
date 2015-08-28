@@ -1,6 +1,7 @@
 #pragma once
 #include "Vertex.h"
 #include "BlockTextureMethods.h"
+#include "ChunkHandle.h"
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/gtypes.h>
 
@@ -98,8 +99,6 @@ public:
         vaoID(0), transVaoID(0),
         cutoutVaoID(0), waterVaoID(0) {}
 
-    typedef ui32 ID;
-
     ChunkMeshRenderData renderData;
     union {
         struct {
@@ -123,12 +122,13 @@ public:
     f64 distance2 = 32.0;
     f64v3 position;
     ui32 activeMeshesIndex = ACTIVE_MESH_INDEX_NONE; ///< Index into active meshes array
+    ui32 updateVersion;
     bool inFrustum = false;
     bool needsSort = true;
-    ID id;
+    ChunkID id;
 
     //*** Transparency info for sorting ***
     VGIndexBuffer transIndexID = 0;
-    std::vector <i8v3> transQuadPositions;
-    std::vector <ui32> transQuadIndices;
+    std::vector<i8v3> transQuadPositions;
+    std::vector<ui32> transQuadIndices;
 };

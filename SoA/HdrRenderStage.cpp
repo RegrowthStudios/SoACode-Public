@@ -7,7 +7,6 @@
 #include "ChunkMeshManager.h"
 #include "ChunkRenderer.h"
 #include "GameRenderParams.h"
-#include "MeshManager.h"
 #include "SoaOptions.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
@@ -55,7 +54,7 @@ void HdrRenderStage::render(const Camera* camera /*= nullptr*/) {
     glUniform1f(program->getUniform("unGamma"), 1.0f / soaOptions.get(OPT_GAMMA).value.f);
     glUniform1f(program->getUniform("unExposure"), soaOptions.get(OPT_HDR_EXPOSURE).value.f);
     if (soaOptions.get(OPT_MOTION_BLUR).value.i > 0) {
-        f32m4 newInverseVP = glm::inverse(vp);
+        f32m4 newInverseVP = vmath::inverse(vp);
         glUniform1i(program->getUniform("unTexDepth"), 1);
         glUniformMatrix4fv(program->getUniform("unVPPrev"), 1, GL_FALSE, &oldVP[0][0]);
         glUniformMatrix4fv(program->getUniform("unVPInv"), 1, GL_FALSE, &newInverseVP[0][0]);

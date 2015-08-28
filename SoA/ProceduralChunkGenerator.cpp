@@ -36,6 +36,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
     size_t tertiaryDataSize = 0;
 
     ui16 c = 0;
+    bool allAir = true;
 
     ui32 layerIndices[CHUNK_LAYER];
 
@@ -59,6 +60,7 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             if (depth < 0) {
                 layerIndices[c] = 0;
             } else {
+                allAir = false;
                 layerIndices[c] = getBlockLayerIndex(depth);
             }
             BlockLayer& layer = blockLayers[layerIndices[c]];
@@ -84,6 +86,16 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 }
             }
         }
+    }
+
+    // Early exit optimization for solid air chunks
+    if (allAir && blockDataSize == 1 && tertiaryDataSize == 1) {
+        // Set up interval trees
+        blockDataArray[0].length = CHUNK_SIZE;
+        tertiaryDataArray[0].length = CHUNK_SIZE;
+        chunk->blocks.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockDataArray, blockDataSize);
+        chunk->tertiary.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataArray, tertiaryDataSize);
+        return;
     }
 
     // All the rest of the layers.

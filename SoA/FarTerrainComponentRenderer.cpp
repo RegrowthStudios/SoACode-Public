@@ -37,8 +37,8 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
     f64v3 relativeCameraPos = camera->getPosition() * KM_PER_VOXEL;
 
     // Calculate relative light position
-    f64v3 relLightDir = glm::inverse(arComponent->currentOrientation) * lightDir;
-    relLightDir = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * relLightDir;
+    f64v3 relLightDir = vmath::inverse(arComponent->currentOrientation) * lightDir;
+    relLightDir = vmath::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(pos, cmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * relLightDir;
     
     // Sort meshes
     cmp.meshManager->sortFarMeshes(relativeCameraPos);
@@ -47,7 +47,7 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
         cmp.meshManager->drawFarMeshes(relativeCameraPos, camera,
                                        m_farTerrainProgram, m_farWaterProgram,
                                        f32v3(relLightDir),
-                                       glm::min(cmp.alpha, 1.0f),
+                                       vmath::min(cmp.alpha, 1.0f),
                                        (f32)cmp.planetGenData->radius,
                                        zCoef,
                                        aComponent,

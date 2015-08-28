@@ -95,7 +95,7 @@ f64v3 VoxelSpaceConversions::voxelToWorldNormalized(const VoxelPosition2D& faceP
     worldPosition[axisMapping.y] = voxelWorldRadius * FACE_Y_MULTS[facePosition.face];
     worldPosition[axisMapping.z] = facePosition.pos.y * mults.y;
 
-    return glm::normalize(worldPosition);
+    return vmath::normalize(worldPosition);
 }
 f64v3 VoxelSpaceConversions::voxelToWorldNormalized(const VoxelPosition3D& facePosition, f64 voxelWorldRadius) {
     const i32v3& axisMapping = VOXEL_TO_WORLD[facePosition.face];
@@ -106,7 +106,7 @@ f64v3 VoxelSpaceConversions::voxelToWorldNormalized(const VoxelPosition3D& faceP
     worldPosition[axisMapping.y] = voxelWorldRadius * FACE_Y_MULTS[facePosition.face];
     worldPosition[axisMapping.z] = facePosition.pos.z * mults.y;
 
-    return glm::normalize(worldPosition);
+    return vmath::normalize(worldPosition);
 }
 
 f64v3 VoxelSpaceConversions::chunkToWorldNormalized(const ChunkPosition2D& facePosition, f64 voxelWorldRadius) {
@@ -119,8 +119,8 @@ f64v3 VoxelSpaceConversions::chunkToWorldNormalized(const ChunkPosition3D& faceP
 VoxelPosition3D computeGridPosition(const f32v3& hitpoint, f32 radius) {
     f32v3 cornerPos[2];
     f32 min;
-    f32v3 start = glm::normalize(hitpoint) * 2.0f * radius;
-    f32v3 dir = -glm::normalize(hitpoint);
+    f32v3 start = vmath::normalize(hitpoint) * 2.0f * radius;
+    f32v3 dir = -vmath::normalize(hitpoint);
     cornerPos[0] = f32v3(-radius, -radius, -radius);
     cornerPos[1] = f32v3(radius, radius, radius);
     if (!IntersectionUtils::boxIntersect(cornerPos, dir,
@@ -165,18 +165,18 @@ VoxelPosition3D computeGridPosition(const f32v3& hitpoint, f32 radius) {
 }
 
 VoxelPosition3D VoxelSpaceConversions::worldToVoxel(const f64v3& worldPosition, f64 voxelWorldRadius) {
-    f64v3 wpoint = glm::normalize(worldPosition) * voxelWorldRadius * 2.0;
+    f64v3 wpoint = vmath::normalize(worldPosition) * voxelWorldRadius * 2.0;
 
     // Compute the intersection
     f32v3 normal, hitpoint;
     f32 distance;
 
     VoxelPosition3D gridPos;
-    if (IntersectionUtils::sphereIntersect(-f32v3(glm::normalize(wpoint)), f32v3(wpoint), f32v3(0.0f), (f32)voxelWorldRadius, hitpoint, distance, normal)) {
+    if (IntersectionUtils::sphereIntersect(-f32v3(vmath::normalize(wpoint)), f32v3(wpoint), f32v3(0.0f), (f32)voxelWorldRadius, hitpoint, distance, normal)) {
      
         // Compute face and grid position
         gridPos = computeGridPosition(hitpoint, (f32)voxelWorldRadius);
-        gridPos.pos.y = glm::length(worldPosition) - voxelWorldRadius;
+        gridPos.pos.y = vmath::length(worldPosition) - voxelWorldRadius;
     }
 
     return gridPos;

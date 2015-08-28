@@ -27,6 +27,7 @@
 #include "ChunkHandle.h"
 
 class ChunkGrid {
+    friend class ChunkMeshManager;
 public:
     void init(WorldCubeFace face,
               OPT vcore::ThreadPool<WorkerData>* threadPool,
@@ -34,9 +35,6 @@ public:
               PlanetGenData* genData,
               PagedChunkAllocator* allocator);
     void dispose();
-
-    ChunkHandle getChunk(const f64v3& voxelPos);
-    ChunkHandle getChunk(const i32v3& chunkPos);
 
     /// Will generate chunk if it doesn't exist
     /// @param gridPos: The position of the chunk to get.
@@ -53,28 +51,32 @@ public:
     // Processes chunk queries and set active chunks
     void update();
 
-    void acquireNeighbors(ChunkHandle chunk);
-    void releaseNeighbors(ChunkHandle chunk);
+    // Locks and gets active chunks. Must call releaseActiveChunks() later.
+    const std::vector<ChunkHandle>& acquireActiveChunks() { 
+        m_lckActiveChunks.lock(); 
+        return m_activeChunks;
+    }
+    void releaseActiveChunks() { m_lckActiveChunks.unlock(); }
 
-    const std::vector<ChunkHandle>& getActiveChunks() const { return m_activeChunks; }
+    ChunkGenerator* generators = nullptr;
+    ui32 generatorsPerRow;
+    ui32 numGenerators;
 
     ChunkAccessor accessor;
+
+    Event<ChunkHandle&> onNeighborsAcquire;
+    Event<ChunkHandle&> onNeighborsRelease;
 private:
     /************************************************************************/
     /* Event Handlers                                                       */
     /************************************************************************/
-    void onAccessorAdd(Sender s, ChunkHandle chunk);
-    void onAccessorRemove(Sender s, ChunkHandle chunk);
+    void onAccessorAdd(Sender s, ChunkHandle& chunk);
+    void onAccessorRemove(Sender s, ChunkHandle& chunk);
 
     moodycamel::ConcurrentQueue<ChunkQuery*> m_queries;
 
-    ChunkGenerator* m_generators = nullptr;
-
+    std::mutex m_lckActiveChunks;
     std::vector<ChunkHandle> m_activeChunks;
-
-    // To prevent needing lock on m_activeChunks;
-    std::mutex m_lckAddOrRemove;
-    std::vector<std::pair<ChunkHandle, bool /*true = add*/>> m_activeChunksToAddOrRemove;
 
     // TODO(Ben): Compare to std::map performance
     std::mutex m_lckGridData;
@@ -85,8 +87,7 @@ private:
     std::mutex m_lckQueryRecycler;
     PtrRecycler<ChunkQuery> m_queryRecycler;
 
-    ui32 m_generatorsPerRow;
-    ui32 m_numGenerators;
+
     WorldCubeFace m_face = FACE_NONE;
 };
 

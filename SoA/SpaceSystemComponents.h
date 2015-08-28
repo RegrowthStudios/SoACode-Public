@@ -20,6 +20,11 @@
 #include <Vorb/graphics/gtypes.h>
 #include <concurrentqueue.h>
 
+#include <Vorb/io/Keg.h>
+#include <Vorb/ecs/ECS.h>
+#include <Vorb/ecs/ComponentTable.hpp>
+#include <Vorb/script/Function.h>
+
 #include "Constants.h"
 #include "SpaceSystemLoadStructs.h"
 #include "VoxPool.h"
@@ -30,7 +35,6 @@
 class BlockPack;
 class ChunkIOManager;
 class ChunkManager;
-class ChunkMeshManager;
 class FarTerrainPatch;
 class PagedChunkAllocator;
 class ParticleEngine;
@@ -69,6 +73,8 @@ struct AtmosphereComponent {
                                  1.0f / powf(0.57f, 4.0f),
                                  1.0f / powf(0.475f, 4.0f));
 };
+typedef vecs::ComponentTable<AtmosphereComponent> AtmosphereComponentTable;
+KEG_TYPE_DECL(AtmosphereComponent);
 
 struct CloudsComponent {
     vecs::ComponentID namePositionComponent = 0;
@@ -78,6 +84,9 @@ struct CloudsComponent {
     f32v3 scale;
     float density;
 };
+typedef vecs::ComponentTable<CloudsComponent> CloudsComponentTable;
+KEG_TYPE_DECL(CloudsComponent);
+
 
 struct AxisRotationComponent {
     f64q axisOrientation; ///< Axis of rotation
@@ -87,17 +96,23 @@ struct AxisRotationComponent {
     f64 currentRotation = 0.0; ///< Current rotation about axis in radians
     f32 tilt = 0.0f;
 };
+typedef vecs::ComponentTable<AxisRotationComponent> AxisRotationComponentTable;
+KEG_TYPE_DECL(AxisRotationComponent);
 
 struct NamePositionComponent {
     f64v3 position = f64v3(0.0); ///< Position in space, in KM
     nString name; ///< Name of the entity
 };
+typedef vecs::ComponentTable<NamePositionComponent> NamePositionComponentTable;
+KEG_TYPE_DECL(NamePositionComponent);
 
 struct SpaceLightComponent {
     vecs::ComponentID npID; ///< Component ID of parent NamePosition component
     color3 color; ///< Color of the light
     f32 intensity; ///< Intensity of the light
 };
+typedef vecs::ComponentTable<SpaceLightComponent> SpaceLightComponentTable;
+KEG_TYPE_DECL(SpaceLightComponent);
 
 struct OrbitComponent {
     f64 a = 0.0; ///< Semi-major of the ellipse in KM
@@ -126,6 +141,7 @@ struct OrbitComponent {
     SpaceObjectType type; ///< Type of object
     bool isCalculated = false; ///< True when orbit has been calculated
 };
+KEG_TYPE_DECL(OrbitComponent);
 
 struct PlanetRing {
     f32 innerRadius;
@@ -138,17 +154,20 @@ struct PlanetRingsComponent {
     vecs::ComponentID namePositionComponent;
     std::vector<PlanetRing> rings;
 };
+typedef vecs::ComponentTable<PlanetRingsComponent> PlanetRingsComponentTable;
+KEG_TYPE_DECL(PlanetRingsComponent);
 
 struct SphericalGravityComponent {
     vecs::ComponentID namePositionComponent; ///< Component ID of parent NamePosition component
     f64 radius = 0.0; ///< Radius in KM
     f64 mass = 0.0; ///< Mass in KG
 };
+typedef vecs::ComponentTable<SphericalGravityComponent> SphericalGravityComponentTable;
+KEG_TYPE_DECL(SphericalGravityComponent);
 
 struct SphericalVoxelComponent {
     ChunkGrid* chunkGrids = nullptr; // should be size 6, one for each face
     ChunkIOManager* chunkIo = nullptr;
-    ChunkMeshManager* chunkMeshManager = nullptr;
 
     SphericalHeightmapGenerator* generator = nullptr;
 
@@ -172,6 +191,7 @@ struct SphericalVoxelComponent {
     int refCount = 1;
     ui32 updateCount = 0;
 };
+KEG_TYPE_DECL(SphericalVoxelComponent);
 
 struct SphericalTerrainComponent {
     vecs::ComponentID namePositionComponent = 0;
@@ -196,6 +216,8 @@ struct SphericalTerrainComponent {
     bool isFaceTransitioning = false;
     volatile bool needsFaceTransitionAnimation = false;
 };
+KEG_TYPE_DECL(SphericalTerrainComponent);
+
 
 struct GasGiantComponent {
     vecs::ComponentID namePositionComponent = 0;
@@ -205,6 +227,8 @@ struct GasGiantComponent {
     nString colorMapPath = "";
     Array<PlanetRingProperties> rings;
 };
+typedef vecs::ComponentTable<GasGiantComponent> GasGiantComponentTable;
+KEG_TYPE_DECL(GasGiantComponent);
 
 struct StarComponent {
     vecs::ComponentID namePositionComponent = 0;
@@ -215,6 +239,8 @@ struct StarComponent {
     VGQuery occlusionQuery[2]; ///< TODO(Ben): Delete this
     f32 visibility = 1.0;
 };
+typedef vecs::ComponentTable<StarComponent> StarComponentTable;
+KEG_TYPE_DECL(StarComponent);
 
 struct FarTerrainComponent {
     TerrainRpcDispatcher* rpcDispatcher = nullptr;
@@ -235,5 +261,6 @@ struct FarTerrainComponent {
     f32 alpha = 1.0f; ///< Alpha blending coefficient
     bool shouldFade = false; ///< When this is true we fade out
 };
+KEG_TYPE_DECL(FarTerrainComponent);
 
 #endif // SpaceSystemComponents_h__

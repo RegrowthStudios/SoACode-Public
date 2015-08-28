@@ -8,11 +8,35 @@ const ui32 HANDLE_STATE_ACQUIRING = 1;
 const ui32 HANDLE_STATE_ALIVE = 2;
 const ui32 HANDLE_STATE_FREEING = 3;
 
+ChunkHandle::ChunkHandle(const ChunkHandle& other) :
+    m_acquired(false),
+    m_accessor(other.m_acquired ? other.m_chunk->accessor : other.m_accessor),
+    m_id(other.m_id) {
+    // Empty
+}
+ChunkHandle& ChunkHandle::operator= (const ChunkHandle& other) {
+    m_acquired = false;
+    m_accessor = other.m_acquired ? other.m_chunk->accessor : other.m_accessor;
+    m_id = other.m_id;
+
+    return *this;
+}
+
+void ChunkHandle::acquireSelf() {
+    if (!m_acquired) m_chunk->accessor->acquire(*this);
+}
 ChunkHandle ChunkHandle::acquire() {
-    return m_chunk->accessor->acquire(*this);
+    if (m_acquired) {
+        ChunkHandle h(m_chunk->accessor->acquire(*this));
+        h.m_acquired = true;
+        h.m_chunk = m_chunk;
+        return std::move(h);
+    } else {
+        return std::move(m_accessor->acquire(m_id));
+    }
 }
 void ChunkHandle::release() {
-    m_chunk->accessor->release(*this);
+    if (m_acquired) m_chunk->accessor->release(*this);
 }
 
 void ChunkAccessor::init(PagedChunkAllocator* allocator) {
@@ -100,18 +124,26 @@ RETEST_CHUNK_LIVELINESS:
 
 ChunkHandle ChunkAccessor::acquire(ChunkID id) {
     bool wasOld;
-    ChunkHandle chunk = safeAdd(id, wasOld);
-    return wasOld ? acquire(chunk) : chunk;
+    ChunkHandle chunk = std::move(safeAdd(id, wasOld));
+
+    if (wasOld) return std::move(acquire(chunk));
+
+    chunk.m_acquired = true;
+    return std::move(chunk);
 }
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     std::lock_guard<std::mutex> lChunk(chunk->m_handleMutex);
     if (chunk->m_handleRefCount == 0) {
         // We need to re-add the chunk
         bool wasOld = false;
-        return safeAdd(chunk->m_id, wasOld);
+        chunk.m_acquired = true;
+        return std::move(safeAdd(chunk.m_id, wasOld));
     } else {
-        chunk->m_handleRefCount++;
-        return chunk;
+        ChunkHandle retValue = {};
+        memcpy(&retValue, &chunk, sizeof(ChunkHandle));
+        retValue->m_handleRefCount++;
+        retValue.m_acquired = true;
+        return std::move(retValue);
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
@@ -121,7 +153,8 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
         // We need to remove the chunk
         safeRemove(chunk);
     }
-    chunk.m_chunk = nullptr;
+    chunk.m_acquired = false;
+    chunk.m_accessor = this;
 }
 
 #endif
@@ -131,9 +164,9 @@ ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     auto& it = m_chunkLookup.find(id);
     if (it == m_chunkLookup.end()) {
         wasOld = false;
-        ChunkHandle h = {};
+        ChunkHandle& h = m_chunkLookup[id];
         h.m_chunk = m_allocator->alloc();
-        m_chunkLookup[id] = h;
+        h.m_id = id;
         h->m_id = id;
         h->accessor = this;
         h->m_handleState = HANDLE_STATE_ALIVE;
@@ -155,7 +188,7 @@ void ChunkAccessor::safeRemove(ChunkHandle& chunk) {
         chunk->accessor = nullptr;
 
         // TODO(Ben): Time based free?
-        m_chunkLookup.erase(chunk->m_id);
+        m_chunkLookup.erase(chunk.m_id);
     }
     // Fire event before deallocating
     onRemove(chunk);

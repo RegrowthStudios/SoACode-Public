@@ -15,9 +15,11 @@
 #ifndef ParkourComponentUpdater_h__
 #define ParkourComponentUpdater_h__
 
+class GameSystem;
+class SpaceSystem;
 class ParkourComponentUpdater {
 public:
-    
+    void update(GameSystem* gameSystem);
 };
 
 #endif // ParkourComponentUpdater_h__
