@@ -11,12 +11,12 @@ AccumulationTimer globalRenderAccumulationTimer; ///< for easy global benchmarki
 
 class Item *ObjectList[OBJECT_LIST_SIZE];
 
-Marker::Marker(const glm::dvec3 &Pos, nString Name, glm::vec3 Color) : pos(Pos), name(Name), dist(0.0)
+Marker::Marker(const f64v3 &Pos, nString Name, f32v3 Color) : pos(Pos), name(Name), dist(0.0)
 {
     // TODO(Ben): implement
 }
 
-void Marker::Draw(glm::mat4 &VP, const glm::dvec3 &playerPos)
+void Marker::Draw(f32m4 &VP, const f64v3 &playerPos)
 {
     // TODO(Ben): implement
 }

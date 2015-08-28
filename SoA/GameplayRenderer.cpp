@@ -305,10 +305,10 @@ void GameplayRenderer::render() {
             m_coloredQuadAlpha = 3.5f;
             m_increaseQuadAlpha = false;
         }
-      //  m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+      //  m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, vmath::min(m_coloredQuadAlpha, 1.0f)));
     } else if (m_coloredQuadAlpha > 0.0f) {
         static const float FADE_DEC = 0.01f;  
-   //     m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, glm::min(m_coloredQuadAlpha, 1.0f)));
+   //     m_coloredQuadRenderer.draw(m_commonState->quad, f32v4(0.0, 0.0, 0.0, vmath::min(m_coloredQuadAlpha, 1.0f)));
         m_coloredQuadAlpha -= FADE_DEC;
     }
 

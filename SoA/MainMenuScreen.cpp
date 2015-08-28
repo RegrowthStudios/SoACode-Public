@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "MainMenuScreen.h"
 
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\glm.hpp>
 #include <Vorb/sound/SoundEngine.h>
 #include <Vorb/sound/SoundListener.h>
 
@@ -226,13 +224,13 @@ void MainMenuScreen::newGame(const nString& fileName) {
 
     m_soaState->clientState.isNewGame = true;
     m_soaState->clientState.startSpacePos = m_mainMenuSystemViewer->getClickPos();
-    f64v3 normal = glm::normalize(m_soaState->clientState.startSpacePos);
+    f64v3 normal = vmath::normalize(m_soaState->clientState.startSpacePos);
     // Don't spawn underwater
-    if (glm::length(m_soaState->clientState.startSpacePos) < m_mainMenuSystemViewer->getTargetRadius()) {
+    if (vmath::length(m_soaState->clientState.startSpacePos) < m_mainMenuSystemViewer->getTargetRadius()) {
         m_soaState->clientState.startSpacePos = normal * m_mainMenuSystemViewer->getTargetRadius();
     }
     // Push out by 5 voxels
-    m_soaState->clientState.startSpacePos += glm::normalize(m_soaState->clientState.startSpacePos) * 5.0 * KM_PER_VOXEL;
+    m_soaState->clientState.startSpacePos += vmath::normalize(m_soaState->clientState.startSpacePos) * 5.0 * KM_PER_VOXEL;
 
     m_soaState->clientState.startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
     vecs::EntityID startingPlanet = m_soaState->clientState.startingPlanet;

@@ -5,8 +5,6 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/utils.h>
 
-#include <glm/gtx/quaternion.hpp>
-
 #include "Constants.h"
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"

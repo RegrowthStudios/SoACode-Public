@@ -6,8 +6,6 @@
 #include "soaUtils.h"
 #include "ShaderLoader.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/MeshGenerators.h>
 #include <Vorb/graphics/RasterizerState.h>
@@ -35,7 +33,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const AtmosphereComponent& aCmp) {
     m_program.use();
 
-    f64q invOrientation = glm::inverse(arComponent.currentOrientation);
+    f64q invOrientation = vmath::inverse(arComponent.currentOrientation);
     const f32v3 rotpos(invOrientation * f64v3(relCamPos));
     const f32v3 rotLightDir = f32v3(invOrientation * f64v3(lightDir));
     // Convert f64q to f32q
@@ -45,7 +43,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
     orientationF32.z = (f32)arComponent.currentOrientation.z;
     orientationF32.w = (f32)arComponent.currentOrientation.w;
     // Convert to matrix
-    f32m4 rotationMatrix = glm::toMat4(orientationF32);
+    f32m4 rotationMatrix = vmath::toMat4(orientationF32);
 
     // Create WVP matrix
     f32m4 WVP(1.0);
@@ -66,7 +64,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
     glUniform1f(m_program.getUniform("unZCoef"), zCoef);
 
     // Scattering
-    f32 camHeight = glm::length(rotpos);
+    f32 camHeight = vmath::length(rotpos);
     f32 camHeight2 = camHeight * camHeight;
     glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
 

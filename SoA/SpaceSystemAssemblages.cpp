@@ -19,8 +19,6 @@
 #include "GameManager.h"
 #include "PlanetGenData.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #define SEC_PER_HOUR 3600.0
 
 Event<SphericalVoxelComponent&, vecs::EntityID> SpaceSystemAssemblages::onAddSphericalVoxelComponent;
@@ -207,7 +205,7 @@ vecs::ComponentID SpaceSystemAssemblages::addPlanetRingsComponent(SpaceSystem* s
         r1.innerRadius = r2.innerRadius;
         r1.outerRadius = r2.outerRadius;
         r1.texturePath = r2.colorLookup;
-        r1.orientation = glm::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
+        r1.orientation = vmath::angleAxis((f64)r2.lNorth, f64v3(0.0, 1.0, 0.0)) * vmath::angleAxis((f64)r2.aTilt, f64v3(1.0, 0.0, 0.0));
     }
     return prCmpId;
 }
@@ -291,7 +289,7 @@ vecs::ComponentID SpaceSystemAssemblages::addAxisRotationComponent(SpaceSystem* 
     vecs::ComponentID arCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_AXISROTATION_NAME, entity);
     auto& arCmp = spaceSystem->axisRotation.get(arCmpId);
     arCmp.tilt = aTilt;
-    arCmp.axisOrientation = glm::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * glm::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
+    arCmp.axisOrientation = vmath::angleAxis((f64)lNorth, f64v3(0.0, 1.0, 0.0)) * vmath::angleAxis((f64)aTilt, f64v3(1.0, 0.0, 0.0));
     arCmp.currentRotation = startAngle;
     arCmp.period = rotationalPeriod;
     return arCmpId;

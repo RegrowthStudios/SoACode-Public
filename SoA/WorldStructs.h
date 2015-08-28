@@ -19,14 +19,14 @@ struct PlanetGenData;
 
 class FixedSizeBillboardVertex{
 public:
-    glm::vec3 pos;
+    f32v3 pos;
     GLubyte uv[2];
 };
 
 //TODO(Ben): Make this work again
 class Marker{
 public:
-    glm::dvec3 pos;
+    f64v3 pos;
     ColorRGBA8 color;
     int num;
     double dist;
@@ -35,8 +35,8 @@ public:
     vg::Texture distText;
     vg::Texture nameTex;
 
-    Marker(const glm::dvec3 &Pos, nString Name, const glm::vec3 Color);
-    void Draw(glm::mat4 &VP, const glm::dvec3 &playerPos);
+    Marker(const f64v3 &Pos, nString Name, const f32v3 Color);
+    void Draw(f32m4 &VP, const f64v3 &playerPos);
 };
 
 //flags
@@ -63,8 +63,8 @@ struct MineralData
 class BillboardVertex
 {
 public:
-    glm::vec3 pos;
-    glm::vec2 uvMult;
+    f32v3 pos;
+    f32v2 uvMult;
     GLubyte texUnit;
     GLubyte texID;
     GLubyte light[2];
@@ -89,8 +89,8 @@ public:
 class TreeVertex
 {
 public:
-    glm::vec2 pos; //8
-    glm::vec3 center; //20
+    f32v2 pos; //8
+    f32v3 center; //20
     GLubyte lr, lg, lb, size; //24
     GLubyte tr, tg, tb, ltex; //28
 };

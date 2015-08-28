@@ -17,9 +17,6 @@
 
 #include <iostream>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-
 TestStarScreen::TestStarScreen(const App* app) :
 IAppScreen<App>(app) {
     m_modPathResolver.init("Textures/TexturePacks/" + soaOptions.getStringOption("Texture Pack").defaultValue + "/",
@@ -82,7 +79,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-        m_eyeDist += -e.dy * 0.05 * glm::length(m_eyeDist);
+        m_eyeDist += -e.dy * 0.05 * m_eyeDist;
     });
     glEnable(GL_DEPTH_TEST);
 

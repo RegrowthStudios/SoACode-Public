@@ -27,17 +27,17 @@ const int QEF_SWEEPS = 4;
 
 // ----------------------------------------------------------------------------
 
-const ivec3 CHILD_MIN_OFFSETS[] =
+const i32v3 CHILD_MIN_OFFSETS[] =
 {
     // needs to match the vertMap from Dual Contouring impl
-    ivec3(0, 0, 0),
-    ivec3(0, 0, 1),
-    ivec3(0, 1, 0),
-    ivec3(0, 1, 1),
-    ivec3(1, 0, 0),
-    ivec3(1, 0, 1),
-    ivec3(1, 1, 0),
-    ivec3(1, 1, 1),
+    i32v3(0, 0, 0),
+    i32v3(0, 0, 1),
+    i32v3(0, 1, 0),
+    i32v3(0, 1, 1),
+    i32v3(1, 0, 0),
+    i32v3(1, 0, 1),
+    i32v3(1, 1, 0),
+    i32v3(1, 1, 1),
 };
 
 // ----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ OctreeNode* SimplifyOctree(OctreeNode* node, float threshold) {
     float error = qef.getError();
 
     // convert to glm vec3 for ease of use
-    vec3 position(qefPosition.x, qefPosition.y, qefPosition.z);
+    f32v3 position(qefPosition.x, qefPosition.y, qefPosition.z);
 
     // at this point the masspoint will actually be a sum, so divide to make it the average
     if (error > threshold) {
@@ -145,7 +145,7 @@ OctreeNode* SimplifyOctree(OctreeNode* node, float threshold) {
         position.y < node->min.y || position.y >(node->min.y + node->size) ||
         position.z < node->min.z || position.z >(node->min.z + node->size)) {
         const auto& mp = qef.getMassPoint();
-        position = vec3(mp.x, mp.y, mp.z);
+        position = f32v3(mp.x, mp.y, mp.z);
     }
 
     // change the node from an internal node to a 'psuedo leaf' node
@@ -160,7 +160,7 @@ OctreeNode* SimplifyOctree(OctreeNode* node, float threshold) {
         }
     }
 
-    drawInfo->averageNormal = vec3(0.f);
+    drawInfo->averageNormal = f32v3(0.f);
     for (int i = 0; i < 8; i++) {
         if (node->children[i]) {
             OctreeNode* child = node->children[i];
@@ -171,7 +171,7 @@ OctreeNode* SimplifyOctree(OctreeNode* node, float threshold) {
         }
     }
 
-    drawInfo->averageNormal = glm::normalize(drawInfo->averageNormal);
+    drawInfo->averageNormal = vmath::normalize(drawInfo->averageNormal);
     drawInfo->position = position;
     drawInfo->qef = qef.getData();
 
@@ -399,7 +399,7 @@ void ContourCellProc(OctreeNode* node, std::vector<ui32>& indexBuffer) {
 
 // ----------------------------------------------------------------------------
 
-vec3 ApproximateZeroCrossingPosition(const vec3& p0, const vec3& p1) {
+f32v3 ApproximateZeroCrossingPosition(const f32v3& p0, const f32v3& p1) {
     // approximate the zero crossing by finding the min value along the edge
     float minValue = 100000.f;
     float t = 0.f;
@@ -407,8 +407,8 @@ vec3 ApproximateZeroCrossingPosition(const vec3& p0, const vec3& p1) {
     const int steps = 8;
     const float increment = 1.f / (float)steps;
     while (currentT <= 1.f) {
-        const vec3 p = p0 + ((p1 - p0) * currentT);
-        const float density = glm::abs(Density_Func(p));
+        const f32v3 p = p0 + ((p1 - p0) * currentT);
+        const float density = vmath::abs(Density_Func(p));
         if (density < minValue) {
             minValue = density;
             t = currentT;
@@ -422,13 +422,13 @@ vec3 ApproximateZeroCrossingPosition(const vec3& p0, const vec3& p1) {
 
 // ----------------------------------------------------------------------------
 
-vec3 CalculateSurfaceNormal(const vec3& p) {
+f32v3 CalculateSurfaceNormal(const f32v3& p) {
     const float H = 0.001f;
-    const float dx = Density_Func(p + vec3(H, 0.f, 0.f)) - Density_Func(p - vec3(H, 0.f, 0.f));
-    const float dy = Density_Func(p + vec3(0.f, H, 0.f)) - Density_Func(p - vec3(0.f, H, 0.f));
-    const float dz = Density_Func(p + vec3(0.f, 0.f, H)) - Density_Func(p - vec3(0.f, 0.f, H));
+    const float dx = Density_Func(p + f32v3(H, 0.f, 0.f)) - Density_Func(p - f32v3(H, 0.f, 0.f));
+    const float dy = Density_Func(p + f32v3(0.f, H, 0.f)) - Density_Func(p - f32v3(0.f, H, 0.f));
+    const float dz = Density_Func(p + f32v3(0.f, 0.f, H)) - Density_Func(p - f32v3(0.f, 0.f, H));
 
-    return glm::normalize(vec3(dx, dy, dz));
+    return vmath::normalize(f32v3(dx, dy, dz));
 }
 
 // ----------------------------------------------------------------------------
@@ -440,8 +440,8 @@ OctreeNode* ConstructLeaf(OctreeNode* leaf) {
 
     int corners = 0;
     for (int i = 0; i < 8; i++) {
-        const ivec3 cornerPos = leaf->min + CHILD_MIN_OFFSETS[i];
-        const float density = Density_Func(vec3(cornerPos));
+        const i32v3 cornerPos = leaf->min + CHILD_MIN_OFFSETS[i];
+        const float density = Density_Func(f32v3(cornerPos));
         const int material = density < 0.f ? MATERIAL_SOLID : MATERIAL_AIR;
         corners |= (material << i);
     }
@@ -455,7 +455,7 @@ OctreeNode* ConstructLeaf(OctreeNode* leaf) {
     // otherwise the voxel contains the surface, so find the edge intersections
     const int MAX_CROSSINGS = 6;
     int edgeCount = 0;
-    vec3 averageNormal(0.f);
+    f32v3 averageNormal(0.f);
     svd::QefSolver qef;
 
     for (int i = 0; i < 12 && edgeCount < MAX_CROSSINGS; i++) {
@@ -471,10 +471,10 @@ OctreeNode* ConstructLeaf(OctreeNode* leaf) {
             continue;
         }
 
-        const vec3 p1 = vec3(leaf->min + CHILD_MIN_OFFSETS[c1]);
-        const vec3 p2 = vec3(leaf->min + CHILD_MIN_OFFSETS[c2]);
-        const vec3 p = ApproximateZeroCrossingPosition(p1, p2);
-        const vec3 n = CalculateSurfaceNormal(p);
+        const f32v3 p1 = f32v3(leaf->min + CHILD_MIN_OFFSETS[c1]);
+        const f32v3 p2 = f32v3(leaf->min + CHILD_MIN_OFFSETS[c2]);
+        const f32v3 p = ApproximateZeroCrossingPosition(p1, p2);
+        const f32v3 n = CalculateSurfaceNormal(p);
         qef.add(p.x, p.y, p.z, n.x, n.y, n.z);
 
         averageNormal += n;
@@ -486,19 +486,19 @@ OctreeNode* ConstructLeaf(OctreeNode* leaf) {
     qef.solve(qefPosition, QEF_ERROR, QEF_SWEEPS, QEF_ERROR);
 
     OctreeDrawInfo* drawInfo = new OctreeDrawInfo;
-    drawInfo->position = vec3(qefPosition.x, qefPosition.y, qefPosition.z);
+    drawInfo->position = f32v3(qefPosition.x, qefPosition.y, qefPosition.z);
     drawInfo->qef = qef.getData();
 
-    const vec3 min = vec3(leaf->min);
-    const vec3 max = vec3(leaf->min + ivec3(leaf->size));
+    const f32v3 min = f32v3(leaf->min);
+    const f32v3 max = f32v3(leaf->min + i32v3(leaf->size));
     if (drawInfo->position.x < min.x || drawInfo->position.x > max.x ||
         drawInfo->position.y < min.y || drawInfo->position.y > max.y ||
         drawInfo->position.z < min.z || drawInfo->position.z > max.z) {
         const auto& mp = qef.getMassPoint();
-        drawInfo->position = vec3(mp.x, mp.y, mp.z);
+        drawInfo->position = f32v3(mp.x, mp.y, mp.z);
     }
 
-    drawInfo->averageNormal = glm::normalize(averageNormal / (float)edgeCount);
+    drawInfo->averageNormal = vmath::normalize(averageNormal / (float)edgeCount);
     drawInfo->corners = corners;
 
     leaf->type = Node_Leaf;
@@ -541,7 +541,7 @@ OctreeNode* ConstructOctreeNodes(OctreeNode* node) {
 
 // -------------------------------------------------------------------------------
 
-OctreeNode* BuildOctree(const ivec3& min, const int size, const float threshold) {
+OctreeNode* BuildOctree(const i32v3& min, const int size, const float threshold) {
     OctreeNode* root = new OctreeNode;
     root->min = min;
     root->size = size;

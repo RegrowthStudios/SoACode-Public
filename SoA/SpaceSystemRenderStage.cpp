@@ -149,7 +149,7 @@ void SpaceSystemRenderStage::renderStarGlows(const f32v3& colorMult) {
                                 m_spaceCamera->getRight(), colorMult);
         // TODO(Ben): Don't do this twice?
         f32v3 starColor = m_starRenderer.calculateStarColor(it.first);
-        f32 intensity = (f32)glm::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
+        f32 intensity = (f32)vmath::min(m_starRenderer.calculateGlowSize(it.first, it.second), 1.0) * it.first.visibility;
         m_lensFlareRenderer.render(m_spaceCamera->getViewProjectionMatrix(), it.second,
                                    starColor * colorMult,
                                    m_spaceCamera->getAspectRatio(), 0.1f, intensity);
@@ -189,7 +189,7 @@ void SpaceSystemRenderStage::drawBodies() {
         SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
-        f32v3 lightDir(glm::normalize(lightPos - *pos));
+        f32v3 lightDir(vmath::normalize(lightPos - *pos));
     
         m_sphericalTerrainComponentRenderer.draw(cmp, m_spaceCamera,
                                                  lightDir,
@@ -211,7 +211,7 @@ void SpaceSystemRenderStage::drawBodies() {
         SpaceLightComponent* lightCmp = getBrightestLight(npCmp, lightPos);
         lightCache[it.first] = std::make_pair(lightPos, lightCmp);
 
-        f32v3 lightDir(glm::normalize(lightPos - *pos));
+        f32v3 lightDir(vmath::normalize(lightPos - *pos));
 
         m_gasGiantComponentRenderer.draw(ggCmp, it.first,
                                          m_spaceCamera->getViewProjectionMatrix(),
@@ -230,7 +230,7 @@ void SpaceSystemRenderStage::drawBodies() {
         pos = getBodyPosition(npCmp, it.first);
         f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
         auto& l = lightCache[it.first];
-        f32v3 lightDir(glm::normalize(l.first - *pos));
+        f32v3 lightDir(vmath::normalize(l.first - *pos));
         
         m_cloudsComponentRenderer.draw(cCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir,
                                        zCoef, l.second,
@@ -248,10 +248,10 @@ void SpaceSystemRenderStage::drawBodies() {
 
         f32v3 relCamPos(m_spaceCamera->getPosition() - *pos);
 
-        if (glm::length(relCamPos) < atCmp.radius * 11.0f) {
+        if (vmath::length(relCamPos) < atCmp.radius * 11.0f) {
             auto& l = lightCache[it.first];
 
-            f32v3 lightDir(glm::normalize(l.first - *pos));
+            f32v3 lightDir(vmath::normalize(l.first - *pos));
 
             m_atmosphereComponentRenderer.draw(atCmp, m_spaceCamera->getViewProjectionMatrix(), relCamPos, lightDir,
                                                zCoef, l.second);
@@ -273,7 +273,7 @@ void SpaceSystemRenderStage::drawBodies() {
 
         auto& l = lightCache[it.first];
 
-        f32v3 lightDir(glm::normalize(l.first - *pos));
+        f32v3 lightDir(vmath::normalize(l.first - *pos));
 
         // TODO(Ben): Worry about f64 to f32 precision loss
         m_ringsRenderer.draw(prCmp, it.first, m_spaceCamera->getViewProjectionMatrix(), relCamPos,
@@ -298,7 +298,7 @@ void SpaceSystemRenderStage::drawBodies() {
             pos = getBodyPosition(npCmp, it.first);
 
             auto& l = lightCache[it.first];
-            f64v3 lightDir = glm::normalize(l.first - *pos);
+            f64v3 lightDir = vmath::normalize(l.first - *pos);
 
             m_farTerrainComponentRenderer.draw(cmp, m_farTerrainCamera,
                                                lightDir,

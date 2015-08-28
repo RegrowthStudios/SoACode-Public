@@ -21,10 +21,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "qef.h"
 #include "VoxelModelMesh.h"
 
-#include <glm/glm.hpp>
-using glm::vec3;
-using glm::ivec3;
-
 // ----------------------------------------------------------------------------
 
 enum OctreeNodeType {
@@ -44,8 +40,8 @@ struct OctreeDrawInfo {
 
     int				index;
     int				corners;
-    vec3			position;
-    vec3			averageNormal;
+    f32v3			position;
+    f32v3			averageNormal;
     svd::QefData	qef;
 };
 
@@ -71,7 +67,7 @@ public:
     }
 
     OctreeNodeType	type;
-    ivec3			min;
+    i32v3			min;
     int				size;
     OctreeNode*		children[8];
     OctreeDrawInfo*	drawInfo;
@@ -79,7 +75,7 @@ public:
 
 // ----------------------------------------------------------------------------
 
-OctreeNode* BuildOctree(const ivec3& min, const int size, const float threshold);
+OctreeNode* BuildOctree(const i32v3& min, const int size, const float threshold);
 void DestroyOctree(OctreeNode* node);
 void GenerateMeshFromOctree(OctreeNode* node, std::vector<VoxelModelVertex>& vertexBuffer, std::vector<ui32>& indexBuffer);
 

@@ -7,17 +7,17 @@
 const static float GOLDEN_RATIO = 1.61803398875f;
 
 const static int NUM_CUBE_VERTICES = 8;
-const static glm::vec3 CUBE_VERTICES[8] = {
+const static f32v3 CUBE_VERTICES[8] = {
     //front
-    glm::vec3(-0.5f, -0.5f, 0.5f),
-    glm::vec3(0.5f, -0.5f, 0.5f),
-    glm::vec3(0.5f, 0.5f, 0.5f),
-    glm::vec3(-0.5f, 0.5f, 0.5f),
+    f32v3(-0.5f, -0.5f, 0.5f),
+    f32v3(0.5f, -0.5f, 0.5f),
+    f32v3(0.5f, 0.5f, 0.5f),
+    f32v3(-0.5f, 0.5f, 0.5f),
     // back
-    glm::vec3(-0.5f, -0.5f, -0.5f),
-    glm::vec3(0.5f, -0.5f, -0.5f),
-    glm::vec3(0.5f, 0.5f, -0.5f),
-    glm::vec3(-0.5f, 0.5f, -0.5f),
+    f32v3(-0.5f, -0.5f, -0.5f),
+    f32v3(0.5f, -0.5f, -0.5f),
+    f32v3(0.5f, 0.5f, -0.5f),
+    f32v3(-0.5f, 0.5f, -0.5f),
 };
 
 const static int NUM_CUBE_INDICES = 36;
@@ -52,26 +52,26 @@ public:
 
 class Icosphere {
 public:
-    glm::vec3 position;
+    f32v3 position;
     float radius;
-    glm::vec4 color;
+    f32v4 color;
     int lod;
     double timeTillDeletion; //ms
 };
 
 class Cube {
 public:
-    glm::vec3 position;
-    glm::vec3 size;
-    glm::vec4 color;
+    f32v3 position;
+    f32v3 size;
+    f32v4 color;
     double timeTillDeletion; //ms
 };
 
 class Line {
 public:
-    glm::vec3 position1;
-    glm::vec3 position2;
-    glm::vec4 color;
+    f32v3 position1;
+    f32v3 position2;
+    f32v4 color;
     double timeTillDeletion; //ms
 };
 
@@ -80,16 +80,16 @@ public:
     DebugRenderer();
     ~DebugRenderer();
 
-    void render(const glm::mat4 &vp, const glm::vec3& playerPos, const f32m4& w = f32m4(1.0));
+    void render(const f32m4 &vp, const f32v3& playerPos, const f32m4& w = f32m4(1.0));
 
-    void drawIcosphere(const glm::vec3 &position, const float radius, const glm::vec4 &color, const int lod, const double duration = -1.0f);
-    void drawCube(const glm::vec3 &position, const glm::vec3 &size, const glm::vec4 &color, const double duration = -1.0f);
-    void drawLine(const glm::vec3 &startPoint, const glm::vec3 &endPoint, const glm::vec4 &color, const double duration = -1.0f);
+    void drawIcosphere(const f32v3 &position, const float radius, const f32v4 &color, const int lod, const double duration = -1.0f);
+    void drawCube(const f32v3 &position, const f32v3 &size, const f32v4 &color, const double duration = -1.0f);
+    void drawLine(const f32v3 &startPoint, const f32v3 &endPoint, const f32v4 &color, const double duration = -1.0f);
 
 private:
-    void renderIcospheres(const f32m4& vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
-    void renderCubes(const f32m4& vp, const f32m4& w, const glm::vec3& playerPos, const double deltaT);
-    void renderLines(const f32m4& v, const f32m4& w, const glm::vec3& playerPosp, const double deltaT);
+    void renderIcospheres(const f32m4& vp, const f32m4& w, const f32v3& playerPos, const double deltaT);
+    void renderCubes(const f32m4& vp, const f32m4& w, const f32v3& playerPos, const double deltaT);
+    void renderLines(const f32m4& v, const f32m4& w, const f32v3& playerPosp, const double deltaT);
 
     void createIcosphere(const int lod);
 

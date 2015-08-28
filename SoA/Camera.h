@@ -38,7 +38,7 @@ public:
     f32v3 getPickRay(const f32v2& ndcScreenPos) const;
 
     //getters
-    const glm::dvec3& getPosition() const { return m_position; }
+    const f64v3& getPosition() const { return m_position; }
     const f32v3& getDirection() const { return m_direction; }
     const f32v3& getRight() const { return m_right; }
     const f32v3& getUp() const { return m_up; }

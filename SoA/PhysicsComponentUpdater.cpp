@@ -32,7 +32,7 @@ void PhysicsComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
 }
 
 f64v3 PhysicsComponentUpdater::calculateGravityAcceleration(f64v3 relativePosition, f64 mass) {
-    f64 dist2 = glm::dot(relativePosition, relativePosition); // Get distance^2
+    f64 dist2 = vmath::dot(relativePosition, relativePosition); // Get distance^2
     relativePosition /= sqrt(dist2); // Normalize position
     f64 fgrav = M_G * mass / (dist2 * M_PER_KM * M_PER_KM); // Calculate force
     return relativePosition * ((fgrav / M_PER_KM) / FPS); // Return acceleration vector
@@ -102,7 +102,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
     if (spCmp.parentSphericalTerrain) {
         auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
 
-        f64 distance = glm::length(spCmp.position);
+        f64 distance = vmath::length(spCmp.position);
         // Check transition to Space
         if (distance > stCmp.sphericalTerrainData->radius * EXIT_RADIUS_MULT) {
             if (stCmp.needsVoxelComponent) {
@@ -157,7 +157,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
         auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
         auto& npCmp = spaceSystem->namePosition.get(stCmp.namePositionComponent);
 
-        f64 distance = glm::length(spCmp.position);
+        f64 distance = vmath::length(spCmp.position);
         if (distance <= stCmp.sphericalTerrainData->radius * ENTRY_RADIUS_MULT) {
             // Mark the terrain component as needing voxels
             if (!stCmp.needsVoxelComponent) {
@@ -171,7 +171,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
                 auto& arCmp = spaceSystem->axisRotation.getFromEntity(stCmp.axisRotationComponent);
                 // Calculate voxel relative orientation
-                f64q voxOrientation = glm::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(stCmp.startVoxelPosition,
+                f64q voxOrientation = vmath::inverse(VoxelSpaceUtils::calculateVoxelToSpaceQuat(stCmp.startVoxelPosition,
                     stCmp.sphericalTerrainData->radius * VOXELS_PER_KM)) * arCmp.invCurrentOrientation * spCmp.orientation;
 
                 // Make the voxel position component

@@ -9,7 +9,7 @@ size(size),
 movementSpeed(moveSpeed),
 textOffset(textOffset),
 textSize(textSize) {
-    offsetLength = glm::length(offsetDirection);
+    offsetLength = vmath::length(offsetDirection);
     offsetDirection *= (1.0f / offsetLength);
 }
 

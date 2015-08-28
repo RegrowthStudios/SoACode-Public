@@ -8,8 +8,6 @@
 #include "SpaceSystem.h"
 #include "soaUtils.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <Vorb/colors.h>
 #include <Vorb/graphics/DepthState.h>
 #include <Vorb/graphics/GpuMemory.h>
@@ -201,7 +199,7 @@ void SystemARRenderer::drawHUD() {
 
             f64v3 position = npCmp.position;
             f64v3 relativePos = position - m_camera->getPosition();
-            f64 distance = glm::length(relativePos);
+            f64 distance = vmath::length(relativePos);
             color4 textColor;
 
             f32 hoverTime = bodyArData->hoverTime;
@@ -243,15 +241,15 @@ void SystemARRenderer::drawHUD() {
                     // Fade name based on distance
                     switch (oCmp.type) {
                         case SpaceObjectType::STAR:
-                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.00000000001));
+                            textColor.a = oColor.a = (ui8)(vmath::max(0.0, (f64)textColor.a - d * 0.00000000001));
                             break;
                         case SpaceObjectType::BARYCENTER:
                         case SpaceObjectType::PLANET:
                         case SpaceObjectType::DWARF_PLANET:
-                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.000000001));
+                            textColor.a = oColor.a = (ui8)(vmath::max(0.0, (f64)textColor.a - d * 0.000000001));
                             break;
                         default:
-                            textColor.a = oColor.a = (ui8)(glm::max(0.0, (f64)textColor.a - d * 0.000001));
+                            textColor.a = oColor.a = (ui8)(vmath::max(0.0, (f64)textColor.a - d * 0.000001));
                             break;
                     }
                 }
@@ -304,7 +302,7 @@ void SystemARRenderer::drawHUD() {
 
                 relativePos = (position + f64v3(selectedPos)) - m_camera->getPosition();
                 // Bring it close to the camera so it doesn't get occluded by anything
-                relativePos = glm::normalize(relativePos) * ((f64)m_camera->getNearClip() + 0.0001);
+                relativePos = vmath::normalize(relativePos) * ((f64)m_camera->getNearClip() + 0.0001);
                 screenCoords = m_camera->worldToScreenPointLogZ(relativePos, (f64)m_camera->getFarClip());
                 xyScreenCoords = f32v2(screenCoords.x * m_viewport.x, screenCoords.y * m_viewport.y);
 

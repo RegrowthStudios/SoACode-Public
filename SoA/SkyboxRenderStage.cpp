@@ -4,7 +4,6 @@
 #include <GL/glew.h>
 #include <Vorb/graphics/DepthState.h>
 #include <Vorb/io/IOManager.h>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
 #include "Errors.h"
@@ -127,7 +126,7 @@ void SkyboxRenderStage::render(const Camera* camera) {
 }
 
 
-void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
+void SkyboxRenderStage::drawSpace(f32m4 &VP) {
     vg::DepthState::NONE.set();
     m_skyboxRenderer.drawSkybox(VP, m_skyboxTextureArray);
     vg::DepthState::FULL.set();
@@ -143,7 +142,7 @@ void SkyboxRenderStage::updateProjectionMatrix(const Camera* camera) {
     m_aspectRatio = camera->getAspectRatio();
 
     // Set up projection matrix
-    m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+    m_projectionMatrix = vmath::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
 }
 
 void SkyboxRenderStage::loadTexture(const char* relPath, int index) {

@@ -7,8 +7,6 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
 
-#include <glm/gtc/quaternion.hpp>
-
 #include "VoxelModelMesh.h"
 #include "VoxelMatrix.h"
 

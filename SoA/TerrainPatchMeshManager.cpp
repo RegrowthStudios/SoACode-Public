@@ -5,8 +5,6 @@
 #include "PlanetGenLoader.h"
 #include "Camera.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/TextureRecycler.hpp>
 
@@ -43,7 +41,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     static f32 dt = 0.0f;
     dt += 0.00003f;
 
-    f64q invOrientation = glm::inverse(orientation);
+    f64q invOrientation = vmath::inverse(orientation);
     const f64v3 rotpos = invOrientation * relativePos;
     const f32v3 rotLightDir = f32v3(invOrientation * f64v3(lightDir));
     // Convert f64q to f32q
@@ -53,7 +51,7 @@ void TerrainPatchMeshManager::drawSphericalMeshes(const f64v3& relativePos,
     orientationF32.z = (f32)orientation.z;
     orientationF32.w = (f32)orientation.w;
     // Convert to matrix
-    f32m4 rotationMatrix = glm::toMat4(orientationF32);
+    f32m4 rotationMatrix = vmath::toMat4(orientationF32);
     f32m4 W(1.0);
     setMatrixTranslation(W, -relativePos);
     f32m4 WVP = camera->getViewProjectionMatrix() * W * rotationMatrix;
@@ -334,7 +332,7 @@ void TerrainPatchMeshManager::setScatterUniforms(vg::GLProgram& program, const f
     // Set up scattering uniforms
     if (aCmp) {
         f32v3 relPosF(relPos);
-        f32 camHeight = glm::length(relPosF);
+        f32 camHeight = vmath::length(relPosF);
         glUniform3fv(program.getUniform("unCameraPos"), 1, &relPosF[0]);
         glUniform3fv(program.getUniform("unInvWavelength"), 1, &aCmp->invWavelength4[0]);
         glUniform1f(program.getUniform("unCameraHeight2"), camHeight * camHeight);

@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "FloraGenerator.h"
 
-#include <glm/gtx/quaternion.hpp>
-
 #define X_1 0x100000
 #define Y_1 0x400
 #define Z_1 0x1
@@ -426,7 +424,7 @@ void FloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vecto
         // Defer branching so it doesn't conflict with SC
         f32 angle = (f32)(m_rGen.genlf() * (bp.angle.max - bp.angle.min) + bp.angle.min);
         // Interpolate the angle
-        f32v3 dir = glm::normalize(lerp(glm::normalize(f32v3(it.dx, 0.0f, it.dz)), f32v3(0.0f, 1.0f, 0.0f), angle / M_PI_2F));
+        f32v3 dir = vmath::normalize(lerp(vmath::normalize(f32v3(it.dx, 0.0f, it.dz)), f32v3(0.0f, 1.0f, 0.0f), angle / M_PI_2F));
         f32 width = (f32)(bp.coreWidth + bp.barkWidth);
         f32 length = width / bp.widthFalloff;
         // Determine float position
@@ -715,7 +713,7 @@ void FloraGenerator::spaceColonization(const f32v3& startPos) {
             const SCRayNode& n = m_scRayNodes[tn.rayNode];
             // Self dot?
             if (tn.dir.x && tn.dir.y && tn.dir.z) {
-                f32v3 pos = n.pos + glm::normalize(tn.dir) * branchStep;
+                f32v3 pos = n.pos + vmath::normalize(tn.dir) * branchStep;
                 tn.dir = f32v3(0.0f);
                 ui32 nextIndex = m_scRayNodes.size();
                 // Change leaf node
@@ -895,7 +893,7 @@ void FloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 l
     if (end.z > maxZ) maxZ = end.z;
 
     // Pad the box by width + 1
-    f32 wp1 = glm::max(width, endWidth) + 1;
+    f32 wp1 = vmath::max(width, endWidth) + 1;
     minX -= wp1;
     maxX += wp1;
     minY -= wp1;
@@ -923,7 +921,7 @@ void FloraGenerator::generateBranch(ui32 chunkOffset, int x, int y, int z, f32 l
                 // http://stackoverflow.com/a/1501725/3346893
                 const f32v3 vec(k, i, j);
                 const f32v3 v2 = vec - start;
-                const f32 t = glm::dot(v2, ray) / l2;
+                const f32 t = vmath::dot(v2, ray) / l2;
 
                 // Compute distance2
                 f32 dist2;
@@ -1020,8 +1018,8 @@ void FloraGenerator::generateSCBranches() {
                 
                 // Calculate sub branching
                 if (tbp.branchChance > 0.0f) {
-                    f32v3 dir = glm::normalize(b.pos - a.pos);
-                    f32 length = glm::length(dir);
+                    f32v3 dir = vmath::normalize(b.pos - a.pos);
+                    f32 length = vmath::length(dir);
                     dir /= length;
                     for (f32 v = 0.0f; v < length; v += 1.0f) {
                         if (m_rGen.genlf() < tbp.branchChance) {
@@ -1082,7 +1080,7 @@ void FloraGenerator::generateSCBranches() {
             SCRayNode& b = m_scRayNodes[i];
 
             f32v3 dir = b.pos - a.pos;
-            f32 length = glm::length(dir);
+            f32 length = vmath::length(dir);
             dir /= length;
            
             i32v3 iPosA(a.pos);
@@ -1321,10 +1319,10 @@ void FloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z, 
 inline void FloraGenerator::newDirFromAngle(f32v3& dir, f32 minAngle, f32 maxAngle) {
     f32 angle = (f32)(m_rGen.genlf() * (maxAngle - minAngle) + minAngle);
     f32v3 relDir(0.0f, cos(angle), sin(angle));
-    relDir = glm::angleAxis((f32)(m_rGen.genlf() * 360.0), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
+    relDir = vmath::angleAxis((f32)(m_rGen.genlf() * 360.0), f32v3(0.0f, 1.0f, 0.0f)) * relDir;
     // Transform relDir relative to dir with change of basis matrix
-    f32v3 nz = glm::cross(dir, f32v3(0.0f, 1.0f, 0.0f));
-    f32v3 nx = glm::cross(dir, nz);
-    glm::mat3 trans(nx, dir, nz);
+    f32v3 nz = vmath::cross(dir, f32v3(0.0f, 1.0f, 0.0f));
+    f32v3 nx = vmath::cross(dir, nz);
+    f32m3 trans(nx, dir, nz);
     dir = trans * relDir;
 }

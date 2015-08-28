@@ -21,7 +21,7 @@ void SphericalTerrainComponentUpdater::update(SoaState* state, const f64v3& came
         const AxisRotationComponent& arComponent = spaceSystem->axisRotation.get(stCmp.axisRotationComponent);
         /// Calculate camera distance
         f64v3 relativeCameraPos = arComponent.invCurrentOrientation * (cameraPos - npComponent.position);
-        stCmp.distance = glm::length(relativeCameraPos);
+        stCmp.distance = vmath::length(relativeCameraPos);
 
         // Lazy random planet loading
         if (stCmp.distance <= LOAD_DIST && !stCmp.planetGenData) {

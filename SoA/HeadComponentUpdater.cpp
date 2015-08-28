@@ -2,9 +2,6 @@
 #include "HeadComponentUpdater.h"
 #include "Constants.h"
 
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include "GameSystem.h"
 #include "soaUtils.h"
 
@@ -12,18 +9,18 @@ void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::Compone
     auto& cmp = gameSystem->head.get(cmpID);
     // Pitch
     cmp.eulerAngles.x += dy * speed;
-    cmp.eulerAngles.x = glm::clamp(cmp.eulerAngles.x, -M_PI_2, M_PI_2);
+    cmp.eulerAngles.x = vmath::clamp(cmp.eulerAngles.x, -M_PI_2, M_PI_2);
     // Yaw
     cmp.eulerAngles.y += dx * speed;
 
     f64q qq(f64v3(0.0, (M_PI - 0.01), 0.0));
-    f64v3 e = glm::eulerAngles(qq);
+    f64v3 e = vmath::eulerAngles(qq);
     printVec("AAAH ", e);
 
     // Check if we need to rotate the body
     if (cmp.eulerAngles.y < 0.0) {
         auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPosition);
-        f64v3 euler = glm::radians(glm::eulerAngles(vpCmp.orientation));
+        f64v3 euler = vmath::radians(vmath::eulerAngles(vpCmp.orientation));
         euler.y += cmp.eulerAngles.y;
         if (euler.y < 0.0) euler.y += M_2_PI;
         vpCmp.orientation = f64q(euler);
@@ -31,7 +28,7 @@ void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::Compone
         printVec("A ", euler);
     } else if (cmp.eulerAngles.y > M_PI) {
         auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPosition);
-        f64v3 euler = glm::radians(glm::eulerAngles(vpCmp.orientation));
+        f64v3 euler = vmath::radians(vmath::eulerAngles(vpCmp.orientation));
         euler.y += cmp.eulerAngles.y - M_PI;
         if (euler.y > M_2_PI) euler.y -= M_2_PI;
         vpCmp.orientation = f64q(euler);

@@ -15,9 +15,6 @@
 
 #include <iostream>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-
 i32 TestPlanetGenScreen::getNextScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -42,7 +39,7 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
-        m_eyeDist += -e.dy * 0.025 * glm::length(m_eyeDist);
+        m_eyeDist += -e.dy * 0.025 * m_eyeDist;
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_ESCAPE) {
@@ -105,7 +102,7 @@ void TestPlanetGenScreen::draw(const vui::GameTime& gameTime) {
     m_camera.setPosition(f64v3(m_eyePos));
     m_camera.update();
 
-    f32v3 lightPos = glm::normalize(f32v3(0.0f, 0.0f, 1.0f));
+    f32v3 lightPos = vmath::normalize(f32v3(0.0f, 0.0f, 1.0f));
 
     PreciseTimer timer;
     auto& aCmp = m_state.spaceSystem->atmosphere.getFromEntity(body.entity);
