@@ -17,6 +17,12 @@ void AABBCollidableComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
     ((GameSystem&)ecs).aabbCollidable.get(m_cID) = component;
 }
 
+void AABBCollidableComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID) {
+    GameSystem& gecs = static_cast<GameSystem&>(ecs);
+    auto& cmp = gecs.aabbCollidable.getFromEntity(eID);
+    cmp.physics = gecs.physics.getComponentID(eID);
+}
+
 void ParkourInputComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Do nothing
 }
@@ -31,6 +37,7 @@ void ParkourInputComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID)
     cmp.physicsComponent = gecs.physics.getComponentID(eID);
     cmp.attributeComponent = gecs.attributes.getComponentID(eID);
     cmp.headComponent = gecs.head.getComponentID(eID);
+    cmp.aabbCollidable = gecs.aabbCollidable.getComponentID(eID);
 }
 
 void AttributeComponentBuilder::load(keg::ReadContext& context, keg::Node node) {

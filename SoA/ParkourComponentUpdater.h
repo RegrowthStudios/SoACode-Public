@@ -19,7 +19,7 @@ class GameSystem;
 class SpaceSystem;
 class ParkourComponentUpdater {
 public:
-    void update(GameSystem* gameSystem);
+    void update(GameSystem* gameSystem, SpaceSystem* spaceSystem);
 };
 
 #endif // ParkourComponentUpdater_h__

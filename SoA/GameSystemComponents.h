@@ -22,6 +22,7 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/script/Function.h>
 
+#include "BlockData.h"
 #include "ChunkHandle.h"
 #include "Frustum.h"
 #include "VoxelCoordinateSpaces.h"
@@ -29,7 +30,14 @@
 class ChunkAccessor;
 class ChunkGrid;
 
+struct ChunkCollisionData {
+    std::vector<ui16> voxels;
+};
+
 struct AabbCollidableComponent {
+    vecs::ComponentID physics;
+    std::map<ChunkID, ChunkCollisionData> collisions;
+    // TODO(Ben): Entity-Entity collision
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
     f32v3 offset = f32v3(0.0f); ///< x, y, z offsets in blocks
 };
@@ -63,6 +71,7 @@ struct ParkourInputComponent {
         };
         ui8 moveFlags = 0;
     };
+    vecs::ComponentID aabbCollidable;
     vecs::ComponentID physicsComponent;
     vecs::ComponentID attributeComponent;
     vecs::ComponentID headComponent;

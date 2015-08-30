@@ -872,6 +872,9 @@
     <ClInclude Include="Density.h">
       <Filter>SOA Files\Voxel\Meshing</Filter>
     </ClInclude>
+    <ClInclude Include="AABBCollidableComponentUpdater.h">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1434,6 +1437,9 @@
     </ClCompile>
     <ClCompile Include="Density.cpp">
       <Filter>SOA Files\Voxel\Meshing</Filter>
+    </ClCompile>
+    <ClCompile Include="AABBCollidableComponentUpdater.cpp">
+      <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

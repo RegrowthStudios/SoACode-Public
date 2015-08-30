@@ -66,8 +66,13 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
         auto& gravCmp = spaceSystem->sphericalGravity.get(spCmp.parentGravity);
         f64 height = (vpcmp.gridPosition.pos.y + svcmp.voxelRadius) * M_PER_VOXEL;
         f64 fgrav = M_G * gravCmp.mass / (height * height);
-        // We don't account mass since we only calculate force on the object
-     //   pyCmp.velocity.y -= (fgrav / M_PER_KM) / FPS;
+        ChunkID id(VoxelSpaceConversions::voxelToChunk(vpcmp.gridPosition));
+        ChunkHandle chunk = svcmp.chunkGrids[vpcmp.gridPosition.face].accessor.acquire(id);
+        // Don't apply gravity in non generated chunks.
+        if (chunk->genLevel == GEN_DONE) {
+            pyCmp.velocity.y -= (fgrav * 0.1) / FPS;
+        }
+        chunk.release();
     }
     // Update position
     vpcmp.gridPosition.pos += pyCmp.velocity;
