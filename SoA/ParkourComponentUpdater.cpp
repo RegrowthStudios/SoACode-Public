@@ -14,6 +14,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
 
         auto& attributes = gameSystem->attributes.get(parkour.attributeComponent);
         auto& voxelPosition = gameSystem->voxelPosition.get(physics.voxelPosition);
+        auto& head = gameSystem->head.get(parkour.headComponent);
 
         // TODO(Ben): Timestep
         // TODO(Ben): Account mass
@@ -26,28 +27,38 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
         }
 
         f64v3 targetVel(0.0);
+        int inputCount = 0;
 
         // Get move direction
         // TODO(Ben): Gamepad support
         if (parkour.moveForward) {
             targetVel.z = 1.0f;
+            inputCount++;
         } else if (parkour.moveBackward) {
             targetVel.z = -1.0f;
+            inputCount++;
         }
 
         if (parkour.moveLeft) {
             targetVel.x = 1.0f;
+            inputCount++;
         } else if (parkour.moveRight) {
             targetVel.x = -1.0f;
-        }
-
-        // Normalize for diagonal
-        if (targetVel.x && targetVel.z) {
-            targetVel = vmath::normalize(targetVel);
+            inputCount++;
         }
 
         // Get angles
-        f64v3 euler = vmath::radians(vmath::eulerAngles(voxelPosition.orientation));
+        f64v3& euler = voxelPosition.eulerAngles;
+
+        if (inputCount != 0) {
+            // Normalize for diagonal
+            if (inputCount == 2) {
+                targetVel = vmath::normalize(targetVel);
+            }
+            // Use head yaw for body when moving
+            euler.y += head.eulerAngles.y;
+            head.eulerAngles.y = 0.0f;
+        }
 
         // Check for pitch (Should be no pitch)
         if (euler.x != 0.0) {
@@ -55,7 +66,6 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
             if (ABS(euler.x) < 0.01) {
                 euler.x = 0.0;
             }
-            voxelPosition.orientation = f64q(euler);
         }
         // Check for roll (Should be no roll)
         if (euler.z != 0.0) {
@@ -63,8 +73,9 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
             if (ABS(euler.z) < 0.01) {
                 euler.z = 0.0;
             }
-            voxelPosition.orientation = f64q(euler);
         }
+
+        voxelPosition.orientation = f64q(euler);
 
         targetVel *= maxSpeed;
         targetVel = voxelPosition.orientation * targetVel;

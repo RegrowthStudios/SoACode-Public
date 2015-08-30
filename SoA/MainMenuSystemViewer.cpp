@@ -212,7 +212,7 @@ void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEv
     m_mouseCoords.x = (f32)e.x;
     m_mouseCoords.y = (f32)e.y;
 
-#define MOUSE_SPEED 0.1f
+#define MOUSE_SPEED 0.001f
     if (mouseButtons[0]) {
         m_camera->rotateFromMouse((f32)-e.dx, (f32)-e.dy, MOUSE_SPEED);
     }

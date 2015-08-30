@@ -30,6 +30,7 @@ void ParkourInputComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID)
     auto& cmp = gecs.parkourInput.getFromEntity(eID);
     cmp.physicsComponent = gecs.physics.getComponentID(eID);
     cmp.attributeComponent = gecs.attributes.getComponentID(eID);
+    cmp.headComponent = gecs.head.getComponentID(eID);
 }
 
 void AttributeComponentBuilder::load(keg::ReadContext& context, keg::Node node) {

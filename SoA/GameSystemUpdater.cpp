@@ -26,6 +26,7 @@ GameSystemUpdater::~GameSystemUpdater() {
 void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spaceSystem, const SoaState* soaState) {
     // Update component tables
     m_freeMoveUpdater.update(gameSystem, spaceSystem);
+    m_headUpdater.update(gameSystem);
     m_parkourUpdater.update(gameSystem);
     m_physicsUpdater.update(gameSystem, spaceSystem);
     m_collisionUpdater.update(gameSystem);

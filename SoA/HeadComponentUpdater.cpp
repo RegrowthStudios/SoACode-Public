@@ -5,35 +5,35 @@
 #include "GameSystem.h"
 #include "soaUtils.h"
 
-void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::ComponentID cmpID, float dx, float dy, float speed) {
-    auto& cmp = gameSystem->head.get(cmpID);
-    // Pitch
-    cmp.eulerAngles.x += dy * speed;
-    cmp.eulerAngles.x = vmath::clamp(cmp.eulerAngles.x, -M_PI_2, M_PI_2);
-    // Yaw
-    cmp.eulerAngles.y += dx * speed;
+void HeadComponentUpdater::update(GameSystem* gameSystem) {
+    for (auto& it : gameSystem->head) {
+        auto& cmp = it.second;
+        cmp.relativeOrientation = f64q(cmp.eulerAngles);
+    }
+}
 
-    f64q qq(f64v3(0.0, (M_PI - 0.01), 0.0));
-    f64v3 e = vmath::eulerAngles(qq);
-    printVec("AAAH ", e);
+void HeadComponentUpdater::rotateFromMouse(GameSystem* gameSystem, vecs::ComponentID cmpID, float dx, float dy, float speed) {
+    // Seems like a race condition
+    auto& cmp = gameSystem->head.get(cmpID);
+
+    // Copy to reduce race conditions
+    f64v3 euler = cmp.eulerAngles;
+    // Pitch
+    euler.x += dy * speed;
+    euler.x = vmath::clamp(euler.x, -M_PI_2, M_PI_2);
+    // Yaw
+    euler.y += dx * speed;
 
     // Check if we need to rotate the body
-    if (cmp.eulerAngles.y < 0.0) {
+    if (euler.y < -M_PI_2) {
         auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPosition);
-        f64v3 euler = vmath::radians(vmath::eulerAngles(vpCmp.orientation));
-        euler.y += cmp.eulerAngles.y;
-        if (euler.y < 0.0) euler.y += M_2_PI;
-        vpCmp.orientation = f64q(euler);
-        cmp.eulerAngles.y = 0.0;
-        printVec("A ", euler);
-    } else if (cmp.eulerAngles.y > M_PI) {
+        vpCmp.eulerAngles.y += euler.y + M_PI_2;
+        euler.y = -M_PI_2;
+    } else if (euler.y > M_PI_2) {
         auto& vpCmp = gameSystem->voxelPosition.get(cmp.voxelPosition);
-        f64v3 euler = vmath::radians(vmath::eulerAngles(vpCmp.orientation));
-        euler.y += cmp.eulerAngles.y - M_PI;
-        if (euler.y > M_2_PI) euler.y -= M_2_PI;
-        vpCmp.orientation = f64q(euler);
-        cmp.eulerAngles.y = M_PI;
-        printVec("B ", euler);
+        vpCmp.eulerAngles.y += euler.y - M_PI_2;
+        euler.y = M_PI_2;
     }
-    cmp.relativeOrientation = f64q(cmp.eulerAngles);
+    
+    cmp.eulerAngles = euler;
 }

@@ -65,6 +65,7 @@ struct ParkourInputComponent {
     };
     vecs::ComponentID physicsComponent;
     vecs::ComponentID attributeComponent;
+    vecs::ComponentID headComponent;
 };
 typedef vecs::ComponentTable<ParkourInputComponent> ParkourInputComponentTable;
 
@@ -104,6 +105,7 @@ typedef f64v3 VoxelPosition;
 
 struct VoxelPositionComponent {
     f64q orientation;
+    f64v3 eulerAngles = f64v3(0.0); ///< Pitch, Yaw, Roll in radians.
     VoxelPosition3D gridPosition;
     vecs::ComponentID parentVoxel = 0;
 };
@@ -161,6 +163,7 @@ struct HeadComponent {
     vecs::ComponentID voxelPosition;
     f64q relativeOrientation;
     f64v3 eulerAngles = f64v3(0.0); ///< Pitch, Yaw, Roll in radians.
+    f64v3 angleToApply = f64v3(0.0);
     f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units relative to entity position
     f64 neckLength = 0.0; ///< Neck length in voxel units
 };

@@ -369,7 +369,7 @@ void GameplayScreen::initInput() {
         // Mouse movement
         vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
         m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
-            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, -e.dx, e.dy, 0.01f);
+            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, -e.dx, e.dy, 0.002f);
         });
     }
 
