@@ -58,6 +58,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem) {
             // Use head yaw for body when moving
             euler.y += head.eulerAngles.y;
             head.eulerAngles.y = 0.0f;
+            head.relativeOrientation = f64q(head.eulerAngles);
         }
 
         // Check for pitch (Should be no pitch)
