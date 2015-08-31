@@ -30,13 +30,15 @@
 class ChunkAccessor;
 class ChunkGrid;
 
-struct ChunkCollisionData {
-    std::vector<ui16> voxels;
+struct BlockCollisionData {
+    BlockCollisionData(BlockID id, ui16 index) : id(id), index(index) {}
+    BlockID id;
+    ui16 index;
 };
 
 struct AabbCollidableComponent {
     vecs::ComponentID physics;
-    std::map<ChunkID, ChunkCollisionData> collisions;
+    std::map<ChunkID, std::vector<BlockCollisionData>> collisions;
     // TODO(Ben): Entity-Entity collision
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
     f32v3 offset = f32v3(0.0f); ///< x, y, z offsets in blocks

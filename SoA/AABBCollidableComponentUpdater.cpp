@@ -28,7 +28,8 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
     ChunkGrid& grid = sphericalVoxel.chunkGrids[position.gridPosition.face];
     const BlockPack* bp = sphericalVoxel.blockPack;
 
-    // TODO(Ben): Optimize
+    std::map<ChunkID, std::vector<ui16>> boundedVoxels;
+
     for (int yi = 0; yi < bounds.y; yi++) {
         for (int zi = 0; zi < bounds.z; zi++) {
             for (int xi = 0; xi < bounds.x; xi++) {
@@ -36,16 +37,24 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
                 i32v3 cpos = VoxelSpaceConversions::voxelToChunk(p);
                 // TODO(Ben): Negative numbers?
                 ChunkID chunkID(cpos);
-                ChunkHandle chunk = grid.accessor.acquire(chunkID);
-                if (chunk->genLevel == GEN_DONE) {
-                    i32v3 cp = p - cpos * CHUNK_WIDTH;
-                    ui16 index = cp.y * CHUNK_LAYER + cp.z * CHUNK_WIDTH + cp.x;
-                    if (bp->operator[](chunk->blocks.get(index)).collide) {
-                        cmp.collisions[chunkID].voxels.push_back(index);
-                    }
-                }
-                chunk.release();
+                i32v3 cp = p - cpos * CHUNK_WIDTH;
+                boundedVoxels[chunkID].push_back(cp.y * CHUNK_LAYER + cp.z * CHUNK_WIDTH + cp.x);
             }
         }
+    }
+
+    for (auto& it : boundedVoxels) {
+        ChunkHandle chunk = grid.accessor.acquire(it.first);
+        if (chunk->genLevel == GEN_DONE) {
+            std::lock_guard<std::mutex> l(chunk->dataMutex);
+            for (auto& i : it.second) {
+                BlockID id = chunk->blocks.get(i);
+                if (bp->operator[](id).collide) {
+                    // TODO(Ben): Don't need to look up every time.
+                    cmp.collisions[it.first].emplace_back(id, i);
+                }
+            }
+        }
+        chunk.release();
     }
 }
