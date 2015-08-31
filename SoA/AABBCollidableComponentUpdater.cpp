@@ -15,7 +15,7 @@ void AABBCollidableComponentUpdater::update(GameSystem* gameSystem, SpaceSystem*
 
 void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& cmp, GameSystem* gameSystem, SpaceSystem* spaceSystem) {
     // Clear old data
-    cmp.collisions.clear();
+    cmp.voxelCollisions.clear();
     // Get needed components
     auto& physics = gameSystem->physics.get(cmp.physics);
     auto& position = gameSystem->voxelPosition.get(physics.voxelPosition);
@@ -30,6 +30,7 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
 
     std::map<ChunkID, std::vector<ui16>> boundedVoxels;
 
+    // Get bounded voxels
     for (int yi = 0; yi < bounds.y; yi++) {
         for (int zi = 0; zi < bounds.z; zi++) {
             for (int xi = 0; xi < bounds.x; xi++) {
@@ -43,6 +44,7 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
         }
     }
 
+    // Find Collidable voxels
     for (auto& it : boundedVoxels) {
         ChunkHandle chunk = grid.accessor.acquire(it.first);
         if (chunk->genLevel == GEN_DONE) {
@@ -51,10 +53,119 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
                 BlockID id = chunk->blocks.get(i);
                 if (bp->operator[](id).collide) {
                     // TODO(Ben): Don't need to look up every time.
-                    cmp.collisions[it.first].emplace_back(id, i);
+                    cmp.voxelCollisions[it.first].emplace_back(id, i);
                 }
             }
         }
         chunk.release();
     }
+
+    // Helper macro for below code
+#define CHECK_CODE(dir) \
+    /* Acquire new chunk if needed */ \
+    if (id != currentID) { \
+        /* Release current chunk */ \
+        if (chunk.isAquired()) { \
+            chunk->dataMutex.unlock(); \
+            chunk.release(); \
+        } \
+        chunk = grid.accessor.acquire(id); \
+        if (chunk->genLevel != GEN_DONE) { \
+            chunk.release(); \
+            currentID = ChunkID(0xffffffffffffffffu); \
+        } else { \
+            chunk->dataMutex.lock(); \
+            currentID = id; \
+            /* Check the voxel */ \
+            if (chunk->genLevel == GEN_DONE && bp->operator[](chunk->blocks.get(index)).collide) { \
+                cd.##dir = true; \
+            } \
+        } \
+    } else {\
+        /* Check the voxel */ \
+        if (chunk->genLevel == GEN_DONE && bp->operator[](chunk->blocks.get(index)).collide) { \
+            cd.##dir = true; \
+        } \
+    }
+
+    // Set neighbor collide flags
+    // TODO(Ben): More than top
+    ChunkID currentID(0xffffffffffffffffu);
+    ChunkHandle chunk;
+    for (auto& it : cmp.voxelCollisions) {
+        for (auto& cd : it.second) {
+            { // Left
+                ChunkID id = it.first;
+                int index = (int)cd.index;
+                if ((index & 0x1f) == 0) {
+                    index += CHUNK_WIDTH_M1;
+                    id.x--;
+                } else {
+                    index--;
+                }
+                CHECK_CODE(left);
+            }
+            { // Right
+                ChunkID id = it.first;
+                int index = (int)cd.index;
+                if ((index & 0x1f) == CHUNK_WIDTH_M1) {
+                    index -= CHUNK_WIDTH_M1;
+                    id.x++;
+                } else {
+                    index++;
+                }
+                CHECK_CODE(right);
+            }
+            { // Bottom
+                ChunkID id = it.first;
+                int index = (int)cd.index;
+                if (index < CHUNK_LAYER) {
+                    index += (CHUNK_SIZE - CHUNK_LAYER);
+                    id.y--;
+                } else {
+                    index -= CHUNK_LAYER;
+                }
+                CHECK_CODE(bottom);
+            }
+            { // Top
+                ChunkID id = it.first;
+                int index = (int)cd.index;
+                if (index >= CHUNK_SIZE - CHUNK_LAYER) {
+                    index -= (CHUNK_SIZE - CHUNK_LAYER);
+                    id.y++;
+                } else {
+                    index += CHUNK_LAYER;
+                }
+                CHECK_CODE(top);
+            }
+            { // Back
+                ChunkID id = it.first;
+                int index = (int)cd.index;
+                if ((index & 0x3ff) / CHUNK_WIDTH == 0) {
+                    index += (CHUNK_LAYER - CHUNK_WIDTH);
+                    id.z--;
+                } else {
+                    index -= CHUNK_WIDTH_M1;
+                }
+                CHECK_CODE(back);
+            }
+            { // Front
+                ChunkID id = it.first;
+                int index = (int)cd.index;
+                if ((index & 0x3ff) / CHUNK_WIDTH == CHUNK_WIDTH_M1) {
+                    index -= (CHUNK_LAYER - CHUNK_WIDTH);
+                    id.z++;
+                } else {
+                    index += CHUNK_WIDTH_M1;
+                }
+                CHECK_CODE(front);
+            }
+        }
+    }
+    // Release chunk if needed
+    if (chunk.isAquired()) {
+        chunk->dataMutex.unlock();
+        chunk.release();
+    }
+#undef CHECK_CODE
 }

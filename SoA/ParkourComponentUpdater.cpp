@@ -93,11 +93,11 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
         }
 
         // Collision
-        if (aabbCollidable.collisions.size() && voxelPosition.parentVoxel) {
+        if (aabbCollidable.voxelCollisions.size() && voxelPosition.parentVoxel) {
             
             const f64v3 MIN_DISTANCE = f64v3(aabbCollidable.box) * 0.5 + 0.5;
 
-            for (auto& it : aabbCollidable.collisions) {
+            for (auto& it : aabbCollidable.voxelCollisions) {
                 for (auto& cd : it.second) {
                     f64v3 aabbPos = voxelPosition.gridPosition.pos + f64v3(aabbCollidable.offset);
                     int x = cd.index % CHUNK_WIDTH;
@@ -109,40 +109,54 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
                     f64v3 dp = vpos - aabbPos;
                     f64v3 adp(vmath::abs(dp));
 
-                    // Check feet collision first
-                    if (dp.y < 0 && MIN_DISTANCE.y - adp.y < 0.55) {
+                    std::cout << MIN_DISTANCE.y - adp.y << std::endl;
+
+                    // Check slow feet collision first
+                    if (dp.y < 0 && MIN_DISTANCE.y - adp.y < 0.55 && !cd.top) {
                         voxelPosition.gridPosition.y += (MIN_DISTANCE.y - adp.y) * 0.01;
-                        physics.velocity.y = 0.0;
-                    } else if (adp.y > adp.z && adp.y > adp.x) {
+                        if (physics.velocity.y < 0) physics.velocity.y = 0.0;
+                        continue;
+                    }
+                    if (adp.y > adp.z && adp.y > adp.x) {
                         // Y collision
                         if (dp.y < 0) {
-                            // Feet
-                            voxelPosition.gridPosition.y += MIN_DISTANCE.y - adp.y;
-                            if (physics.velocity.y < 0) physics.velocity.y = 0.0;
+                            if (!cd.top) {
+                                voxelPosition.gridPosition.y += MIN_DISTANCE.y - adp.y;
+                                if (physics.velocity.y < 0) physics.velocity.y = 0.0;
+                                continue;
+                            }
                         } else {
-                            // Head
-                            voxelPosition.gridPosition.y -= MIN_DISTANCE.y - adp.y;
-                            if (physics.velocity.y > 0) physics.velocity.y = 0.0;
+                            if (!cd.bottom) {
+                                voxelPosition.gridPosition.y -= MIN_DISTANCE.y - adp.y;
+                                if (physics.velocity.y > 0) physics.velocity.y = 0.0;
+                                continue;
+                            }
                         }
-                    } else if (adp.z > adp.x && adp.z > adp.y) {
+                    }
+                    if (adp.z > adp.x) {
                         // Z collision
                         if (dp.z < 0) {
-                            // Feet
-                            voxelPosition.gridPosition.z += MIN_DISTANCE.z - adp.z;
-                            if (physics.velocity.z < 0) physics.velocity.z = 0.0;
+                            if (!cd.front) {
+                                voxelPosition.gridPosition.z += MIN_DISTANCE.z - adp.z;
+                                if (physics.velocity.z < 0) physics.velocity.z = 0.0;
+                                continue;
+                            }
                         } else {
-                            // Head
-                            voxelPosition.gridPosition.z -= MIN_DISTANCE.z - adp.z;
-                            if (physics.velocity.z > 0) physics.velocity.z = 0.0;
+                            if (!cd.back) {
+                                voxelPosition.gridPosition.z -= MIN_DISTANCE.z - adp.z;
+                                if (physics.velocity.z > 0) physics.velocity.z = 0.0;
+                                continue;
+                            }
                         }
-                    } else {
-                        // X collision
-                        if (dp.x < 0) {
-                            // Feet
+                    }
+                    // X collision
+                    if (dp.x < 0) {
+                        if (!cd.right) {
                             voxelPosition.gridPosition.x += MIN_DISTANCE.x - adp.x;
                             if (physics.velocity.x < 0) physics.velocity.x = 0.0;
-                        } else {
-                            // Head
+                        }
+                    } else {
+                        if (!cd.left) {
                             voxelPosition.gridPosition.x -= MIN_DISTANCE.x - adp.x;
                             if (physics.velocity.x > 0) physics.velocity.x = 0.0;
                         }
