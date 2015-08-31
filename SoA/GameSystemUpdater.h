@@ -22,6 +22,8 @@
 #include "InputMapper.h"
 #include "PhysicsComponentUpdater.h"
 #include "ParkourComponentUpdater.h"
+#include "AABBCollidableComponentUpdater.h"
+#include "HeadComponentUpdater.h"
 #include "VoxelCoordinateSpaces.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/VorbPreDecl.inl>
@@ -50,6 +52,8 @@ private:
     PhysicsComponentUpdater m_physicsUpdater;
     CollisionComponentUpdater m_collisionUpdater;
     FreeMoveComponentUpdater m_freeMoveUpdater;
+    HeadComponentUpdater m_headUpdater;
+    AABBCollidableComponentUpdater m_aabbCollidableUpdater;
     ParkourComponentUpdater m_parkourUpdater;
     ChunkSphereComponentUpdater m_chunkSphereUpdater;
     FrustumComponentUpdater m_frustumUpdater;

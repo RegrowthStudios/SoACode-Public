@@ -22,6 +22,7 @@
 #include <Vorb/ecs/ComponentTable.hpp>
 #include <Vorb/script/Function.h>
 
+#include "BlockData.h"
 #include "ChunkHandle.h"
 #include "Frustum.h"
 #include "VoxelCoordinateSpaces.h"
@@ -29,7 +30,27 @@
 class ChunkAccessor;
 class ChunkGrid;
 
+struct BlockCollisionData {
+    BlockCollisionData(BlockID id, ui16 index) : id(id), index(index), neighborCollideFlags(0) {}
+    BlockID id;
+    ui16 index;
+    union {
+        struct {
+            bool left : 1;
+            bool right : 1;
+            bool bottom : 1;
+            bool top : 1;
+            bool back : 1;
+            bool front : 1;
+        };
+        ui8 neighborCollideFlags;
+    };
+};
+
 struct AabbCollidableComponent {
+    vecs::ComponentID physics;
+    std::map<ChunkID, std::vector<BlockCollisionData>> voxelCollisions;
+    // TODO(Ben): Entity-Entity collision
     f32v3 box = f32v3(0.0f); ///< x, y, z widths in blocks
     f32v3 offset = f32v3(0.0f); ///< x, y, z offsets in blocks
 };
@@ -63,8 +84,10 @@ struct ParkourInputComponent {
         };
         ui8 moveFlags = 0;
     };
+    vecs::ComponentID aabbCollidable;
     vecs::ComponentID physicsComponent;
     vecs::ComponentID attributeComponent;
+    vecs::ComponentID headComponent;
 };
 typedef vecs::ComponentTable<ParkourInputComponent> ParkourInputComponentTable;
 
@@ -104,6 +127,7 @@ typedef f64v3 VoxelPosition;
 
 struct VoxelPositionComponent {
     f64q orientation;
+    f64v3 eulerAngles = f64v3(0.0); ///< Pitch, Yaw, Roll in radians.
     VoxelPosition3D gridPosition;
     vecs::ComponentID parentVoxel = 0;
 };
@@ -161,6 +185,7 @@ struct HeadComponent {
     vecs::ComponentID voxelPosition;
     f64q relativeOrientation;
     f64v3 eulerAngles = f64v3(0.0); ///< Pitch, Yaw, Roll in radians.
+    f64v3 angleToApply = f64v3(0.0);
     f64v3 relativePosition = f64v3(0.0); ///< Position in voxel units relative to entity position
     f64 neckLength = 0.0; ///< Neck length in voxel units
 };

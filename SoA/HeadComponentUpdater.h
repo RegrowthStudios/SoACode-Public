@@ -20,6 +20,7 @@
 class GameSystem;
 class HeadComponentUpdater {
 public:
+    void update(GameSystem* gameSystem);
     static void rotateFromMouse(GameSystem* gameSystem, vecs::ComponentID cmpID, float dx, float dy, float speed);
 };
 

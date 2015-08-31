@@ -531,6 +531,7 @@ EXIT 0</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AABBCollidableComponentUpdater.h" />
     <ClInclude Include="AmbienceLibrary.h" />
     <ClInclude Include="AmbiencePlayer.h" />
     <ClInclude Include="AmbienceStream.h" />
@@ -757,6 +758,7 @@ EXIT 0</Command>
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABBCollidableComponentUpdater.cpp" />
     <ClCompile Include="AmbienceLibrary.cpp" />
     <ClCompile Include="AmbiencePlayer.cpp" />
     <ClCompile Include="AmbienceStream.cpp" />
