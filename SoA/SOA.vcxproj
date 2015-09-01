@@ -815,6 +815,7 @@ EXIT 0</Command>
     <ClCompile Include="BlockLoader.cpp" />
     <ClCompile Include="HeadComponentUpdater.cpp" />
     <ClCompile Include="ImageAssetLoader.cpp" />
+    <ClCompile Include="Item.cpp" />
     <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
     <ClCompile Include="ExposureCalcRenderStage.cpp" />

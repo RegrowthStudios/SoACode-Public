@@ -4,9 +4,9 @@
 
 DECL_VG(class GLProgram);
 
-class ChunkManager;
+class ChunkGrid;
 class PhysicsEngine;
-class Item;
+class ItemStack;
 
 class EditorNode {
     i32v3 position;
@@ -18,7 +18,7 @@ class VoxelEditor {
 public:    
     VoxelEditor();
 
-    void editVoxels(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block);
+    void editVoxels(ChunkGrid& grid, ItemStack* block);
 
     void stopDragging();
 
@@ -36,8 +36,8 @@ public:
 
 private:
     
-    void placeAABox(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block);
-    void placeLine(ChunkManager* chunkManager, Item *block);
+    void placeAABox(ChunkGrid& grid, ItemStack* block);
+    void placeLine(ChunkGrid& grid, ItemStack* block);
 
     // v v v Just some ideas v v v
     // void placeBox();

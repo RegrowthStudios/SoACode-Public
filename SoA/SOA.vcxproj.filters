@@ -260,9 +260,6 @@
     <ClInclude Include="Inputs.h">
       <Filter>SOA Files\Ext\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>SOA Files\Game\Objects\Materials</Filter>
-    </ClInclude>
     <ClInclude Include="LiquidData.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
@@ -875,6 +872,9 @@
     <ClInclude Include="AABBCollidableComponentUpdater.h">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>SOA Files\Game\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1440,6 +1440,9 @@
     </ClCompile>
     <ClCompile Include="AABBCollidableComponentUpdater.cpp">
       <Filter>SOA Files\ECS\Updaters\GameSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>SOA Files\Game\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -366,6 +366,9 @@ void GameplayScreen::initInput() {
         m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
         });
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
+        });
         // Mouse movement
         vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
         m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {

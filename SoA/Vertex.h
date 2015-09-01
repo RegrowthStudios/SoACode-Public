@@ -37,10 +37,11 @@ struct AtlasTexturePosition {
     } overlay;
 
     bool operator==(const AtlasTexturePosition& rhs) const {
-        return (base.index == rhs.base.index && overlay.index == rhs.overlay.index &&
-                base.atlas == rhs.base.atlas && overlay.atlas == rhs.overlay.atlas);
+        // Assumes 32 bit struct.
+        return *((const ui32*)this) == *((const ui32*)&rhs);
     }
 };
+static_assert(sizeof(AtlasTexturePosition) == sizeof(ui32), "AtlasTexturePosition compare will fail.");
 
 // Size: 32 Bytes
 struct BlockVertex {
