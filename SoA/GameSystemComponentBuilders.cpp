@@ -133,3 +133,11 @@ void HeadComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID) {
     auto& cmp = gecs.head.getFromEntity(eID);
     cmp.voxelPosition = gecs.voxelPosition.getComponentID(eID);
 }
+
+void InventoryComponentBuilder::load(keg::ReadContext& reader, keg::Node node) {
+    // TODO(Ben): Load another file using a file path
+}
+
+void InventoryComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID) {
+    ((GameSystem&)ecs).inventory.get(m_cID) = component;
+}

@@ -192,4 +192,9 @@ struct HeadComponent {
 typedef vecs::ComponentTable<HeadComponent> HeadComponentTable;
 KEG_TYPE_DECL(HeadComponent);
 
+struct InventoryComponent {
+    std::vector<ItemStack> items; ///< Who needs fast lookups?
+};
+typedef vecs::ComponentTable<InventoryComponent> InventoryComponentTable;
+
 #endif // GameSystemComponents_h__

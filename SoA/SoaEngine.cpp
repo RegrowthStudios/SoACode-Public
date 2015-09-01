@@ -77,6 +77,7 @@ void SoaEngine::initState(SoaState* state) {
     state->templateLib.registerFactory<HeadComponentBuilder>(GAME_SYSTEM_CT_HEAD_NAME);
     state->templateLib.registerFactory<ParkourInputComponentBuilder>(GAME_SYSTEM_CT_PARKOURINPUT_NAME);
     state->templateLib.registerFactory<AttributeComponentBuilder>(GAME_SYSTEM_CT_ATTRIBUTES_NAME);
+    state->templateLib.registerFactory<InventoryComponentBuilder>(GAME_SYSTEM_CT_INVENTORY_NAME);
 
     { // Load ECS templates
         vio::IOManager iom;

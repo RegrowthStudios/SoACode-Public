@@ -11,6 +11,7 @@ GameSystem::GameSystem() : vecs::ECS() {
     addComponentTable(GAME_SYSTEM_CT_VOXELPOSITION_NAME, &voxelPosition);
     addComponentTable(GAME_SYSTEM_CT_FRUSTUM_NAME, &frustum);
     addComponentTable(GAME_SYSTEM_CT_HEAD_NAME, &head);
+    addComponentTable(GAME_SYSTEM_CT_INVENTORY_NAME, &inventory);
     addComponentTable(GAME_SYSTEM_CT_CHUNKSPHERE_NAME, &chunkSphere);
     addComponentTable(GAME_SYSTEM_CT_ATTRIBUTES_NAME, &attributes);
 }

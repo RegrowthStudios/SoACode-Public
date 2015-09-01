@@ -28,9 +28,9 @@
 #define GAME_SYSTEM_CT_VOXELPOSITION_NAME "VoxelPosition"
 #define GAME_SYSTEM_CT_FRUSTUM_NAME "Frustum"
 #define GAME_SYSTEM_CT_HEAD_NAME "Head"
+#define GAME_SYSTEM_CT_INVENTORY_NAME "Inventory"
 #define GAME_SYSTEM_CT_CHUNKSPHERE_NAME "ChunkSphere"
 #define GAME_SYSTEM_CT_ATTRIBUTES_NAME "Attributes"
-
 
 class GameSystem : public vecs::ECS {
 public:
@@ -44,6 +44,7 @@ public:
     VoxelPositionComponentTable voxelPosition;
     FrustumComponentTable frustum;
     HeadComponentTable head;
+    InventoryComponentTable inventory;
     ChunkSphereComponentTable chunkSphere;
     AttributeComponentTable attributes;
 

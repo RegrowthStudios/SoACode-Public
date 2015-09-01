@@ -86,4 +86,12 @@ public:
     HeadComponent component;
 };
 
+class InventoryComponentBuilder : public ECSComponentBuilder {
+public:
+    virtual void load(keg::ReadContext& reader, keg::Node node) override;
+    virtual void build(vecs::ECS& ecs, vecs::EntityID eID) override;
+
+    InventoryComponent component;
+};
+
 #endif //GameSystemComponentBuilders_h__
