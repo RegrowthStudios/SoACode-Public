@@ -11,7 +11,7 @@ public:
     static void randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk);
     static void placeBlock(Chunk* chunk, Chunk*& lockedChunk,  int blockIndex, int blockType) {
         placeBlockNoUpdate(chunk, blockIndex, blockType);
-        addBlockToUpdateList(chunk, lockedChunk, blockIndex);
+        //addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     }
     static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData);
     static void placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType);

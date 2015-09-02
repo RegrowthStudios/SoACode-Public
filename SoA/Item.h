@@ -24,12 +24,6 @@ struct ItemData {
     };
 };
 
-struct ItemStack {
-    ItemID id = 0;
-    ui32 count = 0;
-    ui32 durability = 0;
-};
-
 // Container for all item types
 // TODO(Ben): Save and load
 class ItemPack {
@@ -88,4 +82,11 @@ private:
     // TODO(Ben): worry about runtime resizing
     std::unordered_map<ItemIdentifier, ui32> m_itemMap; ///< Item indices organized by identifiers
     std::vector<ItemData> m_itemList; ///< Item data list
+};
+
+struct ItemStack {
+    ItemID id = 0;
+    ui32 count = 0;
+    ui32 durability = 0;
+    ItemPack* pack = nullptr; ///< Flyweight
 };

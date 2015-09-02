@@ -3,9 +3,11 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
+#include "ChunkGrid.h"
 #include "ChunkUpdater.h"
 #include "Item.h"
 #include "VoxelNavigation.inl"
+#include "VoxelSpaceConversions.h"
 
 void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
     if (m_startPosition.x == INT_MAX || m_endPosition.x == INT_MAX) {
@@ -23,9 +25,7 @@ void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
 }
 
 void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
-    Chunk* chunk = nullptr;
-    int blockIndex = -1;
-    int blockID;
+    BlockID blockID;
     int soundNum = 0;
     int yStart, yEnd;
     int zStart, zEnd;
@@ -33,11 +33,6 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
 
     i32v3 start = m_startPosition;
     i32v3 end = m_endPosition;
-
-    bool breakBlocks = false;
-    if (block == nullptr){
-        breakBlocks = true;
-    }
 
     //Set up iteration bounds
     if (start.y < end.y) {
@@ -65,42 +60,63 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
     }
 
     // Keep track of which chunk is locked
-    Chunk* lockedChunk = nullptr;
+    ChunkHandle chunk;
+    ChunkID currentID(0xffffffffffffffff);
+    bool locked = false;
 
-   /* for (int y = yStart; y <= yEnd; y++) {
+    for (int y = yStart; y <= yEnd; y++) {
         for (int z = zStart; z <= zEnd; z++) {
             for (int x = xStart; x <= xEnd; x++) {
-
-                chunkManager->getBlockAndChunk(i32v3(x, y, z), &chunk, blockIndex);
-
-                if (chunk && chunk->isAccessible) {
-
-                    blockID = chunk->getBlockIDSafe(lockedChunk, blockIndex);
-
-                    if (breakBlocks) {
-                        if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)) {
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
-                            soundNum++;
-                            ChunkUpdater::removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, true);
+                i32v3 chunkPos = VoxelSpaceConversions::voxelToChunk(i32v3(x, y, z));
+                ChunkID id(chunkPos);
+                if (id != currentID) {
+                    currentID = id;
+                    if (chunk.isAquired()) {
+                        if (locked) {
+                            chunk->dataMutex.unlock();
+                            locked = false;
                         }
+                        chunk.release();
+                    }
+                    chunk = grid.accessor.acquire(id);
+                    if (chunk->isAccessible) {
+                        chunk->dataMutex.lock();
+                        locked = true;
+                    }
+                }
+                if (locked) {
+                    i32v3 pos = i32v3(x, y, z) - chunkPos * CHUNK_WIDTH;
+                    int voxelIndex = pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH;
+                    blockID = chunk->blocks.get(voxelIndex);
+
+                    if (!block) {
+                        // Breaking blocks
                     } else {
-                        if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0)) {
-                            if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z));
-                            soundNum++;
-                            ChunkUpdater::placeBlock(chunk, lockedChunk, blockIndex, block->ID);
-                            block->count--;
-                            if (block->count == 0) {
-                                stopDragging();
-                                if (lockedChunk) lockedChunk->unlock();
-                                return;
+                        // Placing blocks
+                        block->count--;
+
+                        // ChunkUpdater::placeBlock(chunk, )
+                        std::cout << "Placing " << block->pack->operator[](block->id).blockID << std::endl;
+                        chunk->blocks.set(voxelIndex, block->pack->operator[](block->id).blockID);
+
+                        if (block->count == 0) {
+                            if (chunk.isAquired()) {
+                                if (locked) chunk->dataMutex.unlock();
+                                chunk.release();
                             }
+                            stopDragging();
+                            return;
                         }
+                        
                     }
                 }
             }
         }
     }
-    if (lockedChunk) lockedChunk->unlock(); */
+    if (chunk.isAquired()) {
+        if (locked) chunk->dataMutex.unlock();
+        chunk.release();
+    }
     stopDragging();
 }
 

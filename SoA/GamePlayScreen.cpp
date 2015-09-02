@@ -391,6 +391,9 @@ void GameplayScreen::initInput() {
                 VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
                 m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
                 printVec("End ", q.outer.location);
+                ItemStack& iStack = m_soaState->gameSystem->inventory.getFromEntity(pid).items[0];
+
+                m_soaState->clientState.voxelEditor.editVoxels(grid, &iStack);
             }
         });
         // Mouse movement

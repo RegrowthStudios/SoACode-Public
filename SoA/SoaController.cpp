@@ -30,6 +30,7 @@ void initCreativeInventory(vecs::EntityID eid, SoaState* state) {
             ItemStack stack;
             stack.id = state->items.append(d);
             stack.count = UINT_MAX;
+            stack.pack = &state->items;
             invCmp.items.push_back(stack);
         }
     }
