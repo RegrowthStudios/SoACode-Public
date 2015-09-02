@@ -99,6 +99,7 @@ public:
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
+    // TODO(Ben): reader/writer lock
     std::mutex dataMutex;
 
     volatile bool isAccessible = false;

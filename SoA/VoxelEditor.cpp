@@ -7,16 +7,12 @@
 #include "Item.h"
 #include "VoxelNavigation.inl"
 
-
-VoxelEditor::VoxelEditor() : _currentTool(EDITOR_TOOLS::AABOX), _startPosition(INT_MAX), _endPosition(INT_MAX) {
-}
-
 void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
-    if (_startPosition.x == INT_MAX || _endPosition.x == INT_MAX) {
+    if (m_startPosition.x == INT_MAX || m_endPosition.x == INT_MAX) {
         return;
     }
 
-    switch (_currentTool) {
+    switch (m_currentTool) {
     case EDITOR_TOOLS::AABOX:
         placeAABox(grid, block);
         break;
@@ -35,8 +31,8 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
     int zStart, zEnd;
     int xStart, xEnd;
 
-    i32v3 start = _startPosition;
-    i32v3 end = _endPosition;
+    i32v3 start = m_startPosition;
+    i32v3 end = m_endPosition;
 
     bool breakBlocks = false;
     if (block == nullptr){
@@ -110,8 +106,8 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
 
 void VoxelEditor::stopDragging() {
     //This means we no longer have a selection box
-    _startPosition = i32v3(INT_MAX);
-    _endPosition = i32v3(INT_MAX);
+    m_startPosition = i32v3(INT_MAX);
+    m_endPosition = i32v3(INT_MAX);
 }
 
 void VoxelEditor::placeLine(ChunkGrid& grid, ItemStack* block) {
@@ -119,21 +115,21 @@ void VoxelEditor::placeLine(ChunkGrid& grid, ItemStack* block) {
 }
 
 bool VoxelEditor::isEditing() {
-    return (_startPosition.x != INT_MAX && _endPosition.x != INT_MAX);
+    return (m_startPosition.x != INT_MAX && m_endPosition.x != INT_MAX);
 }
 
 void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const f32m4 &VP, int blockID)
 {
-    switch (_currentTool) {
+    switch (m_currentTool) {
         case EDITOR_TOOLS::AABOX:
             const float BOX_PAD = 0.001f;
 
             i32v3 startPosition;
-            startPosition.x = vmath::min(_startPosition.x, _endPosition.x);
-            startPosition.y = vmath::min(_startPosition.y, _endPosition.y);
-            startPosition.z = vmath::min(_startPosition.z, _endPosition.z);
+            startPosition.x = vmath::min(m_startPosition.x, m_endPosition.x);
+            startPosition.y = vmath::min(m_startPosition.y, m_endPosition.y);
+            startPosition.z = vmath::min(m_startPosition.z, m_endPosition.z);
 
-            const i32v3 size = vmath::abs(_endPosition - _startPosition) + i32v3(1);
+            const i32v3 size = vmath::abs(m_endPosition - m_startPosition) + i32v3(1);
 
             if (blockID != 0){
           //      DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, f32v4(0.0, 0.0, 1.0, 1.0));

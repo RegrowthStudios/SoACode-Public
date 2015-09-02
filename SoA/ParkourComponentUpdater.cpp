@@ -109,7 +109,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
                     f64v3 dp = vpos - aabbPos;
                     f64v3 adp(vmath::abs(dp));
 
-                    std::cout << MIN_DISTANCE.y - adp.y << std::endl;
+                   // std::cout << MIN_DISTANCE.y - adp.y << std::endl;
 
                     // Check slow feet collision first
                     if (dp.y < 0 && MIN_DISTANCE.y - adp.y < 0.55 && !cd.top) {

@@ -5,6 +5,13 @@
 
 #include <Vorb/utils.h>
 
+inline f64 fastFloorf(f64 x) {
+    return FastConversion<f64, f64>::floor(x);
+}
+inline f64 fastCeilf(f64 x) {
+    return FastConversion<f64, f64>::ceiling(x);
+}
+
 VoxelRay::VoxelRay(f64v3 start, f64v3 direction) {
     _startPos = start;
     _direction = direction;
@@ -21,11 +28,11 @@ i32v3 VoxelRay::getNextVoxelPosition() {
     // X-Distance
     if (_direction.x > 0) {
         if (_currentPos.x == (i32)_currentPos.x) next.x = _currentPos.x + 1;
-        else next.x = fastCeil(_currentPos.x);
+        else next.x = fastCeilf(_currentPos.x);
         r.x = (next.x - _currentPos.x) / _direction.x;
     } else if (_direction.x < 0) {
         if (_currentPos.x == (i32)_currentPos.x) next.x = _currentPos.x - 1;
-        else next.x = fastFloor(_currentPos.x);
+        else next.x = fastFloorf(_currentPos.x);
         r.x = (next.x - _currentPos.x) / _direction.x;
     } else {
         r.x = FLT_MAX;
@@ -34,11 +41,11 @@ i32v3 VoxelRay::getNextVoxelPosition() {
     // Y-Distance
     if (_direction.y > 0) {
         if (_currentPos.y == (i32)_currentPos.y) next.y = _currentPos.y + 1;
-        else next.y = fastCeil(_currentPos.y);
+        else next.y = fastCeilf(_currentPos.y);
         r.y = (next.y - _currentPos.y) / _direction.y;
     } else if (_direction.y < 0) {
         if (_currentPos.y == (i32)_currentPos.y) next.y = _currentPos.y - 1;
-        else next.y = fastFloor(_currentPos.y);
+        else next.y = fastFloorf(_currentPos.y);
         r.y = (next.y - _currentPos.y) / _direction.y;
     } else {
         r.y = FLT_MAX;
@@ -47,11 +54,11 @@ i32v3 VoxelRay::getNextVoxelPosition() {
     // Z-Distance
     if (_direction.z > 0) {
         if (_currentPos.z == (i32)_currentPos.z) next.z = _currentPos.z + 1;
-        else next.z = fastCeil(_currentPos.z);
+        else next.z = fastCeilf(_currentPos.z);
         r.z = (next.z - _currentPos.z) / _direction.z;
     } else if (_direction.z < 0) {
         if (_currentPos.z == (i32)_currentPos.z) next.z = _currentPos.z - 1;
-        else next.z = fastFloor(_currentPos.z);
+        else next.z = fastFloorf(_currentPos.z);
         r.z = (next.z - _currentPos.z) / _direction.z;
     } else {
         r.z = FLT_MAX;

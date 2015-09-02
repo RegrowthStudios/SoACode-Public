@@ -15,11 +15,12 @@
 #ifndef ClientState_h__
 #define ClientState_h__
 
-#include "MainMenuSystemViewer.h"
-#include "Camera.h"
 #include "BlockTextureLoader.h"
 #include "BlockTexturePack.h"
+#include "Camera.h"
+#include "MainMenuSystemViewer.h"
 #include "ModPathResolver.h"
+#include "VoxelEditor.h"
 
 class DebugRenderer;
 
@@ -34,6 +35,7 @@ struct ClientState {
     BlockTextureLoader blockTextureLoader;
     BlockTexturePack* blockTextures = nullptr;
     ModPathResolver texturePathResolver;
+    VoxelEditor voxelEditor; // TODO(Ben): Should maybe be server side?
 
     vecs::EntityID startingPlanet = 0;
     vecs::EntityID playerEntity = 0;

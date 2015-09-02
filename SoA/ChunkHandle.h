@@ -79,7 +79,7 @@ public:
     const ChunkID& getID() const {
         return m_id;
     }
-private:
+protected:
     union {
         Chunk* m_chunk;
         ChunkAccessor* m_accessor;

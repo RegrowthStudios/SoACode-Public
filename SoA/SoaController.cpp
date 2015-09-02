@@ -70,3 +70,16 @@ void SoaController::startGame(SoaState* state) {
         // TODO(Ben): This
     }
 }
+
+f64v3 SoaController::getEntityEyeVoxelPosition(SoaState* state, vecs::EntityID eid) {
+    auto& hCmp = state->gameSystem->head.getFromEntity(eid);
+    auto& vpCmp = state->gameSystem->voxelPosition.get(hCmp.voxelPosition);
+    return vpCmp.gridPosition.pos + hCmp.relativePosition;
+}
+
+f64v3 SoaController::getEntityViewVoxelDirection(SoaState* state, vecs::EntityID eid) {
+    auto& hCmp = state->gameSystem->head.getFromEntity(eid);
+    auto& vpCmp = state->gameSystem->voxelPosition.get(hCmp.voxelPosition);
+    f64v3 v(0.0, 0.0, 1.0);
+    return v * hCmp.relativeOrientation * vpCmp.orientation;
+}

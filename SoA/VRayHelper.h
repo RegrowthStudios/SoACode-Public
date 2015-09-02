@@ -2,22 +2,26 @@
 class ChunkGrid;
 class Chunk;
 
+#include "BlockData.h"
+
 // Returns True For Certain Block Type
-typedef bool(*PredBlockID)(const i32& blockID);
+typedef bool(*PredBlock)(const Block& block);
+
+extern bool solidVoxelPredBlock(const Block& block);
 
 // Queryable Information
 class VoxelRayQuery {
 public:
     // Block ID
-    i32 id;
+    BlockID id;
 
     // Location Of The Picked Block
     i32v3 location;
     f64 distance;
 
     // Address Information
-    Chunk* chunk;
-    i32 voxelIndex;
+    ChunkID chunkID;
+    ui16 voxelIndex;
 };
 class VoxelRayFullQuery {
 public:
@@ -32,8 +36,8 @@ public:
 class VRayHelper {
 public:
     // Resolve A Simple Voxel Query
-    static const VoxelRayQuery getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid* cm, PredBlockID f);
+    static const VoxelRayQuery getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid& cm, PredBlock f = &solidVoxelPredBlock);
 
     // Resolve A Voxel Query Keeping Previous Query Information
-    static const VoxelRayFullQuery getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid* cm, PredBlockID f);
+    static const VoxelRayFullQuery getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid& cm, PredBlock f = &solidVoxelPredBlock);
 };

@@ -30,6 +30,7 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
+#include "VRayHelper.h"
 #include "VoxelEditor.h"
 #include "soaUtils.h"
 
@@ -366,8 +367,31 @@ void GameplayScreen::initInput() {
         m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
         });
-        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [=](Sender s, const vui::MouseButtonEvent& e) {
-            m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+            if (m_soaState->clientState.playerEntity) {
+                vecs::EntityID pid = m_soaState->clientState.playerEntity;
+                f64v3 pos = controller.getEntityEyeVoxelPosition(m_soaState, pid);
+                f32v3 dir = controller.getEntityViewVoxelDirection(m_soaState, pid);
+                auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
+                vecs::ComponentID svid = vp.parentVoxel;
+                ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
+                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+                m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
+                printVec("Start ", q.outer.location);
+            }
+        });
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+            if (m_soaState->clientState.playerEntity) {
+                vecs::EntityID pid = m_soaState->clientState.playerEntity;
+                f64v3 pos = controller.getEntityEyeVoxelPosition(m_soaState, pid);
+                f32v3 dir = controller.getEntityViewVoxelDirection(m_soaState, pid);
+                auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
+                vecs::ComponentID svid = vp.parentVoxel;
+                ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
+                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+                m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
+                printVec("End ", q.outer.location);
+            }
         });
         // Mouse movement
         vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);

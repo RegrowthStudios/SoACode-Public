@@ -18,10 +18,15 @@
 class App;
 struct SoaState;
 
+#include <Vorb/ecs/Entity.h>
+
 class SoaController {
 public:
     virtual ~SoaController();
     void startGame(SoaState* state);
+
+    f64v3 getEntityEyeVoxelPosition(SoaState* state, vecs::EntityID eid);
+    f64v3 getEntityViewVoxelDirection(SoaState* state, vecs::EntityID eid);
 };
 
 #endif // SoaController_h__

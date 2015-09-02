@@ -268,6 +268,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem
     svcmp.chunkGrids = new ChunkGrid[6];
     for (int i = 0; i < 6; i++) {
         svcmp.chunkGrids[i].init(static_cast<WorldCubeFace>(i), svcmp.threadPool, 1, ftcmp.planetGenData, &soaState->chunkAllocator);
+        svcmp.chunkGrids[i].blockPack = &soaState->blocks;
     }
 
     svcmp.planetGenData = ftcmp.planetGenData;
