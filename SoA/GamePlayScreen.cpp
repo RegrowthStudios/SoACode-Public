@@ -375,9 +375,11 @@ void GameplayScreen::initInput() {
                 auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
                 vecs::ComponentID svid = vp.parentVoxel;
                 ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
-              //  VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
-             //   m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
-             //   printVec("Start ", q.outer.location);
+                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+                m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
+
+                std::cout << "DIST " << vmath::length(f64v3(q.outer.location) - pos);
+                printVec("Start ", q.outer.location);
                 m_renderer.debugRenderer->drawLine(pos, pos + f64v3(dir) * 100.0, color::Red);
             }
         });
@@ -389,12 +391,12 @@ void GameplayScreen::initInput() {
                 auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
                 vecs::ComponentID svid = vp.parentVoxel;
                 ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
-              //  VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
-              //  m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
-             //   printVec("End ", q.outer.location);
-             //   ItemStack& iStack = m_soaState->gameSystem->inventory.getFromEntity(pid).items[0];
+                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+                m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
+                printVec("End ", q.outer.location);
+                ItemStack& iStack = m_soaState->gameSystem->inventory.getFromEntity(pid).items[0];
 
-             //   m_soaState->clientState.voxelEditor.editVoxels(grid, &iStack);
+                m_soaState->clientState.voxelEditor.editVoxels(grid, &iStack);
             }
         });
         // Mouse movement

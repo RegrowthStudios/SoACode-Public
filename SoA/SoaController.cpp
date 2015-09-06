@@ -81,6 +81,6 @@ f64v3 SoaController::getEntityEyeVoxelPosition(SoaState* state, vecs::EntityID e
 f64v3 SoaController::getEntityViewVoxelDirection(SoaState* state, vecs::EntityID eid) {
     auto& hCmp = state->gameSystem->head.getFromEntity(eid);
     auto& vpCmp = state->gameSystem->voxelPosition.get(hCmp.voxelPosition);
-    f64v3 v(0.0, 0.0, -1.0);
-    return v * hCmp.relativeOrientation * vpCmp.orientation;
+    f64v3 v(0.0, 0.0, 1.0);
+    return vpCmp.orientation * hCmp.relativeOrientation * v;
 }
