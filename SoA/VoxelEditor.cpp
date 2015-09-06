@@ -97,8 +97,9 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
 
                         // ChunkUpdater::placeBlock(chunk, )
                         std::cout << "Placing " << block->pack->operator[](block->id).blockID << std::endl;
-                        chunk->blocks.set(voxelIndex, block->pack->operator[](block->id).blockID);
-
+                        ChunkUpdater::placeBlockNoUpdate(chunk, voxelIndex, block->pack->operator[](block->id).blockID);
+                        // TODO(Ben): Once per chunk
+                        chunk->DataChange(chunk);
                         if (block->count == 0) {
                             if (chunk.isAquired()) {
                                 if (locked) chunk->dataMutex.unlock();

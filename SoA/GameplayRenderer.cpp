@@ -7,6 +7,7 @@
 
 #include "ChunkMeshManager.h"
 #include "CommonState.h"
+#include "DebugRenderer.h"
 #include "Errors.h"
 #include "GameSystem.h"
 #include "GameplayScreen.h"
@@ -230,6 +231,11 @@ void GameplayRenderer::render() {
         stages.chunkGrid.render(&m_voxelCamera);
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
+
+        if (debugRenderer) {
+            debugRenderer->render(m_voxelCamera.getViewProjectionMatrix(),
+                                  m_voxelCamera.getPosition());
+        }
     }
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

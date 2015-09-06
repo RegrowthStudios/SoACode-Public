@@ -239,3 +239,8 @@ void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
 
     disposeMesh(mesh);
 }
+
+void ChunkMeshManager::onDataChange(Sender s, ChunkHandle& chunk) {
+    std::lock_guard<std::mutex> l(m_lckPendingMesh);
+    m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
+}

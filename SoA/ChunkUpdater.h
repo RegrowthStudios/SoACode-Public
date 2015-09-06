@@ -1,7 +1,10 @@
 #pragma once
 #include "Constants.h"
 
-class Chunk;
+// TODO(Ben): Temporary
+#include "BlockData.h"
+#include "Chunk.h"
+
 class PhysicsEngine;
 class ChunkManager;
 enum class ChunkStates;
@@ -9,12 +12,12 @@ enum class ChunkStates;
 class ChunkUpdater {
 public:
     static void randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk);
-    static void placeBlock(Chunk* chunk, Chunk*& lockedChunk,  int blockIndex, int blockType) {
-        placeBlockNoUpdate(chunk, blockIndex, blockType);
+    static void placeBlock(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
+        placeBlockNoUpdate(chunk, blockIndex, blockData);
         //addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     }
-    static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData);
-    static void placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType);
+    static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData);
+    static void placeBlockNoUpdate(Chunk* chunk, BlockIndex blockIndex, BlockID blockType);
     static void placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
   

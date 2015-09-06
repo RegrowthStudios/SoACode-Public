@@ -27,6 +27,9 @@
 class Chunk;
 typedef Chunk* ChunkPtr;
 
+// TODO(Ben): Move to file
+typedef ui16 BlockIndex;
+
 class ChunkGridData {
 public:
     ChunkGridData() {};
@@ -112,6 +115,8 @@ public:
     volatile ui32 updateVersion;
 
     ChunkAccessor* accessor = nullptr;
+
+    static Event<ChunkHandle&> DataChange;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;

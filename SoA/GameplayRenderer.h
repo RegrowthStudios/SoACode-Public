@@ -64,6 +64,7 @@ class SkyboxRenderStage;
 class SpaceSystem;
 class SpaceSystemRenderStage;
 class TransparentVoxelRenderStage;
+class DebugRenderer;
 struct MTRenderState;
 struct CommonState;
 struct SoaState;
@@ -121,6 +122,8 @@ public:
         BloomRenderStage bloom; ///< Renders Bloom effect
         ExposureCalcRenderStage exposureCalc; ///< Calculate exposure
     } stages;
+
+    DebugRenderer* debugRenderer = nullptr;
 
 private:
     void updateCameras();

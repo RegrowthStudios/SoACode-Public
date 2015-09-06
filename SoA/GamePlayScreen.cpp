@@ -375,9 +375,10 @@ void GameplayScreen::initInput() {
                 auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
                 vecs::ComponentID svid = vp.parentVoxel;
                 ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
-                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
-                m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
-                printVec("Start ", q.outer.location);
+              //  VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+             //   m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
+             //   printVec("Start ", q.outer.location);
+                m_renderer.debugRenderer->drawLine(pos, pos + f64v3(dir) * 100.0, color::Red);
             }
         });
         m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
@@ -388,12 +389,12 @@ void GameplayScreen::initInput() {
                 auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
                 vecs::ComponentID svid = vp.parentVoxel;
                 ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
-                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
-                m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
-                printVec("End ", q.outer.location);
-                ItemStack& iStack = m_soaState->gameSystem->inventory.getFromEntity(pid).items[0];
+              //  VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+              //  m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
+             //   printVec("End ", q.outer.location);
+             //   ItemStack& iStack = m_soaState->gameSystem->inventory.getFromEntity(pid).items[0];
 
-                m_soaState->clientState.voxelEditor.editVoxels(grid, &iStack);
+             //   m_soaState->clientState.voxelEditor.editVoxels(grid, &iStack);
             }
         });
         // Mouse movement
@@ -413,13 +414,7 @@ void GameplayScreen::initInput() {
 }
 
 void GameplayScreen::initRenderPipeline() {
-    // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, m_app->getWindow().getViewportDims());
-   /* m_renderPipeline.init(viewport, m_soaState,
-                          m_app, &m_pda,
-                          m_soaState->spaceSystem,
-                          m_soaState->gameSystem,
-                          &m_pauseMenu);*/
+    m_renderer.debugRenderer = m_soaState->clientState.debugRenderer;
 }
 
 // TODO(Ben): Collision

@@ -62,6 +62,7 @@ private:
     void onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen);
     void onNeighborsAcquire(Sender s, ChunkHandle& chunk);
     void onNeighborsRelease(Sender s, ChunkHandle& chunk);
+    void onDataChange(Sender s, ChunkHandle& chunk);
 
     /************************************************************************/
     /* Members                                                              */

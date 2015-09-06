@@ -42,74 +42,72 @@ const static GLuint CUBE_INDICES[36] = {
     6, 2, 1,
 };
 
-class SimpleMesh {
-public:
-    GLuint vertexBufferID;
-    GLuint indexBufferID;
-    int numVertices;
-    int numIndices;
+struct SimpleMeshVertex {
+    f32v3 position;
+    color4 color;
 };
 
-class Icosphere {
-public:
-    f32v3 position;
+struct SimpleMesh {
+    std::vector<f32v3> vertices;
+    std::vector<ui32> indices;
+};
+
+struct Icosphere {
+    f64v3 position;
     float radius;
-    f32v4 color;
+    color4 color;
     int lod;
     double timeTillDeletion; //ms
 };
 
-class Cube {
-public:
-    f32v3 position;
-    f32v3 size;
-    f32v4 color;
+struct Cube {
+    f64v3 position;
+    f64v3 size;
+    color4 color;
     double timeTillDeletion; //ms
 };
 
-class Line {
-public:
-    f32v3 position1;
-    f32v3 position2;
-    f32v4 color;
+struct Line {
+    f64v3 position1;
+    f64v3 position2;
+    color4 color;
     double timeTillDeletion; //ms
+};
+
+struct DebugRenderContext {
+    std::vector<Icosphere> icospheres;
+    std::vector<Cube> cubes;
+    std::vector<Line> lines;
 };
 
 class DebugRenderer {
 public:
-    DebugRenderer();
     ~DebugRenderer();
 
-    void render(const f32m4 &vp, const f32v3& playerPos, const f32m4& w = f32m4(1.0));
+    void render(const f32m4 &vp, const f64v3& viewPosition, const f32m4& w = f32m4(1.0));
 
-    void drawIcosphere(const f32v3 &position, const float radius, const f32v4 &color, const int lod, const double duration = -1.0f);
-    void drawCube(const f32v3 &position, const f32v3 &size, const f32v4 &color, const double duration = -1.0f);
-    void drawLine(const f32v3 &startPoint, const f32v3 &endPoint, const f32v4 &color, const double duration = -1.0f);
+    void drawIcosphere(const f64v3 &position, const float radius, const color4 &color, const int lod, ui32 context = 0, const double duration = FLT_MAX);
+    void drawCube(const f64v3 &position, const f64v3 &size, const color4 &color, ui32 context = 0, const double duration = FLT_MAX);
+    void drawLine(const f64v3 &startPoint, const f64v3 &endPoint, const color4 &color, ui32 context = 0, const double duration = FLT_MAX);
 
 private:
-    void renderIcospheres(const f32m4& vp, const f32m4& w, const f32v3& playerPos, const double deltaT);
-    void renderCubes(const f32m4& vp, const f32m4& w, const f32v3& playerPos, const double deltaT);
-    void renderLines(const f32m4& v, const f32m4& w, const f32v3& playerPosp, const double deltaT);
+    void renderIcospheres(std::vector<Icosphere>& icospheres, const f32m4& vp, const f32m4& w, const f64v3& viewPosition, const double deltaT);
+    void renderCubes(std::vector<Cube>& cubes, const f32m4& vp, const f32m4& w, const f64v3& viewPosition, const double deltaT);
+    void renderLines(std::vector<Line>& lines, const f32m4& v, const f32m4& w, const f64v3& viewPosition, const double deltaT);
 
     void createIcosphere(const int lod);
 
-    SimpleMesh* DebugRenderer::createMesh(const f32v3* vertices, const int numVertices, const GLuint* indices, const int numIndices);
-    SimpleMesh* createMesh(const std::vector<f32v3>& vertices, const std::vector<GLuint>& indices);
-
-    std::vector<Icosphere> _icospheresToRender;
-    std::vector<Cube> _cubesToRender;
-    std::vector<Line> _linesToRender;
+    std::map<ui32, DebugRenderContext> m_contexts;
 
     //Icosphere meshes sorted by level of detail
-    std::map<int, SimpleMesh*> _icosphereMeshes;
-    SimpleMesh* _cubeMesh;
-    SimpleMesh* _lineMesh;
+    std::map<int, SimpleMesh> m_icosphereMeshes;
 
     // Program that is currently in use
     vg::GLProgram m_program;
 
-    static f32m4 _modelMatrix; ///< Reusable model matrix
+    VGBuffer m_vbo = 0;
+    VGIndexBuffer m_ibo = 0;
 
-    std::chrono::time_point<std::chrono::system_clock> _previousTimePoint;
-    std::chrono::time_point<std::chrono::system_clock> _currentTimePoint;
+    std::chrono::time_point<std::chrono::system_clock> m_previousTimePoint;
+    std::chrono::time_point<std::chrono::system_clock> m_currentTimePoint;
 };

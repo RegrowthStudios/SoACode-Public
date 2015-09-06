@@ -116,13 +116,16 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
     //if (lockedChunk) lockedChunk->unlock();
 }
 
-void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData) {
+void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
    /* vvox::swapLockedChunk(chunk, lockedChunk);
     placeBlock(chunk, lockedChunk, blockIndex, blockData);*/
 }
 
-void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
+void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, BlockIndex blockIndex, BlockID blockType) {
  
+    chunk->blocks.set(blockIndex, blockType);
+    chunk->flagDirty();
+
     //Block &block = GETBLOCK(blockType);
 
     //if (chunk->getBlockData(blockIndex) == NONE) {
