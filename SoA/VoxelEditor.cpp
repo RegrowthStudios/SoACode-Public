@@ -60,9 +60,11 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
     }
 
     // Keep track of which chunk is locked
-    ChunkHandle chunk;
+    Chunk* chunk = nullptr;
     ChunkID currentID(0xffffffffffffffff);
     bool locked = false;
+
+    std::map<ChunkID, ChunkHandle> modifiedChunks;
 
     for (int y = yStart; y <= yEnd; y++) {
         for (int z = zStart; z <= zEnd; z++) {
@@ -71,14 +73,19 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
                 ChunkID id(chunkPos);
                 if (id != currentID) {
                     currentID = id;
-                    if (chunk.isAquired()) {
+                    if (chunk) {
                         if (locked) {
                             chunk->dataMutex.unlock();
                             locked = false;
                         }
-                        chunk.release();
                     }
-                    chunk = grid.accessor.acquire(id);
+                    // Only need to aquire once
+                    auto& it = modifiedChunks.find(currentID);
+                    if (it == modifiedChunks.end()) {
+                        chunk = modifiedChunks.insert(std::make_pair(currentID, grid.accessor.acquire(id))).first->second;
+                    } else {
+                        chunk = it->second;
+                    }
                     if (chunk->isAccessible) {
                         chunk->dataMutex.lock();
                         locked = true;
@@ -97,12 +104,13 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
 
                         // ChunkUpdater::placeBlock(chunk, )
                         ChunkUpdater::placeBlockNoUpdate(chunk, voxelIndex, block->pack->operator[](block->id).blockID);
-                        // TODO(Ben): Once per chunk
-                        chunk->DataChange(chunk);
                         if (block->count == 0) {
-                            if (chunk.isAquired()) {
-                                if (locked) chunk->dataMutex.unlock();
-                                chunk.release();
+                            if (locked) chunk->dataMutex.unlock();
+                            for (auto& it : modifiedChunks) {
+                                if (it.second->isAccessible) {
+                                    it.second->DataChange(it.second);
+                                }
+                                it.second.release();
                             }
                             stopDragging();
                             return;
@@ -113,9 +121,12 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
             }
         }
     }
-    if (chunk.isAquired()) {
-        if (locked) chunk->dataMutex.unlock();
-        chunk.release();
+    if (locked) chunk->dataMutex.unlock();
+    for (auto& it : modifiedChunks) {
+        if (it.second->isAccessible) {
+            it.second->DataChange(it.second);
+        }
+        it.second.release();
     }
     stopDragging();
 }
