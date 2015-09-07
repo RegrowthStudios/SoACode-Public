@@ -4,5 +4,5 @@
 #include "ChunkGrid.h"
 
 void ChunkQuery::release() {
-    m_grid->releaseQuery(this);
+    grid->releaseQuery(this);
 }

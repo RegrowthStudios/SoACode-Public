@@ -48,6 +48,9 @@ public:
 
     // Loading Information
     PlanetHeightData* heightData;
+
+private:
+    void generateFlora(WorkerData* workerData, Chunk& chunk);
 };
 
 #endif // LoadTask_h__
