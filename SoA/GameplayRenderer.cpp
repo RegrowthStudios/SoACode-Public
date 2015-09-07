@@ -180,6 +180,7 @@ void GameplayRenderer::hook() {
     stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
     stages.bloom.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
+    m_commonState->stages.spaceSystem.setFarTerrainCamera(&m_voxelCamera);
 }
 
 void GameplayRenderer::updateGL() {

@@ -54,6 +54,8 @@ public:
     //TODO(Ben): Pointer to window viewport instead?
     void setViewport(const ui32v2& viewport) { m_viewport = f32v2(viewport); }
 
+    void setFarTerrainCamera(const Camera* camera) { m_farTerrainCamera = camera; }
+
     /// Call this every frame before render
     void setRenderState(const MTRenderState* renderState);
     /// Draws the render stage
