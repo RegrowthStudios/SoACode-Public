@@ -42,7 +42,7 @@ void GenerateTask::execute(WorkerData* workerData) {
 }
 
 struct VoxelToPlace {
-    VoxelToPlace(ui16 blockId, ui16 blockIndex) : blockID(blockID), blockIndex(blockIndex) {};
+    VoxelToPlace(ui16 blockID, ui16 blockIndex) : blockID(blockID), blockIndex(blockIndex) {};
     ui16 blockID;
     ui16 blockIndex;
 };
@@ -74,6 +74,7 @@ void GenerateTask::generateFlora(WorkerData* workerData, Chunk& chunk) {
         id.x += FloraGenerator::getChunkXOffset(it.chunkOffset);
         id.y += FloraGenerator::getChunkYOffset(it.chunkOffset);
         id.z += FloraGenerator::getChunkZOffset(it.chunkOffset);
+
         chunkMap[id].wNodes.emplace_back(it.blockID, it.blockIndex);
     }
 
