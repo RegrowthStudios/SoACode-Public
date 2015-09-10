@@ -32,7 +32,7 @@ class SphericalHeightmapGenerator;
 // Represents A Mesh Creation Task
 class TerrainPatchMeshTask : public vcore::IThreadPoolTask < WorkerData > {
 public:
-    TerrainPatchMeshTask() : vcore::IThreadPoolTask<WorkerData>(false, TERRAIN_MESH_TASK_ID) {}
+    TerrainPatchMeshTask() : vcore::IThreadPoolTask<WorkerData>(TERRAIN_MESH_TASK_ID) {}
 
     // Initializes the task
     void init(const TerrainPatchData* patchData,

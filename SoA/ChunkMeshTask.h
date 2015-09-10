@@ -46,7 +46,7 @@ enum MeshNeighborHandles {
 // Represents A Mesh Creation Task
 class ChunkMeshTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    ChunkMeshTask() : vcore::IThreadPoolTask<WorkerData>(false, CHUNK_MESH_TASK_ID) {}
+    ChunkMeshTask() : vcore::IThreadPoolTask<WorkerData>(CHUNK_MESH_TASK_ID) {}
 
     // Executes the task
     void execute(WorkerData* workerData) override;

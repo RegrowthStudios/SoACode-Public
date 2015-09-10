@@ -574,7 +574,6 @@ EXIT 0</Command>
     <ClInclude Include="FarTerrainComponentUpdater.h" />
     <ClInclude Include="FarTerrainPatch.h" />
     <ClInclude Include="Flora.h" />
-    <ClInclude Include="FloraTask.h" />
     <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
@@ -800,7 +799,6 @@ EXIT 0</Command>
     <ClCompile Include="FarTerrainComponentUpdater.cpp" />
     <ClCompile Include="FarTerrainPatch.cpp" />
     <ClCompile Include="Flora.cpp" />
-    <ClCompile Include="FloraTask.cpp" />
     <ClCompile Include="FrustumComponentUpdater.cpp" />
     <ClCompile Include="GameplayLoadScreen.cpp" />
     <ClCompile Include="GameplayRenderer.cpp" />
