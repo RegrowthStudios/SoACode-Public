@@ -729,6 +729,7 @@ EXIT 0</Command>
     <ClInclude Include="VoxelNodeSetterTask.h" />
     <ClInclude Include="VoxelSpaceConversions.h" />
     <ClInclude Include="VoxelSpaceUtils.h" />
+    <ClInclude Include="VoxelUpdateBufferer.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="VoxelVertices.h" />
     <ClInclude Include="VoxPool.h" />

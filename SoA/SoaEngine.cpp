@@ -4,12 +4,13 @@
 #include "BlockData.h"
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
+#include "ChunkUpdater.h"
 #include "DebugRenderer.h"
+#include "GameSystemComponentBuilders.h"
 #include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
-#include "GameSystemComponentBuilders.h"
 
 #define M_PER_KM 1000.0
 
@@ -88,6 +89,7 @@ void SoaEngine::initState(SoaState* state) {
         }
     }
 
+    ChunkUpdater::blockPack = &state->blocks;
 
     // TODO(Ben): Move somewhere else
     initClientState(state, state->clientState);

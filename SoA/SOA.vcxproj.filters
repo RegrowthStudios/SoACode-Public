@@ -398,9 +398,6 @@
     <ClInclude Include="CellularAutomataTask.h">
       <Filter>SOA Files\Voxel\Tasking</Filter>
     </ClInclude>
-    <ClInclude Include="FloraTask.h">
-      <Filter>SOA Files\Voxel\Tasking</Filter>
-    </ClInclude>
     <ClInclude Include="PauseMenu.h">
       <Filter>SOA Files\Screens\Gameplay</Filter>
     </ClInclude>
@@ -877,6 +874,9 @@
     </ClInclude>
     <ClInclude Include="VoxelNodeSetterTask.h">
       <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelUpdateBufferer.h">
+      <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

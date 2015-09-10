@@ -7,13 +7,14 @@
 
 class PhysicsEngine;
 class ChunkManager;
+class BlockPack;
 enum class ChunkStates;
 
 class ChunkUpdater {
 public:
     static void randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk);
     static void placeBlock(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
-        placeBlockNoUpdate(chunk, blockIndex, blockData);
+        updateBlockAndNeighbors(chunk, blockIndex, blockData);
         //addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     }
     static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData);
@@ -29,9 +30,12 @@ public:
     static void updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state);
     static void updateNeighborStates(Chunk* chunk, int blockID, ChunkStates state);
 
-    static void addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c);
+    // Assumes chunk is already locked.
+    static void updateBlockAndNeighbors(Chunk* chunk, BlockIndex index);
+    static void updateBlockAndNeighbors(Chunk* chunk, BlockIndex index, BlockID id);
     static void snowAddBlockToUpdateList(Chunk* chunk, int c);
 
+    static BlockPack* blockPack = nullptr;
 private:
     //TODO: Replace with emitterOnBreak
     static void breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force = 0.0f, f32v3 extraForce = f32v3(0.0f));
