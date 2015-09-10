@@ -97,7 +97,7 @@ public:
                  ChunkHandle front);
         UNIONIZE(ChunkHandle neighbors[6]);
     };
-    ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    volatile ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
     bool isDirty;
     f32 distance2; //< Squared distance

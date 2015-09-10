@@ -875,6 +875,12 @@
     <ClInclude Include="Item.h">
       <Filter>SOA Files\Game\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="VoxelNodeSetter.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelNodeSetterTask.h">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">
@@ -1443,6 +1449,12 @@
     </ClCompile>
     <ClCompile Include="Item.cpp">
       <Filter>SOA Files\Game\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelNodeSetter.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelNodeSetterTask.cpp">
+      <Filter>SOA Files\Game\Universe\Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

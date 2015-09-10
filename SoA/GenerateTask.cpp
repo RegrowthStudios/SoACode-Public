@@ -41,12 +41,6 @@ void GenerateTask::execute(WorkerData* workerData) {
     chunkGenerator->finishQuery(query);
 }
 
-struct VoxelToPlace {
-    VoxelToPlace(ui16 blockID, ui16 blockIndex) : blockID(blockID), blockIndex(blockIndex) {};
-    ui16 blockID;
-    ui16 blockIndex;
-};
-
 struct ChunkFloraArrays {
     std::vector<VoxelToPlace> fNodes;
     std::vector<VoxelToPlace> wNodes;
@@ -83,17 +77,21 @@ void GenerateTask::generateFlora(WorkerData* workerData, Chunk& chunk) {
         ChunkHandle h = query->grid->accessor.acquire(it.first);
         // TODO(Ben): Handle other case
         if (h->genLevel >= GEN_TERRAIN) {
-            std::lock_guard<std::mutex> l(h->dataMutex);
-            for (auto& node : it.second.wNodes) {
-                h->blocks.set(node.blockIndex, node.blockID);
-            }
-            for (auto& node : it.second.fNodes) {
-                if (h->blocks.get(node.blockIndex) == 0) {
+            {
+                std::lock_guard<std::mutex> l(h->dataMutex);
+                for (auto& node : it.second.wNodes) {
                     h->blocks.set(node.blockIndex, node.blockID);
+                }
+                for (auto& node : it.second.fNodes) {
+                    if (h->blocks.get(node.blockIndex) == 0) {
+                        h->blocks.set(node.blockIndex, node.blockID);
+                    }
                 }
             }
 
             if (h->genLevel == GEN_DONE) h->DataChange(h);
+        } else {
+            query->grid->nodeSetter.setNodes(h, GEN_TERRAIN, it.second.wNodes, it.second.fNodes);
         }
         h.release();
     }

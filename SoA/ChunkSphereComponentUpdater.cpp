@@ -240,13 +240,14 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
 }
 
 void ChunkSphereComponentUpdater::releaseAndDisconnect(ChunkSphereComponent& cmp, ChunkHandle& h) {
+    // Call the event first to prevent race condition
+    cmp.chunkGrid->onNeighborsRelease(h);
     h->left.release();
     h->right.release();
     h->back.release();
     h->front.release();
     h->bottom.release();
     h->top.release();
-    cmp.chunkGrid->onNeighborsRelease(h);
     h.release();
 }
 

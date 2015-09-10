@@ -21,6 +21,8 @@ void ChunkGrid::init(WorldCubeFace face,
     accessor.init(allocator);
     accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
     accessor.onRemove += makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    nodeSetter.grid = this;
+    nodeSetter.threadPool = threadPool;
 }
 
 void ChunkGrid::dispose() {
@@ -82,6 +84,9 @@ void ChunkGrid::update() {
         q->genTask.init(q, q->chunk->gridData->heightData, &generators[0]);
         generators[0].submitQuery(q);
     }
+    
+    // Place any needed nodes
+    nodeSetter.update();
 }
 
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle& chunk) {

@@ -726,6 +726,8 @@ EXIT 0</Command>
     <ClInclude Include="VoxelModelMesh.h" />
     <ClInclude Include="VoxelModelRenderer.h" />
     <ClInclude Include="VoxelNavigation.inl" />
+    <ClInclude Include="VoxelNodeSetter.h" />
+    <ClInclude Include="VoxelNodeSetterTask.h" />
     <ClInclude Include="VoxelSpaceConversions.h" />
     <ClInclude Include="VoxelSpaceUtils.h" />
     <ClInclude Include="VoxelUtils.h" />
@@ -936,6 +938,8 @@ EXIT 0</Command>
     <ClCompile Include="VoxelModelLoader.cpp" />
     <ClCompile Include="VoxelModelMesh.cpp" />
     <ClCompile Include="VoxelModelRenderer.cpp" />
+    <ClCompile Include="VoxelNodeSetter.cpp" />
+    <ClCompile Include="VoxelNodeSetterTask.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
     <ClCompile Include="VoxelSpaceConversions.cpp" />
     <ClCompile Include="VoxelSpaceUtils.cpp" />

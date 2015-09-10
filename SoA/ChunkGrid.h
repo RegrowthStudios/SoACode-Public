@@ -26,6 +26,8 @@
 #include "ChunkAccessor.h"
 #include "ChunkHandle.h"
 
+#include "VoxelNodeSetter.h"
+
 class BlockPack;
 
 class ChunkGrid {
@@ -66,6 +68,8 @@ public:
 
     ChunkAccessor accessor;
     BlockPack* blockPack = nullptr; ///< Handle to the block pack for this grid
+
+    VoxelNodeSetter nodeSetter;
 
     Event<ChunkHandle&> onNeighborsAcquire;
     Event<ChunkHandle&> onNeighborsRelease;
