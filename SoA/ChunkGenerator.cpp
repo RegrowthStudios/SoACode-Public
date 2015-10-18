@@ -19,7 +19,7 @@ void ChunkGenerator::submitQuery(ChunkQuery* query) {
     // Check if its already done
     if (chunk.genLevel >= query->genLevel) {
         query->m_isFinished = true;
-        query->m_cond.notify_one();
+        query->m_cond.notify_all();
         query->chunk.release();
         if (query->shouldRelease) query->release();
         return;
@@ -79,7 +79,7 @@ void ChunkGenerator::update() {
             // If the chunk is done generating, we can signal all queries as done.
             for (auto& q2 : chunk.m_genQueryData.pending) {
                 q2->m_isFinished = true;
-                q2->m_cond.notify_one();
+                q2->m_cond.notify_all();
                 chunk.isAccessible = true;
                 q2->chunk.release();
                 if (q2->shouldRelease) q2->release();
@@ -96,7 +96,7 @@ void ChunkGenerator::update() {
                 if (q2->genLevel <= chunk.genLevel) {
                     // TODO(Ben): This looks wrong. We don't remove from pending.
                     q2->m_isFinished = true;
-                    q2->m_cond.notify_one();
+                    q2->m_cond.notify_all();
                     chunk.isAccessible = true;
                     // TODO(Ben): Do we care about order?
                     chunk.m_genQueryData.pending[i] = chunk.m_genQueryData.pending.back();

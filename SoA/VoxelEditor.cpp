@@ -3,137 +3,160 @@
 
 #include "BlockData.h"
 #include "Chunk.h"
+#include "ChunkGrid.h"
 #include "ChunkUpdater.h"
 #include "Item.h"
 #include "VoxelNavigation.inl"
+#include "VoxelSpaceConversions.h"
 
-
-VoxelEditor::VoxelEditor() : _currentTool(EDITOR_TOOLS::AABOX), _startPosition(INT_MAX), _endPosition(INT_MAX) {
-}
-
-void VoxelEditor::editVoxels(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block) {
-    if (_startPosition.x == INT_MAX || _endPosition.x == INT_MAX) {
+void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
+    if (m_startPosition.x == INT_MAX || m_endPosition.x == INT_MAX) {
         return;
     }
 
-    switch (_currentTool) {
+    switch (m_currentTool) {
     case EDITOR_TOOLS::AABOX:
-        placeAABox(chunkManager, physicsEngine, block);
+        placeAABox(grid, block);
         break;
     case EDITOR_TOOLS::LINE:
-        placeLine(chunkManager, block);
+        placeLine(grid, block);
         break;
     }
 }
 
-void VoxelEditor::placeAABox(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Item *block) {
-    //Chunk* chunk = nullptr;
-    //int blockIndex = -1, blockID;
-    //int soundNum = 0;
-    //int yStart, yEnd;
-    //int zStart, zEnd;
-    //int xStart, xEnd;
+void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
+    BlockID blockID;
+    int soundNum = 0;
+    int yStart, yEnd;
+    int zStart, zEnd;
+    int xStart, xEnd;
 
-    //i32v3 start = _startPosition;
-    //i32v3 end = _endPosition;
+    i32v3 start = m_startPosition;
+    i32v3 end = m_endPosition;
 
-    //bool breakBlocks = false;
-    //if (block == nullptr){
-    //    breakBlocks = true;
-    //}
+    //Set up iteration bounds
+    if (start.y < end.y) {
+        yStart = start.y;
+        yEnd = end.y;
+    } else {
+        yEnd = start.y;
+        yStart = end.y;
+    }
 
-    ////Set up iteration bounds
-    //if (start.y < end.y) {
-    //    yStart = start.y;
-    //    yEnd = end.y;
-    //} else {
-    //    yEnd = start.y;
-    //    yStart = end.y;
-    //}
+    if (start.z < end.z) {
+        zStart = start.z;
+        zEnd = end.z;
+    } else {
+        zEnd = start.z;
+        zStart = end.z;
+    }
 
-    //if (start.z < end.z) {
-    //    zStart = start.z;
-    //    zEnd = end.z;
-    //} else {
-    //    zEnd = start.z;
-    //    zStart = end.z;
-    //}
+    if (start.x < end.x) {
+        xStart = start.x;
+        xEnd = end.x;
+    } else {
+        xEnd = start.x;
+        xStart = end.x;
+    }
 
-    //if (start.x < end.x) {
-    //    xStart = start.x;
-    //    xEnd = end.x;
-    //} else {
-    //    xEnd = start.x;
-    //    xStart = end.x;
-    //}
+    // Keep track of which chunk is locked
+    Chunk* chunk = nullptr;
+    ChunkID currentID(0xffffffffffffffff);
+    bool locked = false;
 
-    //// Keep track of which chunk is locked
-    //Chunk* lockedChunk = nullptr;
+    std::map<ChunkID, ChunkHandle> modifiedChunks;
 
-    //for (int y = yStart; y <= yEnd; y++) {
-    //    for (int z = zStart; z <= zEnd; z++) {
-    //        for (int x = xStart; x <= xEnd; x++) {
+    for (int y = yStart; y <= yEnd; y++) {
+        for (int z = zStart; z <= zEnd; z++) {
+            for (int x = xStart; x <= xEnd; x++) {
+                i32v3 chunkPos = VoxelSpaceConversions::voxelToChunk(i32v3(x, y, z));
+                ChunkID id(chunkPos);
+                if (id != currentID) {
+                    currentID = id;
+                    if (chunk) {
+                        if (locked) {
+                            chunk->dataMutex.unlock();
+                            locked = false;
+                        }
+                    }
+                    // Only need to aquire once
+                    auto& it = modifiedChunks.find(currentID);
+                    if (it == modifiedChunks.end()) {
+                        chunk = modifiedChunks.insert(std::make_pair(currentID, grid.accessor.acquire(id))).first->second;
+                    } else {
+                        chunk = it->second;
+                    }
+                    if (chunk->isAccessible) {
+                        chunk->dataMutex.lock();
+                        locked = true;
+                    }
+                }
+                if (locked) {
+                    i32v3 pos = i32v3(x, y, z) - chunkPos * CHUNK_WIDTH;
+                    int voxelIndex = pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH;
+                    blockID = chunk->blocks.get(voxelIndex);
 
-    //            chunkManager->getBlockAndChunk(i32v3(x, y, z), &chunk, blockIndex);
+                    if (!block) {
+                        // Breaking blocks
+                    } else {
+                        // Placing blocks
+                        block->count--;
 
-    //            if (chunk && chunk->isAccessible) {
-    //              
-    //                blockID = chunk->getBlockIDSafe(lockedChunk, blockIndex);
-
-    //                if (breakBlocks){
-    //                    if (blockID != NONE && !(blockID >= LOWWATER && blockID <= FULLWATER)){
-    //                        if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("BreakBlock", 0, 1.0f, 0, f64v3(x, y, z));
-    //                        soundNum++;
-    //                        ChunkUpdater::removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, true);
-    //                    }
-    //                } else {
-    //                    if (blockID == NONE || (blockID >= LOWWATER && blockID <= FULLWATER) || (Blocks[blockID].isSupportive == 0))
-    //                    {
-    //                        if (soundNum < 50) GameManager::soundEngine->PlayExistingSound("PlaceBlock", 0, 1.0f, 0, f64v3(x, y, z));
-    //                        soundNum++;
-    //                        ChunkUpdater::placeBlock(chunk, lockedChunk, blockIndex, block->ID);
-    //                        block->count--;
-    //                        if (block->count == 0){
-    //                            stopDragging();
-    //                            if (lockedChunk) lockedChunk->unlock();
-    //                            return;
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-    //if (lockedChunk) lockedChunk->unlock();
-    //stopDragging();
+                        // ChunkUpdater::placeBlock(chunk, )
+                        ChunkUpdater::placeBlockNoUpdate(chunk, voxelIndex, block->pack->operator[](block->id).blockID);
+                        if (block->count == 0) {
+                            if (locked) chunk->dataMutex.unlock();
+                            for (auto& it : modifiedChunks) {
+                                if (it.second->isAccessible) {
+                                    it.second->DataChange(it.second);
+                                }
+                                it.second.release();
+                            }
+                            stopDragging();
+                            return;
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+    if (locked) chunk->dataMutex.unlock();
+    for (auto& it : modifiedChunks) {
+        if (it.second->isAccessible) {
+            it.second->DataChange(it.second);
+        }
+        it.second.release();
+    }
+    stopDragging();
 }
 
 void VoxelEditor::stopDragging() {
     //This means we no longer have a selection box
-    _startPosition = i32v3(INT_MAX);
-    _endPosition = i32v3(INT_MAX);
+    m_startPosition = i32v3(INT_MAX);
+    m_endPosition = i32v3(INT_MAX);
 }
 
-void VoxelEditor::placeLine(ChunkManager* chunkManager, Item *block) {
+void VoxelEditor::placeLine(ChunkGrid& grid, ItemStack* block) {
 
 }
 
 bool VoxelEditor::isEditing() {
-    return (_startPosition.x != INT_MAX && _endPosition.x != INT_MAX);
+    return (m_startPosition.x != INT_MAX && m_endPosition.x != INT_MAX);
 }
 
 void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const f32m4 &VP, int blockID)
 {
-    switch (_currentTool) {
+    switch (m_currentTool) {
         case EDITOR_TOOLS::AABOX:
             const float BOX_PAD = 0.001f;
 
             i32v3 startPosition;
-            startPosition.x = vmath::min(_startPosition.x, _endPosition.x);
-            startPosition.y = vmath::min(_startPosition.y, _endPosition.y);
-            startPosition.z = vmath::min(_startPosition.z, _endPosition.z);
+            startPosition.x = vmath::min(m_startPosition.x, m_endPosition.x);
+            startPosition.y = vmath::min(m_startPosition.y, m_endPosition.y);
+            startPosition.z = vmath::min(m_startPosition.z, m_endPosition.z);
 
-            const i32v3 size = vmath::abs(_endPosition - _startPosition) + i32v3(1);
+            const i32v3 size = vmath::abs(m_endPosition - m_startPosition) + i32v3(1);
 
             if (blockID != 0){
           //      DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, f32v4(0.0, 0.0, 1.0, 1.0));

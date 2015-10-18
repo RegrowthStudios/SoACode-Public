@@ -21,6 +21,8 @@ void ChunkGrid::init(WorldCubeFace face,
     accessor.init(allocator);
     accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
     accessor.onRemove += makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    nodeSetter.grid = this;
+    nodeSetter.threadPool = threadPool;
 }
 
 void ChunkGrid::dispose() {
@@ -39,7 +41,7 @@ ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel
     query->chunkPos = chunkPos;
     query->genLevel = genLevel;
     query->shouldRelease = shouldRelease;
-    query->m_grid = this;
+    query->grid = this;
     query->m_isFinished = false;
 
     ChunkID id(query->chunkPos);
@@ -52,8 +54,8 @@ ChunkQuery* ChunkGrid::submitQuery(const i32v3& chunkPos, ChunkGenLevel genLevel
 }
 
 void ChunkGrid::releaseQuery(ChunkQuery* query) {
-    assert(query->m_grid);
-    query->m_grid = nullptr;
+    assert(query->grid);
+    query->grid = nullptr;
     {
         std::lock_guard<std::mutex> l(m_lckQueryRecycler);
         m_queryRecycler.recycle(query);
@@ -82,6 +84,9 @@ void ChunkGrid::update() {
         q->genTask.init(q, q->chunk->gridData->heightData, &generators[0]);
         generators[0].submitQuery(q);
     }
+    
+    // Place any needed nodes
+    nodeSetter.update();
 }
 
 void ChunkGrid::onAccessorAdd(Sender s, ChunkHandle& chunk) {

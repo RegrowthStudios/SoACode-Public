@@ -8,5 +8,4 @@
 WorkerData::~WorkerData() {
     delete chunkMesher;
     delete voxelLightEngine;
-    delete caEngine;
 }

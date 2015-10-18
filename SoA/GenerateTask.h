@@ -30,7 +30,7 @@ struct PlanetHeightData;
 
 class GenerateTask : public vcore::IThreadPoolTask<WorkerData> {
 public:
-    GenerateTask() : vcore::IThreadPoolTask<WorkerData>(false, GENERATE_TASK_ID) {}
+    GenerateTask() : vcore::IThreadPoolTask<WorkerData>(GENERATE_TASK_ID) {}
 
     void init(ChunkQuery *query,
               PlanetHeightData* heightData,
@@ -48,6 +48,9 @@ public:
 
     // Loading Information
     PlanetHeightData* heightData;
+
+private:
+    void generateFlora(WorkerData* workerData, Chunk& chunk);
 };
 
 #endif // LoadTask_h__

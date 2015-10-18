@@ -12,10 +12,10 @@
 CaPhysicsTypeDict CaPhysicsType::typesCache;
 CaPhysicsTypeList CaPhysicsType::typesArray;
 
-KEG_ENUM_DEF(CA_ALGORITHM, CA_ALGORITHM, kt) {
-    kt.addValue("none", CA_ALGORITHM::NONE);
-    kt.addValue("liquid", CA_ALGORITHM::LIQUID);
-    kt.addValue("powder", CA_ALGORITHM::POWDER);
+KEG_ENUM_DEF(CAAlgorithm, CAAlgorithm, kt) {
+    kt.addValue("none", CAAlgorithm::NONE);
+    kt.addValue("liquid", CAAlgorithm::LIQUID);
+    kt.addValue("powder", CAAlgorithm::POWDER);
 }
 
 KEG_TYPE_DEF_SAME_NAME(CaPhysicsData, kt) {

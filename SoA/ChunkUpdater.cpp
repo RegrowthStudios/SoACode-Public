@@ -11,6 +11,8 @@
 
 #include "VoxelUpdateOrder.inl"
 
+BlockPack* ChunkUpdater::blockPack = nullptr;
+
 void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk)
 {
     //if (!chunk->isAccessible) return;
@@ -116,13 +118,16 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
     //if (lockedChunk) lockedChunk->unlock();
 }
 
-void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData) {
+void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
    /* vvox::swapLockedChunk(chunk, lockedChunk);
     placeBlock(chunk, lockedChunk, blockIndex, blockData);*/
 }
 
-void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType) {
+void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, BlockIndex blockIndex, BlockID blockType) {
  
+    chunk->blocks.set(blockIndex, blockType);
+    chunk->flagDirty();
+
     //Block &block = GETBLOCK(blockType);
 
     //if (chunk->getBlockData(blockIndex) == NONE) {
@@ -447,17 +452,22 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkState
     }*/
 }
 
-void ChunkUpdater::addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c)
-{
-    //int phys;
-    //const i32v3 pos = getPosFromBlockIndex(c);
+void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index) {
+    throw 33;
+}
 
-    //Chunk*& left = chunk->left;
-    //Chunk*& right = chunk->right;
-    //Chunk*& front = chunk->front;
-    //Chunk*& back = chunk->back;
-    //Chunk*& top = chunk->top;
-    //Chunk*& bottom = chunk->bottom;
+void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index, BlockID id)
+{
+    int phys;
+    const i32v3 pos = getPosFromBlockIndex(id);
+
+    ChunkHandle& left = chunk->left;
+    ChunkHandle& right = chunk->right;
+    ChunkHandle& front = chunk->front;
+    ChunkHandle& back = chunk->back;
+    ChunkHandle& top = chunk->top;
+    ChunkHandle& bottom = chunk->bottom;
+
 
     //if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {
     //    chunk->addPhysicsUpdate(phys, c);

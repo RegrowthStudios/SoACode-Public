@@ -7,6 +7,7 @@
 
 #include "ChunkMeshManager.h"
 #include "CommonState.h"
+#include "DebugRenderer.h"
 #include "Errors.h"
 #include "GameSystem.h"
 #include "GameplayScreen.h"
@@ -179,6 +180,7 @@ void GameplayRenderer::hook() {
     stages.ssao.hook(&m_commonState->quad, m_window->getWidth(), m_window->getHeight());
     stages.bloom.hook(&m_commonState->quad);
     stages.exposureCalc.hook(&m_commonState->quad, &m_hdrTarget, &m_viewport, 1024);
+    m_commonState->stages.spaceSystem.setFarTerrainCamera(&m_voxelCamera);
 }
 
 void GameplayRenderer::updateGL() {
@@ -230,6 +232,11 @@ void GameplayRenderer::render() {
         stages.chunkGrid.render(&m_voxelCamera);
         //  m_liquidVoxelRenderStage->render();
         //  m_transparentVoxelRenderStage->render();
+
+        if (debugRenderer) {
+            debugRenderer->render(m_voxelCamera.getViewProjectionMatrix(),
+                                  m_voxelCamera.getPosition());
+        }
     }
     if (m_wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

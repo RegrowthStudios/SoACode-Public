@@ -3,6 +3,7 @@
 
 #include "VoxelSpaceConversions.h"
 
+Event<ChunkHandle&> Chunk::DataChange;
 
 void Chunk::init(WorldCubeFace face) {
     // Get position from ID

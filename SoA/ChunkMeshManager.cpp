@@ -91,6 +91,11 @@ ChunkMeshTask* ChunkMeshManager::createMeshTask(ChunkHandle& chunk) {
     ChunkHandle& back = chunk->back;
     ChunkHandle& front = chunk->front;
 
+    if (!left.isAquired() || !right.isAquired() || !back.isAquired() ||
+        !front.isAquired() || !bottom.isAquired() || !top.isAquired()) {
+        std::cout << "NOT ACQUIRED";
+    }
+
     if (left->genLevel != GEN_DONE || right->genLevel != GEN_DONE ||
         back->genLevel != GEN_DONE || front->genLevel != GEN_DONE ||
         bottom->genLevel != GEN_DONE || top->genLevel != GEN_DONE) return nullptr;
@@ -185,6 +190,7 @@ void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
         }
         cmp.chunkGrids[i].onNeighborsAcquire += makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
         cmp.chunkGrids[i].onNeighborsRelease += makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
+        Chunk::DataChange += makeDelegate(*this, &ChunkMeshManager::onDataChange);
     }
 }
 
@@ -195,6 +201,7 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
         }
         cmp.chunkGrids[i].onNeighborsAcquire -= makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
         cmp.chunkGrids[i].onNeighborsRelease -= makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
+        Chunk::DataChange -= makeDelegate(*this, &ChunkMeshManager::onDataChange);
     }
 }
 
@@ -238,4 +245,13 @@ void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
     }
 
     disposeMesh(mesh);
+}
+
+void ChunkMeshManager::onDataChange(Sender s, ChunkHandle& chunk) {
+    // Have to have neighbors
+    // TODO(Ben): Race condition with neighbor removal here.
+    if (chunk->left.isAquired()) {
+        std::lock_guard<std::mutex> l(m_lckPendingMesh);
+        m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
+    }
 }

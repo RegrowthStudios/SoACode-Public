@@ -43,11 +43,11 @@ public:
     GenerateTask genTask; ///< For if the query results in generation
     ChunkHandle chunk; ///< Gets set on submitQuery
     bool shouldRelease;
+    ChunkGrid* grid;
 private:
     bool m_isFinished;
     std::mutex m_lock;
     std::condition_variable m_cond;
-    ChunkGrid* m_grid;
 };
 
 #endif // ChunkQuery_h__

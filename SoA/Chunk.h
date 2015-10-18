@@ -27,6 +27,9 @@
 class Chunk;
 typedef Chunk* ChunkPtr;
 
+// TODO(Ben): Move to file
+typedef ui16 BlockIndex;
+
 class ChunkGridData {
 public:
     ChunkGridData() {};
@@ -41,6 +44,8 @@ public:
     bool isLoaded = false;
     int refCount = 1;
 };
+
+// TODO(Ben): Can lock two chunks without deadlock worry with checkerboard pattern updates.
 
 class Chunk {
     friend class ChunkAccessor;
@@ -94,11 +99,12 @@ public:
                  ChunkHandle front);
         UNIONIZE(ChunkHandle neighbors[6]);
     };
-    ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
+    volatile ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
     ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
+    // TODO(Ben): reader/writer lock
     std::mutex dataMutex;
 
     volatile bool isAccessible = false;
@@ -111,6 +117,8 @@ public:
     volatile ui32 updateVersion;
 
     ChunkAccessor* accessor = nullptr;
+
+    static Event<ChunkHandle&> DataChange;
 private:
     // For generation
     ChunkGenQueryData m_genQueryData;

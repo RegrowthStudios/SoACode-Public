@@ -21,6 +21,7 @@
 #include "BlockPack.h"
 #include "ChunkAllocator.h"
 #include "ClientState.h"
+#include "Item.h"
 
 #include "ECSTemplates.h"
 
@@ -53,6 +54,7 @@ struct SoaState {
     SoaOptions* options = nullptr; // Lives in App
 
     BlockPack blocks;
+    ItemPack items;
     
     vio::IOManager saveFileIom;
 

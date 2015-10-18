@@ -35,7 +35,7 @@ BlockID BlockPack::append(Block& block) {
         // Overwrite block
         *const_cast<Block*>(curBlock) = block;
     } else {
-        rv = m_blockMap.size();
+        rv = m_blockList.size();
         block.ID = rv;
         // Add a new block
         m_blockList.push_back(block);

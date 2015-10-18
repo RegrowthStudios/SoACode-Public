@@ -1,20 +1,26 @@
 #pragma once
 #include "Constants.h"
 
-class Chunk;
+// TODO(Ben): Temporary
+#include "BlockData.h"
+#include "Chunk.h"
+
+#include "VoxelUpdateBufferer.h"
+
 class PhysicsEngine;
 class ChunkManager;
+class BlockPack;
 enum class ChunkStates;
 
 class ChunkUpdater {
 public:
     static void randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk);
-    static void placeBlock(Chunk* chunk, Chunk*& lockedChunk,  int blockIndex, int blockType) {
-        placeBlockNoUpdate(chunk, blockIndex, blockType);
-        addBlockToUpdateList(chunk, lockedChunk, blockIndex);
+    static void placeBlock(VoxelUpdateBufferer& bufferer, Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
+        updateBlockAndNeighbors(bufferer, chunk, blockIndex, blockData);
+        //addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     }
-    static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockData);
-    static void placeBlockNoUpdate(Chunk* chunk, int blockIndex, int blockType);
+    static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData);
+    static void placeBlockNoUpdate(Chunk* chunk, BlockIndex blockIndex, BlockID blockType);
     static void placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
     static void placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType);
   
@@ -26,9 +32,12 @@ public:
     static void updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state);
     static void updateNeighborStates(Chunk* chunk, int blockID, ChunkStates state);
 
-    static void addBlockToUpdateList(Chunk* chunk, Chunk*& lockedChunk, int c);
+    // Assumes chunk is already locked.
+    static void updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index);
+    static void updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index, BlockID id);
     static void snowAddBlockToUpdateList(Chunk* chunk, int c);
 
+    static BlockPack* blockPack;
 private:
     //TODO: Replace with emitterOnBreak
     static void breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force = 0.0f, f32v3 extraForce = f32v3(0.0f));

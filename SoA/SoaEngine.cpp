@@ -4,12 +4,13 @@
 #include "BlockData.h"
 #include "BlockPack.h"
 #include "ChunkMeshManager.h"
+#include "ChunkUpdater.h"
 #include "DebugRenderer.h"
+#include "GameSystemComponentBuilders.h"
 #include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
 #include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
-#include "GameSystemComponentBuilders.h"
 
 #define M_PER_KM 1000.0
 
@@ -77,6 +78,7 @@ void SoaEngine::initState(SoaState* state) {
     state->templateLib.registerFactory<HeadComponentBuilder>(GAME_SYSTEM_CT_HEAD_NAME);
     state->templateLib.registerFactory<ParkourInputComponentBuilder>(GAME_SYSTEM_CT_PARKOURINPUT_NAME);
     state->templateLib.registerFactory<AttributeComponentBuilder>(GAME_SYSTEM_CT_ATTRIBUTES_NAME);
+    state->templateLib.registerFactory<InventoryComponentBuilder>(GAME_SYSTEM_CT_INVENTORY_NAME);
 
     { // Load ECS templates
         vio::IOManager iom;
@@ -87,6 +89,7 @@ void SoaEngine::initState(SoaState* state) {
         }
     }
 
+    ChunkUpdater::blockPack = &state->blocks;
 
     // TODO(Ben): Move somewhere else
     initClientState(state, state->clientState);

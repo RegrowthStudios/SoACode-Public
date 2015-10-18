@@ -5,6 +5,7 @@
 
 #include "GameSystem.h"
 #include "SpaceSystem.h"
+#include "VoxelUtils.h"
 
 void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem) {
     for (auto& it : gameSystem->parkourInput) {
@@ -100,16 +101,13 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
             for (auto& it : aabbCollidable.voxelCollisions) {
                 for (auto& cd : it.second) {
                     f64v3 aabbPos = voxelPosition.gridPosition.pos + f64v3(aabbCollidable.offset);
-                    int x = cd.index % CHUNK_WIDTH;
-                    int y = cd.index / CHUNK_LAYER;
-                    int z = (cd.index % CHUNK_LAYER) / CHUNK_WIDTH;
-                   
-                    f64v3 vpos = f64v3(it.first.x, it.first.y, it.first.z) * (f64)CHUNK_WIDTH + f64v3(x, y, z) + 0.5;
+
+                    f64v3 vpos = f64v3(it.first.x, it.first.y, it.first.z) * (f64)CHUNK_WIDTH + f64v3(getPosFromBlockIndex(cd.index)) + 0.5;
                         
                     f64v3 dp = vpos - aabbPos;
                     f64v3 adp(vmath::abs(dp));
 
-                    std::cout << MIN_DISTANCE.y - adp.y << std::endl;
+                   // std::cout << MIN_DISTANCE.y - adp.y << std::endl;
 
                     // Check slow feet collision first
                     if (dp.y < 0 && MIN_DISTANCE.y - adp.y < 0.55 && !cd.top) {
