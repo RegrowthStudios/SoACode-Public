@@ -1,20 +1,36 @@
 #pragma once
-#include <Vorb\RingBuffer.hpp>
+#include <Vorb/RingBuffer.hpp>
+#include <Vorb/ui/InputDispatcher.h>
 
 typedef vorb::ring_buffer<nString> CommandRing;
 typedef void(*FuncNewCommand)(void* metadata, const nString& command);
 
-
 class DevConsole {
 public:
-    DevConsole(i32 maxHistory);
+    
+    void init(int maxHistory);
 
+    // Adds listener for a specific command
+    void addListener(const nString& command, FuncNewCommand f, void* meta);
+    // Adds listener for any command
     void addListener(FuncNewCommand f, void* meta);
-    void removeListener(FuncNewCommand f);
+    // Removes listener for specific command
+    bool removeListener(const nString& command, FuncNewCommand f);
+    // Removes listener for any command
+    bool removeListener(FuncNewCommand f);
 
-    void write(const nString& s);
+    void addCommand(const nString& s);
+    bool write(const nString& s);
 
-    const nString& getCommand(const i32& index);
+    void setFocus(bool focus);
+    const bool& isFocused() { return m_isFocused; }
+
+    const nString& getHistory(const i32& index);
+    const nString& getCurrentLine() { return m_currentLine; }
+
+    // Utilities for tokenizing strings
+    static nString getFirstToken(nString input);
+    static void tokenize(nString& input, OUT std::vector<nString>& tokens);
 private:
     class EventBinding {
     public:
@@ -26,6 +42,11 @@ private:
         }
     };
 
-    CommandRing m_commands;
-    std::vector<EventBinding> m_commandListeners;
+    void onKeyDown(const vui::KeyEvent& ev);
+
+    bool m_isFocused = false;
+    nString m_currentLine = "";
+    CommandRing m_history;
+    std::unordered_map<nString, std::vector<EventBinding>> m_commandListeners; ///< For specific commands only
+    std::vector<EventBinding> m_anyCommandListeners;
 };

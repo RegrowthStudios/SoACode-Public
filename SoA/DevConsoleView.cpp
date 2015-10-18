@@ -11,13 +11,9 @@
 #include "DevConsole.h"
 
 DevConsoleView::DevConsoleView() :
-m_batch(nullptr),
-m_font(nullptr),
-_console(nullptr),
-m_blinkTimeRemaining(DEV_CONSOLE_MARKER_BLINK_DELAY),
-m_isViewModified(false),
-m_linesToRender(2),
-m_renderRing(2) {}
+    m_renderRing(START_LINES_TO_RENDER) {
+}
+
 DevConsoleView::~DevConsoleView() {
     dispose();
 }
@@ -26,11 +22,11 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
     m_renderRing.resize(linesToRender);
     m_renderRing.clear();
 
-    _console = console;
-    _fHook = [] (void* meta, const nString& str) {
+    m_console = console;
+    _fHook = [](void* meta, const nString& str) {
         ((DevConsoleView*)meta)->onNewCommand(str);
     };
-    _console->addListener(_fHook, this);
+    m_console->addListener(_fHook, this);
     m_isViewModified = true;
 
     m_batch = new vg::SpriteBatch(true, true);
@@ -47,23 +43,25 @@ void DevConsoleView::dispose() {
         m_font->dispose();
         m_font = nullptr;
     }
-    if (_console) {
+    if (m_console) {
         if (_fHook) {
-            _console->removeListener(_fHook);
+            m_console->removeListener(_fHook);
             _fHook = nullptr;
         }
-        _console = nullptr;
+        m_console = nullptr;
     }
 }
 
-void DevConsoleView::onEvent(const SDL_Event& e) {
-    // TODO: Input
-}
 void DevConsoleView::update(const f32& dt) {
     // Blinking Logic
     m_blinkTimeRemaining -= dt;
     if (m_blinkTimeRemaining < 0) {
         m_blinkTimeRemaining = DEV_CONSOLE_MARKER_BLINK_DELAY;
+        m_isViewModified = true;
+    }
+
+    if (m_currentLine != m_console->getCurrentLine()) {
+        m_currentLine = m_console->getCurrentLine();
         m_isViewModified = true;
     }
 
@@ -81,6 +79,7 @@ void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
         0, 0, 1, 0,
         position.x, position.y, 0, 1
         );
+
     m_batch->render(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
 }
 
@@ -103,7 +102,8 @@ void DevConsoleView::redrawBatch() {
     f32 textHeight = (f32)m_font->getFontHeight();
 
     // Draw Command Lines
-    for (size_t i = 0; i < m_renderRing.size(); i++) {
+    size_t i;
+    for (i = 0; i < m_renderRing.size(); i++) {
         const cString cStr = m_renderRing.at(i).c_str();
         if (cStr) {
             m_batch->drawString(m_font, cStr,
@@ -114,8 +114,16 @@ void DevConsoleView::redrawBatch() {
                 0.9f);
         }
     }
+    // Draw current line
+    if (m_currentLine.size()) {
+        m_batch->drawString(m_font, m_currentLine.c_str(),
+                            f32v2(10, textHeight * i + 10),
+                            f32v2(1),
+                            ColorRGBA8(0, 255, 0, 255),
+                            vg::TextAlign::TOP_LEFT,
+                            0.9f);
+    }
 
     // TODO: Draw Input
-
     m_batch->end(vg::SpriteSortMode::BACK_TO_FRONT);
 }
