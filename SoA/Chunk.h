@@ -45,6 +45,8 @@ public:
     int refCount = 1;
 };
 
+// TODO(Ben): Can lock two chunks without deadlock worry with checkerboard pattern updates.
+
 class Chunk {
     friend class ChunkAccessor;
     friend class ChunkGenerator;

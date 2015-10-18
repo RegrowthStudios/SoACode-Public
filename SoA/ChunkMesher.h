@@ -17,6 +17,13 @@ const int PADDED_CHUNK_WIDTH = (CHUNK_WIDTH + 2);
 const int PADDED_CHUNK_LAYER = (PADDED_CHUNK_WIDTH * PADDED_CHUNK_WIDTH);
 const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 
+// !!! IMPORTANT !!!
+// TODO(BEN): Make a class for complex Chunk Mesh Splicing. Store plenty of metadata in RAM about the regions in each mesh and just do a CPU copy to align them all and mix them around. Then meshes can be remeshed, rendered, recombined, at will.
+// Requirements: Each chunk is only meshed when it needs to, as they do now.
+// Rather than remeshing when combining and splitting, we just download the data from the GPU (or cache it compressed in RAM on 64 bit systems?)
+// Copy it around, and re-upload.
+// glBufferSubData and maybe even re-use buffers to minimize bandwidth???
+
 // each worker thread gets one of these
 // This class is too big to statically allocate
 class ChunkMesher {

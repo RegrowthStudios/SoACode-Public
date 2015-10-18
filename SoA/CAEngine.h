@@ -21,7 +21,7 @@ class CaPhysicsData {
 public:
     ui32 liquidLevels = 0; ///< Number of block IDs reserved for liquid
     ui32 updateRate = 0; ///< Update speed of the CA
-    CA_ALGORITHM alg; ///< CA algorithm to use
+    CAAlgorithm alg; ///< CA algorithm to use
 };
 KEG_TYPE_DECL(CaPhysicsData);
 
@@ -44,7 +44,7 @@ public:
     // Getters
     const int& getCaIndex() const { return _caIndex; }
     const ui32& getUpdateRate() const { return _data.updateRate; }
-    const CA_ALGORITHM& getCaAlg() const { return _data.alg; }
+    const CAAlgorithm& getCaAlg() const { return _data.alg; }
     const bool& getIsEven() const { return _isEven; }
 
     // Static functions

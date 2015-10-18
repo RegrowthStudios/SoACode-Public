@@ -30,8 +30,8 @@ inline void getPosFromBlockIndex(T blockIndex, vorb::Vector3<T>& pos) {
 }
 
 template <typename T>
-inline vorb::Vector3<T> getPosFromBlockIndex(T blockIndex) {
-    return vorb::Vector3<T>(blockIndex & 0x1f, blockIndex >> 10, (blockIndex >> 5) & 0x1f);
+inline i32v3 getPosFromBlockIndex(T blockIndex) {
+    return i32v3(blockIndex & 0x1f, blockIndex >> 10, (blockIndex >> 5) & 0x1f);
 }
 static_assert(CHUNK_WIDTH == 32, "getPosFromBlockIndex assumes 32 chunk width");
 

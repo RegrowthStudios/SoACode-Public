@@ -29,7 +29,6 @@ public:
     class TerrainPatchMesher* terrainMesher = nullptr;
     class FloraGenerator* floraGenerator = nullptr;
     class VoxelLightEngine* voxelLightEngine = nullptr;
-    class CAEngine* caEngine = nullptr;
 };
 
 typedef vcore::ThreadPool<WorkerData> VoxPool;

@@ -28,7 +28,7 @@ class ChunkMeshTask;
 
 #define CA_TASK_ID 3
 
-enum class CA_ALGORITHM {
+enum class CAAlgorithm {
     NONE = 0,
     LIQUID = 1,
     POWDER = 2 
