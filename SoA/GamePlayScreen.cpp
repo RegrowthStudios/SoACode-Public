@@ -88,6 +88,9 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     // Initialize and run the update thread
     m_updateThread = new std::thread(&GameplayScreen::updateThreadFunc, this);
 
+    // Initialize dev console
+    m_devConsoleView.init(&m_devConsole, 5);
+
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
@@ -104,6 +107,8 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_pda.destroy();
     //m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
+
+    m_devConsoleView.dispose();
 }
 
 /// This update function runs on the render thread
@@ -225,6 +230,10 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
     m_renderer.setRenderState(renderState);
     m_renderer.render();
     globalRenderAccumulationTimer.stop();
+
+    // Draw dev console
+    m_devConsoleView.update(0.01f);
+    m_devConsoleView.render(f32v2(0.5f, 0.5f), m_game->getWindow().getViewportDims());
 
     // Uncomment to time rendering
     /*  static int g = 0;

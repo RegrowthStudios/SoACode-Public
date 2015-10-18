@@ -25,6 +25,8 @@
 #include "PDA.h"
 #include "PauseMenu.h"
 #include "SoaController.h"
+#include "DevConsole.h"
+#include "DevConsoleView.h"
 
 class App;
 class GameStartState;
@@ -120,6 +122,9 @@ private:
     PDA m_pda; ///< The PDA
 
     PauseMenu m_pauseMenu; ///< The Pause Menu
+
+    DevConsole m_devConsole;
+    DevConsoleView m_devConsoleView;
 
     SoaController controller;
     std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;

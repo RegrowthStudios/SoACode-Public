@@ -26,6 +26,6 @@ private:
         }
     };
 
-    CommandRing _commands;
-    std::vector<EventBinding> _commandListeners;
+    CommandRing m_commands;
+    std::vector<EventBinding> m_commandListeners;
 };

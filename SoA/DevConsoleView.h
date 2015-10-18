@@ -32,11 +32,11 @@ private:
     DevConsole* _console;
     void(*_fHook) (void*, const nString&);
 
-    vg::SpriteBatch* _batch;
-    vg::SpriteFont* _font;
-    bool _isViewModified;
+    vg::SpriteBatch* m_batch;
+    vg::SpriteFont* m_font;
+    bool m_isViewModified;
 
-    i32 _linesToRender;
-    StringRing _renderRing;
-    f32 _blinkTimeRemaining;
+    i32 m_linesToRender;
+    StringRing m_renderRing;
+    f32 m_blinkTimeRemaining;
 };

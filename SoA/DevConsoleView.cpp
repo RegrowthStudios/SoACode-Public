@@ -11,41 +11,41 @@
 #include "DevConsole.h"
 
 DevConsoleView::DevConsoleView() :
-_batch(nullptr),
-_font(nullptr),
+m_batch(nullptr),
+m_font(nullptr),
 _console(nullptr),
-_blinkTimeRemaining(DEV_CONSOLE_MARKER_BLINK_DELAY),
-_isViewModified(false),
-_linesToRender(2),
-_renderRing(2) {}
+m_blinkTimeRemaining(DEV_CONSOLE_MARKER_BLINK_DELAY),
+m_isViewModified(false),
+m_linesToRender(2),
+m_renderRing(2) {}
 DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
 void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
-    _renderRing.resize(linesToRender);
-    _renderRing.clear();
+    m_renderRing.resize(linesToRender);
+    m_renderRing.clear();
 
     _console = console;
     _fHook = [] (void* meta, const nString& str) {
         ((DevConsoleView*)meta)->onNewCommand(str);
     };
     _console->addListener(_fHook, this);
-    _isViewModified = true;
+    m_isViewModified = true;
 
-    _batch = new vg::SpriteBatch(true, true);
-    _font = new vg::SpriteFont();
-    _font->init("Fonts\\chintzy.ttf", 32);
+    m_batch = new vg::SpriteBatch(true, true);
+    m_font = new vg::SpriteFont();
+    m_font->init("Fonts\\chintzy.ttf", 32);
 }
 
 void DevConsoleView::dispose() {
-    if (_batch) {
-        _batch->dispose();
-        _batch = nullptr;
+    if (m_batch) {
+        m_batch->dispose();
+        m_batch = nullptr;
     }
-    if (_font) {
-        _font->dispose();
-        _font = nullptr;
+    if (m_font) {
+        m_font->dispose();
+        m_font = nullptr;
     }
     if (_console) {
         if (_fHook) {
@@ -61,18 +61,18 @@ void DevConsoleView::onEvent(const SDL_Event& e) {
 }
 void DevConsoleView::update(const f32& dt) {
     // Blinking Logic
-    _blinkTimeRemaining -= dt;
-    if (_blinkTimeRemaining < 0) {
-        _blinkTimeRemaining = DEV_CONSOLE_MARKER_BLINK_DELAY;
-        _isViewModified = true;
+    m_blinkTimeRemaining -= dt;
+    if (m_blinkTimeRemaining < 0) {
+        m_blinkTimeRemaining = DEV_CONSOLE_MARKER_BLINK_DELAY;
+        m_isViewModified = true;
     }
 
-    if (_isViewModified) redrawBatch();
+    if (m_isViewModified) redrawBatch();
 }
 
 void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
     // Check For A Batch
-    if (!_batch) return;
+    if (!m_batch) return;
 
     // Translation Matrix To Put Top-Left Cornert To Desired Position
     f32m4 mTranslate(
@@ -81,32 +81,32 @@ void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
         0, 0, 1, 0,
         position.x, position.y, 0, 1
         );
-    _batch->render(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+    m_batch->render(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
 }
 
 void DevConsoleView::onNewCommand(const nString& str) {
     std::stringstream ss(str);
     std::string item;
     while (std::getline(ss, item, '\n')) {
-        _renderRing.push(item);
+        m_renderRing.push(item);
     }
 
-    _isViewModified = true;
+    m_isViewModified = true;
 }
 
 void DevConsoleView::redrawBatch() {
-    if (!_batch || !_font) return;
+    if (!m_batch || !m_font) return;
 
-    _batch->begin();
+    m_batch->begin();
 
     // TODO: Draw Background
-    f32 textHeight = (f32)_font->getFontHeight();
+    f32 textHeight = (f32)m_font->getFontHeight();
 
     // Draw Command Lines
-    for (size_t i = 0; i < _renderRing.size(); i++) {
-        const cString cStr = _renderRing.at(i).c_str();
+    for (size_t i = 0; i < m_renderRing.size(); i++) {
+        const cString cStr = m_renderRing.at(i).c_str();
         if (cStr) {
-            _batch->drawString(_font, cStr,
+            m_batch->drawString(m_font, cStr,
                 f32v2(10, textHeight * i + 10),
                 f32v2(1),
                 ColorRGBA8(0, 255, 0, 255),
@@ -117,5 +117,5 @@ void DevConsoleView::redrawBatch() {
 
     // TODO: Draw Input
 
-    _batch->end(vg::SpriteSortMode::BACK_TO_FRONT);
+    m_batch->end(vg::SpriteSortMode::BACK_TO_FRONT);
 }
