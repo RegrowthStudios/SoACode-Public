@@ -149,7 +149,7 @@ void CinematicCamera::update()
         }
         m_focalPoint = lerp(m_focalPoint, m_targetFocalPoint, m_speed);
         m_direction = lerp(m_direction, m_targetDirection, (f32)m_speed);
-        m_right = lerp(m_right, m_targetRight, m_speed);
+        m_right = lerp(m_right, m_targetRight, (f32)m_speed);
 
         m_position = m_focalPoint - f64v3(m_direction) * m_focalLength;
     }

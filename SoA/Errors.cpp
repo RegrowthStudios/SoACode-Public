@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Errors.h"
 
+#include <Vorb/os.h>
+
 #include <SDL/SDL.h>
 
 void showMessage(const nString& message)

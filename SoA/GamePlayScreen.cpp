@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameplayScreen.h"
 
+#include <Vorb/os.h>
 #include <Vorb/colors.h>
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GpuMemory.h>

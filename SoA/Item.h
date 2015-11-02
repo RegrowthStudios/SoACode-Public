@@ -1,4 +1,5 @@
 #pragma once
+#include <Vorb/Events.hpp>
 
 enum class ItemType {
     NONE, BLOCK, WEAPON, ARMOR, CONSUMABLE, MATERIAL, USABLE, MISC
