@@ -65,9 +65,9 @@ void Camera::applyRotation(const f32q& rot) {
     m_viewChanged = true;
 }
 
-void Camera::rotateFromMouseAbsoluteUp(float dx, float dy, float speed, bool clampVerticalRotation) {
+void Camera::rotateFromMouseAbsoluteUp(float dx, float dy, float speed, bool clampVerticalRotation /* = false*/) {
     f32q upQuat = vmath::angleAxis(dy * speed, m_right);
-    f32q rightQuat = vmath::angleAxis(dx * speed, m_upAbsolute);
+    f32q rightQuat = vmath::angleAxis(dx * speed, UP_ABSOLUTE);
 
     f32v3 previousDirection = m_direction;
     f32v3 previousUp = m_up;
