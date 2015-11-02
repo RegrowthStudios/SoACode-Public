@@ -69,6 +69,7 @@ protected:
     f64 m_maxFocalLength = 10000000000000000000000.0;
     bool m_viewChanged = true;
     bool m_projectionChanged = true;
+    // Only affects rotateFromMouseAbsoluteUp.
     bool m_clampVerticalRotation = false;
 
     f64v3 m_focalPoint = f64v3(0.0);
