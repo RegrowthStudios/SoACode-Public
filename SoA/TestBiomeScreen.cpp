@@ -375,7 +375,6 @@ void TestBiomeScreen::initInput() {
     m_mouseButtons[0] = false;
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
-            //m_camera.rotateFromMouseAbsoluteUp(-e.dx, -e.dy, 0.01f);
             m_camera.rotateFromMouseAbsoluteUp(-e.dx, -e.dy, 0.01f);
         }
     });
@@ -389,10 +388,6 @@ void TestBiomeScreen::initInput() {
             SDL_SetRelativeMouseMode(SDL_FALSE);
         }
     });
-    /*m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = false;
-        if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = false;
-    });*/
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         PlanetGenLoader planetLoader;
         switch (e.keyCode) {
