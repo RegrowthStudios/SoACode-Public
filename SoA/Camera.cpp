@@ -6,6 +6,8 @@
 
 #include "SoaOptions.h"
 
+#include <iostream>
+
 Camera::Camera() {
     // Empty
 }
@@ -65,9 +67,31 @@ void Camera::applyRotation(const f32q& rot) {
     m_viewChanged = true;
 }
 
+void Camera::rotateFromMouseAbsoluteUp(float dx, float dy, float speed) {
+    f32q upQuat = vmath::angleAxis(dy * speed, m_right); // m_right
+    f32q rightQuat = vmath::angleAxis(dx * speed, m_upAbsolute); // m_up
+
+	f32v3 previousDirection = m_direction;
+	f32v3 previousUp = m_up;
+	f32v3 previousRight = m_right;
+
+    applyRotation(upQuat * rightQuat);
+
+    // Failed attempt to clamp verticality of view direction.
+    if (m_up.y < 0) {
+		m_direction = previousDirection;
+		m_up = previousUp;
+		m_right = previousRight;
+		rotateFromMouseAbsoluteUp(dx, 0.0f, speed);
+    }
+
+	std::cout << "Dir Vec: X - " << m_direction.x << " -- Y - " << m_direction.y << " -- Z - " << m_direction.z << std::endl;
+	std::cout << "Up Vec: X - " << m_up.x << " -- Y - " << m_up.y << " -- Z - " << m_up.z << std::endl;
+}
+
 void Camera::rotateFromMouse(float dx, float dy, float speed) {
-    f32q upQuat = vmath::angleAxis(dy * speed, m_right);
-    f32q rightQuat = vmath::angleAxis(dx * speed, m_up);
+    f32q upQuat = vmath::angleAxis(dy * speed, m_right); // m_right
+    f32q rightQuat = vmath::angleAxis(dx * speed, m_up); // m_up
  
     applyRotation(upQuat * rightQuat);
 }
