@@ -6,8 +6,6 @@
 
 #include "SoaOptions.h"
 
-#include <iostream>
-
 Camera::Camera() {
     // Empty
 }
@@ -77,16 +75,13 @@ void Camera::rotateFromMouseAbsoluteUp(float dx, float dy, float speed) {
 
     applyRotation(upQuat * rightQuat);
 
-    // Failed attempt to clamp verticality of view direction.
+    // Clamp verticality of view direction. (No upside down cameras!)
     if (m_up.y < 0) {
 		m_direction = previousDirection;
 		m_up = previousUp;
 		m_right = previousRight;
 		rotateFromMouseAbsoluteUp(dx, 0.0f, speed);
     }
-
-	std::cout << "Dir Vec: X - " << m_direction.x << " -- Y - " << m_direction.y << " -- Z - " << m_direction.z << std::endl;
-	std::cout << "Up Vec: X - " << m_up.x << " -- Y - " << m_up.y << " -- Z - " << m_up.z << std::endl;
 }
 
 void Camera::rotateFromMouse(float dx, float dy, float speed) {
