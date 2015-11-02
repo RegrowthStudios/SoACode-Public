@@ -11,7 +11,7 @@ public:
     void update();
     void updateProjection();
     virtual void applyRotation(const f32q& rot);
-    virtual void rotateFromMouseAbsoluteUp(float dx, float dy, float speed);
+    virtual void rotateFromMouseAbsoluteUp(float dx, float dy, float speed, bool clampVerticalRotation = false);
     virtual void rotateFromMouse(float dx, float dy, float speed);
     virtual void rollFromMouse(float dx, float speed);
 
@@ -30,7 +30,6 @@ public:
     void setFieldOfView(float fieldOfView){ m_fieldOfView = fieldOfView; m_projectionChanged = 1; }
     void setFocalLength(float focalLength) { m_focalLength = focalLength; m_viewChanged = 1; }
     void setAspectRatio(float aspectRatio) { m_aspectRatio = aspectRatio; m_projectionChanged = 1; }
-    void setVerticalRotationClamp(bool clamp) { m_clampVerticalRotation = clamp; }
 
     // Gets the position of a 3D point on the screen plane
     f32v3 worldToScreenPoint(const f32v3& worldPoint) const;
@@ -69,8 +68,6 @@ protected:
     f64 m_maxFocalLength = 10000000000000000000000.0;
     bool m_viewChanged = true;
     bool m_projectionChanged = true;
-    // Only affects rotateFromMouseAbsoluteUp.
-    bool m_clampVerticalRotation = false;
 
     f64v3 m_focalPoint = f64v3(0.0);
     f64v3 m_position = f64v3(0.0);
