@@ -11,8 +11,8 @@ public:
     void update();
     void updateProjection();
     virtual void applyRotation(const f32q& rot);
-	virtual void rotateFromMouseAbsoluteUp(float dx, float dy, float speed);
-	virtual void rotateFromMouse(float dx, float dy, float speed);
+    virtual void rotateFromMouseAbsoluteUp(float dx, float dy, float speed);
+    virtual void rotateFromMouse(float dx, float dy, float speed);
     virtual void rollFromMouse(float dx, float speed);
 
     // Frustum wrappers
@@ -30,6 +30,7 @@ public:
     void setFieldOfView(float fieldOfView){ m_fieldOfView = fieldOfView; m_projectionChanged = 1; }
     void setFocalLength(float focalLength) { m_focalLength = focalLength; m_viewChanged = 1; }
     void setAspectRatio(float aspectRatio) { m_aspectRatio = aspectRatio; m_projectionChanged = 1; }
+    void setVerticalRotationClamp(bool clamp) { m_clampVerticalRotation = clamp; }
 
     // Gets the position of a 3D point on the screen plane
     f32v3 worldToScreenPoint(const f32v3& worldPoint) const;
@@ -68,13 +69,14 @@ protected:
     f64 m_maxFocalLength = 10000000000000000000000.0;
     bool m_viewChanged = true;
     bool m_projectionChanged = true;
+    bool m_clampVerticalRotation = false;
 
     f64v3 m_focalPoint = f64v3(0.0);
     f64v3 m_position = f64v3(0.0);
     f32v3 m_direction = f32v3(1.0f, 0.0f, 0.0f);
     f32v3 m_right = f32v3(0.0f, 0.0f, 1.0f);
     f32v3 m_up = f32v3(0.0f, 1.0f, 0.0f);
-	f32v3 m_upAbsolute = f32v3(0.0f, 1.0f, 0.0f);
+    f32v3 m_upAbsolute = f32v3(0.0f, 1.0f, 0.0f);
 
     f32m4 m_projectionMatrix;
     f32m4 m_viewMatrix;
