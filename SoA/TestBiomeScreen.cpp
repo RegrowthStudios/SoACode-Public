@@ -373,22 +373,19 @@ void TestBiomeScreen::initChunks() {
 
 void TestBiomeScreen::initInput() {
     m_mouseButtons[0] = false;
-    m_mouseButtons[1] = false;
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
-            m_camera.rotateFromMouse((f32)-e.dx, (f32)-e.dy, 0.1f);
-        }
-        if (m_mouseButtons[1]) {
-            m_camera.rollFromMouse((f32)e.dx, 0.1f);
+            m_camera.rotateFromMouseAbsoluteUp(-e.dx, -e.dy, 0.01f, true);
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = true;
-        if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = true;
-    });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
-        if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = false;
-        if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = false;
+        if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = !m_mouseButtons[0];
+        if (m_mouseButtons[0]) {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
+        else {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         PlanetGenLoader planetLoader;

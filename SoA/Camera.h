@@ -11,6 +11,7 @@ public:
     void update();
     void updateProjection();
     virtual void applyRotation(const f32q& rot);
+    virtual void rotateFromMouseAbsoluteUp(float dx, float dy, float speed, bool clampVerticalRotation = false);
     virtual void rotateFromMouse(float dx, float dy, float speed);
     virtual void rollFromMouse(float dx, float speed);
 
@@ -73,6 +74,7 @@ protected:
     f32v3 m_direction = f32v3(1.0f, 0.0f, 0.0f);
     f32v3 m_right = f32v3(0.0f, 0.0f, 1.0f);
     f32v3 m_up = f32v3(0.0f, 1.0f, 0.0f);
+    static const f32v3 UP_ABSOLUTE = f32v3(0.0f, 1.0f, 0.0f);
 
     f32m4 m_projectionMatrix;
     f32m4 m_viewMatrix;
