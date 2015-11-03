@@ -7,7 +7,9 @@ typedef void(*FuncNewCommand)(void* metadata, const nString& command);
 
 class DevConsole {
 public:
-    
+    DevConsole() : m_history(50) {};
+    static DevConsole& getInstance() { return m_instance; }
+
     void init(int maxHistory);
 
     // Adds listener for a specific command
@@ -22,6 +24,7 @@ public:
     void addCommand(const nString& s);
     bool write(const nString& s);
 
+    void toggleFocus();
     void setFocus(bool focus);
     const bool& isFocused() { return m_isFocused; }
 
@@ -42,11 +45,14 @@ private:
         }
     };
 
-    void onKeyDown(const vui::KeyEvent& ev);
+    void onKeyDown(Sender s, const vui::KeyEvent& ev);
+    void onTextInput(Sender s, const vui::TextEvent& ev);
 
     bool m_isFocused = false;
     nString m_currentLine = "";
     CommandRing m_history;
     std::unordered_map<nString, std::vector<EventBinding>> m_commandListeners; ///< For specific commands only
     std::vector<EventBinding> m_anyCommandListeners;
+
+    static DevConsole m_instance; ///< Singleton
 };

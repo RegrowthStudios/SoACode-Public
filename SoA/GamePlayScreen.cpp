@@ -15,6 +15,7 @@
 #include "ChunkRenderer.h"
 #include "Collision.h"
 #include "DebugRenderer.h"
+#include "DevConsole.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "GameSystem.h"
@@ -89,7 +90,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     m_updateThread = new std::thread(&GameplayScreen::updateThreadFunc, this);
 
     // Initialize dev console
-    m_devConsoleView.init(&m_devConsole, 5);
+    m_devConsoleView.init(&DevConsole::getInstance(), 5);
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
@@ -323,6 +324,11 @@ void GameplayScreen::initInput() {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
+    });
+    
+    // Dev console
+    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [this](Sender s, ui32 a) {
+        DevConsole::getInstance().toggleFocus();
     });
 
     { // Player movement events

@@ -29,9 +29,10 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
     m_console->addListener(_fHook, this);
     m_isViewModified = true;
 
-    m_batch = new vg::SpriteBatch(true, true);
+    m_batch = new vg::SpriteBatch();
+    m_batch->init();
     m_font = new vg::SpriteFont();
-    m_font->init("Fonts\\chintzy.ttf", 32);
+    m_font->init("Fonts/chintzy.ttf", 32);
 }
 
 void DevConsoleView::dispose() {
@@ -80,6 +81,7 @@ void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
         position.x, position.y, 0, 1
         );
 
+    redrawBatch();
     m_batch->render(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
 }
 
@@ -95,6 +97,8 @@ void DevConsoleView::onNewCommand(const nString& str) {
 
 void DevConsoleView::redrawBatch() {
     if (!m_batch || !m_font) return;
+
+    std::cout << m_currentLine << std::endl;
 
     m_batch->begin();
 

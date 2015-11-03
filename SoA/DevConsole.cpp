@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "DevConsole.h"
 
+DevConsole DevConsole::m_instance;
+
 void DevConsole::init(int maxHistory) {
     // TODO(Ben): Add setCapacity
     new (&m_history) CommandRing(maxHistory);
@@ -45,7 +47,6 @@ void DevConsole::addCommand(const nString& s) {
 bool DevConsole::write(const nString& s) {
     // TODO(Ben): Concern about thread safety.
     m_history.push(s);
-    m_updateVersion++;
     // Broadcast to listeners listening for any event
     for (auto& eb : m_anyCommandListeners) {
         eb.function(eb.metaData, s);
@@ -60,16 +61,22 @@ bool DevConsole::write(const nString& s) {
     return true;
 }
 
+void DevConsole::toggleFocus() {
+    m_isFocused = !m_isFocused;
+    if (m_isFocused) {
+        // Enable input
+        vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &DevConsole::onKeyDown);
+        vui::InputDispatcher::key.onText += makeDelegate(*this, &DevConsole::onTextInput);
+    } else {
+        // Disable input
+        vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &DevConsole::onKeyDown);
+        vui::InputDispatcher::key.onText -= makeDelegate(*this, &DevConsole::onTextInput);
+    }
+}
+
 void DevConsole::setFocus(bool focus) {
     if (focus != m_isFocused) {
-        m_isFocused = focus;
-        if (m_isFocused) {
-            // Enable input
-            vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &DevConsole::onKeyDown);
-        } else {
-            // Disable input
-            vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &DevConsole::onKeyDown);
-        }
+        toggleFocus();  
     }
 }
 
@@ -103,14 +110,20 @@ void DevConsole::tokenize(nString& input, OUT std::vector<nString>& tokens) {
     }
 }
 
-void DevConsole::onKeyDown(const vui::KeyEvent& ev) {
+void DevConsole::onKeyDown(Sender s, const vui::KeyEvent& ev) {
     // TODO(Ben): Unicode is gonna be a nightmare
     if (ev.keyCode == VKEY_RETURN || ev.keyCode == VKEY_RETURN2) {
         write(m_currentLine);
         m_currentLine = "";
     } else if (ev.keyCode == VKEY_BACKSPACE || ev.keyCode == VKEY_DELETE) {
         if (m_currentLine.size()) m_currentLine.pop_back();
-    } else {
-        m_currentLine += ev.keyCode;
+    }
+}
+
+void DevConsole::onTextInput(Sender s, const vui::TextEvent& ev) {
+    const char* t = ev.text;
+    while (*t != '\0') {
+        m_currentLine += (*t);
+        t++;
     }
 }
