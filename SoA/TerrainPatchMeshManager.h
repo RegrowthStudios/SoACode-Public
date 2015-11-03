@@ -16,7 +16,7 @@
 #ifndef TerrainPatchMeshManager_h__
 #define TerrainPatchMeshManager_h__
 
-#include <RPC.h>
+#include <Vorb/RPC.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;

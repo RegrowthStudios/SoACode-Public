@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ConsoleMain.h"
 
+#include <Vorb/os.h>
 #include <Vorb/script/Environment.h>
 #include <Vorb/script/REPL.h>
 

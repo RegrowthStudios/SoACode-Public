@@ -65,6 +65,24 @@ void Camera::applyRotation(const f32q& rot) {
     m_viewChanged = true;
 }
 
+void Camera::rotateFromMouseAbsoluteUp(float dx, float dy, float speed, bool clampVerticalRotation /* = false*/) {
+    f32q upQuat = vmath::angleAxis(dy * speed, m_right);
+    f32q rightQuat = vmath::angleAxis(dx * speed, UP_ABSOLUTE);
+
+    f32v3 previousDirection = m_direction;
+    f32v3 previousUp = m_up;
+    f32v3 previousRight = m_right;
+
+    applyRotation(upQuat * rightQuat);
+
+    if (clampVerticalRotation && m_up.y < 0) {
+        m_direction = previousDirection;
+        m_up = previousUp;
+        m_right = previousRight;
+        rotateFromMouseAbsoluteUp(dx, 0.0f, speed);
+    }
+}
+
 void Camera::rotateFromMouse(float dx, float dy, float speed) {
     f32q upQuat = vmath::angleAxis(dy * speed, m_right);
     f32q rightQuat = vmath::angleAxis(dx * speed, m_up);
@@ -149,7 +167,7 @@ void CinematicCamera::update()
         }
         m_focalPoint = lerp(m_focalPoint, m_targetFocalPoint, m_speed);
         m_direction = lerp(m_direction, m_targetDirection, (f32)m_speed);
-        m_right = lerp(m_right, m_targetRight, m_speed);
+        m_right = lerp(m_right, m_targetRight, (f32)m_speed);
 
         m_position = m_focalPoint - f64v3(m_direction) * m_focalLength;
     }
