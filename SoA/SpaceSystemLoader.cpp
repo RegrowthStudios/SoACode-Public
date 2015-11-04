@@ -105,7 +105,7 @@ bool SpaceSystemLoader::loadSystemProperties() {
     }
 
     bool goodParse = true;
-    auto f = makeFunctor([&](Sender, const nString& name, keg::Node value) {
+    auto f = makeFunctor([this, &goodParse, &context](Sender, const nString& name, keg::Node value) {
         // Parse based on the name
         if (name == "description") {
             m_spaceSystem->systemDescription = keg::convert<nString>(value);
