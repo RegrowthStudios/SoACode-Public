@@ -23,9 +23,9 @@ GOTO VORB_COPY
 
 :VORB_COPY
 PAUSE
-ROBOCOPY /E /XO "%VORB_PATH%\include" "deps\include\Vorb" *
-ROBOCOPY /E /XO "%VORB_PATH%\deps\lib\Win32" "deps\lib\Win32" *
-ROBOCOPY /E /XO "%VORB_PATH%\deps\lib\x64" "deps\lib\x64" *
+ROBOCOPY /E "%VORB_PATH%\include" "deps\include\Vorb" *
+ROBOCOPY /E "%VORB_PATH%\deps\lib\Win32" "deps\lib\Win32" *
+ROBOCOPY /E "%VORB_PATH%\deps\lib\x64" "deps\lib\x64" *
 COPY  /Y "%VORB_PATH%\bin\Win32\Release\Vorb.lib " "deps\lib\Win32\Vorb.lib"
 COPY  /Y "%VORB_PATH%\bin\Win32\Debug\Vorb-d.lib " "deps\lib\Win32\Vorb-d.lib"
 COPY  /Y "%VORB_PATH%\bin\x64\Release\Vorb.lib "   "deps\lib\x64\Vorb.lib"
