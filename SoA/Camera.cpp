@@ -6,6 +6,8 @@
 
 #include "SoaOptions.h"
 
+const f32v3 Camera::UP_ABSOLUTE = f32v3(0.0f, 1.0f, 0.0f);
+
 Camera::Camera() {
     // Empty
 }
