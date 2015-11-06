@@ -138,7 +138,10 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     initInput();
 
     // Initialize dev console
-    m_devConsoleView.init(&DevConsole::getInstance(), 5);
+    vui::GameWindow* window = m_commonState->window;
+    m_devConsoleView.init(&DevConsole::getInstance(), 5,
+                          f32v2(20.0f, window->getHeight() - 400.0f),
+                          f32v2(window->getWidth() - 40.0f, 400.0f));
 
     // Set GL state
     glEnable(GL_DEPTH_TEST);
@@ -249,7 +252,7 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
 
     // Draw dev console
     m_devConsoleView.update(0.01f);
-    m_devConsoleView.render(f32v2(0.5f, 0.5f), m_game->getWindow().getViewportDims());
+    m_devConsoleView.render(f32v2(20.0f, m_game->getWindow().getHeight() * 0.85f), m_game->getWindow().getViewportDims());
 }
 
 void TestBiomeScreen::initHeightData() {
@@ -508,4 +511,6 @@ void TestBiomeScreen::initInput() {
     m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [this](Sender s, ui32 a) {
         DevConsole::getInstance().toggleFocus();
     });
+
+    m_inputMapper->startInput();
 }
