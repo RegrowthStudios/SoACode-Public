@@ -44,9 +44,17 @@ void DevConsole::addCommand(const nString& s) {
     m_commandListeners.emplace(s, std::vector<EventBinding>());
 }
 
-bool DevConsole::write(const nString& s) {
+bool DevConsole::write(nString s) {
+    
+    // Remove leading `
+    while (s.size() && s.front() == '`') {
+        s.erase(0, 1);
+    }
+    if (s.empty()) return false;
     // TODO(Ben): Concern about thread safety.
-    m_history.push(s);
+    // Ringbuffer push invalidates data... have to copy
+    nString sCopy = s;
+    m_history.push(sCopy);
     // Broadcast to listeners listening for any event
     for (auto& eb : m_anyCommandListeners) {
         eb.function(eb.metaData, s);

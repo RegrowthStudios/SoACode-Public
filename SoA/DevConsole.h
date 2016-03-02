@@ -22,7 +22,7 @@ public:
     bool removeListener(FuncNewCommand f);
 
     void addCommand(const nString& s);
-    bool write(const nString& s);
+    bool write(nString s);
 
     void toggleFocus();
     void setFocus(bool focus);
