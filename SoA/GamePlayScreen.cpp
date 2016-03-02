@@ -75,6 +75,8 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
+    initConsole();
+
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputMapper);
 
@@ -89,12 +91,6 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
     // Initialize and run the update thread
     m_updateThread = new std::thread(&GameplayScreen::updateThreadFunc, this);
-
-    // Initialize dev console
-    vui::GameWindow& window = m_game->getWindow();
-    m_devConsoleView.init(&DevConsole::getInstance(), 5, 
-                          f32v2(20.0f, window.getHeight() - 60.0f),
-                          f32v2(window.getWidth() - 40.0f, 400.0f));
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
@@ -122,6 +118,11 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadShaders) {
         m_renderer.reloadShaders();
         m_shouldReloadShaders = false;
+    }
+
+    if (m_shouldToggleDevConsole) {
+        m_shouldToggleDevConsole = false;
+        DevConsole::getInstance().toggleFocus();
     }
 
     m_spaceSystemUpdater->glUpdate(m_soaState);
@@ -336,8 +337,8 @@ void GameplayScreen::initInput() {
     // TODO(Ben): Don't use functor
     vui::InputDispatcher::key.onKeyDown.addFunctor([&](Sender, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_GRAVE) {
-            DevConsole::getInstance().toggleFocus();
-            if (DevConsole::getInstance().isFocused()) {
+            m_shouldToggleDevConsole = true;
+            if (!DevConsole::getInstance().isFocused()) {
                 m_inputMapper->stopInput();
                 m_soaState->isInputEnabled = false;
             } else {
@@ -445,6 +446,18 @@ void GameplayScreen::initInput() {
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
 
     m_inputMapper->startInput();
+}
+
+void GameplayScreen::initConsole() {
+    vui::GameWindow& window = m_game->getWindow();
+    // TODO(Ben): Dispose
+    m_devConsoleView.init(&DevConsole::getInstance(), 5,
+                          f32v2(20.0f, window.getHeight() - 60.0f),
+                          f32v2(window.getWidth() - 40.0f, 400.0f));
+    DevConsole::getInstance().addCommand("exit");
+    DevConsole::getInstance().addListener("exit", [](void*, const nString&) {
+        exit(0);
+    }, nullptr);
 }
 
 void GameplayScreen::initRenderPipeline() {

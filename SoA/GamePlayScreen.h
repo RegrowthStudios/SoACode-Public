@@ -92,6 +92,9 @@ private:
     /// Initializes event delegates and InputManager
     void initInput();
 
+    /// Initializes dev console events
+    void initConsole();
+
     /// Initializes the rendering
     void initRenderPipeline();
 
@@ -140,6 +143,7 @@ private:
     std::mutex m_reloadLock;
     bool m_shouldReloadTarget = false;
     bool m_shouldReloadShaders = false;
+    bool m_shouldToggleDevConsole = false;
 };
 
 #endif // GAMEPLAYSCREEN_H_

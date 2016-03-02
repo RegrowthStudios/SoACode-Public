@@ -91,7 +91,7 @@ nString DevConsole::getFirstToken(nString input) {
         size_t start = i;
         while (input[i] != ' ' && i < input.size()) i++;
         if (i - start > 0) {
-            return input.substr(i, i - start);
+            return input.substr(start, i - start);
         }
     }
     return "";
