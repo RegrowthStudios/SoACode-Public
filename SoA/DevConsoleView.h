@@ -27,7 +27,7 @@ public:
 
     void update(const f32& dt);
 
-    void render(const f32v2& position, const f32v2& screenSize);
+    void render(const f32v2& screenSize);
 
     /************************************************************************/
     /* Setters                                                              */

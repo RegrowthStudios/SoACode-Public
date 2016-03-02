@@ -21,6 +21,7 @@ DevConsoleView::~DevConsoleView() {
 void DevConsoleView::init(DevConsole* console, i32 linesToRender, const f32v2& position, const f32v2& dimensions) {
     m_position = position;
     m_dimensions = dimensions;
+    m_linesToRender = linesToRender;
 
     m_renderRing.resize(linesToRender);
     m_renderRing.clear();
@@ -72,7 +73,7 @@ void DevConsoleView::update(const f32& dt) {
     if (m_isViewModified) redrawBatch();
 }
 
-void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
+void DevConsoleView::render(const f32v2& screenSize) {
     // Check For A Batch
     if (!m_batch) return;
 
@@ -104,7 +105,10 @@ void DevConsoleView::onNewCommand(const nString& str) {
     std::stringstream ss(str);
     std::string item;
     while (std::getline(ss, item, '\n')) {
-        m_renderRing.push(item);
+        if (!m_renderRing.push(item)) {
+            m_renderRing.pop();
+            m_renderRing.push(item);
+        }
     }
 
     m_isViewModified = true;
@@ -123,7 +127,7 @@ void DevConsoleView::redrawBatch() {
     // Draw Command Lines
     size_t i;
     for (i = 0; i < m_renderRing.size(); i++) {
-        const cString cStr = m_renderRing.at(m_renderRing.size() - i - 1).c_str();
+        const cString cStr = m_renderRing.at(i).c_str();
         if (cStr) {
             m_batch->drawString(m_font, cStr,
                 m_position + f32v2(0.0f, textHeight * i + 10.0f - yOffset),

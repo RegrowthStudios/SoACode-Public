@@ -252,7 +252,7 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
 
     // Draw dev console
     m_devConsoleView.update(0.01f);
-    m_devConsoleView.render(f32v2(20.0f, m_game->getWindow().getHeight() * 0.85f), m_game->getWindow().getViewportDims());
+    m_devConsoleView.render(m_game->getWindow().getViewportDims());
 }
 
 void TestBiomeScreen::initHeightData() {

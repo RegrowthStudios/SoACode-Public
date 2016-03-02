@@ -93,7 +93,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     // Initialize dev console
     vui::GameWindow& window = m_game->getWindow();
     m_devConsoleView.init(&DevConsole::getInstance(), 5, 
-                          f32v2(20.0f, window.getHeight() - 400.0f),
+                          f32v2(20.0f, window.getHeight() - 60.0f),
                           f32v2(window.getWidth() - 40.0f, 400.0f));
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -238,7 +238,9 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
 
     // Draw dev console
     m_devConsoleView.update(0.01f);
-    m_devConsoleView.render(f32v2(0.5f, 0.5f), m_game->getWindow().getViewportDims());
+    if (DevConsole::getInstance().isFocused()) {
+        m_devConsoleView.render(m_game->getWindow().getViewportDims());
+    }
 
     // Uncomment to time rendering
     /*  static int g = 0;
@@ -330,11 +332,22 @@ void GameplayScreen::initInput() {
         m_soaState->isInputEnabled = false;
     });
     
-    // Dev console
-    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [this](Sender s, ui32 a) {
-        DevConsole::getInstance().toggleFocus();
-    });
-
+    // Temporary dev console
+    // TODO(Ben): Don't use functor
+    vui::InputDispatcher::key.onKeyDown.addFunctor([&](Sender, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_GRAVE) {
+            DevConsole::getInstance().toggleFocus();
+            if (DevConsole::getInstance().isFocused()) {
+                m_inputMapper->stopInput();
+                m_soaState->isInputEnabled = false;
+            } else {
+                m_inputMapper->startInput();
+                m_soaState->isInputEnabled = true;
+            }
+        }
+    }
+    );
+ 
     { // Player movement events
         vecs::ComponentID parkourCmp = m_soaState->gameSystem->parkourInput.getComponentID(m_soaState->clientState.playerEntity);
         m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).downEvent, [=](Sender s, ui32 a) {
