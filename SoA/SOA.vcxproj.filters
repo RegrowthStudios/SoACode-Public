@@ -878,6 +878,9 @@
     <ClInclude Include="VoxelUpdateBufferer.h">
       <Filter>SOA Files\Voxel</Filter>
     </ClInclude>
+    <ClInclude Include="textureUtils.h">
+      <Filter>SOA Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp">

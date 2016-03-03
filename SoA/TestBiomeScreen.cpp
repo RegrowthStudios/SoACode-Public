@@ -6,11 +6,14 @@
 
 #include "App.h"
 #include "ChunkRenderer.h"
+#include "DevConsole.h"
+#include "InputMapper.h"
+#include "Inputs.h"
 #include "LoadTaskBlockData.h"
-#include "SoaEngine.h"
-#include "SoaState.h"
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
+#include "SoaEngine.h"
+#include "SoaState.h"
 
 #ifdef DEBUG
 #define HORIZONTAL_CHUNKS 26
@@ -134,6 +137,12 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
+    // Initialize dev console
+    vui::GameWindow* window = m_commonState->window;
+    m_devConsoleView.init(&DevConsole::getInstance(), 5,
+                          f32v2(20.0f, window->getHeight() - 400.0f),
+                          window->getWidth() - 40.0f);
+
     // Set GL state
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -147,6 +156,8 @@ void TestBiomeScreen::onExit(const vui::GameTime& gameTime) {
     }
     m_hdrTarget.dispose();
     m_swapChain.dispose();
+
+    m_devConsoleView.dispose();
 }
 
 void TestBiomeScreen::update(const vui::GameTime& gameTime) {
@@ -238,6 +249,10 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime) {
     m_sb.end();
     m_sb.render(f32v2(m_commonState->window->getViewportDims()));
     vg::DepthState::FULL.set(); // Have to restore depth
+
+    // Draw dev console
+    m_devConsoleView.update(0.01f);
+    m_devConsoleView.render(m_game->getWindow().getViewportDims());
 }
 
 void TestBiomeScreen::initHeightData() {
@@ -372,6 +387,10 @@ void TestBiomeScreen::initChunks() {
 }
 
 void TestBiomeScreen::initInput() {
+
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
+
     m_mouseButtons[0] = false;
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
@@ -487,4 +506,11 @@ void TestBiomeScreen::initInput() {
                 break;
         }
     });
+
+    // Dev console
+    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [this](Sender s, ui32 a) {
+        DevConsole::getInstance().toggleFocus();
+    });
+
+    m_inputMapper->startInput();
 }

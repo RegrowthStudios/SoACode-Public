@@ -16,6 +16,7 @@
 #include "ChunkRenderer.h"
 #include "Collision.h"
 #include "DebugRenderer.h"
+#include "DevConsole.h"
 #include "Errors.h"
 #include "GameManager.h"
 #include "GameSystem.h"
@@ -74,6 +75,8 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
     initInput();
 
+    initConsole();
+
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputMapper);
 
@@ -105,6 +108,8 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
     m_pda.destroy();
     //m_renderPipeline.destroy(true);
     m_pauseMenu.destroy();
+
+    m_devConsoleView.dispose();
 }
 
 /// This update function runs on the render thread
@@ -113,6 +118,11 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
     if (m_shouldReloadShaders) {
         m_renderer.reloadShaders();
         m_shouldReloadShaders = false;
+    }
+
+    if (m_shouldToggleDevConsole) {
+        m_shouldToggleDevConsole = false;
+        DevConsole::getInstance().toggleFocus();
     }
 
     m_spaceSystemUpdater->glUpdate(m_soaState);
@@ -227,6 +237,12 @@ void GameplayScreen::draw(const vui::GameTime& gameTime) {
     m_renderer.render();
     globalRenderAccumulationTimer.stop();
 
+    // Draw dev console
+    m_devConsoleView.update(0.01f);
+    if (DevConsole::getInstance().isFocused()) {
+        m_devConsoleView.render(m_game->getWindow().getViewportDims());
+    }
+
     // Uncomment to time rendering
     /*  static int g = 0;
       if (++g == 10) {
@@ -316,7 +332,23 @@ void GameplayScreen::initInput() {
         m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
     });
-
+    
+    // Temporary dev console
+    // TODO(Ben): Don't use functor
+    vui::InputDispatcher::key.onKeyDown.addFunctor([&](Sender, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_GRAVE) {
+            m_shouldToggleDevConsole = true;
+            if (!DevConsole::getInstance().isFocused()) {
+                m_inputMapper->stopInput();
+                m_soaState->isInputEnabled = false;
+            } else {
+                m_inputMapper->startInput();
+                m_soaState->isInputEnabled = true;
+            }
+        }
+    }
+    );
+ 
     { // Player movement events
         vecs::ComponentID parkourCmp = m_soaState->gameSystem->parkourInput.getComponentID(m_soaState->clientState.playerEntity);
         m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).downEvent, [=](Sender s, ui32 a) {
@@ -414,6 +446,18 @@ void GameplayScreen::initInput() {
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
 
     m_inputMapper->startInput();
+}
+
+void GameplayScreen::initConsole() {
+    vui::GameWindow& window = m_game->getWindow();
+    // TODO(Ben): Dispose
+    m_devConsoleView.init(&DevConsole::getInstance(), 5,
+                          f32v2(20.0f, window.getHeight() - 60.0f),
+                          window.getWidth() - 40.0f);
+    DevConsole::getInstance().addCommand("exit");
+    DevConsole::getInstance().addListener("exit", [](void*, const nString&) {
+        exit(0);
+    }, nullptr);
 }
 
 void GameplayScreen::initRenderPipeline() {

@@ -25,6 +25,7 @@
 #include "PDA.h"
 #include "PauseMenu.h"
 #include "SoaController.h"
+#include "DevConsoleView.h"
 
 class App;
 class GameStartState;
@@ -91,6 +92,9 @@ private:
     /// Initializes event delegates and InputManager
     void initInput();
 
+    /// Initializes dev console events
+    void initConsole();
+
     /// Initializes the rendering
     void initRenderPipeline();
 
@@ -121,6 +125,8 @@ private:
 
     PauseMenu m_pauseMenu; ///< The Pause Menu
 
+    DevConsoleView m_devConsoleView;
+
     SoaController controller;
     std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
     std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
@@ -137,6 +143,7 @@ private:
     std::mutex m_reloadLock;
     bool m_shouldReloadTarget = false;
     bool m_shouldReloadShaders = false;
+    bool m_shouldToggleDevConsole = false;
 };
 
 #endif // GAMEPLAYSCREEN_H_

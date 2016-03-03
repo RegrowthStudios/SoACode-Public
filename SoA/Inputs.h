@@ -25,6 +25,7 @@ extern InputMapper::InputID INPUT_BLOCK_SCANNER;
 extern InputMapper::InputID INPUT_CROUCH;
 extern InputMapper::InputID INPUT_CYCLE_COLOR_FILTER;
 extern InputMapper::InputID INPUT_DEBUG;
+extern InputMapper::InputID INPUT_DEV_CONSOLE;
 extern InputMapper::InputID INPUT_DRAW_MODE;
 extern InputMapper::InputID INPUT_EXIT;
 extern InputMapper::InputID INPUT_FLASH_LIGHT;

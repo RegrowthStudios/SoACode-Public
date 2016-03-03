@@ -12,6 +12,7 @@ InputMapper::InputID INPUT_BLOCK_SCANNER = -1;
 InputMapper::InputID INPUT_CROUCH = -1;
 InputMapper::InputID INPUT_CYCLE_COLOR_FILTER = -1;
 InputMapper::InputID INPUT_DEBUG = -1;
+InputMapper::InputID INPUT_DEV_CONSOLE = -1;
 InputMapper::InputID INPUT_DRAW_MODE = -1;
 InputMapper::InputID INPUT_EXIT = -1;
 InputMapper::InputID INPUT_FLASH_LIGHT = -1;
@@ -66,6 +67,9 @@ void initInputs(InputMapper* inputManager) {
 
     // The Greatest Input In The Cosmos
     CREATE_INPUT(Pause, VKEY_ESCAPE, INPUT_PAUSE);
+    
+    // Dev Console
+    CREATE_INPUT(Dev Console, VKEY_GRAVE, INPUT_DEV_CONSOLE);
 
     // Game Information
     CREATE_INPUT(Debug, VKEY_H, INPUT_DEBUG);

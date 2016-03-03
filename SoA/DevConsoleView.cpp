@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DevConsoleView.h"
+#include "textureUtils.h"
 
 #include <algorithm>
 #include <iterator>
@@ -11,111 +12,149 @@
 #include "DevConsole.h"
 
 DevConsoleView::DevConsoleView() :
-_batch(nullptr),
-_font(nullptr),
-_console(nullptr),
-_blinkTimeRemaining(DEV_CONSOLE_MARKER_BLINK_DELAY),
-_isViewModified(false),
-_linesToRender(2),
-_renderRing(2) {}
+    m_renderRing(START_LINES_TO_RENDER) {
+}
+
 DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
-void DevConsoleView::init(DevConsole* console, i32 linesToRender) {
-    _renderRing.resize(linesToRender);
-    _renderRing.clear();
+void DevConsoleView::init(DevConsole* console, i32 linesToRender, const f32v2& position, float lineWidth) {
+    
+    m_batch = new vg::SpriteBatch();
+    m_batch->init();
+    m_font = new vg::SpriteFont();
+    m_font->init("Fonts/orbitron_black-webfont.ttf", 32);
+    
+    m_position = position;
+    m_dimensions.x = lineWidth;
+    m_dimensions.y = linesToRender * m_font->getFontHeight() + 40.0f;
+    m_linesToRender = linesToRender;
 
-    _console = console;
-    _fHook = [] (void* meta, const nString& str) {
+    m_renderRing.resize(linesToRender);
+    m_renderRing.clear();
+
+    m_console = console;
+    _fHook = [](void* meta, const nString& str) {
         ((DevConsoleView*)meta)->onNewCommand(str);
     };
-    _console->addListener(_fHook, this);
-    _isViewModified = true;
+    m_console->addListener(_fHook, this);
+    m_isViewModified = true;
 
-    _batch = new vg::SpriteBatch(true, true);
-    _font = new vg::SpriteFont();
-    _font->init("Fonts\\chintzy.ttf", 32);
+    
+
+    initSinglePixelTexture(m_texture, color::White);
 }
 
 void DevConsoleView::dispose() {
-    if (_batch) {
-        _batch->dispose();
-        _batch = nullptr;
+    if (m_batch) {
+        m_batch->dispose();
+        m_batch = nullptr;
     }
-    if (_font) {
-        _font->dispose();
-        _font = nullptr;
+    if (m_font) {
+        m_font->dispose();
+        m_font = nullptr;
     }
-    if (_console) {
+    if (m_console) {
         if (_fHook) {
-            _console->removeListener(_fHook);
+            m_console->removeListener(_fHook);
             _fHook = nullptr;
         }
-        _console = nullptr;
+        m_console = nullptr;
     }
 }
 
-void DevConsoleView::onEvent(const SDL_Event& e) {
-    // TODO: Input
-}
 void DevConsoleView::update(const f32& dt) {
     // Blinking Logic
-    _blinkTimeRemaining -= dt;
-    if (_blinkTimeRemaining < 0) {
-        _blinkTimeRemaining = DEV_CONSOLE_MARKER_BLINK_DELAY;
-        _isViewModified = true;
+    m_blinkTimeRemaining -= dt;
+    if (m_blinkTimeRemaining < 0) {
+        m_blinkTimeRemaining = DEV_CONSOLE_MARKER_BLINK_DELAY;
+        m_isViewModified = true;
     }
 
-    if (_isViewModified) redrawBatch();
+    if (m_currentLine != m_console->getCurrentLine()) {
+        m_currentLine = m_console->getCurrentLine();
+        m_isViewModified = true;
+    }
+
+    if (m_isViewModified) redrawBatch();
 }
 
-void DevConsoleView::render(const f32v2& position, const f32v2& screenSize) {
+void DevConsoleView::render(const f32v2& screenSize) {
     // Check For A Batch
-    if (!_batch) return;
+    if (!m_batch) return;
 
-    // Translation Matrix To Put Top-Left Cornert To Desired Position
-    f32m4 mTranslate(
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        position.x, position.y, 0, 1
-        );
-    _batch->render(mTranslate, screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+    redrawBatch(); // TODO(Ben): Not every frame
+    m_batch->render(screenSize, &vg::SamplerState::POINT_WRAP, &vg::DepthState::NONE, &vg::RasterizerState::CULL_NONE);
+}
+
+void DevConsoleView::setBackColor(const color4& color) {
+    m_backColor = color;
+    m_isViewModified = true;
+}
+
+void DevConsoleView::setFontColor(const color4& color) {
+    m_fontColor = color;
+    m_isViewModified = true;
+}
+
+void DevConsoleView::setPosition(const f32v2& pos) {
+    m_position = pos;
+    m_isViewModified = true;
+}
+
+void DevConsoleView::setDimensions(const f32v2& dims) {
+    m_dimensions = dims;
+    m_isViewModified = true;
 }
 
 void DevConsoleView::onNewCommand(const nString& str) {
     std::stringstream ss(str);
     std::string item;
     while (std::getline(ss, item, '\n')) {
-        _renderRing.push(item);
+        if (!m_renderRing.push(item)) {
+            m_renderRing.pop();
+            m_renderRing.push(item);
+        }
     }
 
-    _isViewModified = true;
+    m_isViewModified = true;
 }
 
 void DevConsoleView::redrawBatch() {
-    if (!_batch || !_font) return;
+    if (!m_batch || !m_font) return;
 
-    _batch->begin();
+    m_batch->begin();
+    f32 textHeight = (f32)m_font->getFontHeight();
 
-    // TODO: Draw Background
-    f32 textHeight = (f32)_font->getFontHeight();
+    f32 yOffset = m_renderRing.size() * textHeight;
+
+    // Draw dark transparent back
+    m_batch->draw(m_texture, m_position - f32v2(10.0f, m_dimensions.y - textHeight - 10.0f), m_dimensions, color4(0, 0, 0, 176), 1.0f);
 
     // Draw Command Lines
-    for (size_t i = 0; i < _renderRing.size(); i++) {
-        const cString cStr = _renderRing.at(i).c_str();
+    size_t i;
+    for (i = 0; i < m_renderRing.size(); i++) {
+        const cString cStr = m_renderRing.at(i).c_str();
         if (cStr) {
-            _batch->drawString(_font, cStr,
-                f32v2(10, textHeight * i + 10),
+            m_batch->drawString(m_font, cStr,
+                m_position + f32v2(0.0f, textHeight * i + 10.0f - yOffset),
                 f32v2(1),
-                ColorRGBA8(0, 255, 0, 255),
+                color4(0, 255, 0, 255),
                 vg::TextAlign::TOP_LEFT,
                 0.9f);
         }
     }
+    // Draw current line
+    if (m_currentLine.size()) {
+        m_batch->drawString(m_font, m_currentLine.c_str(),
+                            m_position + f32v2(0.0f, textHeight * i + 10.0f - yOffset),
+                            f32v2(1),
+                            color4(0, 255, 0, 255),
+                            vg::TextAlign::TOP_LEFT,
+                            0.9f);
+    }
 
     // TODO: Draw Input
-
-    _batch->end(vg::SpriteSortMode::BACK_TO_FRONT);
+    m_batch->end(vg::SpriteSortMode::BACK_TO_FRONT);
 }

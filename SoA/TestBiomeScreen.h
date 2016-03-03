@@ -15,10 +15,13 @@
 #include "ChunkMesher.h"
 #include "ChunkRenderer.h"
 #include "CommonState.h"
+#include "DevConsoleView.h"
 #include "FloraGenerator.h"
 #include "HdrRenderStage.h"
 #include "SSAORenderStage.h"
 #include "SphericalHeightmapGenerator.h"
+
+class InputMapper;
 
 class TestBiomeScreen : public vui::IAppScreen < App > {
 public:
@@ -73,6 +76,10 @@ private:
 
     SSAORenderStage m_ssaoStage;
     HdrRenderStage m_hdrStage;
+
+    DevConsoleView m_devConsoleView;
+
+    InputMapper* m_inputMapper = nullptr;
 
     bool m_wireFrame = false;
     bool m_mouseButtons[2];
