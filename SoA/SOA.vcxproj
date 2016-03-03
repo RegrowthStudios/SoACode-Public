@@ -687,6 +687,7 @@ EXIT 0</Command>
     <ClInclude Include="TestNewBlockAPIScreen.h" />
     <ClInclude Include="TestPlanetGenScreen.h" />
     <ClInclude Include="TestStarScreen.h" />
+    <ClInclude Include="textureUtils.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />

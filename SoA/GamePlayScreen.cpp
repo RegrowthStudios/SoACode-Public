@@ -453,7 +453,7 @@ void GameplayScreen::initConsole() {
     // TODO(Ben): Dispose
     m_devConsoleView.init(&DevConsole::getInstance(), 5,
                           f32v2(20.0f, window.getHeight() - 60.0f),
-                          f32v2(window.getWidth() - 40.0f, 400.0f));
+                          window.getWidth() - 40.0f);
     DevConsole::getInstance().addCommand("exit");
     DevConsole::getInstance().addListener("exit", [](void*, const nString&) {
         exit(0);

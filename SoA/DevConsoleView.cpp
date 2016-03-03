@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DevConsoleView.h"
+#include "textureUtils.h"
 
 #include <algorithm>
 #include <iterator>
@@ -18,9 +19,16 @@ DevConsoleView::~DevConsoleView() {
     dispose();
 }
 
-void DevConsoleView::init(DevConsole* console, i32 linesToRender, const f32v2& position, const f32v2& dimensions) {
+void DevConsoleView::init(DevConsole* console, i32 linesToRender, const f32v2& position, float lineWidth) {
+    
+    m_batch = new vg::SpriteBatch();
+    m_batch->init();
+    m_font = new vg::SpriteFont();
+    m_font->init("Fonts/orbitron_black-webfont.ttf", 32);
+    
     m_position = position;
-    m_dimensions = dimensions;
+    m_dimensions.x = lineWidth;
+    m_dimensions.y = linesToRender * m_font->getFontHeight() + 40.0f;
     m_linesToRender = linesToRender;
 
     m_renderRing.resize(linesToRender);
@@ -33,10 +41,9 @@ void DevConsoleView::init(DevConsole* console, i32 linesToRender, const f32v2& p
     m_console->addListener(_fHook, this);
     m_isViewModified = true;
 
-    m_batch = new vg::SpriteBatch();
-    m_batch->init();
-    m_font = new vg::SpriteFont();
-    m_font->init("Fonts/orbitron_black-webfont.ttf", 32);
+    
+
+    initSinglePixelTexture(m_texture, color::White);
 }
 
 void DevConsoleView::dispose() {
@@ -118,11 +125,12 @@ void DevConsoleView::redrawBatch() {
     if (!m_batch || !m_font) return;
 
     m_batch->begin();
-
-    // TODO: Draw Background
     f32 textHeight = (f32)m_font->getFontHeight();
 
     f32 yOffset = m_renderRing.size() * textHeight;
+
+    // Draw dark transparent back
+    m_batch->draw(m_texture, m_position - f32v2(10.0f, m_dimensions.y - textHeight - 10.0f), m_dimensions, color4(0, 0, 0, 176), 1.0f);
 
     // Draw Command Lines
     size_t i;

@@ -141,7 +141,7 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     vui::GameWindow* window = m_commonState->window;
     m_devConsoleView.init(&DevConsole::getInstance(), 5,
                           f32v2(20.0f, window->getHeight() - 400.0f),
-                          f32v2(window->getWidth() - 40.0f, 400.0f));
+                          window->getWidth() - 40.0f);
 
     // Set GL state
     glEnable(GL_DEPTH_TEST);

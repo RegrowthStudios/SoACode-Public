@@ -4,6 +4,7 @@
 #include <Vorb/RingBuffer.hpp>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/colors.h>
+#include <Vorb/graphics/gtypes.h>
 
 class DevConsole;
 
@@ -20,7 +21,8 @@ public:
     DevConsoleView();
     ~DevConsoleView();
 
-    void init(DevConsole* console, i32 linesToRender, const f32v2& position, const f32v2& dimensions);
+    // Position is of bottom left corner
+    void init(DevConsole* console, i32 linesToRender, const f32v2& position, float lineWidth);
    
 
     void dispose();
@@ -60,6 +62,8 @@ private:
     f32v2 m_dimensions = f32v2(0.0f);
     color4 m_backColor = color4(0, 0, 0, 128);
     color4 m_fontColor = color::LightGreen;
+
+    VGTexture m_texture;
 
     i32 m_linesToRender = START_LINES_TO_RENDER;
     StringRing m_renderRing;
