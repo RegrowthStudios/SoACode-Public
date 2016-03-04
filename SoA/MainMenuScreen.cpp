@@ -285,8 +285,23 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
 }
 
 void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
-    printf("Reloading Shaders\n");
-    // m_renderPipeline.reloadShaders(); TODO(Ben): BROKE
+    printf("Reloading Shaders...\n");
+    m_renderer.dispose(m_commonState->loadContext);
+
+    m_renderer.init(m_commonState->window, m_commonState->loadContext, this, m_commonState);
+    m_renderer.hook();
+    m_commonState->loadContext.begin();
+    m_renderer.load(m_commonState->loadContext);
+
+    
+    while (!m_renderer.isLoaded()) {
+        m_commonState->loadContext.processRequests(1);
+        SDL_Delay(1);
+    }
+
+    m_commonState->loadContext.end();
+
+    printf("Done!\n");
 }
 
 void MainMenuScreen::onQuit(Sender s, ui32 a) {

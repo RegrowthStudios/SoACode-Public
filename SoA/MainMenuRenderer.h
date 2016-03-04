@@ -47,6 +47,7 @@ public:
 
     void hook();
 
+    // Is asynchronous. Check isLoaded
     void load(StaticLoadContext& context);
 
     void dispose(StaticLoadContext& context);
