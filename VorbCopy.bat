@@ -2,6 +2,7 @@
 IF DEFINED VORB_PATH ( GOTO PATH_ENV )
 IF EXIST Vorb\ ( GOTO PATH_SAME )
 IF EXIST ..\Vorb\ ( GOTO PATH_ROOT )
+IF EXIST deps\Vorb\ ( GOTO PATH_DEPS )
 
 ECHO No path for Vorb found, please add to the environment variables as "VORB_PATH"
 PAUSE
@@ -19,6 +20,11 @@ GOTO VORB_COPY
 :PATH_ROOT
 ECHO Vorb was found in the parent directory
 SET VORB_PATH=..\Vorb
+GOTO VORB_COPY
+
+:PATH_DEPS
+ECHO Vorb was found in the deps directory
+SET VORB_PATH=deps\Vorb
 GOTO VORB_COPY
 
 :VORB_COPY
