@@ -235,6 +235,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">
     <ClCompile>
@@ -273,6 +276,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -309,6 +315,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'">
     <ClCompile>
@@ -345,6 +354,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -389,6 +401,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'">
     <ClCompile>
@@ -433,6 +448,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -477,6 +495,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'">
     <ClCompile>
@@ -521,6 +542,9 @@ $(SolutionDir)VorbCopy.bat</Command>
     <PreBuildEvent>
       <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AABBCollidableComponentUpdater.h" />
