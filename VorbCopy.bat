@@ -6,7 +6,7 @@ IF EXIST deps\Vorb\ ( GOTO PATH_DEPS )
 
 ECHO No path for Vorb found, please add to the environment variables as "VORB_PATH"
 PAUSE
-EXIT 0
+EXIT 1
 
 :PATH_ENV
 ECHO Using VORB_PATH environment variable
@@ -36,3 +36,4 @@ COPY  /Y "%VORB_PATH%\bin\Win32\Release\Vorb.lib " "deps\lib\Win32\Vorb.lib"
 COPY  /Y "%VORB_PATH%\bin\Win32\Debug\Vorb-d.lib " "deps\lib\Win32\Vorb-d.lib"
 COPY  /Y "%VORB_PATH%\bin\x64\Release\Vorb.lib "   "deps\lib\x64\Vorb.lib"
 COPY  /Y "%VORB_PATH%\bin\x64\Debug\Vorb-d.lib "   "deps\lib\x64\Vorb-d.lib"
+EXIT 0
