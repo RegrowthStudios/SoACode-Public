@@ -229,12 +229,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">
@@ -268,12 +266,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -305,12 +301,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'">
@@ -342,12 +336,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -387,12 +379,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'">
@@ -432,12 +422,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -477,12 +465,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'">
@@ -522,12 +508,10 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
