@@ -185,3 +185,5 @@ desktop.ini
 # A Folder To Put Personal Stuff
 Mine/
 
+#VS2015 openDB
+*.opendb
