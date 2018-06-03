@@ -16,6 +16,7 @@
 #define BlockPack_h__
 
 #include <Vorb/Events.hpp>
+#include <Vorb/graphics/Texture.h>
 
 #include "BlockData.h"
 
@@ -25,32 +26,27 @@ public:
     /// Constructor which adds default none and unknown blocks
     BlockPack();
 
-    /// Add a series of blocks into this pack
-    /// @param blocks: Pointer to block array
-    /// @param n: Number of blocks
-    void append(const Block* blocks, size_t n);
+    /// Add a block to the pack, and overwrite a block of the same BlockIdentifier
+    /// Will invalidate existing Block* pointers. Store BlockIDs instead.
+    BlockID append(Block& block);
 
-    /// 
-    /// @param index: Block's index identifier
-    /// @param block: 
-    /// @return True if block exists
-    bool hasBlock(const size_t& index, Block** block = nullptr) {
-        if (index < 0 || index >= m_blockList.size()) {
-            if (block) *block = nullptr;
-            return false;
+    void reserveID(const BlockIdentifier& sid, const BlockID& id);
+
+    /// Note that the returned pointer becomes invalidated after an append call
+    /// @return nullptr if block doesn't exist
+    const Block* hasBlock(const BlockID& id) const {
+        if (id >= m_blockList.size()) {
+            return nullptr;
         } else {
-            if (block) *block = &m_blockList[index];
-            return true;
+            return &m_blockList[id];
         }
     }
-    bool hasBlock(const BlockIdentifier& id, Block** block = nullptr) {
-        auto v = m_blocks.find(id);
-        if (v == m_blocks.end()) {
-            if (block) *block = nullptr;
-            return false;
+    const Block* hasBlock(const BlockIdentifier& sid) const {
+        auto v = m_blockMap.find(sid);
+        if (v == m_blockMap.end()) {
+            return nullptr;
         } else {
-            if (block) *block = &m_blockList[v->second];
-            return true;
+            return &m_blockList[v->second];
         }
     }
 
@@ -68,20 +64,23 @@ public:
     const Block& operator[](const size_t& index) const {
         return m_blockList[index];
     }
-    Block& operator[](const BlockIdentifier& id) {
-        return m_blockList[m_blocks.at(id)];
+    Block& operator[](const BlockIdentifier& sid) {
+        return m_blockList[m_blockMap.at(sid)];
     }
-    const Block& operator[](const BlockIdentifier& id) const {
-        return m_blockList[m_blocks.at(id)];
+    const Block& operator[](const BlockIdentifier& sid) const {
+        return m_blockList[m_blockMap.at(sid)];
     }
+    const ui16& getBlockIndex(const BlockIdentifier& sid) const {
+        return m_blockMap.at(sid);
+    }
+
+    const std::unordered_map<BlockIdentifier, ui16>& getBlockMap() const { return m_blockMap; }
+    const std::vector<Block>& getBlockList() const { return m_blockList; }
 
     Event<ui16> onBlockAddition; ///< Signaled when a block is loaded
 private:
-    std::unordered_map<BlockIdentifier, ui16> m_blocks; ///< Blocks indices organized by identifiers
+    std::unordered_map<BlockIdentifier, ui16> m_blockMap; ///< Blocks indices organized by identifiers
     std::vector<Block> m_blockList; ///< Block data list
 };
-
-// TODO: This will need to be removed
-extern BlockPack Blocks;
 
 #endif // BlockPack_h__

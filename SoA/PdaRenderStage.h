@@ -14,18 +14,20 @@
 #ifndef PdaRenderStage_h__
 #define PdaRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
 class PDA;
 
-class PdaRenderStage : public vg::IRenderStage {
+class PdaRenderStage : public IRenderStage {
 public:
-    PdaRenderStage(const PDA* pda);
+    PdaRenderStage();
+
+    void hook(const PDA* pda);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera) override;
 private:
-    const PDA* _pda; ///< Handle to the PDA
+    const PDA* _pda = nullptr; ///< Handle to the PDA
 };
 
 #endif // PdaRenderStage_h__

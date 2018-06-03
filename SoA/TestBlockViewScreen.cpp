@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "TestBlockViewScreen.h"
 
-#include <glm/gtx/transform.hpp>
 #include <Vorb/colors.h>
 #include <Vorb/graphics/GLStates.h>
 #include <Vorb/ui/InputDispatcher.h>
@@ -40,7 +39,7 @@ void main() {
     float f1 = min(ff.x, ff.y);
     float f2 = max(ff.x, ff.y);
     float f = 1.0 - max(1.0 - f1, f2);
-    pColor = vec4(fColor * f, 1);
+    pColor = vec4(fColor * f , 1);
 }
 )";
 #pragma endregion
@@ -107,9 +106,11 @@ public:
     }
     void result(const vvox::meshalg::VoxelQuad& quad) {
         VertexPosColor v;
+        ColorRGBA8 c;
         switch (m_data[quad.startIndex]) {
         case 1:
-            v.color = color::Red.rgb;
+            c = ColorRGBA8((i32)(quad.voxelPosition.x / 3.0f * 255), (i32)(quad.voxelPosition.y / 3.0f * 255), (i32)(quad.voxelPosition.z / 3.0f * 255));
+            v.color = c.rgb;
             break;
         default:
             v.color = color::Blue.rgb;
@@ -164,27 +165,27 @@ i32 TestBlockView::getPreviousScreen() const {
 void TestBlockView::build() {
     // Empty
 }
-void TestBlockView::destroy(const GameTime& gameTime) {
+void TestBlockView::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestBlockView::onEntry(const GameTime& gameTime) {
-    m_hooks.addAutoHook(&m_blocks.onBlockAddition, [&] (Sender s, ui16 id) {
+void TestBlockView::onEntry(const vui::GameTime& gameTime) {
+    m_hooks.addAutoHook(m_blocks.onBlockAddition, [&] (Sender s, ui16 id) {
         printf("Loaded Block: %s = %d\n", m_blocks[id].name.c_str(), id);
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::window.onFile, [&] (Sender s, const vui::WindowFileEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::window.onFile, [&] (Sender s, const vui::WindowFileEvent& e) {
         loadBlocks(e.file);
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
         if (m_movingCamera) {
-            m_mRotation = glm::rotate(f32m4(), 1.2f * e.dx, f32v3(0.0f, 1.0f, 0.0f)) * m_mRotation;
-            m_mRotation = glm::rotate(f32m4(), 1.2f * e.dy, f32v3(1.0f, 0.0f, 0.0f)) * m_mRotation;
+            m_mRotation = vmath::rotate(f32m4(), 1.2f * e.dx, f32v3(0.0f, 1.0f, 0.0f)) * m_mRotation;
+            m_mRotation = vmath::rotate(f32m4(), 1.2f * e.dy, f32v3(1.0f, 0.0f, 0.0f)) * m_mRotation;
         }
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::MIDDLE) m_movingCamera = true;
     });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::MIDDLE) m_movingCamera = false;
     });
 
@@ -203,25 +204,22 @@ void TestBlockView::onEntry(const GameTime& gameTime) {
     glClearDepth(1.0);
 
 }
-void TestBlockView::onExit(const GameTime& gameTime) {
+void TestBlockView::onExit(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void TestBlockView::onEvent(const SDL_Event& e) {
+void TestBlockView::update(const vui::GameTime& gameTime) {
     // Empty
 }
-void TestBlockView::update(const GameTime& gameTime) {
-    // Empty
-}
-void TestBlockView::draw(const GameTime& gameTime) {
+void TestBlockView::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_program.use();
     f32 tCenter = (f32)TEST_CHUNK_SIZE * -0.5f;
-    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, TEST_CHUNK_SIZE), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(tCenter, tCenter, tCenter);
+    f32m4 mWVP = vmath::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * vmath::lookAt(f32v3(0, 0, TEST_CHUNK_SIZE), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * vmath::translate(f32v3(tCenter, tCenter, tCenter));
 
-    DepthState::FULL.set();
-    RasterizerState::CULL_CLOCKWISE.set();
+    vg::DepthState::FULL.set();
+    vg::RasterizerState::CULL_CLOCKWISE.set();
 
     m_program.use();
     m_program.enableVertexAttribArrays();
@@ -244,7 +242,7 @@ void TestBlockView::draw(const GameTime& gameTime) {
 
 void TestBlockView::loadBlocks(const cString file) {
     vio::IOManager iom;
-    BlockLoader::load(&iom, file, &m_blocks);
+    BlockLoader::load(iom, file, &m_blocks);
 }
 
 void TestBlockView::genBlockMesh() {
@@ -257,6 +255,7 @@ void TestBlockView::genBlockMesh() {
             ui32 h = (ui32)(r.genMH() * 4) + 15;
             for (ui32 y = 0; y < h; y++) {
                 size_t vi = (y * TEST_CHUNK_SIZE + z) * TEST_CHUNK_SIZE + x;
+                
                 data[vi] = 1;
             }
         }

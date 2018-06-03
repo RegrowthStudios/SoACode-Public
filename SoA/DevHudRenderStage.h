@@ -15,21 +15,24 @@
 #ifndef DevHudRenderStage_h__
 #define DevHudRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
+#include <Vorb/VorbPreDecl.inl>
 
-class SpriteBatch;
-class SpriteFont;
-class Player;
+DECL_VG(class SpriteBatch;
+        class SpriteFont)
+
 class App;
 
-class DevHudRenderStage : public vg::IRenderStage{
+class DevHudRenderStage : public IRenderStage{
 public:
-    DevHudRenderStage(const cString fontPath, i32 fontSize, const Player* player,
-                      const App* app, const f32v2& windowDims);
+    DevHudRenderStage();
     ~DevHudRenderStage();
 
+    void hook(const cString fontPath, i32 fontSize,
+              const App* app, const f32v2& windowDims);
+
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera) override;
 
     /// Cycles the Hud mode
     /// @param offset: How much to offset the current mode
@@ -51,12 +54,11 @@ private:
     void drawFps();
     void drawPosition();
 
-    SpriteBatch* _spriteBatch; ///< For rendering 2D sprites
-    SpriteFont* _spriteFont; ///< Font used by spritebatch
-    const Player* _player; ///< Handle to the player
-    DevUiModes _mode; ///< The mode for rendering
+    vg::SpriteBatch* _spriteBatch = nullptr; ///< For rendering 2D sprites
+    vg::SpriteFont* _spriteFont = nullptr; ///< Font used by spritebatch
+    DevUiModes _mode = DevUiModes::HANDS; ///< The mode for rendering
     f32v2 _windowDims; ///< Dimensions of the window
-    const App* _app; ///< Handle to the app
+    const App* _app = nullptr; ///< Handle to the app
     int _fontHeight; ///< Height of the spriteFont
     int _yOffset; ///< Y offset accumulator
 };

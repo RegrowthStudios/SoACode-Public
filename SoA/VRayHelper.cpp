@@ -1,12 +1,16 @@
 #include "stdafx.h"
 #include "VRayHelper.h"
 
-#include "Chunk.h"
-#include "ChunkManager.h"
-#include "Player.h"
+#include "BlockPack.h"
+#include "ChunkGrid.h"
 #include "VoxelRay.h"
+#include "VoxelSpaceConversions.h"
 
-const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkManager* cm, PredBlockID f) {
+bool solidVoxelPredBlock(const Block& block) {
+    return block.collide == true;
+}
+
+const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid& cg, PredBlock f) {
 
     // Set the ray coordinates
     VoxelRay vr(pos, f64v3(dir));
@@ -18,7 +22,7 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     query.distance = vr.getDistanceTraversed();
 
     // A minimum chunk position for determining voxel coords using only positive numbers
-    i32v3 relativeChunkSpot = cm->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
+    i32v3 relativeChunkSpot = VoxelSpaceConversions::voxelToChunk(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
     // Chunk position
@@ -27,36 +31,47 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
     // TODO: Use A Bounding Box Intersection First And Allow Traversal Beginning Outside The Voxel World
 
     // Keep track of the previous chunk for locking
-    Chunk* prevChunk = nullptr;
+    ChunkHandle chunk;
+    query.chunkID = ChunkID(0xffffffffffffffff);
+    bool locked = false;
 
     // Loop Traversal
     while (query.distance < maxDistance) {
        
-        chunkPos = cm->getChunkPosition(query.location);
+        chunkPos = VoxelSpaceConversions::voxelToChunk(query.location);
 
         relativeLocation = query.location - relativeChunkSpot;
-        query.chunk = cm->getChunk(chunkPos);
-      
-        if (query.chunk && query.chunk->isAccessible) {
-            // Check for if we need to lock the next chunk
-            if (prevChunk != query.chunk) {
-                if (prevChunk) prevChunk->unlock();
-                query.chunk->lock();
-                prevChunk = query.chunk;
+        ChunkID id(chunkPos);
+        if (id != query.chunkID) {
+            query.chunkID = id;
+            if (chunk.isAquired()) {
+                if (locked) {
+                    chunk->dataMutex.unlock();
+                    locked = false;
+                }
+                chunk.release();
             }
-
+            chunk = cg.accessor.acquire(id);
+            if (chunk->isAccessible) {
+                chunk->dataMutex.lock();
+                locked = true;
+            }
+        }
+        
+        if (locked) {
             // Calculate Voxel Index
             query.voxelIndex =
-                relativeLocation.x % CHUNK_WIDTH +
-                (relativeLocation.y % CHUNK_WIDTH) * CHUNK_LAYER +
-                (relativeLocation.z % CHUNK_WIDTH) * CHUNK_WIDTH;
+                (relativeLocation.x & 0x1f) +
+                (relativeLocation.y & 0x1f) * CHUNK_LAYER +
+                (relativeLocation.z & 0x1f) * CHUNK_WIDTH;
 
             // Get Block ID
-            query.id = query.chunk->getBlockID(query.voxelIndex);
+            query.id = chunk->blocks.get(query.voxelIndex);
 
             // Check For The Block ID
-            if (f(query.id)) {
-                if (prevChunk) prevChunk->unlock();
+            if (f(cg.blockPack->operator[](query.id))) {
+                if (locked) chunk->dataMutex.unlock();
+                chunk.release();
                 return query;
             }
         }
@@ -65,10 +80,13 @@ const VoxelRayQuery VRayHelper::getQuery(const f64v3& pos, const f32v3& dir, f64
         query.location = vr.getNextVoxelPosition();
         query.distance = vr.getDistanceTraversed();
     }
-    if (prevChunk) prevChunk->unlock();
+    if (chunk.isAquired()) {
+        if (locked) chunk->dataMutex.unlock();
+        chunk.release();
+    }
     return query;
 }
-const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkManager* cm, PredBlockID f) {
+const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& dir, f64 maxDistance, ChunkGrid& cg, PredBlock f) {
     // First Convert To Voxel Coordinates
     VoxelRay vr(pos, f64v3(dir));
 
@@ -80,7 +98,7 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     query.outer.distance = query.inner.distance;
 
     // A minimum chunk position for determining voxel coords using only positive numbers
-    i32v3 relativeChunkSpot = cm->getChunkPosition(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
+    i32v3 relativeChunkSpot = VoxelSpaceConversions::voxelToChunk(f64v3(pos.x - maxDistance, pos.y - maxDistance, pos.z - maxDistance)) * CHUNK_WIDTH;
     i32v3 relativeLocation;
 
     i32v3 chunkPos;
@@ -88,36 +106,47 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
     // TODO: Use A Bounding Box Intersection First And Allow Traversal Beginning Outside The Voxel World
 
     // Keep track of the previous chunk for locking
-    Chunk* prevChunk = nullptr;
+    ChunkHandle chunk;
+    query.inner.chunkID = ChunkID(0xffffffffffffffff);
+    bool locked = false;
 
     // Loop Traversal
     while (query.inner.distance < maxDistance) {
 
-        chunkPos = cm->getChunkPosition(query.inner.location);
-
-        query.inner.chunk = cm->getChunk(chunkPos);
+        chunkPos = VoxelSpaceConversions::voxelToChunk(query.inner.location);
+        ChunkID id(chunkPos);
        
-        if (query.inner.chunk && query.inner.chunk->isAccessible) {
-            // Check for if we need to lock the next chunk
-            if (prevChunk != query.inner.chunk) {
-                if (prevChunk) prevChunk->unlock();
-                query.inner.chunk->lock();
-                prevChunk = query.inner.chunk;
+        if (id != query.inner.chunkID) {
+            query.inner.chunkID = id;
+            if (chunk.isAquired()) {
+                if (locked) {
+                    chunk->dataMutex.unlock();
+                    locked = false;
+                }
+                chunk.release();
             }
-
+            chunk = cg.accessor.acquire(id);
+            if (chunk->isAccessible) {
+                chunk->dataMutex.lock();
+                locked = true;
+            }
+        }
+       
+        if (locked) {
             relativeLocation = query.inner.location - relativeChunkSpot;
             // Calculate Voxel Index
             query.inner.voxelIndex =
-                relativeLocation.x % CHUNK_WIDTH +
-                (relativeLocation.y % CHUNK_WIDTH) * CHUNK_LAYER +
-                (relativeLocation.z % CHUNK_WIDTH) * CHUNK_WIDTH;
+                (relativeLocation.x & 0x1f) +
+                (relativeLocation.y & 0x1f) * CHUNK_LAYER +
+                (relativeLocation.z & 0x1f) * CHUNK_WIDTH;
 
             // Get Block ID
-            query.inner.id = query.inner.chunk->getBlockID(query.inner.voxelIndex);
+            query.inner.id = chunk->blocks.get(query.inner.voxelIndex);
 
             // Check For The Block ID
-            if (f(query.inner.id)) {
-                if (prevChunk) prevChunk->unlock();
+            if (f(cg.blockPack->operator[](query.inner.id))) {
+                if (locked) chunk->dataMutex.unlock();
+                chunk.release();
                 return query;
             }
 
@@ -129,7 +158,10 @@ const VoxelRayFullQuery VRayHelper::getFullQuery(const f64v3& pos, const f32v3& 
         query.inner.location = vr.getNextVoxelPosition();
         query.inner.distance = vr.getDistanceTraversed();
     }
-    if (prevChunk) prevChunk->unlock();
+    if (chunk.isAquired()) {
+        if (locked) chunk->dataMutex.unlock();
+        chunk.release();
+    }
     return query;
 }
 

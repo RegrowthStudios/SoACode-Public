@@ -1,163 +1,153 @@
+///
+/// NFloraGenerator.h
+/// Seed of Andromeda
+///
+/// Created by Benjamin Arnold on 15 Jul 2015
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// Generates flora and trees
+///
+
 #pragma once
-#include <Vorb/utils.h>
-#include <Vorb/io/Keg.h>
 
-class Chunk;
-struct TreeType;
-struct TreeData;
-struct Biome;
+#ifndef NFloraGenerator_h__
+#define NFloraGenerator_h__
 
-//This node is used in tree generation
-class TreeNode {
-public:
-    TreeNode(ui16 BlockIndex, ui16 ChunkOffset, ui16 BlockType) : blockIndex(BlockIndex), chunkOffset(ChunkOffset), blockType(BlockType) {}
+#include "Flora.h"
+#include "Chunk.h"
+#include "soaUtils.h"
 
+// 0111111111 0111111111 0111111111 = 0x1FF7FDFF
+#define NO_CHUNK_OFFSET 0x1FF7FDFF
+
+struct PlanetGenData;
+
+// Will not work for chunks > 32^3
+struct FloraNode {
+    FloraNode(ui16 blockID, ui16 blockIndex, ui32 chunkOffset) :
+        blockID(blockID), blockIndex(blockIndex), chunkOffset(chunkOffset) {
+    };
+    ui16 blockID;
     ui16 blockIndex;
-    ui16 blockType;
-    ui16 chunkOffset; ///< 0 XXXXX YYYYY ZZZZZ for positional offset. 00111 == 0
+    // TODO(Ben): ui32 instead for massive trees? Use leftover bits for Y?
+    ui32 chunkOffset; ///< Packed 00 XXXXXXXXXX YYYYYYYYYY ZZZZZZZZZZ for positional offset. 00111 == 0
 };
 
-//static flora generation class. Both trees and plants are considered flora
+#define SC_NO_PARENT 0x7FFFu
+
+struct SCRayNode {
+    SCRayNode(const f32v3& pos, ui16 parent, ui16 trunkPropsIndex) :
+        pos(pos), trunkPropsIndex(trunkPropsIndex), wasVisited(false), parent(parent){};
+    f32v3 pos;
+    struct {
+        ui16 trunkPropsIndex : 15;
+        bool wasVisited : 1;
+    };
+    ui16 parent;
+    f32 width = 1.0f;
+};
+static_assert(sizeof(SCRayNode) == 24, "Size of SCRayNode is not 24");
+
+struct SCTreeNode {
+    SCTreeNode(ui16 rayNode) :
+        rayNode(rayNode), dir(0.0f) {};
+    ui16 rayNode;
+    f32v3 dir;
+};
+
+struct NodeField {
+    NodeField() {
+        memset(vals, 0, sizeof(vals));
+    }
+    // Each node is 2 bits
+    ui8 vals[CHUNK_SIZE / 4];
+};
+
+// Defer leaf placement to prevent node overlap
+struct LeavesToPlace {
+    LeavesToPlace(ui16 blockIndex, ui32 chunkOffset, const TreeLeafProperties* leafProps) :
+    blockIndex(blockIndex), chunkOffset(chunkOffset), leafProps(leafProps) { }
+    ui16 blockIndex;
+    ui32 chunkOffset;
+    const TreeLeafProperties* leafProps;
+};
+
+// Defer manual branch placement so it doesn't conflict with SC
+struct BranchToGenerate {
+    BranchToGenerate(ui16 blockIndex, ui32 chunkOffset, i32 dx, i32 dz, ui16 trunkPropsIndex) :
+        blockIndex(blockIndex), trunkPropsIndex(trunkPropsIndex), chunkOffset(chunkOffset), dx(dx), dz(dz) {
+    }
+    ui16 blockIndex;
+    ui16 trunkPropsIndex;
+    ui32 chunkOffset;
+    i32 dx;
+    i32 dz;
+};
+
+// TODO(Ben): Add comments
 class FloraGenerator {
 public:
+    /// @brief Generates flora for a chunk using its QueuedFlora.
+    /// @param chunk: Chunk who's flora should be generated.
+    /// @param gridData: The heightmap to use
+    /// @param fNodes: Returned low priority nodes, for flora and leaves.
+    /// @param wNodes: Returned high priority nodes, for tree "wood".
+    void generateChunkFlora(const Chunk* chunk, const PlanetHeightData* heightData, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes);
+    /// Generates standalone tree.
+    void generateTree(const NTreeType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, const PlanetGenData* genData, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
+    /// Generates standalone flora.
+    void generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset = NO_CHUNK_OFFSET, ui16 blockIndex = 0);
+    /// Generates a specific tree's properties
+    static void generateTreeProperties(const NTreeType* type, f32 age, OUT TreeData& tree);
+    static void generateFloraProperties(const FloraType* type, f32 age, OUT FloraData& flora);
 
-    // Don't change TreeDir order
+    void spaceColonization(const f32v3& startPos);
+
+    static inline int getChunkXOffset(ui32 chunkOffset) {
+        return (int)((chunkOffset >> 20) & 0x3FF) - 0x1FF;
+    }
+    static inline int getChunkYOffset(ui32 chunkOffset) {
+        return (int)((chunkOffset >> 10) & 0x3FF) - 0x1FF;
+    }
+    static inline int getChunkZOffset(ui32 chunkOffset) {
+        return (int)(chunkOffset & 0x3FF) - 0x1FF;
+    }
+private:
     enum TreeDir {
         TREE_LEFT = 0, TREE_BACK, TREE_RIGHT, TREE_FRONT, TREE_UP, TREE_DOWN, TREE_NO_DIR
     };
 
-    bool generateFlora(Chunk *chunk, std::vector<TreeNode>& wnodes, std::vector<TreeNode>& lnodes);
-    static i32 makeLODTreeData(TreeData &td, TreeType *tt, i32 x, i32 z, i32 X, i32 Z);
-    static i32 makeTreeData(Chunk *chunk, TreeData &td, TreeType *tt);
-    static i32 getTreeIndex(Biome *biome, i32 x, i32 z);
+    void tryPlaceNode(std::vector<FloraNode>* nodes, ui8 priority, ui16 blockID, ui16 blockIndex, ui32 chunkOffset);
+    void makeTrunkSlice(ui32 chunkOffset, const TreeTrunkProperties& props);
+    void generateBranch(ui32 chunkOffset, int x, int y, int z, f32 length, f32 width, f32 endWidth, f32v3 dir, bool makeLeaves, bool hasParent, const TreeBranchProperties& props);
+    void generateSCBranches();
+    void generateLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void generateMushroomCap(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props);
+    void newDirFromAngle(f32v3& dir, f32 minAngle, f32 maxAngle);
 
-private:
-    // generates a tree and stores the resulting nodes
-    bool generateTree(const TreeData& treeData, Chunk* startChunk);
-    bool generateTrunk();
-    bool makeTrunkSlice(int blockIndex, ui16 chunkOffset, int h, float heightRatio);
-    bool makeTrunkOuterRing(int blockIndex, ui16 chunkOffset, int x, int z, int coreWidth, int thickness, int blockID, std::vector<TreeNode>* nodes);
-    void directionalMove(int& blockIndex, ui16 &chunkOffset, TreeDir dir);
-    bool recursiveMakeSlice(int blockIndex, ui16 chunkOffset, i32 step, TreeDir dir, TreeDir rightDir, TreeDir leftDir, bool makeNode, i32 blockID, std::vector<TreeNode>* nodes);
-
-    bool recursiveMakeBranch(int blockIndex, ui16 chunkOffset, int step, TreeDir dir, TreeDir initDir, int thickness, bool isRoot);
-    bool makeSphere(int blockIndex, ui16 chunkOffset, int radius, int blockID, std::vector<TreeNode>* nodes);
-    bool makeCluster(int blockIndex, ui16 chunkOffset, int size, int blockID, std::vector<TreeNode>* nodes);
-    i32 makeMushroomLeaves(i32 c, ui16 chunkOffset, i32 dir, bool branch, bool makeNode, i32 ntype, i32 lamntype, i32 dx, i32 dy, i32 dz, i32 rad, TreeType *tt);
-    bool makeDroopyLeaves(int blockIndex, ui16 chunkOffset, int length, int blockID, std::vector<TreeNode>* nodes);
-    i32 makeMushroomCap(i32 c, ui16 chunkOffset, i32 block, i32 rad);
-
-    std::vector<TreeNode>* _wnodes;
-    std::vector<TreeNode>* _lnodes;
-
-    const TreeData* _treeData;
+    std::set<ui32> m_scLeafSet;
+    std::unordered_map<ui32, ui32> m_nodeFieldsMap;
+    std::vector<NodeField> m_nodeFields;
+    std::vector<SCRayNode> m_scRayNodes;
+    std::vector<SCTreeNode> m_scNodes;
+    std::vector<LeavesToPlace> m_leavesToPlace;
+    std::vector<BranchToGenerate> m_branchesToGenerate;
+    std::vector<TreeTrunkProperties> m_scTrunkProps; ///< Stores branch properties for nodes
+    std::vector<FloraNode>* m_fNodes;
+    std::vector<FloraNode>* m_wNodes;
+    TreeData m_treeData;
+    FloraData m_floraData;
+    i32v3 m_center;
+    ui32 m_h; ///< Current height along the tree
+    FastRandGenerator m_rGen;
+    ui32 m_currChunkOff;
+    ui32 m_currNodeField;
+    const PlanetGenData* m_genData;
+    bool m_hasStoredTrunkProps;
 };
 
-enum class TreeLeafShape {
-    UNKNOWN,
-    ROUND,
-    CLUSTER,
-    PINE,
-    MUSHROOM
-};
-KEG_ENUM_DECL(TreeLeafShape);
-
-struct TreeBranchingProps {
-    I32Range width;
-    I32Range length;
-    F32Range chance;
-    i32 direction;
-};
-KEG_TYPE_DECL(TreeBranchingProps);
-
-
-
-//This is data specific to a breed of tree
-struct TreeType {
-    TreeType() {
-        memset(this, 0, sizeof(TreeType)); //zero the memory
-        name = "MISSING NAME";
-        rootDepthMult = 1.0;
-    }
-
-    i32 idCore, idOuter, idLeaves, idRoot, idSpecial;
-
-    I32Range trunkHeight;
-    I32Range trunkBaseHeight;
-
-    I32Range trunkBaseWidth;
-    I32Range trunkMidWidth;
-    I32Range trunkTopWidth;
-    i32 coreWidth;
-
-    I32Range trunkStartSlope;
-    I32Range trunkEndSlope;
-
-    TreeBranchingProps branchingPropsBottom, branchingPropsTop;
-
-    I32Range droopyLength;
-    I32Range leafCapSize;
-
-    TreeLeafShape leafCapShape, branchLeafShape;
-
-    i32 branchLeafSizeMod;
-    i32 branchLeafYMod;
-
-    i32 droopyLeavesSlope, droopyLeavesDSlope;
-
-    i32 mushroomCapLengthMod;
-    i32 mushroomCapCurlLength;
-    i32 mushroomCapThickness;
-    i32 mushroomCapGillThickness;
-
-    f32 capBranchChanceMod;
-    f32 trunkChangeDirChance;
-    f32 rootDepthMult;
-    f32 branchStart;
-
-    bool hasThickCapBranches;
-    bool hasDroopyLeaves;
-    bool isSlopeRandom;
-    bool isMushroomCapInverted;
-
-    nString name;
-    nString fileName;
-    std::vector<i32> possibleAltLeafFlags;
-};
-KEG_TYPE_DECL(TreeType);
-
-//This is data specific to an instance of a tree
-struct TreeData {
-    i32 type, startc;
-    i32 trunkBaseWidth, trunkMidWidth, trunkTopWidth;
-    i32 trunkStartSlope, trunkEndSlope;
-    i32 trunkDir;
-    i32 treeHeight;
-    i32 treeBaseHeight;
-    i32 botBranchLength;
-    i32 topBranchLength;
-    i32 botBranchWidth;
-    i32 topBranchWidth;
-    i32 topLeafSize;
-    i32 leafColor;
-    i32 branchStart;
-    i32 droopyLength;
-    f32 botBranchChance, topBranchChance, ageMod;
-    TreeType *treeType;
-};
-
-typedef void(*TreeBranchInterpolator)(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
-void lerpBranch(const TreeBranchingProps& top, const TreeBranchingProps& bottom, TreeData& outProps, const f32& ratio);
-
-//This is data specific to a breed of plant
-struct PlantType {
-    nString name;
-    i32 baseBlock;
-};
-
-//This is data specific to an instance of a plant
-struct PlantData {
-    PlantData(PlantType *plantType, i32 C) : ft(plantType), startc(C) {}
-    PlantType *ft;
-    i32 startc;
-};
+#endif // NFloraGenerator_h__

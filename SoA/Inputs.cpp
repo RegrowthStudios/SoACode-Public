@@ -1,58 +1,75 @@
 #include "stdafx.h"
 #include "Inputs.h"
 
+#include <SDL/SDL_mouse.h>
+
 #include "GameManager.h"
-#include "InputManager.h"
 
 // Input Commands Sorted Alphabetically
-i32 INPUT_BLOCK_SCANNER = -1;
-i32 INPUT_BLOCK_DRAG = -1;
-i32 INPUT_CROUCH = -1;
-i32 INPUT_DEBUG = -1;
-i32 INPUT_DRAW_MODE = -1;
-i32 INPUT_FLASH_LIGHT = -1;
-i32 INPUT_FLY = -1;
-i32 INPUT_GRID = -1;
-i32 INPUT_HORIZONTAL = -1;
-i32 INPUT_HUD = -1;
-i32 INPUT_INVENTORY = -1;
-i32 INPUT_JUMP = -1;
-i32 INPUT_MARKER = -1;
-i32 INPUT_MEGA_SPEED = -1;
-i32 INPUT_MOUSE_LEFT = -1;
-i32 INPUT_MOUSE_RIGHT = -1;
-i32 INPUT_NIGHT_VISION = -1;
-i32 INPUT_NIGHT_VISION_RELOAD = -1;
-i32 INPUT_PAUSE = -1;
-i32 INPUT_PHYSICS_BLOCK_UPDATES = -1;
-i32 INPUT_PLANET_DRAW_MODE = -1;
-i32 INPUT_PLANET_ROTATION = -1;
-i32 INPUT_RELOAD_BLOCKS = -1;
-i32 INPUT_RELOAD_SHADERS = -1;
-i32 INPUT_RELOAD_TEXTURES = -1;
-i32 INPUT_RELOAD_UI = -1;
-i32 INPUT_SONAR = -1;
-i32 INPUT_SCAN_WSO = -1;
-i32 INPUT_SPRINT = -1;
-i32 INPUT_UPDATE_FRUSTUM = -1;
-i32 INPUT_VERTICAL = -1;
-i32 INPUT_WATER_UPDATE = -1;
-i32 INPUT_ZOOM = -1;
-i32 INPUT_RANDOM_DEBUG = -1;
+InputMapper::InputID INPUT_BACKWARD = -1;
+InputMapper::InputID INPUT_BLOCK_DRAG = -1;
+InputMapper::InputID INPUT_BLOCK_SCANNER = -1;
+InputMapper::InputID INPUT_CROUCH = -1;
+InputMapper::InputID INPUT_CYCLE_COLOR_FILTER = -1;
+InputMapper::InputID INPUT_DEBUG = -1;
+InputMapper::InputID INPUT_DEV_CONSOLE = -1;
+InputMapper::InputID INPUT_DRAW_MODE = -1;
+InputMapper::InputID INPUT_EXIT = -1;
+InputMapper::InputID INPUT_FLASH_LIGHT = -1;
+InputMapper::InputID INPUT_FLY = -1;
+InputMapper::InputID INPUT_FORWARD = -1;
+InputMapper::InputID INPUT_GRID = -1;
+InputMapper::InputID INPUT_HUD = -1;
+InputMapper::InputID INPUT_INVENTORY = -1;
+InputMapper::InputID INPUT_JUMP = -1;
+InputMapper::InputID INPUT_LEFT = -1;
+InputMapper::InputID INPUT_LEFT_ROLL = -1;
+InputMapper::InputID INPUT_MARKER = -1;
+InputMapper::InputID INPUT_MEGA_SPEED = -1;
+InputMapper::InputID INPUT_MOUSE_LEFT = -1;
+InputMapper::InputID INPUT_MOUSE_RIGHT = -1;
+InputMapper::InputID INPUT_NIGHT_VISION = -1;
+InputMapper::InputID INPUT_NIGHT_VISION_RELOAD = -1;
+InputMapper::InputID INPUT_PAUSE = -1;
+InputMapper::InputID INPUT_PHYSICS_BLOCK_UPDATES = -1;
+InputMapper::InputID INPUT_PLANET_DRAW_MODE = -1;
+InputMapper::InputID INPUT_PLANET_ROTATION = -1;
+InputMapper::InputID INPUT_RANDOM_DEBUG = -1;
+InputMapper::InputID INPUT_RELOAD_BLOCKS = -1;
+InputMapper::InputID INPUT_RELOAD_SHADERS = -1;
+InputMapper::InputID INPUT_RELOAD_SYSTEM = -1;
+InputMapper::InputID INPUT_RELOAD_TARGET = -1;
+InputMapper::InputID INPUT_RELOAD_TEXTURES = -1;
+InputMapper::InputID INPUT_RELOAD_UI = -1;
+InputMapper::InputID INPUT_RIGHT = -1;
+InputMapper::InputID INPUT_RIGHT_ROLL = -1;
+InputMapper::InputID INPUT_SCAN_WSO = -1;
+InputMapper::InputID INPUT_SCREENSHOT = -1;
+InputMapper::InputID INPUT_SONAR = -1;
+InputMapper::InputID INPUT_SPEED_TIME = -1;
+InputMapper::InputID INPUT_SPRINT = -1;
+InputMapper::InputID INPUT_TIME_BACK = -1;
+InputMapper::InputID INPUT_TIME_FORWARD = -1;
+InputMapper::InputID INPUT_TOGGLE_AR = -1;
+InputMapper::InputID INPUT_TOGGLE_UI = -1;
+InputMapper::InputID INPUT_UPDATE_FRUSTUM = -1;
+InputMapper::InputID INPUT_WATER_UPDATE = -1;
+InputMapper::InputID INPUT_ZOOM = -1;
+
 
 // Reduce Some Code
 #define CREATE_INPUT(ID,KEY,VAR) \
-    VAR = GameManager::inputManager->createAxis(#ID, KEY);
-
-#define CREATE_INPUT_D(ID, KEY_NEG, KEY_POS, VAR) \
-    VAR = GameManager::inputManager->createAxis(#ID, KEY_NEG, KEY_POS);
+    VAR = inputManager->createInput(#ID, KEY);
 
 // Generate Input Handles
-void initInputs() {
-    CREATE_INPUT(Random Debug, VKEY_6, INPUT_RANDOM_DEBUG);
+void initInputs(InputMapper* inputManager) {
+ //   CREATE_INPUT(Random Debug, VKEY_6, INPUT_RANDOM_DEBUG);
 
     // The Greatest Input In The Cosmos
     CREATE_INPUT(Pause, VKEY_ESCAPE, INPUT_PAUSE);
+    
+    // Dev Console
+    CREATE_INPUT(Dev Console, VKEY_GRAVE, INPUT_DEV_CONSOLE);
 
     // Game Information
     CREATE_INPUT(Debug, VKEY_H, INPUT_DEBUG);
@@ -69,23 +86,30 @@ void initInputs() {
     CREATE_INPUT(Reload Textures, VKEY_F4, INPUT_RELOAD_TEXTURES);
     CREATE_INPUT(Reload Blocks, VKEY_F6, INPUT_RELOAD_BLOCKS);
     CREATE_INPUT(Reload Shaders, VKEY_F11, INPUT_RELOAD_SHADERS);
+    CREATE_INPUT(Reload System, VKEY_F10, INPUT_RELOAD_SYSTEM);
     CREATE_INPUT(Reload UI, VKEY_F5, INPUT_RELOAD_UI);
     CREATE_INPUT(Reload Night Vision, VKEY_F3, INPUT_NIGHT_VISION_RELOAD);
+    CREATE_INPUT(Reload Target, VKEY_F12, INPUT_RELOAD_TARGET);
 
     // Visual Debugging
     CREATE_INPUT(Grid Toggle, VKEY_G, INPUT_GRID);
-    CREATE_INPUT(Draw Mode, VKEY_M, INPUT_DRAW_MODE);
+    CREATE_INPUT(Cycle Draw Mode, VKEY_M, INPUT_DRAW_MODE);
     CREATE_INPUT(Planet Draw Mode, VKEY_J, INPUT_PLANET_DRAW_MODE);
     CREATE_INPUT(Update Frustum, VKEY_U, INPUT_UPDATE_FRUSTUM);
+    CREATE_INPUT(Cycle Color Filter, VKEY_C, INPUT_CYCLE_COLOR_FILTER);
 
     // Movement
     CREATE_INPUT(Fly, VKEY_F, INPUT_FLY);
-    CREATE_INPUT_D(Vertical, VKEY_W, VKEY_S, INPUT_VERTICAL);
-    CREATE_INPUT_D(Horizontal, VKEY_D, VKEY_A, INPUT_HORIZONTAL);
     CREATE_INPUT(Sprint, VKEY_LSHIFT, INPUT_SPRINT);
     CREATE_INPUT(Crouch, VKEY_LCTRL, INPUT_CROUCH);
-    CREATE_INPUT(Mega Speed, VKEY_LALT, INPUT_MEGA_SPEED);
+    CREATE_INPUT(Mega Speed, VKEY_LSHIFT, INPUT_MEGA_SPEED);
     CREATE_INPUT(Jump, VKEY_SPACE, INPUT_JUMP);
+    CREATE_INPUT(Forward, VKEY_W, INPUT_FORWARD);
+    CREATE_INPUT(Left, VKEY_A, INPUT_LEFT);
+    CREATE_INPUT(Right, VKEY_D, INPUT_RIGHT);
+    CREATE_INPUT(Backward, VKEY_S, INPUT_BACKWARD);
+    CREATE_INPUT(Right Roll, VKEY_E, INPUT_RIGHT_ROLL);
+    CREATE_INPUT(Left Roll, VKEY_Q, INPUT_LEFT_ROLL);
 
     // Gameplay
     CREATE_INPUT(Marker, VKEY_C, INPUT_MARKER);
@@ -94,8 +118,7 @@ void initInputs() {
     // Physics
     CREATE_INPUT(Water Update, VKEY_N, INPUT_WATER_UPDATE);
     CREATE_INPUT(Update Physics Blocks, VKEY_P, INPUT_PHYSICS_BLOCK_UPDATES);
-    CREATE_INPUT_D(Planet Rotation, VKEY_1, VKEY_2, INPUT_PLANET_ROTATION);
-    
+
     // Mouse Buttons
     CREATE_INPUT(Mouse Right, (VirtualKey)SDL_BUTTON_RIGHT, INPUT_MOUSE_RIGHT);
     CREATE_INPUT(Mouse Left, (VirtualKey)SDL_BUTTON_LEFT, INPUT_MOUSE_LEFT);
@@ -103,4 +126,13 @@ void initInputs() {
     // Block Utilities
     CREATE_INPUT(Block Scanner, VKEY_Q, INPUT_BLOCK_SCANNER);
     CREATE_INPUT(Block Select, VKEY_B, INPUT_BLOCK_DRAG);
+
+    // Main Menu
+    CREATE_INPUT(Exit, VKEY_ESCAPE, INPUT_EXIT);
+    CREATE_INPUT(Toggle UI, VKEY_U, INPUT_TOGGLE_UI);
+    CREATE_INPUT(Toggle AR, VKEY_A, INPUT_TOGGLE_AR);
+    CREATE_INPUT(Speed Time, VKEY_LCTRL, INPUT_SPEED_TIME);
+    CREATE_INPUT(Take Screenshot, VKEY_F2, INPUT_SCREENSHOT);
+    CREATE_INPUT(Time Back, VKEY_LEFT, INPUT_TIME_BACK);
+    CREATE_INPUT(Time Forward, VKEY_RIGHT, INPUT_TIME_FORWARD);
 }

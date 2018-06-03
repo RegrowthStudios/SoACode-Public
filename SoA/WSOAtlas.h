@@ -1,5 +1,5 @@
 #pragma once
-struct WSOData;
+class WSOData;
 
 /************************************************************************/
 /* WSO File Specification                                               */
@@ -21,7 +21,7 @@ public:
     void clear();
 
     // The Number Of Data In The Atlas
-    const i32& getSize() const {
+    ui32 getSize() const {
         return _data.size();
     }
 

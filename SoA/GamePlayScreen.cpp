@@ -1,407 +1,538 @@
 #include "stdafx.h"
-#include "GamePlayScreen.h"
+#include "GameplayScreen.h"
 
+#include <Vorb/os.h>
 #include <Vorb/colors.h>
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/graphics/SpriteBatch.h>
+#include <Vorb/utils.h>
 
-#include "Player.h"
 #include "App.h"
-#include "GameManager.h"
-#include "InputManager.h"
-#include "Sound.h"
-#include "MessageManager.h"
-#include "Planet.h"
-#include "TerrainPatch.h"
-#include "MeshManager.h"
 #include "ChunkMesh.h"
-#include "ParticleMesh.h"
-#include "PhysicsBlocks.h"
-#include "RenderTask.h"
-#include "Errors.h"
+#include "ChunkMeshManager.h"
+#include "ChunkMesher.h"
 #include "ChunkRenderer.h"
-#include "ChunkManager.h"
-#include "VoxelWorld.h"
-#include "VoxelEditor.h"
-#include "DebugRenderer.h"
 #include "Collision.h"
+#include "DebugRenderer.h"
+#include "DevConsole.h"
+#include "Errors.h"
+#include "GameManager.h"
+#include "GameSystem.h"
+#include "GameSystemUpdater.h"
+#include "HeadComponentUpdater.h"
+#include "InputMapper.h"
 #include "Inputs.h"
-#include "TexturePackLoader.h"
-#include "LoadTaskShaders.h"
-#include "Options.h"
-#include "GamePlayScreenEvents.hpp"
+#include "MainMenuScreen.h"
+#include "ParticleMesh.h"
+#include "SoaEngine.h"
+#include "SoaOptions.h"
+#include "SoaState.h"
+#include "SpaceSystem.h"
+#include "SpaceSystemUpdater.h"
+#include "TerrainPatch.h"
+#include "VRayHelper.h"
+#include "VoxelEditor.h"
+#include "soaUtils.h"
 
-#define THREAD ThreadId::UPDATE
-
-CTOR_APP_SCREEN_DEF(GamePlayScreen, App),
-    _updateThread(nullptr),
-    _threadRunning(false), 
-    _inFocus(true),
-    _onPauseKeyDown(nullptr),
-    _onFlyKeyDown(nullptr),
-    _onGridKeyDown(nullptr),
-    _onReloadTexturesKeyDown(nullptr),
-    _onReloadShadersKeyDown(nullptr),
-    _onInventoryKeyDown(nullptr),
-    _onReloadUIKeyDown(nullptr),
-    _onHUDKeyDown(nullptr) {
+GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
+    IAppScreen<App>(app),
+    m_mainMenuScreen(mainMenuScreen),
+    m_updateThread(nullptr),
+    m_threadRunning(false),
+    controller() {
     // Empty
 }
 
-i32 GamePlayScreen::getNextScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
-}
-
-i32 GamePlayScreen::getPreviousScreen() const {
-    return SCREEN_INDEX_NO_SCREEN;
-}
-
-//#define SUBSCRIBE(ID, CLASS, VAR) \
-//    VAR = inputManager->subscribe(ID, InputManager::EventType::DOWN, new CLASS(this));
-
-void GamePlayScreen::build() {
+GameplayScreen::~GameplayScreen() {
     // Empty
 }
 
-void GamePlayScreen::destroy(const GameTime& gameTime) {
+i32 GameplayScreen::getNextScreen() const {
+    return SCREEN_INDEX_NO_SCREEN;
+}
+
+i32 GameplayScreen::getPreviousScreen() const {
+    return SCREEN_INDEX_NO_SCREEN;
+}
+
+void GameplayScreen::build() {
+    // Empty
+}
+
+void GameplayScreen::destroy(const vui::GameTime& gameTime) {
     // Destruction happens in onExit
 }
 
-void GamePlayScreen::onEntry(const GameTime& gameTime) {
+void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
-    _player = GameManager::player;
-    _player->initialize("Ben", _app->getWindow().getAspectRatio()); //What an awesome name that is
-    GameManager::initializeVoxelWorld(_player);
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+
+    m_soaState = m_mainMenuScreen->getSoAState();
+
+    controller.startGame(m_soaState);
+
+    initInput();
+
+    initConsole();
+
+    m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
+    m_gameSystemUpdater = std::make_unique<GameSystemUpdater>(m_soaState, m_inputMapper);
 
     // Initialize the PDA
-    _pda.init(this);
+    m_pda.init(this);
 
     // Initialize the Pause Menu
-    _pauseMenu.init(this);
+    m_pauseMenu.init(this);
 
     // Set up the rendering
     initRenderPipeline();
 
     // Initialize and run the update thread
-    _updateThread = new std::thread(&GamePlayScreen::updateThreadFunc, this);
-
-    // Force him to fly... This is temporary
-    _player->isFlying = true;
+    m_updateThread = new std::thread(&GameplayScreen::updateThreadFunc, this);
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
-
-    InputManager* inputManager = GameManager::inputManager;
-    _onPauseKeyDown = inputManager->subscribe(INPUT_PAUSE, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnPauseKeyDown(this));
-    _onFlyKeyDown = inputManager->subscribe(INPUT_FLY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnFlyKeyDown(this));
-    _onGridKeyDown = inputManager->subscribe(INPUT_GRID, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnGridKeyDown(this));
-    _onReloadTexturesKeyDown = inputManager->subscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadTexturesKeyDown(this));
-    _onReloadShadersKeyDown = inputManager->subscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadShadersKeyDown(this));
-    _onInventoryKeyDown = inputManager->subscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnInventoryKeyDown(this));
-    _onReloadUIKeyDown = inputManager->subscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnReloadUIKeyDown(this));
-    _onHUDKeyDown = inputManager->subscribe(INPUT_HUD, InputManager::EventType::DOWN, (IDelegate<ui32>*)new OnHUDKeyDown(this));
-    _onNightVisionToggle = inputManager->subscribeFunctor(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, [&] (Sender s, ui32 a) -> void {
-        if (isInGame()) {
-            _renderPipeline.toggleNightVision();
-        }
-    });
-    _onNightVisionReload = inputManager->subscribeFunctor(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, [&] (Sender s, ui32 a) -> void {
-        _renderPipeline.loadNightVision();
-    });
-    m_onDrawMode = inputManager->subscribeFunctor(INPUT_DRAW_MODE, InputManager::EventType::DOWN, [&] (Sender s, ui32 a) -> void {
-        _renderPipeline.cycleDrawMode();
-    });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
-        if (_inFocus) {
-            // Pass mouse motion to the player
-            _player->mouseMove(e.dx, e.dy);
-        }
-    });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
-        if (isInGame()) {
-            SDL_SetRelativeMouseMode(SDL_TRUE);
-            _inFocus = true;
-        }
-    });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
-        if (GameManager::voxelEditor->isEditing()) {
-            if (e.button == vui::MouseButton::LEFT) {
-                GameManager::voxelEditor->editVoxels(_player->leftEquippedItem);
-                puts("EDIT VOXELS");
-            } else if (e.button == vui::MouseButton::RIGHT) {
-                GameManager::voxelEditor->editVoxels(_player->rightEquippedItem);
-                puts("EDIT VOXELS");
-            }
-        }
-    });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusGained, [&] (Sender s, const vui::MouseEvent& e) {
-        _inFocus = true;
-    });
-    m_hooks.addAutoHook(&vui::InputDispatcher::mouse.onFocusLost, [&] (Sender s, const vui::MouseEvent& e) {
-        _inFocus = false;
-    });
-
-    GameManager::inputManager->startInput();
 }
 
-void GamePlayScreen::onExit(const GameTime& gameTime) {
-    GameManager::inputManager->stopInput();
+void GameplayScreen::onExit(const vui::GameTime& gameTime) {
+
+    m_inputMapper->stopInput();
     m_hooks.dispose();
 
-    InputManager* inputManager = GameManager::inputManager;
-    inputManager->unsubscribe(INPUT_PAUSE, InputManager::EventType::DOWN, _onPauseKeyDown);
-    delete _onPauseKeyDown;
+    SoaEngine::destroyGameSystem(m_soaState);
 
-    inputManager->unsubscribe(INPUT_FLY, InputManager::EventType::DOWN, _onFlyKeyDown);
-    delete _onFlyKeyDown;
+    m_threadRunning = false;
+    m_updateThread->join();
+    delete m_updateThread;
+    m_pda.destroy();
+    //m_renderPipeline.destroy(true);
+    m_pauseMenu.destroy();
 
-    inputManager->unsubscribe(INPUT_GRID, InputManager::EventType::DOWN, _onGridKeyDown);
-    delete _onGridKeyDown;
-
-    inputManager->unsubscribe(INPUT_RELOAD_TEXTURES, InputManager::EventType::DOWN, _onReloadTexturesKeyDown);
-    delete _onReloadTexturesKeyDown;
-
-    inputManager->unsubscribe(INPUT_RELOAD_SHADERS, InputManager::EventType::DOWN, _onReloadShadersKeyDown);
-    delete _onReloadShadersKeyDown;
-
-    inputManager->unsubscribe(INPUT_INVENTORY, InputManager::EventType::DOWN, _onInventoryKeyDown);
-    delete _onInventoryKeyDown;
-
-    inputManager->unsubscribe(INPUT_RELOAD_UI, InputManager::EventType::DOWN, _onReloadUIKeyDown);
-    delete _onReloadUIKeyDown;
-
-    inputManager->unsubscribe(INPUT_HUD, InputManager::EventType::DOWN, _onHUDKeyDown);
-    delete _onHUDKeyDown;
-
-    inputManager->unsubscribe(INPUT_NIGHT_VISION, InputManager::EventType::DOWN, _onNightVisionToggle);
-    delete _onNightVisionToggle;
-
-    inputManager->unsubscribe(INPUT_NIGHT_VISION_RELOAD, InputManager::EventType::DOWN, _onNightVisionReload);
-    delete _onNightVisionReload;
-
-    inputManager->unsubscribe(INPUT_DRAW_MODE, InputManager::EventType::DOWN, m_onDrawMode);
-    delete m_onDrawMode;
-
-    _threadRunning = false;
-    _updateThread->join();
-    delete _updateThread;
-    _app->meshManager->destroy();
-    _pda.destroy();
-    _renderPipeline.destroy();
-    _pauseMenu.destroy();
+    m_devConsoleView.dispose();
 }
 
-void GamePlayScreen::onEvent(const SDL_Event& e) {
-    // Empty
-}
+/// This update function runs on the render thread
+void GameplayScreen::update(const vui::GameTime& gameTime) {
 
-void GamePlayScreen::update(const GameTime& gameTime) {
-
-    // TEMPORARY TIMESTEP TODO(Ben): Get rid of this damn global
-    if (_app->getFps()) {
-        glSpeedFactor = 60.0f / _app->getFps();
-        if (glSpeedFactor > 3.0f) { // Cap variable timestep at 20fps
-            glSpeedFactor = 3.0f;
-        }
+    if (m_shouldReloadShaders) {
+        m_renderer.reloadShaders();
+        m_shouldReloadShaders = false;
     }
-    
-    // Update the input
-    handleInput();
 
-    // Update the player
-    updatePlayer();
+    if (m_shouldToggleDevConsole) {
+        m_shouldToggleDevConsole = false;
+        DevConsole::getInstance().toggleFocus();
+    }
+
+    m_spaceSystemUpdater->glUpdate(m_soaState);
+
+    // TODO(Ben): Move to glUpdate for voxel component
+    // TODO(Ben): Don't hardcode for a single player
+    auto& vpCmp = m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity);
+    m_soaState->clientState.chunkMeshManager->update(vpCmp.gridPosition.pos, true);
 
     // Update the PDA
-    if (_pda.isOpen()) _pda.update();
+    if (m_pda.isOpen()) m_pda.update();
 
     // Updates the Pause Menu
-    if (_pauseMenu.isOpen()) _pauseMenu.update();
+    if (m_pauseMenu.isOpen()) m_pauseMenu.update();
 
-    // Sort all meshes // TODO(Ben): There is redundancy here
-    _app->meshManager->sortMeshes(_player->headPosition);
-
-    // Process any updates from the render thread
-    processMessages();
+    // Check for target reload
+    if (m_shouldReloadTarget) {
+        m_reloadLock.lock();
+        printf("Reloading Target\n");
+        m_soaState->threadPool->clearTasks();
+        Sleep(200);
+        SoaEngine::reloadSpaceBody(m_soaState, m_soaState->clientState.startingPlanet, nullptr);
+        m_shouldReloadTarget = false;
+        m_reloadLock.unlock();
+    }
 }
 
-void GamePlayScreen::draw(const GameTime& gameTime) {
+void GameplayScreen::updateECS() {
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+    GameSystem* gameSystem = m_soaState->gameSystem;
 
-    updateWorldCameraClip();
+    // Time warp
+    const f64 TIME_WARP_SPEED = 100.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 1000.0;
+    if (m_inputMapper->getInputState(INPUT_TIME_BACK)) {
+        m_soaState->time -= TIME_WARP_SPEED;
+    }
+    if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) {
+        m_soaState->time += TIME_WARP_SPEED;
+    }
 
-    _renderPipeline.render();
+    m_soaState->time += m_soaState->timeStep;
+    // TODO(Ben): Don't hardcode for a single player
+    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
+    auto parentNpCmpId = spaceSystem->sphericalGravity.get(spCmp.parentGravity).namePositionComponent;
+    auto& parentNpCmp = spaceSystem->namePosition.get(parentNpCmpId);
+    // Calculate non-relative space position
+    f64v3 trueSpacePosition = spCmp.position + parentNpCmp.position;
+
+    m_spaceSystemUpdater->update(m_soaState,
+                                 trueSpacePosition,
+                                 m_soaState->gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity).gridPosition.pos);
+
+    m_gameSystemUpdater->update(gameSystem, spaceSystem, m_soaState);
 }
 
-void GamePlayScreen::unPause() { 
-    _pauseMenu.close(); 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    _inFocus = true;
-}
+void GameplayScreen::updateMTRenderState() {
+    MTRenderState* state = m_renderStateManager.getRenderStateForUpdate();
 
-i32 GamePlayScreen::getWindowWidth() const {
-    return _app->getWindow().getWidth();
-}
+    SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+    GameSystem* gameSystem = m_soaState->gameSystem;
+    // Set all space positions
+    for (auto& it : spaceSystem->namePosition) {
+        state->spaceBodyPositions[it.first] = it.second.position;
+    }
+    // Set camera position
+    auto& spCmp = gameSystem->spacePosition.getFromEntity(m_soaState->clientState.playerEntity);
+    state->spaceCameraPos = spCmp.position;
+    state->spaceCameraOrientation = spCmp.orientation;
 
-i32 GamePlayScreen::getWindowHeight() const {
-    return _app->getWindow().getHeight();
-}
-
-void GamePlayScreen::initRenderPipeline() {
-    // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_player->getChunkCamera(), &_player->getWorldCamera(), 
-                         _app, _player, _app->meshManager, &_pda, GameManager::glProgramManager,
-                         &_pauseMenu, GameManager::chunkManager->getChunkSlots(0));
-}
-
-void GamePlayScreen::handleInput() {
-    // Get input manager handle
-    InputManager* inputManager = GameManager::inputManager;
-
-    // Block placement
-    if (isInGame()) {
-        if (inputManager->getKeyDown(INPUT_MOUSE_LEFT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
-            if (!(_player->leftEquippedItem)){
-                GameManager::clickDragRay(true);
-            } else if (_player->leftEquippedItem->type == ITEM_BLOCK){
-                _player->dragBlock = _player->leftEquippedItem;
-                GameManager::clickDragRay(false);
+    // Set player data
+    auto& physics = gameSystem->physics.getFromEntity(m_soaState->clientState.playerEntity);
+    if (physics.voxelPosition) {
+        state->playerHead = gameSystem->head.getFromEntity(m_soaState->clientState.playerEntity);
+        state->playerPosition = gameSystem->voxelPosition.get(physics.voxelPosition);
+        state->hasVoxelPos = true;
+    } else {
+        state->hasVoxelPos = false;
+    }
+    // Debug chunk grid
+    if (m_renderer.stages.chunkGrid.isActive() && m_soaState->clientState.startingPlanet) {
+        // TODO(Ben): This doesn't let you go to different planets!!!
+        auto& svcmp = spaceSystem->sphericalVoxel.getFromEntity(m_soaState->clientState.startingPlanet);
+        auto& vpCmp = gameSystem->voxelPosition.getFromEntity(m_soaState->clientState.playerEntity);
+        state->debugChunkData.clear();
+        if (svcmp.chunkGrids) {
+            for (ChunkHandle chunk : svcmp.chunkGrids[vpCmp.gridPosition.face].acquireActiveChunks()) {
+                state->debugChunkData.emplace_back();
+                state->debugChunkData.back().genLevel = chunk->genLevel;
+                state->debugChunkData.back().voxelPosition = chunk->getVoxelPosition().pos;
             }
-        } else if (inputManager->getKeyDown(INPUT_MOUSE_RIGHT) || (GameManager::voxelEditor->isEditing() && inputManager->getKey(INPUT_BLOCK_DRAG))) {
-            if (!(_player->rightEquippedItem)){
-                GameManager::clickDragRay(true);
-            } else if (_player->rightEquippedItem->type == ITEM_BLOCK){
-                _player->dragBlock = _player->rightEquippedItem;
-                GameManager::clickDragRay(false);
+            svcmp.chunkGrids[vpCmp.gridPosition.face].releaseActiveChunks();
+        }
+    } else {
+        std::vector<DebugChunkData>().swap(state->debugChunkData);
+    }
+
+    m_renderStateManager.finishUpdating();
+}
+
+void GameplayScreen::draw(const vui::GameTime& gameTime) {
+    globalRenderAccumulationTimer.start("Draw");
+
+    const MTRenderState* renderState;
+    // Don't render the same state twice.
+    if ((renderState = m_renderStateManager.getRenderStateForRender()) == m_prevRenderState) {
+        return;
+    }
+    m_prevRenderState = renderState;
+
+    // Set renderState and draw everything
+    m_renderer.setRenderState(renderState);
+    m_renderer.render();
+    globalRenderAccumulationTimer.stop();
+
+    // Draw dev console
+    m_devConsoleView.update(0.01f);
+    if (DevConsole::getInstance().isFocused()) {
+        m_devConsoleView.render(m_game->getWindow().getViewportDims());
+    }
+
+    // Uncomment to time rendering
+    /*  static int g = 0;
+      if (++g == 10) {
+      globalRenderAccumulationTimer.printAll(true);
+      globalRenderAccumulationTimer.clear();
+      std::cout << "\n";
+      g = 0;
+      }*/
+}
+
+void GameplayScreen::unPause() { 
+    m_pauseMenu.close(); 
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    m_soaState->isInputEnabled = true;
+}
+
+i32 GameplayScreen::getWindowWidth() const {
+    return m_app->getWindow().getWidth();
+}
+
+i32 GameplayScreen::getWindowHeight() const {
+    return m_app->getWindow().getHeight();
+}
+
+void GameplayScreen::initInput() {
+
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
+
+    m_inputMapper->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_soaState->isInputEnabled = false;
+    });
+    m_inputMapper->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderer.toggleChunkGrid();
+    });
+    m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+       /* if (m_pda.isOpen()) {
+            m_pda.close();
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            m_soaState->isInputEnabled = true;
+            SDL_StartTextInput();
+        } else {
+            m_pda.open();
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+            m_soaState->isInputEnabled = false;
+            SDL_StopTextInput();
+        }*/
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_inputMapper->stopInput();
+        m_soaState->isInputEnabled = false;
+    });
+    m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        if (isInGame()) {
+            m_renderer.toggleNightVision();
+        }
+    });
+    m_inputMapper->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderer.cycleDevHud();
+    });
+    m_inputMapper->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+        m_renderer.loadNightVision();
+    });
+
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &GameplayScreen::onReloadShaders);
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+        if (isInGame()) {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+            m_soaState->isInputEnabled = true;
+        }
+    });
+
+    m_inputMapper->get(INPUT_RELOAD_TARGET).downEvent += makeDelegate(*this, &GameplayScreen::onReloadTarget);
+
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+        if (GameManager::voxelEditor->isEditing()) {
+            //TODO(Ben): Edit voxels
+        }
+    });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        m_inputMapper->startInput();
+        m_soaState->isInputEnabled = true;     
+    });
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_inputMapper->stopInput();
+        m_soaState->isInputEnabled = false;
+    });
+    
+    // Temporary dev console
+    // TODO(Ben): Don't use functor
+    vui::InputDispatcher::key.onKeyDown.addFunctor([&](Sender, const vui::KeyEvent& e) {
+        if (e.keyCode == VKEY_GRAVE) {
+            m_shouldToggleDevConsole = true;
+            if (!DevConsole::getInstance().isFocused()) {
+                m_inputMapper->stopInput();
+                m_soaState->isInputEnabled = false;
+            } else {
+                m_inputMapper->startInput();
+                m_soaState->isInputEnabled = true;
             }
         }
     }
+    );
+ 
+    { // Player movement events
+        vecs::ComponentID parkourCmp = m_soaState->gameSystem->parkourInput.getComponentID(m_soaState->clientState.playerEntity);
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveForward = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveForward = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveBackward = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveBackward = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveLeft = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveLeft = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveRight = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).moveRight = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).jump = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).jump = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).crouch = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).crouch = false;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).sprint = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).sprint = false;
+        });
+        // TODO(Ben): Different parkour input
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = true;
+        });
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
+            m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
+        });
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+            if (m_soaState->clientState.playerEntity) {
+                vecs::EntityID pid = m_soaState->clientState.playerEntity;
+                f64v3 pos = controller.getEntityEyeVoxelPosition(m_soaState, pid);
+                f32v3 dir = controller.getEntityViewVoxelDirection(m_soaState, pid);
+                auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
+                vecs::ComponentID svid = vp.parentVoxel;
+                ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
+                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+                m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
 
-    // Update inputManager internal state
-    inputManager->update();
-}
+                std::cout << "DIST " << vmath::length(f64v3(q.outer.location) - pos);
+                printVec("Start ", q.outer.location);
+                m_renderer.debugRenderer->drawLine(pos, pos + f64v3(dir) * 100.0, color::Red);
+            }
+        });
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+            if (m_soaState->clientState.playerEntity) {
+                vecs::EntityID pid = m_soaState->clientState.playerEntity;
+                f64v3 pos = controller.getEntityEyeVoxelPosition(m_soaState, pid);
+                f32v3 dir = controller.getEntityViewVoxelDirection(m_soaState, pid);
+                auto& vp = m_soaState->gameSystem->voxelPosition.getFromEntity(pid);
+                vecs::ComponentID svid = vp.parentVoxel;
+                ChunkGrid& grid = m_soaState->spaceSystem->sphericalVoxel.get(svid).chunkGrids[vp.gridPosition.face];
+                VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
+                m_soaState->clientState.voxelEditor.setEndPosition(q.outer.location);
+                printVec("End ", q.outer.location);
+                ItemStack& iStack = m_soaState->gameSystem->inventory.getFromEntity(pid).items[0];
 
-void GamePlayScreen::updatePlayer() {
-    double dist = _player->facePosition.y + GameManager::planet->radius;
-    _player->update(_inFocus, GameManager::planet->getGravityAccel(dist), GameManager::planet->getAirFrictionForce(dist, glm::length(_player->velocity)));
-
-    Chunk **chunks = new Chunk*[8];
-    _player->isGrounded = 0;
-    _player->setMoveMod(1.0f);
-    _player->canCling = 0;
-    _player->collisionData.yDecel = 0.0f;
-
-    // Number of steps to integrate the collision over
-    for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
-        _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
-        _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
-        _player->collisionData.clear();
-        GameManager::voxelWorld->getClosestChunks(_player->gridPosition, chunks); //DANGER HERE!
-        aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);
-        _player->applyCollisionData();
+                m_soaState->clientState.voxelEditor.editVoxels(grid, &iStack);
+            }
+        });
+        // Mouse movement
+        vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+            HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, -e.dx, e.dy, 0.002f);
+        });
     }
 
-    delete[] chunks;
+    vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
+
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderer.takeScreenshot(); });
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
+
+    m_inputMapper->startInput();
 }
 
-void GamePlayScreen::updateThreadFunc() {
-    _threadRunning = true;
+void GameplayScreen::initConsole() {
+    vui::GameWindow& window = m_game->getWindow();
+    // TODO(Ben): Dispose
+    m_devConsoleView.init(&DevConsole::getInstance(), 5,
+                          f32v2(20.0f, window.getHeight() - 60.0f),
+                          window.getWidth() - 40.0f);
+    DevConsole::getInstance().addCommand("exit");
+    DevConsole::getInstance().addListener("exit", [](void*, const nString&) {
+        exit(0);
+    }, nullptr);
+}
+
+void GameplayScreen::initRenderPipeline() {
+    m_renderer.debugRenderer = m_soaState->clientState.debugRenderer;
+}
+
+// TODO(Ben): Collision
+//void GamePlayScreen::updatePlayer() {
+
+   // m_player->update(m_inputManager, true, 0.0f, 0.0f);
+
+  //  Chunk **chunks = new Chunk*[8];
+  //  _player->isGrounded = 0;
+  //  _player->setMoveMod(1.0f);
+  //  _player->canCling = 0;
+  //  _player->collisionData.yDecel = 0.0f;
+
+  //  // Number of steps to integrate the collision over
+  //  for (int i = 0; i < PLAYER_COLLISION_STEPS; i++){
+  //      _player->gridPosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
+  //      _player->facePosition += (_player->velocity / (float)PLAYER_COLLISION_STEPS) * glSpeedFactor;
+  //      _player->collisionData.clear();
+  //      GameManager::voxelWorld->getClosestChunks(_player->gridPosition, chunks); //DANGER HERE!
+  //      aabbChunkCollision(_player, &(_player->gridPosition), chunks, 8);
+  //      _player->applyCollisionData();
+  //  }
+
+  //  delete[] chunks;
+//}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+
+/// This is the update thread
+void GameplayScreen::updateThreadFunc() {
+    m_threadRunning = true;
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
     FpsLimiter fpsLimiter;
-    fpsLimiter.init(maxPhysicsFps);
+    fpsLimiter.init(60.0f);
+    f32 fps;
 
-    MessageManager* messageManager = GameManager::messageManager;
+    static int saveStateTicks = SDL_GetTicks();
 
-    Message message;
-
-    while (_threadRunning) {
+    while (m_threadRunning) {
         fpsLimiter.beginFrame();
 
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update();
+        m_reloadLock.lock();
+        updateECS(); // TODO(Ben): Entity destruction in this thread calls opengl stuff.....
+        updateMTRenderState();
+        m_reloadLock.unlock();
 
-        while (messageManager->tryDeque(THREAD, message)) {
-            // Process the message
-            switch (message.id) {
-                
-            }
+        if (SDL_GetTicks() - saveStateTicks >= 20000) {
+            saveStateTicks = SDL_GetTicks();
+      //      savePlayerState();
         }
 
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_player->getWorldCamera().getPosition(), 1.0));
-
-        GameManager::update();
-
-        physicsFps = fpsLimiter.endFrame();
+        fps = fpsLimiter.endFrame();
     }
 }
 
-void GamePlayScreen::processMessages() {
-
-    TerrainMeshMessage* tmm;
-    int j = 0,k = 0;
-    MeshManager* meshManager = _app->meshManager;
-    ChunkMesh* cm;
-    PreciseTimer timer;
-    timer.start();
-    int numMessages = GameManager::messageManager->tryDequeMultiple(ThreadId::RENDERING, messageBuffer, MESSAGES_PER_FRAME);
-    std::set<ChunkMesh*> updatedMeshes; // Keep track of which meshes we have already seen so we can ignore older duplicates
-    for (int i = numMessages - 1; i >= 0; i--) {
-        Message& message = messageBuffer[i];
-        switch (message.id) {
-            case MessageID::CHUNK_MESH:
-                j++;
-                cm = ((ChunkMeshData *)(message.data))->chunkMesh;
-                if (updatedMeshes.find(cm) == updatedMeshes.end()) {
-                    k++;
-                    updatedMeshes.insert(cm);
-                    meshManager->updateChunkMesh((ChunkMeshData *)(message.data));
-                } else {
-                    delete message.data;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    for (int i = 0; i < numMessages; i++) {
-        Message& message = messageBuffer[i];
-        switch (message.id) {
-            case MessageID::TERRAIN_MESH:
-                tmm = static_cast<TerrainMeshMessage*>(message.data);
-                meshManager->updateTerrainMesh(tmm);
-                break;
-            case MessageID::REMOVE_TREES:
-                tmm = static_cast<TerrainMeshMessage*>(message.data);
-                if (tmm->terrainBuffers->treeVboID != 0) glDeleteBuffers(1, &(tmm->terrainBuffers->treeVboID));
-                tmm->terrainBuffers->treeVboID = 0;
-                delete tmm;
-                break;
-            case MessageID::PARTICLE_MESH:
-                meshManager->updateParticleMesh((ParticleMeshMessage *)(message.data));
-                break;
-            case MessageID::PHYSICS_BLOCK_MESH:
-                meshManager->updatePhysicsBlockMesh((PhysicsBlockMeshMessage *)(message.data));
-                break;
-            default:
-                break;
-        }
-    }
+void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
+    printf("Reloading Shaders\n");
+    m_shouldReloadShaders = true;
+}
+void GameplayScreen::onReloadTarget(Sender s, ui32 a) {
+    m_shouldReloadTarget = true;
 }
 
-void GamePlayScreen::updateWorldCameraClip() {
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-    // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
+void GameplayScreen::onQuit(Sender s, ui32 a) {
+    SoaEngine::destroyAll(m_soaState);
+    exit(0);
+}
 
-    double clip = MAX(nearClip / planetScale * 0.5, a);
-    // The world camera has a dynamic clipping plane
-    _player->getWorldCamera().setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    _player->getWorldCamera().updateProjection();
+void GameplayScreen::onToggleWireframe(Sender s, ui32 i) {
+    m_renderer.toggleWireframe();
+}
+
+void GameplayScreen::onWindowClose(Sender s) {
+    onQuit(s, 0);
 }

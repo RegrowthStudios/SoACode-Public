@@ -4,16 +4,18 @@
 #define App_h_
 
 #include <Vorb/ui/MainGame.h>
+#include "SoaOptions.h"
+#include "CommonState.h"
 
 class DevScreen;
+class GameplayLoadScreen;
+class GameplayScreen;
 class InitScreen;
-class LoadScreen;
+class MainMenuLoadScreen;
 class MainMenuScreen;
-class GamePlayScreen;
-class MeshManager;
 class TexturePackLoader;
 
-class App : public MainGame {
+class App : public vui::MainGame {
 public:
     virtual ~App();
 
@@ -22,15 +24,16 @@ public:
     virtual void onExit();
 
     // Accessible Pointers To Screens
-    InitScreen* scrInit;
-    LoadScreen* scrLoad;
-    MainMenuScreen* scrMainMenu;
-    GamePlayScreen* scrGamePlay;
+    InitScreen* scrInit = nullptr;
+    MainMenuLoadScreen* scrLoad = nullptr;
+    MainMenuScreen* scrMainMenu = nullptr;
+    GameplayLoadScreen* scrGameplayLoad = nullptr;
+    GameplayScreen* scrGamePlay = nullptr;
 
-    DevScreen* scrDev;
-    std::vector<IGameScreen*> scrTests;
+    DevScreen* scrDev = nullptr;
+    std::vector<vui::IGameScreen*> scrTests;
 
-    MeshManager* meshManager; ///< Stores chunk, terrain, particle, and physics block meshes
+    CommonState state;
 };
 
 #endif // App_h_

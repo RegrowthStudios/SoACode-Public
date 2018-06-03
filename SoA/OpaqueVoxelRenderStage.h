@@ -15,23 +15,25 @@
 #ifndef OpaqueVoxelRenderStage_h__
 #define OpaqueVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
-class GameRenderParams;
+#include <Vorb/graphics/GLProgram.h>
+
 class Camera;
+class ChunkRenderer;
+class GameRenderParams;
 class MeshManager;
 
-class OpaqueVoxelRenderStage : public vg::IRenderStage
+class OpaqueVoxelRenderStage : public IRenderStage
 {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    OpaqueVoxelRenderStage(const GameRenderParams* gameRenderParams);
+    void hook(ChunkRenderer* renderer, const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera) override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
+    ChunkRenderer* m_renderer;
+    const GameRenderParams* m_gameRenderParams; ///< Handle to some shared parameters
 };
 
 #endif // OpaqueVoxelRenderStage_h__

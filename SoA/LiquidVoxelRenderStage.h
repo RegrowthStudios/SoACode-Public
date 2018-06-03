@@ -15,22 +15,22 @@
 #ifndef LiquidVoxelRenderStage_h__
 #define LiquidVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
+
+#include <Vorb/graphics/GLProgram.h>
 
 class MeshManager;
 class GameRenderParams;
+class ChunkRenderer;
 
-class LiquidVoxelRenderStage : public vg::IRenderStage
-{
+class LiquidVoxelRenderStage : public IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param meshManager: Handle to the class that holds meshes
-    LiquidVoxelRenderStage(const GameRenderParams* gameRenderParams);
+    void hook(ChunkRenderer* renderer, const GameRenderParams* gameRenderParams);
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera) override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Some shared rendering parameters
+    ChunkRenderer* m_renderer;
+    const GameRenderParams* m_gameRenderParams = nullptr; ///< Some shared rendering parameters
 };
 
 #endif // LiquidVoxelRenderStage_h__

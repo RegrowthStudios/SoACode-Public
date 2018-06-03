@@ -29,10 +29,11 @@
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/IRenderStage.h>
 #include <Vorb/graphics/Texture.h>
 
-struct NightVisionRenderParams {
+#include "IRenderStage.h"
+
+class NightVisionRenderParams {
 public:
     static NightVisionRenderParams createDefault();
 
@@ -46,25 +47,24 @@ public:
 KEG_TYPE_DECL(NightVisionRenderParams);
 
 /// Renders a night vision post-process effect
-class NightVisionRenderStage : public vg::IRenderStage {
+class NightVisionRenderStage : public IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param glProgram: The program used to render HDR
-    /// @param quad: Quad used for rendering to screen
-    NightVisionRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad);
-    /// Dispose OpenGL resources
-    virtual ~NightVisionRenderStage();
+    void hook(vg::FullQuadVBO* quad);
 
-    void setParams(NightVisionRenderParams* params);
+    void setParams(NightVisionRenderParams& params);
+
+    /// Disposes and deletes the shader and turns off visibility
+    /// If stage does lazy init, shader will reload at next draw
+    virtual void dispose(StaticLoadContext& context) override;
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera = nullptr) override;
 private:
-    vg::GLProgram* _glProgram; ///< Stores the program we use to render
-    vg::FullQuadVBO* _quad; ///< For use in processing through data
-    vg::Texture _texNoise; ///< A noise texture for blurry static
-    f32 _et = 0.0f; ///< Counter for elapsed total time
-    f32v3 _visionColorHSL = NIGHT_VISION_DEFAULT_VISION_COLOR; ///< Color of night vision
+    vg::GLProgram m_program;
+    vg::FullQuadVBO* m_quad; ///< For use in processing through data
+    vg::Texture m_texNoise; ///< A noise texture for blurry static
+    f32 m_et = 0.0f; ///< Counter for elapsed total time
+    f32v3 m_visionColorHSL = NIGHT_VISION_DEFAULT_VISION_COLOR; ///< Color of night vision
 };
 
 #endif // NightVisionRenderStage_h__

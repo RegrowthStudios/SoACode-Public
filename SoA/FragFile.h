@@ -1,6 +1,6 @@
 #pragma once
 // Header For Each Data Path That Allows Fragmented Functionality
-struct FragHeader;
+class FragHeader;
 
 // A File That Stores Multiple Data Paths In Fragmented Blocks
 class FragFile {

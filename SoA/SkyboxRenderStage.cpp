@@ -2,137 +2,158 @@
 #include "SkyboxRenderStage.h"
 
 #include <GL/glew.h>
-#include <glm/gtc/matrix_transform.hpp>
 #include <Vorb/graphics/DepthState.h>
+#include <Vorb/io/IOManager.h>
 
 #include "Camera.h"
+#include "Errors.h"
+#include "LoadContext.h"
+#include "ModPathResolver.h"
+#include "ShaderLoader.h"
 #include "SkyboxRenderer.h"
+#include "SoAState.h"
 
-SkyboxRenderStage::SkyboxRenderStage(vg::GLProgram* glProgram,
-                                     const Camera* camera) :
-                                     IRenderStage(camera),
-                                     _skyboxRenderer(new SkyboxRenderer()),
-                                     _glProgram(glProgram) {
+const ui32 TASK_WORK = 4;
+const ui32 TOTAL_TASKS = 8;
+const ui32 TOTAL_WORK = TOTAL_TASKS * TASK_WORK;
 
-   updateProjectionMatrix();
+void SkyboxRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
+    IRenderStage::init(window, context);
+    context.addAnticipatedWork(TOTAL_WORK, TOTAL_TASKS);
 }
 
-
-SkyboxRenderStage::~SkyboxRenderStage() {
-    delete _skyboxRenderer;
+void SkyboxRenderStage::hook(SoaState* state) {
+    m_textureResolver = &state->clientState.texturePathResolver;
 }
 
-void SkyboxRenderStage::draw() {
+void SkyboxRenderStage::load(StaticLoadContext& context) {
+    // Create texture array
+    context.addTask([&](Sender, void*) {
+        glGenTextures(1, &m_skyboxTextureArray);
+        m_skyboxRenderer.initGL();
+        context.addWorkCompleted(TASK_WORK);
+        checkGlError("SkyboxRenderStage inittt");
+    }, false);
+
+    // Front (also allocates storage)
+    context.addTask([&](Sender, void*) {
+        vio::Path path;
+        m_textureResolver->resolvePath("Sky/Skybox/front.png", path);
+        vg::ScopedBitmapResource frontRes = vg::ImageIO().load(path);
+        m_resolution = frontRes.width;
+        if (frontRes.height != m_resolution) {
+            pError("Skybox textures must have equal width and height!");
+        }
+        if (frontRes.data == nullptr) pError("Failed to load Sky/Skybox/front.png");
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+        // Calculate max mipmap level
+        int maxMipLevel = 0;
+        int width = m_resolution;
+        while (width > 1) {
+            width >>= 1;
+            maxMipLevel++;
+        }
+        // Set up all the storage
+        width = m_resolution;
+        for (i32 i = 0; i < maxMipLevel; i++) {
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, i, GL_RGBA8, width, width, 6, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            width >>= 1;
+            if (width < 1) width = 1;
+        }
+        // Set mipmap parameters
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LOD, maxMipLevel);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, maxMipLevel);
+        // Upload data
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, frontRes.width, frontRes.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, frontRes.data);
+        context.addWorkCompleted(TASK_WORK);
+        checkGlError("SkyboxRenderStage waaaa");
+    }, false);
+    // Right
+    context.addTask([&](Sender, void*) {
+        loadTexture("Sky/Skybox/right.png", 1);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Top
+    context.addTask([&](Sender, void*) {
+        loadTexture("Sky/Skybox/top.png", 2);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Left
+    context.addTask([&](Sender, void*) {
+        loadTexture("Sky/Skybox/left.png", 3);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Bottom
+    context.addTask([&](Sender, void*) {
+        loadTexture("Sky/Skybox/bottom.png", 4);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+    // Back
+    context.addTask([&](Sender, void*) {
+        loadTexture("Sky/Skybox/back.png", 5);
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+
+    // Tex parameters and mipmaps
+    context.addTask([&](Sender, void*) {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+
+        // Set up tex parameters
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+        // Unbind
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+        // Check if we had any errors
+        checkGlError("SkyboxRenderStage mipmaps");
+        context.addWorkCompleted(TASK_WORK);
+    }, false);
+}
+
+void SkyboxRenderStage::render(const Camera* camera) {
+
     // Check if FOV or Aspect Ratio changed
-    if (_fieldOfView != _camera->getFieldOfView() ||
-        _aspectRatio != _camera->getAspectRatio()) {
-        updateProjectionMatrix();
+    if (m_fieldOfView != camera->getFieldOfView() ||
+        m_aspectRatio != camera->getAspectRatio()) {
+        updateProjectionMatrix(camera);
     }
     // Draw using custom proj and camera view
-    drawSpace(_projectionMatrix * _camera->getViewMatrix());
+    drawSpace(m_projectionMatrix * camera->getViewMatrix());
 }
 
-void SkyboxRenderStage::drawSpace(glm::mat4 &VP) {
-    DepthState::NONE.set();
-    _skyboxRenderer->drawSkybox(_glProgram, VP, skyboxTextures);
+
+void SkyboxRenderStage::drawSpace(f32m4 &VP) {
+    vg::DepthState::NONE.set();
+    m_skyboxRenderer.drawSkybox(VP, m_skyboxTextureArray);
+    vg::DepthState::FULL.set();
 }
 
-// Ben: This is terrible but I don't feel like fixing it since its temporary
-void SkyboxRenderStage::drawSun(float theta, glm::mat4 &MVP) {
-    double radius = 2800000.0;
-    double size = 200000.0;
-    float off = (float)atan(size / radius); // in radians
-    float cosTheta = cos(theta - off);
-    float sinTheta = sin(theta - off);
-    float cosTheta2 = cos(theta + off);
-    float sinTheta2 = sin(theta + off);
-
-    // Bind shader
-    _glProgram->use();
-    _glProgram->enableVertexAttribArrays();
-
-    glDepthMask(GL_FALSE);
-    glDisable(GL_CULL_FACE);
-
-    // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, sunTexture.id);
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(_glProgram->getUniform("unTex"), 0);
-
-    glUniformMatrix4fv(_glProgram->getUniform("unWVP"), 1, GL_FALSE, &MVP[0][0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    GLfloat sunUVs[8];
-    GLfloat sunVerts[12];
-    const GLushort sunIndices[6] = { 0, 1, 2, 2, 3, 0 };
-
-    sunUVs[0] = 0;
-    sunUVs[1] = 0;
-    sunUVs[2] = 0;
-    sunUVs[3] = 1;
-    sunUVs[4] = 1;
-    sunUVs[5] = 1;
-    sunUVs[6] = 1;
-    sunUVs[7] = 0;
-
-    sunVerts[0] = cosTheta2*radius;
-    sunVerts[2] = sinTheta2*radius;
-    sunVerts[1] = -size;
-
-    sunVerts[3] = cosTheta*radius;
-    sunVerts[5] = sinTheta*radius;
-    sunVerts[4] = -size;
-
-    sunVerts[6] = cosTheta*radius;
-    sunVerts[8] = sinTheta*radius;
-    sunVerts[7] = size;
-
-    sunVerts[9] = cosTheta2*radius;
-    sunVerts[11] = sinTheta2*radius;
-    sunVerts[10] = size;
-
-    static GLuint vertexbuffer = 0;
-    static GLuint uvbuffer = 0;
-
-    if (vertexbuffer == 0) {
-        glGenBuffers(1, &vertexbuffer);
-        glGenBuffers(1, &uvbuffer);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sunVerts), sunVerts, GL_STREAM_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sunUVs), sunUVs, GL_STREAM_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    // 2nd attribute buffer : UVs
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, sunIndices);
-
-    _glProgram->disableVertexAttribArrays();
-    _glProgram->unuse();
-
-    glDepthMask(GL_TRUE);
-    glEnable(GL_CULL_FACE);
-}
-
-void SkyboxRenderStage::updateProjectionMatrix() {
+void SkyboxRenderStage::updateProjectionMatrix(const Camera* camera) {
     // Set the camera clipping plane for rendering the skybox and set the projection matrix
     // The clipping dimensions don't matter so long as the skybox fits inside them
     #define SKYBOX_ZNEAR 0.01f
     #define SKYBOX_ZFAR 300.0f
 
-    _fieldOfView = _camera->getFieldOfView();
-    _aspectRatio = _camera->getAspectRatio();
+    m_fieldOfView = camera->getFieldOfView();
+    m_aspectRatio = camera->getAspectRatio();
 
     // Set up projection matrix
-    _projectionMatrix = glm::perspective(_fieldOfView, _aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+    m_projectionMatrix = vmath::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+}
+
+void SkyboxRenderStage::loadTexture(const char* relPath, int index) {
+    vio::Path path;
+    m_textureResolver->resolvePath(relPath, path);
+    vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+    if (res.height != m_resolution || res.width != m_resolution) {
+        pError("Skybox textures must all have equal width and height!");
+    }
+    if (res.data == nullptr) pError("Failed to load " + nString(relPath));
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_skyboxTextureArray);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, index, res.width, res.height, 1, GL_RGBA, GL_UNSIGNED_BYTE, res.data);  
+    checkGlError("SkyboxRenderStage::load() " + nString(relPath));
 }

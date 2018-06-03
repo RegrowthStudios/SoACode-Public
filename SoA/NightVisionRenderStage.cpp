@@ -7,18 +7,20 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/Random.h>
 #include <Vorb/graphics/SamplerState.h>
+#include <Vorb/graphics/FullQuadVBO.h>
+#include "ShaderLoader.h"
 
-#include "Options.h"
+#include "SoaOptions.h"
 
-KEG_TYPE_INIT_BEGIN(NightVisionRenderParams, NightVisionRenderParams, kt)
-using namespace Keg;
-kt->addValue("Color", Value::basic(BasicType::F32_V3, offsetof(NightVisionRenderParams, color)));
-kt->addValue("Contrast", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceExponent)));
-kt->addValue("Filter", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, luminanceTare)));
-kt->addValue("Brightness", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, colorAmplification)));
-kt->addValue("Noise", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, noisePower)));
-kt->addValue("ColorNoise", Value::basic(BasicType::F32, offsetof(NightVisionRenderParams, noiseColor)));
-KEG_ENUM_INIT_END
+KEG_TYPE_DEF_SAME_NAME(NightVisionRenderParams, kt) {
+    using namespace keg;
+    kt.addValue("Color", Value::basic(offsetof(NightVisionRenderParams, color), BasicType::F32_V3));
+    kt.addValue("Contrast", Value::basic(offsetof(NightVisionRenderParams, luminanceExponent), BasicType::F32));
+    kt.addValue("Filter", Value::basic(offsetof(NightVisionRenderParams, luminanceTare), BasicType::F32));
+    kt.addValue("Brightness", Value::basic(offsetof(NightVisionRenderParams, colorAmplification), BasicType::F32));
+    kt.addValue("Noise", Value::basic(offsetof(NightVisionRenderParams, noisePower), BasicType::F32));
+    kt.addValue("ColorNoise", Value::basic(offsetof(NightVisionRenderParams, noiseColor), BasicType::F32));
+}
 
 NightVisionRenderParams NightVisionRenderParams::createDefault() {
     NightVisionRenderParams v = {};
@@ -31,14 +33,13 @@ NightVisionRenderParams NightVisionRenderParams::createDefault() {
     return v;
 }
 
-NightVisionRenderStage::NightVisionRenderStage(vg::GLProgram* glProgram, vg::FullQuadVBO* quad) :
-    _glProgram(glProgram),
-    _quad(quad) {
-    _texNoise.width = NIGHT_VISION_NOISE_QUALITY;
-    _texNoise.height = NIGHT_VISION_NOISE_QUALITY;
+void NightVisionRenderStage::hook(vg::FullQuadVBO* quad) {
+    m_quad = quad;
+    m_texNoise.width = NIGHT_VISION_NOISE_QUALITY;
+    m_texNoise.height = NIGHT_VISION_NOISE_QUALITY;
 
     // Generate random data
-    i32 pixCount = _texNoise.width * _texNoise.height;
+    i32 pixCount = m_texNoise.width * m_texNoise.height;
     ui8* data = new ui8[pixCount];
     Random r(clock());
     for (i32 i = 0; i < pixCount; i++) {
@@ -46,51 +47,57 @@ NightVisionRenderStage::NightVisionRenderStage(vg::GLProgram* glProgram, vg::Ful
     }
 
     // Build noise texture
-    glGenTextures(1, &_texNoise.id);
-    glBindTexture(GL_TEXTURE_2D, _texNoise.id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _texNoise.width, _texNoise.height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
-    SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
+    glGenTextures(1, &m_texNoise.id);
+    glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_texNoise.width, m_texNoise.height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+    vg::SamplerState::POINT_WRAP.set(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     delete[] data;
-
-    // Set Default Program Parameters
-    _glProgram->use();
-    glUniform1i(_glProgram->getUniform("unTexColor"), NIGHT_VISION_TEXTURE_SLOT_COLOR);
-    glUniform1i(_glProgram->getUniform("unTexNoise"), NIGHT_VISION_TEXTURE_SLOT_NOISE);
-    NightVisionRenderParams params = NightVisionRenderParams::createDefault();
-    setParams(&params);
-}
-NightVisionRenderStage::~NightVisionRenderStage() {
-    glDeleteTextures(1, &_texNoise.id);
 }
 
-void NightVisionRenderStage::draw() {
-    _et += NIGHT_VISION_DEFAULT_NOISE_TIME_STEP;
+void NightVisionRenderStage::setParams(NightVisionRenderParams& params) {
+    m_program.use();
+    glUniform1f(m_program.getUniform("unLuminanceExponent"), params.luminanceExponent);
+    glUniform1f(m_program.getUniform("unLuminanceTare"), params.luminanceTare);
+    glUniform1f(m_program.getUniform("unNoisePower"), params.noisePower);
+    glUniform1f(m_program.getUniform("unNoiseColor"), params.noiseColor);
+    glUniform1f(m_program.getUniform("unColorAmplification"), params.colorAmplification);
+    glUniform3f(m_program.getUniform("unVisionColor"), params.color.r, params.color.g, params.color.b);
+}
+
+void NightVisionRenderStage::dispose(StaticLoadContext& context) {
+    if (m_texNoise.id) {
+        glDeleteTextures(1, &m_texNoise.id);
+        m_texNoise.id = 0;
+    }
+}
+
+void NightVisionRenderStage::render(const Camera* camera /*= nullptr*/) {
+    m_et += NIGHT_VISION_DEFAULT_NOISE_TIME_STEP;
 
     //_visionColorHSL.r = fmod(_visionColorHSL.r = 0.005f, 6.28f);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, _texNoise.id);
+    glBindTexture(GL_TEXTURE_2D, m_texNoise.id);
 
-    _glProgram->use();
-    _glProgram->enableVertexAttribArrays();
-    glUniform1f(_glProgram->getUniform("unTime"), _et);
+    if (!m_program.isCreated()) {
+        m_program = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
+                                                             "Shaders/PostProcessing/NightVision.frag");
+        m_program.use();
+        glUniform1i(m_program.getUniform("unTexColor"), NIGHT_VISION_TEXTURE_SLOT_COLOR);
+        glUniform1i(m_program.getUniform("unTexNoise"), NIGHT_VISION_TEXTURE_SLOT_NOISE);
+        setParams(NightVisionRenderParams::createDefault());
+    } else {
+        m_program.use();
+    }
+    m_program.enableVertexAttribArrays();
+
+    glUniform1f(m_program.getUniform("unTime"), m_et);
 
     glDisable(GL_DEPTH_TEST);
-    _quad->draw();
+    m_quad->draw();
     glEnable(GL_DEPTH_TEST);
 
-    _glProgram->disableVertexAttribArrays();
+    m_program.disableVertexAttribArrays();
     vg::GLProgram::unuse();
 }
-
-void NightVisionRenderStage::setParams(NightVisionRenderParams* params) {
-    _glProgram->use();
-    glUniform1f(_glProgram->getUniform("unLuminanceExponent"), params->luminanceExponent);
-    glUniform1f(_glProgram->getUniform("unLuminanceTare"), params->luminanceTare);
-    glUniform1f(_glProgram->getUniform("unNoisePower"), params->noisePower);
-    glUniform1f(_glProgram->getUniform("unNoiseColor"), params->noiseColor);
-    glUniform1f(_glProgram->getUniform("unColorAmplification"), params->colorAmplification);
-    glUniform3f(_glProgram->getUniform("unVisionColor"), params->color.r, params->color.g, params->color.b);
-}
-

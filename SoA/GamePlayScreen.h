@@ -19,21 +19,27 @@
 #include <Vorb/Random.h>
 #include <Vorb/ui/IGameScreen.h>
 
-#include "AwesomiumInterface.h"
-#include "GamePlayRenderPipeline.h"
+#include "GameplayRenderer.h"
 #include "LoadMonitor.h"
-#include "MainMenuAPI.h"
-#include "MessageManager.h"
+#include "MTRenderStateManager.h"
 #include "PDA.h"
 #include "PauseMenu.h"
+#include "SoaController.h"
+#include "DevConsoleView.h"
 
 class App;
+class GameStartState;
+class GameSystem;
+class GameSystemUpdater;
+class InputMapper;
+class MainMenuScreen;
+struct SoaState;
+class SpaceSystemUpdater;
 class SpriteBatch;
 class SpriteFont;
-struct TerrainMeshMessage;
+class TerrainMeshMessage;
 
 template<typename... Params>
-class IDelegate;
 class GamePlayScreenDelegate;
 class OnPauseKeyDown;
 class OnFlyKeyDown;
@@ -53,31 +59,24 @@ enum DevUiModes {
     DEVUIMODE_ALL
 };
 
-class GamePlayScreen : public IAppScreen<App> {
-    friend class PdaAwesomiumAPI;
-    friend class OnPauseKeyDown;
-    friend class OnFlyKeyDown;
-    friend class OnInventoryKeyDown;
-    friend class OnReloadUIKeyDown;
-    friend class OnReloadShadersKeyDown;
-    friend class OnHUDKeyDown;
-    friend class OnGridKeyDown;
-    friend class PauseMenuAwesomiumAPI;
+class GameplayScreen : public vui::IAppScreen<App> {
+    friend class GameplayRenderer;
+    friend class GameplayLoadScreen;
 public:
-    CTOR_APP_SCREEN_DECL(GamePlayScreen, App);
+    GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen);
+    ~GameplayScreen();
 
     virtual i32 getNextScreen() const override;
     virtual i32 getPreviousScreen() const override;
 
     virtual void build() override;
-    virtual void destroy(const GameTime& gameTime) override;
+    virtual void destroy(const vui::GameTime& gameTime) override;
 
-    virtual void onEntry(const GameTime& gameTime) override;
-    virtual void onExit(const GameTime& gameTime) override;
+    virtual void onEntry(const vui::GameTime& gameTime) override;
+    virtual void onExit(const vui::GameTime& gameTime) override;
 
-    virtual void onEvent(const SDL_Event& e) override;
-    virtual void update(const GameTime& gameTime) override;
-    virtual void draw(const GameTime& gameTime) override;
+    virtual void update(const vui::GameTime& gameTime) override;
+    virtual void draw(const vui::GameTime& gameTime) override;
 
     void unPause();
 
@@ -86,63 +85,65 @@ public:
     i32 getWindowHeight() const;
 
     bool isInGame() const {
-        return (!_pda.isOpen() && !_pauseMenu.isOpen());
+        return (!m_pda.isOpen() && !m_pauseMenu.isOpen());
     }
 
-
 private:
+    /// Initializes event delegates and InputManager
+    void initInput();
+
+    /// Initializes dev console events
+    void initConsole();
 
     /// Initializes the rendering
     void initRenderPipeline();
 
-    /// Handles updating state based on input
-    void handleInput();
-
-    /// Updates the player
-    void updatePlayer();
-
     /// The function that runs on the update thread. It handles
     /// loading the planet in the background.
     void updateThreadFunc();
+    
+    /// Updates the Entity component system
+    void updateECS();
 
-    /// Processes messages from the update->render thread
-    void processMessages();
+    /// Updates multi-threaded render state
+    void updateMTRenderState();
 
-    /// Updates the dynamic clipping plane for the world camera
-    void updateWorldCameraClip();
+    // --------------- Event handlers ---------------
+    void onReloadShaders(Sender s, ui32 a);
+    void onReloadTarget(Sender s, ui32 a);
+    void onQuit(Sender s, ui32 a);
+    void onToggleWireframe(Sender s, ui32 i);
+    void onWindowClose(Sender s);
+    // ----------------------------------------------
 
-    Player* _player; ///< The current player
+    const MainMenuScreen* m_mainMenuScreen = nullptr;
+    SoaState* m_soaState = nullptr;
 
-    PDA _pda; ///< The PDA
+    InputMapper* m_inputMapper = nullptr;
 
-    PauseMenu _pauseMenu; ///< The Pause Menu
+    PDA m_pda; ///< The PDA
 
-    bool _inFocus; ///< true when the window is in focus
+    PauseMenu m_pauseMenu; ///< The Pause Menu
 
-    // TODO(Ben): Should they be stored here?
-    //Camera _voxelCamera; ///< The camera for rendering the voxels
-    //Camera _planetCamera; ///< The camera for rendering the planet
+    DevConsoleView m_devConsoleView;
 
-    std::thread* _updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
-    volatile bool _threadRunning; ///< True when the thread should be running
+    SoaController controller;
+    std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
+    std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
 
-    /// Delegates
+    std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
+    volatile bool m_threadRunning; ///< True when the thread should be running
+
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
-    IDelegate<ui32>* _onPauseKeyDown;
-    IDelegate<ui32>* _onFlyKeyDown;
-    IDelegate<ui32>* _onGridKeyDown;
-    IDelegate<ui32>* _onReloadTexturesKeyDown;
-    IDelegate<ui32>* _onReloadShadersKeyDown;
-    IDelegate<ui32>* _onInventoryKeyDown;
-    IDelegate<ui32>* _onReloadUIKeyDown;
-    IDelegate<ui32>* _onHUDKeyDown;
-    IDelegate<ui32>* _onNightVisionToggle;
-    IDelegate<ui32>* _onNightVisionReload;
-    IDelegate<ui32>* m_onDrawMode;
-    GamePlayRenderPipeline _renderPipeline; ///< This handles all rendering for the screen
+    GameplayRenderer m_renderer; ///< This handles all rendering for the screen
 
-    #define MESSAGES_PER_FRAME 300
-    Message messageBuffer[MESSAGES_PER_FRAME];
+    MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
+    const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw
+
+    std::mutex m_reloadLock;
+    bool m_shouldReloadTarget = false;
+    bool m_shouldReloadShaders = false;
+    bool m_shouldToggleDevConsole = false;
 };
 
 #endif // GAMEPLAYSCREEN_H_

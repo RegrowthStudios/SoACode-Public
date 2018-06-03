@@ -14,37 +14,45 @@
 #ifndef SkyboxRenderStage_h__
 #define SkyboxRenderStage_h__
 
+#include "SkyboxRenderer.h"
+#include "IRenderStage.h"
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/IRenderStage.h>
+#include <Vorb/AssetLoader.h>
 
-class SkyboxRenderer;
 class Camera;
+class ModPathResolver;
 
-class SkyboxRenderStage : public vg::IRenderStage
+class SkyboxRenderStage : public IRenderStage
 {
 public:
-    /// Constructor which injects dependencies
-    /// @param program: The opengl program for rendering
-    /// @param camera: Handle to the camera used to render the stage
-    SkyboxRenderStage(vg::GLProgram* program,
-                     const Camera* camera);
-    ~SkyboxRenderStage();
+    void init(vui::GameWindow* window, StaticLoadContext& context) override;
+
+    void hook(SoaState* state);
+
+    void load(StaticLoadContext& context) override;
 
     // Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera) override;
 private:
-    void drawSpace(glm::mat4 &VP);
-    // Temporary until we have an actual sun
-    void drawSun(float theta, glm::mat4 &MVP);
+    void drawSpace(f32m4 &VP);
     // Update projection matrix
-    void updateProjectionMatrix();
+    void updateProjectionMatrix(const Camera* camera);
+    void loadTexture(const char* relPath, int index);
 
-    SkyboxRenderer* _skyboxRenderer; ///< Renders the skybox
-    vg::GLProgram* _glProgram; ///< Program used for rendering
+    SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
+    vg::GLProgram* m_program = nullptr; ///< Program used for rendering
 
-    f32m4 _projectionMatrix; ///< Projection matrix for the skybox
-    float _fieldOfView; ///< Current field of view for the camera
-    float _aspectRatio; ///< Current aspect ratio for the camera
+    f32m4 m_projectionMatrix; ///< Projection matrix for the skybox
+    float m_fieldOfView; ///< Current field of view for the camera
+    float m_aspectRatio; ///< Current aspect ratio for the camera
+
+    VGTexture m_skyboxTextureArray = 0; ///< Texture array for skybox
+    const ModPathResolver* m_textureResolver = nullptr;
+    vcore::GLRPC m_rpc;
+    ui32 m_resolution;
+
+    // For parallel loading
+
 };
 
 #endif // SkyboxRenderStage_h__

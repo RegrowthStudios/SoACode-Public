@@ -16,25 +16,42 @@
 #ifndef ChunkGridRenderStage_h__
 #define ChunkGridRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
+#include "MTRenderState.h"
 
+#include <Vorb/graphics/GLProgram.h>
+
+class ChunkGrid;
 class GameRenderParams;
-class ChunkSlot;
+class ChunkMemoryManager;
 
-class ChunkGridRenderStage : public vg::IRenderStage {
+struct ChunkGridVertex {
 public:
-    /// Constructor which injects dependencies
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param chunkSlots: The chunk slots that we need to render boxes for
-    ChunkGridRenderStage(const GameRenderParams* gameRenderParams, 
-                         const std::vector<ChunkSlot>& chunkSlots);
-    ~ChunkGridRenderStage();
+    f32v3 position;
+    f32v2 uv;
+    color4 color;
+};
+
+class ChunkGridRenderStage : public IRenderStage {
+public:
+    void hook(const GameRenderParams* gameRenderParams);
 
     // Draws the render stage
-    virtual void draw() override;
+    void setState(const MTRenderState* state) { m_state = state; }
+
+    virtual void init(vui::GameWindow* window, StaticLoadContext& context) override;
+    virtual void render(const Camera* camera) override;
+    virtual void dispose(StaticLoadContext& context) override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
-    const std::vector<ChunkSlot>& _chunkSlots;
+    void drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices);
+
+    vg::GLProgram m_program;
+    const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
+    const MTRenderState* m_state = nullptr;
+
+    GLuint m_vbo;
+    GLuint m_ibo;
+    GLuint m_vao;
 };
 
 #endif // ChunkGridRenderStage_h__

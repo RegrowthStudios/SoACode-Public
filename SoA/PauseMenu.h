@@ -15,8 +15,11 @@
 #ifndef PauseMenu_h__
 #define PauseMenu_h__
 
-#include "AwesomiumInterface.h"
-#include "PauseMenuAwesomiumAPI.h"
+#include <Vorb/VorbPreDecl.inl>
+
+DECL_VG(class GLProgram);
+class GameplayScreen;
+
 
 class PauseMenu {
 public:
@@ -25,7 +28,7 @@ public:
 
     /// Initializes the Pause Menu
     /// @param ownerScreen: The screen that owns this pause menu
-    void init(GamePlayScreen* ownerScreen);
+    void init(GameplayScreen* ownerScreen);
 
     /// Opens the Pause Menu
     void open();
@@ -41,7 +44,7 @@ public:
 
     /// Handles an event
     /// @param e: The event to handle
-    void onEvent(const SDL_Event& e);
+    //void onEvent(const SDL_Event& e);
 
     /// Frees all resources
     void destroy();
@@ -49,8 +52,7 @@ public:
     /// Returns true if the Pause Menu is open
     const bool& isOpen() const { return _isOpen; }
 private:
-    vui::AwesomiumInterface<PauseMenuAwesomiumAPI> _awesomiumInterface; ///< The user interface
-
+    vg::GLProgram* m_program = nullptr;
     bool _isOpen = false;
 };
 

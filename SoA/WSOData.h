@@ -1,14 +1,14 @@
 #pragma once
 
-const i16 WSO_DONT_CARE_ID = 0xffff;
+const i16 WSO_DONT_CARE_ID = (i16)0xffff;
 #define WSO_MAX_SIZE 8
 #define WSO_NAME_MAX_LENGTH 128
 
 // Stores All Combinations Of A WSO
-struct WSOData {
+class WSOData {
 public:
     // The Number Of Blocks Inside This WSO
-    const i32& getBlockCount() const {
+    i32 getBlockCount() const {
         return size.x * size.y * size.z;
     }
 

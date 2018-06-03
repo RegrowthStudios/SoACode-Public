@@ -16,24 +16,24 @@
 #ifndef TransparentVoxelRenderStage_h__
 #define TransparentVoxelRenderStage_h__
 
-#include <Vorb/graphics/IRenderStage.h>
+#include "IRenderStage.h"
 
-class GameRenderParams;
+#include <Vorb/graphics/GLProgram.h>
+
 class Camera;
+class ChunkRenderer;
+class GameRenderParams;
 class MeshManager;
 
-class TransparentVoxelRenderStage : public vg::IRenderStage {
+class TransparentVoxelRenderStage : public IRenderStage {
 public:
-    /// Constructor which injects dependencies
-    /// @param camera: The camera handle
-    /// @param gameRenderParams: Shared parameters for rendering voxels
-    /// @param meshManager: Handle to the class that holds meshes
-    TransparentVoxelRenderStage(const GameRenderParams* gameRenderParams);
+    void hook(ChunkRenderer* renderer, const GameRenderParams* gameRenderParams);
 
     /// Draws the render stage
-    virtual void draw() override;
+    virtual void render(const Camera* camera) override;
 private:
-    const GameRenderParams* _gameRenderParams; ///< Handle to some shared parameters
+    ChunkRenderer* m_renderer;
+    const GameRenderParams* m_gameRenderParams = nullptr; ///< Handle to some shared parameters
 };
 
 #endif // TransparentVoxelRenderStage_h__

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Errors.h"
 
+#include <Vorb/os.h>
+
 #include <SDL/SDL.h>
 
 void showMessage(const nString& message)
@@ -10,7 +12,7 @@ void showMessage(const nString& message)
     SDL_Delay(100);
     SDL_SetRelativeMouseMode(SDL_FALSE);
     MessageBox(NULL, message.c_str(), "SoA", MB_OK);
-#elif
+#else
     cout << "ERROR! MESSAGE BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
@@ -27,7 +29,7 @@ int showYesNoBox(const nString& message)
     if (id == IDYES) return 1;
     if (id == IDNO) return 0;
     return 0;
-#elif
+#else
     cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
@@ -45,7 +47,7 @@ int showYesNoCancelBox(const nString& message)
     if (id == IDNO) return 0;
     if (id == IDCANCEL) return -1;
     return 0;
-#elif
+#else
     cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
     cin >> a;
@@ -84,7 +86,7 @@ void pError(const nString& message)
         fprintf(logFile, "*ERROR: %s \n", message.c_str());
         fclose(logFile);
     }
-    printf("*ERROR: %s \n", message);
+    printf("*ERROR: %s \n", message.c_str());
     fflush(stdout);
     showMessage("ERROR: " + message);
 }
@@ -111,6 +113,9 @@ bool checkGlError(const nString& errorLocation) {
             break;
         case GL_OUT_OF_MEMORY:
             pError("At " + errorLocation + ". Error code 1285: GL_OUT_OF_MEMORY");
+            break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            pError("At " + errorLocation + ". Error code 1285: GL_INVALID_FRAMEBUFFER_OPERATION");
             break;
         default:
             pError("At " + errorLocation + ". Error code " + std::to_string(error) + ": UNKNOWN");

@@ -18,7 +18,7 @@ public:
     }
 
     // The Total Distance The Ray Has Traversed
-    const f32& getDistanceTraversed() const {
+    const f64& getDistanceTraversed() const {
         return _currentDist;
     }
 private:

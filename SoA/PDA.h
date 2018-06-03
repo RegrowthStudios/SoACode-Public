@@ -16,15 +16,15 @@
 #define PDA_H_
 
 #include <SDL/SDL.h>
+#include <Vorb/VorbPreDecl.inl>
 
-#include "AwesomiumInterface.h"
 #include "Computer.h"
-#include "PdaAwesomiumAPI.h"
 
-class GamePlayScreen;
-
+class GameplayScreen;
 
 enum class PdaState { BIOMETRICS, INVENTORY, DATA, CODEX, COMMUNICATIONS, SCANNER };
+
+DECL_VG(class GLProgram)
 
 class PDA : public Computer
 {
@@ -34,7 +34,7 @@ public:
 
     /// Initializes the PDA
     /// @param ownerScreen: The screen that owns this PDA
-    void init(GamePlayScreen* ownerScreen);
+    void init(GameplayScreen* ownerScreen);
 
     /// Opens the PDA
     void open();
@@ -58,9 +58,7 @@ public:
     /// Returns true if it is open
     bool isOpen() const { return _isOpen; }
 private:
-
-    vui::AwesomiumInterface<PdaAwesomiumAPI> _awesomiumInterface; ///< The user interface
-    
+    vg::GLProgram* m_program = nullptr;
     bool _isOpen = false;
 };
 

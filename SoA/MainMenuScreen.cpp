@@ -1,44 +1,50 @@
 #include "stdafx.h"
 #include "MainMenuScreen.h"
 
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\glm.hpp>
 #include <Vorb/sound/SoundEngine.h>
 #include <Vorb/sound/SoundListener.h>
 
 #include "AmbienceLibrary.h"
 #include "AmbiencePlayer.h"
 #include "App.h"
-#include "GamePlayScreen.h"
-#include "IAwesomiumAPI.h"
-#include "ChunkManager.h"
+
+#include "DebugRenderer.h"
 #include "Errors.h"
-#include "Player.h"
-#include "Planet.h"
-#include "InputManager.h"
-#include "Inputs.h"
-#include "GameManager.h"
-#include "Sound.h"
-#include "Options.h"
-#include "MessageManager.h"
-#include "VoxelEditor.h"
 #include "Frustum.h"
+#include "GameManager.h"
+#include "GameplayScreen.h"
+#include "GameplayLoadScreen.h"
+#include "InputMapper.h"
+#include "Inputs.h"
+#include "MainMenuLoadScreen.h"
+#include "MainMenuScreen.h"
+#include "MainMenuSystemViewer.h"
+#include "SoaOptions.h"
+#include "SoAState.h"
+#include "SoaEngine.h"
+#include "SpaceSystem.h"
+#include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
-#include "LoadTaskShaders.h"
-#include "FileSystem.h"
-#include "MeshManager.h"
+#include "VoxelEditor.h"
 
-#define THREAD ThreadId::UPDATE
+MainMenuScreen::MainMenuScreen(const App* app, CommonState* state) :
+    IAppScreen<App>(app),
+    m_updateThread(nullptr),
+    m_threadRunning(false),
+    m_commonState(state),
+    m_soaState(state->state),
+    m_window(state->window) {
+    // Empty
+}
 
-CTOR_APP_SCREEN_DEF(MainMenuScreen, App) ,
-    _updateThread(nullptr),
-    _threadRunning(false){
+MainMenuScreen::~MainMenuScreen() {
     // Empty
 }
 
 i32 MainMenuScreen::getNextScreen() const {
-    return _app->scrGamePlay->getIndex();
+    return m_app->scrGameplayLoad->getIndex();
 }
+
 i32 MainMenuScreen::getPreviousScreen() const {
     return SCREEN_INDEX_NO_SCREEN;
 }
@@ -47,236 +53,316 @@ void MainMenuScreen::build() {
     // Empty
 }
 
-void MainMenuScreen::destroy(const GameTime& gameTime) {
+void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
     // Empty
 }
 
-void MainMenuScreen::onEntry(const GameTime& gameTime) {
-    m_engine = new vsound::Engine;
-    m_engine->init();
-    m_ambLibrary = new AmbienceLibrary;
-    m_ambLibrary->addTrack("Menu", "Track1", "Data/Music/Abyss.mp3");
-    m_ambLibrary->addTrack("Menu", "Track2", "Data/Music/BGM Creepy.mp3");
-    m_ambLibrary->addTrack("Menu", "Track3", "Data/Music/BGM Unknown.mp3");
-    m_ambLibrary->addTrack("Menu", "Track4", "Data/Music/Stranded.mp3");
-    m_ambPlayer = new AmbiencePlayer;
-    m_ambPlayer->init(m_engine, m_ambLibrary);
-    m_ambPlayer->setToTrack("Menu", 50);
+void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
 
-    // Initialize the camera
-    _camera.init(_app->getWindow().getAspectRatio());
-    _camera.setPosition(glm::dvec3(0.0, 0.0, 1000000000));
-    _camera.setDirection(glm::vec3(0.0, 0.0, -1.0));
-    _camera.setRight(glm::vec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0));
-    _camera.setUp(glm::cross(_camera.getRight(), _camera.getDirection()));
-    _camera.setClippingPlane(1000000.0f, 30000000.0f);
-    _camera.zoomTo(glm::dvec3(0.0, 0.0, GameManager::planet->radius * 1.35), 3.0, glm::dvec3(0.0, 0.0, -1.0), glm::dvec3(cos(GameManager::planet->axialZTilt), sin(GameManager::planet->axialZTilt), 0.0), glm::dvec3(0.0), GameManager::planet->radius, 0.0);
+    // Get the state handle
+    m_mainMenuSystemViewer = m_soaState->clientState.systemViewer;
+
+    m_soaState->clientState.spaceCamera.init(m_window->getAspectRatio());
+    
+
+    initInput();
+
+    m_soaState->clientState.systemViewer->init(m_window->getViewportDims(),
+                                               &m_soaState->clientState.spaceCamera, m_soaState->spaceSystem, m_inputMapper);
+    m_mainMenuSystemViewer = m_soaState->clientState.systemViewer;
+
+    m_ambLibrary = new AmbienceLibrary;
+    m_ambLibrary->addTrack("Menu", "Andromeda Fallen", "Data/Sound/Music/Andromeda Fallen.ogg");
+    m_ambLibrary->addTrack("Menu", "Brethren", "Data/Sound/Music/Brethren.mp3");
+    m_ambLibrary->addTrack("Menu", "Crystalite", "Data/Sound/Music/Crystalite.mp3");
+    m_ambLibrary->addTrack("Menu", "Stranded", "Data/Sound/Music/Stranded.mp3");
+    m_ambLibrary->addTrack("Menu", "Toxic Haze", "Data/Sound/Music/Toxic Haze.mp3");
+    m_ambLibrary->addTrack("Menu", "BGM Unknown", "Data/Sound/Music/BGM Unknown.mp3");
+    m_ambPlayer = new AmbiencePlayer;
+    m_ambPlayer->init(m_commonState->soundEngine, m_ambLibrary);
+
+    m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
+    m_spaceSystemUpdater->init(m_soaState);
 
     // Initialize the user interface
-    _awesomiumInterface.init("UI/MainMenu/",
-                             "MainMenu_UI",
-                             "index.html", 
-                             _app->getWindow().getWidth(), 
-                             _app->getWindow().getHeight(),
-                             this);
+    m_formFont.init("Fonts/orbitron_bold-webfont.ttf", 32);
+    initUI();
 
     // Init rendering
     initRenderPipeline();
 
+    // TODO(Ben): Do this or something
     // Run the update thread for updating the planet
-    _updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
+    //m_updateThread = new std::thread(&MainMenuScreen::updateThreadFunc, this);
 
-    GameManager::inputManager->startInput();
+    m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
+    m_ambPlayer->setToTrack("Menu", 3);
+
+    m_isFullscreen = soaOptions.get(OPT_BORDERLESS).value.b;
+    m_isBorderless = soaOptions.get(OPT_FULLSCREEN).value.b;
 }
 
-void MainMenuScreen::onExit(const GameTime& gameTime) {
-    GameManager::inputManager->stopInput();
+void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
+    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    vui::InputDispatcher::window.onClose -= makeDelegate(*this, &MainMenuScreen::onWindowClose);
+    SoaEngine::optionsController.OptionsChange -= makeDelegate(*this, &MainMenuScreen::onOptionsChange);
+    m_renderer.setShowUI(false);
+    m_formFont.dispose();
+    m_ui.dispose();
 
-    _threadRunning = false;
-    _updateThread->join();
-    delete _updateThread;
-    _awesomiumInterface.destroy();
-    _renderPipeline.destroy();
+    m_soaState->clientState.systemViewer->stopInput();
+
+    m_threadRunning = false;
+    //m_updateThread->join();
+    //delete m_updateThread;
+
+    delete m_inputMapper;
 
     m_ambPlayer->dispose();
-    m_engine->dispose();
     delete m_ambLibrary;
     delete m_ambPlayer;
-    delete m_engine;
 }
 
-void MainMenuScreen::onEvent(const SDL_Event& e) {
-    // Check for reloading the UI
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_UI)) {
-        std::cout << "\n\nReloading MainMenu UI...\n\n";
-        _awesomiumInterface.destroy();
-        _awesomiumInterface.init("UI/MainMenu/",
-                                 "MainMenu_UI", 
-                                 "index.html",
-                                 _app->getWindow().getWidth(),
-                                 _app->getWindow().getHeight(),
-                                 this);
+void MainMenuScreen::update(const vui::GameTime& gameTime) {
+
+    // Check for UI reload
+    if (m_shouldReloadUI) {
+        reloadUI();
     }
-}
 
-void MainMenuScreen::update(const GameTime& gameTime) {
-    _awesomiumInterface.update();
+    if (m_newGameClicked) newGame("TEST");
 
-    _camera.update();
-    GameManager::inputManager->update(); // TODO: Remove
+    if (m_uiEnabled) m_ui.update();
 
-    MeshManager* meshManager = _app->meshManager;
-
-    TerrainMeshMessage* tmm;
-    Message message;
-    while (GameManager::messageManager->tryDeque(ThreadId::RENDERING, message)) {
-        switch (message.id) {
-            case MessageID::TERRAIN_MESH:
-                meshManager->updateTerrainMesh(static_cast<TerrainMeshMessage*>(message.data));
-                break;
-            case MessageID::REMOVE_TREES:
-                tmm = static_cast<TerrainMeshMessage*>(message.data);
-                if (tmm->terrainBuffers->treeVboID != 0) glDeleteBuffers(1, &(tmm->terrainBuffers->treeVboID));
-                tmm->terrainBuffers->treeVboID = 0;
-                delete tmm;
-                break;
-            default:
-                break;
+    { // Handle time warp
+        const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
+        bool isWarping = false;
+        if (m_inputMapper->getInputState(INPUT_TIME_BACK)) {
+            isWarping = true;
+            m_soaState->time -= TIME_WARP_SPEED;
+        }
+        if (m_inputMapper->getInputState(INPUT_TIME_FORWARD)) {
+            isWarping = true;
+            m_soaState->time += TIME_WARP_SPEED;
+        }
+        if (isWarping) {
+            m_soaState->clientState.spaceCamera.setSpeed(1.0);
+        } else {
+            m_soaState->clientState.spaceCamera.setSpeed(0.3);
         }
     }
 
-    // Check for shader reload
-    if (GameManager::inputManager->getKeyDown(INPUT_RELOAD_SHADERS)) {
-        GameManager::glProgramManager->destroy();
-        LoadTaskShaders shaderTask(nullptr);
-        shaderTask.load();
-        // Reload the pipeline with new shaders
-        _renderPipeline.destroy();
-        initRenderPipeline();
-    }
-
-    bdt += glSpeedFactor * 0.01;
+    //m_soaState->time += m_soaState->timeStep;
+    m_spaceSystemUpdater->update(m_soaState, m_soaState->clientState.spaceCamera.getPosition(), f64v3(0.0));
+    m_spaceSystemUpdater->glUpdate(m_soaState);
+    m_mainMenuSystemViewer->update();
 
     m_ambPlayer->update((f32)gameTime.elapsed);
-    m_engine->update(vsound::Listener());
+    m_commonState->soundEngine->update(vsound::Listener());
 }
 
-void MainMenuScreen::draw(const GameTime& gameTime) {
+void MainMenuScreen::draw(const vui::GameTime& gameTime) {
+    m_soaState->clientState.spaceCamera.updateProjection();
+    m_renderer.render();
+}
 
-    updateWorldCameraClip();
+void MainMenuScreen::initInput() {
+    m_inputMapper = new InputMapper;
+    initInputs(m_inputMapper);
+    // Reload space system event
+  
+    m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
+    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
+    m_inputMapper->get(INPUT_TOGGLE_UI).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleUI);
+    // TODO(Ben): addFunctor = memory leak
+    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderer.toggleAR(); });
+    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderer.cycleColorFilter(); });
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+        m_renderer.takeScreenshot(); });
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleWireframe);
 
-    _renderPipeline.render();
+    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuScreen::onWindowResize);
+    vui::InputDispatcher::window.onClose += makeDelegate(*this, &MainMenuScreen::onWindowClose);
+    SoaEngine::optionsController.OptionsChange += makeDelegate(*this, &MainMenuScreen::onOptionsChange);
+
+    m_inputMapper->startInput();
 }
 
 void MainMenuScreen::initRenderPipeline() {
-    // Set up the rendering pipeline and pass in dependencies
-    ui32v4 viewport(0, 0, _app->getWindow().getViewportDims());
-    _renderPipeline.init(viewport, &_camera, &_awesomiumInterface, GameManager::glProgramManager);
+    //m_renderer.init(m_window, m_commonState->loadContext, this);
+}
+
+void MainMenuScreen::initUI() {
+    const ui32v2& vdims = m_window->getViewportDims();
+    m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &m_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
 }
 
 void MainMenuScreen::loadGame(const nString& fileName) {
-    std::cout << "Loading Game: " << fileName << std::endl;
+    //std::cout << "Loading Game: " << fileName << std::endl;
 
-    // Make the save directories, in case they were deleted
-    fileManager.makeSaveDirectories(fileName);
-    if (fileManager.setSaveFile(fileName) != 0) {
-        std::cout << "Could not set save file.\n";
-        return;
-    }
-    // Check the planet string
-    nString planetName = fileManager.getWorldString(fileName + "/World/");
-    if (planetName == "") {
-        std::cout << "NO PLANET NAME";
-        return;
-    }
+    //initSaveIomanager(fileName);
 
-    // Set the save file path
-    GameManager::saveFilePath = fileName;
-    // Check the chunk version
-    GameManager::chunkIOManager->checkVersion();
+    //// Check the planet string
+    //nString planetName = fileManager.getWorldString(fileName + "/World/");
+    //if (planetName == "") {
+    //    std::cout << "NO PLANET NAME";
+    //    return;
+    //}
 
-    _state = ScreenState::CHANGE_NEXT;
+    //m_state = vui::ScreenState::CHANGE_NEXT;
 }
-
 
 void MainMenuScreen::newGame(const nString& fileName) {
-    std::cout << "Making new game: " << fileName << std::endl;
 
-    // Make the save directories, in case they were deleted
-    fileManager.makeSaveDirectories(fileName);
-    if (fileManager.setSaveFile(fileName) != 0) {
-        std::cout << "Could not set save file.\n";
+    if (!m_mainMenuSystemViewer->getSelectedPlanet()) {
+        m_newGameClicked = false;
         return;
     }
-   
-    // Save the world file
-    nString worldText("Aldrin");
-    _ioManager.writeStringToFile((fileName + "/World/world.txt").c_str(), worldText);
 
-    // Set the save file path
-    GameManager::saveFilePath = fileName;
-    // Save the chunk version
-    GameManager::chunkIOManager->saveVersionFile();
+    m_soaState->clientState.isNewGame = true;
+    m_soaState->clientState.startSpacePos = m_mainMenuSystemViewer->getClickPos();
+    f64v3 normal = vmath::normalize(m_soaState->clientState.startSpacePos);
+    // Don't spawn underwater
+    if (vmath::length(m_soaState->clientState.startSpacePos) < m_mainMenuSystemViewer->getTargetRadius()) {
+        m_soaState->clientState.startSpacePos = normal * m_mainMenuSystemViewer->getTargetRadius();
+    }
+    // Push out by 5 voxels
+    m_soaState->clientState.startSpacePos += vmath::normalize(m_soaState->clientState.startSpacePos) * 5.0 * KM_PER_VOXEL;
 
-    _state = ScreenState::CHANGE_NEXT;
+    m_soaState->clientState.startingPlanet = m_mainMenuSystemViewer->getSelectedPlanet();
+    vecs::EntityID startingPlanet = m_soaState->clientState.startingPlanet;
+
+    { // Compute start location
+        SpaceSystem* spaceSystem = m_soaState->spaceSystem;
+        auto& arcmp = spaceSystem->axisRotation.getFromEntity(startingPlanet);
+
+        m_soaState->clientState.startSpacePos = arcmp.currentOrientation * m_soaState->clientState.startSpacePos;
+    }
+
+    std::cout << "Making new game: " << fileName << std::endl;
+
+    initSaveIomanager(fileName);  
+
+    m_state = vui::ScreenState::CHANGE_NEXT;
 }
 
-void MainMenuScreen::updateThreadFunc() {
+void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
 
-    _threadRunning = true;
+    vio::IOManager& ioManager = m_soaState->saveFileIom;
+    // Make sure the Saves and savePath directories exist
+    ioManager.setSearchDirectory("");
+    ioManager.makeDirectory("Saves");
+    ioManager.makeDirectory(savePath);
 
-    Message message;
+    ioManager.setSearchDirectory(savePath);
 
-    MessageManager* messageManager = GameManager::messageManager;
-    /*
-    messageManager->waitForMessage(THREAD, MessageID::DONE, message);
-    if (message.id == MessageID::QUIT) {
-        std::terminate();
-    }*/
+    ioManager.makeDirectory("players");
+    ioManager.makeDirectory("system");
+    ioManager.makeDirectory("cache");
+}
 
-    FpsLimiter fpsLimiter;
-    fpsLimiter.init(maxPhysicsFps);
+void MainMenuScreen::reloadUI() {
+    m_ui.dispose();
+    initUI();
 
-    while (_threadRunning) {
+    m_shouldReloadUI = false;
+    printf("UI was reloaded.\n");
+}
 
-        fpsLimiter.beginFrame();
+void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
+    SoaEngine::destroySpaceSystem(m_soaState);
+    SoaEngine::loadSpaceSystem(m_soaState, "StarSystems/Trinity");
+    CinematicCamera tmp = m_soaState->clientState.spaceCamera; // Store camera so the view doesn't change
+    m_soaState->clientState.systemViewer->init(m_window->getViewportDims(),
+                                               &m_soaState->clientState.spaceCamera, m_soaState->spaceSystem,
+                                   m_inputMapper);
+    m_soaState->clientState.spaceCamera = tmp; // Restore old camera
+    m_renderer.dispose(m_commonState->loadContext);
+    initRenderPipeline();
+}
 
-        GameManager::soundEngine->SetMusicVolume(soundOptions.musicVolume / 100.0f);
-        GameManager::soundEngine->SetEffectVolume(soundOptions.effectVolume / 100.0f);
-        GameManager::soundEngine->update();
+void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
+    printf("Reloading Shaders...\n");
+    m_renderer.dispose(m_commonState->loadContext);
 
-        while (messageManager->tryDeque(THREAD, message)) {
-            // Process the message
-            switch (message.id) {
-                case MessageID::NEW_PLANET:
-                    messageManager->enqueue(THREAD, Message(MessageID::NEW_PLANET, NULL));
-                    messageManager->enqueue(THREAD, Message(MessageID::DONE, NULL));
-                    messageManager->waitForMessage(THREAD, MessageID::DONE, message);
-                    break;
-            }
-        }
+    m_renderer.init(m_commonState->window, m_commonState->loadContext, this, m_commonState);
+    m_renderer.hook();
+    m_commonState->loadContext.begin();
+    m_renderer.load(m_commonState->loadContext);
 
-        f64v3 camPos = glm::dvec3((glm::dmat4(GameManager::planet->invRotationMatrix)) * glm::dvec4(_camera.getPosition(), 1.0));
+    
+    while (!m_renderer.isLoaded()) {
+        m_commonState->loadContext.processRequests(1);
+        SDL_Delay(1);
+    }
 
-        GameManager::planet->rotationUpdate();
-        GameManager::updatePlanet(camPos, 10);
-        
-        physicsFps = fpsLimiter.endFrame();
+    m_commonState->loadContext.end();
+
+    printf("Done!\n");
+}
+
+void MainMenuScreen::onQuit(Sender s, ui32 a) {
+    m_window->saveSettings();
+    SoaEngine::destroyAll(m_soaState);
+    exit(0);
+}
+
+void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+    SoaEngine::optionsController.setInt("Screen Width", e.w);
+    SoaEngine::optionsController.setInt("Screen Height", e.h);
+    soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
+    soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
+    if (m_uiEnabled) m_ui.onOptionsChanged();
+    m_soaState->clientState.spaceCamera.setAspectRatio(m_window->getAspectRatio());
+    m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
+}
+
+void MainMenuScreen::onWindowClose(Sender s) {
+    onQuit(s, 0);
+}
+
+void MainMenuScreen::onOptionsChange(Sender s) {
+    bool fullscreen = soaOptions.get(OPT_FULLSCREEN).value.b;
+    bool borderless = soaOptions.get(OPT_BORDERLESS).value.b;
+    bool screenChanged = false;
+    ui32v2 screenSize = m_window->getViewportDims();
+    if (screenSize.x != soaOptions.get(OPT_SCREEN_WIDTH).value.i ||
+        screenSize.y != soaOptions.get(OPT_SCREEN_HEIGHT).value.i) {
+        m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
+        screenChanged = true;
+    }
+    m_window->setFullscreen(fullscreen);
+    m_window->setBorderless(borderless);
+
+    if (soaOptions.get(OPT_VSYNC).value.b) {
+        m_window->setSwapInterval(vui::GameSwapInterval::V_SYNC);
+    } else {
+        m_window->setSwapInterval(vui::GameSwapInterval::UNLIMITED_FPS);
+    }
+    TerrainPatch::setQuality(soaOptions.get(OPT_PLANET_DETAIL).value.i);
+    m_ambPlayer->setVolume(soaOptions.get(OPT_MUSIC_VOLUME).value.f);
+
+    // Re-center the window
+    if (screenChanged || m_isFullscreen != fullscreen || m_isBorderless != borderless) {
+        m_isFullscreen = fullscreen;
+        m_isBorderless = borderless;
+        m_window->setPosition(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
 }
 
-void MainMenuScreen::updateWorldCameraClip() {
-    //far znear for maximum Terrain Patch z buffer precision
-    //this is currently incorrect
-    double nearClip = MIN((csGridWidth / 2.0 - 3.0)*32.0*0.7, 75.0) - ((double)(30.0) / (double)(csGridWidth*csGridWidth*csGridWidth))*55.0;
-    if (nearClip < 0.1) nearClip = 0.1;
-    double a = 0.0;
-    // TODO(Ben): This is crap fix it (Sorry Brian)
-    a = closestTerrainPatchDistance / (sqrt(1.0f + pow(tan(graphicsOptions.fov / 2.0), 2.0) * (pow((double)_app->getWindow().getAspectRatio(), 2.0) + 1.0))*2.0);
-    if (a < 0) a = 0;
+void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
+    m_renderer.toggleUI();
+    m_uiEnabled = !m_uiEnabled;
+    if (m_uiEnabled) {
+        initUI();
+    } else {
+        m_ui.dispose();
+    }
+}
 
-    double clip = MAX(nearClip / planetScale * 0.5, a);
-    // The world camera has a dynamic clipping plane
-    _camera.setClippingPlane(clip, MAX(300000000.0 / planetScale, closestTerrainPatchDistance + 10000000));
-    _camera.updateProjection();
+void MainMenuScreen::onToggleWireframe(Sender s, ui32 i) {
+    m_renderer.toggleWireframe();
 }

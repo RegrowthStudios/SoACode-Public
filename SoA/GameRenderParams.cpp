@@ -5,37 +5,39 @@
 
 #include "Camera.h"
 #include "GameManager.h"
-#include "Planet.h"
-#include "Player.h"
-#include "Rendering.h"
 
 void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
                                        const Camera* ChunkCamera,
-                                       const std::vector<ChunkMesh*>* ChunkMeshes,
+                                       const VoxelPosition3D& voxPosition,
+                                       f64 voxelWorldRadius,
+                                       ChunkMeshManager* ChunkMeshmanager,
+                                       BlockPack* blocks,
+                                       BlockTexturePack* blockTexturePack,
                                        bool IsUnderwater) {
     chunkCamera = ChunkCamera;
     isUnderwater = IsUnderwater;
+    this->blocks = blocks;
+    this->blockTexturePack = blockTexturePack;
 
-    // Cache the VP to prevent needless multiplies
-    VP = chunkCamera->getProjectionMatrix() * chunkCamera->getViewMatrix();
-    
-    chunkMeshes = ChunkMeshes;
+    chunkMeshmanager = ChunkMeshmanager;
 
     // Calculate fog
-    glm::vec3 lightPos = f32v3(1.0, 0.0, 0.0);
-    float theta = glm::dot(glm::dvec3(lightPos), glm::normalize(glm::dvec3(glm::dmat4(GameManager::planet->rotationMatrix) * glm::dvec4(worldCameraPos, 1.0))));
-
+    sunlightDirection = vmath::normalize(f32v3(0.7, 1.0, 0.5));
+    
+   // float theta = (f32)vmath::dot(VoxelSpaceConversions::voxelToWorld(voxPosition, voxelWorldRadius), f64v3(lightPos));
+    f32 theta = 1.0f;
     calculateFog(theta, isUnderwater);
     calculateSunlight(theta);
+    sunlightColor = f32v3(1.0f);
 }
 
 void GameRenderParams::calculateFog(float theta, bool isUnderwater) {
     
 #define FOG_THETA_MULT 100.0f
 #define FOG_THETA_OFFSET 50.0f
-    glm::mat4 VP;
+    f32m4 VP;
     //********************************* TODO: PRECOMPILED HEADERS for compilation speed?
-    float fogTheta = glm::clamp(theta, 0.0f, 1.0f);
+    float fogTheta = vmath::clamp(theta, 0.0f, 1.0f);
     fogStart = 0;
     if (isUnderwater) {
         float underwaterColor = fogTheta / 2.0f;
@@ -60,9 +62,9 @@ void GameRenderParams::calculateSunlight(float theta) {
     #define SUN_COLOR_MAP_HEIGHT 64.0f
     #define SUN_THETA_OFF 0.06f
 
-    sunlightDirection = glm::normalize(f64v3(f64m4(glm::inverse(GameManager::player->worldRotationMatrix)) *
-        f64m4(GameManager::planet->invRotationMatrix) * f64v4(1.0, 0.0, 0.0, 1.0)));
-
+    /*   sunlightDirection = vmath::normalize(f64v3(f64m4(vmath::inverse(GameManager::player->worldRotationMatrix)) *
+           f64m4(GameManager::planet->invRotationMatrix) * f64v4(1.0, 0.0, 0.0, 1.0)));
+           */
     float sunTheta = MAX(0.0f, theta + SUN_THETA_OFF);
     if (sunTheta > 1) sunTheta = 1;
     sunlightIntensity = sunTheta * AMB_MULT + AMB_OFFSET;
@@ -78,7 +80,5 @@ void GameRenderParams::calculateSunlight(float theta) {
     if (theta < 0) {
         sunHeight = 0;
     }
-    sunlightColor.r = ((float)sunColor[sunHeight][0] / 255.0f) * diffVal;
-    sunlightColor.g = ((float)sunColor[sunHeight][1] / 255.0f) * diffVal;
-    sunlightColor.b = ((float)sunColor[sunHeight][2] / 255.0f) * diffVal;
+    sunlightColor = f32v3(1.0f) * diffVal;
 }

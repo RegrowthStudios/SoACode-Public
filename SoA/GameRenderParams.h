@@ -3,14 +3,24 @@
 #ifndef GameRenderParams_h__
 #define GameRenderParams_h__
 
+#include <Vorb/VorbPreDecl.inl>
+#include "VoxelSpaceConversions.h"
+
 class ChunkMesh;
 class Camera;
+class ChunkMeshManager;
+class BlockPack;
+class BlockTexturePack;
 
 class GameRenderParams {
 public:
     void calculateParams(const f64v3& worldCameraPos,
-                         const Camera* ChunkCamera, 
-                         const std::vector<ChunkMesh*>* ChunkMeshes,
+                         const Camera* ChunkCamera,
+                         const VoxelPosition3D& voxPosition,
+                         f64 voxelWorldRadius,
+                         ChunkMeshManager* ChunkMeshmanager,
+                         BlockPack* blocks,
+                         BlockTexturePack* blockTexturePack,
                          bool IsUnderwater);
 
     f32v3 sunlightDirection;
@@ -20,9 +30,10 @@ public:
     float fogEnd;
     float fogStart;
     float lightActive;
-    f32m4 VP;
     const Camera* chunkCamera;
-    const std::vector <ChunkMesh *>* chunkMeshes;
+    ChunkMeshManager* chunkMeshmanager;
+    BlockPack* blocks;
+    BlockTexturePack* blockTexturePack;
     bool isUnderwater;
 private:
     void calculateFog(float theta, bool isUnderwater);

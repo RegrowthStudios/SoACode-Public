@@ -16,12 +16,13 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-#include "Texture2d.h"
-
-struct SkyboxVertex {
+class SkyboxVertex {
+public:
     f32v3 position;
-    f32v2 texCoords;
+    f32v3 texCoords;
 };
+
+class LoadContext;
 
 class SkyboxRenderer
 {
@@ -29,21 +30,24 @@ public:
     SkyboxRenderer();
     ~SkyboxRenderer();
 
+    void initGL();
+
     /// Draw the skybox
-    void drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Texture textures[]);
+    void drawSkybox(const f32m4& VP, VGTexture textureArray);
 
-    /// Frees the skybox mesh
+    /// Frees the skybox mesh and shader
     void destroy();
-
 private:
 
     /// Initializes the _vbo and _ibo buffers
-    void initBuffers(vg::GLProgram* program);
+    void initShader();
+    void initBuffers();
 
-    ui32 _vao;
-    ui32 _vbo;
-    ui32 _ibo;
+    ui32 m_vao = 0;
+    ui32 m_vbo = 0;
+    ui32 m_ibo = 0;
 
+    vg::GLProgram m_program;
 };
 
 #endif // SkyboxRenderer_h__

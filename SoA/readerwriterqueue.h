@@ -42,7 +42,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifdef AE_VCPP
 #pragma warning(push)
-#pragma warning(disable: 4324) // structure was padded due to __declspec(align())
+#pragma warning(disable: 4324) // classure was padded due to __declspec(align())
 #pragma warning(disable: 4820) // padding was added
 #pragma warning(disable: 4127) // conditional expression is constant
 #endif

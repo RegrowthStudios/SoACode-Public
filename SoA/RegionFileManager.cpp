@@ -10,11 +10,10 @@
 #include <Vorb/utils.h>
 #include <ZLIB/zlib.h>
 
-#include "global.h"
 #include "Chunk.h"
 #include "Errors.h"
 #include "GameManager.h"
-#include "Planet.h"
+#include "VoxelSpaceConversions.h"
 
 // Section tags
 #define TAG_VOXELDATA 0x1
@@ -24,7 +23,7 @@ const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
 inline i32 fileTruncate(i32 fd, i64 size)
 {
 #if defined(_WIN32) || defined(_WIN64) 
-    return _chsize(fd, size);
+    return _chsize(fd, (long)size);
 #else
 #ifdef POSIX
     return ftruncate(fd, size);
@@ -35,7 +34,8 @@ inline i32 fileTruncate(i32 fd, i64 size)
 }
 
 inline i32 sectorsFromBytes(ui32 bytes) {
-    return ceil(bytes / (float)SECTOR_SIZE);
+    // Adding 0.1f to be damn sure the cast is right
+    return (i32)(ceil(bytes / (float)SECTOR_SIZE) + 0.1f);
 }
 
 //returns true on error
@@ -71,7 +71,11 @@ bool checkZlibError(nString message, int zerror) {
     return false;
 }
 
-RegionFileManager::RegionFileManager() :_regionFile(nullptr), _copySectorsBuffer(nullptr), _maxCacheSize(8) {
+RegionFileManager::RegionFileManager(const nString& saveDir) :_regionFile(nullptr),
+_copySectorsBuffer(nullptr),
+_maxCacheSize(8),
+m_saveDir(saveDir) {
+    // Empty
 }
 
 RegionFileManager::~RegionFileManager() {
@@ -79,7 +83,7 @@ RegionFileManager::~RegionFileManager() {
 }
 
 void RegionFileManager::clear() {
-    for (int i = 0; i < _regionFileCacheQueue.size(); i++) {
+    for (size_t i = 0; i < _regionFileCacheQueue.size(); i++) {
         closeRegionFile(_regionFileCacheQueue[i]);
     }
 
@@ -93,7 +97,7 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxelMapData, bool create) {
+bool RegionFileManager::openRegionFile(nString region, const ChunkPosition3D& gridPosition, bool create) {
 
     nString filePath;
     struct stat statbuf;
@@ -129,7 +133,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
     } 
 
 
-    filePath = GameManager::saveFilePath + "/Region/" + voxelMapData->getFilePath() + region + ".soar";
+    filePath = m_saveDir + "/Region/" + region + ".soar";
    
     //open file if it exists
     FILE* file = fopen(filePath.c_str(), "rb+");
@@ -158,7 +162,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
     _regionFileCache[region] = _regionFile;
     _regionFileCacheQueue.push_back(_regionFile);
 
-    _regionFile->fileDescriptor = fileno(_regionFile->file); //get file descriptor for truncate if needed
+    _regionFile->fileDescriptor = _fileno(_regionFile->file); //get file descriptor for truncate if needed
 
     if (fstat(_regionFile->fileDescriptor, &statbuf) != 0) {
         pError("Stat call failed for region file open"); //get the file stats
@@ -174,7 +178,7 @@ bool RegionFileManager::openRegionFile(nString region, vvox::VoxelMapData* voxel
 
         _regionFile->totalSectors = 0;
         fflush(_regionFile->file);
-    } else{ //load header data into the header struct 
+    } else{ //load header data into the header class 
 
         if (loadRegionHeader() == false) return false;
 
@@ -204,176 +208,177 @@ void RegionFileManager::closeRegionFile(RegionFile* regionFile) {
 //Attempt to load a chunk. Returns false on failure
 bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
 
-    nString regionString = getRegionString(chunk);
+    //nString regionString = getRegionString(chunk);
 
-    //Open the region file
-    if (!openRegionFile(regionString, chunk->voxelMapData, false)) return false;
+    ////Open the region file
+    //if (!openRegionFile(regionString, chunk->gridPosition, false)) return false;
 
-    //Get the chunk sector offset
-    ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
-    //If chunkOffset is zero, it hasnt been saved
-    if (chunkSectorOffset == 0) {
-        return false;
-    }
+    ////Get the chunk sector offset
+    //ui32 chunkSectorOffset = getChunkSectorOffset(chunk);
+    ////If chunkOffset is zero, it hasnt been saved
+    //if (chunkSectorOffset == 0) {
+    //    return false;
+    //}
 
-    //Location is not stored zero indexed, so that 0 indicates that it hasnt been saved
-    chunkSectorOffset -= 1;
+    ////Location is not stored zero indexed, so that 0 indicates that it hasnt been saved
+    //chunkSectorOffset -= 1;
 
-    //Seek to the chunk header
-    if (!seekToChunk(chunkSectorOffset)){
-        pError("Region: Chunk data fseek C error! " + std::to_string(sizeof(RegionFileHeader)+chunkSectorOffset * SECTOR_SIZE) + " size: " + std::to_string(_regionFile->totalSectors));
-        return false;
-    }
+    ////Seek to the chunk header
+    //if (!seekToChunk(chunkSectorOffset)){
+    //    pError("Region: Chunk data fseek C error! " + std::to_string(sizeof(RegionFileHeader)+chunkSectorOffset * SECTOR_SIZE) + " size: " + std::to_string(_regionFile->totalSectors));
+    //    return false;
+    //}
 
-    //Get the chunk header
-    if (!readChunkHeader()) return false;
+    ////Get the chunk header
+    //if (!readChunkHeader()) return false;
 
-    // Read all chunk data
-    if (!readChunkData_v0()) return false;
-    
-    // Read all tags and process the data
-    _chunkOffset = 0;
-    while (_chunkOffset < _chunkBufferSize) {
-        // Read the tag
-        ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
-        _chunkOffset += sizeof(ui32);
+    //// Read all chunk data
+    //if (!readChunkData_v0()) return false;
+    //
+    //// Read all tags and process the data
+    //_chunkOffset = 0;
+    //while (_chunkOffset < _chunkBufferSize) {
+    //    // Read the tag
+    //    ui32 tag = BufferUtils::extractInt(_chunkBuffer, _chunkOffset);
+    //    _chunkOffset += sizeof(ui32);
 
-        switch (tag) {
-            case TAG_VOXELDATA:
-                //Fill the chunk with the aquired data
-                if (!fillChunkVoxelData(chunk)) return false;
-                break;
-            default:
-                std::cout << "INVALID TAG " << tag << std::endl;
-                return false;
-        }
-    }
+    //    switch (tag) {
+    //        case TAG_VOXELDATA:
+    //            //Fill the chunk with the aquired data
+    //            if (!fillChunkVoxelData(chunk)) return false;
+    //            break;
+    //        default:
+    //            std::cout << "INVALID TAG " << tag << std::endl;
+    //            return false;
+    //    }
+    //}
+    //return true;
     return true;
 }
 
 //Saves a chunk to a region file
 bool RegionFileManager::saveChunk(Chunk* chunk) {
 
-    //Used for copying sectors if we need to resize the file
-    if (_copySectorsBuffer) {
-        delete[] _copySectorsBuffer;
-        _copySectorsBuffer = nullptr;
-    }
+    ////Used for copying sectors if we need to resize the file
+    //if (_copySectorsBuffer) {
+    //    delete[] _copySectorsBuffer;
+    //    _copySectorsBuffer = nullptr;
+    //}
 
-    nString regionString = getRegionString(chunk);
+    //nString regionString = getRegionString(chunk);
 
-    if (!openRegionFile(regionString, chunk->voxelMapData, true)) return false;
+    //if (!openRegionFile(regionString, chunk->gridPosition, true)) return false;
 
-    ui32 tableOffset;
-    ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
+    //ui32 tableOffset;
+    //ui32 chunkSectorOffset = getChunkSectorOffset(chunk, &tableOffset);
 
-    i32 numOldSectors;
+    //i32 numOldSectors;
 
-    //If chunkOffset is zero, then we need to add the entry
-    if (chunkSectorOffset == 0) {
+    ////If chunkOffset is zero, then we need to add the entry
+    //if (chunkSectorOffset == 0) {
 
-        //Set the sector offset in the table
-        BufferUtils::setInt(_regionFile->header.lookupTable, tableOffset, _regionFile->totalSectors + 1); //we add 1 so that 0 can indicate not saved
-        _regionFile->isHeaderDirty = true;
+    //    //Set the sector offset in the table
+    //    BufferUtils::setInt(_regionFile->header.lookupTable, tableOffset, _regionFile->totalSectors + 1); //we add 1 so that 0 can indicate not saved
+    //    _regionFile->isHeaderDirty = true;
 
-        chunkSectorOffset = _regionFile->totalSectors;
+    //    chunkSectorOffset = _regionFile->totalSectors;
 
-        numOldSectors = 0;
-      
-    } else {
-        //Convert sector offset from 1 indexed to 0 indexed
-        chunkSectorOffset--;
-        //seek to the chunk
-        if (!seekToChunk(chunkSectorOffset)){
-            pError("Region: Chunk data fseek save error BB! " + std::to_string(chunkSectorOffset));
-            return false;
-        }
+    //    numOldSectors = 0;
+    //  
+    //} else {
+    //    //Convert sector offset from 1 indexed to 0 indexed
+    //    chunkSectorOffset--;
+    //    //seek to the chunk
+    //    if (!seekToChunk(chunkSectorOffset)){
+    //        pError("Region: Chunk data fseek save error BB! " + std::to_string(chunkSectorOffset));
+    //        return false;
+    //    }
 
-        //Get the chunk header
-        if (!readChunkHeader()) return false;
-        ui32 oldDataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
-        numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
+    //    //Get the chunk header
+    //    if (!readChunkHeader()) return false;
+    //    ui32 oldDataLength = BufferUtils::extractInt(_chunkHeader.dataLength);
+    //    numOldSectors = sectorsFromBytes(oldDataLength + sizeof(ChunkHeader));
 
-        if (numOldSectors > _regionFile->totalSectors) {
-            std::cout << (std::to_string(chunkSectorOffset) + " " + std::to_string(tableOffset) + "Chunk Header Corrupted\n");
-            return false;
-        }
-    }
+    //    if (numOldSectors > _regionFile->totalSectors) {
+    //        std::cout << (std::to_string(chunkSectorOffset) + " " + std::to_string(tableOffset) + "Chunk Header Corrupted\n");
+    //        return false;
+    //    }
+    //}
 
-    //Compress the chunk data
-    rleCompressChunk(chunk);
-    zlibCompress();
+    ////Compress the chunk data
+    //rleCompressChunk(chunk);
+    //zlibCompress();
 
-    i32 numSectors = sectorsFromBytes(_compressedBufferSize);
-    i32 sectorDiff = numSectors - numOldSectors;
+    //i32 numSectors = sectorsFromBytes(_compressedBufferSize);
+    //i32 sectorDiff = numSectors - numOldSectors;
 
-    //If we need to resize the number of sectors in the file and this chunk is not at the end of file,
-    //then we should copy all sectors at the end of the file so we can resize it. This operation should be
-    //fairly rare.
-    if ((sectorDiff != 0) && ((chunkSectorOffset + numOldSectors) != _regionFile->totalSectors)) {
-        if (!seekToChunk(chunkSectorOffset + numOldSectors)){
-            pError("Region: Failed to seek for sectorCopy " + std::to_string(chunkSectorOffset) + " " + std::to_string(numOldSectors) + " " + std::to_string(_regionFile->totalSectors));
-            return false;
-        }
+    ////If we need to resize the number of sectors in the file and this chunk is not at the end of file,
+    ////then we should copy all sectors at the end of the file so we can resize it. This operation should be
+    ////fairly rare.
+    //if ((sectorDiff != 0) && ((chunkSectorOffset + numOldSectors) != _regionFile->totalSectors)) {
+    //    if (!seekToChunk(chunkSectorOffset + numOldSectors)){
+    //        pError("Region: Failed to seek for sectorCopy " + std::to_string(chunkSectorOffset) + " " + std::to_string(numOldSectors) + " " + std::to_string(_regionFile->totalSectors));
+    //        return false;
+    //    }
 
-        _copySectorsBufferSize = (_regionFile->totalSectors - (chunkSectorOffset + numOldSectors)) * SECTOR_SIZE;
-        _copySectorsBuffer = new ui8[_copySectorsBufferSize]; //for storing all the data that will need to be copied in the end
-       
-        readSectors(_copySectorsBuffer, _copySectorsBufferSize);
-    }
+    //    _copySectorsBufferSize = (_regionFile->totalSectors - (chunkSectorOffset + numOldSectors)) * SECTOR_SIZE;
+    //    _copySectorsBuffer = new ui8[_copySectorsBufferSize]; //for storing all the data that will need to be copied in the end
+    //   
+    //    readSectors(_copySectorsBuffer, _copySectorsBufferSize);
+    //}
 
-    //Set the header data
-    BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
-    BufferUtils::setInt(_chunkHeader.timeStamp, 0);
-    BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
+    ////Set the header data
+    //BufferUtils::setInt(_chunkHeader.compression, COMPRESSION_RLE | COMPRESSION_ZLIB);
+    //BufferUtils::setInt(_chunkHeader.timeStamp, 0);
+    //BufferUtils::setInt(_chunkHeader.dataLength, _compressedBufferSize - sizeof(ChunkHeader));
 
-    //Copy the header data to the write buffer
-    memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
+    ////Copy the header data to the write buffer
+    //memcpy(_compressedByteBuffer, &_chunkHeader, sizeof(ChunkHeader));
 
-    //seek to the chunk
-    if (!seekToChunk(chunkSectorOffset)){
-        pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
-        return false;
-    }
+    ////seek to the chunk
+    //if (!seekToChunk(chunkSectorOffset)){
+    //    pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
+    //    return false;
+    //}
 
-    //Write the header and data
-    writeSectors(_compressedByteBuffer, (ui32)_compressedBufferSize);
+    ////Write the header and data
+    //writeSectors(_compressedByteBuffer, (ui32)_compressedBufferSize);
 
-    //Keep track of total sectors in file so we can infer filesize
-    _regionFile->totalSectors += sectorDiff;
+    ////Keep track of total sectors in file so we can infer filesize
+    //_regionFile->totalSectors += sectorDiff;
 
-    //If we need to move some sectors around
-    if (_copySectorsBuffer) {
+    ////If we need to move some sectors around
+    //if (_copySectorsBuffer) {
    
-        if (!seekToChunk(chunkSectorOffset + numSectors)){
-            pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
-            return false;
-        }
-        //Write the buffer of sectors
-        writeSectors(_copySectorsBuffer, _copySectorsBufferSize);
-        delete[] _copySectorsBuffer;
-        _copySectorsBuffer = nullptr;
+    //    if (!seekToChunk(chunkSectorOffset + numSectors)){
+    //        pError("Region: Chunk data fseek save error GG! " + std::to_string(chunkSectorOffset));
+    //        return false;
+    //    }
+    //    //Write the buffer of sectors
+    //    writeSectors(_copySectorsBuffer, _copySectorsBufferSize);
+    //    delete[] _copySectorsBuffer;
+    //    _copySectorsBuffer = nullptr;
 
-        //if the file got smaller
-        if (sectorDiff < 0){
-            //truncate the file
-            if (fileTruncate(_regionFile->fileDescriptor, sizeof(RegionFileHeader)+_regionFile->totalSectors * SECTOR_SIZE) != 0) {
-                perror("Region file: Truncate error!\n");
-            }
-        }
+    //    //if the file got smaller
+    //    if (sectorDiff < 0){
+    //        //truncate the file
+    //        if (fileTruncate(_regionFile->fileDescriptor, sizeof(RegionFileHeader)+_regionFile->totalSectors * SECTOR_SIZE) != 0) {
+    //            perror("Region file: Truncate error!\n");
+    //        }
+    //    }
 
-        //Update the table
-        ui32 nextChunkSectorOffset;
-        for (int i = 0; i < REGION_SIZE * 4; i += 4){
-            nextChunkSectorOffset = BufferUtils::extractInt(_regionFile->header.lookupTable, i);
-            //See if the 1 indexed nextChunkSectorOffset is > the 0 indexed chunkSectorOffset
-            if (nextChunkSectorOffset > (chunkSectorOffset + 1)){ 
-                BufferUtils::setInt(_regionFile->header.lookupTable, i, nextChunkSectorOffset + sectorDiff);
-            } 
-        }
-        _regionFile->isHeaderDirty = true;
-    }
-    fflush(_regionFile->file);
+    //    //Update the table
+    //    ui32 nextChunkSectorOffset;
+    //    for (int i = 0; i < REGION_SIZE * 4; i += 4){
+    //        nextChunkSectorOffset = BufferUtils::extractInt(_regionFile->header.lookupTable, i);
+    //        //See if the 1 indexed nextChunkSectorOffset is > the 0 indexed chunkSectorOffset
+    //        if (nextChunkSectorOffset > (chunkSectorOffset + 1)){ 
+    //            BufferUtils::setInt(_regionFile->header.lookupTable, i, nextChunkSectorOffset + sectorDiff);
+    //        } 
+    //    }
+    //    _regionFile->isHeaderDirty = true;
+    //}
+    //fflush(_regionFile->file);
     return true;
 }
 
@@ -388,7 +393,7 @@ void RegionFileManager::flush() {
 
 bool RegionFileManager::saveVersionFile() {
     FILE* file;
-    file = fopen((GameManager::saveFilePath + "/Region/version.dat").c_str(), "wb");
+    file = fopen((m_saveDir + "/Region/version.dat").c_str(), "wb");
 
     if (!file) return false;
 
@@ -402,10 +407,10 @@ bool RegionFileManager::saveVersionFile() {
 
 bool RegionFileManager::checkVersion() {
     FILE* file;
-    file = fopen((GameManager::saveFilePath + "/Region/version.dat").c_str(), "rb");
+    file = fopen((m_saveDir + "/Region/version.dat").c_str(), "rb");
 
     if (!file) {
-        pError(GameManager::saveFilePath + "/Region/version.dat not found. Game will assume the version is correct, but it is "
+        pError(m_saveDir + "/Region/version.dat not found. Game will assume the version is correct, but it is "
                + "probable that this save will not work if the version is wrong. If this is a save from 0.1.6 or earlier, then it is "
                + "only compatible with version 0.1.6 of the game. In that case, please make a new save or download 0.1.6 to play this save.");
         return saveVersionFile();
@@ -538,89 +543,91 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
 
 bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
 
-    ui8 lightVal;
+    // TODO(Ben): Fix
 
-    int blockIndex;
-    int jStart, jEnd, jInc;
-    int kStart, kEnd, kInc;
-    int jMult, kMult;
+    //ui8 lightVal;
 
-    chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //int blockIndex;
+    //int jStart, jEnd, jInc;
+    //int kStart, kEnd, kInc;
+    //int jMult, kMult;
 
-    chunk->numBlocks = 0;
+    //chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
-    if (rleUncompressArray(_blockIDBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //chunk->numBlocks = 0;
 
-    if (rleUncompressArray(_lampLightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //if (rleUncompressArray(_blockIDBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //if (rleUncompressArray(_lampLightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
-    if (rleUncompressArray(_tertiaryDataBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+    //if (rleUncompressArray(_sunlightBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
+
+    //if (rleUncompressArray(_tertiaryDataBuffer, _chunkOffset, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc)) return false;
 
 
-    //Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
-    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> blockIDNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> lampLightNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
-    static std::vector<VoxelIntervalTree<ui8>::LightweightNode> sunlightNodes(CHUNK_SIZE, VoxelIntervalTree<ui8>::LightweightNode(0, 0, 0));
-    static std::vector<VoxelIntervalTree<ui16>::LightweightNode> tertiaryDataNodes(CHUNK_SIZE, VoxelIntervalTree<ui16>::LightweightNode(0, 0, 0));
+    ////Node buffers, reserving maximum memory so we don't ever need to reallocate. Static so that the memory persists.
+    //static std::vector<IntervalTree<ui16>::LNode> blockIDNodes(CHUNK_SIZE, IntervalTree<ui16>::LNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui16>::LNode> lampLightNodes(CHUNK_SIZE, IntervalTree<ui16>::LNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui8>::LNode> sunlightNodes(CHUNK_SIZE, IntervalTree<ui8>::LNode(0, 0, 0));
+    //static std::vector<IntervalTree<ui16>::LNode> tertiaryDataNodes(CHUNK_SIZE, IntervalTree<ui16>::LNode(0, 0, 0));
 
-    //Make the size 0
-    blockIDNodes.clear();
-    lampLightNodes.clear();
-    sunlightNodes.clear();
-    tertiaryDataNodes.clear();
-     //   chunk->_blockIDContainer.initFromSortedArray()
+    ////Make the size 0
+    //blockIDNodes.clear();
+    //lampLightNodes.clear();
+    //sunlightNodes.clear();
+    //tertiaryDataNodes.clear();
+    // //   chunk->_blockIDContainer.initFromSortedArray()
 
-    ui16 blockID;
-    ui16 lampLight;
-    ui8 sunlight;
-    ui16 tertiaryData;
+    //ui16 blockID;
+    //ui16 lampLight;
+    //ui8 sunlight;
+    //ui16 tertiaryData;
 
-    //Add first nodes
-    blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _blockIDBuffer[0]));
-    lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _lampLightBuffer[0]));
-    sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(0, 1, _sunlightBuffer[0]));
-    tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(0, 1, _tertiaryDataBuffer[0]));
+    ////Add first nodes
+    //blockIDNodes.push_back(IntervalTree<ui16>::LNode(0, 1, _blockIDBuffer[0]));
+    //lampLightNodes.push_back(IntervalTree<ui16>::LNode(0, 1, _lampLightBuffer[0]));
+    //sunlightNodes.push_back(IntervalTree<ui8>::LNode(0, 1, _sunlightBuffer[0]));
+    //tertiaryDataNodes.push_back(IntervalTree<ui16>::LNode(0, 1, _tertiaryDataBuffer[0]));
 
-    //Construct the node vectors
-    for (int i = 1; i < CHUNK_SIZE; i++) {
-        blockID = _blockIDBuffer[i];
-        lampLight = _lampLightBuffer[i];
-        sunlight = _sunlightBuffer[i];
-        tertiaryData = _tertiaryDataBuffer[i];
+    ////Construct the node vectors
+    //for (int i = 1; i < CHUNK_SIZE; i++) {
+    //    blockID = _blockIDBuffer[i];
+    //    lampLight = _lampLightBuffer[i];
+    //    sunlight = _sunlightBuffer[i];
+    //    tertiaryData = _tertiaryDataBuffer[i];
 
-        if (blockID != 0) chunk->numBlocks++;
-        
-        if (GETBLOCK(blockID).spawnerVal || GETBLOCK(blockID).sinkVal){
-            chunk->spawnerBlocks.push_back(i);
-        }
+    //    if (blockID != 0) chunk->numBlocks++;
+    //    
+    //    if (GETBLOCK(blockID).spawnerVal || GETBLOCK(blockID).sinkVal){
+    //        chunk->spawnerBlocks.push_back(i);
+    //    }
 
-        if (blockID == blockIDNodes.back().data) {
-            blockIDNodes.back().length++;
-        } else {
-            blockIDNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, blockID));
-        }
-        if (lampLight == lampLightNodes.back().data) {
-            lampLightNodes.back().length++;
-        } else {
-            lampLightNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, lampLight));
-        }
-        if (sunlight == sunlightNodes.back().data) {
-            sunlightNodes.back().length++;
-        } else {
-            sunlightNodes.push_back(VoxelIntervalTree<ui8>::LightweightNode(i, 1, sunlight));
-        }
-        if (tertiaryData == tertiaryDataNodes.back().data) {
-            tertiaryDataNodes.back().length++;
-        } else {
-            tertiaryDataNodes.push_back(VoxelIntervalTree<ui16>::LightweightNode(i, 1, tertiaryData));
-        }
-    }
+    //    if (blockID == blockIDNodes.back().data) {
+    //        blockIDNodes.back().length++;
+    //    } else {
+    //        blockIDNodes.push_back(IntervalTree<ui16>::LNode(i, 1, blockID));
+    //    }
+    //    if (lampLight == lampLightNodes.back().data) {
+    //        lampLightNodes.back().length++;
+    //    } else {
+    //        lampLightNodes.push_back(IntervalTree<ui16>::LNode(i, 1, lampLight));
+    //    }
+    //    if (sunlight == sunlightNodes.back().data) {
+    //        sunlightNodes.back().length++;
+    //    } else {
+    //        sunlightNodes.push_back(IntervalTree<ui8>::LNode(i, 1, sunlight));
+    //    }
+    //    if (tertiaryData == tertiaryDataNodes.back().data) {
+    //        tertiaryDataNodes.back().length++;
+    //    } else {
+    //        tertiaryDataNodes.push_back(IntervalTree<ui16>::LNode(i, 1, tertiaryData));
+    //    }
+    //}
   
-    chunk->_blockIDContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockIDNodes);
-    chunk->_lampLightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightNodes);
-    chunk->_sunlightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightNodes);
-    chunk->_tertiaryDataContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
+    //chunk->_blockIDContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, blockIDNodes);
+    //chunk->_lampLightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, lampLightNodes);
+    //chunk->_sunlightContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, sunlightNodes);
+    //chunk->_tertiaryDataContainer.initFromSortedArray(vvox::VoxelStorageState::INTERVAL_TREE, tertiaryDataNodes);
 
     return true;
 }
@@ -643,7 +650,7 @@ bool RegionFileManager::saveRegionHeader() {
     return true;
 }
 
-//Loads the header for the region file and stores it in the region file struct
+//Loads the header for the region file and stores it in the region file class
 bool RegionFileManager::loadRegionHeader() {
 
     if (!seek(0)){
@@ -674,7 +681,7 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
                     if (data[index] != curr){
                         _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
                         _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
-                        _chunkBuffer[_bufferSize++] = curr;
+                        _chunkBuffer[_bufferSize++] = (ui8)curr;
                         tot += count;
 
                         curr = data[index];
@@ -691,7 +698,7 @@ void RegionFileManager::rleCompressArray(ui8* data, int jStart, int jMult, int j
     _chunkBuffer[_bufferSize++] = (ui8)(count & 0xFF);
     _chunkBuffer[_bufferSize++] = (ui8)((count & 0xFF00) >> 8);
     tot += count;
-    _chunkBuffer[_bufferSize++] = curr;
+    _chunkBuffer[_bufferSize++] = (ui8)curr;
 }
 
 void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int jEnd, int jInc, int kStart, int kMult, int kEnd, int kInc) {
@@ -731,55 +738,57 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
 
 bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
 
-    ui16* blockIDData;
-    ui8* sunlightData;
-    ui16* lampLightData;
-    ui16* tertiaryData;
+    // TODO(Ben): Fix
 
-    //Need to lock so that nobody modifies the interval tree out from under us
-    chunk->lock();
-    if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        blockIDData = _blockIDBuffer;
-        chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
-    } else {
-        blockIDData = chunk->_blockIDContainer.getDataArray();
-    }
-    if (chunk->_lampLightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        lampLightData = _lampLightBuffer;
-        chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
-    } else {
-        lampLightData = chunk->_lampLightContainer.getDataArray();
-    }
-    if (chunk->_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        sunlightData = _sunlightBuffer;
-        chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
-    } else {
-        sunlightData = chunk->_sunlightContainer.getDataArray();
-    }
-    if (chunk->_tertiaryDataContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
-        tertiaryData = _tertiaryDataBuffer;
-        chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
-    } else {
-        tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
-    }
-    chunk->unlock();
+    //ui16* blockIDData;
+    //ui8* sunlightData;
+    //ui16* lampLightData;
+    //ui16* tertiaryData;
 
-    _bufferSize = 0;
+    ////Need to lock so that nobody modifies the interval tree out from under us
+    //chunk->lock();
+    //if (chunk->_blockIDContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    blockIDData = _blockIDBuffer;
+    //    chunk->_blockIDContainer.uncompressIntoBuffer(blockIDData);
+    //} else {
+    //    blockIDData = chunk->_blockIDContainer.getDataArray();
+    //}
+    //if (chunk->_lampLightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    lampLightData = _lampLightBuffer;
+    //    chunk->_lampLightContainer.uncompressIntoBuffer(lampLightData);
+    //} else {
+    //    lampLightData = chunk->_lampLightContainer.getDataArray();
+    //}
+    //if (chunk->_sunlightContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    sunlightData = _sunlightBuffer;
+    //    chunk->_sunlightContainer.uncompressIntoBuffer(sunlightData);
+    //} else {
+    //    sunlightData = chunk->_sunlightContainer.getDataArray();
+    //}
+    //if (chunk->_tertiaryDataContainer.getState() == vvox::VoxelStorageState::INTERVAL_TREE) {
+    //    tertiaryData = _tertiaryDataBuffer;
+    //    chunk->_tertiaryDataContainer.uncompressIntoBuffer(tertiaryData);
+    //} else {
+    //    tertiaryData = chunk->_tertiaryDataContainer.getDataArray();
+    //}
+    //chunk->unlock();
 
-    // Set the tag
-    memcpy(_chunkBuffer, TAG_VOXELDATA_STR, 4);
-    _bufferSize += 4;
+    //_bufferSize = 0;
 
-    int jStart, jEnd, jInc;
-    int kStart, kEnd, kInc;
-    int jMult, kMult;
+    //// Set the tag
+    //memcpy(_chunkBuffer, TAG_VOXELDATA_STR, 4);
+    //_bufferSize += 4;
 
-    chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //int jStart, jEnd, jInc;
+    //int kStart, kEnd, kInc;
+    //int jMult, kMult;
 
-    rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-    rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-    rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
-    rleCompressArray(tertiaryData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //chunk->voxelMapData->getIterationConstants(jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+
+    //rleCompressArray(blockIDData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //rleCompressArray(lampLightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //rleCompressArray(sunlightData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
+    //rleCompressArray(tertiaryData, jStart, jMult, jEnd, jInc, kStart, kMult, kEnd, kInc);
 
     return true;
 }
@@ -833,34 +842,31 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
 }
 
 ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
-    int ip, jp;
-    chunk->voxelMapData->getChunkGridPos(ip, jp);
+    
+    //const ChunkPosition3D& gridPos = chunk->gridPosition;
 
-    int ym = ((int)floor(chunk->gridPosition.y / (float)CHUNK_WIDTH) % REGION_WIDTH); 
-    int im = ip % REGION_WIDTH;
-    int jm = jp % REGION_WIDTH;
+    //int x = gridPos.pos.x % REGION_WIDTH;
+    //int y = gridPos.pos.y % REGION_WIDTH;
+    //int z = gridPos.pos.z % REGION_WIDTH;
 
-    //modulus is weird in c++ for negative numbers
-    if (ym < 0) ym += REGION_WIDTH;
-    if (im < 0) im += REGION_WIDTH;
-    if (jm < 0) jm += REGION_WIDTH;
-    ui32 tableOffset = 4 * (jm + im * REGION_WIDTH + ym * REGION_LAYER);
+    ////modulus is weird in c++ for negative numbers
+    //if (x < 0) x += REGION_WIDTH;
+    //if (y < 0) y += REGION_WIDTH;
+    //if (z < 0) z += REGION_WIDTH;
+    //ui32 tableOffset = 4 * (x + z * REGION_WIDTH + y * REGION_LAYER);
 
-    //If the caller asked for the table offset, return it
-    if (retTableOffset) *retTableOffset = tableOffset;
+    ////If the caller asked for the table offset, return it
+    //if (retTableOffset) *retTableOffset = tableOffset;
 
-    return BufferUtils::extractInt(_regionFile->header.lookupTable, tableOffset);
+    //return BufferUtils::extractInt(_regionFile->header.lookupTable, tableOffset);
+    return 0;
 }
 
 nString RegionFileManager::getRegionString(Chunk *ch)
 {
-    int ip, jp;
+    const ChunkPosition3D& gridPos = ch->getChunkPosition();
 
-    if (ch->voxelMapData == nullptr) {
-        std::cout << "LOL";
-    }
-
-    ch->voxelMapData->getChunkGridPos(ip, jp);
-
-    return "r." + std::to_string(jp >> RSHIFT) + "." + std::to_string(fastFloor(ch->gridPosition.y / (f64)CHUNK_WIDTH) >> RSHIFT) + "." + std::to_string(ip >> RSHIFT);
+    return "r." + std::to_string(fastFloor((float)gridPos.pos.x / REGION_WIDTH)) + "."
+        + std::to_string(fastFloor((float)gridPos.pos.y / REGION_WIDTH)) + "."
+        + std::to_string(fastFloor((float)gridPos.pos.z / REGION_WIDTH));
 }

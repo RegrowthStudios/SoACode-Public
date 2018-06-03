@@ -1,8 +1,12 @@
 #include "stdafx.h"
 #include "SkyboxRenderer.h"
+#include "LoadContext.h"
 
 #include <Vorb/graphics/GLEnums.h>
 #include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/ShaderManager.h>
+
+#include "ShaderLoader.h"
 
 // Skybox Cube //
 //    v6----- v5
@@ -26,6 +30,7 @@ const float skyboxVertices[72] = {
     -skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, skyboxSize,    // v7-v4-v3-v2 (bottom)
     skyboxSize, skyboxSize, -skyboxSize, skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, -skyboxSize, skyboxSize, -skyboxSize };     // v5-v4-v7-v6 (back)
 
+// These are the X,Y components. The Z component is determined by integer division
 const float skyboxUVs[48] = { 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v2-v3-v0 (front)
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, // v0-v3-v4-v5 (right)
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,// v6-v1-v0-v5 (top)
@@ -33,85 +38,110 @@ const float skyboxUVs[48] = { 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,  // v1-v2-
 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,  // v7-v4-v3-v2 (bottom)
 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 }; // v5-v4-v7-v6 (back)
 
-SkyboxRenderer::SkyboxRenderer() : 
-    _vao(0),
-    _vbo(0),
-    _ibo(0) {
-    // Empty
+namespace {
+    const cString VERT_SRC = R"(
+uniform mat4 unWVP;
+in vec4 vPosition;
+in vec3 vUVW;
+out vec3 fUVW;
+void main() {
+  fUVW = vUVW;
+  gl_Position = unWVP * vPosition;
+}
+)";
+    const cString FRAG_SRC = R"(
+uniform sampler2DArray unTex;
+in vec3 fUVW;
+out vec4 pColor;
+void main() {
+  pColor = texture(unTex, vec3(fUVW.xyz));
+  pColor.a = 1.0;
+})";
 }
 
+SkyboxRenderer::SkyboxRenderer() {
+    // Empty
+}
 
 SkyboxRenderer::~SkyboxRenderer() {
     destroy();
 }
 
-void SkyboxRenderer::drawSkybox(vg::GLProgram* program, const f32m4& VP, vg::Texture textures[]) {
+void SkyboxRenderer::initGL() {
+    initShader();
+    initBuffers();
+}
+
+void SkyboxRenderer::drawSkybox(const f32m4& VP, VGTexture textureArray) {
 
     // Bind shader
-    program->use();
+    m_program.use();
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
-    glUniform1i(program->getUniform("unTex"), 0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, textureArray);
     // Upload VP matrix
-    glUniformMatrix4fv(program->getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
+    glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &VP[0][0]);
     
     // Create the buffer objects if they aren't initialized
-    if (_vbo == 0) {
-        initBuffers(program);
-    } else {
-        glBindVertexArray(_vao);
+    if (m_vbo == 0) {
+        initBuffers();
     }
 
-    // Draw each of the 6 sides
-    for (int i = 0; i < SKYBOX_FACES; i++) {
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
-        glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD, GL_UNSIGNED_SHORT, (void*)(i * sizeof(ui16)* INDICES_PER_QUAD)); //offset
-    }
-
-    // Unbind shader
-    program->unuse();
-
-    // Always unbind the vao
+    glBindVertexArray(m_vao);
+    glDrawElements(GL_TRIANGLES, INDICES_PER_QUAD * 6, GL_UNSIGNED_SHORT, (void*)0); //offset
     glBindVertexArray(0);
 
+    // Unbind shader
+    m_program.unuse();  
 }
 
 void SkyboxRenderer::destroy() {
-    if (_vao) {
-        glDeleteVertexArrays(1, &_vao);
-        _vao = 0;
+    if (m_vao) {
+        glDeleteVertexArrays(1, &m_vao);
+        m_vao = 0;
     }
-    if (_vbo) {
-        vg::GpuMemory::freeBuffer(_vbo);
+    if (m_vbo) {
+        vg::GpuMemory::freeBuffer(m_vbo);
+        m_vbo = 0;
     }
-    if (_ibo) {
-        vg::GpuMemory::freeBuffer(_ibo);
+    if (m_ibo) {
+        vg::GpuMemory::freeBuffer(m_ibo);
+        m_ibo = 0;
     }
+    if (m_program.isCreated()) m_program.dispose();
 }
 
-void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
+void SkyboxRenderer::initShader() {
+    m_program = ShaderLoader::createProgram("Skybox", VERT_SRC, FRAG_SRC);
+
+    // Constant uniforms
+    m_program.use();
+    glUniform1i(m_program.getUniform("unTex"), 0);
+    m_program.unuse();
+}
+
+void SkyboxRenderer::initBuffers() {
     // Vertex Array Object
-    glGenVertexArrays(1, &_vao);
-    glBindVertexArray(_vao);
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
 
     // Vertex Buffer Object
-    vg::GpuMemory::createBuffer(_vbo);
-    vg::GpuMemory::bindBuffer(_vbo, vg::BufferTarget::ARRAY_BUFFER);
+    vg::GpuMemory::createBuffer(m_vbo);
+    vg::GpuMemory::bindBuffer(m_vbo, vg::BufferTarget::ARRAY_BUFFER);
 
     SkyboxVertex verts[VERTS_PER_QUAD * SKYBOX_FACES];
     for (int i = 0; i < VERTS_PER_QUAD * SKYBOX_FACES; i++) {
         verts[i].position = f32v3(skyboxVertices[i * 3],
                                   skyboxVertices[i * 3 + 1],
                                   skyboxVertices[i * 3 + 2]);
-        verts[i].texCoords = f32v2(skyboxUVs[i * 2], skyboxUVs[i * 2 + 1]);
+        verts[i].texCoords = f32v3(skyboxUVs[i * 2], skyboxUVs[i * 2 + 1], (f32)(i / VERTS_PER_QUAD));
     }
 
-    vg::GpuMemory::uploadBufferData(_vbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(verts), verts, vg::BufferUsageHint::STATIC_DRAW);
+    vg::GpuMemory::uploadBufferData(m_vbo, vg::BufferTarget::ARRAY_BUFFER, sizeof(verts), verts, vg::BufferUsageHint::STATIC_DRAW);
 
-    vg::GpuMemory::createBuffer(_ibo);
-    vg::GpuMemory::bindBuffer(_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
+    vg::GpuMemory::createBuffer(m_ibo);
+    vg::GpuMemory::bindBuffer(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER);
 
     // Index buffer Object
     ui16 skyboxIndices[INDICES_PER_QUAD * SKYBOX_FACES];
@@ -126,10 +156,11 @@ void SkyboxRenderer::initBuffers(vg::GLProgram* program) {
         skyboxIndices[i + 5] = ci;
     }
 
-    vg::GpuMemory::uploadBufferData(_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), skyboxIndices, vg::BufferUsageHint::STATIC_DRAW);
+    vg::GpuMemory::uploadBufferData(m_ibo, vg::BufferTarget::ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), skyboxIndices, vg::BufferUsageHint::STATIC_DRAW);
 
     // Set up attribute pointers
-    program->enableVertexAttribArrays();
-    glVertexAttribPointer(program->getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, position));
-    glVertexAttribPointer(program->getAttribute("vUV"), 2, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, texCoords));
+    m_program.enableVertexAttribArrays();
+    glVertexAttribPointer(m_program.getAttribute("vPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, position));
+    glVertexAttribPointer(m_program.getAttribute("vUVW"), 3, GL_FLOAT, GL_FALSE, sizeof(SkyboxVertex), offsetptr(SkyboxVertex, texCoords));
+    glBindVertexArray(0);
 }

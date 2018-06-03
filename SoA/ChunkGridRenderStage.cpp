@@ -2,130 +2,180 @@
 #include "ChunkGridRenderStage.h"
 
 #include <Vorb/graphics/GLProgram.h>
-#include <Vorb/graphics/Mesh.h>
 
 #include "Camera.h"
 #include "Chunk.h"
 #include "Frustum.h"
 #include "GameRenderParams.h"
+#include "ShaderLoader.h"
+#include "soaUtils.h"
+#include "ChunkGrid.h"
 
-ChunkGridRenderStage::ChunkGridRenderStage(const GameRenderParams* gameRenderParams,
-                                           const std::vector<ChunkSlot>& chunkSlots) :
-    _gameRenderParams(gameRenderParams),
-    _chunkSlots(chunkSlots) {
-    // Empty
+namespace {
+    // Default shader source
+    const cString VERT_SRC = R"(
+uniform mat4 MVP;
+
+in vec3 vPosition;
+in vec4 vTint;
+in vec2 vUV;
+
+out vec4 fTint;
+
+void main() {
+    fTint = vTint;
+    gl_Position = MVP * vec4(vPosition, 1.0);
+}
+)";
+    const cString FRAG_SRC = R"(
+uniform float unZCoef;
+
+in vec4 fTint;
+
+out vec4 fColor;
+
+void main() {
+    fColor = fTint;
+}
+)";
 }
 
+void ChunkGridRenderStage::hook(const GameRenderParams* gameRenderParams) {
+    m_gameRenderParams = gameRenderParams;
+}
 
-ChunkGridRenderStage::~ChunkGridRenderStage() {
-    // Empty
+void ChunkGridRenderStage::init(vui::GameWindow* window, StaticLoadContext& context) {
+    m_vao = 0;
+    m_vbo = 0;
+    m_ibo = 0;
 }
 
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,
 /// it should not cause a crash. However data may be partially incorrect.
-void ChunkGridRenderStage::draw() {
-    if (!_isVisible) return;
+void ChunkGridRenderStage::render(const Camera* camera) {
+    if (!m_isActive) return;
+    if (!m_state) return;
+
+    const std::vector<DebugChunkData>& chunkData = m_state->debugChunkData;
+    
     // Element pattern
     const ui32 elementBuffer[24] = { 0, 1, 0, 2, 1, 3, 2, 3, 4, 5, 4, 6, 5, 7, 6, 7, 0, 4, 1, 5, 2, 6, 3, 7 };
-    // Shader that is lazily initialized
-    static vg::GLProgram* chunkLineProgram = nullptr;
     // The mesh that is built from the chunks
-    vcore::Mesh mesh;
-    mesh.init(vg::PrimitiveType::LINES, true);
-    // Reserve the number of vertices and indices we think we will need
-    mesh.reserve(_chunkSlots.size() * 8, _chunkSlots.size() * 24);
+
     // Build the mesh
-    Chunk* chunk;
     ColorRGBA8 color;
     // Used to build each grid
-    std::vector<vcore::MeshVertex> vertices(8);
-    std::vector<ui32> indices(24);
+    std::vector<ChunkGridVertex> vertices(chunkData.size() * 8);
+    std::vector<ui32> indices(chunkData.size() * 24);
     int numVertices = 0;
+    int numIndices = 0;
 
     f32v3 posOffset;
 
-    for (i32 i = 0; i < _chunkSlots.size(); i++) {
-        chunk = _chunkSlots[i].chunk;
-        if (!chunk) continue;
-        posOffset = f32v3(f64v3(chunk->gridPosition) - _gameRenderParams->chunkCamera->getPosition());
+    for (auto& data : chunkData) {
+        posOffset = f32v3(f64v3(data.voxelPosition) - m_gameRenderParams->chunkCamera->getPosition());
 
-        if (((chunk->mesh && chunk->mesh->inFrustum) || _gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))) {
+        if (true /*((chunk->mesh && chunk->mesh->inFrustum) || m_gameRenderParams->chunkCamera->sphereInFrustum(posOffset + f32v3(CHUNK_WIDTH / 2), 28.0f))*/) {
 
-            switch (chunk->getState()) {
-                case ChunkStates::GENERATE:
-                    color = ColorRGBA8(255, 0, 255, 255);
-                    break;
-                case ChunkStates::LOAD:
-                    color = ColorRGBA8(255, 255, 255, 255);
-                    break;
-                case ChunkStates::LIGHT:
-                    color = ColorRGBA8(255, 255, 0, 255);
-                    break;
-                case ChunkStates::TREES:
-                    color = ColorRGBA8(0, 128, 0, 255);
-                    break;
-                case ChunkStates::DRAW:
+            switch (data.genLevel) {
+                case GEN_DONE:
                     color = ColorRGBA8(0, 0, 255, 255);
                     break;
-                case ChunkStates::MESH:
+                case GEN_FLORA:
                     color = ColorRGBA8(0, 255, 0, 255);
                     break;
-                case ChunkStates::WATERMESH:
-                    color = ColorRGBA8(0, 255, 255, 255);
-                    break;
                 default:
-                    color = ColorRGBA8(0, 0, 0, 255);
+                    color = ColorRGBA8(255, 0, 0, 255);
                     break;
             }
             for (int i = 0; i < 8; i++) {
-                vertices[i].color = color;
-                vertices[i].uv = f32v2(0.0f, 0.0f);
+                vertices[numVertices + i].color = color;
+                vertices[numVertices + i].uv = f32v2(0.0f, 0.0f);
             }
             // Build the indices
             for (int i = 0; i < 24; i++) {
-                indices[i] = numVertices + elementBuffer[i];
+                indices.push_back(numVertices + elementBuffer[i]);
             }
+            
+            // Build the vertices
+            const f32 gmin = 0.01f;
+            const f32 gmax = 31.99f;
+            vertices[numVertices + 0].position = f32v3(gmin, gmin, gmin) + posOffset;
+            vertices[numVertices + 1].position = f32v3(gmax, gmin, gmin) + posOffset;
+            vertices[numVertices + 2].position = f32v3(gmin, gmin, gmax) + posOffset;
+            vertices[numVertices + 3].position = f32v3(gmax, gmin, gmax) + posOffset;
+            vertices[numVertices + 4].position = f32v3(gmin, gmax, gmin) + posOffset;
+            vertices[numVertices + 5].position = f32v3(gmax, gmax, gmin) + posOffset;
+            vertices[numVertices + 6].position = f32v3(gmin, gmax, gmax) + posOffset;
+            vertices[numVertices + 7].position = f32v3(gmax, gmax, gmax) + posOffset;
+
             numVertices += 8;
-            if (chunk->getState() != ChunkStates::INACTIVE) {
-                // Build the vertices
-                const float gmin = 0.00001;
-                const float gmax = 31.9999;
-                vertices[0].position = f32v3(gmin, gmin, gmin) + posOffset;
-                vertices[1].position = f32v3(gmax, gmin, gmin) + posOffset;
-                vertices[2].position = f32v3(gmin, gmin, gmax) + posOffset;
-                vertices[3].position = f32v3(gmax, gmin, gmax) + posOffset;
-                vertices[4].position = f32v3(gmin, gmax, gmin) + posOffset;
-                vertices[5].position = f32v3(gmax, gmax, gmin) + posOffset;
-                vertices[6].position = f32v3(gmin, gmax, gmax) + posOffset;
-                vertices[7].position = f32v3(gmax, gmax, gmax) + posOffset;
-            }
-            mesh.addVertices(vertices, indices);
+            numIndices += 24;
         }
     }
-    // Check if a non-empty mesh was built
-    if (numVertices != 0) {
-        // Upload the data
-        mesh.uploadAndClearLocal();
-        // Lazily initialize shader
-        if (chunkLineProgram == nullptr) {
-            chunkLineProgram = new vg::GLProgram(true);
-            chunkLineProgram->addShader(vg::ShaderType::VERTEX_SHADER, vcore::Mesh::defaultVertexShaderSource);
-            chunkLineProgram->addShader(vg::ShaderType::FRAGMENT_SHADER, vcore::Mesh::defaultFragmentShaderSource);
-            chunkLineProgram->setAttributes(vcore::Mesh::defaultShaderAttributes);
-            chunkLineProgram->link();
-            chunkLineProgram->initUniforms();
-        }
-        // Bind the program
-        chunkLineProgram->use();
-        // Set Matrix
-        glUniformMatrix4fv(chunkLineProgram->getUniform("MVP"), 1, GL_FALSE, &(_gameRenderParams->VP[0][0]));
-        // Set Texture
-        glUniform1i(chunkLineProgram->getUniform("tex"), 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, BlankTextureID.id);
-        // Draw the grid
-        mesh.draw();
-        // Unuse the program
-        chunkLineProgram->unuse();
-    }
+
+    // Check for non-empty mesh then draw
+    if(numVertices != 0) drawGrid(vertices, indices);
+}
+
+void ChunkGridRenderStage::dispose(StaticLoadContext& context) {
+    if(m_vao != 0)  glDeleteVertexArrays(1, &m_vao);
+    if(m_vbo != 0)  glDeleteBuffers(1, &m_vbo);
+    if(m_ibo != 0)  glDeleteBuffers(1, &m_ibo);
+}
+
+void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::vector<ui32> indices) {
+    if(m_vao == 0) glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+    // Generate and bind VBO
+    if(m_vbo == 0) glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    // Generate and bind element buffer
+    if(m_ibo == 0) glGenBuffers(1, &m_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+
+    // Set attribute arrays
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    // Set attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, position));
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, color));
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(ChunkGridVertex), offsetptr(ChunkGridVertex, uv));
+    // Unbind VAO
+    glBindVertexArray(0);
+
+    // Upload the data
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ChunkGridVertex)* vertices.size(), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ChunkGridVertex)* vertices.size(), vertices.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLuint numVertices = vertices.size();
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32)* indices.size(), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(ui32)* indices.size(), indices.data());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    GLsizei numIndices = (GLsizei)indices.size();
+
+    // Lazily initialize shader
+    if(!m_program.isCreated()) m_program = ShaderLoader::createProgram("ChunkLine", VERT_SRC, FRAG_SRC);
+
+    // Bind the program
+    m_program.use();
+
+    // Set Matrix
+    glUniformMatrix4fv(m_program.getUniform("MVP"), 1,
+        GL_FALSE,
+        &(m_gameRenderParams->chunkCamera->getViewProjectionMatrix()[0][0]));
+    // Draw the grid     
+    // Bind the VAO
+    glBindVertexArray(m_vao);
+    // Perform draw call
+    glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+
+    // Unuse the program
+    m_program.unuse();
 }

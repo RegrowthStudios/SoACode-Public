@@ -6,10 +6,11 @@
 #include "Constants.h"
 #include "LiquidData.h"
 
-DECL_VIO(class, IOManager)
+DECL_VIO(class IOManager)
 
 class ChunkManager;
 class Chunk;
+class PhysicsEngine;
 
 /// Resolution of CA updates in frames
 #define CA_TICK_RES 4
@@ -20,7 +21,7 @@ class CaPhysicsData {
 public:
     ui32 liquidLevels = 0; ///< Number of block IDs reserved for liquid
     ui32 updateRate = 0; ///< Update speed of the CA
-    CA_ALGORITHM alg; ///< CA algorithm to use
+    CAAlgorithm alg; ///< CA algorithm to use
 };
 KEG_TYPE_DECL(CaPhysicsData);
 
@@ -43,7 +44,7 @@ public:
     // Getters
     const int& getCaIndex() const { return _caIndex; }
     const ui32& getUpdateRate() const { return _data.updateRate; }
-    const CA_ALGORITHM& getCaAlg() const { return _data.alg; }
+    const CAAlgorithm& getCaAlg() const { return _data.alg; }
     const bool& getIsEven() const { return _isEven; }
 
     // Static functions
@@ -65,7 +66,7 @@ private:
 
 class CAEngine {
 public:
-    CAEngine();
+    CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine);
     void setChunk(Chunk* chunk) { _chunk = chunk; }
     void updateSpawnerBlocks(bool powders);
     void updateLiquidBlocks(int caIndex);
@@ -81,6 +82,8 @@ private:
     i32 _highIndex;
     std::vector<ui16> _usedUpdateFlagList;
     bool _blockUpdateFlagList[CHUNK_SIZE];
-    Chunk* _chunk;
-    Chunk* _lockedChunk;
+    Chunk* _chunk = nullptr;
+    Chunk* _lockedChunk = nullptr;
+    ChunkManager* m_chunkManager = nullptr;
+    PhysicsEngine* m_physicsEngine = nullptr;
 };

@@ -1,8 +1,8 @@
 #pragma once
-class SpriteBatch;
-class SpriteFont;
+#include <Vorb/VorbPreDecl.inl>
+DECL_VG(class SpriteBatch; class SpriteFont);
 
-struct LoadBarCommonProperties {
+class LoadBarCommonProperties {
 public:
     LoadBarCommonProperties(const f32v2& offset, const f32v2& size, const f32& moveSpeed, const f32v2& textOffset, const f32& textSize);
     LoadBarCommonProperties() : LoadBarCommonProperties(f32v2(0), f32v2(0), 0, f32v2(0), 0) {}
@@ -43,7 +43,7 @@ public:
 
     void update(f32 dt);
 
-    void draw(SpriteBatch* sb, SpriteFont* sf, ui32 backTexture, f32 depth);
+    void draw(vg::SpriteBatch* sb, vg::SpriteFont* sf, ui32 backTexture, f32 depth);
 private:
     nString _text;
 

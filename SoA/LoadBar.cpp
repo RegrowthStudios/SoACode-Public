@@ -9,7 +9,7 @@ size(size),
 movementSpeed(moveSpeed),
 textOffset(textOffset),
 textSize(textSize) {
-    offsetLength = glm::length(offsetDirection);
+    offsetLength = vmath::length(offsetDirection);
     offsetDirection *= (1.0f / offsetLength);
 }
 
@@ -65,9 +65,9 @@ void LoadBar::update(f32 dt) {
     }
 }
 
-void LoadBar::draw(SpriteBatch* sb, SpriteFont* sf, ui32 backTexture, f32 depth) {
+void LoadBar::draw(vg::SpriteBatch* sb, vg::SpriteFont* sf, ui32 backTexture, f32 depth) {
     f32v2 endPos = _startPosition + (_commonProps.offsetDirection * _lerpAmount);
     sb->draw(backTexture, endPos, _commonProps.size, _colorBackground, depth);
     endPos += _commonProps.textOffset;
-    sb->drawString(sf, _text.c_str(), endPos, _commonProps.textSize, 1.0f, _colorText, depth - 0.001f);
+    sb->drawString(sf, _text.c_str(), endPos, _commonProps.textSize, 1.0f, _colorText, vg::TextAlign::TOP_LEFT, depth - 0.001f);
 }

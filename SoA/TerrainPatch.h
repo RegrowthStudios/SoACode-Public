@@ -1,171 +1,118 @@
+///
+/// TerrainPatch.h
+/// Seed of Andromeda
+///
+/// Created by Benjamin Arnold on 15 Dec 2014
+/// Copyright 2014 Regrowth Studios
+/// All Rights Reserved
+///
+/// Summary:
+/// A terrain patch for use with a SphericalTerrainComponent
+///
+
 #pragma once
-#include <Vorb/graphics/GLProgram.h>
 
-#include "Frustum.h"
-#include "TerrainGenerator.h"
+#ifndef TerrainPatch_h__
+#define TerrainPatch_h__
 
-const int scale = (int)planetScale;
+#include "VoxelCoordinateSpaces.h"
+#include "TerrainPatchConstants.h"
+#include "VoxPool.h"
 
-const int maxVertexWidth = 32;
-const int DetailLevels = 14;
+#include <Vorb/graphics/gtypes.h>
 
-extern int lodDetailLevels[DetailLevels+3];
-extern int lodDistanceLevels[DetailLevels];
+class TerrainPatchMesh;
+class TerrainPatchMesher;
+class SphericalHeightmapGenerator;
+class TerrainPatchMeshManager;
 
-extern int WaterIndexMap[(maxVertexWidth + 3)*(maxVertexWidth + 3) * 2];
-extern int MakeWaterQuadMap[(maxVertexWidth + 3)*(maxVertexWidth + 3)];
+// Shared data for terrain patches
+struct TerrainPatchData { // TODO(Ben): probably dont need this
+    friend struct SphericalTerrainComponent;
 
-extern std::vector<TerrainVertex> tvboVerts; //this is bigger that it needs to be but whatever
-extern std::vector<ui16> lodIndices;
+    TerrainPatchData(f64 radius, f64 patchWidth,
+                     SphericalHeightmapGenerator* generator,
+                     TerrainPatchMeshManager* meshManager,
+                     vcore::ThreadPool<WorkerData>* threadPool) :
+        radius(radius),
+        patchWidth(patchWidth),
+        generator(generator),
+        meshManager(meshManager),
+        threadPool(threadPool) {
+        // Empty
+    }
 
-class Camera;
-
-struct TerrainBuffers{
-    TerrainBuffers() : vboID(0), vaoID(0), vboIndexID(0), treeVboID(0), indexSize(0), treeIndexSize(0), vecIndex(-1), inFrustum(0), distance(0.0){}
-    GLuint vboID;
-    GLuint vaoID;
-    GLuint vboIndexID;
-    GLuint treeVboID;
-    int indexSize;
-    int treeIndexSize;
-    int worldX, worldY, worldZ;
-    int drawX, drawY, drawZ, vecIndex;
-    int cullRadius;
-    double distance;
-    bool inFrustum;
-    f32v3 boundingBox;
+    f64 radius; ///< Radius of the planet in KM
+    f64 patchWidth; ///< Width of a patch in KM
+    SphericalHeightmapGenerator* generator;
+    TerrainPatchMeshManager* meshManager;
+    vcore::ThreadPool<WorkerData>* threadPool;
 };
 
-struct TerrainMeshMessage{
-    TerrainMeshMessage() : terrainBuffers(NULL), verts(NULL), indices(NULL), treeVerts(NULL), index(0), indexSize(0), treeIndexSize(0), face(0){}
-    TerrainBuffers* terrainBuffers;
-    TerrainVertex *verts;
-    GLushort *indices;
-    TreeVertex *treeVerts;
-    int face;
-    int index;
-    int indexSize;
-    int treeIndexSize;
-    int worldX, worldY, worldZ;
-    int drawX, drawY, drawZ, vecIndex;
-    int cullRadius;
-    f32v3 boundingBox;
-};
-
-class TerrainPatch{
+// TODO(Ben): Sorting
+// fix redundant quality changes
+class TerrainPatch {
 public:
-    bool debug;
-    int X, Y, Z;
-    int drawX, drawY, drawZ;
-    int cX, cY, cZ;
-    int worldX, worldY, worldZ;
-    int radius;
-    int scaledRadius;
-    int face;
-    int step;
-    int lodMapStep;
-    int lodMapSize;
-    short detailLevel;
-    bool hasSkirt;
-    bool hasProperDist;
-    bool hasBoundingBox;
-    int vecIndex;
-    int updateVecIndex;
-    int distance;
-    int width;
-    float cullRadius;
-    bool drawTrees;
-
-    HeightData *lodMap;
-    TerrainPatch* lods[4];
-    TerrainPatch *parent;
-    TerrainBuffers *terrainBuffers;
-    volatile bool hasBuffers;
-    //0 = no update needed. 1 = update needed 2 = child deletion needed 
-    int updateCode;
-    int childNum;
-
-    TerrainPatch(int lodWidth);
-    ~TerrainPatch();
-
-    void NullifyBuffers();
-    void ClearBuffers();
-    void ClearTreeBuffers();
-    void ClearLODMap();
-
-    void DeleteChildren();
-    // Initializes the LOD and computes distance
-    void Initialize(int x, int y, int z, int wx, int wy, int wz, int Radius, int Face, TerrainPatch *Parent = nullptr, int ChildNum = -1, int initialDetail = -1);
-    static void Draw(TerrainBuffers *tb, const Camera* camera, const glm::dvec3 &PlayerPos, const glm::dvec3 &rotPlayerPos, const glm::mat4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    static void DrawTrees(TerrainBuffers *tb, const vg::GLProgram* program, const glm::dvec3 &PlayerPos, const glm::mat4 &VP);
-    static bool CheckHorizon(const glm::dvec3 &PlayerPoss, const glm::dvec3 &ClosestPoint);
-    //inline void ExtractChildData();
-    bool CreateMesh();
+    TerrainPatch() { };
+    virtual ~TerrainPatch();
     
-    inline void CreateChildren(int wx, int wy, int wz, int initialDetail = -1);
-    int update(int wx, int wy, int wz);
-    void CalculateDetailLevel(double dist, int threshold);
-    void SortChildren();
+    /// Initializes the patch
+    /// @param gridPosition: Position on the 2d face grid
+    /// @param sphericalTerrainData: Shared data
+    /// @param width: Width of the patch in KM
+    virtual void init(const f64v2& gridPosition,
+              WorldCubeFace cubeFace,
+              int lod,
+              const TerrainPatchData* sphericalTerrainData,
+              f64 width);
 
-    f32v3 worldNormal;
-    f32v3 boundingBox;
-    f64v3 closestPoint;
+    /// Updates the patch
+    /// @param cameraPos: Position of the camera
+    virtual void update(const f64v3& cameraPos);
+
+    /// Frees resources
+    void destroy();
+
+    /// @return true if it has a generated mesh
+    bool hasMesh() const;
+
+    /// @return true if it has a mesh, or all of its children are
+    /// renderable.
+    bool isRenderable() const;
+
+                            
+    static bool isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, f64 planetRadius);
+
+    static void setQuality(int quality);
+
+    /// Returns true if the patch can subdivide
+    bool canSubdivide() const;
+protected:
+    /// Requests a mesh via RPC
+    void requestMesh(bool isSpherical);
+    /// Calculates the closest point to the camera, as well as distance
+    /// @param cameraPos: position of the observer
+    /// @return closest point on the AABB
+    f64v3 calculateClosestPointAndDist(const f64v3& cameraPos);
+
+    static f32 DIST_MIN;
+    static f32 DIST_MAX;
+    static f32 MIN_SIZE;
+    static int PATCH_MAX_LOD;
+
+    f64v2 m_gridPos = f64v2(0.0); ///< Position on 2D grid
+    f64v3 m_aabbPos = f64v3(0.0); ///< Position relative to world
+    f64v3 m_aabbDims = f64v3(0.0);
+    f64 m_distance = 1000000000.0; ///< Distance from camera
+    int m_lod = 0; ///< Level of detail
+    WorldCubeFace m_cubeFace; ///< Which cube face grid it is on
+
+    f64 m_width = 0.0; ///< Width of the patch in KM
+
+    TerrainPatchMesh* m_mesh = nullptr;
+
+    const TerrainPatchData* m_terrainPatchData = nullptr; ///< Shared data pointer
+    TerrainPatch* m_children = nullptr; ///< Pointer to array of 4 children
 };
 
-class CloseTerrainPatch{
-public:
-    int X, Y, Z;
-    int cX, cY, cZ;
-  //  FaceData faceData;
-    int step;
-    int lodMapStep;
-    int lodMapSize;
-    short detailLevel;
-    int indexSize;
-    int treeIndexSize;
-    bool hasMesh;
-    bool hasSkirt;
-    bool hasProperDist;
-    bool hasBoundingBox;
-    int vecIndex;
-    int updateVecIndex;
-    int distance;
-    int width;
-    float cullRadius;
-    bool drawTrees;
-    bool waitForMesh;
-
-    HeightData *lodMap;
-    CloseTerrainPatch* lods[4];
-    CloseTerrainPatch *parent;
-    GLuint vboID;
-    GLuint vaoID;
-    GLuint vboIndexID;
-    GLuint treeVboID;
-    //0 = no update needed. 1 = update needed 2 = child deletion needed 
-    int updateCode;
-    int childNum;
-
-    CloseTerrainPatch(int lodWidth);
-    ~CloseTerrainPatch();
-
-    void ClearBuffers();
-    void ClearTreeBuffers();
-    void ClearLODMap();
-
-    void DeleteChildren();
-    //itinializes the LOD and computes distance
-    void Initialize(int x, int y, int z, int wx, int wy, int wz, CloseTerrainPatch *Parent = NULL, int ChildNum = -1, int initialDetail = -1);
-    void Draw(f64v3 &PlayerPos, f64v3 &rotPlayerPos, f32m4 &VP, GLuint mvpID, GLuint worldOffsetID, bool onPlanet);
-    void DrawTrees(f64v3 &PlayerPos, f32m4 &VP);
-    //inline void ExtractChildData();
-    bool CreateMesh();
-
-    inline void CreateChildren(int wx, int wy, int wz, int initialDetail = -1);
-    int update(int wx, int wy, int wz);
-    void CalculateDetailLevel(double dist, int threshold);
-    void SortChildren();
-
-    f32v3 boundingBox;
-    f64v3 closestPoint;
-};
+#endif // TerrainPatch_h__

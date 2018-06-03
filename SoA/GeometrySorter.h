@@ -1,7 +1,11 @@
 #pragma once
-struct ChunkMesh;
 
-struct DistanceStruct {
+#include <vector>
+
+class ChunkMesh;
+
+class Distanceclass {
+public:
     i32 quadIndex;
     i32 distance;
 };
@@ -13,5 +17,5 @@ public:
 private:
 
 
-    static std::vector <DistanceStruct> _distBuffer;
+    static std::vector <Distanceclass> _distBuffer;
 };

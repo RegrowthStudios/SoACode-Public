@@ -15,13 +15,11 @@
 #include "BlockData.h"
 #include "Chunk.h"
 #include "Errors.h"
-#include "FileSystem.h"
 #include "GameManager.h"
-#include "Options.h"
-#include "Planet.h"
-#include "Player.h"
+#include "SoaOptions.h"
 
-ChunkIOManager::ChunkIOManager()
+ChunkIOManager::ChunkIOManager(const nString& saveDir) :
+    _regionFileManager(saveDir)
 {
     _isThreadFinished = 0;
     readWriteThread = NULL;
@@ -34,7 +32,7 @@ ChunkIOManager::~ChunkIOManager()
 }
 
 void ChunkIOManager::clear() {
-    Chunk* tmp;
+    Chunk*  tmp;
     _queueLock.lock();
     //flush queues
     while (chunksToLoad.try_dequeue(tmp));
@@ -48,19 +46,19 @@ void ChunkIOManager::clear() {
 }
 
 
-void ChunkIOManager::addToSaveList(Chunk *ch)
+void ChunkIOManager::addToSaveList(Chunk* ch)
 {
-    if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
-        ch->dirty = 0;
-        ch->inSaveThread = 1;
-        chunksToSave.enqueue(ch);
-        _cond.notify_one();
-    }
+    //if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
+    //    ch->dirty = 0;
+    //    ch->inSaveThread = 1;
+    //    chunksToSave.enqueue(ch);
+    //    _cond.notify_one();
+    //}
 }
 
-void ChunkIOManager::addToSaveList(std::vector <Chunk *> &chunks)
+void ChunkIOManager::addToSaveList(std::vector <Chunk* > &chunks)
 {
-    Chunk *ch;
+  /*  NChunk* ch;
     for (size_t i = 0; i < chunks.size(); i++){
         ch = chunks[i];
         if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
@@ -69,22 +67,22 @@ void ChunkIOManager::addToSaveList(std::vector <Chunk *> &chunks)
             chunksToSave.enqueue(ch);
         }
     }
-    _cond.notify_one();
+    _cond.notify_one();*/
 }
 
-void ChunkIOManager::addToLoadList(Chunk *ch)
+void ChunkIOManager::addToLoadList(Chunk* ch)
 {
-    if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
+  /*  if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
         ch->loadStatus = 0;
         ch->inLoadThread = 1;
         chunksToLoad.enqueue(ch);
         _cond.notify_one();
-    }
+    }*/
 }
 
-void ChunkIOManager::addToLoadList(std::vector <Chunk *> &chunks)
+void ChunkIOManager::addToLoadList(std::vector <Chunk* > &chunks)
 {
-    Chunk *ch;
+   /* NChunk* ch;
 
     if (_shouldDisableLoading) {
         for (size_t i = 0; i < chunks.size(); i++){
@@ -102,54 +100,54 @@ void ChunkIOManager::addToLoadList(std::vector <Chunk *> &chunks)
             chunksToLoad.enqueue(ch);
         }
         else{
-            std::cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << ch->gridPosition.x << " " << ch->gridPosition.y << " " << ch->gridPosition.z << std::endl;
+            std::cout << "ERROR: Tried to add chunk to load list and its in a thread! : " << (int)ch->inSaveThread << " " << (int)ch->inLoadThread << " " << ch->voxelPosition.z << std::endl;
         }
     }
-    _cond.notify_one();
+    _cond.notify_one();*/
 }
 
 void ChunkIOManager::readWriteChunks()
 {
-    std::unique_lock<std::mutex> queueLock(_queueLock);
-    Chunk *ch;
+    //std::unique_lock<std::mutex> queueLock(_queueLock);
+    //NChunk* ch;
 
-    nString reg;
+    //nString reg;
 
-    while (!_isDone){
-        if (_isDone){
-            _regionFileManager.clear();
-            queueLock.unlock();
-            _isThreadFinished = 1;
-            return;
-        }
-        _regionFileManager.flush();
-        _cond.wait(queueLock); //wait for a notification that queue is not empty
+    //while (!_isDone){
+    //    if (_isDone){
+    //        _regionFileManager.clear();
+    //        queueLock.unlock();
+    //        _isThreadFinished = 1;
+    //        return;
+    //    }
+    //    _regionFileManager.flush();
+    //    _cond.wait(queueLock); //wait for a notification that queue is not empty
 
-        if (_isDone){
-            _regionFileManager.clear();
-            _isThreadFinished = 1;
-            queueLock.unlock();
-            return;
-        }
-        queueLock.unlock();
+    //    if (_isDone){
+    //        _regionFileManager.clear();
+    //        _isThreadFinished = 1;
+    //        queueLock.unlock();
+    //        return;
+    //    }
+    //    queueLock.unlock();
 
-        // All tasks
-        while (chunksToLoad.try_dequeue(ch) || chunksToSave.try_dequeue(ch)) {
-            if (ch->getState() == ChunkStates::LOAD) {
-                if (_regionFileManager.tryLoadChunk(ch) == false) {
-                    ch->loadStatus = 1;
-                }
+    //    // All tasks
+    //    while (chunksToLoad.try_dequeue(ch) || chunksToSave.try_dequeue(ch)) {
+    //        if (ch->getState() == ChunkStates::LOAD) {
+    //            if (1 || _regionFileManager.tryLoadChunk(ch) == false) {
+    //                ch->loadStatus = 1;
+    //            }
 
-                finishedLoadChunks.enqueue(ch);
-            } else { //save
-                _regionFileManager.saveChunk(ch);
-                ch->inSaveThread = 0; //race condition?
-            }
-           
-        }
+    //            finishedLoadChunks.enqueue(ch);
+    //        } else { //save
+    //           // _regionFileManager.saveChunk(ch);
+    //            ch->inSaveThread = 0; //race condition?
+    //        }
+    //       
+    //    }
 
-        queueLock.lock();
-    }
+    //    queueLock.lock();
+    //}
 }
 
 void ChunkIOManager::beginThread()

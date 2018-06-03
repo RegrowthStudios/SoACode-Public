@@ -1,11 +1,11 @@
 #pragma once
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/VorbPreDecl.inl>
 
 class App;
-class SpriteBatch;
-class SpriteFont;
+DECL_VG(class SpriteBatch;  class SpriteFont);
 
-class InitScreen : public IAppScreen<App> {
+class InitScreen : public vui::IAppScreen<App> {
 public:
     CTOR_APP_SCREEN_INL(InitScreen, App) {
     }
@@ -14,14 +14,13 @@ public:
     virtual i32 getPreviousScreen() const;
 
     virtual void build();
-    virtual void destroy(const GameTime& gameTime);
+    virtual void destroy(const vui::GameTime& gameTime);
 
-    virtual void onEntry(const GameTime& gameTime);
-    virtual void onExit(const GameTime& gameTime);
+    virtual void onEntry(const vui::GameTime& gameTime);
+    virtual void onExit(const vui::GameTime& gameTime);
 
-    virtual void onEvent(const SDL_Event& e);
-    virtual void update(const GameTime& gameTime);
-    virtual void draw(const GameTime& gameTime);
+    virtual void update(const vui::GameTime& gameTime);
+    virtual void draw(const vui::GameTime& gameTime);
 
 private:
     void buildSpriteResources();
@@ -30,7 +29,7 @@ private:
     // Check Requirements And Draws Results
     void checkRequirements();
 
-    SpriteBatch* _sb;
-    SpriteFont* _font;
-    bool _canContinue;
+    vg::SpriteBatch* m_sb;
+    vg::SpriteFont* m_font;
+    bool m_canContinue;
 };

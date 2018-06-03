@@ -1,12 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="12.0">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugXP|Win32">
+      <Configuration>DebugXP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugXP|x64">
+      <Configuration>DebugXP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseXP|Win32">
+      <Configuration>ReleaseXP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseXP|x64">
+      <Configuration>ReleaseXP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -30,13 +46,32 @@
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120_xp</PlatformToolset>
@@ -46,7 +81,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -56,17 +98,58 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)deps\win32\include;$(SolutionDir);$(SolutionDir)deps\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+    <TargetName>SoA</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'">
+    <IncludePath>$(SolutionDir)deps\win32\include;$(SolutionDir);$(SolutionDir)deps\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+    <TargetName>SoA</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(SolutionDir)bin\lib\$(PlatformName)\$(PlatformTarget)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IntDir>$(Configuration)</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+    <TargetName>SoA</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">
+    <IncludePath>$(SolutionDir)deps\win32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\win32\lib;$(SolutionDir)bin\lib\$(PlatformName)\$(PlatformTarget)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IntDir>$(Configuration)</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
@@ -76,7 +159,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>SoA</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'">
+    <TargetName>SoA</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
   </PropertyGroup>
@@ -87,10 +177,24 @@
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
     <TargetName>SoA</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <TargetName>SoA</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>SoA</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'">
+    <TargetName>SoA</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(PlatformName)\$(Configuration)\SoA\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformName)\$(Configuration)\SoA\</IntDir>
   </PropertyGroup>
@@ -98,8 +202,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;$(SolutionDir)Vorb\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;VORB_IMPL_GRAPHICS_OPENGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -113,7 +218,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb-d.lib;fmodexL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -124,20 +229,63 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VORB_USING_PCH;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;VORB_IMPL_GRAPHICS_OPENGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;XP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>true</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run the Vorb copy script</Message>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;$(SolutionDir)Vorb\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -150,7 +298,7 @@ EXIT 0</Command>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb-d.lib;fmodexL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -161,13 +309,54 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Vorb-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run the Vorb copy script</Message>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -175,11 +364,11 @@ EXIT 0</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;$(SolutionDir)Vorb\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -194,10 +383,11 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb.lib;fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
@@ -205,13 +395,62 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;XP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run the Vorb copy script</Message>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -219,11 +458,11 @@ EXIT 0</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;$(SolutionDir)Vorb\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WINDOWS;_CRT_SECURE_NO_WARNINGS;TYPES_GLM;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
@@ -238,10 +477,11 @@ EXIT 0</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;awesomium.lib;Winmm.lib;Vorb.lib;fmodex64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
@@ -249,81 +489,227 @@ EXIT 0</Command>
       <Message>Copying dependencies to output directory</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>
-      </Message>
+      <Message>Run the Vorb copy script</Message>
     </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PreprocessorDefinitions>VORB_USING_PCH;VORB_USING_SCRIPT;VORB_IMPL_GRAPHICS_OPENGL;BT_USE_DOUBLE_PRECISION;WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Vorb.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\lib\$(PlatformName)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Command>robocopy /XO /E "$(SolutionDir)deps\dll\$(PlatformName)\$(Configuration)\ " "$(OutDir) " * /XD ".git"
+EXIT 0</Command>
+      <Message>Copying dependencies to output directory</Message>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)
+$(SolutionDir)VorbCopy.bat</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Run the Vorb copy script</Message>
+    </PreBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AABBCollidableComponentUpdater.h" />
     <ClInclude Include="AmbienceLibrary.h" />
     <ClInclude Include="AmbiencePlayer.h" />
     <ClInclude Include="AmbienceStream.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="ChunkAccessor.h" />
+    <ClInclude Include="ChunkID.h" />
+    <ClInclude Include="ChunkQuery.h" />
+    <ClInclude Include="ChunkSphereComponentUpdater.h" />
+    <ClInclude Include="ClientState.h" />
+    <ClInclude Include="ConsoleTests.h" />
+    <ClInclude Include="Density.h" />
+    <ClInclude Include="DLLAPI.h" />
     <ClInclude Include="ARProcessor.h" />
-    <ClInclude Include="AwesomiumInterface.h" />
-    <ClInclude Include="AwesomiumRenderStage.h" />
+    <ClInclude Include="AtmosphereComponentRenderer.h" />
+    <ClInclude Include="AxisRotationComponentUpdater.h" />
+    <ClInclude Include="Biome.h" />
     <ClInclude Include="BlockPack.h" />
+    <ClInclude Include="BlockTexture.h" />
     <ClInclude Include="BlockTextureMethods.h" />
+    <ClInclude Include="BlockTexturePack.h" />
+    <ClInclude Include="BloomRenderStage.h" />
     <ClInclude Include="CellularAutomataTask.h" />
+    <ClInclude Include="ChunkAllocator.h" />
     <ClInclude Include="ChunkGridRenderStage.h" />
+    <ClInclude Include="ChunkHandle.h" />
+    <ClInclude Include="ChunkMeshManager.h" />
+    <ClInclude Include="ChunkMeshTask.h" />
+    <ClInclude Include="CommonState.h" />
+    <ClInclude Include="CloudsComponentRenderer.h" />
+    <ClInclude Include="CollisionComponentUpdater.h" />
+    <ClInclude Include="ColoredFullQuadRenderer.h" />
+    <ClInclude Include="ColorFilterRenderStage.h" />
     <ClInclude Include="Computer.h" />
-    <ClInclude Include="DevScreen.h" />
-    <ClInclude Include="FloraTask.h" />
-    <ClInclude Include="GamePlayScreenEvents.hpp" />
+    <ClInclude Include="ConsoleFuncs.h" />
+    <ClInclude Include="ConsoleMain.h" />
+    <ClInclude Include="DLLLoader.h" />
+    <ClInclude Include="DualContouringMesher.h" />
+    <ClInclude Include="ECSTemplates.h" />
+    <ClInclude Include="FarTerrainComponentRenderer.h" />
+    <ClInclude Include="FarTerrainComponentUpdater.h" />
+    <ClInclude Include="FarTerrainPatch.h" />
+    <ClInclude Include="Flora.h" />
+    <ClInclude Include="FrustumComponentUpdater.h" />
     <ClInclude Include="CutoutVoxelRenderStage.h" />
     <ClInclude Include="DevHudRenderStage.h" />
-    <ClInclude Include="GamePlayRenderPipeline.h" />
-    <ClInclude Include="GamePlayScreen.h" />
+    <ClInclude Include="GameplayLoadScreen.h" />
+    <ClInclude Include="GameplayRenderer.h" />
+    <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="GameRenderParams.h" />
-    <ClInclude Include="HardCodedIDs.h" />
+    <ClInclude Include="GameSystem.h" />
+    <ClInclude Include="GameSystemComponentBuilders.h" />
+    <ClInclude Include="GameSystemComponents.h" />
+    <ClInclude Include="GameSystemAssemblages.h" />
+    <ClInclude Include="GameSystemUpdater.h" />
+    <ClInclude Include="GasGiantComponentRenderer.h" />
     <ClInclude Include="HdrRenderStage.h" />
     <ClInclude Include="BlockLoader.h" />
-    <ClInclude Include="GLProgramManager.h" />
-    <ClInclude Include="IAwesomiumAPI.h" />
-    <ClInclude Include="IAwesomiumInterface.h" />
-    <ClInclude Include="IVoxelMapper.h" />
+    <ClInclude Include="HeadComponentUpdater.h" />
+    <ClInclude Include="ImageAssetLoader.h" />
+    <ClInclude Include="IRenderStage.h" />
+    <ClInclude Include="LenseFlareRenderer.h" />
     <ClInclude Include="LiquidVoxelRenderStage.h" />
+    <ClInclude Include="LoadContext.h" />
     <ClInclude Include="LoadTaskBlockData.h" />
-    <ClInclude Include="LoadTaskPlanet.h" />
-    <ClInclude Include="LoadTaskShaders.h" />
-    <ClInclude Include="LoadTaskSound.h" />
+    <ClInclude Include="LoadTaskStarSystem.h" />
     <ClInclude Include="LoadTaskTextures.h" />
-    <ClInclude Include="MainMenuAPI.h" />
-    <ClInclude Include="MainMenuRenderPipeline.h" />
+    <ClInclude Include="ExposureCalcRenderStage.h" />
+    <ClInclude Include="MainMenuRenderer.h" />
     <ClInclude Include="MainMenuScreen.h" />
-    <ClInclude Include="MeshManager.h" />
-    <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MainMenuScriptedUI.h" />
+    <ClInclude Include="MainMenuSystemViewer.h" />
+    <ClInclude Include="MarchingCubesTable.h" />
+    <ClInclude Include="ModelMesher.h" />
+    <ClInclude Include="MetaSection.h" />
+    <ClInclude Include="ModInformation.h" />
+    <ClInclude Include="ModPathResolver.h" />
+    <ClInclude Include="MTRenderState.h" />
+    <ClInclude Include="MTRenderStateManager.h" />
     <ClInclude Include="MusicPlayer.h" />
+    <ClInclude Include="BlockTextureLoader.h" />
+    <ClInclude Include="Chunk.h" />
+    <ClInclude Include="ChunkGrid.h" />
+    <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="NightVisionRenderStage.h" />
+    <ClInclude Include="Noise.h" />
+    <ClInclude Include="NoiseShaderCode.hpp" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="OpaqueVoxelRenderStage.h" />
-    <ClInclude Include="OpenglSurfaceFactory.h" />
+    <ClInclude Include="OptionsController.h" />
+    <ClInclude Include="OrbitComponentRenderer.h" />
+    <ClInclude Include="OrbitComponentUpdater.h" />
+    <ClInclude Include="ParkourComponentUpdater.h" />
     <ClInclude Include="PauseMenu.h" />
-    <ClInclude Include="PauseMenuAwesomiumAPI.h" />
     <ClInclude Include="PauseMenuRenderStage.h" />
     <ClInclude Include="PDA.h" />
-    <ClInclude Include="PdaAwesomiumAPI.h" />
     <ClInclude Include="PdaRenderStage.h" />
     <ClInclude Include="PhysicsBlockRenderStage.h" />
-    <ClInclude Include="PlanetRenderStage.h" />
+    <ClInclude Include="PhysicsComponentUpdater.h" />
+    <ClInclude Include="PlanetGenData.h" />
+    <ClInclude Include="PlanetGenerator.h" />
+    <ClInclude Include="PlanetHeightData.h" />
+    <ClInclude Include="PlanetGenLoader.h" />
+    <ClInclude Include="PlanetRingsComponentRenderer.h" />
+    <ClInclude Include="Positional.h" />
+    <ClInclude Include="ProceduralChunkGenerator.h" />
+    <ClInclude Include="ProgramGenDelegate.h" />
+    <ClInclude Include="qef.h" />
+    <ClInclude Include="ShaderAssetLoader.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="SkyboxRenderer.h" />
+    <ClInclude Include="SoaController.h" />
+    <ClInclude Include="SoaEngine.h" />
+    <ClInclude Include="SoaState.h" />
     <ClInclude Include="SoaFileSystem.h" />
+    <ClInclude Include="soaUtils.h" />
     <ClInclude Include="SonarRenderStage.h" />
     <ClInclude Include="SkyboxRenderStage.h" />
-    <ClInclude Include="SpaceComponents.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="SpaceSystemComponentBuilders.h" />
+    <ClInclude Include="SpaceSystemComponents.h" />
+    <ClInclude Include="SpaceSystemAssemblages.h" />
+    <ClInclude Include="SpaceSystemLoader.h" />
+    <ClInclude Include="SpaceSystemLoadStructs.h" />
+    <ClInclude Include="SpaceSystemRenderStage.h" />
+    <ClInclude Include="SpaceSystemUpdater.h" />
+    <ClInclude Include="SphericalTerrainComponentRenderer.h" />
+    <ClInclude Include="SphericalTerrainComponentUpdater.h" />
+    <ClInclude Include="SphericalHeightmapGenerator.h" />
+    <ClInclude Include="SSAORenderStage.h" />
+    <ClInclude Include="StarComponentRenderer.h" />
+    <ClInclude Include="Startup.h" />
+    <ClInclude Include="svd.h" />
+    <ClInclude Include="SystemARRenderer.h" />
+    <ClInclude Include="SystemBodyLoader.h" />
+    <ClInclude Include="TerrainPatchMeshManager.h" />
+    <ClInclude Include="SpaceSystemComponentTables.h" />
+    <ClInclude Include="SphericalVoxelComponentUpdater.h" />
+    <ClInclude Include="TerrainGenTextures.h" />
+    <ClInclude Include="TerrainPatchMesher.h" />
+    <ClInclude Include="TerrainPatchConstants.h" />
+    <ClInclude Include="TerrainPatchMesh.h" />
+    <ClInclude Include="TerrainPatchMeshTask.h" />
+    <ClInclude Include="TestBiomeScreen.h" />
     <ClInclude Include="TestBlockViewScreen.h" />
+    <ClInclude Include="TestConnectedTextureScreen.h" />
     <ClInclude Include="TestConsoleScreen.h" />
     <ClInclude Include="TestDeferredScreen.h" />
+    <ClInclude Include="TestDisplacementMappingScreen.h" />
+    <ClInclude Include="TestGasGiantScreen.h" />
     <ClInclude Include="TestMappingScreen.h" />
-    <ClInclude Include="TexturePackLoader.h" />
+    <ClInclude Include="TestVoxelModelScreen.h" />
+    <ClInclude Include="TestNoiseScreen.h" />
+    <ClInclude Include="TestNewBlockAPIScreen.h" />
+    <ClInclude Include="TestPlanetGenScreen.h" />
+    <ClInclude Include="TestStarScreen.h" />
+    <ClInclude Include="textureUtils.h" />
     <ClInclude Include="TransparentVoxelRenderStage.h" />
     <ClInclude Include="InitScreen.h" />
     <ClInclude Include="LoadMonitor.h" />
-    <ClInclude Include="LoadTaskGameManager.h" />
     <ClInclude Include="VoxelBits.h" />
+    <ClInclude Include="VoxelCoordinateSpaces.h" />
+    <ClInclude Include="VoxelMatrix.h" />
     <ClInclude Include="VoxelMesh.h" />
     <ClInclude Include="VoxelMesher.h" />
     <ClInclude Include="ChunkGenerator.h" />
@@ -334,31 +720,33 @@ EXIT 0</Command>
     <ClInclude Include="ChunkUpdater.h" />
     <ClInclude Include="GeometrySorter.h" />
     <ClInclude Include="SmartVoxelContainer.hpp" />
-    <ClInclude Include="VoxelIntervalTree.h" />
     <ClInclude Include="LiquidData.h" />
     <ClInclude Include="LoadBar.h" />
-    <ClInclude Include="LoadScreen.h" />
+    <ClInclude Include="MainMenuLoadScreen.h" />
     <ClInclude Include="CAEngine.h" />
     <ClInclude Include="ChunkMesher.h" />
     <ClInclude Include="DebugRenderer.h" />
     <ClInclude Include="FragFile.h" />
     <ClInclude Include="Item.h" />
-    <ClInclude Include="MaterialAtlas.h" />
-    <ClInclude Include="MaterialData.h" />
-    <ClInclude Include="MaterialStack.h" />
-    <ClInclude Include="Particle.h" />
-    <ClInclude Include="ParticleBatch.h" />
-    <ClInclude Include="ParticleEmitter.h" />
-    <ClInclude Include="ParticleEngine.h" />
+    <ClInclude Include="TextureAtlas.h" />
+    <ClInclude Include="TextureData.h" />
+    <ClInclude Include="TextureStack.h" />
     <ClInclude Include="ParticleMesh.h" />
     <ClInclude Include="RegionFileManager.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="App.h" />
-    <ClInclude Include="TextureAtlasStitcher.h" />
     <ClInclude Include="VoxelEditor.h" />
     <ClInclude Include="VoxelLightEngine.h" />
+    <ClInclude Include="VoxelModel.h" />
+    <ClInclude Include="VoxelModelLoader.h" />
+    <ClInclude Include="VoxelModelMesh.h" />
+    <ClInclude Include="VoxelModelRenderer.h" />
     <ClInclude Include="VoxelNavigation.inl" />
-    <ClInclude Include="VoxelPlanetMapper.h" />
+    <ClInclude Include="VoxelNodeSetter.h" />
+    <ClInclude Include="VoxelNodeSetterTask.h" />
+    <ClInclude Include="VoxelSpaceConversions.h" />
+    <ClInclude Include="VoxelSpaceUtils.h" />
+    <ClInclude Include="VoxelUpdateBufferer.h" />
     <ClInclude Include="VoxelUtils.h" />
     <ClInclude Include="VoxelVertices.h" />
     <ClInclude Include="VoxPool.h" />
@@ -367,103 +755,170 @@ EXIT 0</Command>
     <ClInclude Include="WSOScanner.h" />
     <ClInclude Include="WSOData.h" />
     <ClInclude Include="Inputs.h" />
-    <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Actor.h" />
+    <ClInclude Include="InputMapper.h" />
     <ClInclude Include="atomicops.h" />
     <ClInclude Include="BlockData.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Chunk.h" />
-    <ClInclude Include="ChunkManager.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Errors.h" />
-    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="global.h" />
     <ClInclude Include="GenerateTask.h" />
-    <ClInclude Include="PhysicsBlocks.h" />
-    <ClInclude Include="PhysicsEngine.h" />
-    <ClInclude Include="RenderTask.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="TerrainPatch.h" />
-    <ClInclude Include="ObjectLoader.h" />
-    <ClInclude Include="OpenGLStructs.h" />
-    <ClInclude Include="Options.h" />
-    <ClInclude Include="Particles.h" />
-    <ClInclude Include="Planet.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="SoaOptions.h" />
     <ClInclude Include="readerwriterqueue.h" />
-    <ClInclude Include="Rendering.h" />
-    <ClInclude Include="SimplexNoise.h" />
-    <ClInclude Include="Sound.h" />
-    <ClInclude Include="TerrainGenerator.h" />
-    <ClInclude Include="Texture2d.h" />
-    <ClInclude Include="FloraGenerator.h" />
     <ClInclude Include="VoxelRay.h" />
     <ClInclude Include="VRayHelper.h" />
     <ClInclude Include="ChunkIOManager.h" />
     <ClInclude Include="WorldStructs.h" />
-    <ClInclude Include="VoxelWorld.h" />
-    <ClInclude Include="EditorVariables.h" />
     <ClInclude Include="ZipFile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABBCollidableComponentUpdater.cpp" />
     <ClCompile Include="AmbienceLibrary.cpp" />
     <ClCompile Include="AmbiencePlayer.cpp" />
     <ClCompile Include="AmbienceStream.cpp" />
     <ClCompile Include="ARProcessor.cpp" />
-    <ClCompile Include="AwesomiumRenderStage.cpp" />
+    <ClCompile Include="AtmosphereComponentRenderer.cpp" />
+    <ClCompile Include="AxisRotationComponentUpdater.cpp" />
+    <ClCompile Include="Biome.cpp" />
     <ClCompile Include="BlockPack.cpp" />
+    <ClCompile Include="BlockTexture.cpp" />
+    <ClCompile Include="BlockTextureLoader.cpp" />
     <ClCompile Include="BlockTextureMethods.cpp" />
+    <ClCompile Include="BlockTexturePack.cpp" />
+    <ClCompile Include="BloomRenderStage.cpp" />
     <ClCompile Include="CellularAutomataTask.cpp" />
+    <ClCompile Include="ChunkAccessor.cpp" />
+    <ClCompile Include="ChunkAllocator.cpp" />
     <ClCompile Include="ChunkGridRenderStage.cpp" />
+    <ClCompile Include="ChunkMeshManager.cpp" />
+    <ClCompile Include="ChunkMeshTask.cpp" />
+    <ClCompile Include="ChunkQuery.cpp" />
+    <ClCompile Include="ChunkSphereComponentUpdater.cpp" />
+    <ClCompile Include="CloudsComponentRenderer.cpp" />
+    <ClCompile Include="CollisionComponentUpdater.cpp" />
+    <ClCompile Include="ColoredFullQuadRenderer.cpp" />
+    <ClCompile Include="ColorFilterRenderStage.cpp" />
     <ClCompile Include="Computer.cpp" />
+    <ClCompile Include="ConsoleFuncs.cpp" />
+    <ClCompile Include="ConsoleMain.cpp" />
+    <ClCompile Include="ConsoleTests.cpp" />
     <ClCompile Include="CutoutVoxelRenderStage.cpp" />
+    <ClCompile Include="Density.cpp" />
     <ClCompile Include="DevHudRenderStage.cpp" />
     <ClCompile Include="DevScreen.cpp" />
-    <ClCompile Include="FloraTask.cpp" />
-    <ClCompile Include="GamePlayRenderPipeline.cpp" />
-    <ClCompile Include="GamePlayScreen.cpp" />
+    <ClCompile Include="DualContouringMesher.cpp" />
+    <ClCompile Include="ECSTemplates.cpp" />
+    <ClCompile Include="FarTerrainComponentRenderer.cpp" />
+    <ClCompile Include="FarTerrainComponentUpdater.cpp" />
+    <ClCompile Include="FarTerrainPatch.cpp" />
+    <ClCompile Include="Flora.cpp" />
+    <ClCompile Include="FrustumComponentUpdater.cpp" />
+    <ClCompile Include="GameplayLoadScreen.cpp" />
+    <ClCompile Include="GameplayRenderer.cpp" />
+    <ClCompile Include="GameplayScreen.cpp" />
     <ClCompile Include="GameRenderParams.cpp" />
+    <ClCompile Include="GameSystem.cpp" />
+    <ClCompile Include="GameSystemAssemblages.cpp" />
+    <ClCompile Include="GameSystemComponentBuilders.cpp" />
+    <ClCompile Include="GameSystemComponents.cpp" />
+    <ClCompile Include="GameSystemUpdater.cpp" />
+    <ClCompile Include="GasGiantComponentRenderer.cpp" />
     <ClCompile Include="GenerateTask.cpp" />
-    <ClCompile Include="HardCodedIDs.cpp" />
     <ClCompile Include="HdrRenderStage.cpp" />
     <ClCompile Include="BlockLoader.cpp" />
-    <ClCompile Include="GLProgramManager.cpp" />
+    <ClCompile Include="HeadComponentUpdater.cpp" />
+    <ClCompile Include="ImageAssetLoader.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="LenseFlareRenderer.cpp" />
     <ClCompile Include="LiquidVoxelRenderStage.cpp" />
-    <ClCompile Include="LoadTaskShaders.cpp" />
-    <ClCompile Include="MainMenuAPI.cpp" />
-    <ClCompile Include="MainMenuRenderPipeline.cpp" />
+    <ClCompile Include="ExposureCalcRenderStage.cpp" />
+    <ClCompile Include="MainMenuRenderer.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="InitScreen.cpp" />
     <ClCompile Include="LoadMonitor.cpp" />
-    <ClCompile Include="MeshManager.cpp" />
-    <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="MainMenuScriptedUI.cpp" />
+    <ClCompile Include="MainMenuSystemViewer.cpp" />
+    <ClCompile Include="ModelMesher.cpp" />
+    <ClCompile Include="MetaSection.cpp" />
+    <ClCompile Include="ModPathResolver.cpp" />
+    <ClCompile Include="MTRenderStateManager.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
+    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="ChunkGrid.cpp" />
+    <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="NightVisionRenderStage.cpp" />
+    <ClCompile Include="Noise.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpaqueVoxelRenderStage.cpp" />
-    <ClCompile Include="OpenglSurfaceFactory.cpp" />
+    <ClCompile Include="OptionsController.cpp" />
+    <ClCompile Include="OrbitComponentRenderer.cpp" />
+    <ClCompile Include="OrbitComponentUpdater.cpp" />
+    <ClCompile Include="ParkourComponentUpdater.cpp" />
     <ClCompile Include="PauseMenu.cpp" />
-    <ClCompile Include="PauseMenuAwesomiumAPI.cpp" />
     <ClCompile Include="PauseMenuRenderStage.cpp" />
     <ClCompile Include="PDA.cpp" />
-    <ClCompile Include="PdaAwesomiumAPI.cpp" />
     <ClCompile Include="PdaRenderStage.cpp" />
     <ClCompile Include="PhysicsBlockRenderStage.cpp" />
-    <ClCompile Include="PlanetRenderStage.cpp" />
+    <ClCompile Include="PhysicsComponentUpdater.cpp" />
+    <ClCompile Include="PlanetGenData.cpp" />
+    <ClCompile Include="PlanetGenerator.cpp" />
+    <ClCompile Include="PlanetGenLoader.cpp" />
+    <ClCompile Include="PlanetRingsComponentRenderer.cpp" />
+    <ClCompile Include="ProceduralChunkGenerator.cpp" />
+    <ClCompile Include="qef.cpp" />
+    <ClCompile Include="ShaderAssetLoader.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SkyboxRenderer.cpp" />
+    <ClCompile Include="SoaController.cpp" />
+    <ClCompile Include="SoaEngine.cpp" />
+    <ClCompile Include="SoaState.cpp" />
     <ClCompile Include="SoaFileSystem.cpp" />
     <ClCompile Include="SonarRenderStage.cpp" />
     <ClCompile Include="SkyboxRenderStage.cpp" />
-    <ClCompile Include="SpaceComponents.cpp" />
+    <ClCompile Include="FreeMoveComponentUpdater.cpp" />
     <ClCompile Include="SpaceSystem.cpp" />
+    <ClCompile Include="SpaceSystemAssemblages.cpp" />
+    <ClCompile Include="SpaceSystemComponentBuilders.cpp" />
+    <ClCompile Include="SpaceSystemLoader.cpp" />
+    <ClCompile Include="SpaceSystemLoadStructs.cpp" />
+    <ClCompile Include="SpaceSystemRenderStage.cpp" />
+    <ClCompile Include="SpaceSystemUpdater.cpp" />
+    <ClCompile Include="SphericalTerrainComponentRenderer.cpp" />
+    <ClCompile Include="SphericalTerrainComponentUpdater.cpp" />
+    <ClCompile Include="SphericalHeightmapGenerator.cpp" />
+    <ClCompile Include="SSAORenderStage.cpp" />
+    <ClCompile Include="StarComponentRenderer.cpp" />
+    <ClCompile Include="Startup.cpp" />
+    <ClCompile Include="svd.cpp" />
+    <ClCompile Include="SystemARRenderer.cpp" />
+    <ClCompile Include="SystemBodyLoader.cpp" />
+    <ClCompile Include="TerrainPatchMeshManager.cpp" />
+    <ClCompile Include="SpaceSystemComponentTables.cpp" />
+    <ClCompile Include="SphericalVoxelComponentUpdater.cpp" />
+    <ClCompile Include="TerrainGenTextures.cpp" />
+    <ClCompile Include="TerrainPatchMesher.cpp" />
+    <ClCompile Include="TerrainPatchMesh.cpp" />
+    <ClCompile Include="TerrainPatchMeshTask.cpp" />
+    <ClCompile Include="TestBiomeScreen.cpp" />
     <ClCompile Include="TestBlockViewScreen.cpp" />
+    <ClCompile Include="TestConnectedTextureScreen.cpp" />
     <ClCompile Include="TestConsoleScreen.cpp" />
     <ClCompile Include="TestDeferredScreen.cpp" />
+    <ClCompile Include="TestDisplacementMappingScreen.cpp" />
+    <ClCompile Include="TestGasGiantScreen.cpp" />
     <ClCompile Include="TestMappingScreen.cpp" />
-    <ClCompile Include="TexturePackLoader.cpp" />
+    <ClCompile Include="TestVoxelModelScreen.cpp" />
+    <ClCompile Include="TestNoiseScreen.cpp" />
+    <ClCompile Include="TestNewBlockAPIScreen.cpp" />
+    <ClCompile Include="TestPlanetGenScreen.cpp" />
+    <ClCompile Include="TestStarScreen.cpp" />
     <ClCompile Include="TransparentVoxelRenderStage.cpp" />
+    <ClCompile Include="VoxelMatrix.cpp" />
     <ClCompile Include="VoxelMesher.cpp" />
     <ClCompile Include="ChunkGenerator.cpp" />
     <ClCompile Include="ChunkMesh.cpp" />
@@ -473,63 +928,49 @@ EXIT 0</Command>
     <ClCompile Include="DevConsoleView.cpp" />
     <ClCompile Include="GeometrySorter.cpp" />
     <ClCompile Include="LoadBar.cpp" />
-    <ClCompile Include="LoadScreen.cpp" />
+    <ClCompile Include="MainMenuLoadScreen.cpp" />
     <ClCompile Include="CAEngine.cpp" />
     <ClCompile Include="DebugRenderer.cpp" />
     <ClCompile Include="FragFile.cpp" />
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="InputMapper.cpp" />
     <ClCompile Include="BlockData.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Inputs.cpp" />
-    <ClCompile Include="Particle.cpp" />
-    <ClCompile Include="ParticleBatch.cpp" />
-    <ClCompile Include="ParticleEmitter.cpp" />
-    <ClCompile Include="ParticleEngine.cpp" />
-    <ClCompile Include="PhysicsBlocks.cpp" />
-    <ClCompile Include="PhysicsEngine.cpp" />
-    <ClCompile Include="FloraGenerator.cpp" />
     <ClCompile Include="RegionFileManager.cpp" />
-    <ClCompile Include="RenderTask.cpp" />
-    <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugXP|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugXP|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseXP|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="TextureAtlasStitcher.cpp" />
     <ClCompile Include="VoxelEditor.cpp" />
     <ClCompile Include="VoxelLightEngine.cpp" />
-    <ClCompile Include="VoxelPlanetMapper.cpp" />
+    <ClCompile Include="VoxelModel.cpp" />
+    <ClCompile Include="VoxelModelLoader.cpp" />
+    <ClCompile Include="VoxelModelMesh.cpp" />
+    <ClCompile Include="VoxelModelRenderer.cpp" />
+    <ClCompile Include="VoxelNodeSetter.cpp" />
+    <ClCompile Include="VoxelNodeSetterTask.cpp" />
     <ClCompile Include="VoxelRay.cpp" />
+    <ClCompile Include="VoxelSpaceConversions.cpp" />
+    <ClCompile Include="VoxelSpaceUtils.cpp" />
     <ClCompile Include="VoxPool.cpp" />
     <ClCompile Include="VRayHelper.cpp" />
     <ClCompile Include="ChunkIOManager.cpp" />
-    <ClCompile Include="ChunkManager.cpp" />
     <ClCompile Include="ChunkMesher.cpp" />
-    <ClCompile Include="CloseTerrainPatch.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Errors.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="global.cpp" />
     <ClCompile Include="TerrainPatch.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ObjectLoader.cpp" />
-    <ClCompile Include="Options.cpp" />
-    <ClCompile Include="Planet.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Rendering.cpp" />
-    <ClCompile Include="SimplexNoise.cpp" />
-    <ClCompile Include="Sound.cpp" />
-    <ClCompile Include="TerrainGenerator.cpp" />
-    <ClCompile Include="Texture2d.cpp" />
+    <ClCompile Include="SoaOptions.cpp" />
     <ClCompile Include="WorldStructs.cpp" />
-    <ClCompile Include="VoxelWorld.cpp" />
     <ClCompile Include="WSO.cpp" />
     <ClCompile Include="WSOAtlas.cpp" />
     <ClCompile Include="WSOScanner.cpp" />
@@ -545,10 +986,8 @@ EXIT 0</Command>
     <Text Include="docs\FileSpecs\WSO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AwesomiumInterface.inl" />
-    <None Include="Chunk.inl" />
-    <None Include="IAwesomiumAPI.inl" />
-    <None Include="VoxelIntervalTree.inl" />
+    <None Include="VirtualKeyKegDef.inl" />
+    <None Include="VoxelUpdateOrder.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
