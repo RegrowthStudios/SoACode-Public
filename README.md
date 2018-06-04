@@ -13,8 +13,8 @@ we support all three major operating systems:
 * [Linux](#Linux)
  
 ### Contributing
-* [Wiki](https://github.com/RegrowthStudios/SoACode/wiki)
-* [Issues](https://github.com/RegrowthStudios/SoACode/issues)
+* [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
+* [Issues](https://github.com/RegrowthStudios/SoACode-Public/issues)
 
 
 ## Windows
@@ -39,7 +39,7 @@ mkdir -p repos
 ```
 c:\
 cd c:\repos
-git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode.git soa
+git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
 ```
 
 ### Building
@@ -85,7 +85,7 @@ mkdir ~/repos
 3. Clone the Seed of Andromeda repositories
 ```
 cd ~/repos
-git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode.git soa
+git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
 ```
 
 ### Building
@@ -153,7 +153,7 @@ mkdir ~/repos
 3. Clone the Seed of Andromeda repositories
 ```
 cd ~/repos
-git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode.git soa
+git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
 ```
 
 ### Building
