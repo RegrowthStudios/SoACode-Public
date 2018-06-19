@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <Vorb/RingBuffer.hpp>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/colors.h>

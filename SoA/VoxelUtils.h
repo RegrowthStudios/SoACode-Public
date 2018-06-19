@@ -23,7 +23,7 @@ inline void getPosFromBlockIndex(T blockIndex, T& x, T& y, T& z) {
 }
 
 template <typename T>
-inline void getPosFromBlockIndex(T blockIndex, vorb::Vector3<T>& pos) {
+inline void getPosFromBlockIndex(T blockIndex, glm::tvec3<T>& pos) {
     pos.x = blockIndex & 0x1f;
     pos.y = blockIndex >> 10;
     pos.z = (blockIndex >> 5) & 0x1f;

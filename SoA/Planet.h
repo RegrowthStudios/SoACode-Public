@@ -4,9 +4,13 @@
 #include <deque>
 #include <queue>
 
-#include "OpenGLStructs.h"
-#include "Texture2d.h"
-#include "WorldStructs.h"
+#include <Vorb/types.h>
+#include <Vorb/graphics/Texture.h>
+//#include "OpenGLStructs.h"
+//#include "Texture2d.h"
+//#include "WorldStructs.h"
+#include "Vertex.h"
+#include "Biome.h"
 
 #define P_TOP 0
 #define P_LEFT 1
@@ -18,6 +22,9 @@
 struct TreeType;
 struct PlantType;
 class Camera;
+class NoiseInfo;
+
+namespace vg=vorb::graphics;
 
 struct AtmosphereProperties {
 public:

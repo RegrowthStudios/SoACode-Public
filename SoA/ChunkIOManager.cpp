@@ -10,7 +10,7 @@
 #include <chrono>
 #include <thread>
 
-#include <ZLIB/zlib.h>
+//#include <ZLIB/zlib.h>
 
 #include "BlockData.h"
 #include "Chunk.h"

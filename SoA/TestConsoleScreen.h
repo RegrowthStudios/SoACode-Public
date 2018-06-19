@@ -34,7 +34,10 @@ public:
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
+#ifdef VORB_LUA
     vui::LuaDevConsole m_console; ///< Console used for testing
+#endif//VORB_LUA
+
     vui::TextInputListener<char> m_text; ///< Text input
     AutoDelegatePool m_delegatePool; ///< Input hooks reservoir
 };

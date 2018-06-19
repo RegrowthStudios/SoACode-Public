@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <Vorb/io/Keg.h>
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/voxel/VoxCommon.h>

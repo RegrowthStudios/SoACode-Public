@@ -15,6 +15,8 @@
 #ifndef MetaSection_h__
 #define MetaSection_h__
 
+#include <Vorb/types.h>
+
 typedef ui32 MetaID;
 typedef void* MetaData;
 

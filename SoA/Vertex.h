@@ -15,6 +15,8 @@
 #ifndef Vertex_h__
 #define Vertex_h__
 
+#include "Vorb/types.h"
+
 class ColorVertex {
 public:
     f32v3 position;
@@ -45,6 +47,11 @@ static_assert(sizeof(AtlasTexturePosition) == sizeof(ui32), "AtlasTexturePositio
 
 // Size: 32 Bytes
 struct BlockVertex {
+
+    BlockVertex() {}
+    //need deconstructor because of the non-trivial union
+    ~BlockVertex() { position.ui8v3::~ui8v3(); }
+
     union {
         struct {
             ui8 x;

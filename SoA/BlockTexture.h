@@ -61,7 +61,11 @@ KEG_ENUM_DECL(BlendType);
 
 class BlockTextureLayer {
 public:
-    BlockTextureLayer() : index(0), normalIndex(0), dispIndex(0) {};
+    BlockTextureLayer() : index(0), normalIndex(0), dispIndex(0), averageColor(255, 255, 255), color(255, 255, 255),
+        method(ConnectedTextureMethods::NONE), size(1), symmetry(ConnectedTextureSymmetry::NONE), reducedMethod(ConnectedTextureReducedMethod::NONE),
+        colorMap(nullptr), floraHeight(0), totalWeight(0), numTiles(1), innerSeams(false), transparency(false), path(""), normalPath(""),
+        dispPath(""), colorMapPath(""), blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex)
+        {}
 
     static ui32 getFloraRows(ui32 floraMaxHeight) {
         return (floraMaxHeight * floraMaxHeight + floraMaxHeight) / 2;
@@ -114,17 +118,17 @@ public:
 
     void getFinalColor(OUT color3& color, ui8 temperature, ui8 rainfall, ui32 altColor) const;
 
-    ConnectedTextureMethods method = ConnectedTextureMethods::NONE;
-    ui8v2 size = ui8v2(1);
-    ConnectedTextureSymmetry symmetry = ConnectedTextureSymmetry::NONE;
-    ConnectedTextureReducedMethod reducedMethod = ConnectedTextureReducedMethod::NONE;
-    BlockColorMap* colorMap = nullptr;
-    color3 averageColor = color3(255, 255, 255); // Average texture color combined with color (for terrain)
-    color3 color = color3(255, 255, 255);
-    ui32 floraHeight = 0;
+    ConnectedTextureMethods method;
+    ui8v2 size;
+    ConnectedTextureSymmetry symmetry;
+    ConnectedTextureReducedMethod reducedMethod;
+    BlockColorMap* colorMap;
+    color3 averageColor; // Average texture color combined with color (for terrain)
+    color3 color;
+    ui32 floraHeight;
     Array<i32> weights;
-    ui32 totalWeight = 0;
-    ui32 numTiles = 1;
+    ui32 totalWeight;
+    ui32 numTiles;
     union {
         struct {
             BlockTextureIndex index;
@@ -133,13 +137,13 @@ public:
         };
         BlockTextureIndex indices[3];
     };
-    bool innerSeams = false;
-    bool transparency = false;
-    nString path = "";
-    nString normalPath = "";
-    nString dispPath = "";
-    nString colorMapPath = "";
-    BlockTextureFunc blockTextureFunc = BlockTextureMethods::getDefaultTextureIndex;
+    bool innerSeams;
+    bool transparency;
+    nString path;
+    nString normalPath;
+    nString dispPath;
+    nString colorMapPath;
+    BlockTextureFunc blockTextureFunc;
 
     /// "less than" operator for inserting into sets in TexturePackLoader
     // TODO(Ben): Are these operators needed?
@@ -155,6 +159,14 @@ public:
 };
 
 struct BlockTexture {
+    BlockTexture():blendMode(BlendType::ALPHA){}
+    //provide deconstructor because of union
+    ~BlockTexture()
+    {
+        base.BlockTextureLayer::~BlockTextureLayer();
+        overlay.BlockTextureLayer::~BlockTextureLayer();
+    }
+
     union {
         struct {
             BlockTextureLayer base;
@@ -162,7 +174,7 @@ struct BlockTexture {
         };
         UNIONIZE(BlockTextureLayer layers[2]);
     };
-    BlendType blendMode = BlendType::ALPHA;
+    BlendType blendMode;
 };
 KEG_TYPE_DECL(BlockTexture);
 

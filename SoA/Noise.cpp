@@ -58,7 +58,7 @@ KEG_TYPE_DEF_SAME_NAME(TerrainFuncProperties, kt) {
 
 // Permutation polynomial: (34x^2 + x) mod 289
 inline f64v3 permute(const f64v3& x) {
-    return vmath::mod((34.0 * x + 1.0) * x, 289.0);
+    return glm::mod((34.0 * x + 1.0) * x, 289.0);
 }
 
 
@@ -71,8 +71,8 @@ f64v2 Noise::cellular(const f64v3& P) {
 #define Kzo 0.416666666667 // 1/2-1/6*2
 #define jitter 1.0 // smaller jitter gives more regular pattern
 
-    f64v3 Pi = vmath::mod(vmath::floor(P), 289.0);
-    f64v3 Pf = vmath::fract(P) - 0.5;
+    f64v3 Pi = glm::mod(glm::floor(P), 289.0);
+    f64v3 Pf = glm::fract(P) - 0.5;
 
     f64v3 Pfx = Pf.x + f64v3(1.0, 0.0, -1.0);
     f64v3 Pfy = Pf.y + f64v3(1.0, 0.0, -1.0);
@@ -95,41 +95,41 @@ f64v2 Noise::cellular(const f64v3& P) {
     f64v3 p32 = permute(p3 + Pi.z);
     f64v3 p33 = permute(p3 + Pi.z + 1.0);
 
-    f64v3 ox11 = vmath::fract(p11*K) - Ko;
-    f64v3 oy11 = vmath::mod(vmath::floor(p11*K), 7.0)*K - Ko;
-    f64v3 oz11 = vmath::floor(p11*K2)*Kz - Kzo; // p11 < 289 guaranteed
+    f64v3 ox11 = glm::fract(p11*K) - Ko;
+    f64v3 oy11 = glm::mod(glm::floor(p11*K), 7.0)*K - Ko;
+    f64v3 oz11 = glm::floor(p11*K2)*Kz - Kzo; // p11 < 289 guaranteed
 
-    f64v3 ox12 = vmath::fract(p12*K) - Ko;
-    f64v3 oy12 = vmath::mod(vmath::floor(p12*K), 7.0)*K - Ko;
-    f64v3 oz12 = vmath::floor(p12*K2)*Kz - Kzo;
+    f64v3 ox12 = glm::fract(p12*K) - Ko;
+    f64v3 oy12 = glm::mod(glm::floor(p12*K), 7.0)*K - Ko;
+    f64v3 oz12 = glm::floor(p12*K2)*Kz - Kzo;
 
-    f64v3 ox13 = vmath::fract(p13*K) - Ko;
-    f64v3 oy13 = vmath::mod(vmath::floor(p13*K), 7.0)*K - Ko;
-    f64v3 oz13 = vmath::floor(p13*K2)*Kz - Kzo;
+    f64v3 ox13 = glm::fract(p13*K) - Ko;
+    f64v3 oy13 = glm::mod(glm::floor(p13*K), 7.0)*K - Ko;
+    f64v3 oz13 = glm::floor(p13*K2)*Kz - Kzo;
 
-    f64v3 ox21 = vmath::fract(p21*K) - Ko;
-    f64v3 oy21 = vmath::mod(vmath::floor(p21*K), 7.0)*K - Ko;
-    f64v3 oz21 = vmath::floor(p21*K2)*Kz - Kzo;
+    f64v3 ox21 = glm::fract(p21*K) - Ko;
+    f64v3 oy21 = glm::mod(glm::floor(p21*K), 7.0)*K - Ko;
+    f64v3 oz21 = glm::floor(p21*K2)*Kz - Kzo;
 
-    f64v3 ox22 = vmath::fract(p22*K) - Ko;
-    f64v3 oy22 = vmath::mod(vmath::floor(p22*K), 7.0)*K - Ko;
-    f64v3 oz22 = vmath::floor(p22*K2)*Kz - Kzo;
+    f64v3 ox22 = glm::fract(p22*K) - Ko;
+    f64v3 oy22 = glm::mod(glm::floor(p22*K), 7.0)*K - Ko;
+    f64v3 oz22 = glm::floor(p22*K2)*Kz - Kzo;
 
-    f64v3 ox23 = vmath::fract(p23*K) - Ko;
-    f64v3 oy23 = vmath::mod(vmath::floor(p23*K), 7.0)*K - Ko;
-    f64v3 oz23 = vmath::floor(p23*K2)*Kz - Kzo;
+    f64v3 ox23 = glm::fract(p23*K) - Ko;
+    f64v3 oy23 = glm::mod(glm::floor(p23*K), 7.0)*K - Ko;
+    f64v3 oz23 = glm::floor(p23*K2)*Kz - Kzo;
 
-    f64v3 ox31 = vmath::fract(p31*K) - Ko;
-    f64v3 oy31 = vmath::mod(vmath::floor(p31*K), 7.0)*K - Ko;
-    f64v3 oz31 = vmath::floor(p31*K2)*Kz - Kzo;
+    f64v3 ox31 = glm::fract(p31*K) - Ko;
+    f64v3 oy31 = glm::mod(glm::floor(p31*K), 7.0)*K - Ko;
+    f64v3 oz31 = glm::floor(p31*K2)*Kz - Kzo;
 
-    f64v3 ox32 = vmath::fract(p32*K) - Ko;
-    f64v3 oy32 = vmath::mod(vmath::floor(p32*K), 7.0)*K - Ko;
-    f64v3 oz32 = vmath::floor(p32*K2)*Kz - Kzo;
+    f64v3 ox32 = glm::fract(p32*K) - Ko;
+    f64v3 oy32 = glm::mod(glm::floor(p32*K), 7.0)*K - Ko;
+    f64v3 oz32 = glm::floor(p32*K2)*Kz - Kzo;
 
-    f64v3 ox33 = vmath::fract(p33*K) - Ko;
-    f64v3 oy33 = vmath::mod(vmath::floor(p33*K), 7.0)*K - Ko;
-    f64v3 oz33 = vmath::floor(p33*K2)*Kz - Kzo;
+    f64v3 ox33 = glm::fract(p33*K) - Ko;
+    f64v3 oy33 = glm::mod(glm::floor(p33*K), 7.0)*K - Ko;
+    f64v3 oz33 = glm::floor(p33*K2)*Kz - Kzo;
 
     f64v3 dx11 = Pfx + jitter*ox11;
     f64v3 dy11 = Pfy.x + jitter*oy11;
@@ -180,43 +180,43 @@ f64v2 Noise::cellular(const f64v3& P) {
     // Sort out the two smallest distances (F1, F2)
 #if 0
     // Cheat and sort out only F1
-    f64v3 d1 = vmath::min(vmath::min(d11, d12), d13);
-    f64v3 d2 = vmath::min(vmath::min(d21, d22), d23);
-    f64v3 d3 = vmath::min(vmath::min(d31, d32), d33);
-    f64v3 d = vmath::min(vmath::min(d1, d2), d3);
-    d.x = vmath::min(vmath::min(d.x, d.y), d.z);
-    return vmath::sqrt(d.xx); // F1 duplicated, no F2 computed
+    f64v3 d1 = glm::min(glm::min(d11, d12), d13);
+    f64v3 d2 = glm::min(glm::min(d21, d22), d23);
+    f64v3 d3 = glm::min(glm::min(d31, d32), d33);
+    f64v3 d = glm::min(glm::min(d1, d2), d3);
+    d.x = glm::min(glm::min(d.x, d.y), d.z);
+    return glm::sqrt(d.xx); // F1 duplicated, no F2 computed
 #else
     // Do it right and sort out both F1 and F2
-    f64v3 d1a = vmath::min(d11, d12);
-    d12 = vmath::max(d11, d12);
-    d11 = vmath::min(d1a, d13); // Smallest now not in d12 or d13
-    d13 = vmath::max(d1a, d13);
-    d12 = vmath::min(d12, d13); // 2nd smallest now not in d13
-    f64v3 d2a = vmath::min(d21, d22);
-    d22 = vmath::max(d21, d22);
-    d21 = vmath::min(d2a, d23); // Smallest now not in d22 or d23
-    d23 = vmath::max(d2a, d23);
-    d22 = vmath::min(d22, d23); // 2nd smallest now not in d23
-    f64v3 d3a = vmath::min(d31, d32);
-    d32 = vmath::max(d31, d32);
-    d31 = vmath::min(d3a, d33); // Smallest now not in d32 or d33
-    d33 = vmath::max(d3a, d33);
-    d32 = vmath::min(d32, d33); // 2nd smallest now not in d33
-    f64v3 da = vmath::min(d11, d21);
-    d21 = vmath::max(d11, d21);
-    d11 = vmath::min(da, d31); // Smallest now in d11
-    d31 = vmath::max(da, d31); // 2nd smallest now not in d31
+    f64v3 d1a = glm::min(d11, d12);
+    d12 = glm::max(d11, d12);
+    d11 = glm::min(d1a, d13); // Smallest now not in d12 or d13
+    d13 = glm::max(d1a, d13);
+    d12 = glm::min(d12, d13); // 2nd smallest now not in d13
+    f64v3 d2a = glm::min(d21, d22);
+    d22 = glm::max(d21, d22);
+    d21 = glm::min(d2a, d23); // Smallest now not in d22 or d23
+    d23 = glm::max(d2a, d23);
+    d22 = glm::min(d22, d23); // 2nd smallest now not in d23
+    f64v3 d3a = glm::min(d31, d32);
+    d32 = glm::max(d31, d32);
+    d31 = glm::min(d3a, d33); // Smallest now not in d32 or d33
+    d33 = glm::max(d3a, d33);
+    d32 = glm::min(d32, d33); // 2nd smallest now not in d33
+    f64v3 da = glm::min(d11, d21);
+    d21 = glm::max(d11, d21);
+    d11 = glm::min(da, d31); // Smallest now in d11
+    d31 = glm::max(da, d31); // 2nd smallest now not in d31
     d11 = (d11.x < d11.y) ? d11 : f64v3(d11.y, d11.x, d11.z);
     d11 = (d11.x < d11.z) ? d11 : f64v3(d11.z, d11.y, d11.x);
-    d12 = vmath::min(d12, d21); // 2nd smallest now not in d21
-    d12 = vmath::min(d12, d22); // nor in d22
-    d12 = vmath::min(d12, d31); // nor in d31
-    d12 = vmath::min(d12, d32); // nor in d32
-    d11 = f64v3(d11.x, vmath::min(f64v2(d11.y, d11.z), f64v2(d12.x, d12.y))); // nor in d12.yz
-    d11.y = vmath::min(d11.y, d12.z); // Only two more to go
-    d11.y = vmath::min(d11.y, d11.z); // Done! (Phew!)
-    return vmath::sqrt(f64v2(d11.x, d11.y)); // F1, F2
+    d12 = glm::min(d12, d21); // 2nd smallest now not in d21
+    d12 = glm::min(d12, d22); // nor in d22
+    d12 = glm::min(d12, d31); // nor in d31
+    d12 = glm::min(d12, d32); // nor in d32
+    d11 = f64v3(d11.x, glm::min(f64v2(d11.y, d11.z), f64v2(d12.x, d12.y))); // nor in d12.yz
+    d11.y = glm::min(d11.y, d12.z); // Only two more to go
+    d11.y = glm::min(d11.y, d11.z); // Done! (Phew!)
+    return glm::sqrt(f64v2(d11.x, d11.y)); // F1, F2
 #endif
 }
 

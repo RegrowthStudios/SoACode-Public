@@ -7,6 +7,8 @@
 #include "VoxelModelMesh.h"
 #include "RenderUtils.h"
 
+#include <Vorb/types.h>
+
 void VoxelModelRenderer::initGL() {
     m_program = ShaderLoader::createProgramFromFile("Shaders/Models/VoxelModel.vert",
                                                     "Shaders/Models/VoxelModel.frag");
@@ -25,7 +27,7 @@ void VoxelModelRenderer::draw(VoxelModelMesh* mesh, const f32m4& mVP, const f64v
     orientationF32.z = (f32)orientation.z;
     orientationF32.w = (f32)orientation.w;
     // Convert to matrix
-    f32m4 rotationMatrix = vmath::toMat4(orientationF32);
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
     f32m4 mW(1.0);
     setMatrixTranslation(mW, -relativePos);
     f32m4 mWVP = mVP * mW * rotationMatrix;
@@ -34,7 +36,7 @@ void VoxelModelRenderer::draw(VoxelModelMesh* mesh, const f32m4& mVP, const f64v
     glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, false, &mWVP[0][0]);
    
     // TODO(Ben): Temporary
-    f32v3 lightDir = vmath::normalize(f32v3(1.0f, 0.0f, 1.0f));
+    f32v3 lightDir = glm::normalize(f32v3(1.0f, 0.0f, 1.0f));
     glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &lightDir[0]);
 
     mesh->bind();

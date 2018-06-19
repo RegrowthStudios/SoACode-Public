@@ -1,8 +1,10 @@
 #pragma once
+
 #include <condition_variable>
 #include <unordered_map>
 #include <unordered_set>
 #include <thread>
+#include <Vorb/types.h>
 
 // Interface For A Loading Task
 class ILoadTask {

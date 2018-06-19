@@ -411,7 +411,7 @@ void GameplayScreen::initInput() {
                 VoxelRayFullQuery q = VRayHelper().getFullQuery(pos, dir, 100.0, grid);
                 m_soaState->clientState.voxelEditor.setStartPosition(q.outer.location);
 
-                std::cout << "DIST " << vmath::length(f64v3(q.outer.location) - pos);
+                std::cout << "DIST " << glm::length(f64v3(q.outer.location) - pos);
                 printVec("Start ", q.outer.location);
                 m_renderer.debugRenderer->drawLine(pos, pos + f64v3(dir) * 100.0, color::Red);
             }

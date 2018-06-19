@@ -15,6 +15,8 @@
 #ifndef ChunkID_h__
 #define ChunkID_h__
 
+#include "Vorb/types.h"
+
 // Chunk ID, derived from position.
 struct ChunkID {
     ChunkID() : id(0) {};

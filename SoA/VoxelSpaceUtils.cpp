@@ -48,8 +48,8 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition2D& gridPosit
     f64v3 v3 = VoxelSpaceConversions::voxelToWorldNormalized(
         gp3, worldRadius);
   
-    f64v3 tangent = vmath::normalize(v2 - v1);
-    f64v3 biTangent = vmath::normalize(v3 - v1);
+    f64v3 tangent = glm::normalize(v2 - v1);
+    f64v3 biTangent = glm::normalize(v3 - v1);
 
     f64m4 worldRotationMatrix;
     worldRotationMatrix[0] = f64v4(tangent, 0);
@@ -57,7 +57,7 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition2D& gridPosit
     worldRotationMatrix[2] = f64v4(biTangent, 0);
     worldRotationMatrix[3] = f64v4(0, 0, 0, 1);
 
-    return vmath::quat_cast(worldRotationMatrix);
+    return glm::quat_cast(worldRotationMatrix);
 }
 f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosition, f64 worldRadius) {
 
@@ -69,8 +69,8 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosit
     f64v3 v2 = VoxelSpaceConversions::voxelToWorldNormalized(
         gp2, worldRadius);
 
-    f64v3 tangent = vmath::normalize(v2 - v1);
-    f64v3 biTangent = vmath::cross(tangent, v1);
+    f64v3 tangent = glm::normalize(v2 - v1);
+    f64v3 biTangent = glm::cross(tangent, v1);
    
     f64m4 worldRotationMatrix;
     worldRotationMatrix[0] = f64v4(tangent, 0);
@@ -78,7 +78,7 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosit
     worldRotationMatrix[2] = f64v4(biTangent, 0);
     worldRotationMatrix[3] = f64v4(0, 0, 0, 1);
 
-    return vmath::quat_cast(worldRotationMatrix);
+    return glm::quat_cast(worldRotationMatrix);
 }
 
 void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos) {

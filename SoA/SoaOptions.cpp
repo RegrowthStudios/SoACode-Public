@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SoaOptions.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <Vorb/io/IOManager.h>
 
 #include "GameManager.h"

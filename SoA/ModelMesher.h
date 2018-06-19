@@ -2,6 +2,8 @@
 #ifndef ModelMesher_h__
 #define ModelMesher_h__
 
+#include <Vorb/types.h>
+
 class VoxelMatrix;
 class VoxelModel;
 class VoxelModelMesh;

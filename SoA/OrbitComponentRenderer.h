@@ -15,6 +15,7 @@
 #ifndef OrbitComponentRenderer_h__
 #define OrbitComponentRenderer_h__
 
+#include <Vorb/types.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class SpaceSystem;

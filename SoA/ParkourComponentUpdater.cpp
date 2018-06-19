@@ -55,7 +55,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
         if (inputCount != 0) {
             // Normalize for diagonal
             if (inputCount == 2) {
-                targetVel = vmath::normalize(targetVel);
+                targetVel = glm::normalize(targetVel);
             }
             // Use head yaw for body when moving
             euler.y += head.eulerAngles.y;
@@ -85,7 +85,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
 
         static const f64 step = 0.1;
         f64v3 dVel = targetVel - f64v3(physics.velocity.x, 0.0f, physics.velocity.z);
-        f64 l = vmath::length(dVel);
+        f64 l = glm::length(dVel);
         if (l < step) {
             physics.velocity.x = targetVel.x;
             physics.velocity.z = targetVel.z;
@@ -105,7 +105,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
                     f64v3 vpos = f64v3(it.first.x, it.first.y, it.first.z) * (f64)CHUNK_WIDTH + f64v3(getPosFromBlockIndex(cd.index)) + 0.5;
                         
                     f64v3 dp = vpos - aabbPos;
-                    f64v3 adp(vmath::abs(dp));
+                    f64v3 adp(glm::abs(dp));
 
                    // std::cout << MIN_DISTANCE.y - adp.y << std::endl;
 

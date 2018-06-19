@@ -27,31 +27,58 @@
 DECL_VG(class GLProgram; class BitmapResource);
 
 struct LiquidColorKegProperties {
-    nString colorPath = "";
-    nString texturePath = "";
-    ColorRGB8 tint = ColorRGB8(255, 255, 255);
-    f32 depthScale = 1000.0f;
-    f32 freezeTemp = -1.0f;
+    LiquidColorKegProperties():
+        colorPath(""),
+        texturePath(""),
+        tint(255, 255, 255),
+        depthScale(1000.0f),
+        freezeTemp(-1.0f)
+    {}
+
+    nString colorPath;
+    nString texturePath;
+    ColorRGB8 tint;
+    f32 depthScale;
+    f32 freezeTemp;
 };
 KEG_TYPE_DECL(LiquidColorKegProperties);
 
 struct TerrainColorKegProperties {
-    nString colorPath = "";
-    nString grassTexturePath = "";
-    nString rockTexturePath = "";
-    ColorRGB8 tint = ColorRGB8(255, 255, 255);
+    TerrainColorKegProperties():
+        colorPath(""),
+        grassTexturePath(""),
+        rockTexturePath(""),
+        tint(255, 255, 255)
+    {}
+
+    nString colorPath;
+    nString grassTexturePath;
+    nString rockTexturePath;
+    ColorRGB8 tint;
 };
 KEG_TYPE_DECL(TerrainColorKegProperties);
 
 // Must match var names for TreeFruitProperties
 struct FruitKegProperties {
+    FruitKegProperties():
+        flora(""),
+        chance(0.0f)
+    {}
+
     nString flora = "";
     f32v2 chance = f32v2(0.0f);
 };
 
 // Must match var names for TreeLeafProperties
 struct LeafKegProperties {
-    TreeLeafType type = TreeLeafType::NONE;
+    LeafKegProperties():
+        type(TreeLeafType::NONE),
+        block("none"),
+        mushGillBlock("none"),
+        mushCapBlock("none")
+    {}
+
+    TreeLeafType type;
     FruitKegProperties fruitProps;
     // Union based on type
     union {
@@ -76,110 +103,188 @@ struct LeafKegProperties {
         } mushroom;);
     };
     // Don't put strings in unions
-    nString block = "none";
-    nString mushGillBlock = "none";
-    nString mushCapBlock = "none";
+    nString block;
+    nString mushGillBlock;
+    nString mushCapBlock;
 };
 
 // Must match var names for TreeBranchProperties
 struct BranchKegProperties {
-    i32v2 coreWidth = i32v2(0);
-    i32v2 barkWidth = i32v2(0);
-    f32v2 widthFalloff = f32v2(0.1f);
-    f32v2 branchChance = f32v2(0.0f);
-    f32v2 angle = f32v2(0.0f);
-    f32v2 subBranchAngle = f32v2(0.0f);
-    f32v2 changeDirChance = f32v2(0.0f);
-    nString coreBlock = "";
-    nString barkBlock = "";
+    BranchKegProperties():
+        coreWidth(0),
+        barkWidth(0),
+        widthFalloff(0.1f),
+        branchChance(0.0f),
+        angle(0.0f),
+        subBranchAngle(0.0f),
+        changeDirChance(0.0f),
+        coreBlock(""),
+        barkBlock("")
+    {}
+
+    i32v2 coreWidth;
+    i32v2 barkWidth;
+    f32v2 widthFalloff;
+    f32v2 branchChance;
+    f32v2 angle;
+    f32v2 subBranchAngle;
+    f32v2 changeDirChance;
+    nString coreBlock;
+    nString barkBlock;
     FruitKegProperties fruitProps;
     LeafKegProperties leafProps;
 };
 
 // Must match var names for TreeTrunkProperties
 struct TrunkKegProperties {
-    f32 loc = 0.0f;
-    i32v2 coreWidth = i32v2(0);
-    i32v2 barkWidth = i32v2(0);
-    f32v2 branchChance = f32v2(0.0f);
-    f32v2 changeDirChance = f32v2(0.0f);
+    TrunkKegProperties():
+        loc(0.0f),
+        coreWidth(0),
+        barkWidth(0),
+        branchChance(0.0f),
+        changeDirChance(0.0f),
+        coreBlock(""),
+        barkBlock(""),
+        interp(FloraInterpType::HERMITE)
+    {}
+
+    f32 loc;
+    i32v2 coreWidth;
+    i32v2 barkWidth;
+    f32v2 branchChance;
+    f32v2 changeDirChance;
     i32v2 slope[2];
-    nString coreBlock = "";
-    nString barkBlock = "";
-    FloraInterpType interp = FloraInterpType::HERMITE;
+    nString coreBlock;
+    nString barkBlock;
+    FloraInterpType interp;
     FruitKegProperties fruitProps;
     LeafKegProperties leafProps;
     BranchKegProperties branchProps;
 };
 
 struct BranchVolumeKegProperties {
-    i32v2 height = i32v2(0);
-    i32v2 hRadius = i32v2(0);
-    i32v2 vRadius = i32v2(0);
-    i32v2 points = i32v2(0);
+    BranchVolumeKegProperties():
+        height(0),
+        hRadius(0),
+        vRadius(0),
+        points(0)
+    {}
+
+    i32v2 height;
+    i32v2 hRadius;
+    i32v2 vRadius;
+    i32v2 points;
 };
 
 // Must match var names for TreeData
 struct TreeKegProperties {
-    nString id = "";
-    i32v2 height = i32v2(0);
-    i32v2 branchPoints = i32v2(0);
-    i32v2 branchStep = i32v2(0);
-    i32v2 killMult = i32v2(2);
-    f32v2 infRadius = f32v2(0.0f);
+    TreeKegProperties():
+        id(""),
+        height(0),
+        branchPoints(0),
+        branchStep(0),
+        killMult(2),
+        infRadius(0.0f)
+    {}
+
+    nString id;
+    i32v2 height;
+    i32v2 branchPoints;
+    i32v2 branchStep;
+    i32v2 killMult;
+    f32v2 infRadius;
     std::vector<BranchVolumeKegProperties> branchVolumes;
     std::vector<TrunkKegProperties> trunkProps;
 };
 
 struct FloraKegProperties {
+    FloraKegProperties():
+        block(""),
+        nextFlora(""),
+        height(1),
+        slope(0),
+        dSlope(0),
+        dir(FloraDir::UP)
+    {}
+
     nString id;
-    nString block = "";
-    nString nextFlora = "";
-    i32v2 height = i32v2(1);
-    i32v2 slope = i32v2(0);
-    i32v2 dSlope = i32v2(0);
-    FloraDir dir = FloraDir::UP;
+    nString block;
+    nString nextFlora;
+    i32v2 height;
+    i32v2 slope;
+    i32v2 dSlope;
+    FloraDir dir;
 };
 
 struct BlockLayerKegProperties {
-    nString block = "";
-    nString surface = "";
-    ui32 width = 0;
+    BlockLayerKegProperties():
+        block(""),
+        surface(""),
+        width(0)
+    {}
+
+    nString block;
+    nString surface;
+    ui32 width;
 };
 KEG_TYPE_DECL(BlockLayerKegProperties);
 
 // Info about what blocks a planet needs
 struct PlanetBlockInitInfo {
+    PlanetBlockInitInfo():
+        liquidBlockName(""),
+        surfaceBlockName("")
+    {}
+
     std::map<const Biome*, std::vector<BiomeFloraKegProperties>> biomeFlora;
     std::map<const Biome*, std::vector<BiomeTreeKegProperties>> biomeTrees;
     std::vector<TreeKegProperties> trees;
     std::vector<FloraKegProperties> flora;
     std::vector<BlockLayerKegProperties> blockLayers;
-    nString liquidBlockName = "";
-    nString surfaceBlockName = "";
+    nString liquidBlockName;
+    nString surfaceBlockName;
 };
 
 struct PlanetGenData {
-    vg::Texture terrainColorMap = 0;
-    vg::Texture liquidColorMap = 0;
-    vg::Texture grassTexture = 0;
-    vg::Texture rockTexture = 0;
-    vg::Texture liquidTexture = 0;
+    PlanetGenData():
+        terrainColorMap(0),
+        liquidColorMap(0),
+        grassTexture(0),
+        rockTexture(0),
+        liquidTexture(0),
+        liquidTint(255, 255, 255),
+        terrainTint(255, 255, 255),
+        liquidDepthScale(1000.0f),
+        liquidFreezeTemp(-1.0f),
+        tempLatitudeFalloff(0.0f),
+        tempHeightFalloff(0.0f),
+        humLatitudeFalloff(0.0f),
+        humHeightFalloff(0.0f),
+        liquidBlock(0),
+        surfaceBlock(0),
+        radius(0.0)
+    {}
+
+    vg::Texture terrainColorMap;
+    vg::Texture liquidColorMap;
+    vg::Texture grassTexture;
+    vg::Texture rockTexture;
+    vg::Texture liquidTexture;
     vg::BitmapResource terrainColorPixels;
     vg::BitmapResource liquidColorPixels;
-    color3 liquidTint = color3(255, 255, 255);
-    color3 terrainTint = color3(255, 255, 255);
-    f32 liquidDepthScale = 1000.0f;
-    f32 liquidFreezeTemp = -1.0f;
-    f32 tempLatitudeFalloff = 0.0f;
-    f32 tempHeightFalloff = 0.0f;
-    f32 humLatitudeFalloff = 0.0f;
-    f32 humHeightFalloff = 0.0f;
+    color3 liquidTint;
+    color3 terrainTint;
+    f32 liquidDepthScale;
+    f32 liquidFreezeTemp;
+    f32 tempLatitudeFalloff;
+    f32 tempHeightFalloff;
+    f32 humLatitudeFalloff;
+    f32 humHeightFalloff;
     PlanetBlockInitInfo blockInfo;
     std::vector<BlockLayer> blockLayers;
-    ui32 liquidBlock = 0;
-    ui32 surfaceBlock = 0;
-    f64 radius = 0.0;
+    ui32 liquidBlock;
+    ui32 surfaceBlock;
+    f64 radius;
 
     /************************************************************************/
     /* Base Noise                                                           */

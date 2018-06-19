@@ -171,7 +171,7 @@ OctreeNode* SimplifyOctree(OctreeNode* node, float threshold) {
         }
     }
 
-    drawInfo->averageNormal = vmath::normalize(drawInfo->averageNormal);
+    drawInfo->averageNormal = glm::normalize(drawInfo->averageNormal);
     drawInfo->position = position;
     drawInfo->qef = qef.getData();
 
@@ -408,7 +408,7 @@ f32v3 ApproximateZeroCrossingPosition(const f32v3& p0, const f32v3& p1) {
     const float increment = 1.f / (float)steps;
     while (currentT <= 1.f) {
         const f32v3 p = p0 + ((p1 - p0) * currentT);
-        const float density = vmath::abs(Density_Func(p));
+        const float density = glm::abs(Density_Func(p));
         if (density < minValue) {
             minValue = density;
             t = currentT;
@@ -428,7 +428,7 @@ f32v3 CalculateSurfaceNormal(const f32v3& p) {
     const float dy = Density_Func(p + f32v3(0.f, H, 0.f)) - Density_Func(p - f32v3(0.f, H, 0.f));
     const float dz = Density_Func(p + f32v3(0.f, 0.f, H)) - Density_Func(p - f32v3(0.f, 0.f, H));
 
-    return vmath::normalize(f32v3(dx, dy, dz));
+    return glm::normalize(f32v3(dx, dy, dz));
 }
 
 // ----------------------------------------------------------------------------
@@ -498,7 +498,7 @@ OctreeNode* ConstructLeaf(OctreeNode* leaf) {
         drawInfo->position = f32v3(mp.x, mp.y, mp.z);
     }
 
-    drawInfo->averageNormal = vmath::normalize(averageNormal / (float)edgeCount);
+    drawInfo->averageNormal = glm::normalize(averageNormal / (float)edgeCount);
     drawInfo->corners = corners;
 
     leaf->type = Node_Leaf;

@@ -18,6 +18,6 @@ void AxisRotationComponentUpdater::update(SpaceSystem* spaceSystem, f64 time) {
 
         // Calculate total orientation
         cmp.currentOrientation = cmp.axisOrientation * rotationQuat;
-        cmp.invCurrentOrientation = vmath::inverse(cmp.currentOrientation);
+        cmp.invCurrentOrientation = glm::inverse(cmp.currentOrientation);
     }
 }

@@ -28,6 +28,8 @@ const int PADDED_CHUNK_SIZE = (PADDED_CHUNK_LAYER * PADDED_CHUNK_WIDTH);
 // This class is too big to statically allocate
 class ChunkMesher {
 public:
+    ChunkMesher():blocks(nullptr), m_chunkMeshData(nullptr){}
+
     void init(const BlockPack* blocks);
 
     // Easily creates chunk mesh synchronously.
@@ -69,7 +71,7 @@ public:
     ui16 blockData[PADDED_CHUNK_SIZE];
     ui16 tertiaryData[PADDED_CHUNK_SIZE];
 
-    const BlockPack* blocks = nullptr;
+    const BlockPack* blocks;
 
     VoxelPosition3D chunkVoxelPos;
 private:
@@ -107,7 +109,7 @@ private:
     // TODO(Ben): Change this up a bit
     std::vector<LiquidVertex> _waterVboVerts;
 
-    ChunkMeshData* m_chunkMeshData = nullptr;
+    ChunkMeshData* m_chunkMeshData;
 
     int m_highestY;
     int m_lowestY;

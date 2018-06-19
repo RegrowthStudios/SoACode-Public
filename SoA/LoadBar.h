@@ -1,5 +1,8 @@
 #pragma once
+
+#include <Vorb/types.h>
 #include <Vorb/VorbPreDecl.inl>
+
 DECL_VG(class SpriteBatch; class SpriteFont);
 
 class LoadBarCommonProperties {

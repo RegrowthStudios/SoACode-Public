@@ -211,8 +211,8 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
             f64v3& pb = positionData[z - 1][x] - p;
             f64v3& pf = positionData[z + 1][x] - p;
             // Calculate smooth normal
-            v.normal = vmath::normalize(vmath::cross(pb, pl) + vmath::cross(pl, pf) +
-                                      vmath::cross(pf, pr) + vmath::cross(pr, pb));
+            v.normal = glm::normalize(glm::cross(pb, pl) + glm::cross(pl, pf) +
+                                      glm::cross(pf, pr) + glm::cross(pr, pb));
         }
     }
 
@@ -221,7 +221,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     mesh->m_aabbDims = f32v3(maxX - minX, maxY - minY, maxZ - minZ);
     mesh->m_aabbCenter = mesh->m_aabbPos + mesh->m_aabbDims * 0.5f;
     // Calculate bounding sphere for culling
-    mesh->m_boundingSphereRadius = vmath::length(mesh->m_aabbCenter - mesh->m_aabbPos);
+    mesh->m_boundingSphereRadius = glm::length(mesh->m_aabbCenter - mesh->m_aabbPos);
     // Build the skirts for crack hiding
     buildSkirts();
 
@@ -346,8 +346,8 @@ void TerrainPatchMesher::buildSkirts() {
         v = verts[i];
         // Extrude downward
         if (m_isSpherical) {
-            float len = vmath::length(v.position) - SKIRT_DEPTH;
-            v.position = vmath::normalize(v.position) * len;
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
         } else {
             v.position.y -= SKIRT_DEPTH;
         }
@@ -360,8 +360,8 @@ void TerrainPatchMesher::buildSkirts() {
         v = verts[i * PATCH_WIDTH];
         // Extrude downward
         if (m_isSpherical) {
-            float len = vmath::length(v.position) - SKIRT_DEPTH;
-            v.position = vmath::normalize(v.position) * len;
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
         } else {
             v.position.y -= SKIRT_DEPTH;
         }
@@ -374,8 +374,8 @@ void TerrainPatchMesher::buildSkirts() {
         v = verts[i * PATCH_WIDTH + PATCH_WIDTH - 1];
         // Extrude downward
         if (m_isSpherical) {
-            float len = vmath::length(v.position) - SKIRT_DEPTH;
-            v.position = vmath::normalize(v.position) * len;
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
         } else {
             v.position.y -= SKIRT_DEPTH;
         }
@@ -388,8 +388,8 @@ void TerrainPatchMesher::buildSkirts() {
         v = verts[PATCH_SIZE - PATCH_WIDTH + i];
         // Extrude downward
         if (m_isSpherical) {
-            float len = vmath::length(v.position) - SKIRT_DEPTH;
-            v.position = vmath::normalize(v.position) * len;
+            float len = glm::length(v.position) - SKIRT_DEPTH;
+            v.position = glm::normalize(v.position) * len;
         } else {
             v.position.y -= SKIRT_DEPTH;
         }
@@ -434,7 +434,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, PlanetHeightData height
         // TODO(Ben): Use normal data
         f32v3 normal;
         if (m_isSpherical) {
-            normal = vmath::normalize(v.position);
+            normal = glm::normalize(v.position);
             v.position = normal * m_radius;
         } else {
             const i32v3& trueMapping = VoxelSpaceConversions::VOXEL_TO_WORLD[(int)m_cubeFace];
@@ -442,7 +442,7 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, PlanetHeightData height
             tmpPos[trueMapping.x] = v.position.x;
             tmpPos[trueMapping.y] = m_radius * (f32)VoxelSpaceConversions::FACE_Y_MULTS[(int)m_cubeFace];
             tmpPos[trueMapping.z] = v.position.z;
-            normal = vmath::normalize(tmpPos);
+            normal = glm::normalize(tmpPos);
         }
 
         f32 d = heightData[z + 1][x + 1].height * (f32)M_PER_VOXEL;
@@ -459,12 +459,12 @@ void TerrainPatchMesher::tryAddWaterVertex(int z, int x, PlanetHeightData height
         tmpPos[m_coordMapping.x] = ((x + 1) * mvw + m_startPos.x) * m_coordMults.x;
         tmpPos[m_coordMapping.y] = m_startPos.y;
         tmpPos[m_coordMapping.z] = (z * mvw + m_startPos.z) * m_coordMults.y;
-        tmpPos = vmath::normalize(tmpPos) * m_radius;
-        v.tangent = vmath::normalize(tmpPos - v.position);
+        tmpPos = glm::normalize(tmpPos) * m_radius;
+        v.tangent = glm::normalize(tmpPos - v.position);
 
         // Make sure tangent is orthogonal
-        f32v3 binormal = vmath::normalize(vmath::cross(vmath::normalize(v.position), v.tangent));
-        v.tangent = vmath::normalize(vmath::cross(binormal, vmath::normalize(v.position)));
+        f32v3 binormal = glm::normalize(glm::cross(glm::normalize(v.position), v.tangent));
+        v.tangent = glm::normalize(glm::cross(binormal, glm::normalize(v.position)));
 
         v.color = m_planetGenData->liquidTint;
 

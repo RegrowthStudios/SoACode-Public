@@ -32,7 +32,7 @@ void MainMenuSystemViewer::init(ui32v2 viewport, CinematicCamera* camera,
     targetBody("Aldrin");
     // Force target focal point
     m_camera->setFocalPoint(getTargetPosition() -
-                            f64v3(vmath::normalize(m_camera->getDirection())) * getTargetRadius());
+                            f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
     // Register events
     startInput();
@@ -50,7 +50,7 @@ void MainMenuSystemViewer::update() {
     m_camera->setClippingPlane((f32)(0.1 * KM_PER_M), m_camera->getFarClip());
     // Target closest point on sphere
     m_camera->setTargetFocalPoint(getTargetPosition() -
-                                  f64v3(vmath::normalize(m_camera->getDirection())) * getTargetRadius());
+                                  f64v3(glm::normalize(m_camera->getDirection())) * getTargetRadius());
 
     m_camera->update();
 
@@ -58,7 +58,7 @@ void MainMenuSystemViewer::update() {
         vecs::ComponentID componentID;
 
         f64v3 relativePos = it.second.position - m_camera->getPosition();
-        f64 distance = vmath::length(relativePos);
+        f64 distance = glm::length(relativePos);
         f64 radiusPixels;
         f64 radius;
 
@@ -96,7 +96,7 @@ void MainMenuSystemViewer::update() {
             selectorSize += interpolator * HOVER_SIZE_INC;
 
             // Detect mouse hover
-            if (vmath::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
+            if (glm::length(m_mouseCoords - xyScreenCoords) <= selectorSize / 2.0f) {
                 data.isHovering = true;
                 data.hoverEntity = it.first;
                 hoverTime += HOVER_SPEED;
@@ -170,7 +170,7 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
 
                 // Check distance so we pick only the closest one
                 f64v3 pos = m_spaceSystem->namePosition.getFromEntity(it.first).position;
-                f64 dist = vmath::length(pos - m_camera->getPosition());
+                f64 dist = glm::length(pos - m_camera->getPosition());
                 if (dist < closestDist) {
                     closestDist = dist;
                     closestEntity = it.first;
@@ -248,15 +248,15 @@ void MainMenuSystemViewer::pickStartLocation(vecs::EntityID eid) {
         cid = m_spaceSystem->axisRotation.getComponentID(eid);
         if (cid) {
             f64q rot = m_spaceSystem->axisRotation.get(cid).currentOrientation;
-            hitpoint = vmath::inverse(rot) * hitpoint;
+            hitpoint = glm::inverse(rot) * hitpoint;
         }
 
         // Compute face and grid position
         PlanetHeightData heightData;
-        m_spaceSystem->sphericalTerrain.getFromEntity(m_targetEntity).cpuGenerator->generateHeightData(heightData, vmath::normalize(hitpoint));
+        m_spaceSystem->sphericalTerrain.getFromEntity(m_targetEntity).cpuGenerator->generateHeightData(heightData, glm::normalize(hitpoint));
         f64 height = heightData.height * KM_PER_VOXEL;
 
-        m_clickPos = f64v3(hitpoint + vmath::normalize(hitpoint) * height);
+        m_clickPos = f64v3(hitpoint + glm::normalize(hitpoint) * height);
 
         auto& data = bodyArData[eid];
         data.selectedPos = hitpoint;

@@ -22,9 +22,9 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
     if (position.parentVoxel == 0) return;
     auto& sphericalVoxel = spaceSystem->sphericalVoxel.get(position.parentVoxel);
     f64v3 vpos = position.gridPosition.pos + f64v3(cmp.offset - cmp.box * 0.5f);
-    i32v3 vp(vmath::floor(vpos));
+    i32v3 vp(glm::floor(vpos));
     
-    i32v3 bounds(vmath::ceil(f64v3(cmp.box) + vmath::fract(vpos)));
+    i32v3 bounds(glm::ceil(f64v3(cmp.box) + glm::fract(vpos)));
     ChunkGrid& grid = sphericalVoxel.chunkGrids[position.gridPosition.face];
     const BlockPack* bp = sphericalVoxel.blockPack;
 

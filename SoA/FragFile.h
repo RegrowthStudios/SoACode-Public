@@ -1,4 +1,7 @@
 #pragma once
+
+#include "Vorb/types.h"
+
 // Header For Each Data Path That Allows Fragmented Functionality
 class FragHeader;
 

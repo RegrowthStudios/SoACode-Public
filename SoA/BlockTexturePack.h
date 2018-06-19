@@ -41,7 +41,17 @@ struct BlockColorMap {
 
 class BlockTexturePack {
 public:
-    BlockTexturePack() {};
+    BlockTexturePack():
+    m_atlasTexture(0),
+    m_resolution(0),
+    m_pageWidthPixels(0),
+    m_mipLevels(0),
+    m_needsRealloc(false),
+    m_textures(nullptr),
+    m_nextFree(0),
+    m_maxTextures(0)
+    {}
+
     ~BlockTexturePack();
 
     void init(ui32 resolution, ui32 maxTextures);
@@ -92,28 +102,29 @@ private:
     void onAddSphericalVoxelComponent(Sender s, SphericalVoxelComponent& cmp, vecs::EntityID e);
 
     struct AtlasPage {
-        color4* pixels = nullptr;
-        bool dirty = true;
+        AtlasPage():pixels(nullptr), dirty(true){}
+        color4* pixels;
+        bool dirty;
     };
 
     vvox::VoxelTextureStitcher m_stitcher;
 
-    VGTexture m_atlasTexture = 0;
+    VGTexture m_atlasTexture;
     std::vector<AtlasPage> m_pages; ///< Cached pixel data
     std::vector<int> m_dirtyPages; ///< List of dirty pages TODO(Ben): Maybe bad for multithreading
     std::unordered_map<nString, AtlasTextureDescription> m_descLookup;
-    ui32 m_resolution = 0;
-    ui32 m_pageWidthPixels = 0;
-    ui32 m_mipLevels = 0;
-    bool m_needsRealloc = false;
+    ui32 m_resolution;
+    ui32 m_pageWidthPixels;
+    ui32 m_mipLevels;
+    bool m_needsRealloc;
 
     // For cache friendly caching of textures
     std::map<nString, ui32> m_textureLookup;
     std::map<nString, BlockColorMap> m_colorMaps;
-    BlockTexture* m_textures = nullptr; ///< Storage of all block textures
+    BlockTexture* m_textures; ///< Storage of all block textures
     BlockTexture m_defaultTexture;
-    ui32 m_nextFree = 0;
-    ui32 m_maxTextures = 0; ///< Maximum possible number of unique textures with this mod config
+    ui32 m_nextFree;
+    ui32 m_maxTextures; ///< Maximum possible number of unique textures with this mod config
 };
 
 #endif // BlockTexturePack_h__

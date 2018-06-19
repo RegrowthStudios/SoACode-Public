@@ -15,6 +15,7 @@
 #ifndef ConsoleFuncs_h__
 #define ConsoleFuncs_h__
 
+#include <Vorb/types.h>
 #include <Vorb/VorbPreDecl.inl>
 
 DECL_VSCRIPT(class Environment);

@@ -23,6 +23,8 @@
 #include <crtdbg.h>
 #endif
 
+#include <Vorb/math/VorbMath.hpp>
+
 // Uncomment for advanced heap checking
 #ifdef _DEBUG
 //#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__) 

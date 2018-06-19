@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vorb/types.h"
+
 //yes 1, no 0
 extern i32 showYesNoBox(const nString& message);
 extern i32 showYesNoCancelBox(const nString& message);

@@ -1,4 +1,6 @@
 #pragma once
+
+#include <Vorb/types.h>
 #include <Vorb/Events.hpp>
 
 enum class ItemType {

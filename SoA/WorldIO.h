@@ -5,7 +5,8 @@
 #include <thread>
 #include <Windows.h>
 
-#include <ZLIB/zlib.h>
+#include <Vorb/types.h>
+#include <zconf.h>
 
 class Chunk;
 

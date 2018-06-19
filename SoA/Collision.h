@@ -1,4 +1,6 @@
 #pragma once
+#include "Vorb/types.h"
+
 class Player;
 class Chunk;
 

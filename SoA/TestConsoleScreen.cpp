@@ -18,6 +18,7 @@ void TestConsoleScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestConsoleScreen::onEntry(const vui::GameTime& gameTime) {
+#ifdef VORB_LUA
     m_delegatePool.addAutoHook(m_console.onStream[DEV_CONSOLE_STREAM_OUT], [&] (Sender sender, const cString s) {
         printf("Out:   %s\n", s);
     });
@@ -33,7 +34,7 @@ void TestConsoleScreen::onEntry(const vui::GameTime& gameTime) {
     });
     m_text.start();
     printf("Welcome to Lua REPL\nInput: ");
-
+#endif//VORB_LUA
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }

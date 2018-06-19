@@ -108,6 +108,6 @@ private:
     VGBuffer m_vbo = 0;
     VGIndexBuffer m_ibo = 0;
 
-    std::chrono::time_point<std::chrono::system_clock> m_previousTimePoint;
-    std::chrono::time_point<std::chrono::system_clock> m_currentTimePoint;
+    std::chrono::steady_clock::time_point m_previousTimePoint;
+    std::chrono::steady_clock::time_point m_currentTimePoint;
 };

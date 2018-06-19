@@ -1,6 +1,8 @@
 #ifndef		HAS_DENSITY_H_BEEN_INCLUDED
 #define		HAS_DENSITY_H_BEEN_INCLUDED
 
+#include "Vorb/types.h"
+
 class VoxelMatrix;
 
 extern const VoxelMatrix* gMatrix;

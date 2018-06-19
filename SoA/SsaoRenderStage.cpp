@@ -28,7 +28,7 @@ void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
         // TODO(Ben): vec3?
         data[i].x = range1(randGenerator);
         data[i].y = range1(randGenerator);
-        data[i] = vmath::normalize(data[i]);
+        data[i] = glm::normalize(data[i]);
     }
 
     // Build noise texture
@@ -44,7 +44,7 @@ void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     
     m_sampleKernel.resize(SSAO_SAMPLE_KERNEL_SIZE);
     for (unsigned int i = 0; i < SSAO_SAMPLE_KERNEL_SIZE; i++) {
-        m_sampleKernel[i] = vmath::normalize(f32v3(range1(randGenerator),
+        m_sampleKernel[i] = glm::normalize(f32v3(range1(randGenerator),
                                            range1(randGenerator),
                                            range2(randGenerator)));
         // Use accelerating interpolation
@@ -105,7 +105,7 @@ void SSAORenderStage::render(const Camera* camera)
 
         glUniformMatrix4fv(m_ssaoShader.getUniform("unViewMatrix"), 1, false, &viewMatrix[0][0]);
         glUniformMatrix4fv(m_ssaoShader.getUniform("unProjectionMatrix"), 1, false, &projectionMatrix[0][0]);
-        glUniformMatrix4fv(m_ssaoShader.getUniform("unInvProjectionMatrix"), 1, false, &vmath::inverse(projectionMatrix)[0][0]);
+        glUniformMatrix4fv(m_ssaoShader.getUniform("unInvProjectionMatrix"), 1, false, &glm::inverse(projectionMatrix)[0][0]);
 
         m_quad->draw();
     }

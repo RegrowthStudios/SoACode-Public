@@ -11,6 +11,9 @@
 
 #include "BlockLoader.h"
 
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #pragma region Simple shader code
 const cString SRC_VERT_BLOCK = R"(
 uniform mat4 unWVP;
@@ -178,8 +181,8 @@ void TestBlockView::onEntry(const vui::GameTime& gameTime) {
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
         if (m_movingCamera) {
-            m_mRotation = vmath::rotate(f32m4(), 1.2f * e.dx, f32v3(0.0f, 1.0f, 0.0f)) * m_mRotation;
-            m_mRotation = vmath::rotate(f32m4(), 1.2f * e.dy, f32v3(1.0f, 0.0f, 0.0f)) * m_mRotation;
+            m_mRotation = glm::rotate(f32m4(), 1.2f * e.dx, f32v3(0.0f, 1.0f, 0.0f)) * m_mRotation;
+            m_mRotation = glm::rotate(f32m4(), 1.2f * e.dy, f32v3(1.0f, 0.0f, 0.0f)) * m_mRotation;
         }
     });
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
@@ -216,7 +219,7 @@ void TestBlockView::draw(const vui::GameTime& gameTime) {
 
     m_program.use();
     f32 tCenter = (f32)TEST_CHUNK_SIZE * -0.5f;
-    f32m4 mWVP = vmath::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * vmath::lookAt(f32v3(0, 0, TEST_CHUNK_SIZE), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * vmath::translate(f32v3(tCenter, tCenter, tCenter));
+    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 1000.0f) * glm::lookAt(f32v3(0, 0, TEST_CHUNK_SIZE), f32v3(0, 0, 0), f32v3(0, 1, 0)) * m_mRotation * glm::translate(f32v3(tCenter, tCenter, tCenter));
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();

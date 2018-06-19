@@ -207,5 +207,5 @@ void DebugRenderer::createIcosphere(const int lod) {
 }
 
 inline f32v3 findMidpoint(const f32v3& vertex1, const f32v3& vertex2) {
-    return vmath::normalize(f32v3((vertex1.x + vertex2.x) / 2.0f, (vertex1.y + vertex2.y) / 2.0f, (vertex1.z + vertex2.z) / 2.0f));
+    return glm::normalize(f32v3((vertex1.x + vertex2.x) / 2.0f, (vertex1.y + vertex2.y) / 2.0f, (vertex1.z + vertex2.z) / 2.0f));
 }

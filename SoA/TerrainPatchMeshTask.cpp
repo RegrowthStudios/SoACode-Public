@@ -43,7 +43,7 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 pos[coordMapping.x] = (m_startPos.x + (x - 1) * VERT_WIDTH) * coordMults.x;
                 pos[coordMapping.y] = m_startPos.y;
                 pos[coordMapping.z] = (m_startPos.z + (z - 1) * VERT_WIDTH) * coordMults.y;
-                f64v3 normal(vmath::normalize(pos));
+                f64v3 normal(glm::normalize(pos));
                 generator->generateHeightData(heightData[z][x], normal);
                 
                 // offset position by height;
@@ -63,7 +63,7 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
                 pos[coordMapping.x] = spos.x * coordMults.x;
                 pos[coordMapping.y] = m_startPos.y;
                 pos[coordMapping.z] = spos.y * coordMults.y;
-                f64v3 normal(vmath::normalize(pos));
+                f64v3 normal(glm::normalize(pos));
                 generator->generateHeightData(heightData[z][x], normal);
 
                 // offset position by height;

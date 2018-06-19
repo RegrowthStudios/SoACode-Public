@@ -15,6 +15,8 @@
 #ifndef AxisRotationComponentUpdater_h__
 #define AxisRotationComponentUpdater_h__
 
+#include "Vorb/types.h"
+
 class SpaceSystem;
 
 class AxisRotationComponentUpdater {

@@ -15,6 +15,8 @@
 #ifndef OrbitComponentUpdater_h__
 #define OrbitComponentUpdater_h__
 
+#include <Vorb/types.h>
+
 class SpaceSystem;
 struct NamePositionComponent;
 struct OrbitComponent;

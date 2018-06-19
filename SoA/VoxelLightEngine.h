@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Vorb/types.h>
+
 //Used to tell neighbors to update light
 //class LightMessage {
 //    LightMessage() {};

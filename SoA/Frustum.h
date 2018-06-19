@@ -15,6 +15,8 @@
 #ifndef Frustum_h__
 #define Frustum_h__
 
+#include "Vorb/types.h"
+
 class Frustum {
 public:
 

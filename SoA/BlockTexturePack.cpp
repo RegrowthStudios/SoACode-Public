@@ -6,7 +6,7 @@
 #include "SpaceSystemComponents.h"
 #include "SpaceSystemAssemblages.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "Errors.h"
 

@@ -15,6 +15,7 @@
 #ifndef AmbienceStream_h__
 #define AmbienceStream_h__
 
+#include "Vorb/types.h"
 /// Encapsulates a stream of ambient music
 class AmbienceStream {
 public:
