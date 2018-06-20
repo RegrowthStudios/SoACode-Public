@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "Vorb/types.h"
 
 class ChunkMesh;
 

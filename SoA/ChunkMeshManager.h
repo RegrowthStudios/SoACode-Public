@@ -16,7 +16,7 @@
 #ifndef ChunkMeshManager_h__
 #define ChunkMeshManager_h__
 
-#include "concurrentqueue.h"
+#include "Vorb/concurrentqueue.h"
 #include "Chunk.h"
 #include "ChunkMesh.h"
 #include "SpaceSystemAssemblages.h"

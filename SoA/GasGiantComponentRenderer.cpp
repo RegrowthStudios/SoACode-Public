@@ -11,6 +11,7 @@
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
 
+#include <glm/gtx/transform.hpp>
 
 #define ICOSPHERE_SUBDIVISIONS 5
 
@@ -62,15 +63,15 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     orientationF32.w = (f32)orientation.w;
 
     // Get rotated light direction
-    const f32v3 rotLightDir = vmath::inverse(orientationF32) * lightDir;
+    const f32v3 rotLightDir = glm::inverse(orientationF32) * lightDir;
 
     // Convert to matrix
-    f32m4 rotationMatrix = vmath::toMat4(orientationF32);
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
 
     // Set up matrix
     f32m4 WVP(1.0);
     setMatrixTranslation(WVP, -relCamPos);
-    WVP = VP * WVP * vmath::scale(f32v3(ggCmp.radius, ggCmp.radius * (1.0 - ggCmp.oblateness), ggCmp.radius)) * rotationMatrix;
+    WVP = VP * WVP * glm::scale(f32v3(ggCmp.radius, ggCmp.radius * (1.0 - ggCmp.oblateness), ggCmp.radius)) * rotationMatrix;
 
     f32v3 rotRelCamPos = relCamPos * orientationF32;
 
@@ -80,7 +81,7 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     glUniform1f(unDT, (f32)dt);
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     // Scattering uniforms
-    f32 camHeight = vmath::length(relCamPos);
+    f32 camHeight = glm::length(relCamPos);
     glUniformMatrix4fv(m_program.getUniform("unWVP"), 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_program.getUniform("unCameraPos"), 1, &rotRelCamPos[0]);
     glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &rotLightDir[0]);

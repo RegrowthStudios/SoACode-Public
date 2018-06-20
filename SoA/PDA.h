@@ -15,7 +15,7 @@
 #ifndef PDA_H_
 #define PDA_H_
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <Vorb/VorbPreDecl.inl>
 
 #include "Computer.h"

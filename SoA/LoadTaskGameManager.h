@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "GameManager.h"
 #include "InputMapper.h"

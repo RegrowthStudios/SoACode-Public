@@ -1,5 +1,7 @@
 #pragma once
 #include <map>
+
+#include <Vorb/types.h>
 #include <Vorb/VorbPreDecl.inl>
 
 DECL_VG(class GLProgram);

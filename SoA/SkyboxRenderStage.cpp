@@ -13,6 +13,8 @@
 #include "SkyboxRenderer.h"
 #include "SoAState.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 const ui32 TASK_WORK = 4;
 const ui32 TOTAL_TASKS = 8;
 const ui32 TOTAL_WORK = TOTAL_TASKS * TASK_WORK;
@@ -142,7 +144,7 @@ void SkyboxRenderStage::updateProjectionMatrix(const Camera* camera) {
     m_aspectRatio = camera->getAspectRatio();
 
     // Set up projection matrix
-    m_projectionMatrix = vmath::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
+    m_projectionMatrix = glm::perspective(m_fieldOfView, m_aspectRatio, SKYBOX_ZNEAR, SKYBOX_ZFAR);
 }
 
 void SkyboxRenderStage::loadTexture(const char* relPath, int index) {

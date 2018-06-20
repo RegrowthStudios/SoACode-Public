@@ -7,7 +7,7 @@
 #include "Chunk.h"
 #include "FloraGenerator.h"
 #include "GameManager.h"
-#include "Options.h"
+//#include "Options.h"
 #include "Planet.h"
 #include "WorldStructs.h"
 

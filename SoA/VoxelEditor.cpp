@@ -152,11 +152,11 @@ void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, con
             const float BOX_PAD = 0.001f;
 
             i32v3 startPosition;
-            startPosition.x = vmath::min(m_startPosition.x, m_endPosition.x);
-            startPosition.y = vmath::min(m_startPosition.y, m_endPosition.y);
-            startPosition.z = vmath::min(m_startPosition.z, m_endPosition.z);
+            startPosition.x = glm::min(m_startPosition.x, m_endPosition.x);
+            startPosition.y = glm::min(m_startPosition.y, m_endPosition.y);
+            startPosition.z = glm::min(m_startPosition.z, m_endPosition.z);
 
-            const i32v3 size = vmath::abs(m_endPosition - m_startPosition) + i32v3(1);
+            const i32v3 size = glm::abs(m_endPosition - m_startPosition) + i32v3(1);
 
             if (blockID != 0){
           //      DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, f32v4(0.0, 0.0, 1.0, 1.0));

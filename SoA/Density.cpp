@@ -7,7 +7,7 @@ const VoxelMatrix* gMatrix;
 // ----------------------------------------------------------------------------
 
 float Sphere(const f32v3& worldPosition, const f32v3& origin, float radius) {
-    return vmath::length(worldPosition - origin) - radius;
+    return glm::length(worldPosition - origin) - radius;
 }
 
 // ----------------------------------------------------------------------------
@@ -16,9 +16,9 @@ float Cuboid(const f32v3& worldPosition, const f32v3& origin, const f32v3& halfD
     const f32v3& local_pos = worldPosition - origin;
     const f32v3& pos = local_pos;
 
-    const f32v3& d = vmath::abs(pos) - halfDimensions;
-    const float m = vmath::max(d.x, vmath::max(d.y, d.z));
-    return vmath::min(m, vmath::length(vmath::max(d, f32v3(0.f))));
+    const f32v3& d = glm::abs(pos) - halfDimensions;
+    const float m = glm::max(d.x, glm::max(d.y, d.z));
+    return glm::min(m, glm::length(glm::max(d, f32v3(0.f))));
 }
 
 // ----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ float FractalNoise(
 // ----------------------------------------------------------------------------
 
 float Density_Func(const f32v3& worldPosition) {
-    i32v3 pos(vmath::round(worldPosition));
+    i32v3 pos(glm::round(worldPosition));
     float rv = 0.0f;
     if (gMatrix->getColorAndCheckBounds(pos + i32v3(gMatrix->size.x / 2, gMatrix->size.y / 2, gMatrix->size.z / 2)).a != 0) {
         rv += 100.0f;

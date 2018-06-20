@@ -15,6 +15,8 @@
 #ifndef FrustumComponentUpdater_h__
 #define FrustumComponentUpdater_h__
 
+#include "Vorb/decorators.h"
+
 class GameSystem;
 
 class FrustumComponentUpdater {

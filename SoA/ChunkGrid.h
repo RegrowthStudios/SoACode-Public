@@ -15,7 +15,7 @@
 #ifndef ChunkGrid_h__
 #define ChunkGrid_h__
 
-#include <concurrentqueue.h>
+#include <Vorb/concurrentqueue.h>
 #include <Vorb/utils.h>
 #include <Vorb/IDGenerator.h>
 

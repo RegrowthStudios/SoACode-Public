@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #include <Vorb/utils.h>
-#include <ZLIB/zlib.h>
+#include <zlib.h>
 
 #include "Chunk.h"
 #include "Errors.h"

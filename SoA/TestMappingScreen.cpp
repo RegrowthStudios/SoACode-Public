@@ -2,6 +2,7 @@
 #include "TestMappingScreen.h"
 
 #include <Vorb/graphics/GLStates.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #pragma region Simple shader code
 const cString SRC_VERT = R"(
@@ -64,7 +65,7 @@ void TestMappingScreen::update(const vui::GameTime& gameTime) {
 void TestMappingScreen::draw(const vui::GameTime& gameTime) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    f32m4 mWVP = vmath::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * vmath::lookAt(f32v3(0, 0, 10), f32v3(0, 0, 0), f32v3(0, 1, 0)) ;
+    f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * glm::lookAt(f32v3(0, 0, 10), f32v3(0, 0, 0), f32v3(0, 1, 0)) ;
 
     vg::DepthState::FULL.set();
     vg::RasterizerState::CULL_CLOCKWISE.set();
@@ -99,10 +100,10 @@ void TestMappingScreen::buildGeometry() {
             pos.x *= 2.0f;
             pos.z -= 0.5f;
             pos.z *= 2.0f;
-            pos.x = vmath::sign(pos.x) * (sin(abs(pos.x) * 1.57079f));
-            pos.z = vmath::sign(pos.z) * (sin(abs(pos.z) * 1.57079f));
+            pos.x = glm::sign(pos.x) * (sin(abs(pos.x) * 1.57079f));
+            pos.z = glm::sign(pos.z) * (sin(abs(pos.z) * 1.57079f));
 
-            f32 lp = vmath::length(pos);
+            f32 lp = glm::length(pos);
             if (lp < 0.00001) {
                 pos.y = 1.0f;
             } else {

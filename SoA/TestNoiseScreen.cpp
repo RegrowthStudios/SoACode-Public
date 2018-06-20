@@ -2,7 +2,7 @@
 #include "TestNoiseScreen.h"
 
 #include <Vorb/ui/InputDispatcher.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <Vorb/colors.h>
 #include <Vorb/graphics/GpuMemory.h>
 

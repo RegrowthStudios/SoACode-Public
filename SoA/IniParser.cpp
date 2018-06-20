@@ -316,7 +316,7 @@ int ByteBlit(const char* file, void* dst, int maxSize) {
     FILE* f;
     errno_t err = fopen_s(&f, file, "r");
     if(err) {
-#if DEBUG
+#ifdef DEBUG
         printf("Could Not Open INI File\nError: %d", err);
 #endif // DEBUG
         throw err;

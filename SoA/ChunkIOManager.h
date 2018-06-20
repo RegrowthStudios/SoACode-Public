@@ -4,8 +4,6 @@
 #include <queue>
 #include <thread>
 
-#include <ZLIB/zlib.h>
-
 #include "RegionFileManager.h"
 #include "readerwriterqueue.h"
 

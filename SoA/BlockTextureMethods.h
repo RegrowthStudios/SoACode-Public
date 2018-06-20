@@ -16,6 +16,7 @@
 #define BlockTextureMethods_h__
 
 #include <functional>
+#include <Vorb/types.h>
 
 class ChunkMesher;
 class BlockTextureLayer;

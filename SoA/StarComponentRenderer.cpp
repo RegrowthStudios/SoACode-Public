@@ -15,6 +15,8 @@
 #include <Vorb/graphics/SamplerState.h>
 #include <Vorb/utils.h>
 
+#include <glm/gtx/transform.hpp>
+
 #define MIN_TMP 800.0
 #define TMP_RANGE 29200.0
 #define ICOSPHERE_SUBDIVISIONS 5
@@ -78,12 +80,12 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     orientationF32.w = (f32)orientation.w;
 
     // Convert to matrix
-    f32m4 rotationMatrix = vmath::toMat4(orientationF32);
+    f32m4 rotationMatrix = glm::toMat4(orientationF32);
 
     // Set up matrix
     f32m4 WVP(1.0);
     setMatrixTranslation(WVP, -relCamPos);
-    WVP = VP * WVP * vmath::scale(f32v3(sCmp.radius)) * rotationMatrix;
+    WVP = VP * WVP * glm::scale(f32v3(sCmp.radius)) * rotationMatrix;
 
     // Upload uniforms
     // Upload uniforms
@@ -93,7 +95,7 @@ void StarComponentRenderer::drawStar(const StarComponent& sCmp,
     glUniformMatrix4fv(unWVP, 1, GL_FALSE, &WVP[0][0]);
     glUniform3fv(m_starProgram.getUniform("unColor"), 1, &tColor[0]);
     glUniform1f(m_starProgram.getUniform("unRadius"), (f32)sCmp.radius);
-    f32v3 unCenterDir = vmath::normalize(relCamPos);
+    f32v3 unCenterDir = glm::normalize(relCamPos);
     glUniform3fv(m_starProgram.getUniform("unCenterDir"), 1, &unCenterDir[0]);
     // For logarithmic Z buffer
     glUniform1f(m_starProgram.getUniform("unZCoef"), zCoef);
@@ -151,7 +153,7 @@ void StarComponentRenderer::drawCorona(StarComponent& sCmp,
 }
 
 f32v3 hdrs(f32v3 v) {
-    return f32v3(1.0f) - vmath::exp(v * -3.0f);
+    return f32v3(1.0f) - glm::exp(v * -3.0f);
 }
 
 void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
@@ -173,7 +175,7 @@ void StarComponentRenderer::drawGlow(const StarComponent& sCmp,
    
     m_glowProgram.use();
 
-    f32 scale = vmath::clamp((f32)((sCmp.temperature - MIN_TMP) / TMP_RANGE), 0.0f, 1.0f);
+    f32 scale = glm::clamp((f32)((sCmp.temperature - MIN_TMP) / TMP_RANGE), 0.0f, 1.0f);
 
     // Upload uniforms
     f32v3 center(-relCamPos);
@@ -238,13 +240,13 @@ void StarComponentRenderer::updateOcclusionQuery(StarComponent& sCmp,
     if (gl_Position.z < 0.0) {
         centerScreenspace64.x = -100.0f; // force it off screen
     } else {
-        centerScreenspace64.z = log2(vmath::max(1e-6, gl_Position.w + 1.0)) * zCoef - 1.0;
+        centerScreenspace64.z = log2(glm::max(1e-6, gl_Position.w + 1.0)) * zCoef - 1.0;
         centerScreenspace64.z *= gl_Position.w;
     }
     f32v3 centerScreenspace(centerScreenspace64);
 
     f64 s = calculateGlowSize(sCmp, relCamPos) / 128.0;
-    s = vmath::max(0.005, s); // make sure it never gets too small
+    s = glm::max(0.005, s); // make sure it never gets too small
 
     m_occlusionProgram.use();
 
@@ -477,7 +479,7 @@ f64 StarComponentRenderer::calculateGlowSize(const StarComponent& sCmp, const f6
     static const f64 TSUN = 5778.0;
 
     // Georg's magic formula
-    f64 d = vmath::length(relCamPos); // Distance
+    f64 d = glm::length(relCamPos); // Distance
     f64 D = sCmp.radius * 2.0 * DSUN;
     f64 L = (D * D) * pow(sCmp.temperature / TSUN, 4.0); // Luminosity
     return 0.016 * pow(L, 0.25) / pow(d, 0.5); // Size
@@ -487,7 +489,7 @@ f32v3 StarComponentRenderer::calculateStarColor(const StarComponent& sCmp) {
     // Calculate temperature color
     f32v3 tColor;
     f32 scale = (f32)(m_tempColorMap.width * (sCmp.temperature - MIN_TMP) / TMP_RANGE);
-    scale = vmath::clamp(scale, 0.0f, (f32)m_tempColorMap.width);
+    scale = glm::clamp(scale, 0.0f, (f32)m_tempColorMap.width);
     ui32 rScale = (ui32)(scale + 0.5f);
     ui32 iScale = (ui32)scale;
 

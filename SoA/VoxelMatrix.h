@@ -2,6 +2,8 @@
 #ifndef VoxelMatrix_h__
 #define VoxelMatrix_h__
 
+#include "Vorb/types.h"
+
 class VoxelMatrix {
 public:
     const ColorRGBA8& getColor(const int index) const;

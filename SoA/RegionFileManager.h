@@ -2,7 +2,7 @@
 #include <deque>
 #include <map>
 
-#include <ZLIB/zconf.h>
+#include <zconf.h>
 #include <Vorb/Vorb.h>
 
 #include "Constants.h"

@@ -1,5 +1,7 @@
 #pragma once
-#include <ZLIB/unzip.h>
+
+#include <minizip/unzip.h>
+#include <Vorb/types.h>
 
 class ZipFile {
 public:

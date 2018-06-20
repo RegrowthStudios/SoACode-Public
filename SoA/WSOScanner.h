@@ -1,4 +1,7 @@
 #pragma once
+
+#include <Vorb/types.h>
+
 class ChunkGrid;
 class WSO;
 class WSOAtlas;

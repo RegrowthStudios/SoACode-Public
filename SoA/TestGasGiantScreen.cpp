@@ -90,7 +90,7 @@ void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
     m_camera.setPosition(f64v3(m_eyePos));
     m_camera.update();
 
-    f32v3 lightPos = vmath::normalize(f32v3(0.0f, 0.0f, 1.0f));
+    f32v3 lightPos = glm::normalize(f32v3(0.0f, 0.0f, 1.0f));
 
     PreciseTimer timer;
     /* m_gasGiantRenderer.draw(m_ggCmp, m_camera.getViewProjectionMatrix(),

@@ -1,6 +1,7 @@
 #pragma once
 class WSOData;
 
+#include <Vorb/types.h>
 /************************************************************************/
 /* WSO File Specification                                               */
 /* FileSpecs\WSO.txt                                                    */

@@ -10,6 +10,7 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/RasterizerState.h>
 #include <Vorb/graphics/ShaderManager.h>
+#include <Vorb/math/VorbMath.hpp>
 
 #define ICOSPHERE_SUBDIVISIONS 5
 
@@ -39,7 +40,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
     setMatrixTranslation(WVP, -relCamPos);
     WVP = VP * WVP;
 
-    f32 camHeight = vmath::length(relCamPos);
+    f32 camHeight = glm::length(relCamPos);
     f32 camHeight2 = camHeight * camHeight;
 
     // Upload uniforms

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Vorb/types.h>
+
 // Traverses The Endless Space Of Local Voxels
 class VoxelRay {
 public:

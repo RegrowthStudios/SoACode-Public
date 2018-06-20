@@ -52,6 +52,22 @@ public:
 };
 
 struct VoxelQuad {
+    VoxelQuad() {}
+
+    VoxelQuad(VoxelQuad const &that)
+    {
+        for(size_t i=0; i<4; i++)
+            verts[i]=that.verts[i];
+    }
+
+    ~VoxelQuad()
+    {
+        v0.BlockVertex::~BlockVertex();
+        v1.BlockVertex::~BlockVertex();
+        v2.BlockVertex::~BlockVertex();
+        v3.BlockVertex::~BlockVertex(); 
+    }
+
     union {
         struct {
             BlockVertex v0;

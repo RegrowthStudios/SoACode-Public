@@ -8,7 +8,7 @@
 #include "Octree.h"
 
 void DualContouringMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelModelVertex>& vertices, std::vector<ui32>& indices) {
-    int octreeSize = vmath::max(vmath::max(matrix.size.x, matrix.size.y), matrix.size.z);
+    int octreeSize = glm::max(glm::max(matrix.size.x, matrix.size.y), matrix.size.z);
 
     gMatrix = &matrix;
     octreeSize = 128;

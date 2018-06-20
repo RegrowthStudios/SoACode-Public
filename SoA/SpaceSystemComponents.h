@@ -18,7 +18,7 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/ecs/Entity.h>
 #include <Vorb/graphics/gtypes.h>
-#include <concurrentqueue.h>
+#include <Vorb/concurrentqueue.h>
 
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/ECS.h>

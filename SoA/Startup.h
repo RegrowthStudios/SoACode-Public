@@ -15,6 +15,8 @@
 #ifndef Startup_h__
 #define Startup_h__
 
+#include "Vorb/types.h"
+
 /*! @brief Designates the startup format.
  */
 enum class Startup {

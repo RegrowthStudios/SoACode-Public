@@ -32,17 +32,18 @@ typedef ui16 BlockIndex;
 
 class ChunkGridData {
 public:
-    ChunkGridData() {};
-    ChunkGridData(const ChunkPosition3D& pos) {
+    ChunkGridData():isLoading(false), isLoaded(false), refCount(1){};
+    ChunkGridData(const ChunkPosition3D& pos):isLoading(false), isLoaded(false), refCount(1)
+    {
         gridPosition.pos = i32v2(pos.pos.x, pos.pos.z);
         gridPosition.face = pos.face;
     }
 
     ChunkPosition2D gridPosition;
     PlanetHeightData heightData[CHUNK_LAYER];
-    bool isLoading = false;
-    bool isLoaded = false;
-    int refCount = 1;
+    bool isLoading;
+    bool isLoaded;
+    int refCount;
 };
 
 // TODO(Ben): Can lock two chunks without deadlock worry with checkerboard pattern updates.
@@ -56,6 +57,8 @@ class Chunk {
     friend class PagedChunkAllocator;
     friend class SphericalVoxelComponentUpdater;
 public:
+    
+    Chunk():genLevel(ChunkGenLevel::GEN_NONE), pendingGenLevel(ChunkGenLevel::GEN_NONE), isAccessible(false), accessor(nullptr), m_inLoadRange(false), m_handleState(0), m_handleRefCount(0) {}
     // Initializes the chunk but does not set voxel data
     // Should be called after ChunkAccessor sets m_id
     void init(WorldCubeFace face);
@@ -99,15 +102,15 @@ public:
                  ChunkHandle front);
         UNIONIZE(ChunkHandle neighbors[6]);
     };
-    volatile ChunkGenLevel genLevel = ChunkGenLevel::GEN_NONE;
-    ChunkGenLevel pendingGenLevel = ChunkGenLevel::GEN_NONE;
+    volatile ChunkGenLevel genLevel;
+    ChunkGenLevel pendingGenLevel;
     bool isDirty;
     f32 distance2; //< Squared distance
     int numBlocks;
     // TODO(Ben): reader/writer lock
     std::mutex dataMutex;
 
-    volatile bool isAccessible = false;
+    volatile bool isAccessible;
 
     // TODO(Ben): Think about data locality.
     vvox::SmartVoxelContainer<ui16> blocks;
@@ -116,7 +119,7 @@ public:
     std::vector<ui16> floraToGenerate;
     volatile ui32 updateVersion;
 
-    ChunkAccessor* accessor = nullptr;
+    ChunkAccessor* accessor;
 
     static Event<ChunkHandle&> DataChange;
 private:
@@ -128,7 +131,7 @@ private:
     VoxelPosition3D m_voxelPosition;
 
     ui32 m_activeIndex; ///< Position in active list for m_chunkGrid
-    bool m_inLoadRange = false;
+    bool m_inLoadRange;
 
     ChunkID m_id;
 
@@ -136,8 +139,8 @@ private:
     /* Chunk Handle Data                                                    */
     /************************************************************************/
     std::mutex m_handleMutex;
-    __declspec(align(4)) volatile ui32 m_handleState = 0;
-    __declspec(align(4)) volatile ui32 m_handleRefCount = 0;
+    __declspec(align(4)) volatile ui32 m_handleState;
+    __declspec(align(4)) volatile ui32 m_handleRefCount;
 };
 
 #endif // NChunk_h__

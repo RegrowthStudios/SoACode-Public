@@ -23,7 +23,7 @@ void SphericalHeightmapGenerator::generateHeightData(OUT PlanetHeightData& heigh
     pos[coordMapping.y] = m_genData->radius * (f64)VoxelSpaceConversions::FACE_Y_MULTS[(int)facePosition.face];
     pos[coordMapping.z] = facePosition.pos.y * KM_PER_VOXEL * coordMults.y;
 
-    f64v3 normal = vmath::normalize(pos);
+    f64v3 normal = glm::normalize(pos);
 
     generateHeightData(height, normal * m_genData->radius, normal);
 
@@ -307,20 +307,20 @@ f64 SphericalHeightmapGenerator::getBaseHeightValue(const f64v3& pos) const {
 f64 SphericalHeightmapGenerator::getTemperatureValue(const f64v3& pos, const f64v3& normal, f64 height) const {
     f64 genHeight = m_genData->tempTerrainFuncs.base;
     getNoiseValue(pos, m_genData->tempTerrainFuncs.funcs, nullptr, TerrainOp::ADD, genHeight);
-    return calculateTemperature(m_genData->tempLatitudeFalloff, computeAngleFromNormal(normal), genHeight - vmath::max(0.0, m_genData->tempHeightFalloff * height));
+    return calculateTemperature(m_genData->tempLatitudeFalloff, computeAngleFromNormal(normal), genHeight - glm::max(0.0, m_genData->tempHeightFalloff * height));
 }
 
 f64 SphericalHeightmapGenerator::getHumidityValue(const f64v3& pos, const f64v3& normal, f64 height) const {
     f64 genHeight = m_genData->humTerrainFuncs.base;
     getNoiseValue(pos, m_genData->humTerrainFuncs.funcs, nullptr, TerrainOp::ADD, genHeight);
-    return SphericalHeightmapGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), genHeight - vmath::max(0.0, m_genData->humHeightFalloff * height));
+    return SphericalHeightmapGenerator::calculateHumidity(m_genData->humLatitudeFalloff, computeAngleFromNormal(normal), genHeight - glm::max(0.0, m_genData->humHeightFalloff * height));
 }
 
 // Thanks to tetryds for these
 f64 SphericalHeightmapGenerator::calculateTemperature(f64 range, f64 angle, f64 baseTemp) {
     f64 tempFalloff = 1.0 - pow(cos(angle), 2.0 * angle);
     f64 temp = baseTemp - tempFalloff * range;
-    return vmath::clamp(temp, 0.0, 255.0);
+    return glm::clamp(temp, 0.0, 255.0);
 }
 
 // Thanks to tetryds for these
@@ -328,7 +328,7 @@ f64 SphericalHeightmapGenerator::calculateHumidity(f64 range, f64 angle, f64 bas
     f64 cos3x = cos(3.0 * angle);
     f64 humFalloff = 1.0 - (-0.25 * angle + 1.0) * (cos3x * cos3x);
     f64 hum = baseHum - humFalloff * range;
-    return vmath::clamp(hum, 0.0, 255.0);
+    return glm::clamp(hum, 0.0, 255.0);
 }
 
 f64 SphericalHeightmapGenerator::computeAngleFromNormal(const f64v3& normal) {
@@ -337,8 +337,8 @@ f64 SphericalHeightmapGenerator::computeAngleFromNormal(const f64v3& normal) {
         // Need to do this to fix an equator bug
         return 0.0;
     } else {
-        f64v3 equator = vmath::normalize(f64v3(normal.x, 0.000000001, normal.z));
-        return acos(vmath::dot(equator, normal));
+        f64v3 equator = glm::normalize(f64v3(normal.x, 0.000000001, normal.z));
+        return acos(glm::dot(equator, normal));
     }
 }
 
@@ -375,7 +375,7 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             }
             // Optional clamp if both fields are not 0.0
             if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
-                h = vmath::clamp(*modifier, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                h = glm::clamp(*modifier, (f64)fn.clamp[0], (f64)fn.clamp[1]);
             }
             nextOp = fn.op;
         } else if (fn.func == TerrainStage::PASS_THROUGH) {
@@ -385,7 +385,7 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                 h = doOperation(op, *modifier, fn.low);
                 // Optional clamp if both fields are not 0.0
                 if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
-                    h = vmath::clamp(h, fn.clamp[0], fn.clamp[1]);
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
             }
             nextOp = op;
@@ -396,7 +396,7 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                 *modifier = (*modifier) * (*modifier);
                 // Optional clamp if both fields are not 0.0
                 if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
-                    h = vmath::clamp(h, fn.clamp[0], fn.clamp[1]);
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
             }
             nextOp = op;
@@ -407,7 +407,7 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                 *modifier = (*modifier) * (*modifier) * (*modifier);
                 // Optional clamp if both fields are not 0.0
                 if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
-                    h = vmath::clamp(h, fn.clamp[0], fn.clamp[1]);
+                    h = glm::clamp(h, fn.clamp[0], fn.clamp[1]);
                 }
             }
             nextOp = op;
@@ -428,10 +428,10 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                         total += Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency) * amplitude;
                         break;
                     case TerrainStage::RIDGED_NOISE:
-                        total += ((1.0 - vmath::abs(Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency))) * 2.0 - 1.0) * amplitude;
+                        total += ((1.0 - glm::abs(Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency))) * 2.0 - 1.0) * amplitude;
                         break;
                     case TerrainStage::ABS_NOISE:
-                        total += vmath::abs(Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency)) * amplitude;
+                        total += glm::abs(Noise::raw(pos.x * frequency, pos.y * frequency, pos.z * frequency)) * amplitude;
                         break;
                     case TerrainStage::CELLULAR_NOISE:
                         ff = Noise::cellular(pos * (f64)frequency);
@@ -472,7 +472,7 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
             }
             // Optional clamp if both fields are not 0.0
             if (fn.clamp[0] != 0.0 || fn.clamp[1] != 0.0) {
-                h = vmath::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
+                h = glm::clamp(h, (f64)fn.clamp[0], (f64)fn.clamp[1]);
             }
             // Apply modifier from parent if needed
             if (modifier) {

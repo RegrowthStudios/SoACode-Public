@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SphericalVoxelComponentUpdater.h"
 
-#include <SDL/SDL_timer.h> // For SDL_GetTicks
+#include <SDL2/SDL_timer.h> // For SDL_GetTicks
 
 #include "Chunk.h"
 #include "ChunkAllocator.h"

@@ -88,14 +88,14 @@ bool FarTerrainPatch::isOverHorizon(const f64v3 &relCamPos, const f64v3 &point, 
     // We assume the camera is at the tip of the sphere
     f64v3 sphereCamPos(0, relCamPos.y + planetRadius, 0);
 
-    f64 camHeight = vmath::length(sphereCamPos);
+    f64 camHeight = glm::length(sphereCamPos);
     f64v3 normalizedCamPos = sphereCamPos / camHeight;
 
     // Limit the camera depth
     if (camHeight < planetRadius + 1.0) camHeight = planetRadius + 1.0;
 
     f64 horizonAngle = acos(planetRadius / camHeight);
-    f64 lodAngle = acos(vmath::dot(normalizedCamPos, vmath::normalize(spherePoint)));
+    f64 lodAngle = acos(glm::dot(normalizedCamPos, glm::normalize(spherePoint)));
     if (lodAngle >= horizonAngle + DELTA) {
         return true;
     }

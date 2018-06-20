@@ -67,7 +67,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
     // Set up matrix
     for (auto& r : (*rings)) {
 
-        f64q invOrientation = vmath::inverse(r.ring.orientation);
+        f64q invOrientation = glm::inverse(r.ring.orientation);
 
         // Convert f64q to f32q
         f32q orientationF32;
@@ -76,7 +76,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
         orientationF32.z = (f32)r.ring.orientation.z;
         orientationF32.w = (f32)r.ring.orientation.w;
         // Convert to matrix
-        f32m4 rotationMatrix = vmath::toMat4(orientationF32);
+        f32m4 rotationMatrix = glm::toMat4(orientationF32);
 
         f32m4 W(1.0);
         setMatrixScale(W, f32v3(r.ring.outerRadius));

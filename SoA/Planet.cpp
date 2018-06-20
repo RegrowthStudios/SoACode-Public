@@ -8,19 +8,19 @@
 #include <Vorb/graphics/GLStates.h>
 
 #include "Camera.h"
-#include "FileSystem.h"
+//#include "FileSystem.h"
 #include "GameManager.h"
-#include "InputManager.h"
+//#include "InputManager.h"
 #include "Inputs.h"
-#include "ObjectLoader.h"
-#include "Options.h"
-#include "Rendering.h"
-#include "TerrainGenerator.h"
-#include "TerrainPatch.h"
-#include "TexturePackLoader.h"
+//#include "ObjectLoader.h"
+//#include "Options.h"
+//#include "Rendering.h"
+//#include "TerrainGenerator.h"
+//#include "TerrainPatch.h"
+//#include "TexturePackLoader.h"
 
 
-ObjectLoader objectLoader;
+//ObjectLoader objectLoader;
 
 Planet::Planet()
 {
@@ -51,28 +51,28 @@ Planet::~Planet()
 
 void Planet::clearMeshes()
 {
-    TerrainBuffers *tb;
-    for (int k = 0; k < 6; k++){
-        for (size_t i = 0; i < drawList[k].size(); i++){
-            tb = drawList[k][i];
-            if (tb->vaoID != 0) glDeleteVertexArrays(1, &(tb->vaoID));
-            if (tb->vboID != 0) glDeleteBuffers(1, &(tb->vboID));
-            if (tb->treeVboID != 0) glDeleteBuffers(1, &(tb->treeVboID));
-            if (tb->vboIndexID != 0) glDeleteBuffers(1, &(tb->vboIndexID));
-            delete tb;
-        }
+//    TerrainBuffers *tb;
+//    for (int k = 0; k < 6; k++){
+//        for (size_t i = 0; i < drawList[k].size(); i++){
+//            tb = drawList[k][i];
+//            if (tb->vaoID != 0) glDeleteVertexArrays(1, &(tb->vaoID));
+//            if (tb->vboID != 0) glDeleteBuffers(1, &(tb->vboID));
+//            if (tb->treeVboID != 0) glDeleteBuffers(1, &(tb->treeVboID));
+//            if (tb->vboIndexID != 0) glDeleteBuffers(1, &(tb->vboIndexID));
+//            delete tb;
+//        }
+//
+//        drawList[k].clear();
+//    }
 
-        drawList[k].clear();
-    }
 
-
-    for (size_t i = 0; i < 6U; i++){
-        for (size_t j = 0; j < faces[i].size(); j++){
-            for (size_t k = 0; k < faces[i][j].size(); k++){
-                faces[i][j][k]->NullifyBuffers();
-            }
-        }
-    }
+//    for (size_t i = 0; i < 6U; i++){
+//        for (size_t j = 0; j < faces[i].size(); j++){
+//            for (size_t k = 0; k < faces[i][j].size(); k++){
+//                faces[i][j][k]->NullifyBuffers();
+//            }
+//        }
+//    }
 }
 
 void Planet::initialize(nString filePath)
@@ -873,9 +873,9 @@ void Atmosphere::initialize(nString filePath, float PlanetRadius)
     radius = PlanetRadius*(1.025);
     planetRadius = PlanetRadius;
 
-    std::cout << "Loading Objects/icosphere.obj... ";
-    objectLoader.load("Objects/icosphere.obj", vertices, indices);
-    std::cout << "Done!\n";
+    //std::cout << "Loading Objects/icosphere.obj... ";
+    //objectLoader.load("Objects/icosphere.obj", vertices, indices);
+    //std::cout << "Done!\n";
 
     glGenBuffers(1, &(vboID)); // Create the buffer ID
     glBindBuffer(GL_ARRAY_BUFFER, vboID); // Bind the buffer (vertex array data)
