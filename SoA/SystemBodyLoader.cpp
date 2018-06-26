@@ -12,7 +12,7 @@ void SystemBodyLoader::init(vio::IOManager* iom) {
 }
 
 bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePath,
-                                const SystemOrbitProperties* sysProps, SystemBody* body,
+                                const SystemOrbitProperties* sysProps, SystemBody* body, keg::Node &value,
                                 vcore::RPCManager* glrpc /* = nullptr */) {
 
 #define KEG_CHECK \
@@ -24,17 +24,12 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
 
     keg::Error error;
     nString data;
-    m_iom->readFileToString(filePath.c_str(), data);
+    nString propertiesFile=filePath+"properties.yml";
+
+    m_iom->readFileToString(propertiesFile.c_str(), data);
 
     keg::ReadContext context;
-    context.env = keg::getGlobalEnvironment();
-    context.reader.init(data.c_str());
-    keg::Node node = context.reader.getFirst();
-    if (keg::getType(node) != keg::NodeType::MAP) {
-        std::cout << "Failed to load " + filePath;
-        context.reader.dispose();
-        return false;
-    }
+    context.env=keg::getGlobalEnvironment();
 
     bool goodParse = true;
     bool foundOne = false;
@@ -101,7 +96,29 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
         //Only parse the first
         foundOne = true;
     });
-    context.reader.forAllInMap(node, f);
+
+    if(data.empty())
+    {
+        f->invoke(nullptr, spaceObjectTypeName(sysProps->type), value);
+    }
+    else
+    {
+        context.reader.init(data.c_str());
+        keg::Node node=context.reader.getFirst();
+
+        if(keg::getType(node)!=keg::NodeType::MAP)
+        {
+            //lets go ahead and give it an entity id even though we dont have properties for it
+            body->entity=soaState->spaceSystem->addEntity();
+
+            std::cout<<"Failed to load "+filePath;
+            context.reader.dispose();
+            return false;
+        }
+
+        context.reader.forAllInMap(node, f);
+    }
+
     delete f;
     context.reader.dispose();
 

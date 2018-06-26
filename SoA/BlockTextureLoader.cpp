@@ -190,7 +190,54 @@ bool BlockTextureLoader::loadTextureProperties() {
 
     BlockTexture* texture;
     auto valf = makeFunctor([&](Sender, const nString& key, keg::Node value) {
-        TEXTURE_PARSE_CODE;
+//        TEXTURE_PARSE_CODE;
+        if(key=="base")
+        {
+            if(keg::getType(value)==keg::NodeType::MAP)
+            {
+            }
+            else
+            {
+                nString base=keg::convert<nString>(value);
+                auto& it=m_layers.find(base);
+                if(it!=m_layers.end())
+                {
+                    texture->base=it->second;
+                }
+            }
+        }
+        else if(key=="overlay")
+        {
+            if(keg::getType(value)==keg::NodeType::MAP)
+            {
+            }
+            else
+            {
+                nString overlay=keg::convert<nString>(value);
+                auto& it=m_layers.find(overlay);
+                if(it!=m_layers.end())
+                {
+
+                    texture->overlay=it->second;
+                }
+            }
+        }
+        else if(key=="blendMode")
+        {
+            nString v=keg::convert<nString>(value);
+            if(v=="add")
+            {
+                texture->blendMode=BlendType::ADD;
+            }
+            else if(v=="multiply")
+            {
+                texture->blendMode=BlendType::MULTIPLY;
+            }
+            else if(v=="subtract")
+            {
+                texture->blendMode=BlendType::SUBTRACT;
+            }
+        }
     });
 
     // Load all layers

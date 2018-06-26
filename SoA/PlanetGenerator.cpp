@@ -142,7 +142,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     }
 
     // Upload texture
-    VGTexture tex;
+    VGTexture tex=0;
     if (glrpc) {
         vcore::RPC rpc;
         rpc.data.f = makeFunctor([&](Sender s, void* userData) {

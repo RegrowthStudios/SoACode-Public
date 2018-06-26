@@ -207,19 +207,20 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
     m_sb->begin();
     f32v2 uvTile(0.999999f, 0.999999f);
     if (m_isOnVorb) {
-        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
-            f32v2 pos = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
-            f32v4 color = m_fUpdateVorbColor(m_timer, nString(vorbTextureNames[i]));          
-            m_sb->draw(m_vorbTextures[i].id, nullptr, &uvTile, pos, f32v2(m_vorbTextures[i].width, m_vorbTextures[i].height), color4(color.r, color.g, color.b, color.a));
-        }
+//        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
+//            f32v2 pos = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
+//            f32v4 color = m_fUpdateVorbColor(m_timer, nString(vorbTextureNames[i]));          
+//            m_sb->draw(m_vorbTextures[i].id, nullptr, &uvTile, pos, f32v2(m_vorbTextures[i].width, m_vorbTextures[i].height), color4(color.r, color.g, color.b, color.a));
+//        }
     } else {
-        if (m_timer <= m_regrowthScreenDuration) {
-            for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
-                f32v2 pos = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
-                f32v4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
-                m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color4(color.r, color.g, color.b, color.a));
-            }
-        } else {
+//        if (m_timer <= m_regrowthScreenDuration) {
+//            for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
+//                f32v2 pos = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
+//                f32v4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
+//                m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color4(color.r, color.g, color.b, color.a));
+//            }
+//        } else 
+        {
             // Animated loading message. TODO(Ben): Replace with progress bar
             int it = (int)m_timer % 3;
             if (it == 0) {
