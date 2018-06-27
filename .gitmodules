@@ -1,6 +1,6 @@
-[submodule "deps"]
-	path = deps
-	url = git@github.com:RegrowthStudios/SoADeps.git
 [submodule "game"]
 	path = game
-	url = git@github.com:RegrowthStudios/SoAGameData.git
+	url = https://github.com/RegrowthStudios/SoAGameData.git
+[submodule "Vorb"]
+	path = Vorb
+	url = https://github.com/RegrowthStudios/Vorb.git

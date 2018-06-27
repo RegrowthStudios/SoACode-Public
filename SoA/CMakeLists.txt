@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+
+cmake_policy(SET CMP0054 NEW)
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   if (APPLE)
@@ -580,4 +582,12 @@ target_link_libraries(soa
 #    ${SDL_INCLUDE_DIRS}
 #    ${GLEW_INCLUDE_DIRS}
 #    ${BOOST_INCLUDE_DIRS}
+)
+
+include(CreateLaunchers)
+
+create_target_launcher(soa
+    ARGS "-a"
+	RUNTIME_LIBRARY_DIRS "${CMAKE_BINARY_DIR}"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../game"
 )
