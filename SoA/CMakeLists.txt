@@ -581,3 +581,9 @@ target_link_libraries(soa
 #    ${GLEW_INCLUDE_DIRS}
 #    ${BOOST_INCLUDE_DIRS}
 )
+
+create_target_launcher(soa
+    ARGS "-a"
+	RUNTIME_LIBRARY_DIRS "${CMAKE_BINARY_DIR}"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../game"
+)

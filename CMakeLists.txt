@@ -7,6 +7,8 @@ HunterGate(
     SHA1 "4128ac8c79c21b250bf825e8119ce0bff05e5132"
 )
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+
 project(SoA)
 
 add_subdirectory(Vorb)
