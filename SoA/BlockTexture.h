@@ -159,7 +159,11 @@ public:
 };
 
 struct BlockTexture {
-    BlockTexture():blendMode(BlendType::ALPHA){}
+    BlockTexture():blendMode(BlendType::ALPHA)
+    {
+        base.BlockTextureLayer::BlockTextureLayer();
+        overlay.BlockTextureLayer::BlockTextureLayer();
+    }
     //provide deconstructor because of union
     ~BlockTexture()
     {

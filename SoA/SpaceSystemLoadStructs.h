@@ -21,6 +21,8 @@ struct PlanetGenData;
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/Entity.h>
 
+#include <unordered_map>
+
 enum class SpaceBodyType {
     NONE,
     PLANET,
@@ -41,6 +43,8 @@ enum class SpaceObjectType {
     COMET
 };
 KEG_TYPE_DECL(SpaceObjectType);
+
+std::string spaceObjectTypeName(const SpaceObjectType &type);
 
 enum class TrojanType {
     NONE,

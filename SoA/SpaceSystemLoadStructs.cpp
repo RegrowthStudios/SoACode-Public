@@ -18,6 +18,24 @@ KEG_ENUM_DEF(SpaceObjectType, SpaceObjectType, kt) {
     kt.addValue("Comet", SpaceObjectType::COMET);
 }
 
+std::string spaceObjectTypeName(const SpaceObjectType &type)
+{
+    static std::unordered_map<SpaceObjectType, std::string> SpaceObjectTypeNames=
+    {
+        {SpaceObjectType::NONE, "none"},
+        {SpaceObjectType::BARYCENTER, "barycenter"},
+        {SpaceObjectType::STAR, "star"},
+        {SpaceObjectType::PLANET, "planet"},
+        {SpaceObjectType::DWARF_PLANET, "dwarfplanet"},
+        {SpaceObjectType::MOON, "moon"},
+        {SpaceObjectType::DWARF_MOON, "dwarfmoon"},
+        {SpaceObjectType::ASTEROID, "asteroid"},
+        {SpaceObjectType::COMET, "comet"}
+    };
+
+    return SpaceObjectTypeNames[type];
+}
+
 KEG_ENUM_DEF(TrojanType, TrojanType, kt) {
     kt.addValue("L4", TrojanType::L4);
     kt.addValue("L5", TrojanType::L5);

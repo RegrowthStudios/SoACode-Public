@@ -170,7 +170,11 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
 
     // Binary search
     ui32 lower = 0;
-    ui32 upper = layers.size() - 1;
+    ui32 upper=0;
+    
+    if(!layers.empty())
+        upper=layers.size()-1;
+    
     ui32 pos = (lower + upper) / 2;
 
     while (lower <= upper) {

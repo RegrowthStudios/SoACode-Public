@@ -125,7 +125,7 @@ bool SpaceSystemLoader::loadSystemProperties() {
             body->parentName = properties.par;
             body->properties = properties;
             if (properties.path.size()) {
-                m_bodyLoader.loadBody(m_soaState, properties.path, &properties, body);
+                m_bodyLoader.loadBody(m_soaState, properties.path, &properties, body, value);
                 m_bodyLookupMap[body->name] = body->entity;
             } else {
                 // Make default orbit (used for barycenters)
