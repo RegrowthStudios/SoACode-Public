@@ -13,6 +13,7 @@ public:
         : _isFinished(false) {
         // Empty
     }
+    virtual ~ILoadTask(){}
 
     bool isFinished() const {
         return _isFinished;

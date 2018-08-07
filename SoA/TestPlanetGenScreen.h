@@ -23,7 +23,7 @@
 #include "SphericalTerrainComponentRenderer.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "PlanetGenLoader.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include <Vorb/Events.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>

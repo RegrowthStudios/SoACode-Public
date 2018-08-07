@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SphericalTerrainComponentUpdater.h"
 
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemComponents.h"

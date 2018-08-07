@@ -201,15 +201,20 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
         }
     }
 
+    f64v3 pl;
+    f64v3 pr;
+    f64v3 pb;
+    f64v3 pf;
+
     // Second pass for normals TODO(Ben): Padding
     for (int z = 1; z < PADDED_PATCH_WIDTH - 1; z++) {
         for (int x = 1; x < PADDED_PATCH_WIDTH - 1; x++) {
             auto& v = verts[(z - 1) * PATCH_WIDTH + x - 1];
             f64v3& p = positionData[z][x];
-            f64v3& pl = positionData[z][x - 1] - p;
-            f64v3& pr = positionData[z][x + 1] - p;
-            f64v3& pb = positionData[z - 1][x] - p;
-            f64v3& pf = positionData[z + 1][x] - p;
+            pl = positionData[z][x - 1] - p;
+            pr = positionData[z][x + 1] - p;
+            pb = positionData[z - 1][x] - p;
+            pf = positionData[z + 1][x] - p;
             // Calculate smooth normal
             v.normal = glm::normalize(glm::cross(pb, pl) + glm::cross(pl, pf) +
                                       glm::cross(pf, pr) + glm::cross(pr, pb));

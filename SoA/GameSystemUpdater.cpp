@@ -5,7 +5,7 @@
 #include "GameSystem.h"
 #include "GameSystemAssemblages.h"
 #include "Inputs.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemAssemblages.h"
 #include "TerrainPatch.h"

@@ -72,7 +72,7 @@ public:
     const ItemData& operator[](const ItemIdentifier& sid) const {
         return m_itemList[m_itemMap.at(sid)];
     }
-    const ui16 getItemDataIndex(const ItemIdentifier& sid) const {
+    ui16 getItemDataIndex(const ItemIdentifier& sid) const {
         return m_itemMap.at(sid);
     }
 

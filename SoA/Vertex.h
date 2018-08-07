@@ -58,11 +58,11 @@ struct BlockVertex {
             ui8 y;
             ui8 z;
         };
-        UNIONIZE(ui8v3 position);
+        ui8v3 position;
     };
     ui8 face;
 
-    UNIONIZE(ui8v2 tex);
+    ui8v2 tex;
     ui8 animationLength;
     ui8 blendMode;
 
@@ -73,10 +73,10 @@ struct BlockVertex {
     ui8v2 textureDims;
     ui8v2 overlayTextureDims;
 
-    UNIONIZE(color3 color);
+    color3 color;
     ui8 mesherFlags;
 
-    UNIONIZE(color3 overlayColor);
+    color3 overlayColor;
     ui8 padding;
 
     // This isn't a full comparison. Its just for greedy mesh comparison so its lightweight.

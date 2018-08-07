@@ -44,10 +44,10 @@ PRINT_VEC_TYPE(f32, f)
 PRINT_VEC_TYPE(f64, lf)
 PRINT_VEC_TYPE(i16, hd)
 PRINT_VEC_TYPE(i32, d)
-PRINT_VEC_TYPE(i64, lld)
+PRINT_VEC_TYPE(i64, ld)
 PRINT_VEC_TYPE(ui16, hu)
 PRINT_VEC_TYPE(ui32, u)
-PRINT_VEC_TYPE(ui64, llu)
+PRINT_VEC_TYPE(ui64, lu)
 #undef PRINT_VEC_TYPE
 
 /************************************************************************/
@@ -178,7 +178,7 @@ public:
         std::hash<T> h;
         ui64 hx = h(seedX);
         ui64 hy = h(seedY);
-        m_seed[0] = (ui64)fastRand(hx) | ((ui64)hy + 214013u << 32);
+        m_seed[0] = (ui64)fastRand(hx) | (((ui64)hy + 214013u) << 32);
         m_seed[1] = (ui64)fastRand(hy) | (m_seed[0] << 32);
         gen();
     }
@@ -188,7 +188,7 @@ public:
         ui64 hx = h(seedX);
         ui64 hy = h(seedY);
         m_seed[0] = (ui64)hx | ((ui64)hy << 32);
-        m_seed[1] = (ui64)hy | ((ui64)hx << 32) ^ (ui64)seedZ;
+        m_seed[1] = ((ui64)hy | ((ui64)hx << 32)) ^ (ui64)seedZ;
         gen();
     }
 

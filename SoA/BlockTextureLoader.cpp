@@ -28,7 +28,7 @@ void BlockTextureLoader::loadTextureData() {
 
 void BlockTextureLoader::loadBlockTextures(Block& block) {
     // Check for block mapping
-    auto& it = m_blockMappings.find(block.sID);
+    auto it = m_blockMappings.find(block.sID);
     if (it == m_blockMappings.end()) {
         printf("Warning: Could not load texture mapping for block %s\n", block.sID.c_str());
         for (int i = 0; i < 6; i++) {
@@ -70,7 +70,7 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
 
 bool BlockTextureLoader::loadLayerProperties() {
     vio::Path path;
-    if (!m_texturePathResolver->resolvePath("LayerProperties.yml", path)) return nullptr;
+    if (!m_texturePathResolver->resolvePath("LayerProperties.yml", path)) return false;
 
     // Read file
     nString data;
@@ -109,6 +109,8 @@ bool BlockTextureLoader::loadLayerProperties() {
                     break;
                 case keg::NodeType::SEQUENCE:
                     keg::evalData((ui8*)&lp->color, &colorVal, value, context);
+                    break;
+                default:
                     break;
             }
         } else if (key == "altColors") {
@@ -171,7 +173,7 @@ if (key == "base") { \
 
 bool BlockTextureLoader::loadTextureProperties() {
     vio::Path path;
-    if (!m_texturePathResolver->resolvePath("Textures.yml", path)) return nullptr;
+    if (!m_texturePathResolver->resolvePath("Textures.yml", path)) return false;
 
     // Read file
     nString data;
@@ -199,7 +201,7 @@ bool BlockTextureLoader::loadTextureProperties() {
             else
             {
                 nString base=keg::convert<nString>(value);
-                auto& it=m_layers.find(base);
+                auto it=m_layers.find(base);
                 if(it!=m_layers.end())
                 {
                     texture->base=it->second;
@@ -214,7 +216,7 @@ bool BlockTextureLoader::loadTextureProperties() {
             else
             {
                 nString overlay=keg::convert<nString>(value);
-                auto& it=m_layers.find(overlay);
+                auto it=m_layers.find(overlay);
                 if(it!=m_layers.end())
                 {
 
@@ -256,7 +258,7 @@ bool BlockTextureLoader::loadTextureProperties() {
 bool BlockTextureLoader::loadBlockTextureMapping() {
 
     vio::Path path;
-    if (!m_texturePathResolver->resolvePath("BlockTextureMapping.yml", path)) return nullptr;
+    if (!m_texturePathResolver->resolvePath("BlockTextureMapping.yml", path)) return false;
 
     // Read file
     nString data;
@@ -283,7 +285,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
             } else {
 
                 nString base = keg::convert<nString>(value);
-                auto& it = m_layers.find(base);
+                auto it = m_layers.find(base);
                 if (it != m_layers.end()) {
                     texture->base = it->second;
                 }
@@ -293,7 +295,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
 
             } else {
                 nString overlay = keg::convert<nString>(value);
-                auto& it = m_layers.find(overlay);
+                auto it = m_layers.find(overlay);
                 if (it != m_layers.end()) {
 
                     texture->overlay = it->second;
@@ -413,31 +415,31 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
         // Already loaded so just use the desc
         // TODO(Ben): Worry about different methods using same file?
         layer.size = desc.size;
-        layer.index = desc.index;
+        layer.index.layer = desc.index;
     } else {
         vio::Path path;
-        if (!m_texturePathResolver->resolvePath(layer.path, path)) return nullptr;
+        if (!m_texturePathResolver->resolvePath(layer.path, path)) return false;
         { // Get pixels for the base texture
-            vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
+            vg::ScopedBitmapResource rs(vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8));
             // Do post processing on the layer
             if (!postProcessLayer(rs, layer)) return false;
         
-            layer.index = m_texturePack->addLayer(layer, layer.path, (color4*)rs.bytesUI8v4);
+            layer.index.layer = m_texturePack->addLayer(layer, layer.path, (color4*)rs.bytesUI8v4);
         }
         // Normal map
         if (layer.normalPath.size() && m_texturePathResolver->resolvePath(layer.normalPath, path)) {
-            vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
+            vg::ScopedBitmapResource rs(vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8));
             // Do post processing on the layer
             if (rs.data) {
-                layer.normalIndex = m_texturePack->addLayer(layer, layer.normalPath, (color4*)rs.bytesUI8v4);
+                layer.index.normal = m_texturePack->addLayer(layer, layer.normalPath, (color4*)rs.bytesUI8v4);
             }
         }
         // disp map
         if (layer.dispPath.size() && m_texturePathResolver->resolvePath(layer.dispPath, path)) {
-            vg::ScopedBitmapResource rs = vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8);
+            vg::ScopedBitmapResource rs(vg::ImageIO().load(path, vg::ImageIOFormat::RGBA_UI8));
             // Do post processing on the layer
             if (rs.data) {
-                layer.dispIndex = m_texturePack->addLayer(layer, layer.dispPath, (color4*)rs.bytesUI8v4);
+                layer.index.disp = m_texturePack->addLayer(layer, layer.dispPath, (color4*)rs.bytesUI8v4);
             }
         }
     }

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SoaState.h"
+#include "SoAState.h"
 
 #include <Vorb/io/IOManager.h>
 

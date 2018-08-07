@@ -4,7 +4,7 @@
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/colors.h>
 
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SoaEngine.h"
 #include "LoadTaskBlockData.h"
 #include "ChunkRenderer.h"

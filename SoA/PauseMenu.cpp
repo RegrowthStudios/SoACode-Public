@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PauseMenu.h"
 
-#include "GameplayScreen.h"
+#include "GamePlayScreen.h"
 #include "ShaderLoader.h"
 
 PauseMenu::PauseMenu() {

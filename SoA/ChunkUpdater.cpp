@@ -461,12 +461,12 @@ void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk*
     int phys;
     const i32v3 pos = getPosFromBlockIndex(id);
 
-    ChunkHandle& left = chunk->left;
-    ChunkHandle& right = chunk->right;
-    ChunkHandle& front = chunk->front;
-    ChunkHandle& back = chunk->back;
-    ChunkHandle& top = chunk->top;
-    ChunkHandle& bottom = chunk->bottom;
+    ChunkHandle& left = chunk->neighbor.left;
+    ChunkHandle& right = chunk->neighbor.right;
+    ChunkHandle& front = chunk->neighbor.front;
+    ChunkHandle& back = chunk->neighbor.back;
+    ChunkHandle& top = chunk->neighbor.top;
+    ChunkHandle& bottom = chunk->neighbor.bottom;
 
 
     //if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {

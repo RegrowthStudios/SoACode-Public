@@ -127,7 +127,7 @@ BlockTextureIndex BlockTexturePack::addLayer(const BlockTextureLayer& layer, con
 }
 
 AtlasTextureDescription BlockTexturePack::findLayer(const nString& filePath) {
-    auto& it = m_descLookup.find(filePath);
+    auto it = m_descLookup.find(filePath);
     if (it != m_descLookup.end()) {
         return it->second;
     }
@@ -135,7 +135,7 @@ AtlasTextureDescription BlockTexturePack::findLayer(const nString& filePath) {
 }
 
 BlockTexture* BlockTexturePack::findTexture(const nString& filePath) {
-    auto& it = m_textureLookup.find(filePath);
+    auto it = m_textureLookup.find(filePath);
     if (it != m_textureLookup.end()) {
         return &m_textures[it->second];
     }
@@ -150,7 +150,7 @@ BlockTexture* BlockTexturePack::getNextFreeTexture(const nString& filePath) {
 }
 
 BlockColorMap* BlockTexturePack::getColorMap(const nString& path) {
-    auto& it = m_colorMaps.find(path);
+    auto it = m_colorMaps.find(path);
     if (it != m_colorMaps.end()) return &it->second;
     return nullptr;
 }
@@ -366,7 +366,7 @@ void BlockTexturePack::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
     if (cmp.planetGenData->terrainColorPixels.data) {
         BlockColorMap* m = setColorMap("biome", &cmp.planetGenData->terrainColorPixels);
         // Set all layers
-        for (int i = 0; i < m_nextFree; i++) {
+        for (ui32 i = 0; i < m_nextFree; i++) {
             for (int j = 0; j < 2; j++) {
                 if (m_textures[i].layers[j].colorMapPath == "biome") {
                     m_textures[i].layers[j].colorMap = m;
@@ -377,7 +377,7 @@ void BlockTexturePack::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
     if (cmp.planetGenData->liquidColorMap.id) {
         BlockColorMap* m = setColorMap("liquid", &cmp.planetGenData->liquidColorPixels);
         // Set all layers
-        for (int i = 0; i < m_nextFree; i++) {
+        for (ui32 i = 0; i < m_nextFree; i++) {
             for (int j = 0; j < 2; j++) {
                 if (m_textures[i].layers[j].colorMapPath == "liquid") {
                     m_textures[i].layers[j].colorMap = m;

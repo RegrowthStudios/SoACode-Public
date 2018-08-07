@@ -10,9 +10,13 @@
 #include "SoaEngine.h"
 #include "ConsoleTests.h"
 
+#include <chrono>
+
 void runScript(vscript::Environment* env, const cString file) {
     env->load(file);
 }
+
+#ifdef _WINDOWS
 int loadDLL(const cString name) {
     HINSTANCE dll = LoadLibrary(name);
     int(*f)() = (int(*)())GetProcAddress(dll, "getCode");
@@ -20,6 +24,7 @@ int loadDLL(const cString name) {
     fflush(stdout);
     return f();
 }
+#endif//_WINDOWS
 
 template<typename T>
 T* create() {
@@ -40,7 +45,8 @@ std::thread* startGame(SoaState* s, SoaController* c) {
     std::thread* t = new std::thread([=] () {
         c->startGame(s);
         while (true) {
-            Sleep(100);
+//            Sleep(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         return;
     });
@@ -53,12 +59,13 @@ void stopGame(std::thread* t) {
         size_t i = 2;
         char buf[] = { '\r', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ' , '\0' };
         while (isRunning) {
-            printf(buf);
+            puts(buf);
             i++;
             buf[i] = ' ';
             i %= 8;
             buf[i + 1] = '.';
-            Sleep(250);
+//            Sleep(250);
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
         }
     });
     t->join();
@@ -78,7 +85,9 @@ void registerFuncs(vscript::Environment& env) {
     /************************************************************************/
     env.addValue("env", &env);
     env.addCDelegate("run", makeDelegate(runScript));
+#ifdef _WINDOWS
     env.addCRDelegate("loadDLL", makeRDelegate(loadDLL));
+#endif//_WINDOWS
 
     /************************************************************************/
     /* Game-specific methods                                                */

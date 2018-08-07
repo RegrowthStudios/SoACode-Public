@@ -13,7 +13,7 @@
 #include "MTRenderState.h"
 #include "MainMenuSystemViewer.h"
 #include "RenderUtils.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystemComponents.h"
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
@@ -352,7 +352,7 @@ const f64v3* SpaceSystemRenderStage::getBodyPosition(NamePositionComponent& npCm
     const f64v3* pos;
     // If we are using MTRenderState, get position from it
     if (m_renderState) {
-        auto& sit = m_renderState->spaceBodyPositions.find(eid);
+        auto sit = m_renderState->spaceBodyPositions.find(eid);
         if (sit != m_renderState->spaceBodyPositions.end()) {
             pos = &sit->second;
         } else {

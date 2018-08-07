@@ -28,7 +28,7 @@ Chunk* PagedChunkAllocator::alloc() {
         ChunkPage* page = new ChunkPage();
         m_chunkPages.push_back(page);
         // Add chunks to free chunks lists
-        for (int i = 0; i < CHUNK_PAGE_SIZE; i++) {
+        for (size_t i = 0; i < CHUNK_PAGE_SIZE; i++) {
             Chunk* chunk = &page->chunks[CHUNK_PAGE_SIZE - i - 1];
             chunk->setRecyclers(&m_shortFixedSizeArrayRecycler);
             m_freeChunks.push_back(chunk);

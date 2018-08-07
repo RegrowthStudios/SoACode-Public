@@ -41,7 +41,7 @@ void SkyboxRenderStage::load(StaticLoadContext& context) {
     context.addTask([&](Sender, void*) {
         vio::Path path;
         m_textureResolver->resolvePath("Sky/Skybox/front.png", path);
-        vg::ScopedBitmapResource frontRes = vg::ImageIO().load(path);
+        vg::ScopedBitmapResource frontRes(vg::ImageIO().load(path));
         m_resolution = frontRes.width;
         if (frontRes.height != m_resolution) {
             pError("Skybox textures must have equal width and height!");
@@ -128,7 +128,7 @@ void SkyboxRenderStage::render(const Camera* camera) {
 }
 
 
-void SkyboxRenderStage::drawSpace(f32m4 &VP) {
+void SkyboxRenderStage::drawSpace(const f32m4 &VP) {
     vg::DepthState::NONE.set();
     m_skyboxRenderer.drawSkybox(VP, m_skyboxTextureArray);
     vg::DepthState::FULL.set();
@@ -150,7 +150,7 @@ void SkyboxRenderStage::updateProjectionMatrix(const Camera* camera) {
 void SkyboxRenderStage::loadTexture(const char* relPath, int index) {
     vio::Path path;
     m_textureResolver->resolvePath(relPath, path);
-    vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource res(vg::ImageIO().load(path));
     if (res.height != m_resolution || res.width != m_resolution) {
         pError("Skybox textures must all have equal width and height!");
     }

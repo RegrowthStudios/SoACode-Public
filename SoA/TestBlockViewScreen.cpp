@@ -14,7 +14,10 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#ifdef _MSC_VER
 #pragma region Simple shader code
+#endif// _MSC_VER
+
 const cString SRC_VERT_BLOCK = R"(
 uniform mat4 unWVP;
 
@@ -45,7 +48,10 @@ void main() {
     pColor = vec4(fColor * f , 1);
 }
 )";
+
+#ifdef _MSC_VER
 #pragma endregion
+#endif// _MSC_VER
 
 struct VertexPosColor {
 public:
@@ -113,10 +119,10 @@ public:
         switch (m_data[quad.startIndex]) {
         case 1:
             c = ColorRGBA8((i32)(quad.voxelPosition.x / 3.0f * 255), (i32)(quad.voxelPosition.y / 3.0f * 255), (i32)(quad.voxelPosition.z / 3.0f * 255));
-            v.color = c.rgb;
+            v.color = c.color.rgb;
             break;
         default:
-            v.color = color::Blue.rgb;
+            v.color = color::Blue.color.rgb;
             break;
         }
 

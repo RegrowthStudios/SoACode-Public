@@ -11,8 +11,8 @@
 
 #include <Vorb/Events.hpp>
 #include <Vorb/IO.h>
-#include <Vorb/io/keg.h>
-#include <Vorb\ecs\ECS.h>
+#include <Vorb/io/Keg.h>
+#include <Vorb/ecs/ECS.h>
 
 class ECSTemplate;
 class ECSTemplateLibrary;
@@ -54,14 +54,16 @@ public:
 
     template<typename T>
     void registerFactory(const nString& component) {
-        m_builders[component] = makeRDelegate<ECSComponentBuilder*>([]() -> ECSComponentBuilder* {
+        auto func=[]() -> ECSComponentBuilder* {
             return new T();
-        });
+        };
+
+        m_builders[component] = makeRDelegate<ECSComponentBuilder*>(func);
     }
 
     template<typename F>
     void forEachTemplate(F f) {
-        for(auto& kvp : templates) f(kvp.first);
+        for(auto& kvp : m_templates) f(kvp.first);
     }
 private:
     std::unordered_map<nString, ECSTemplate*> m_templates;

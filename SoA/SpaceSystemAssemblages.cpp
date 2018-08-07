@@ -6,7 +6,7 @@
 #include "ChunkAllocator.h"
 #include "FarTerrainPatch.h"
 #include "OrbitComponentUpdater.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystem.h"
 #include "SphericalTerrainComponentUpdater.h"
 #include "SphericalHeightmapGenerator.h"

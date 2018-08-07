@@ -32,16 +32,16 @@ KEG_ENUM_DEF(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e) {
 }
 
 KEG_TYPE_DEF_SAME_NAME(BlockTexture, kt) {
-    kt.addValue("base", keg::Value::custom(offsetof(BlockTexture, base), "BlockTextureLayer"));
-    kt.addValue("overlay", keg::Value::custom(offsetof(BlockTexture, overlay), "BlockTextureLayer"));
-    kt.addValue("blendMode", keg::Value::custom(offsetof(BlockTexture, blendMode), "BlendType", true));
+    kt.addValue("base", keg::Value::custom(offsetOf(BlockTexture, layers[0]), "BlockTextureLayer"));
+    kt.addValue("overlay", keg::Value::custom(offsetOf(BlockTexture, layers[1]), "BlockTextureLayer"));
+    kt.addValue("blendMode", keg::Value::custom(offsetOf(BlockTexture, blendMode), "BlendType", true));
 }
 
 /// "less than" operator for inserting into sets in TexturePackLoader
 bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
 
     // Helper macro for checking if !=
-#define LCHECK(a) if (a < b.##a) { return true; } else if (a > b.##a) { return false; }
+#define LCHECK(a) if (a < b.a) { return true; } else if (a > b.a) { return false; }
     LCHECK(path);
     LCHECK(method);
     LCHECK(size.x);

@@ -148,7 +148,7 @@ VirtualKey InputMapper::getKey(const InputID id) {
 void InputMapper::setKey(const InputID id, VirtualKey key) {
     // Need to remove old key state
     VirtualKey oldKey = m_inputs.at(id).key;
-    auto& it = m_keyCodeMap.find(oldKey);
+    auto it = m_keyCodeMap.find(oldKey);
     auto& vec = it->second;
     for (size_t i = 0; i < vec.size(); i++) {
         // Remove the input from the vector keyed on VirtualKey
@@ -199,7 +199,7 @@ void InputMapper::onMouseButtonUp(Sender, const vui::MouseButtonEvent& e) {
 void InputMapper::onKeyDown(Sender, const vui::KeyEvent& e) {
     if (!m_keyStates[e.keyCode]) {
         m_keyStates[e.keyCode] = true;
-        auto& it = m_keyCodeMap.find((VirtualKey)e.keyCode);
+        auto it = m_keyCodeMap.find((VirtualKey)e.keyCode);
         if (it != m_keyCodeMap.end()) {
             // Call all events mapped to that virtual key
             for (auto& id : it->second) {
@@ -211,7 +211,7 @@ void InputMapper::onKeyDown(Sender, const vui::KeyEvent& e) {
 
 void InputMapper::onKeyUp(Sender, const vui::KeyEvent& e) {
     m_keyStates[e.keyCode] = false;
-    auto& it = m_keyCodeMap.find((VirtualKey)e.keyCode);
+    auto it = m_keyCodeMap.find((VirtualKey)e.keyCode);
     if (it != m_keyCodeMap.end()) {
         // Call all events mapped to that virtual key
         for (auto& id : it->second) {

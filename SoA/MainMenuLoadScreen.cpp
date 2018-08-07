@@ -18,7 +18,7 @@
 #include "MainMenuScreen.h"
 #include "MusicPlayer.h"
 #include "SoaFileSystem.h"
-#include "SoaState.h"
+#include "SoAState.h"
 
 const color4 LOAD_COLOR_TEXT(205, 205, 205, 255);
 const color4 LOAD_COLOR_BG_LOADING(105, 5, 5, 255);
@@ -67,7 +67,7 @@ void MainMenuLoadScreen::build() {
             vg::Texture& tex = m_vorbTextures[i];
 
             // Load file
-            vg::ScopedBitmapResource bmp = imageIO.load(vorbTexturePaths[i]);
+            vg::ScopedBitmapResource bmp(imageIO.load(vorbTexturePaths[i]));
             tex.width = bmp.width;
             tex.height = bmp.height;
 
@@ -85,7 +85,7 @@ void MainMenuLoadScreen::build() {
             vg::Texture& tex = m_regrowthTextures[i];
 
             // Load file
-            vg::ScopedBitmapResource bmp = imageIO.load(regrowthTexturePaths[i]);
+            vg::ScopedBitmapResource bmp(imageIO.load(regrowthTexturePaths[i]));
             tex.width = bmp.width;
             tex.height = bmp.height;
 
@@ -177,10 +177,10 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
     }
 }
 void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
-    static cString vorbTextureNames[VORB_NUM_TEXTURES] = {
+    static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
         "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
     };
-    static cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
+    static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
         "Regrowth", "Studios"
     };
     const vui::GameWindow& w = m_game->getWindow();

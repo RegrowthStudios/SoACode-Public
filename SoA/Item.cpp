@@ -10,7 +10,7 @@ ItemPack::ItemPack() :
 ItemID ItemPack::append(ItemData item) {
     const ItemData* curBlock;
     ItemID rv;
-    if (curBlock = hasItem(item.id)) {
+    if ((curBlock = hasItem(item.id))) {
         rv = curBlock->id;
         item.id = rv;
         // Overwrite block

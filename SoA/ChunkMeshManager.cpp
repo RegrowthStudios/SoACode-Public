@@ -20,7 +20,7 @@ ChunkMeshManager::ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, Bl
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
     ChunkMeshUpdateMessage updateBuffer[MAX_UPDATES_PER_FRAME];
     size_t numUpdates;
-    if (numUpdates = m_messages.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME)) {
+    if ((numUpdates = m_messages.try_dequeue_bulk(updateBuffer, MAX_UPDATES_PER_FRAME))) {
         for (size_t i = 0; i < numUpdates; i++) {
             updateMesh(updateBuffer[i]);
         }
@@ -84,12 +84,12 @@ ChunkMesh* ChunkMeshManager::createMesh(ChunkHandle& h) {
 }
 
 ChunkMeshTask* ChunkMeshManager::createMeshTask(ChunkHandle& chunk) {
-    ChunkHandle& left = chunk->left;
-    ChunkHandle& right = chunk->right;
-    ChunkHandle& bottom = chunk->bottom;
-    ChunkHandle& top = chunk->top;
-    ChunkHandle& back = chunk->back;
-    ChunkHandle& front = chunk->front;
+    ChunkHandle& left = chunk->neighbor.left;
+    ChunkHandle& right = chunk->neighbor.right;
+    ChunkHandle& bottom = chunk->neighbor.bottom;
+    ChunkHandle& top = chunk->neighbor.top;
+    ChunkHandle& back = chunk->neighbor.back;
+    ChunkHandle& front = chunk->neighbor.front;
 
     if (!left.isAquired() || !right.isAquired() || !back.isAquired() ||
         !front.isAquired() || !bottom.isAquired() || !top.isAquired()) {
@@ -140,7 +140,7 @@ void ChunkMeshManager::updateMesh(ChunkMeshUpdateMessage& message) {
     ChunkMesh *mesh;
     { // Get the mesh object
         std::lock_guard<std::mutex> l(m_lckActiveChunks);
-        auto& it = m_activeChunks.find(message.chunkID);
+        auto it = m_activeChunks.find(message.chunkID);
         if (it == m_activeChunks.end()) {
             delete message.meshData;
             return; /// The mesh was already released, so ignore!
@@ -207,7 +207,7 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s, SphericalVoxelC
 
 void ChunkMeshManager::onGenFinish(Sender s, ChunkHandle& chunk, ChunkGenLevel gen) {
     // Check if can be meshed.
-    if (chunk->genLevel == GEN_DONE && chunk->left.isAquired() && chunk->numBlocks) {
+    if (chunk->genLevel == GEN_DONE && chunk->neighbor.left.isAquired() && chunk->numBlocks) {
         std::lock_guard<std::mutex> l(m_lckPendingMesh);
         m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
     }
@@ -227,7 +227,7 @@ void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
     ChunkMesh* mesh;
     {
         std::lock_guard<std::mutex> l(m_lckActiveChunks);
-        auto& it = m_activeChunks.find(chunk.getID());
+        auto it = m_activeChunks.find(chunk.getID());
         if (it == m_activeChunks.end()) {
             return;
         } else {
@@ -237,7 +237,7 @@ void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
     }
     {
         std::lock_guard<std::mutex> l(m_lckPendingMesh);
-        auto& it = m_pendingMesh.find(chunk.getID());
+        auto it = m_pendingMesh.find(chunk.getID());
         if (it != m_pendingMesh.end()) {
             it->second.release();
             m_pendingMesh.erase(it);
@@ -250,7 +250,7 @@ void ChunkMeshManager::onNeighborsRelease(Sender s, ChunkHandle& chunk) {
 void ChunkMeshManager::onDataChange(Sender s, ChunkHandle& chunk) {
     // Have to have neighbors
     // TODO(Ben): Race condition with neighbor removal here.
-    if (chunk->left.isAquired()) {
+    if (chunk->neighbor.left.isAquired()) {
         std::lock_guard<std::mutex> l(m_lckPendingMesh);
         m_pendingMesh.emplace(chunk.getID(), chunk.acquire());
     }

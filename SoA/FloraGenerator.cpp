@@ -7,7 +7,9 @@
 
 #define OUTER_SKIP_MOD 5
 
+#ifdef _WINDOWS
 #pragma region helpers
+#endif//_WINDOWS
 /************************************************************************/
 /* Helper Functions                                                     */
 /************************************************************************/
@@ -141,7 +143,9 @@ inline void offsetByPos(int& x, int& y, int& z, ui32& chunkOffset, const i32v3& 
 /************************************************************************/
 /* End Helper Functions                                                 */
 /************************************************************************/
+#ifdef _WINDOWS
 #pragma endregion
+#endif//_WINDOWS
 
 // Smooths an input factor on the range 0-1
 inline void smoothInterpFactor(f32& l, const FloraInterpType& type) {
@@ -187,10 +191,13 @@ void FloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightDa
     }
 }
 
+#ifdef _WINDOWS
 #pragma region lerping
+#endif//_WINDOWS
+
 // Lerps and rounds
-#define LERP_UI16(var) FastConversion<f32, ui16>::floor((b.##var - a.##var) * l + a.##var + 0.5f)
-#define LERP_I32(var) fastFloor((f32)(b.##var - a.##var) * l + (f32)a.##var + 0.5f)
+#define LERP_UI16(var) FastConversion<f32, ui16>::floor((b.var - a.var) * l + a.var + 0.5f)
+#define LERP_I32(var) fastFloor((f32)(b.var - a.var) * l + (f32)a.var + 0.5f)
 
 inline void lerpFruitProperties(TreeFruitProperties& rvProps, const TreeFruitProperties& a, const TreeFruitProperties& b, f32 l) {
     rvProps.chance = lerp(a.chance, b.chance, l);
@@ -392,7 +399,7 @@ void FloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vecto
                 m_treeData.currentDir = m_rGen.gen() & 3; // & 3 == % 4
             }
             // Move sideways with slope if needed
-            if (m_h % trunkProps->slope == trunkProps->slope - 1) {
+            if (m_h % trunkProps->slope == (unsigned int)(trunkProps->slope - 1)) {
                 // Place a block so we don't have any floating parts when width is 1
                 if (trunkProps->coreWidth + trunkProps->barkWidth == 1) {
                     if (trunkProps->coreWidth) {
@@ -521,9 +528,13 @@ void FloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vect
 }
 #undef LERP_UI16
 #undef LERP_I32
+
+#ifdef _WINDOWS
 #pragma endregion
 
 #pragma region age_lerping
+#endif//_WINDOWS
+
 #define AGE_LERP_F32(var) lerp(var.max, var.min, age)
 // Lerps and rounds
 #define AGE_LERP_I32(var) fastFloor((f32)(var.max - var.min) * age + (f32)var.min + 0.5f)
@@ -644,7 +655,10 @@ void FloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OUT
 #undef AGE_LERP_F32
 #undef AGE_LERP_I32
 #undef AGE_LERP_UI16
+
+#ifdef _WINDOWS
 #pragma endregion
+#endif//_WINDOWS
 
 void FloraGenerator::spaceColonization(const f32v3& startPos) {
     std::vector<f32v3> attractPoints;
@@ -718,7 +732,7 @@ void FloraGenerator::spaceColonization(const f32v3& startPos) {
                 ui32 nextIndex = m_scRayNodes.size();
                 // Change leaf node
                 // TODO(Ben): This can be a vector mebby?
-                auto& it = m_scLeafSet.find(tn.rayNode);
+                auto it = m_scLeafSet.find(tn.rayNode);
                 if (it != m_scLeafSet.end()) m_scLeafSet.erase(it);
                 m_scLeafSet.insert(nextIndex);
     
@@ -740,7 +754,7 @@ void FloraGenerator::spaceColonization(const f32v3& startPos) {
 inline void FloraGenerator::tryPlaceNode(std::vector<FloraNode>* nodes, ui8 priority, ui16 blockID, ui16 blockIndex, ui32 chunkOffset) {
     if (m_currChunkOff != chunkOffset) {
         m_currChunkOff = chunkOffset;
-        auto& it = m_nodeFieldsMap.find(chunkOffset);
+        auto it = m_nodeFieldsMap.find(chunkOffset);
         if (it == m_nodeFieldsMap.end()) {
             m_currNodeField = m_nodeFields.size();
             m_nodeFields.emplace_back();
@@ -984,10 +998,10 @@ void FloraGenerator::generateSCBranches() {
     // Check for performance issues.
     if (m_scRayNodes.size() > 4000) {
         if (m_scRayNodes.size() > 32768) {
-            printf("ERROR: Tree has %d ray nodes but limited to 32768\n", m_scRayNodes.size());
+            printf("ERROR: Tree has %zuray nodes but limited to 32768\n", m_scRayNodes.size());
             m_scRayNodes.clear();
         } else {
-            printf("Performance warning: tree has %d ray nodes\n", m_scRayNodes.size());
+            printf("Performance warning: tree has %zu ray nodes\n", m_scRayNodes.size());
         }
     }
 

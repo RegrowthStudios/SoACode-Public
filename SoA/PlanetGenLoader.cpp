@@ -69,7 +69,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to load " + terrainPath;
         context.reader.dispose();
-        return false;
+        return nullptr;
     }
 
     PlanetGenData* genData = new PlanetGenData;
@@ -203,11 +203,11 @@ const int FILTER_SIZE = 5;
 const int FILTER_OFFSET = FILTER_SIZE / 2;
 
 float blurFilter[FILTER_SIZE][FILTER_SIZE] = {
-    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
-    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
-    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
-    0.04f, 0.04f, 0.04f, 0.04f, 0.04f,
-    0.04f, 0.04f, 0.04f, 0.04f, 0.04f
+    {0.04f, 0.04f, 0.04f, 0.04f, 0.04f},
+    {0.04f, 0.04f, 0.04f, 0.04f, 0.04f},
+    {0.04f, 0.04f, 0.04f, 0.04f, 0.04f},
+    {0.04f, 0.04f, 0.04f, 0.04f, 0.04f},
+    {0.04f, 0.04f, 0.04f, 0.04f, 0.04f}
 };
 
 void blurBiomeMap(const std::vector<BiomeInfluence>& bMap, OUT std::vector<std::set<BiomeInfluence>>& outMap) {
@@ -239,7 +239,7 @@ void blurBiomeMap(const std::vector<BiomeInfluence>& bMap, OUT std::vector<std::
                         // Get the list of biomes currently in the blurred map
                         auto& biomes = outMap[yPos * BIOME_MAP_WIDTH + xPos];
                         // See if the current biome is already there
-                        auto& it = biomes.find(b);
+                        auto it = biomes.find(b);
                         // Force modify weight in set with const cast.
                         // It's ok since weight doesn't affect set position, promise!
                         if (it == biomes.end()) {
@@ -285,7 +285,7 @@ void blurBaseBiomeMap(const Biome* baseBiomeLookup[BIOME_MAP_WIDTH][BIOME_MAP_WI
                     auto& biomes = outMap[yPos * BIOME_MAP_WIDTH + xPos];
                     // See if the current biome is already there
                     // TODO(Ben): Better find
-                    auto& it = biomes.find({ b, 1.0f });
+                    auto it = biomes.find({ b, 1.0f });
                     // Force modify weight in set with const cast.
                     // It's ok since weight doesn't affect set position, promise!
                     if (it == biomes.end()) {
@@ -350,10 +350,10 @@ void recursiveInitBiomes(Biome& biome,
 // When its single, it sets both values of the v2 to that value
 #define PARSE_V2(type, v) \
 if (keg::getType(value) == keg::NodeType::VALUE) { \
-    keg::evalData((ui8*)&##v, &##type##Val, value, context); \
-    ##v.y = ##v.x; \
+    keg::evalData((ui8*)&v, &type##Val, value, context); \
+    v.y = v.x; \
 } else { \
-    keg::evalData((ui8*)&##v, &##type##v2Val, value, context); \
+    keg::evalData((ui8*)&v, &type##v2Val, value, context); \
 } 
 
 void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData) {
@@ -695,7 +695,7 @@ void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData
         if (key == "baseLookupMap") {
             vpath texPath;
             m_iom->resolvePath(keg::convert<nString>(value), texPath);
-            vg::ScopedBitmapResource rs = vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true);
+            vg::ScopedBitmapResource rs(vg::ImageIO().load(texPath.getString(), vg::ImageIOFormat::RGB_UI8, true));
             if (!rs.data) {
                 pError("Failed to load " + keg::convert<nString>(value));
             }
@@ -752,7 +752,7 @@ void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData
     memset(genData->baseBiomeLookup, 0, sizeof(genData->baseBiomeLookup));
     for (int y = 0; y < BIOME_MAP_WIDTH; y++) {
         for (int x = 0; x < BIOME_MAP_WIDTH; x++) {
-            auto& it = m_baseBiomeLookupMap.find(colorCodes[y][x]);
+            auto it = m_baseBiomeLookupMap.find(colorCodes[y][x]);
             if (it != m_baseBiomeLookupMap.end()) {
                 genData->baseBiomeLookup[y][x] = it->second;
             }

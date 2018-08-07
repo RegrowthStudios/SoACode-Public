@@ -8,7 +8,7 @@
 #include "PlanetGenData.h"
 #include "PlanetGenLoader.h"
 #include "ProgramGenDelegate.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
@@ -16,7 +16,7 @@
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/Texture.h>
-#include <Vorb/io/keg.h>
+#include <Vorb/io/Keg.h>
 #include <Vorb/ui/GameWindow.h>
 
 void SpaceSystemLoader::init(const SoaState* soaState) {
@@ -160,12 +160,12 @@ void SpaceSystemLoader::initBinary(SystemBody* bary) {
     if (bary->properties.comps.size() != 2) return;
 
     // A component
-    auto& bodyA = m_systemBodies.find(std::string(bary->properties.comps[0]));
+    auto bodyA = m_systemBodies.find(std::string(bary->properties.comps[0]));
     if (bodyA == m_systemBodies.end()) return;
     auto& aProps = bodyA->second->properties;
 
     // B component
-    auto& bodyB = m_systemBodies.find(std::string(bary->properties.comps[1]));
+    auto bodyB = m_systemBodies.find(std::string(bary->properties.comps[1]));
     if (bodyB == m_systemBodies.end()) return;
     auto& bProps = bodyB->second->properties;
 
@@ -253,7 +253,7 @@ void SpaceSystemLoader::initOrbits() {
         const nString& parent = body->parentName;
         if (parent.length()) {
             // Check for parent
-            auto& p = m_systemBodies.find(parent);
+            auto p = m_systemBodies.find(parent);
             if (p != m_systemBodies.end()) {
                 // Set up parent connection
                 body->parent = p->second;

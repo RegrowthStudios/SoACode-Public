@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SSAORenderStage.h"
+#include "SsaoRenderStage.h"
 
 #include <Vorb/Random.h>
 #include <Vorb/graphics/SamplerState.h>

@@ -5,6 +5,11 @@
 
 #include <SDL2/SDL.h>
 
+#ifndef _WINDOWS
+#include <limits.h>
+#include <stdlib.h>
+#endif//_WINDOWS
+
 void showMessage(const nString& message)
 {
 #if defined(_WIN32) || defined(_WIN64)
@@ -13,9 +18,9 @@ void showMessage(const nString& message)
     SDL_SetRelativeMouseMode(SDL_FALSE);
     MessageBox(NULL, message.c_str(), "SoA", MB_OK);
 #else
-    cout << "ERROR! MESSAGE BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
+    std::cout << "ERROR! MESSAGE BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
-    cin >> a;
+    std::cin >> a;
 #endif
 }
 
@@ -30,9 +35,10 @@ int showYesNoBox(const nString& message)
     if (id == IDNO) return 0;
     return 0;
 #else
-    cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
+    std::cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
-    cin >> a;
+    std::cin >> a;
+    return 0;
 #endif
 }
 
@@ -48,17 +54,23 @@ int showYesNoCancelBox(const nString& message)
     if (id == IDCANCEL) return -1;
     return 0;
 #else
-    cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
+    std::cout << "ERROR! YESNO BOX NOT IMPLEMENTED FOR THIS FILE SYSTEM\n";
     int a;
-    cin >> a;
+    std::cin >> a;
+    return 0;
 #endif
 }
 
 nString getFullPath(const char *initialDir)
 {
     nString rval;
+#ifdef _WINDOWS
     char pathBuffer[1024];
     _fullpath(pathBuffer, initialDir, 1024);
+#else//_WINDOWS
+    char pathBuffer[PATH_MAX];
+    realpath(initialDir, pathBuffer);
+#endif//_WINDOWS
     rval = pathBuffer;
     return rval;
 }

@@ -76,14 +76,14 @@ private:
     void liquidPhysics(i32 startBlockIndex, i32 b);
     void powderPhysics(i32 c);
 
-    i32 _dirIndex = 0;
+//    i32 _dirIndex;
     i32 _lowIndex;
     i32 _range;
     i32 _highIndex;
     std::vector<ui16> _usedUpdateFlagList;
     bool _blockUpdateFlagList[CHUNK_SIZE];
-    Chunk* _chunk = nullptr;
-    Chunk* _lockedChunk = nullptr;
-    ChunkManager* m_chunkManager = nullptr;
-    PhysicsEngine* m_physicsEngine = nullptr;
+    Chunk* _chunk;
+//    Chunk* _lockedChunk
+//    ChunkManager* m_chunkManager;
+//    PhysicsEngine* m_physicsEngine;
 };

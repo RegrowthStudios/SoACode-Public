@@ -34,13 +34,13 @@ public:
     // Draws the render stage
     virtual void render(const Camera* camera) override;
 private:
-    void drawSpace(f32m4 &VP);
+    void drawSpace(const f32m4 &VP);
     // Update projection matrix
     void updateProjectionMatrix(const Camera* camera);
     void loadTexture(const char* relPath, int index);
 
     SkyboxRenderer m_skyboxRenderer; ///< Renders the skybox
-    vg::GLProgram* m_program = nullptr; ///< Program used for rendering
+//    vg::GLProgram* m_program = nullptr; ///< Program used for rendering
 
     f32m4 m_projectionMatrix; ///< Projection matrix for the skybox
     float m_fieldOfView; ///< Current field of view for the camera

@@ -62,8 +62,10 @@ void CaPhysicsType::clearTypes() {
 }
 
 CAEngine::CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine) :
-    m_chunkManager(chunkManager),
-    m_physicsEngine(physicsEngine){
+    _chunk(nullptr)
+//    m_chunkManager(chunkManager),
+//    m_physicsEngine(physicsEngine)
+{
     memset(_blockUpdateFlagList, 0, sizeof(_blockUpdateFlagList));
     //temporary
     _lowIndex = 0; // TODO(Ben): yeahhhhhh....

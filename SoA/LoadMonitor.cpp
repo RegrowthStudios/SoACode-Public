@@ -28,7 +28,7 @@ bool LoadMonitor::isTaskFinished(nString task) {
 }
 
 bool LoadMonitor::isFinished(nString task) {
-    auto& kvp = _tasks.find(task);
+    auto kvp = _tasks.find(task);
     if (kvp == _tasks.end()) {
         fprintf(stderr, "LoadMonitor Warning: dependency %s does not exist\n", task.c_str());
         return false;
@@ -37,7 +37,7 @@ bool LoadMonitor::isFinished(nString task) {
 }
 bool LoadMonitor::canStart(nString task) {
     // Check that the dependency exists
-    auto& kvp = _tasks.find(task);
+    auto kvp = _tasks.find(task);
     if (kvp == _tasks.end()) {
         fprintf(stderr, "LoadMonitor Warning: task %s does not exist\n", task.c_str());
         return false;
@@ -98,14 +98,14 @@ void LoadMonitor::wait() {
 
 void LoadMonitor::setDep(nString name, nString dep) {
     // Check that the task exists
-    auto& kvp = _tasks.find(name);
+    auto kvp = _tasks.find(name);
     if (kvp == _tasks.end()) {
         fprintf(stderr, "LoadMonitor Warning: Task %s doesn't exist.\n",name.c_str());
         return;
     }
 
     // Check that the dependency exists
-    auto& dvp = _tasks.find(dep);
+    auto dvp = _tasks.find(dep);
     if (dvp == _tasks.end()) {
         fprintf(stderr, "LoadMonitor Warning: Dependency %s doesn't exist.\n", dep.c_str());
         return;

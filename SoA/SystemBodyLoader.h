@@ -26,7 +26,7 @@ class SystemBodyLoader {
 public:
     void init(vio::IOManager* iom);
 
-    bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePath,
+    bool loadBody(const SoaState* soaState, const nString& filePath,
                                     const SystemOrbitProperties* sysProps, SystemBody* body, keg::Node &value,
                                     vcore::RPCManager* glrpc = nullptr);
 

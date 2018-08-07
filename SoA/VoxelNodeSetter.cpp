@@ -6,7 +6,7 @@
 void VoxelNodeSetter::setNodes(ChunkHandle& h, ChunkGenLevel requiredGenLevel, std::vector<VoxelToPlace>& forcedNodes, std::vector<VoxelToPlace>& condNodes) {
     {
         std::lock_guard<std::mutex> l(m_lckVoxelsToAdd);
-        auto& it = m_handleLookup.find(h);
+        auto it = m_handleLookup.find(h);
         if (it != m_handleLookup.end()) {
             VoxelNodeSetterLookupData& ld = it->second;
             // Copy new voxels to add
@@ -46,7 +46,7 @@ void VoxelNodeSetter::update() {
         VoxelNodeSetterWaitingChunk& v = m_waitingChunks[i];
 
         if (v.ch->genLevel >= v.requiredGenLevel) {
-            auto& it = m_handleLookup.find(v.ch);
+            auto it = m_handleLookup.find(v.ch);
 
             {
                 // Send task

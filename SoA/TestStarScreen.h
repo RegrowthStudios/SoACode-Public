@@ -35,7 +35,7 @@ class App;
 class TestStarScreen : public vui::IAppScreen<App> {
 public:
     TestStarScreen(const App* app);
-    ~TestStarScreen();
+    virtual ~TestStarScreen(){};
     /************************************************************************/
     /* IGameScreen functionality                                            */
     /************************************************************************/

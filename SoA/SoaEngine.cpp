@@ -141,12 +141,12 @@ bool SoaEngine::loadGameSystem(SoaState* state) {
     return true;
 }
 
-#define SET_RANGE(a, b, name) a.##name.min = b.##name.x; a.##name.max = b.##name.y;
+#define SET_RANGE(a, b, name) a.name.min = b.name.x; a.name.max = b.name.y;
 #define TRY_SET_BLOCK(id, bp, name) bp = blocks.hasBlock(name); if (bp) id = bp->ID;
 
 inline void setTreeFruitProperties(TreeTypeFruitProperties& fp, const FruitKegProperties& kp, const PlanetGenData* genData) {
     SET_RANGE(fp, kp, chance);
-    auto& it = genData->floraMap.find(kp.flora);
+    auto it = genData->floraMap.find(kp.flora);
     if (it != genData->floraMap.end()) {
         fp.flora = it->second;
     }
@@ -275,7 +275,7 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
             FloraKegProperties& kp = blockInfo.flora[i];
             FloraType& ft = genData->flora[i];
             if (kp.nextFlora.size()) {
-                auto& it = genData->floraMap.find(kp.nextFlora);
+                auto it = genData->floraMap.find(kp.nextFlora);
                 if (it != genData->floraMap.end()) {
                     ft.nextFlora = &genData->flora[it->second];
                 } else {
@@ -338,14 +338,14 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
         for (auto& biome : genData->biomes) {
             biome.genData = genData;
             { // Flora
-                auto& it = blockInfo.biomeFlora.find(&biome);
+                auto it = blockInfo.biomeFlora.find(&biome);
                 if (it != blockInfo.biomeFlora.end()) {
                     auto& kList = it->second;
                     biome.flora.resize(kList.size());
                     // Iterate through keg properties
                     for (size_t i = 0; i < kList.size(); i++) {
                         auto& kp = kList[i];
-                        auto& mit = genData->floraMap.find(kp.id);
+                        auto mit = genData->floraMap.find(kp.id);
                         if (mit != genData->floraMap.end()) {
                             biome.flora[i].chance = kp.chance;
                             biome.flora[i].data = &genData->flora[mit->second];
@@ -357,14 +357,14 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
                 }
             }
             { // Trees
-                auto& it = blockInfo.biomeTrees.find(&biome);
+                auto it = blockInfo.biomeTrees.find(&biome);
                 if (it != blockInfo.biomeTrees.end()) {
                     auto& kList = it->second;
                     biome.trees.resize(kList.size());
                     // Iterate through keg properties
                     for (size_t i = 0; i < kList.size(); i++) {
                         auto& kp = kList[i];
-                        auto& mit = genData->treeMap.find(kp.id);
+                        auto mit = genData->treeMap.find(kp.id);
                         if (mit != genData->treeMap.end()) {
                             biome.trees[i].chance = kp.chance;
                             biome.trees[i].data = &genData->trees[mit->second];

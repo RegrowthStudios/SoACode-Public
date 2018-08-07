@@ -20,7 +20,7 @@ void DevConsole::addListener(FuncNewCommand f, void* meta) {
 }
 
 bool DevConsole::removeListener(const nString& command, FuncNewCommand f) {
-    auto& it = m_commandListeners.find(command);
+    auto it = m_commandListeners.find(command);
     if (it == m_commandListeners.end()) return false;
     auto& listeners = it->second;
     auto foundListener = std::find(listeners.begin(), listeners.end(), f);
@@ -61,7 +61,7 @@ bool DevConsole::write(nString s) {
     }
     // Broadcast to specific listeners.
     nString command = getFirstToken(s);
-    auto& it = m_commandListeners.find(command);
+    auto it = m_commandListeners.find(command);
     if (it == m_commandListeners.end()) return false;
     for (auto& eb : it->second) {
         eb.function(eb.metaData, s);

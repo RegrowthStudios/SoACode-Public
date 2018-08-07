@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "GameManager.h"
 
+#ifdef _WINDOWS
 #include <direct.h> //for mkdir windows
+#endif//_WINDOWS
+
 #include <ctime>
 
-#include <Vorb/Threadpool.h>
+#include <Vorb/ThreadPool.h>
 #include <Vorb/utils.h>
 
 #include "BlockData.h"

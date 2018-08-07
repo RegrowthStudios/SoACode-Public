@@ -19,6 +19,8 @@
 #include "ImageAssetLoader.h"
 #include "ShaderAssetLoader.h"
 
+#include <list>
+
 class LoadContext {
 public:
     void resetWork() {

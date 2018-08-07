@@ -70,7 +70,7 @@ void BlockTextureMethods::getFloraTextureIndex(BlockTextureMethodParams& params,
 
     const int& blockIndex = cm->blockIndex;
 
-    int column;
+    int column=0;
 
     // TODO(Ben): Binary search?
     if (blockTexInfo->weights.size()) {
@@ -238,7 +238,7 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
 
     if (/*cm->levelOfDetail > 1 || */ TEXTURE_INDEX == tex) {
         block = &GETBLOCK(blockIDData[blockIndex]);
-        result.index = block->textureTop->base.index;
+        result.index = block->textureTop->base.index.layer;
         block->textureTop->base.blockTextureFunc(params, result);
         block->textureTop->base.getFinalColor(*params.color, cm->heightData->temperature, cm->heightData->humidity, 0);
         result.size = block->textureTop->base.size;

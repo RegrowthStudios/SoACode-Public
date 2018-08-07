@@ -314,17 +314,17 @@ int ByteBlit(const char* file, void* dst, int maxSize) {
 
     // Attempt To Open The File
     FILE* f;
-    errno_t err = fopen_s(&f, file, "r");
-    if(err) {
+    f = fopen(file, "r");
+    if(!f) {
 #ifdef DEBUG
-        printf("Could Not Open INI File\nError: %d", err);
+        printf("Could Not Open INI File\nError: %d", ferror(f));
 #endif // DEBUG
-        throw err;
+        throw;
     }
 
     long fs = GetFileSize(file);
     char* data = (char*)malloc(fs);
-    fread_s(data, fs, 1, fs, f);
+    fread(data, fs, 1, f);
 
     while(curSize < maxSize) {
         // Extract The Type Of The Data
@@ -343,7 +343,7 @@ int ByteBlit(const char* file, void* dst, int maxSize) {
 #define APPENDER(TYPE, SIZE, FUNC) \
         if(curSize + 1 <= maxSize) { \
             TYPE val = (TYPE)FUNC(value); \
-            memcpy_s(bytes + curSize, SIZE, &val, SIZE); \
+            memcpy(bytes + curSize, &val, SIZE); \
             curSize += SIZE; \
         } \
         else maxSize = -1; \

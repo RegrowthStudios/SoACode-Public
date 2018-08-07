@@ -26,7 +26,7 @@ public:
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
-    void TestNoiseScreen::onNoiseChange();
+    void onNoiseChange();
     vg::SpriteBatch m_sb;
     vg::SpriteFont m_font;
     TEST_NOISE_TYPES m_currentNoise = SIMPLEX;

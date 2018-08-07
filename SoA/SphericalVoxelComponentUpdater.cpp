@@ -15,7 +15,7 @@
 #include "GenerateTask.h"
 #include "PlanetGenData.h"
 #include "SoaOptions.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemComponents.h"
 #include "VoxelSpaceConversions.h"

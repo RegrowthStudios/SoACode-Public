@@ -17,11 +17,11 @@ void ModPathResolver::setModDir(const vio::Path& path) {
 bool ModPathResolver::resolvePath(const vio::Path& path, vio::Path& resultAbsolutePath, bool printModNotFound /* = false */) const {
     if (!modIom.resolvePath(path, resultAbsolutePath)) {
         if (printModNotFound) {
-            printf("Did not find path %s in %s.", path.getCString(), modIom.getSearchDirectory());
+            printf("Did not find path %s in %s.", path.getCString(), modIom.getSearchDirectory().getCString());
         }
         if (!defaultIom.resolvePath(path, resultAbsolutePath)) {
             if (printModNotFound) {
-                printf("Did not find path %s in %s.", path.getCString(), defaultIom.getSearchDirectory());
+                printf("Did not find path %s in %s.", path.getCString(), defaultIom.getSearchDirectory().getCString());
             }
             return false;
         }

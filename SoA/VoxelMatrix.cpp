@@ -16,16 +16,16 @@ const ColorRGBA8& VoxelMatrix::getColor(const i32 x, const i32 y, const i32 z) c
 }
 
 const ColorRGBA8& VoxelMatrix::getColorAndCheckBounds(const i32v3& position) const {
-    if (position.x < 0 || position.x >= size.x) return color::Transparent;
-    if (position.y < 0 || position.y >= size.y) return color::Transparent;
-    if (position.z < 0 || position.z >= size.z) return color::Transparent;
+    if (position.x < 0 || position.x >= (i32)size.x) return color::Transparent;
+    if (position.y < 0 || position.y >= (i32)size.y) return color::Transparent;
+    if (position.z < 0 || position.z >= (i32)size.z) return color::Transparent;
     return data[position.x + position.y * size.x + position.z * size.x * size.y];
 }
 
 const ColorRGBA8& VoxelMatrix::getColorAndCheckBounds(const i32 x, const i32 y, const i32 z) const {
-    if (x < 0 || x >= size.x) return color::Transparent;
-    if (y < 0 || y >= size.y) return color::Transparent;
-    if (z < 0 || z >= size.z) return color::Transparent;
+    if (x < 0 || x >= (i32)size.x) return color::Transparent;
+    if (y < 0 || y >= (i32)size.y) return color::Transparent;
+    if (z < 0 || z >= (i32)size.z) return color::Transparent;
     return data[x + y * size.x + z * size.x * size.y];
 }
 

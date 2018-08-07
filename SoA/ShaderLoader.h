@@ -27,12 +27,12 @@ public:
     /// Creates a program using code loaded from files, and does error checking
     /// Does not register with global cache
     static CALLER_DELETE vg::GLProgram createProgramFromFile(const vio::Path& vertPath, const vio::Path& fragPath,
-                                                             vio::IOManager* iom = nullptr, cString defines = nullptr);
+                                                             vio::IOManager* iom = nullptr, const cString defines = nullptr);
 
     /// Creates a program using passed code, and does error checking
     /// Does not register with global cache
     static CALLER_DELETE vg::GLProgram createProgram(const cString displayName, const cString vertSrc, const cString fragSrc,
-                                                     vio::IOManager* iom = nullptr, cString defines = nullptr);
+                                                     vio::IOManager* iom = nullptr, const cString defines = nullptr);
 };
 
 #endif // ShaderLoader_h__

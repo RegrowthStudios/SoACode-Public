@@ -37,7 +37,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
     // Get renderables
     // TODO(Ben): Use a renderable component instead
     std::vector<RenderableRing>* rings;
-    auto& it = m_renderableRings.find(eid);
+    auto it = m_renderableRings.find(eid);
     if (it == m_renderableRings.end()) {
         // Look how ugly this line is.
         rings = &m_renderableRings.insert(std::make_pair(eid, std::vector<RenderableRing>(prCmp.rings.size()))).first->second;
@@ -45,7 +45,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
             auto& rr = rings->operator[](i);
             rr.ring = prCmp.rings[i];
             // Load the texture
-            vg::ScopedBitmapResource b = vg::ImageIO().load(rr.ring.texturePath);
+            vg::ScopedBitmapResource b(vg::ImageIO().load(rr.ring.texturePath));
             if (b.data) {
                 rr.texture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
                                                          vg::TextureTarget::TEXTURE_2D,

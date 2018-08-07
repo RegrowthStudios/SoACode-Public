@@ -2,8 +2,8 @@
 #ifndef VoxelModelMesh_h__
 #define VoxelModelMesh_h__
 
-#include <Vorb\types.h>
-#include <Vorb\graphics\gtypes.h>
+#include <Vorb/types.h>
+#include <Vorb/graphics/gtypes.h>
 
 class VoxelModelVertex {
 public:

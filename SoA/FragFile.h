@@ -15,7 +15,7 @@ public:
     void setDataPath(i32 p);
 
     // Total Number Of Data Paths Found In The File
-    const i32 getNumDataPaths() const {
+    i32 getNumDataPaths() const {
         return _numDataPaths;
     }
 

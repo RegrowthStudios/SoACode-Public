@@ -106,12 +106,15 @@ void vcore::AssetBuilder<ShaderAsset>::create(const vpath& p, OUT ShaderAsset* a
     so.set([](Sender s, void* d) { initProgram(s, d); });
     rpc.invoke(&so);
 
-    auto d1 = makeDelegate<Sender, const nString&>([=](Sender, const nString& msg) {
+    auto func1=[=](Sender, const nString& msg) {
         printf("PROG COMP ERROR:\n%s\n", msg.c_str());
-    });
-    auto d2 = makeDelegate<Sender, const nString&>([=](Sender, const nString& msg) {
+    };
+    auto d1 = makeDelegate<Sender, const nString&>(func1);
+
+    auto func2=[=](Sender, const nString& msg) {
         printf("PROG LINK ERROR:\n%s\n", msg.c_str());
-    });
+    };
+    auto d2 = makeDelegate<Sender, const nString&>(func2);
 
     asset->program.onShaderCompilationError += d1;
     asset->program.onProgramLinkError += d2;

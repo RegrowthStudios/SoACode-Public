@@ -70,7 +70,7 @@ void ChunkGenerator::update() {
             chunk.gridData->isLoading = false;
 
             // Submit all the pending queries on this grid data
-            auto& it = m_pendingQueries.find(chunk.gridData); // TODO(Ben): Should this be shared? ( I don't think it should )
+            auto it = m_pendingQueries.find(chunk.gridData); // TODO(Ben): Should this be shared? ( I don't think it should )
             for (auto& p : it->second) {
                 submitQuery(p);
             }

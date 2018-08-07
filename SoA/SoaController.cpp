@@ -6,7 +6,7 @@
 #include "App.h"
 #include "GameSystemAssemblages.h"
 #include "GameSystemUpdater.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SoaOptions.h"
 #include "SoaEngine.h"
 #include "OrbitComponentUpdater.h"
@@ -19,7 +19,7 @@ void initCreativeInventory(vecs::EntityID eid, SoaState* state) {
     auto& invCmp = state->gameSystem->inventory.getFromEntity(eid);
     const std::vector<Block>& blocks = state->blocks.getBlockList();
     // Skip first two blocks
-    for (int i = 2; i < blocks.size(); i++) {
+    for (size_t i = 2; i < blocks.size(); i++) {
         if (!state->items.hasItem(i)) {
             ItemData d;
             d.blockID = i;

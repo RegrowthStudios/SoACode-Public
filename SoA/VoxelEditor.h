@@ -49,6 +49,6 @@ private:
     i32v3 m_endPosition = i32v3(INT_MAX);
 
     std::vector<EditorNode> m_currentShape;
-    bool m_isAxisAligned;
+//    bool m_isAxisAligned;
     EDITOR_TOOLS m_currentTool = EDITOR_TOOLS::AABOX;
 };

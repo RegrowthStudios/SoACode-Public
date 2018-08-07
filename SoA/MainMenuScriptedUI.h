@@ -15,7 +15,7 @@
 #ifndef MainMenuScriptedUI_h__
 #define MainMenuScriptedUI_h__
 
-#include <vorb/ecs/Entity.h>
+#include <Vorb/ecs/Entity.h>
 #include <Vorb/ui/ScriptedUI.h>
 #include "InputMapper.h"
 

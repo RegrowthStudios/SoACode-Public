@@ -29,7 +29,7 @@
 #include "CommonState.h"
 #include "ChunkMesher.h"
 #include "ChunkRenderer.h"
-#include "SSAORenderStage.h"
+#include "SsaoRenderStage.h"
 #include "HdrRenderStage.h"
 
 class TestConnectedTextureScreen : public vui::IAppScreen<App> {

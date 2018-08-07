@@ -102,7 +102,7 @@ void WSOAtlas::load(const cString file) {
 
         // Copy Over The Name
         wsoData[i].name = names;
-        memcpy_s(wsoData[i].name, indices[i].lenName, wso, indices[i].lenName);
+        memcpy(wsoData[i].name, wso, indices[i].lenName);
         wsoData[i].name[indices[i].lenName] = 0;
         names += indices[i].lenName + 1;
 
@@ -112,7 +112,7 @@ void WSOAtlas::load(const cString file) {
         // Copy Over The File (Otherwise Use Voxels As The Default)
         if (indices[i].lenModelFile > 0) {
             wsoData[i].modelFile = names;
-            memcpy_s(wsoData[i].modelFile, indices[i].lenModelFile, wso, indices[i].lenModelFile);
+            memcpy(wsoData[i].modelFile, wso, indices[i].lenModelFile);
             wsoData[i].modelFile[indices[i].lenModelFile] = 0;
             names += indices[i].lenModelFile + 1;
 
@@ -126,7 +126,7 @@ void WSOAtlas::load(const cString file) {
         // Copy Over ID Information
         wsoData[i].wsoIDs = ids;
         i32 idSize = wsoData[i].getBlockCount() * sizeof(i16);
-        memcpy_s(wsoData[i].wsoIDs, idSize, wso, idSize);
+        memcpy(wsoData[i].wsoIDs, wso, idSize);
         ids += wsoData[i].getBlockCount();
 
         // Add This Into The Atlas
@@ -140,8 +140,15 @@ void WSOAtlas::load(const cString file) {
 
 void WSOAtlas::clear() {
     // Free All The Allocated Memory
-    for (i32 i = _allocatedMem.size() - 1; i >= 0; i--) {
-        delete[] _allocatedMem[i];
+//    for (i32 i = _allocatedMem.size() - 1; i >= 0; i--) {
+//        delete[] _allocatedMem[i];
+//    }
+    if(_allocatedMem.size() == 4)
+    {
+        delete (WSOData*)_allocatedMem[0];
+        delete (cString)_allocatedMem[1];
+        delete (cString)_allocatedMem[2];
+        delete (i16*)_allocatedMem[3];
     }
 
     // Clear ADT Memory

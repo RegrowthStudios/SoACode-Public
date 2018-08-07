@@ -35,7 +35,7 @@
 #include "PhysicsBlockRenderStage.h"
 #include "SkyboxRenderStage.h"
 #include "SpaceSystemRenderStage.h"
-#include "SSAORenderStage.h"
+#include "SsaoRenderStage.h"
 #include "TransparentVoxelRenderStage.h"
 #include "BloomRenderStage.h"
 #include "ExposureCalcRenderStage.h"

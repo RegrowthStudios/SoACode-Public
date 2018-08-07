@@ -22,7 +22,7 @@
 #define ICOSPHERE_SUBDIVISIONS 5
 
 namespace {
-    cString OCCLUSION_VERT_SRC = R"(
+    const cString OCCLUSION_VERT_SRC = R"(
 uniform vec3 unCenterScreenspace;
 uniform float unSize;
 in vec2 vPosition;
@@ -33,7 +33,7 @@ void main() {
 }
 
 )";
-    cString OCCLUSION_FRAG_SRC = R"(
+    const cString OCCLUSION_FRAG_SRC = R"(
 out vec4 pColor;
 void main() {
     pColor = vec4(0.0, 0.0, 0.0, 0.0);
@@ -51,13 +51,13 @@ StarComponentRenderer::~StarComponentRenderer() {
 
 void StarComponentRenderer::init(const ModPathResolver* textureResolver) {
     m_textureResolver = textureResolver;
-    m_tempColorMap.width = -1;
+    m_tempColorMap.width = std::numeric_limits<ui32>::max();
 }
 
 void StarComponentRenderer::initGL() {
     if (!m_starProgram.isCreated()) buildShaders();
     if (!m_sVbo) buildMesh();
-    if (m_tempColorMap.width == -1) loadTempColorMap();
+    if (m_tempColorMap.width == std::numeric_limits<ui32>::max()) loadTempColorMap();
 }
 
 void StarComponentRenderer::drawStar(const StarComponent& sCmp,
@@ -418,12 +418,12 @@ void StarComponentRenderer::loadTempColorMap() {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_1.png\n");
     }
     m_textureResolver->resolvePath("Sky/Star/star_spectrum_2.png", path);
-    vg::ScopedBitmapResource res2 = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource res2(vg::ImageIO().load(path));
     if (!res2.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_2.png\n");
     }
     m_textureResolver->resolvePath("Sky/Star/star_spectrum_3.png", path);
-    vg::ScopedBitmapResource res3 = vg::ImageIO().load(path);
+    vg::ScopedBitmapResource res3(vg::ImageIO().load(path));
     if (!res3.data) {
         fprintf(stderr, "ERROR: Failed to load Sky/Star/star_spectrum_3.png\n");
     }

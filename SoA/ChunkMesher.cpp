@@ -88,12 +88,12 @@ void ChunkMesher::init(const BlockPack* blocks) {
 void ChunkMesher::prepareData(const Chunk* chunk) {
     int x, y, z, off1, off2;
 
-    const Chunk* left = chunk->left;
-    const Chunk* right = chunk->right;
-    const Chunk* bottom = chunk->bottom;
-    const Chunk* top = chunk->top;
-    const Chunk* back = chunk->back;
-    const Chunk* front = chunk->front;
+    const Chunk* left = chunk->neighbor.left;
+    const Chunk* right = chunk->neighbor.right;
+    const Chunk* bottom = chunk->neighbor.bottom;
+    const Chunk* top = chunk->neighbor.top;
+    const Chunk* back = chunk->neighbor.back;
+    const Chunk* front = chunk->neighbor.front;
     int wc;
     int c = 0;
 
@@ -612,7 +612,7 @@ CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type)
         int tmp = index;
         for (size_t j = 0; j < quads.size(); j++) {
             VoxelQuad& q = quads[j];
-            if (q.v0.mesherFlags & MESH_FLAG_ACTIVE) {
+            if (q.v.v0.mesherFlags & MESH_FLAG_ACTIVE) {
                 finalQuads[index++] = q;
             }
         }
@@ -967,7 +967,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     quads.emplace_back();
     m_numQuads++;
     VoxelQuad* quad = &quads.back();
-    quad->v0.mesherFlags = MESH_FLAG_ACTIVE;
+    quad->v.v0.mesherFlags = MESH_FLAG_ACTIVE;
 
     for (int i = 0; i < 4; i++) {
         BlockVertex& v = quad->verts[i];
@@ -1015,12 +1015,12 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
 
     // Check against lowest and highest for culling in render
     // TODO(Ben): Think about this more
-    if (quad->v0.position.x < m_lowestX) m_lowestX = quad->v0.position.x;
-    if (quad->v0.position.x > m_highestX) m_highestX = quad->v0.position.x;
-    if (quad->v0.position.y < m_lowestY) m_lowestY = quad->v0.position.y;
-    if (quad->v0.position.y > m_highestY) m_highestY = quad->v0.position.y;
-    if (quad->v0.position.z < m_lowestZ) m_lowestZ = quad->v0.position.z;
-    if (quad->v0.position.z > m_highestZ) m_highestZ = quad->v0.position.z;
+    if (quad->v.v0.position.x < m_lowestX) m_lowestX = quad->v.v0.position.x;
+    if (quad->v.v0.position.x > m_highestX) m_highestX = quad->v.v0.position.x;
+    if (quad->v.v0.position.y < m_lowestY) m_lowestY = quad->v.v0.position.y;
+    if (quad->v.v0.position.y > m_highestY) m_highestY = quad->v.v0.position.y;
+    if (quad->v.v0.position.z < m_lowestZ) m_lowestZ = quad->v.v0.position.z;
+    if (quad->v.v0.position.z > m_highestZ) m_highestZ = quad->v.v0.position.z;
 
     m_numQuads -= tryMergeQuad(quad, quads, face, rightAxis, frontAxis, leftOffset, backOffset, rightStretchIndex, texOffset);
 }
@@ -1085,6 +1085,8 @@ void ChunkMesher::addFlora() {
             ChunkMesher::addFloraQuad(VoxelMesher::floraVertices[r] + 4, data);
             ChunkMesher::addFloraQuad(VoxelMesher::floraVertices[r] + 8, data);
             break;
+        default:
+            break;
     }
 }
 
@@ -1131,28 +1133,28 @@ void ChunkMesher::addFloraQuad(const ui8v3* positions, FloraQuadData& data) {
 
     // Check against lowest and highest for culling in render
     // TODO(Ben): Think about this more
-    if (quad.v0.position.x < m_lowestX) m_lowestX = quad.v0.position.x;
-    if (quad.v0.position.x > m_highestX) m_highestX = quad.v0.position.x;
-    if (quad.v0.position.y < m_lowestY) m_lowestY = quad.v0.position.y;
-    if (quad.v0.position.y > m_highestY) m_highestY = quad.v0.position.y;
-    if (quad.v0.position.z < m_lowestZ) m_lowestZ = quad.v0.position.z;
-    if (quad.v0.position.z > m_highestZ) m_highestZ = quad.v0.position.z;
+    if (quad.v.v0.position.x < m_lowestX) m_lowestX = quad.v.v0.position.x;
+    if (quad.v.v0.position.x > m_highestX) m_highestX = quad.v.v0.position.x;
+    if (quad.v.v0.position.y < m_lowestY) m_lowestY = quad.v.v0.position.y;
+    if (quad.v.v0.position.y > m_highestY) m_highestY = quad.v.v0.position.y;
+    if (quad.v.v0.position.z < m_lowestZ) m_lowestZ = quad.v.v0.position.z;
+    if (quad.v.v0.position.z > m_highestZ) m_highestZ = quad.v.v0.position.z;
 }
 
 
 int ChunkMesher::tryMergeQuad(VoxelQuad* quad, std::vector<VoxelQuad>& quads, int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset) {
     int rv = 0;
     i16 quadIndex = quads.size() - 1;
-    if (quad->v0 == quad->v3 && quad->v1 == quad->v2) {
-        quad->v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
+    if (quad->v.v0 == quad->v.v3 && quad->v.v1 == quad->v.v2) {
+        quad->v.v0.mesherFlags |= MESH_FLAG_MERGE_RIGHT;
         ui16 leftIndex = m_quadIndices[blockIndex + leftOffset][face];
         // Check left merge
         if (leftIndex != NO_QUAD_INDEX) {
             VoxelQuad& lQuad = quads[leftIndex];
-            if (((lQuad.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
-                lQuad.v0.position[frontAxis] == quad->v0.position[frontAxis] &&
-                lQuad.v1.position[frontAxis] == quad->v1.position[frontAxis] &&
-                lQuad.v0 == quad->v0 && lQuad.v1 == quad->v1) {
+            if (((lQuad.v.v0.mesherFlags & MESH_FLAG_MERGE_RIGHT) != 0) &&
+                lQuad.v.v0.position[frontAxis] == quad->v.v0.position[frontAxis] &&
+                lQuad.v.v1.position[frontAxis] == quad->v.v1.position[frontAxis] &&
+                lQuad.v.v0 == quad->v.v0 && lQuad.v.v1 == quad->v.v1) {
                 // Stretch the previous quad
                 lQuad.verts[rightStretchIndex].position[rightAxis] += QUAD_SIZE;
                 lQuad.verts[rightStretchIndex].tex.x += texOffset.x;
@@ -1167,27 +1169,27 @@ int ChunkMesher::tryMergeQuad(VoxelQuad* quad, std::vector<VoxelQuad>& quads, in
         }
     }
     // Check back merge
-    if (quad->v0 == quad->v1 && quad->v2 == quad->v3) {
-        quad->v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
+    if (quad->v.v0 == quad->v.v1 && quad->v.v2 == quad->v.v3) {
+        quad->v.v0.mesherFlags |= MESH_FLAG_MERGE_FRONT;
         int backIndex = m_quadIndices[blockIndex + backOffset][face];
         if (backIndex != NO_QUAD_INDEX) {
             VoxelQuad* bQuad = &quads[backIndex];
-            while (!(bQuad->v0.mesherFlags & MESH_FLAG_ACTIVE)) {
-                backIndex = bQuad->replaceQuad;
+            while (!(bQuad->v.v0.mesherFlags & MESH_FLAG_ACTIVE)) {
+                backIndex = bQuad->v.replaceQuad;
                 bQuad = &quads[backIndex];
             }
-            if (((bQuad->v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
-                bQuad->v0.position[rightAxis] == quad->v0.position[rightAxis] &&
-                bQuad->v2.position[rightAxis] == quad->v2.position[rightAxis] &&
-                bQuad->v0 == quad->v0 && bQuad->v1 == quad->v1) {
-                bQuad->v0.position[frontAxis] += QUAD_SIZE;
-                bQuad->v0.tex.y += texOffset.y;
-                bQuad->v3.position[frontAxis] += QUAD_SIZE;
-                bQuad->v3.tex.y += texOffset.y;
+            if (((bQuad->v.v0.mesherFlags & MESH_FLAG_MERGE_FRONT) != 0) &&
+                bQuad->v.v0.position[rightAxis] == quad->v.v0.position[rightAxis] &&
+                bQuad->v.v2.position[rightAxis] == quad->v.v2.position[rightAxis] &&
+                bQuad->v.v0 == quad->v.v0 && bQuad->v.v1 == quad->v.v1) {
+                bQuad->v.v0.position[frontAxis] += QUAD_SIZE;
+                bQuad->v.v0.tex.y += texOffset.y;
+                bQuad->v.v3.position[frontAxis] += QUAD_SIZE;
+                bQuad->v.v3.tex.y += texOffset.y;
                 quadIndex = backIndex;
                 // Mark as not in use
-                quad->v0.mesherFlags = 0;
-                quad->replaceQuad = backIndex;
+                quad->v.v0.mesherFlags = 0;
+                quad->v.replaceQuad = backIndex;
                 ++rv;
             }
         }
@@ -1646,11 +1648,11 @@ void ChunkMesher::buildWaterVao(ChunkMesh& cm) {
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LiquidVertex), 0);
     //uvs_texUnit_texIndex
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (12)));
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), (char *)12);
     //color
-    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (16)));
+    glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), (char *)16);
     //light
-    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), ((char *)NULL + (20)));
+    glVertexAttribPointer(3, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(LiquidVertex), (char *)20);
 
     glBindVertexArray(0);
 }

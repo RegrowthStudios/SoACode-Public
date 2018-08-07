@@ -368,17 +368,17 @@ void TestDeferredScreen::buildLightMaps() {
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envMap);
     
     vg::ImageIO imageLoader;
-    vg::ScopedBitmapResource rs0 = imageLoader.load("Textures/Test/nx.png");
+    vg::ScopedBitmapResource rs0(imageLoader.load("Textures/Test/nx.png"));
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGB16F, rs0.width, rs0.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs0.data);
-    vg::ScopedBitmapResource rs1 = imageLoader.load("Textures/Test/px.png");
+    vg::ScopedBitmapResource rs1(imageLoader.load("Textures/Test/px.png"));
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGB16F, rs1.width, rs1.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs1.data);
-    vg::ScopedBitmapResource rs2 = imageLoader.load("Textures/Test/ny.png");
+    vg::ScopedBitmapResource rs2(imageLoader.load("Textures/Test/ny.png"));
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGB16F, rs2.width, rs2.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs2.data);
-    vg::ScopedBitmapResource rs3 = imageLoader.load("Textures/Test/py.png");
+    vg::ScopedBitmapResource rs3(imageLoader.load("Textures/Test/py.png"));
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB16F, rs3.width, rs3.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs3.data);
-    vg::ScopedBitmapResource rs4 = imageLoader.load("Textures/Test/nz.png");
+    vg::ScopedBitmapResource rs4(imageLoader.load("Textures/Test/nz.png"));
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGB16F, rs4.width, rs4.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs4.data);
-    vg::ScopedBitmapResource rs5 = imageLoader.load("Textures/Test/pz.png");
+    vg::ScopedBitmapResource rs5(imageLoader.load("Textures/Test/pz.png"));
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGB16F, rs5.width, rs5.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rs5.data);
 
     vg::SamplerState ss(

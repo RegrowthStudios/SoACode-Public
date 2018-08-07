@@ -84,9 +84,11 @@ public:
 };
 
 // Check alignment against glm types
+#ifdef _MSC_VER //re-interpret cast cannot be used in constexpr
 static_assert(soffsetof(VoxelIterablePosition, x) == soffsetof(VoxelVectorType, x), "VoxelIterablePosition X is misaligned");
 static_assert(soffsetof(VoxelIterablePosition, y) == soffsetof(VoxelVectorType, y), "VoxelIterablePosition Y is misaligned");
 static_assert(soffsetof(VoxelIterablePosition, z) == soffsetof(VoxelVectorType, z), "VoxelIterablePosition Z is misaligned");
+#endif// _MSC_VER
 static_assert(sizeof(VoxelIterablePosition) == sizeof(VoxelVectorType), "VoxelIterablePosition is of wrong size");
 
 /*! @brief This operator class modifies value without any modifications.
@@ -109,9 +111,9 @@ public:
         pos += v;
         return pos;
     }
-    operator VoxelIterablePosition() const {
-        return *this;
-    }
+//    operator VoxelIterablePosition() const {
+//        return *this;
+//    }
 };
 class VoxelIterablePositionRawX : public VoxelIterablePositionRaw<&VoxelIterablePosition::x> {};
 class VoxelIterablePositionRawY : public VoxelIterablePositionRaw<&VoxelIterablePosition::y> {};
@@ -137,9 +139,9 @@ public:
         pos += v;
         return pos;
     }
-    operator VoxelIterablePosition() const {
-        return *this;
-    }
+//    operator VoxelIterablePosition() const {
+//        return *this;
+//    }
 };
 template<size_t BITS>
 class VoxelIterablePositionWrapX : public VoxelIterablePositionWrap<BITS, &VoxelIterablePosition::x> {};
@@ -168,9 +170,9 @@ public:
         pos += v;
         return pos;
     }
-    operator VoxelIterablePosition() const {
-        return *this;
-    }
+//    operator VoxelIterablePosition() const {
+//        return *this;
+//    }
 };
 template<VoxelPositionType MIN, VoxelPositionType MAX>
 class VoxelIterablePositionClampX : public VoxelIterablePositionClamp<MIN, MAX, &VoxelIterablePosition::x> {};

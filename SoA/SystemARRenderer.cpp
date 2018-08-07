@@ -98,7 +98,7 @@ void SystemARRenderer::loadTextures() {
     { // Selector
         vio::Path path;
         m_textureResolver->resolvePath("GUI/selector.png", path);
-        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        vg::ScopedBitmapResource res(vg::ImageIO().load(path));
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load GUI/selector.png\n");
         }
@@ -108,7 +108,7 @@ void SystemARRenderer::loadTextures() {
     { // Barycenter
         vio::Path path;
         m_textureResolver->resolvePath("GUI/barycenter.png", path);
-        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        vg::ScopedBitmapResource res(vg::ImageIO().load(path));
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load GUI/barycenter.png\n");
         }
@@ -311,7 +311,7 @@ void SystemARRenderer::drawHUD() {
                 m_spriteBatch->draw(m_selectorTexture, nullptr, nullptr,
                                     xyScreenCoords,
                                     f32v2(0.5f, 0.5f),
-                                    f32v2(22.0f) + cos(dt * 8.0f) * 4.0f,
+                                    f32v2(22.0f) + (cosf(dt * 8.0f) * 4.0f),
                                     dt * ROTATION_FACTOR,
                                     sColor, screenCoords.z);
             }

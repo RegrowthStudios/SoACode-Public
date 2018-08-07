@@ -374,49 +374,49 @@ color3 ModelMesher::getColor2(const i32v3& pos, const VoxelMatrix& matrix) {
     { // Center
         color4 vColor = matrix.getColorAndCheckBounds(pos);
         if (vColor.a != 0 && !matrix.isInterior(pos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     { // Left
         i32v3 vPos = pos + i32v3(-1, 0, 0);
         color4 vColor = matrix.getColorAndCheckBounds(vPos);
         if (vColor.a != 0 && !matrix.isInterior(vPos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     { // Right
         i32v3 vPos = pos + i32v3(1, 0, 0);
         color4 vColor = matrix.getColorAndCheckBounds(vPos);
         if (vColor.a != 0 && !matrix.isInterior(vPos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     { // Bottom
         i32v3 vPos = pos + i32v3(0, -1, 0);
         color4 vColor = matrix.getColorAndCheckBounds(vPos);
         if (vColor.a != 0 && !matrix.isInterior(vPos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     { // Top
         i32v3 vPos = pos + i32v3(0, 1, 0);
         color4 vColor = matrix.getColorAndCheckBounds(vPos);
         if (vColor.a != 0 && !matrix.isInterior(vPos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     { // Back
         i32v3 vPos = pos + i32v3(0, 0, -1);
         color4 vColor = matrix.getColorAndCheckBounds(vPos);
         if (vColor.a != 0 && !matrix.isInterior(vPos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     { // Front
         i32v3 vPos = pos + i32v3(0, 0, 1);
         color4 vColor = matrix.getColorAndCheckBounds(vPos);
         if (vColor.a != 0 && !matrix.isInterior(vPos)) {
-            return vColor.rgb;
+            return vColor.color.rgb;
         }
     }
     return color3(0, 0, 0);
@@ -698,9 +698,9 @@ void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelMode
     // TODO(Ben): Could be optimized
     f32v3 mainOffset(matrix.size.x / 2.0f, matrix.size.y / 2.0f, matrix.size.z / 2.0f);
     int voxelIndex;
-    for(int z = 0; z < matrix.size.z; z++) {
-        for (int y = 0; y < matrix.size.y; y++) {
-            for (int x = 0; x < matrix.size.x; x++) {
+    for(ui32 z = 0; z < matrix.size.z; z++) {
+        for (ui32 y = 0; y < matrix.size.y; y++) {
+            for (ui32 x = 0; x < matrix.size.x; x++) {
                 voxelIndex = matrix.getIndex(x, y, z);
                 const ColorRGBA8& voxel = matrix.getColor(voxelIndex); // Get the current voxel's color
                 if(voxel.a == 0) continue; // If the current voxel is invisible go to next voxel
@@ -715,7 +715,7 @@ void ModelMesher::genMatrixMesh(const VoxelMatrix& matrix, std::vector<VoxelMode
                         vertices.resize(indexStart + 4);
                         for (int l = 0; l < 4; l++) {
                             vertices[indexStart + l].pos = offset + VOXEL_MODEL[face * 4 + l];
-                            vertices[indexStart + l].color = voxel.rgb;
+                            vertices[indexStart + l].color = voxel.color.rgb;
                             vertices[indexStart + l].normal = f32v3(VOXEL_SIDES[face]);
                         }
 

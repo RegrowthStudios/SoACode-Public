@@ -33,7 +33,7 @@ ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64
         std::thread([data, threadID, requestCount] () {
             { // Wait until everyone is notified
                 std::unique_lock<std::mutex> lock(data->lock);
-                printf("Thread %d awaiting notification\n", threadID);
+                printf("Thread %zu awaiting notification\n", threadID);
                 data->cv.wait(lock);
             }
 
@@ -41,7 +41,7 @@ ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64
             std::uniform_int_distribution<int> release(0, 1);
 
             // Begin requesting chunks
-            printf("Thread %d starting\n", threadID);
+            printf("Thread %zu starting\n", threadID);
             PreciseTimer timer;
             timer.start();
             ChunkID* id = data->ids + (requestCount * threadID);
@@ -60,7 +60,7 @@ ChunkAccessSpeedData* createCASData(size_t numThreads, size_t requestCount, ui64
                     id++;
                 }
             }
-            printf("Thread %d finished in %lf ms\n", threadID, timer.stop());
+            printf("Thread %zu finished in %lf ms\n", threadID, timer.stop());
         }).swap(data->threads[threadID]);
         data->threads[threadID].detach();
     }
@@ -81,7 +81,7 @@ void runCAS(ChunkAccessSpeedData* data) {
 }
 
 void freeCAS(ChunkAccessSpeedData* data) {
-    printf("Chunks Alive: %d\n", data->accessor.getCountAlive());
+    printf("Chunks Alive: %zu\n", data->accessor.getCountAlive());
     fflush(stdout);
     data->accessor.destroy();
     delete[] data->ids;

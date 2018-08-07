@@ -12,8 +12,8 @@ AmbienceLibrary::Track AmbienceLibrary::getTrack(const nString& list, Random& rG
     const AmbienceList& tracks = getTracks(list);
 
     ui32 trackNum = (ui32)(rGen.genMT() * tracks.size()) % tracks.size();
-    printf("Chose track %d out of %d in %s\n", trackNum + 1, tracks.size(), list.c_str());
-    AmbienceList::const_iterator& iter = tracks.cbegin();
+    printf("Chose track %d out of %zd in %s\n", trackNum + 1, tracks.size(), list.c_str());
+    AmbienceList::const_iterator iter = tracks.cbegin();
     while (trackNum != 0) {
         iter++;
         trackNum--;

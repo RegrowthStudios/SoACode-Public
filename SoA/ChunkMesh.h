@@ -62,31 +62,31 @@ struct VoxelQuad {
 
     ~VoxelQuad()
     {
-        v0.BlockVertex::~BlockVertex();
-        v1.BlockVertex::~BlockVertex();
-        v2.BlockVertex::~BlockVertex();
-        v3.BlockVertex::~BlockVertex(); 
+        v.v0.BlockVertex::~BlockVertex();
+        v.v1.BlockVertex::~BlockVertex();
+        v.v2.BlockVertex::~BlockVertex();
+        v.v3.BlockVertex::~BlockVertex(); 
     }
 
     union {
-        struct {
+        struct{
             BlockVertex v0;
             BlockVertex v1;
             BlockVertex v2;
             union {
-                UNIONIZE(BlockVertex v3);
+                BlockVertex v3;
                 ui16 replaceQuad; // Quad that replaces this quad
             };
-        };
-        UNIONIZE(BlockVertex verts[4]);
+        } v;
+        BlockVertex verts[4];
     };
 };
 
 class ChunkMeshData
 {
 public:
-    ChunkMeshData::ChunkMeshData();
-    ChunkMeshData::ChunkMeshData(MeshTaskType type);
+    ChunkMeshData();
+    ChunkMeshData(MeshTaskType type);
 
     void addTransQuad(const i8v3& pos);
 

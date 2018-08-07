@@ -74,9 +74,11 @@ typedef std::vector<std::vector<BiomeInfluence>> BiomeInfluenceMap;
 
 // TODO(Ben): Optimize the cache
 struct Biome {
-    BiomeID id = "default";
-    nString displayName = "Default";
-    ColorRGB8 mapColor = ColorRGB8(255, 255, 255); ///< For debugging and lookups
+    Biome():id("default"), displayName("Default"), mapColor(255, 255, 255), genData(nullptr){}
+
+    BiomeID id;
+    nString displayName;
+    ColorRGB8 mapColor; ///< For debugging and lookups
     std::vector<BlockLayer> blockLayers; ///< Overrides base layers
     std::vector<Biome*> children;
     std::vector<BiomeFlora> flora;

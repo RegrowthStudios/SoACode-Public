@@ -82,16 +82,16 @@ struct LeafKegProperties {
     FruitKegProperties fruitProps;
     // Union based on type
     union {
-        UNIONIZE(struct {
+        struct {
             i32v2 vRadius;
             i32v2 hRadius;
-        } round;);
-        UNIONIZE(struct {
+        } round;
+        struct {
             i32v2 oRadius;
             i32v2 iRadius;
             i32v2 period;
-        } pine;);
-        UNIONIZE(struct {
+        } pine;
+        struct {
             i32v2 tvRadius;
             i32v2 thRadius;
             i32v2 bvRadius;
@@ -100,7 +100,7 @@ struct LeafKegProperties {
             i32v2 capWidth;
             i32v2 gillWidth;
             FloraInterpType interp;
-        } mushroom;);
+        } mushroom;
     };
     // Don't put strings in unions
     nString block;

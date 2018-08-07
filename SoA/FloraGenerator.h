@@ -37,18 +37,25 @@ struct FloraNode {
 
 #define SC_NO_PARENT 0x7FFFu
 
+#ifdef _MSC_VER
+#define SCRayNode_Size 24 //visual studio make the struct 4 bytes rather than 2, with padding equals 24 
+#else
+#define SCRayNode_Size 20
+#endif
+
 struct SCRayNode {
     SCRayNode(const f32v3& pos, ui16 parent, ui16 trunkPropsIndex) :
         pos(pos), trunkPropsIndex(trunkPropsIndex), wasVisited(false), parent(parent){};
     f32v3 pos;
-    struct {
+    struct { 
         ui16 trunkPropsIndex : 15;
         bool wasVisited : 1;
     };
     ui16 parent;
-    f32 width = 1.0f;
+    f32 width = 1.0f; 
 };
-static_assert(sizeof(SCRayNode) == 24, "Size of SCRayNode is not 24");
+
+static_assert(sizeof(SCRayNode) == SCRayNode_Size, "Size of SCRayNode is not 24");
 
 struct SCTreeNode {
     SCTreeNode(ui16 rayNode) :
@@ -140,7 +147,7 @@ private:
     std::vector<FloraNode>* m_fNodes;
     std::vector<FloraNode>* m_wNodes;
     TreeData m_treeData;
-    FloraData m_floraData;
+//    FloraData m_floraData;
     i32v3 m_center;
     ui32 m_h; ///< Current height along the tree
     FastRandGenerator m_rGen;

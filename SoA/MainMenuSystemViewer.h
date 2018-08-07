@@ -52,7 +52,7 @@ public:
         f32v3 selectedPos;
     };
     const BodyArData* finBodyAr(vecs::EntityID eid) const {
-        auto& it = bodyArData.find(eid);
+        auto it = bodyArData.find(eid);
         if (it == bodyArData.end()) return nullptr;
         return &it->second;
     }

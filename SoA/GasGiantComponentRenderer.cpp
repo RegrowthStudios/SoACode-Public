@@ -36,9 +36,9 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
     // Get the render texture or load it if it hasn't been loaded
     // TODO(Ben): Use a renderable component instead
     VGTexture colorTexture = 0;
-    auto& it = m_colorTextures.find(eid);
+    auto it = m_colorTextures.find(eid);
     if (it == m_colorTextures.end()) {
-        vg::ScopedBitmapResource b = vg::ImageIO().load(ggCmp.colorMapPath);
+        vg::ScopedBitmapResource b(vg::ImageIO().load(ggCmp.colorMapPath));
         if (b.data) {
             colorTexture = vg::GpuMemory::uploadTexture(&b, vg::TexturePixelType::UNSIGNED_BYTE,
                                                         vg::TextureTarget::TEXTURE_2D,

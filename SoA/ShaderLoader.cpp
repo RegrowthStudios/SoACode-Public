@@ -20,7 +20,7 @@ namespace {
 }
 
 CALLER_DELETE vg::GLProgram ShaderLoader::createProgramFromFile(const vio::Path& vertPath, const vio::Path& fragPath,
-                                                                vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
+                                                                vio::IOManager* iom /*= nullptr*/, const cString defines /*= nullptr*/) {
     vg::ShaderManager::onFileIOFailure += makeDelegate(printFileIOError);
     vg::ShaderManager::onShaderCompilationError += makeDelegate(printShaderError);
     vg::ShaderManager::onProgramLinkError += makeDelegate(printLinkError);
@@ -42,7 +42,7 @@ CALLER_DELETE vg::GLProgram ShaderLoader::createProgramFromFile(const vio::Path&
     return program;
 }
 
-CALLER_DELETE vg::GLProgram ShaderLoader::createProgram(const cString displayName, const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, cString defines /*= nullptr*/) {
+CALLER_DELETE vg::GLProgram ShaderLoader::createProgram(const cString displayName, const cString vertSrc, const cString fragSrc, vio::IOManager* iom /*= nullptr*/, const cString defines /*= nullptr*/) {
     vg::ShaderManager::onFileIOFailure += makeDelegate(printFileIOError);
     vg::ShaderManager::onShaderCompilationError += makeDelegate(printShaderError);
     vg::ShaderManager::onProgramLinkError += makeDelegate(printLinkError);
