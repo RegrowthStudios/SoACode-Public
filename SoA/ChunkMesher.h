@@ -124,7 +124,7 @@ private:
 
     int wSize;
 
-    ui32 m_finalQuads[7000];
+//    ui32 m_finalQuads[7000];
 
     BlockVertex m_topVerts[4100];
 

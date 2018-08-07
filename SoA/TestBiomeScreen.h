@@ -18,7 +18,7 @@
 #include "DevConsoleView.h"
 #include "FloraGenerator.h"
 #include "HdrRenderStage.h"
-#include "SSAORenderStage.h"
+#include "SsaoRenderStage.h"
 #include "SphericalHeightmapGenerator.h"
 
 class InputMapper;

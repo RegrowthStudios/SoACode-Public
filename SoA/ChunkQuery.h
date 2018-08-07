@@ -22,6 +22,8 @@
 
 enum ChunkGenLevel { GEN_NONE = 0, GEN_TERRAIN, GEN_FLORA, GEN_SCRIPT, GEN_DONE };
 
+class ChunkGrid;
+
 class ChunkQuery {
     friend class ChunkGenerator;
     friend class GenerateTask;

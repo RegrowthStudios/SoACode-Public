@@ -32,6 +32,8 @@ void GenerateTask::execute(WorkerData* workerData) {
             case ChunkGenLevel::GEN_SCRIPT:
                 chunk.genLevel = ChunkGenLevel::GEN_DONE;
                 break;
+            default:
+                break;
         }
         query->m_isFinished = true;
         query->m_cond.notify_one();

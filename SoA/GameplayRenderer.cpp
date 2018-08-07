@@ -10,7 +10,7 @@
 #include "DebugRenderer.h"
 #include "Errors.h"
 #include "GameSystem.h"
-#include "GameplayScreen.h"
+#include "GamePlayScreen.h"
 #include "MTRenderState.h"
 #include "PauseMenu.h"
 #include "SoAState.h"
@@ -394,7 +394,7 @@ void GameplayRenderer::updateCameras() {
     auto& phycmp = gs->physics.getFromEntity(m_state->clientState.playerEntity);
     auto& spcmp = gs->spacePosition.get(phycmp.spacePosition);
     if (spcmp.parentGravity) {
-        auto& it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
+        auto it = m_renderState->spaceBodyPositions.find(spcmp.parentEntity);
         if (it != m_renderState->spaceBodyPositions.end()) {
             spaceCamera.setPosition(m_renderState->spaceCameraPos + it->second);
         } else {

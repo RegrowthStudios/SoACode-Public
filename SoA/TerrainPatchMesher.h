@@ -70,7 +70,7 @@ private:
     bool waterQuads[PATCH_WIDTH - 1][PATCH_WIDTH - 1]; ///< True when a quad is present at a spot
 
     const PlanetGenData* m_planetGenData = nullptr; ///< Planetary data
-    TerrainPatchMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
+//    TerrainPatchMeshManager* m_meshManager = nullptr; ///< Manages the patch meshes
 
     /// Meshing helper vars
     int m_index;

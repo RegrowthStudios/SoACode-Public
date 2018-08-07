@@ -17,22 +17,23 @@
 #include "ChunkID.h"
 
 class Chunk;
+class ChunkAccessor;
 
 class ChunkHandle {
     friend class ChunkAccessor;
 public:
     ChunkHandle() : 
-        m_acquired(false),
         m_chunk(nullptr),
-        m_id({}) {
+        m_id({}),
+        m_acquired(false){
         // Empty
     }
     ChunkHandle(const ChunkHandle& other);
     ChunkHandle& operator= (const ChunkHandle& other);
     ChunkHandle(ChunkHandle&& other) :
-        m_acquired(other.m_acquired),
         m_chunk(other.m_chunk),
-        m_id(other.m_id) {
+        m_id(other.m_id),
+        m_acquired(other.m_acquired) {
 
         other.m_acquired = false;
         other.m_chunk = nullptr;

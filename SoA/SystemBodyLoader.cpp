@@ -17,7 +17,7 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
 
 #define KEG_CHECK \
     if (error != keg::Error::NONE) { \
-        fprintf(stderr, "keg error %d for %s\n", (int)error, filePath); \
+        fprintf(stderr, "keg error %d for %s\n", (int)error, filePath.c_str()); \
         goodParse = false; \
         return;  \
                     }

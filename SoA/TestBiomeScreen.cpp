@@ -13,7 +13,7 @@
 #include "RenderUtils.h"
 #include "ShaderLoader.h"
 #include "SoaEngine.h"
-#include "SoaState.h"
+#include "SoAState.h"
 
 #ifdef DEBUG
 #define HORIZONTAL_CHUNKS 26
@@ -364,22 +364,22 @@ void TestBiomeScreen::initChunks() {
                 Chunk* chunk = m_chunks[GET_INDEX(x, y, z)].chunk;
                 // TODO(Ben): Release these too.
                 if (x > 0) {
-                    chunk->left = m_chunks[GET_INDEX(x - 1, y, z)].chunk.acquire();
+                    chunk->neighbor.left = m_chunks[GET_INDEX(x - 1, y, z)].chunk.acquire();
                 }
                 if (x < HORIZONTAL_CHUNKS - 1) {
-                    chunk->right = m_chunks[GET_INDEX(x + 1, y, z)].chunk.acquire();
+                    chunk->neighbor.right = m_chunks[GET_INDEX(x + 1, y, z)].chunk.acquire();
                 }
                 if (y > 0) {
-                    chunk->bottom = m_chunks[GET_INDEX(x, y - 1, z)].chunk.acquire();
+                    chunk->neighbor.bottom = m_chunks[GET_INDEX(x, y - 1, z)].chunk.acquire();
                 }
                 if (y < VERTICAL_CHUNKS - 1) {
-                    chunk->top = m_chunks[GET_INDEX(x, y + 1, z)].chunk.acquire();
+                    chunk->neighbor.top = m_chunks[GET_INDEX(x, y + 1, z)].chunk.acquire();
                 }
                 if (z > 0) {
-                    chunk->back = m_chunks[GET_INDEX(x, y, z - 1)].chunk.acquire();
+                    chunk->neighbor.back = m_chunks[GET_INDEX(x, y, z - 1)].chunk.acquire();
                 }
                 if (z < HORIZONTAL_CHUNKS - 1) {
-                    chunk->front = m_chunks[GET_INDEX(x, y, z + 1)].chunk.acquire();
+                    chunk->neighbor.front = m_chunks[GET_INDEX(x, y, z + 1)].chunk.acquire();
                 }
             }
         }
@@ -508,7 +508,7 @@ void TestBiomeScreen::initInput() {
     });
 
     // Dev console
-    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [this](Sender s, ui32 a) {
+    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [](Sender s, ui32 a) {
         DevConsole::getInstance().toggleFocus();
     });
 

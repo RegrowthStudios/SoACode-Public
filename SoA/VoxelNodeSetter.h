@@ -20,6 +20,7 @@
 #include "VoxelNodeSetterTask.h"
 
 class ChunkHandle;
+class ChunkGrid;
 
 struct VoxelNodeSetterWaitingChunk {
     Chunk* ch;

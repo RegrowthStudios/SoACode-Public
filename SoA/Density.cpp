@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "density.h"
+#include "Density.h"
 #include "VoxelMatrix.h"
 
 const VoxelMatrix* gMatrix;

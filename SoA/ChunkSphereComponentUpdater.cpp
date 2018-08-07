@@ -206,35 +206,35 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
     { // Left
         ChunkID id = h.getID();
         id.x--;
-        h->left = accessor.acquire(id);
+        h->neighbor.left = accessor.acquire(id);
     }
     { // Right
         ChunkID id = h.getID();
         id.x++;
-        h->right = accessor.acquire(id);
+        h->neighbor.right = accessor.acquire(id);
     }
     { // Bottom
         ChunkID id = h.getID();
         id.y--;
-        h->bottom = accessor.acquire(id);
+        h->neighbor.bottom = accessor.acquire(id);
     }
     { // Top
         ChunkID id = h.getID();
         id.y++;
-        h->top = accessor.acquire(id);
+        h->neighbor.top = accessor.acquire(id);
     }
     { // Back
         ChunkID id = h.getID();
         id.z--;
-        h->back = accessor.acquire(id);
+        h->neighbor.back = accessor.acquire(id);
     }
     { // Front
         ChunkID id = h.getID();
         id.z++;
-        h->front = accessor.acquire(id);
+        h->neighbor.front = accessor.acquire(id);
     }
     cmp.chunkGrid->onNeighborsAcquire(h);
-    return std::move(h);
+    return h;
 
 #undef GET_HALF
 }
@@ -242,12 +242,12 @@ ChunkHandle ChunkSphereComponentUpdater::submitAndConnect(ChunkSphereComponent& 
 void ChunkSphereComponentUpdater::releaseAndDisconnect(ChunkSphereComponent& cmp, ChunkHandle& h) {
     // Call the event first to prevent race condition
     cmp.chunkGrid->onNeighborsRelease(h);
-    h->left.release();
-    h->right.release();
-    h->back.release();
-    h->front.release();
-    h->bottom.release();
-    h->top.release();
+    h->neighbor.left.release();
+    h->neighbor.right.release();
+    h->neighbor.back.release();
+    h->neighbor.front.release();
+    h->neighbor.bottom.release();
+    h->neighbor.top.release();
     h.release();
 }
 

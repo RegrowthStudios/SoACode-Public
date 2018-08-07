@@ -26,6 +26,7 @@
 #include "PauseMenu.h"
 #include "SoaController.h"
 #include "DevConsoleView.h"
+#include "SpaceSystemUpdater.h"
 
 class App;
 class GameStartState;
@@ -34,7 +35,6 @@ class GameSystemUpdater;
 class InputMapper;
 class MainMenuScreen;
 struct SoaState;
-class SpaceSystemUpdater;
 class SpriteBatch;
 class SpriteFont;
 class TerrainMeshMessage;
@@ -116,10 +116,10 @@ private:
     void onWindowClose(Sender s);
     // ----------------------------------------------
 
-    const MainMenuScreen* m_mainMenuScreen = nullptr;
-    SoaState* m_soaState = nullptr;
+    const MainMenuScreen* m_mainMenuScreen;
+    SoaState* m_soaState;
 
-    InputMapper* m_inputMapper = nullptr;
+    InputMapper* m_inputMapper;
 
     PDA m_pda; ///< The PDA
 
@@ -128,22 +128,22 @@ private:
     DevConsoleView m_devConsoleView;
 
     SoaController controller;
-    std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater = nullptr;
-    std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater = nullptr;
+    std::unique_ptr<SpaceSystemUpdater> m_spaceSystemUpdater;
+    std::unique_ptr<GameSystemUpdater> m_gameSystemUpdater;
 
-    std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
+    std::thread* m_updateThread; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     AutoDelegatePool m_hooks; ///< Input hooks reservoir
     GameplayRenderer m_renderer; ///< This handles all rendering for the screen
 
     MTRenderStateManager m_renderStateManager; ///< Manages the triple buffered render state
-    const MTRenderState* m_prevRenderState = nullptr; ///< Render state use for previous draw
+    const MTRenderState* m_prevRenderState; ///< Render state use for previous draw
 
     std::mutex m_reloadLock;
-    bool m_shouldReloadTarget = false;
-    bool m_shouldReloadShaders = false;
-    bool m_shouldToggleDevConsole = false;
+    bool m_shouldReloadTarget;
+    bool m_shouldReloadShaders;
+    bool m_shouldToggleDevConsole;
 };
 
 #endif // GAMEPLAYSCREEN_H_

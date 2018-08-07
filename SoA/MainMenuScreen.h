@@ -27,13 +27,13 @@
 #include "MainMenuScriptedUI.h"
 #include "Camera.h"
 #include <Vorb/ui/FormScriptEnvironment.h>
+#include "SpaceSystemUpdater.h"
 
 class App;
 
 class InputMapper;
 class MainMenuLoadScreen;
 class MainMenuSystemViewer;
-class SpaceSystemUpdater;
 struct CommonState;
 struct SoaState;
 

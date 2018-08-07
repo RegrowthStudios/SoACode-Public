@@ -59,7 +59,7 @@ bool BlockLoader::loadBlocks(const vio::IOManager& iom, BlockPack* pack) {
 }
 
 // Conditional keg write
-#define COND_WRITE_KEG(key, var) if (b.##var != d.##var) { writer.push(keg::WriterParam::KEY) << nString(key); writer.push(keg::WriterParam::VALUE) << b.##var; } 
+#define COND_WRITE_KEG(key, var) if (b.var != d.var) { writer.push(keg::WriterParam::KEY) << nString(key); writer.push(keg::WriterParam::VALUE) << b.var; } 
 
 bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
     // Open the portal to Hell
@@ -132,6 +132,10 @@ bool BlockLoader::saveBlocks(const nString& filePath, BlockPack* pack) {
             case BlockOcclusion::NONE:
                 writer.push(keg::WriterParam::KEY) << nString("occlusion");
                 writer.push(keg::WriterParam::VALUE) << nString("none");
+                break;
+            case BlockOcclusion::ALL:
+                writer.push(keg::WriterParam::KEY) << nString("occlusion");
+                writer.push(keg::WriterParam::VALUE) << nString("all");
                 break;
             case BlockOcclusion::SELF:
                 writer.push(keg::WriterParam::KEY) << nString("occlusion");

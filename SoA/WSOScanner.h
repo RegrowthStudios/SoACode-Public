@@ -19,5 +19,5 @@ private:
     const i16* getQuery(const i32v3& position, ChunkGrid* cm);
 
     // This Does Not Have To Point To A Global Atlas Necessarily ;)
-    WSOAtlas* _wsoAtlas;
+//    WSOAtlas* _wsoAtlas;
 };

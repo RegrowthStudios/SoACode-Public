@@ -2,9 +2,12 @@
 
 #include "ChunkIOManager.h"
 
+#ifdef _WINDOWS
 #include <direct.h> //for mkdir windows
-#include <fcntl.h>
 #include <io.h>
+#endif
+
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <chrono>

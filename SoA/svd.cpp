@@ -359,13 +359,13 @@ namespace svd {
         }
     }
 
-    static float calcError(const Mat3 &A, const Vec3 &x,
-                           const Vec3 &b) {
-        Vec3 vtmp;
-        MatUtils::vmul(vtmp, A, x);
-        VecUtils::sub(vtmp, b, vtmp);
-        return VecUtils::dot(vtmp, vtmp);
-    }
+    //static float calcError(const Mat3 &A, const Vec3 &x,
+    //                       const Vec3 &b) {
+    //    Vec3 vtmp;
+    //    MatUtils::vmul(vtmp, A, x);
+    //    VecUtils::sub(vtmp, b, vtmp);
+    //    return VecUtils::dot(vtmp, vtmp);
+    //}
 
     static float calcError(const SMat3 &origA, const Vec3 &x,
                            const Vec3 &b) {

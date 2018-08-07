@@ -3,7 +3,7 @@
 
 #include <Vorb/graphics/GLProgram.h>
 
-#include "GameplayScreen.h"
+#include "GamePlayScreen.h"
 #include "ShaderLoader.h"
 
 PDA::PDA() {

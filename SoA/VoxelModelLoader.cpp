@@ -12,7 +12,7 @@ VoxelModelLoader::VoxelModelLoader() {
 
 VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
     FILE* file = NULL;
-    fopen_s(&file, filePath.c_str(), "rb");
+    file=fopen( filePath.c_str(), "rb");
 
     bool ok = true;
     ui8* version = new ui8[4];
@@ -35,8 +35,8 @@ VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
     ok = fread((char*)&nameLength, sizeof(char), 1, file) == 1;
     char* name = new char[nameLength + 1];
     ok = fread(name, sizeof(char)*nameLength, 1, file) == 1;
-    name[nameLength] = 0;
-    printf(name);
+    name[(size_t)nameLength] = 0;
+    printf("%s", name);
 
     ok = fread(&matrix.size.x, sizeof(ui32), 1, file) == 1;
     ok = fread(&matrix.size.y, sizeof(ui32), 1, file) == 1;
@@ -49,9 +49,9 @@ VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
     matrix.data = new ColorRGBA8[matrix.size.x * matrix.size.y * matrix.size.z];
 
     if(compressed == 0) { // Uncompressed Data
-        for(i32 z = 0; z < matrix.size.z; z++) {
-            for(i32 y = 0; y < matrix.size.y; y++) {
-                for(i32 x = 0; x < matrix.size.x; x++) {
+        for(ui32 z = 0; z < matrix.size.z; z++) {
+            for(ui32 y = 0; y < matrix.size.y; y++) {
+                for(ui32 x = 0; x < matrix.size.x; x++) {
                     ui32 data = 0;
                     ok = fread(&data, sizeof(ui32), 1, file) == 1;
                     ui32 r = data & 0x000000ff;
@@ -64,7 +64,7 @@ VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
             }
         }
     } else { // RLE compressed
-        i32 z = 0;
+        ui32 z = 0;
         while(z < matrix.size.z) {
             ui32 index = 0;
             while(true) {
@@ -76,7 +76,7 @@ VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
                     ui32 count = 0;
                     ok = fread(&count, sizeof(ui32), 1, file) == 1;
                     ok = fread(&data, sizeof(ui32), 1, file) == 1;
-                    for(i32 j = 0; j < count; j++) {
+                    for(ui32 j = 0; j < count; j++) {
                         i32 x = index % matrix.size.x;
                         i32 y = index / matrix.size.x;
                         index++;

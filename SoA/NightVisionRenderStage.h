@@ -51,7 +51,7 @@ class NightVisionRenderStage : public IRenderStage {
 public:
     void hook(vg::FullQuadVBO* quad);
 
-    void setParams(NightVisionRenderParams& params);
+    void setParams(const NightVisionRenderParams& params);
 
     /// Disposes and deletes the shader and turns off visibility
     /// If stage does lazy init, shader will reload at next draw

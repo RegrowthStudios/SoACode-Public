@@ -9,8 +9,9 @@
 // Scan A Radius Of (WSO_MAX_SIZE - 1) From The Center Block
 const int WSO_QUERY_SIZE = WSO_MAX_SIZE * 2 - 1;
 
-WSOScanner::WSOScanner(WSOAtlas* atlas) :
-_wsoAtlas(atlas) {
+WSOScanner::WSOScanner(WSOAtlas* atlas) //:
+//_wsoAtlas(atlas) 
+{
 
 }
 

@@ -78,7 +78,7 @@ void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
     }
 
     vg::GLProgram* prog = nullptr;
-    if (m_mipStep == m_mipLevels-1) {
+    if (m_mipStep == (int)m_mipLevels-1) {
         // Final Step
         m_renderTargets[m_mipStep].bindTexture();
         m_mipStep = 1;

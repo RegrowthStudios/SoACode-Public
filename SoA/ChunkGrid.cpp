@@ -12,7 +12,7 @@ void ChunkGrid::init(WorldCubeFace face,
                       PlanetGenData* genData,
                       PagedChunkAllocator* allocator) {
     m_face = face;
-    generatorsPerRow = generatorsPerRow;
+    this->generatorsPerRow = generatorsPerRow;
     numGenerators = generatorsPerRow * generatorsPerRow;
     generators = new ChunkGenerator[numGenerators];
     for (ui32 i = 0; i < numGenerators; i++) {

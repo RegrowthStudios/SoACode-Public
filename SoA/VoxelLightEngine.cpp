@@ -381,6 +381,7 @@ inline ui16 getMaxLampColors(const ui16 redA, const ui16 greenA, const ui16 blue
        ui16 greenB = b & LAMP_GREEN_MASK;
        ui16 blueB = b & LAMP_BLUE_MASK;
        return MAX(redA, redB) | MAX(greenA, greenB) | MAX(blueA, blueB);*/
+       return 0;
 }
 
 inline void getLampColors(const ui16 l, ui16 &r, ui16 &g, ui16 &b) {

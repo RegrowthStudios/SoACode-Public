@@ -15,7 +15,7 @@
 #include "MainMenuScreen.h"
 #include "MainMenuScriptedUI.h"
 #include "SoaOptions.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "soaUtils.h"
 #include "BloomRenderStage.h"
 

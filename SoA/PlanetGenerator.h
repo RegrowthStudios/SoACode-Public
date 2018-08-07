@@ -43,11 +43,11 @@ private:
     VGTexture getRandomColorMap(vcore::RPCManager* glrpc, bool shouldBlur);
     void getRandomTerrainFuncs(OUT std::vector<TerrainFuncProperties>& funcs,
                                TerrainStage func,
-                               const std::uniform_int_distribution<int>& funcsRange,
-                               const std::uniform_int_distribution<int>& octavesRange,
-                               const std::uniform_real_distribution<f32>& freqRange,
-                               const std::uniform_real_distribution<f32>& heightMinRange,
-                               const std::uniform_real_distribution<f32>& heightWidthRange);
+                               int funcsRange1, int funcsRange2,
+                               int octavesRange1, int octavesRange2,
+                               float freqRange1, float freqRange2,
+                               float heightMinRange1, float heightMinRange2,
+                               float heightWidthRange1, float heightWidthRange2);
 
     vg::FullQuadVBO m_quad;
     vg::GLRenderTarget m_targets[2];

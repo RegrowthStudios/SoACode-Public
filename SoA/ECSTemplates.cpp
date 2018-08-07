@@ -42,7 +42,7 @@ void ECSTemplateLibrary::loadTemplate(const vpath& file) {
 
     auto node = context.reader.getFirst();
     auto f = makeFunctor([&](Sender s, const nString& component, keg::Node node) {
-        auto& bb = m_builders.find(component);
+        auto bb = m_builders.find(component);
         if(bb != m_builders.end()) {
             ECSComponentBuilder* builder = bb->second();
             builder->load(context, node);
@@ -57,7 +57,7 @@ void ECSTemplateLibrary::loadTemplate(const vpath& file) {
 }
 
 vecs::EntityID ECSTemplateLibrary::build(vecs::ECS& ecs, const nString& name) const {
-    auto& tmpl = m_templates.find(name);
+    auto tmpl = m_templates.find(name);
     if(tmpl == m_templates.end()) return ID_GENERATOR_NULL_ID;
     return tmpl->second->create(ecs);
 }

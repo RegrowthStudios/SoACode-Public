@@ -6,10 +6,10 @@
 #include "Errors.h"
 #include "ShaderLoader.h"
 #include "SoaEngine.h"
-#include <Vorb\graphics\GLProgram.h>
-#include <Vorb\graphics\GpuMemory.h>
-#include <Vorb\graphics\ImageIO.h>
-#include <Vorb\io\IOManager.h>
+#include <Vorb/graphics/GLProgram.h>
+#include <Vorb/graphics/GpuMemory.h>
+#include <Vorb/graphics/ImageIO.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/ui/InputDispatcher.h>
 #include <Vorb/Timing.h>
 

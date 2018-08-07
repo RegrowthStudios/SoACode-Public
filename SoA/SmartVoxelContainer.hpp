@@ -20,7 +20,7 @@
 #include "Constants.h"
 
 #include <Vorb/FixedSizeArrayRecycler.hpp>
-#include <Vorb/Voxel/IntervalTree.h>
+#include <Vorb/voxel/IntervalTree.h>
 
 #define QUIET_FRAMES_UNTIL_COMPRESS 60
 #define ACCESS_COUNT_UNTIL_DECOMPRESS 5
@@ -268,7 +268,7 @@ namespace vorb {
                 dataLock.lock();
                 // Sorted array for creating the interval tree
                 // Using stack array to avoid allocations, beware stack overflow
-                IntervalTree<T>::LNode data[CHUNK_SIZE];
+                typename IntervalTree<T>::LNode data[CHUNK_SIZE];
                 int index = 0;
                 data[0].set(0, 1, _dataArray[0]);
                 // Set the data

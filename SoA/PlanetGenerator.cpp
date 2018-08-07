@@ -50,19 +50,21 @@ CALLER_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     // Mountains
     getRandomTerrainFuncs(funcs,
                           TerrainStage::RIDGED_NOISE,
-                          std::uniform_int_distribution<int>(0, 2),
-                          std::uniform_int_distribution<int>(3, 7),
-                          std::uniform_real_distribution<f32>(0.00001f, 0.001f),
-                          std::uniform_real_distribution<f32>(-15000.0f, 15000.0f),
-                          std::uniform_real_distribution<f32>(100.0f, 30000.0f));
+                          0, 2,
+                          3, 7,
+                          0.00001f, 0.001f,
+                          -15000.0f, 15000.0f,
+                          100.0f, 30000.0f);
+                          
     // Terrain
+
     getRandomTerrainFuncs(funcs,
                           TerrainStage::NOISE,
-                          std::uniform_int_distribution<int>(2, 5),
-                          std::uniform_int_distribution<int>(1, 4),
-                          std::uniform_real_distribution<f32>(0.0002f, 0.2f),
-                          std::uniform_real_distribution<f32>(-500.0f, 500.0f),
-                          std::uniform_real_distribution<f32>(10.0f, 1000.0f));
+                          2, 5,
+                          1, 4,
+                          0.0002f, 0.2f,
+                          -500.0f, 500.0f,
+                          10.0f, 1000.0f);
     data->baseTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
     funcs.clear();
     // Temperature
@@ -70,22 +72,22 @@ CALLER_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     data->tempTerrainFuncs.base = 128.0f;
     getRandomTerrainFuncs(funcs,
                           TerrainStage::NOISE,
-                          std::uniform_int_distribution<int>(1, 2),
-                          std::uniform_int_distribution<int>(3, 8),
-                          std::uniform_real_distribution<f32>(0.00008f, 0.008f),
-                          std::uniform_real_distribution<f32>(-128.0f, -128.0f),
-                          std::uniform_real_distribution<f32>(255.0f, 255.0f));
+                          1, 2,
+                          3, 8,
+                          0.00008f, 0.008f,
+                          -128.0f, -128.0f,
+                          255.0f, 255.0f);
     data->tempTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
     funcs.clear();
     // Humidity
     data->humTerrainFuncs.base = 128.0f;
     getRandomTerrainFuncs(funcs,
                           TerrainStage::NOISE,
-                          std::uniform_int_distribution<int>(1, 2),
-                          std::uniform_int_distribution<int>(3, 8),
-                          std::uniform_real_distribution<f32>(0.00008f, 0.008f),
-                          std::uniform_real_distribution<f32>(-128.0f, -128.0f),
-                          std::uniform_real_distribution<f32>(255.0f, 255.0f));
+                          1, 2,
+                          3, 8,
+                          0.00008f, 0.008f,
+                          -128.0f, -128.0f,
+                          255.0f, 255.0f);
     data->humTerrainFuncs.funcs.setData(funcs.data(), funcs.size());
     funcs.clear();
 
@@ -218,11 +220,18 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
 
 void PlanetGenerator::getRandomTerrainFuncs(OUT std::vector<TerrainFuncProperties>& funcs,
                                             TerrainStage func,
-                                            const std::uniform_int_distribution<int>& funcsRange,
-                                            const std::uniform_int_distribution<int>& octavesRange,
-                                            const std::uniform_real_distribution<f32>& freqRange,
-                                            const std::uniform_real_distribution<f32>& heightMinRange,
-                                            const std::uniform_real_distribution<f32>& heightWidthRange) {
+                                            int funcsRange1, int funcsRange2,
+                                            int octavesRange1, int octavesRange2,
+                                            float freqRange1, float freqRange2,
+                                            float heightMinRange1, float heightMinRange2,
+                                            float heightWidthRange1, float heightWidthRange2) {
+
+    std::uniform_int_distribution<int> funcsRange(funcsRange1, funcsRange2);
+    std::uniform_int_distribution<int> octavesRange(octavesRange1, octavesRange2);
+    std::uniform_real_distribution<f32> freqRange(freqRange1, freqRange2);
+    std::uniform_real_distribution<f32> heightMinRange(heightMinRange1, heightMinRange2);
+    std::uniform_real_distribution<f32> heightWidthRange(heightWidthRange1, heightWidthRange2);
+
     int numFuncs = funcsRange(m_generator);
     if (numFuncs <= 0) return;
     funcs.resize(funcs.size() + numFuncs);

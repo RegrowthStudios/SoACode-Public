@@ -71,7 +71,7 @@ void LenseFlareRenderer::initGL() {
     { // Load the texture
         vio::Path path;
         m_textureResolver->resolvePath("Effects/lens_flares.png", path);
-        vg::ScopedBitmapResource res = vg::ImageIO().load(path);
+        vg::ScopedBitmapResource res(vg::ImageIO().load(path));
         if (!res.data) {
             fprintf(stderr, "ERROR: Failed to load Effects/lens_flares.png\n");
         }

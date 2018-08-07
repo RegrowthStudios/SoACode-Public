@@ -3,13 +3,12 @@
 
 #include "App.h"
 #include "CommonState.h"
-#include "GameplayScreen.h"
-#include "GameplayScreen.h"
+#include "GamePlayScreen.h"
 #include "LoadTaskBlockData.h"
 #include "MainMenuScreen.h"
 #include "LoadTaskTextures.h"
 #include "SoaEngine.h"
-#include "SoaState.h"
+#include "SoAState.h"
 
 GameplayLoadScreen::GameplayLoadScreen(const App* app, CommonState* state, MainMenuScreen* mainMenuScreen, GameplayScreen* gameplayScreen) :
 IAppScreen<App>(app),

@@ -4,7 +4,9 @@
 #include <Vorb/graphics/GLStates.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+#ifdef _MSC_VER
 #pragma region Simple shader code
+#endif// _MSC_VER
 const cString SRC_VERT = R"(
 uniform mat4 unWVP;
 
@@ -21,7 +23,9 @@ void main() {
     pColor = vec4(1, 0, 0, 1);
 }
 )";
+#ifdef _MSC_VER
 #pragma endregion
+#endif// _MSC_VER
 
 // Number cells per row/column in a single grid
 const ui32 CELLS = 30;

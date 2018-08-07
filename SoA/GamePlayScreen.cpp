@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GameplayScreen.h"
+#include "GamePlayScreen.h"
 
 #include <Vorb/os.h>
 #include <Vorb/colors.h>
@@ -28,7 +28,7 @@
 #include "ParticleMesh.h"
 #include "SoaEngine.h"
 #include "SoaOptions.h"
-#include "SoaState.h"
+#include "SoAState.h"
 #include "SpaceSystem.h"
 #include "SpaceSystemUpdater.h"
 #include "TerrainPatch.h"
@@ -36,12 +36,26 @@
 #include "VoxelEditor.h"
 #include "soaUtils.h"
 
+#ifndef _WINDOWS
+#include <pthread.h>
+#include <sched.h>
+#endif//_WINDOWS
+#include <memory>
+
 GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
     m_mainMenuScreen(mainMenuScreen),
+    m_soaState(nullptr),
+    m_inputMapper(nullptr),
+    controller(),
+    m_spaceSystemUpdater(nullptr),
+    m_gameSystemUpdater(nullptr),
     m_updateThread(nullptr),
     m_threadRunning(false),
-    controller() {
+    m_prevRenderState(nullptr),
+    m_shouldReloadTarget(false),
+    m_shouldReloadShaders(false),
+    m_shouldToggleDevConsole(false){
     // Empty
 }
 
@@ -67,7 +81,14 @@ void GameplayScreen::destroy(const vui::GameTime& gameTime) {
 
 void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
 
+#ifdef _WINDOWS
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#else
+    struct sched_param params;
+ 
+    params.sched_priority = sched_get_priority_max(SCHED_FIFO);
+    pthread_setschedparam(pthread_self(), SCHED_FIFO, &params);
+#endif
 
     m_soaState = m_mainMenuScreen->getSoAState();
 
@@ -143,7 +164,7 @@ void GameplayScreen::update(const vui::GameTime& gameTime) {
         m_reloadLock.lock();
         printf("Reloading Target\n");
         m_soaState->threadPool->clearTasks();
-        Sleep(200);
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
         SoaEngine::reloadSpaceBody(m_soaState, m_soaState->clientState.startingPlanet, nullptr);
         m_shouldReloadTarget = false;
         m_reloadLock.unlock();
@@ -491,7 +512,15 @@ void GameplayScreen::initRenderPipeline() {
 /// This is the update thread
 void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
+
+#ifdef _WINDOWS    
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#else//_WINDOWS
+    struct sched_param params;
+ 
+    params.sched_priority = sched_get_priority_max(SCHED_FIFO);
+    pthread_setschedparam(pthread_self(), SCHED_FIFO, &params);
+#endif//_WINDOWS
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(60.0f);

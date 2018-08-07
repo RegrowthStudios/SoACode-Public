@@ -30,9 +30,9 @@ ChunkHandle ChunkHandle::acquire() {
         ChunkHandle h(m_chunk->accessor->acquire(*this));
         h.m_acquired = true;
         h.m_chunk = m_chunk;
-        return std::move(h);
+        return h;
     } else {
-        return std::move(m_accessor->acquire(m_id));
+        return m_accessor->acquire(m_id);
     }
 }
 void ChunkHandle::release() {
@@ -124,12 +124,12 @@ RETEST_CHUNK_LIVELINESS:
 
 ChunkHandle ChunkAccessor::acquire(ChunkID id) {
     bool wasOld;
-    ChunkHandle chunk = std::move(safeAdd(id, wasOld));
+    ChunkHandle chunk = safeAdd(id, wasOld);
 
-    if (wasOld) return std::move(acquire(chunk));
+    if (wasOld) return acquire(chunk);
 
     chunk.m_acquired = true;
-    return std::move(chunk);
+    return chunk;
 }
 ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
     std::lock_guard<std::mutex> lChunk(chunk->m_handleMutex);
@@ -137,13 +137,13 @@ ChunkHandle ChunkAccessor::acquire(ChunkHandle& chunk) {
         // We need to re-add the chunk
         bool wasOld = false;
         chunk.m_acquired = true;
-        return std::move(safeAdd(chunk.m_id, wasOld));
+        return safeAdd(chunk.m_id, wasOld);
     } else {
         ChunkHandle retValue = {};
         memcpy(&retValue, &chunk, sizeof(ChunkHandle));
         retValue->m_handleRefCount++;
         retValue.m_acquired = true;
-        return std::move(retValue);
+        return retValue;
     }
 }
 void ChunkAccessor::release(ChunkHandle& chunk) {
@@ -161,7 +161,7 @@ void ChunkAccessor::release(ChunkHandle& chunk) {
 
 ChunkHandle ChunkAccessor::safeAdd(ChunkID id, bool& wasOld) {
     std::unique_lock<std::mutex> l(m_lckLookup);
-    auto& it = m_chunkLookup.find(id);
+    auto it = m_chunkLookup.find(id);
     if (it == m_chunkLookup.end()) {
         wasOld = false;
         ChunkHandle& h = m_chunkLookup[id];

@@ -8,10 +8,11 @@
 
 PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderParams, 
                                                  const std::vector<PhysicsBlockMesh*>& physicsBlockMeshes,
-                                                 vg::GLProgram* glProgram) :
-    _gameRenderParams(gameRenderParams),
-    _physicsBlockMeshes(physicsBlockMeshes),
-    _glProgram(glProgram) {
+                                                 vg::GLProgram* glProgram) //:
+//    _gameRenderParams(gameRenderParams),
+//    _physicsBlockMeshes(physicsBlockMeshes),
+//    _glProgram(glProgram) 
+{
     // Empty
 }
 

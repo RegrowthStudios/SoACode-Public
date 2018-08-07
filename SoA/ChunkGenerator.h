@@ -25,6 +25,7 @@
 
 class PagedChunkAllocator;
 class ChunkGridData;
+class ChunkGrid;
 
 // Data stored in Chunk and used only by ChunkGenerator
 struct ChunkGenQueryData {

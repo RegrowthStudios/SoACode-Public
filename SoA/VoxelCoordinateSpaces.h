@@ -28,7 +28,7 @@ struct ChunkPosition2D {
     operator i32v2&() { return pos; }
     operator const i32v2&() const { return pos; }
     union {
-        UNIONIZE(i32v2 pos;);
+        i32v2 pos;
         UNIONIZE(i32 x;
                  i32 z);
     };
@@ -41,7 +41,7 @@ struct ChunkPosition3D {
     operator i32v3&() { return pos; }
     operator const i32v3&() const { return pos; }
     union {
-        UNIONIZE(i32v3 pos;);
+        i32v3 pos;
         UNIONIZE(i32 x;
                  i32 y;
                  i32 z);
@@ -54,7 +54,7 @@ struct VoxelPosition2D {
     operator f64v2&() { return pos; }
     operator const f64v2&() const { return pos; }
     union {
-        UNIONIZE(f64v2 pos;);
+        f64v2 pos;
         UNIONIZE(f64 x;
                  f64 z);
     };
@@ -67,7 +67,7 @@ struct VoxelPosition3D {
     operator f64v3&() { return pos; }
     operator const f64v3&() const { return pos; }
     union {
-        UNIONIZE(f64v3 pos);
+        f64v3 pos;
         UNIONIZE(f64 x;
                  f64 y;
                  f64 z);

@@ -3,19 +3,19 @@
 
 KEG_TYPE_DEF(AabbCollidableComponent, AabbCollidableComponent, kt) {
     using namespace keg;
-    kt.addValue("box", Value::basic(offsetof(AabbCollidableComponent, box), BasicType::F32_V3));
-    kt.addValue("offset", Value::basic(offsetof(AabbCollidableComponent, offset), BasicType::F32_V3));
+    kt.addValue("box", Value::basic(offsetOf(AabbCollidableComponent, box), BasicType::F32_V3));
+    kt.addValue("offset", Value::basic(offsetOf(AabbCollidableComponent, offset), BasicType::F32_V3));
 }
 
 KEG_TYPE_DEF(AttributeComponent, AttributeComponent, kt) {
     using namespace keg;
-    kt.addValue("strength", Value::basic(offsetof(AttributeComponent, strength), BasicType::F64));
-    kt.addValue("perception", Value::basic(offsetof(AttributeComponent, perception), BasicType::F64));
-    kt.addValue("endurance", Value::basic(offsetof(AttributeComponent, endurance), BasicType::F64));
-    kt.addValue("charisma", Value::basic(offsetof(AttributeComponent, charisma), BasicType::F64));
-    kt.addValue("intelligence", Value::basic(offsetof(AttributeComponent, intelligence), BasicType::F64));
-    kt.addValue("agility", Value::basic(offsetof(AttributeComponent, agility), BasicType::F64));
-    kt.addValue("height", Value::basic(offsetof(AttributeComponent, perception), BasicType::F64));
+    kt.addValue("strength", Value::basic(offsetOf(AttributeComponent, strength), BasicType::F64));
+    kt.addValue("perception", Value::basic(offsetOf(AttributeComponent, perception), BasicType::F64));
+    kt.addValue("endurance", Value::basic(offsetOf(AttributeComponent, endurance), BasicType::F64));
+    kt.addValue("charisma", Value::basic(offsetOf(AttributeComponent, charisma), BasicType::F64));
+    kt.addValue("intelligence", Value::basic(offsetOf(AttributeComponent, intelligence), BasicType::F64));
+    kt.addValue("agility", Value::basic(offsetOf(AttributeComponent, agility), BasicType::F64));
+    kt.addValue("height", Value::basic(offsetOf(AttributeComponent, perception), BasicType::F64));
 }
 
 /*

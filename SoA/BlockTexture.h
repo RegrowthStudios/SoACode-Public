@@ -61,7 +61,7 @@ KEG_ENUM_DECL(BlendType);
 
 class BlockTextureLayer {
 public:
-    BlockTextureLayer() : index(0), normalIndex(0), dispIndex(0), averageColor(255, 255, 255), color(255, 255, 255),
+    BlockTextureLayer() : indices{0, 0, 0}, averageColor(255, 255, 255), color(255, 255, 255),
         method(ConnectedTextureMethods::NONE), size(1), symmetry(ConnectedTextureSymmetry::NONE), reducedMethod(ConnectedTextureReducedMethod::NONE),
         colorMap(nullptr), floraHeight(0), totalWeight(0), numTiles(1), innerSeams(false), transparency(false), path(""), normalPath(""),
         dispPath(""), colorMapPath(""), blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex)
@@ -100,15 +100,15 @@ public:
 
     // TODO(Ben): should it be ref color?
     inline void getBlockTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT BlockTextureMethodData& data) const {
-        data.index = this->index;
+        data.index = this->index.layer;
         getTextureMethodData(params, BASE_TYPE_INDEX, color, data);
     }
     inline void getNormalTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT BlockTextureMethodData& data) const {
-        data.index = this->normalIndex;
+        data.index = this->index.normal;
         return getTextureMethodData(params, NORM_TYPE_INDEX, color, data);
     }
     inline void getDispTextureMethodData(BlockTextureMethodParams& params, OUT color3& color, OUT  BlockTextureMethodData& data) const {
-        data.index = this->dispIndex;
+        data.index = this->index.disp;
         return getTextureMethodData(params, DISP_TYPE_INDEX, color, data);
     }
     inline void getTextureMethodData(BlockTextureMethodParams& params, ui32 typeIndex, OUT color3& color, BlockTextureMethodData& data) const {
@@ -131,10 +131,10 @@ public:
     ui32 numTiles;
     union {
         struct {
-            BlockTextureIndex index;
-            BlockTextureIndex normalIndex;
-            BlockTextureIndex dispIndex;
-        };
+            BlockTextureIndex layer;
+            BlockTextureIndex normal;
+            BlockTextureIndex disp;
+        } index;
         BlockTextureIndex indices[3];
     };
     bool innerSeams;
@@ -153,16 +153,14 @@ public:
             reducedMethod == b.reducedMethod && colorMap == b.colorMap &&
             color == b.color && 
             averageColor == b.averageColor && floraHeight == b.floraHeight &&
-            totalWeight == b.totalWeight && numTiles == b.numTiles && index == b.index &&
+            totalWeight == b.totalWeight && numTiles == b.numTiles && index.layer == b.index.layer &&
             innerSeams == b.innerSeams && transparency == b.transparency && path == b.path;
     }
 };
 
 struct BlockTexture {
-    BlockTexture():blendMode(BlendType::ALPHA)
+    BlockTexture():base(), overlay(), blendMode(BlendType::ALPHA)
     {
-        base.BlockTextureLayer::BlockTextureLayer();
-        overlay.BlockTextureLayer::BlockTextureLayer();
     }
     //provide deconstructor because of union
     ~BlockTexture()
@@ -176,7 +174,7 @@ struct BlockTexture {
             BlockTextureLayer base;
             BlockTextureLayer overlay;
         };
-        UNIONIZE(BlockTextureLayer layers[2]);
+        BlockTextureLayer layers[2];
     };
     BlendType blendMode;
 };

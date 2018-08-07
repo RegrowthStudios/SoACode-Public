@@ -111,19 +111,19 @@ private:
     uLongf _compressedBufferSize;
     ui8 _compressedByteBuffer[CHUNK_DATA_SIZE + CHUNK_SIZE * 4 + sizeof(ChunkHeader)];
     //Dynamic byte buffer used in copying contents of a file for resize
-    ui32 _copySectorsBufferSize;
+//    ui32 _copySectorsBufferSize;
     ui8* _copySectorsBuffer;
 
-    ui16 _blockIDBuffer[CHUNK_SIZE];
-    ui8 _sunlightBuffer[CHUNK_SIZE];
-    ui16 _lampLightBuffer[CHUNK_SIZE];
-    ui16 _tertiaryDataBuffer[CHUNK_SIZE];
+//    ui16 _blockIDBuffer[CHUNK_SIZE];
+//    ui8 _sunlightBuffer[CHUNK_SIZE];
+//    ui16 _lampLightBuffer[CHUNK_SIZE];
+//    ui16 _tertiaryDataBuffer[CHUNK_SIZE];
 
-    ui8 _chunkHeaderBuffer[sizeof(ChunkHeader)];
-    ui8 _regionFileHeaderBuffer[sizeof(RegionFileHeader)];
+//    ui8 _chunkHeaderBuffer[sizeof(ChunkHeader)];
+//    ui8 _regionFileHeaderBuffer[sizeof(RegionFileHeader)];
     
     ui32 _maxCacheSize;
-    ui32 _chunkOffset; ///< Offset into the chunk data
+//    ui32 _chunkOffset; ///< Offset into the chunk data
     uLongf _chunkBufferSize;
     std::map <nString, RegionFile*> _regionFileCache;
     std::deque <RegionFile*> _regionFileCacheQueue;

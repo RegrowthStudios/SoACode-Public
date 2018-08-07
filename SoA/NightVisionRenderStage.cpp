@@ -55,7 +55,7 @@ void NightVisionRenderStage::hook(vg::FullQuadVBO* quad) {
     delete[] data;
 }
 
-void NightVisionRenderStage::setParams(NightVisionRenderParams& params) {
+void NightVisionRenderStage::setParams(const NightVisionRenderParams& params) {
     m_program.use();
     glUniform1f(m_program.getUniform("unLuminanceExponent"), params.luminanceExponent);
     glUniform1f(m_program.getUniform("unLuminanceTare"), params.luminanceTare);

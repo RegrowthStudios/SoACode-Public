@@ -78,13 +78,13 @@ void AABBCollidableComponentUpdater::collideWithVoxels(AabbCollidableComponent& 
             currentID = id; \
             /* Check the voxel */ \
             if (chunk->genLevel == GEN_DONE && bp->operator[](chunk->blocks.get(index)).collide) { \
-                cd.##dir = true; \
+                cd.dir = true; \
             } \
         } \
     } else {\
         /* Check the voxel */ \
         if (chunk->genLevel == GEN_DONE && bp->operator[](chunk->blocks.get(index)).collide) { \
-            cd.##dir = true; \
+            cd.dir = true; \
         } \
     }
 

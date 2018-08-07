@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "RegionFileManager.h"
 
+#ifdef _WINDOWS
 #include <direct.h> //for mkdir windows
-#include <fcntl.h>
 #include <io.h>
+#endif//_WINDOWS
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -25,11 +27,9 @@ inline i32 fileTruncate(i32 fd, i64 size)
 #if defined(_WIN32) || defined(_WIN64) 
     return _chsize(fd, (long)size);
 #else
-#ifdef POSIX
     return ftruncate(fd, size);
-#else
-    // code for other OSes
-#endif
+    #define _fileno fileno
+    #define _off_t off_t
 #endif
 }
 
@@ -821,7 +821,7 @@ bool RegionFileManager::writeSectors(ui8* srcBuffer, ui32 size) {
         pError("Chunk Saving: Did not write enough bytes at A " + std::to_string(size));
         return false;
     }
-    
+    return true;
 }
 
 //Read sector data, be sure to fseek to the correct position first
@@ -830,6 +830,7 @@ bool RegionFileManager::readSectors(ui8* dstBuffer, ui32 size) {
         pError("Chunk Loading: Did not read enough bytes at A " + std::to_string(size) + " " + std::to_string(_regionFile->totalSectors));
         return false;
     }
+    return true;
 }
 
 bool RegionFileManager::seek(ui32 byteOffset) {

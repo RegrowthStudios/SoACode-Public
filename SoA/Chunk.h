@@ -24,6 +24,12 @@
 #include "ChunkID.h"
 #include <Vorb/FixedSizeArrayRecycler.hpp>
 
+#if defined(_MSC_VER)
+#define ALIGNED_(x) __declspec(align(x))
+#else
+#define ALIGNED_(x) __attribute__ ((aligned(x)))
+#endif
+
 class Chunk;
 typedef Chunk* ChunkPtr;
 
@@ -94,13 +100,15 @@ public:
     ChunkGridData* gridData = nullptr;
     MetaFieldInformation meta;
     union {
-        UNIONIZE(ChunkHandle left;
-                 ChunkHandle right;
-                 ChunkHandle bottom;
-                 ChunkHandle top;
-                 ChunkHandle back;
-                 ChunkHandle front);
-        UNIONIZE(ChunkHandle neighbors[6]);
+        struct {
+            ChunkHandle left;
+            ChunkHandle right;
+            ChunkHandle bottom;
+            ChunkHandle top;
+            ChunkHandle back;
+            ChunkHandle front;
+        } neighbor;
+        ChunkHandle neighbors[6];
     };
     volatile ChunkGenLevel genLevel;
     ChunkGenLevel pendingGenLevel;
@@ -139,8 +147,8 @@ private:
     /* Chunk Handle Data                                                    */
     /************************************************************************/
     std::mutex m_handleMutex;
-    __declspec(align(4)) volatile ui32 m_handleState;
-    __declspec(align(4)) volatile ui32 m_handleRefCount;
+    ALIGNED_(4) volatile ui32 m_handleState;
+    ALIGNED_(4) volatile ui32 m_handleRefCount;
 };
 
 #endif // NChunk_h__

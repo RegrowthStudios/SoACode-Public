@@ -29,7 +29,7 @@ BlockPack::BlockPack() :
 BlockID BlockPack::append(Block& block) {
     const Block* curBlock;
     BlockID rv;
-    if (curBlock = hasBlock(block.sID)) {
+    if ((curBlock = hasBlock(block.sID))) {
         rv = curBlock->ID;
         block.ID = rv;
         // Overwrite block

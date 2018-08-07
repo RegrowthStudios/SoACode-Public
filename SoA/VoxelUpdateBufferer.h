@@ -21,7 +21,7 @@
 #include <unordered_map>
 
 struct VoxelUpdateBuffer {
-    inline bool finish() { h.release(); }
+    inline void finish() { h.release(); }
 
     ui8 bits[CHUNK_SIZE / 8]; ///< To check if an id was already added
     std::vector<BlockIndex> toUpdate;
@@ -37,7 +37,7 @@ public:
         buffers.reserve(sizeApprox);
     }
     inline void addUpdate(ChunkHandle chunk, BlockIndex index) {
-        auto& it = buffers.find(chunk->getID());
+        auto it = buffers.find(chunk->getID());
         if (it == buffers.end()) {
             // TODO(Ben): Verify that there is no extra copy.
             VoxelUpdateBuffer nbuff = {};

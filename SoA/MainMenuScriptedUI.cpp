@@ -78,7 +78,7 @@ size_t MainMenuScriptedUI::getNumInputs() {
 
 InputMapper::InputID MainMenuScriptedUI::getInput(int index) {
     // This is slow, but that is ok.
-    auto& it = m_inputMapper->getInputLookup().begin();
+    auto it = m_inputMapper->getInputLookup().begin();
     std::advance(it, index);
     return it->second;
 }

@@ -3,7 +3,7 @@
 #ifndef GameSystemComponentBuilders_h__
 #define GameSystemComponentBuilders_h__
 
-#include <Vorb\ecs\ECS.h>
+#include <Vorb/ecs/ECS.h>
 
 #include "GameSystem.h"
 #include "GameSystemComponents.h"

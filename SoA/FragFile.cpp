@@ -157,8 +157,8 @@ bool FragFile::openReadonlyFile(const cString path) {
     if (!path) return false;
 
     // Attempt To Open The File
-    errno_t err = fopen_s(&_file, path, "rb");
-    if (err != 0) return false;
+    _file = fopen(path, "rb");
+    if (_file == nullptr) return false;
 
     // Read The Headers (They Must Be There)
     fseek(_file, 0, SEEK_END);
@@ -182,8 +182,8 @@ bool FragFile::openWritingFile(const cString path) {
     if (!path) return false;
 
     // Attempt To Open The File
-    errno_t err = fopen_s(&_file, path, "wb+");
-    if (err != 0) return false;
+    _file = fopen(path, "wb+");
+    if (_file == nullptr) return false;
 
     // Try To Read The Headers
     fseek(_file, 0, SEEK_END);

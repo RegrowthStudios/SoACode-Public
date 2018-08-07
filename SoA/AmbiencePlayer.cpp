@@ -23,7 +23,7 @@ void AmbiencePlayer::setToTrack(const nString& name, const f32& fadeTime) {
 
     if (!currentAmbience.empty()) {
         // Make one track come alive
-        auto& track = m_streams.find(currentAmbience);
+        auto track = m_streams.find(currentAmbience);
         if (track != m_streams.end()) {
             // Reset track to be alive
             track->second.stream.setPeakTime(fadeTime);

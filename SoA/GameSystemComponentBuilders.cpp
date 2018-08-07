@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GameSystemComponentBuilders.h"
 
-#include <Vorb\io\Keg.h>
+#include <Vorb/io/Keg.h>
 #include "GameSystemComponents.h"
 #include "Frustum.h"
 

@@ -131,7 +131,7 @@ void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME
     /* Construct list of biomes to generate and assign weights from interpolation. */
     // Top Left
     for (auto& b : BLIST_0) {
-        auto& it = rvBiomes.find(b);
+        auto it = rvBiomes.find(b);
         if (it == rvBiomes.end()) {
             rvBiomes[b] = w0 * b.weight;
         } else {
@@ -141,7 +141,7 @@ void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME
     // Top Right
     if (ix < BIOME_MAP_WIDTH - 1) {
         for (auto& b : BLIST_1) {
-            auto& it = rvBiomes.find(b);
+            auto it = rvBiomes.find(b);
             if (it == rvBiomes.end()) {
                 rvBiomes[b] = w1 * b.weight;
             } else {
@@ -156,7 +156,7 @@ void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME
     // Bottom left
     if (iy < BIOME_MAP_WIDTH - 1) {
         for (auto& b : BLIST_2) {
-            auto& it = rvBiomes.find(b);
+            auto it = rvBiomes.find(b);
             if (it == rvBiomes.end()) {
                 rvBiomes[b] = w2 * b.weight;
             } else {
@@ -166,7 +166,7 @@ void getBaseBiomes(const std::vector<BiomeInfluence> baseBiomeInfluenceMap[BIOME
         // Bottom right
         if (ix < BIOME_MAP_WIDTH - 1) {
             for (auto& b : BLIST_3) {
-                auto& it = rvBiomes.find(b);
+                auto it = rvBiomes.find(b);
                 if (it == rvBiomes.end()) {
                     rvBiomes[b] = w3 * b.weight;
                 } else {
@@ -446,6 +446,8 @@ void SphericalHeightmapGenerator::getNoiseValue(const f64v3& pos,
                         ff = Noise::cellular(pos * (f64)frequency);
                         tmp = ff.y - ff.x;
                         total += tmp * tmp * tmp * amplitude;
+                        break;
+                    default:
                         break;
                 }
                 frequency *= 2.0;

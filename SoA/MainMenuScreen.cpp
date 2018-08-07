@@ -12,7 +12,7 @@
 #include "Errors.h"
 #include "Frustum.h"
 #include "GameManager.h"
-#include "GameplayScreen.h"
+#include "GamePlayScreen.h"
 #include "GameplayLoadScreen.h"
 #include "InputMapper.h"
 #include "Inputs.h"
@@ -329,8 +329,8 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     bool borderless = soaOptions.get(OPT_BORDERLESS).value.b;
     bool screenChanged = false;
     ui32v2 screenSize = m_window->getViewportDims();
-    if (screenSize.x != soaOptions.get(OPT_SCREEN_WIDTH).value.i ||
-        screenSize.y != soaOptions.get(OPT_SCREEN_HEIGHT).value.i) {
+    if (screenSize.x != (ui32)soaOptions.get(OPT_SCREEN_WIDTH).value.i ||
+        screenSize.y != (ui32)soaOptions.get(OPT_SCREEN_HEIGHT).value.i) {
         m_window->setScreenSize(soaOptions.get(OPT_SCREEN_WIDTH).value.i, soaOptions.get(OPT_SCREEN_HEIGHT).value.i);
         screenChanged = true;
     }

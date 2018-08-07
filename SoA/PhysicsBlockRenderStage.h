@@ -36,9 +36,9 @@ public:
     virtual void render(const Camera* camera) override;
 
 private:
-    vg::GLProgram* _glProgram; ///< Shader program that renders the voxels
-    GameRenderParams* _gameRenderParams; ///< Some shared voxel rendering params
-    const std::vector<PhysicsBlockMesh*>& _physicsBlockMeshes; ///< The meshes to render
+//    vg::GLProgram* _glProgram; ///< Shader program that renders the voxels
+//    GameRenderParams* _gameRenderParams; ///< Some shared voxel rendering params
+//    const std::vector<PhysicsBlockMesh*>& _physicsBlockMeshes; ///< The meshes to render
 };
 
 
