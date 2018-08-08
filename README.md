@@ -148,7 +148,7 @@ git pull --recurse-submodules
 ```
 cmake -H . -B build //build can be any directory you like
 ```
-3. Once cmake finishe
+3. Once cmake finishes
     * Build with cmake
     ```
     cmake --build build
