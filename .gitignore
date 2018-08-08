@@ -191,3 +191,5 @@ Mine/
 
 #VS2015 openDB
 *.opendb
+
+.vscode/
