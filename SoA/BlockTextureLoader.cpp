@@ -42,9 +42,9 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
     for (int i = 0; i < 6; i++) {
         BlockTexture* texture = m_texturePack->findTexture(names.names[i]);
         if (texture) {
-            loadLayer(texture->base);
-            if (texture->overlay.path.size()) {
-                loadLayer(texture->overlay);
+            loadLayer(texture->layers.base);
+            if (texture->layers.overlay.path.size()) {
+                loadLayer(texture->layers.overlay);
             }
             block.textures[i] = texture;
         } else {
@@ -60,10 +60,10 @@ void BlockTextureLoader::loadBlockTextures(Block& block) {
 
     // Calculate flora height
     // TODO(Ben): This is dubious
-    if (block.textures[0]->base.method == ConnectedTextureMethods::FLORA) {
+    if (block.textures[0]->layers.base.method == ConnectedTextureMethods::FLORA) {
         // Just a bit of algebra to solve for n with the equation y = (n^2 + n) / 2
         // which becomes n = (sqrt(8 * y + 1) - 1) / 2
-        int y = block.textures[0]->base.size.y;
+        int y = block.textures[0]->layers.base.size.y;
         block.floraHeight = (ui16)(sqrt(8 * y + 1) - 1) / 2;
     }
 }
@@ -204,7 +204,7 @@ bool BlockTextureLoader::loadTextureProperties() {
                 auto it=m_layers.find(base);
                 if(it!=m_layers.end())
                 {
-                    texture->base=it->second;
+                    texture->layers.base = it->second;
                 }
             }
         }
@@ -220,7 +220,7 @@ bool BlockTextureLoader::loadTextureProperties() {
                 if(it!=m_layers.end())
                 {
 
-                    texture->overlay=it->second;
+                    texture->layers.overlay = it->second;
                 }
             }
         }
@@ -287,7 +287,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
                 nString base = keg::convert<nString>(value);
                 auto it = m_layers.find(base);
                 if (it != m_layers.end()) {
-                    texture->base = it->second;
+                    texture->layers.base = it->second;
                 }
             }
         } else if (key == "overlay") {
@@ -298,7 +298,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
                 auto it = m_layers.find(overlay);
                 if (it != m_layers.end()) {
 
-                    texture->overlay = it->second;
+                    texture->layers.overlay = it->second;
                 }
             }
         } else if (key == "blendMode") {

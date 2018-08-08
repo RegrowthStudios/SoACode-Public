@@ -13,7 +13,10 @@
 #include "soaUtils.h"
 
 #define GETBLOCK(a) (((*blocks)[((a) & 0x0FFF)]))
-#define TEXTURE_INDEX block->textures[params.faceIndex]->layers[params.layerIndex].indices[params.typeIndex]
+// We are assuming layerIndex can be trusted to be 0 or 1 here, add asserts?
+#define TEXTURE_INDEX (params.layerIndex == 0 ? \
+    block->textures[params.faceIndex]->layers.base.indices[params.typeIndex] : \
+    block->textures[params.faceIndex]->layers.overlay.indices[params.typeIndex])
 
 inline ui32 getPositionSeed(const i32v3& pos) {
     i32 val = ((pos.x & 0x7ff) | ((pos.y & 0x3ff) << 11) | ((pos.z & 0x7ff) << 21));

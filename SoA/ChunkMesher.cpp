@@ -932,10 +932,10 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     // Get colors
     // TODO(Ben): altColors
     color3 blockColor[2];
-    texture->base.getFinalColor(blockColor[B_INDEX],
+    texture->layers.base.getFinalColor(blockColor[B_INDEX],
                                 heightData->temperature,
                                 heightData->humidity, 0);
-    texture->base.getFinalColor(blockColor[O_INDEX],
+    texture->layers.base.getFinalColor(blockColor[O_INDEX],
                                 heightData->temperature,
                                 heightData->humidity, 0);
 
@@ -945,12 +945,12 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     ui8 blendMode = getBlendMode(texture->blendMode);
     // TODO(Ben): Make this better
     BlockTextureMethodData methodDatas[6];
-    texture->base.getBlockTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[0]);
-    texture->base.getNormalTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[1]);
-    texture->base.getDispTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[2]);
-    texture->overlay.getBlockTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[3]);
-    texture->overlay.getNormalTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[4]);
-    texture->overlay.getDispTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[5]);
+    texture->layers.base.getBlockTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[0]);
+    texture->layers.base.getNormalTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[1]);
+    texture->layers.base.getDispTextureMethodData(m_textureMethodParams[face][B_INDEX], blockColor[B_INDEX], methodDatas[2]);
+    texture->layers.overlay.getBlockTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[3]);
+    texture->layers.overlay.getNormalTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[4]);
+    texture->layers.overlay.getDispTextureMethodData(m_textureMethodParams[face][O_INDEX], blockColor[O_INDEX], methodDatas[5]);
 
     ui8 atlasIndices[6];
     for (int i = 0; i < 6; i++) {
@@ -1042,21 +1042,21 @@ void ChunkMesher::addFlora() {
     data.texture = block->textures[0];
     // Get colors
     // TODO(Ben): altColors
-    data.texture->base.getFinalColor(data.blockColor[B_INDEX],
+    data.texture->layers.base.getFinalColor(data.blockColor[B_INDEX],
                                 heightData->temperature,
                                 heightData->humidity, 0);
-    data.texture->base.getFinalColor(data.blockColor[O_INDEX],
+    data.texture->layers.base.getFinalColor(data.blockColor[O_INDEX],
                                 heightData->temperature,
                                 heightData->humidity, 0);
 
     // Get texturing parameters
     data.blendMode = getBlendMode(data.texture->blendMode);
-    data.texture->base.getBlockTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[0]);
-    data.texture->base.getNormalTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[1]);
-    data.texture->base.getDispTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[2]);
-    data.texture->overlay.getBlockTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[3]);
-    data.texture->overlay.getNormalTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[4]);
-    data.texture->overlay.getDispTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[5]);
+    data.texture->layers.base.getBlockTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[0]);
+    data.texture->layers.base.getNormalTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[1]);
+    data.texture->layers.base.getDispTextureMethodData(m_textureMethodParams[0][B_INDEX], data.blockColor[B_INDEX], data.methodDatas[2]);
+    data.texture->layers.overlay.getBlockTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[3]);
+    data.texture->layers.overlay.getNormalTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[4]);
+    data.texture->layers.overlay.getDispTextureMethodData(m_textureMethodParams[0][O_INDEX], data.blockColor[O_INDEX], data.methodDatas[5]);
     for (int i = 0; i < 6; i++) {
         data.atlasIndices[i] = (ui8)(data.methodDatas[i].index / ATLAS_SIZE);
         data.methodDatas[i].index &= ATLAS_MODULUS_BITS;

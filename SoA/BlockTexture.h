@@ -159,23 +159,20 @@ public:
 };
 
 struct BlockTexture {
-    BlockTexture():base(), overlay(), blendMode(BlendType::ALPHA)
+    BlockTexture(): layers(), blendMode(BlendType::ALPHA)
     {
     }
     //provide deconstructor because of union
     ~BlockTexture()
     {
-        base.BlockTextureLayer::~BlockTextureLayer();
-        overlay.BlockTextureLayer::~BlockTextureLayer();
+        layers.base.BlockTextureLayer::~BlockTextureLayer();
+        layers.overlay.BlockTextureLayer::~BlockTextureLayer();
     }
-
-    union {
-        struct {
-            BlockTextureLayer base;
-            BlockTextureLayer overlay;
-        };
-        BlockTextureLayer layers[2];
-    };
+    
+    struct {
+        BlockTextureLayer base;
+        BlockTextureLayer overlay;
+    } layers;
     BlendType blendMode;
 };
 KEG_TYPE_DECL(BlockTexture);
