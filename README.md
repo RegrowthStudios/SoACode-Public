@@ -7,22 +7,27 @@ Seed of Andromeda.  There is a basic requirement of having several
 packages installed prior to being able to develop.  In addition,
 we support all three major operating systems:
 
-### Installing and building:
+### Installing:
 * [Windows](#Windows)
 * [Mac](#Mac)
 * [Linux](#Linux)
+
+### Building:
+* [Building](#Building)
  
 ### Contributing
 * [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
 * [Issues](https://github.com/RegrowthStudios/SoACode-Public/issues)
+* [Discord](https://discord.gg/b2bf775)
 
 
 ## Windows
 
 ### Required pre-setup
-1.  Compiler: [Microsoft Visual Studio 2013](http://www.microsoft.com/en-us/download/details.aspx?id=43729)
+*  Compiler: [Microsoft Visual Studio 2013+](http://www.microsoft.com/en-us/download/details.aspx?id=43729)
 *  Software Version Control:  [Git](http://git-scm.com/downloads)
-*  MSVS SVC Plugin:  [MSVS Git Plugin](http://msdn.microsoft.com/en-us/library/hh850437.aspx)
+*  (Optional) MSVS SVC Plugin:  [MSVS Git Plugin](http://msdn.microsoft.com/en-us/library/hh850437.aspx)
+*  (Optional) TortoiseGit: [tortoisegit](https://tortoisegit.org/download)
 
 ### Installation
 1. Open a dos window.
@@ -40,25 +45,13 @@ mkdir -p repos
 c:\
 cd c:\repos
 git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
-```
-
-### Building
-1. Pull latest code
-```
 cd c:\repos\soa
-git checkout develop
-git pull --recurse-submodules
 ```
-2. Run build script
-```
-build.bat
-```
-
 
 ## Mac
 
 ### Required pre-setup
-1. Compiler: [Xcode](https://developer.apple.com/xcode/)
+* Compiler: [Xcode](https://developer.apple.com/xcode/)
 * Software Version Control: [Git](http://git-scm.com/downloads)
     Optionally, with [Homebrew](http://brew.sh/):
     ```brew install git```
@@ -86,25 +79,13 @@ mkdir ~/repos
 ```
 cd ~/repos
 git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
-```
-
-### Building
-1. Pull latest code
-```
 cd ~/repos/soa
-git checkout develop
-git pull --recurse-submodules
 ```
-2. Run build script
-```
-./build.sh
-```
-
 
 ## Linux
 
 ### Required pre-setup
-1. Compiler: gcc or clang
+* Compiler: gcc or clang
     * Install per your preferred operating system package control...
     * Portage:
     ```
@@ -154,16 +135,28 @@ mkdir ~/repos
 ```
 cd ~/repos
 git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
+cd ~/repos/soa
 ```
 
 ### Building
-1. Pull latest code
+1. Pull latest code (from inside .../repos/soa)
 ```
-cd ~/repos/soa
 git checkout develop
 git pull --recurse-submodules
 ```
-2. Run build script
+2. Run cmake
 ```
-./build.sh
+cmake -H . -B build //build can be any directory you like
 ```
+3. Once cmake finishes
+    * Build with cmake
+    ```
+    cmake --build build
+    ```
+    * or
+        * Windows open SoA.sln in .../repos/soa/build directiory with VS
+        * Mac and Linux
+        ```
+        cd build
+        make
+        ```
