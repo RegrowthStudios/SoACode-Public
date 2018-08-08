@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 cmake_policy(SET CMP0054 NEW)
 
-if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-  if (APPLE)
-    message("\nRun the build script:  build.sh\n")
-  endif (APPLE)
-  message(FATAL_ERROR "You don't want to configure in the source folder!")
-endif()
+#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+#  if (APPLE)
+#    message("\nRun the build script:  build.sh\n")
+#  endif (APPLE)
+#  message(FATAL_ERROR "You don't want to configure in the source folder!")
+#endif()
 
 
 #project("SoA")
@@ -21,7 +21,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(warnings "-Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-reorder")
+    set(warnings "-Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wno-reorder")
     ADD_DEFINITIONS(
 #        -std=c++11
 #        -std=c++0x
