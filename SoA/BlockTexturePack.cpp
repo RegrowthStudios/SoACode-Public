@@ -367,10 +367,11 @@ void BlockTexturePack::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
         BlockColorMap* m = setColorMap("biome", &cmp.planetGenData->terrainColorPixels);
         // Set all layers
         for (ui32 i = 0; i < m_nextFree; i++) {
-            for (int j = 0; j < 2; j++) {
-                if (m_textures[i].layers[j].colorMapPath == "biome") {
-                    m_textures[i].layers[j].colorMap = m;
-                }
+            if (m_textures[i].layers.base.colorMapPath == "biome") {
+                m_textures[i].layers.base.colorMap = m;
+            }
+            if (m_textures[i].layers.overlay.colorMapPath == "biome") {
+                m_textures[i].layers.overlay.colorMap = m;
             }
         }
     }
@@ -378,11 +379,12 @@ void BlockTexturePack::onAddSphericalVoxelComponent(Sender s, SphericalVoxelComp
         BlockColorMap* m = setColorMap("liquid", &cmp.planetGenData->liquidColorPixels);
         // Set all layers
         for (ui32 i = 0; i < m_nextFree; i++) {
-            for (int j = 0; j < 2; j++) {
-                if (m_textures[i].layers[j].colorMapPath == "liquid") {
-                    m_textures[i].layers[j].colorMap = m;
+                if (m_textures[i].layers.base.colorMapPath == "liquid") {
+                    m_textures[i].layers.base.colorMap = m;
                 }
-            }
+                if (m_textures[i].layers.overlay.colorMapPath == "liquid") {
+                    m_textures[i].layers.overlay.colorMap = m;
+                }
         }
     }
 }

@@ -21,13 +21,38 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(warnings "-Wall -Wextra -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-reorder")
+    option(USING_GDB "Are we using gdb to debug?" On)
+    option(EXTRA_DEBUG "Should we add extra debug symbols?" On)
+    # We could move OPTIMISE_ON_DEBUG outside and support MSVC no doubt.
+    option(OPTIMISE_ON_DEBUG "Should we optimise a debug target?" On)
+
+    set(warnings "-Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wno-reorder")
     ADD_DEFINITIONS(
 #        -std=c++11
 #        -std=c++0x
         # Other flags
         ${warnings}
     )
+    
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    if (${USING_GDB})
+        if (${EXTRA_DEBUG})
+            set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3")
+        else()
+            set(CMAKE_CXX_FLAGS_DEBUG "-ggdb")
+        endif()
+    else()
+        if (${EXTRA_DEBUG})
+            set(CMAKE_CXX_FLAGS_DEBUG "-g3")
+        else()
+            set(CMAKE_CXX_FLAGS_DEBUG "-g")
+        endif()
+    endif ()
+    if (${OPTIMISE_ON_DEBUG})
+        # This is supported by both Clang and GCC as long as we are up-to-date.
+        # Should be fine going back as far as Ubuntu 17.10, and deffo fine on Arch.
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
+    endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /EHsc")
 endif()

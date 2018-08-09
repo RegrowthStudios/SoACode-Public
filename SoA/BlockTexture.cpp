@@ -32,8 +32,8 @@ KEG_ENUM_DEF(ConnectedTextureSymmetry, ConnectedTextureSymmetry, e) {
 }
 
 KEG_TYPE_DEF_SAME_NAME(BlockTexture, kt) {
-    kt.addValue("base", keg::Value::custom(offsetOf(BlockTexture, layers[0]), "BlockTextureLayer"));
-    kt.addValue("overlay", keg::Value::custom(offsetOf(BlockTexture, layers[1]), "BlockTextureLayer"));
+    kt.addValue("base", keg::Value::custom(offsetOf(BlockTexture, layers.base), "BlockTextureLayer"));
+    kt.addValue("overlay", keg::Value::custom(offsetOf(BlockTexture, layers.overlay), "BlockTextureLayer"));
     kt.addValue("blendMode", keg::Value::custom(offsetOf(BlockTexture, blendMode), "BlendType", true));
 }
 

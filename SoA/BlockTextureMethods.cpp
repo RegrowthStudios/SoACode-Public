@@ -13,7 +13,10 @@
 #include "soaUtils.h"
 
 #define GETBLOCK(a) (((*blocks)[((a) & 0x0FFF)]))
-#define TEXTURE_INDEX block->textures[params.faceIndex]->layers[params.layerIndex].indices[params.typeIndex]
+// We are assuming layerIndex can be trusted to be 0 or 1 here, add asserts?
+#define TEXTURE_INDEX (params.layerIndex == 0 ? \
+    block->textures[params.faceIndex]->layers.base.indices[params.typeIndex] : \
+    block->textures[params.faceIndex]->layers.overlay.indices[params.typeIndex])
 
 inline ui32 getPositionSeed(const i32v3& pos) {
     i32 val = ((pos.x & 0x7ff) | ((pos.y & 0x3ff) << 11) | ((pos.z & 0x7ff) << 21));
@@ -238,10 +241,10 @@ void BlockTextureMethods::getGrassTextureIndex(BlockTextureMethodParams& params,
 
     if (/*cm->levelOfDetail > 1 || */ TEXTURE_INDEX == tex) {
         block = &GETBLOCK(blockIDData[blockIndex]);
-        result.index = block->textureTop->base.index.layer;
-        block->textureTop->base.blockTextureFunc(params, result);
-        block->textureTop->base.getFinalColor(*params.color, cm->heightData->temperature, cm->heightData->humidity, 0);
-        result.size = block->textureTop->base.size;
+        result.index = block->textureTop->layers.base.index.layer;
+        block->textureTop->layers.base.blockTextureFunc(params, result);
+        block->textureTop->layers.base.getFinalColor(*params.color, cm->heightData->temperature, cm->heightData->humidity, 0);
+        result.size = block->textureTop->layers.base.size;
         return;
     }
 
