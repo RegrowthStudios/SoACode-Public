@@ -35,6 +35,14 @@ void TestConnectedTextureScreen::destroy(const vui::GameTime& gameTime) {
 }
 
 void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime) {
+
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
+        if(e.keyCode==VKEY_ESCAPE)
+        {
+            exit(0);
+        }
+    });
+
     // Init spritebatch and font
     m_sb.init();
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);

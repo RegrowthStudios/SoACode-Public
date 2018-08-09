@@ -96,7 +96,7 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime) {
     PlanetGenLoader planetLoader;
     m_iom.setSearchDirectory("StarSystems/Trinity/");
     planetLoader.init(&m_iom);
-    m_genData = planetLoader.loadPlanetGenData("Planets/Aldrin/terrain_gen.yml");
+    m_genData = planetLoader.loadPlanetGenData("Moons/Aldrin/terrain_gen.yml");
     if (m_genData->terrainColorPixels.data) {
         m_soaState->clientState.blockTextures->setColorMap("biome", &m_genData->terrainColorPixels);
     }

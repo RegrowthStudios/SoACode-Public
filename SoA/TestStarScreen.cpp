@@ -41,6 +41,8 @@ void TestStarScreen::destroy(const vui::GameTime& gameTime) {
 
 void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_starRenderer.init(&m_modPathResolver);
+    m_starRenderer.initGL();
+
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
             m_starRenderer.disposeShaders();
@@ -102,6 +104,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime) {
     m_quad.init();
     // TODO(Ben): BROKEN
     //m_hdr.init(&m_quad, &m_camera);
+    m_hdr.hook(&m_quad);
 
     m_camera.setFieldOfView(90.0f);
     f32 width = (f32)m_game->getWindow().getWidth();
