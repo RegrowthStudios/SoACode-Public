@@ -25,7 +25,7 @@ void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
 }
 
 void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
-    BlockID blockID;
+    //BlockID blockID;
     int soundNum = 0;
     int yStart, yEnd;
     int zStart, zEnd;
@@ -94,7 +94,8 @@ void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
                 if (locked) {
                     i32v3 pos = i32v3(x, y, z) - chunkPos * CHUNK_WIDTH;
                     int voxelIndex = pos.x + pos.y * CHUNK_LAYER + pos.z * CHUNK_WIDTH;
-                    blockID = chunk->blocks.get(voxelIndex);
+                    // TODO: This needs implementing.
+                    //blockID = chunk->blocks.get(voxelIndex);
 
                     if (!block) {
                         // Breaking blocks
@@ -156,7 +157,8 @@ void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, con
                 startPosition.y = glm::min(m_startPosition.y, m_endPosition.y);
                 startPosition.z = glm::min(m_startPosition.z, m_endPosition.z);
 
-                const i32v3 size = glm::abs(m_endPosition - m_startPosition) + i32v3(1);
+                // TODO: This needs implementing.
+                //const i32v3 size = glm::abs(m_endPosition - m_startPosition) + i32v3(1);
 
                 if (blockID != 0){
             //      DrawWireBox(program, startPosition.x - BOX_PAD, startPosition.y - BOX_PAD, startPosition.z - BOX_PAD, size.x + BOX_PAD * 2, size.y + BOX_PAD * 2, size.z + BOX_PAD * 2, 2, cameraPos, VP, f32v4(0.0, 0.0, 1.0, 1.0));

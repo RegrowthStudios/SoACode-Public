@@ -29,7 +29,8 @@ void FarTerrainPatch::init(const f64v2& gridPosition, WorldCubeFace cubeFace, in
 }
 
 void FarTerrainPatch::update(const f64v3& cameraPos) {
-    f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
+    // TODO(Matthew): This value is never used, check the function is behaving as expected.
+    //f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
 
     if (m_children) {
         if (m_distance > m_width * DIST_MAX) {

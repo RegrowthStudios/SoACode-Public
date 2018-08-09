@@ -73,9 +73,9 @@ void TerrainPatch::init(const f64v2& gridPosition,
 }
 
 void TerrainPatch::update(const f64v3& cameraPos) {
-    
+    // TODO(Matthew): This statement is not used, revisit this function to see if it's going its job correctly.
     // Calculate distance from camera
-    f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
+    //f64v3 closestPoint = calculateClosestPointAndDist(cameraPos);
     
     if (m_children) {
         // Check for out of range
