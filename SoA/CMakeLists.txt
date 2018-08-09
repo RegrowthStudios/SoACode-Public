@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 cmake_policy(SET CMP0054 NEW)
 
-#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
-#  if (APPLE)
-#    message("\nRun the build script:  build.sh\n")
-#  endif (APPLE)
-#  message(FATAL_ERROR "You don't want to configure in the source folder!")
-#endif()
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  if (APPLE)
+    message("\nRun the build script:  build.sh\n")
+  endif (APPLE)
+  message(FATAL_ERROR "You don't want to configure in the source folder!")
+endif()
 
 
 #project("SoA")
