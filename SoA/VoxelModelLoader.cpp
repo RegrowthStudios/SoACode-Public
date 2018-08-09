@@ -10,7 +10,9 @@ VoxelModelLoader::VoxelModelLoader() {
     //Empty
 }
 
-VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
+    
+bool VoxelModelLoader::loadModel(const nString& filePath,
+    VoxelMatrix& matrix /* Even though .qb can have multiple matrices, we assume a single matrix. */) {
     FILE* file = NULL;
     file=fopen( filePath.c_str(), "rb");
 
@@ -27,9 +29,6 @@ VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
     ok = fread(&visibilityMaskEncoded, sizeof(ui32), 1, file) == 1;
     ui32 numMatrices;
     ok = fread(&numMatrices, sizeof(ui32), 1, file) == 1;
-
-    // Even though .qb can have multiple matrices, we assume a single matrix.
-    VoxelMatrix matrix;
 
     char nameLength = 0;
     ok = fread((char*)&nameLength, sizeof(char), 1, file) == 1;
@@ -103,5 +102,5 @@ VoxelMatrix VoxelModelLoader::loadModel(const nString& filePath) {
         }
     }
     
-    return matrix;
+    return ok;
 }

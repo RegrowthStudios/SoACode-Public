@@ -14,6 +14,11 @@ VoxelModel::~VoxelModel() {
     m_matrix.dispose();
 }
 
-void VoxelModel::loadFromFile(const nString& path) {
-    setMatrix(VoxelModelLoader::loadModel(path));
+bool VoxelModel::loadFromFile(const nString& path) {
+    VoxelMatrix matrix;
+    if (!VoxelModelLoader::loadModel(path, matrix)) {
+        return false;
+    }
+    setMatrix(matrix);
+    return true;
 }
