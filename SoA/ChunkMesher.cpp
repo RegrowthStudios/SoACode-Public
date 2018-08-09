@@ -746,6 +746,7 @@ bool ChunkMesher::uploadMeshData(ChunkMesh& mesh, ChunkMeshData* meshData) {
             }
             mesh.renderData = meshData->chunkMeshRenderData;
             //The missing break is deliberate!
+            [[fallthrough]];
         case MeshTaskType::LIQUID:
 
             mesh.renderData.waterIndexSize = meshData->chunkMeshRenderData.waterIndexSize;
