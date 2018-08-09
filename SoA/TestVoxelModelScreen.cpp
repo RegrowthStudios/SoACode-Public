@@ -35,6 +35,13 @@ void TestVoxelModelScreen::destroy(const vui::GameTime& gameTime) {
 
 void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
 
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
+        if(e.keyCode==VKEY_ESCAPE)
+        {
+            exit(0);
+        }
+    });
+
     m_sb.init();
     m_sf.init("Fonts/orbitron_bold-webfont.ttf", 32);
   

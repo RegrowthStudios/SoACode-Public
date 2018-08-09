@@ -57,6 +57,7 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_eyePos = f32v3(0, 0, m_eyeDist);
 
+    TerrainPatchMesher::generateIndices();
     { // Set up planet
         SystemOrbitProperties props;
         PlanetProperties pProps;
@@ -64,7 +65,7 @@ void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime) {
         pProps.mass = 10000.0;
         PlanetGenLoader loader;
         loader.init(&m_iom);
-        pProps.planetGenData = loader.loadPlanetGenData("StarSystems/Trinity/Planets/Aldrin/properties.yml");
+        pProps.planetGenData = loader.loadPlanetGenData("StarSystems/Trinity/Moons/Aldrin/properties.yml");
         TerrainFuncProperties tprops;
         tprops.low = 9;
         tprops.high = 10;

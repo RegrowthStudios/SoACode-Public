@@ -53,9 +53,9 @@ void App::addScreens() {
     m_screenList.addScreen(scrDev);
 
     // Add test screens
-    scrTests.push_back(new TestConsoleScreen);
-    m_screenList.addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_C, scrTests.back(), "TestConsoleScreen");
+//    scrTests.push_back(new TestConsoleScreen);
+//    m_screenList.addScreen(scrTests.back());
+//    scrDev->addScreen(VKEY_C, scrTests.back(), "TestConsoleScreen");
     scrTests.push_back(new TestMappingScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_M, scrTests.back(), "TestMappingScreen");
@@ -80,9 +80,9 @@ void App::addScreens() {
     scrTests.push_back(new TestNoiseScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_N, scrTests.back(), "TestNoiseScreen");
-    scrTests.push_back(new TestNewBlockAPIScreen);
-    m_screenList.addScreen(scrTests.back());
-    scrDev->addScreen(VKEY_A, scrTests.back(), "TestNewBlockAPIScreen");
+//    scrTests.push_back(new TestNewBlockAPIScreen);
+//    m_screenList.addScreen(scrTests.back());
+//    scrDev->addScreen(VKEY_A, scrTests.back(), "TestNewBlockAPIScreen");
     scrTests.push_back(new TestPlanetGenScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_O, scrTests.back(), "TestPlanetGenScreen");

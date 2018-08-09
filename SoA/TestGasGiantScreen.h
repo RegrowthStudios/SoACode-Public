@@ -45,6 +45,7 @@ private:
     AtmosphereComponent m_aCmp;
     Camera m_camera;
     AutoDelegatePool m_hooks;
+    bool m_isAtmosphere=true;
 };
 
 #endif
