@@ -15,7 +15,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 enable_testing()
 
-set(CMAKE_CXX_STANDARD 14)
+option(TARGET_CXX_17 OFF)
+
+if (TARGET_CXX_17)
+    set(CMAKE_CXX_STANDARD 17)
+else()
+    set(CMAKE_CXX_STANDARD 14)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -26,7 +32,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     # We could move OPTIMISE_ON_DEBUG outside and support MSVC no doubt.
     option(OPTIMISE_ON_DEBUG "Should we optimise a debug target?" On)
 
-    set(warnings "-Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wno-reorder")
+    set(warnings "-Wall -Wextra -Wno-class-memaccess -Wno-reorder -Wno-unused-variable -Wno-unused-parameter -Wno-unknown-pragmas -Wno-attributes")
     ADD_DEFINITIONS(
 #        -std=c++11
 #        -std=c++0x

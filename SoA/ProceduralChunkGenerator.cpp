@@ -14,8 +14,8 @@ void ProceduralChunkGenerator::init(PlanetGenData* genData) {
 
 void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* heightData) const {
 
-    int temperature;
-    int rainfall;
+    //int temperature;
+    //int rainfall;
     int height;
     int mapHeight;
     int hIndex;
@@ -47,8 +47,9 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
             tertiaryData = 0;
 
             mapHeight = (int)heightData[c].height;
-            temperature = heightData[c].temperature;
-            rainfall = heightData[c].humidity;
+            // TODO(Matthew): These statements weren't used, revisit this function to make sure it is behaving correctly.
+            //temperature = heightData[c].temperature;
+            //rainfall = heightData[c].humidity;
 
             //tooSteep = (flags & TOOSTEEP) != 0;
             
@@ -106,8 +107,8 @@ void ProceduralChunkGenerator::generateChunk(Chunk* chunk, PlanetHeightData* hei
                 hIndex = (c & 0x3FF); // Same as % CHUNK_LAYER
 
                 mapHeight = heightData[hIndex].height;
-                temperature = heightData[hIndex].temperature;
-                rainfall = heightData[hIndex].humidity;
+                //temperature = heightData[hIndex].temperature;
+                //rainfall = heightData[hIndex].humidity;
 
                 // TODO(Ben): Fastfloor?
                 height = (int)(y + voxPosition.pos.y);

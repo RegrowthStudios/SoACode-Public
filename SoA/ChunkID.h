@@ -31,8 +31,7 @@ struct ChunkID {
         };
         ui64 id;
     };
-    operator ui64() { return id; }
-    operator const ui64() const { return id; }
+    operator ui64() const { return id; }
 };
 // Hash for ID
 template <>
