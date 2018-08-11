@@ -49,6 +49,7 @@ inline char* GoToNonWhitespaceML(char* s) {
             case '\r':
             case '\n':
                 s++;
+                break;
             default:
                 return s;
         }
@@ -64,6 +65,7 @@ inline char* GoToNonWhitespace(char* s) {
             case ' ':
             case '\t':
                 s++;
+                break;
             default:
                 return s;
         }

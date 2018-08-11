@@ -76,9 +76,10 @@ void GameRenderParams::calculateSunlight(float theta) {
         if (diffVal < 0.0f) diffVal = 0.0f;
     }
 
-    int sunHeight = (int)(theta * SUN_COLOR_MAP_HEIGHT);
-    if (theta < 0) {
-        sunHeight = 0;
-    }
+    // TODO(Matthew): This was previously not used, determine if we should use or throw it.
+    // int sunHeight = (int)(theta * SUN_COLOR_MAP_HEIGHT);
+    // if (theta < 0) {
+    //     sunHeight = 0;
+    // }
     sunlightColor = f32v3(1.0f) * diffVal;
 }

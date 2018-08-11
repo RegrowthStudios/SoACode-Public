@@ -31,12 +31,13 @@ void CutoutVoxelRenderStage::render(const Camera* camera) {
 
     f64v3 cpos;
 
-    static GLuint saveTicks = SDL_GetTicks();
-    bool save = 0;
-    if (SDL_GetTicks() - saveTicks >= 60000) { //save once per minute
-        save = 1;
-        saveTicks = SDL_GetTicks();
-    }
+    // TODO: Implement the saving mechanism/throw it out.
+    // static GLuint saveTicks = SDL_GetTicks();
+    // bool save = 0;
+    // if (SDL_GetTicks() - saveTicks >= 60000) { //save once per minute
+    //     save = 1;
+    //     saveTicks = SDL_GetTicks();
+    // }
 
     ChunkMesh *cm;
 

@@ -518,7 +518,8 @@ void GameplayScreen::updateThreadFunc() {
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(60.0f);
-    f32 fps;
+    // TODO(Matthew): This statement wasn't used, eventually log/display FPS.
+    //f32 fps;
 
     static int saveStateTicks = SDL_GetTicks();
 
@@ -535,7 +536,7 @@ void GameplayScreen::updateThreadFunc() {
       //      savePlayerState();
         }
 
-        fps = fpsLimiter.endFrame();
+        //fps = fpsLimiter.endFrame();
     }
 }
 

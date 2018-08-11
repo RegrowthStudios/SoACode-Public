@@ -67,7 +67,8 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
     // Set up matrix
     for (auto& r : (*rings)) {
 
-        f64q invOrientation = glm::inverse(r.ring.orientation);
+        // TODO(Matthew): This statement wasn't used, revisit this function to make sure it is behaving correctly.
+        //f64q invOrientation = glm::inverse(r.ring.orientation);
 
         // Convert f64q to f32q
         f32q orientationF32;

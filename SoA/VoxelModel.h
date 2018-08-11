@@ -17,7 +17,7 @@ public:
     VoxelModel();
     ~VoxelModel();
     
-    void loadFromFile(const nString& path);
+    bool loadFromFile(const nString& path);
     
     void setMatrix(const VoxelMatrix& matrix) { m_matrix = matrix; }
     void setMesh(const VoxelModelMesh& mesh) { m_mesh = mesh; }

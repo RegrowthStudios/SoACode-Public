@@ -459,7 +459,8 @@ void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk*
 void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index, BlockID id)
 {
     int phys;
-    const i32v3 pos = getPosFromBlockIndex(id);
+    // TODO(Matthew): This statement wasn't used, revisit this function to make sure it is behaving correctly.
+    //const i32v3 pos = getPosFromBlockIndex(id);
 
     ChunkHandle& left = chunk->neighbor.left;
     ChunkHandle& right = chunk->neighbor.right;
