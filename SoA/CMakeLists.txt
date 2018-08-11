@@ -32,7 +32,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     # We could move OPTIMISE_ON_DEBUG outside and support MSVC no doubt.
     option(OPTIMISE_ON_DEBUG "Should we optimise a debug target?" On)
 
-    set(warnings "-Wall -Wextra -Wno-class-memaccess -Wno-reorder -Wno-unused-variable -Wno-unused-parameter -Wno-unknown-pragmas -Wno-attributes")
+    set(warnings "-Wall -Wextra -Wno-reorder -Wno-unused-variable -Wno-unused-parameter -Wno-unknown-pragmas -Wno-attributes")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        # This warning only exists for GCC.
+        set(warnings "${warnings} -Wno-class-memaccess")
+    endif()
     ADD_DEFINITIONS(
 #        -std=c++11
 #        -std=c++0x
