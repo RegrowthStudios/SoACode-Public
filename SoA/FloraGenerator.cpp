@@ -344,7 +344,7 @@ void FloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vecto
 
     // Interpolated trunk properties
     TreeTrunkProperties lerpedTrunkProps;
-    const TreeTrunkProperties* trunkProps;
+    const TreeTrunkProperties* trunkProps = nullptr;
 
     { // Generate the trunk
         int scNodeStep = m_treeData.height / m_treeData.branchPoints;

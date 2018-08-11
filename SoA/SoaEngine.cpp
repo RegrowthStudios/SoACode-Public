@@ -392,7 +392,7 @@ void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCM
     auto npCmpID = stCmp.namePositionComponent;
     auto arCmpID = stCmp.axisRotationComponent;
     auto ftCmpID = stCmp.farTerrainComponent;
-    WorldCubeFace face;
+    WorldCubeFace face = WorldCubeFace::FACE_NONE;
     PlanetGenData* genData = stCmp.planetGenData;
     nString filePath = genData->terrainFilePath;
 
