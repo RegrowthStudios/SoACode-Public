@@ -36,12 +36,6 @@
 #include "VoxelEditor.h"
 #include "soaUtils.h"
 
-#ifndef _WINDOWS
-#include <pthread.h>
-#include <sched.h>
-#endif//_WINDOWS
-#include <memory>
-
 GameplayScreen::GameplayScreen(const App* app, const MainMenuScreen* mainMenuScreen) :
     IAppScreen<App>(app),
     m_mainMenuScreen(mainMenuScreen),
