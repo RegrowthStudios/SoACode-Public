@@ -2,8 +2,8 @@
 
 SET VS_TARGET="2015"
 SET BUILD_CLEAN="false"
-SET CMAKE_PARAMS=""
-SET MAKE_PARAMS=""
+SET "CMAKE_PARAMS="
+SET "BUILD_PARAMS="
 
 GOTO Argloop
 
@@ -26,7 +26,7 @@ GOTO ArgloopContinue
 
 :Clean
 SET BUILD_CLEAN="true"
-SET "MAKE_PARAMS=%MAKE_PARAMS% --clean-first"
+SET "BUILD_PARAMS=%BUILD_PARAMS% --clean-first"
 GOTO ArgloopContinue
 
 :Release
@@ -54,7 +54,7 @@ SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DOPTIMISE_ON_DEBUG=Off"
 GOTO ArgloopContinue
 
 :Verbose
-SET "MAKE_PARAMS=%MAKE_PARAMS% -- VERBOSE=1"
+SET "BUILD_PARAMS=%BUILD_PARAMS% -- VERBOSE=1"
 GOTO ArgloopContinue
 
 :Argloop
@@ -62,14 +62,6 @@ GOTO ArgloopContinue
         GOTO Help
     ) ELSE IF "%1"=="--help" (
         GOTO Help
-    ) ELSE IF "%1"=="-2013" (
-        GOTO Vs2013
-    ) ELSE IF "%1"=="--vs2013" (
-        GOTO Vs2013
-    ) ELSE IF "%1"=="-2017" (
-        GOTO Vs2017
-    ) ELSE IF "%1"=="--vs2017" (
-        GOTO Vs2017
     ) ELSE IF "%1"=="-c" (
         GOTO Clean
     ) ELSE IF "%1"=="--clean" (
@@ -126,7 +118,7 @@ CD build
 SET "CMAKE_COMMAND=cmake %CMAKE_PARAMS% ../"
 %CMAKE_COMMAND%
 
-SET "MAKE_COMMAND=cmake --build . %MAKE_PARAMS%"
-%MAKE_COMMAND%
+SET "BUILD_COMMAND=cmake --build . %MAKE_PARAMS%"
+%BUILD_COMMAND%
 
 CD ../
