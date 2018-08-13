@@ -1,8 +1,9 @@
 @ECHO OFF && PUSHD "%~dp0" && SETLOCAL
 
+SET VS_TARGET="2015"
 SET BUILD_CLEAN="false"
-SET CMAKE_PARAMS=""
-SET MAKE_PARAMS=""
+SET "CMAKE_PARAMS="
+SET "BUILD_PARAMS="
 
 GOTO Argloop
 
@@ -19,13 +20,13 @@ ECHO "            --no-gdb            | -ng      ---   Add OS specific debug sym
 ECHO "            --no-extra-debug    | -ned     ---   Don't add extra debug symbols.\n"
 ECHO "            --no-optimise-debug | -nod     ---   Don't optimise debug mode builds.\n"
 ECHO "        Make flags:\n"
-ECHO "            --jobs X            | -j X     ---   Run compilation on X number of threads.\n"
 ECHO "            --verbose           | -v       ---   Run make with verbose set on.\n"
 ECHO "\n"
 GOTO ArgloopContinue
 
 :Clean
 SET BUILD_CLEAN="true"
+SET "BUILD_PARAMS=%BUILD_PARAMS% --clean-first"
 GOTO ArgloopContinue
 
 :Release
@@ -52,15 +53,8 @@ GOTO ArgloopContinue
 SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DOPTIMISE_ON_DEBUG=Off"
 GOTO ArgloopContinue
 
-:Jobs
-SHIFT
-ECHO %1|findstr /xr "[1-9][0-9]* 0" >nul && (
-    SET "MAKE_PARAMS=%MAKE_PARAMS% -j%2"
-)
-GOTO ArgloopContinue
-
 :Verbose
-SET "MAKE_PARAMS=%MAKE_PARAMS% "VERBOSE=1"
+SET "BUILD_PARAMS=%BUILD_PARAMS% -- VERBOSE=1"
 GOTO ArgloopContinue
 
 :Argloop
@@ -96,10 +90,6 @@ GOTO ArgloopContinue
         GOTO NoOptimiseDebug
     ) ELSE IF "%1"=="--no-optimise-debug" (
         GOTO NoOptimiseDebug
-    ) ELSE IF "%1"=="-j" (
-        GOTO Jobs
-    ) ELSE IF "%1"=="--jobs" (
-        GOTO Jobs
     ) ELSE IF "%1"=="-v" (
         GOTO Verbose
     ) ELSE IF "%1"=="--verbose" (
@@ -128,7 +118,7 @@ CD build
 SET "CMAKE_COMMAND=cmake %CMAKE_PARAMS% ../"
 %CMAKE_COMMAND%
 
-SET "MAKE_COMMAND=make %MAKE_PARAMS%"
-%MAKE_COMMAND%
+SET "BUILD_COMMAND=cmake --build . %MAKE_PARAMS%"
+%BUILD_COMMAND%
 
 CD ../
