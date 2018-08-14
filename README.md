@@ -149,7 +149,7 @@ git pull --recurse-submodules
 2. Run the build script (--help for options)
     * Windows:
     ```
-    build.bat // or compile from within your Visual Studio environment
+    build.bat    # or compile from within your Visual Studio environment
     ```
     * Linux:
     ```
