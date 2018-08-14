@@ -86,7 +86,10 @@ void ExposureCalcRenderStage::render(const Camera* camera VORB_UNUSED /*= nullpt
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &pixel[0]);
 
         // LUA SCRIPT
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
+#pragma GCC diagnostic pop
 
         prog = &m_program;
         m_hdrFrameBuffer->bindGeometryTexture(0, 0);

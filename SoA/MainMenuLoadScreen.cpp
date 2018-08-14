@@ -39,6 +39,8 @@ i32 MainMenuLoadScreen::getPreviousScreen() const {
 }
 
 void MainMenuLoadScreen::build() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
     m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
@@ -52,6 +54,7 @@ void MainMenuLoadScreen::build() {
     m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
     m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
     m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
+#pragma GCC diagnostic pop
     { // Load all textures
         const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",
