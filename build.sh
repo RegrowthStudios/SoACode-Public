@@ -16,6 +16,7 @@ do
             printf -- "            --release           | -r       ---   Compile in release mode.\n"
             printf -- "            --debug             | -d       ---   Compile in debug mode.\n"
             printf -- "            --cxx17             | -17      ---   Target C++17 (otherwise targets C++14).\n"
+            printf -- "            --clang             | -cl      ---   Compiles using clang rather than gcc.\n"
             printf -- "            --no-gdb            | -ng      ---   Add OS specific debug symbols rather than GDB's.\n"
             printf -- "            --no-extra-debug    | -ned     ---   Don't add extra debug symbols.\n"
             printf -- "            --no-optimise-debug | -nod     ---   Don't optimise debug mode builds.\n"
@@ -36,6 +37,9 @@ do
             ;;
         -17|--cxx17)
             CMAKE_PARAMS="$CMAKE_PARAMS -DTARGET_CXX_17=On"
+            ;;
+        -cl|--clang)
+            CMAKE_PARAMS="$CMAKE_PARAMS -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_C_COMPILER=/usr/bin/clang"
             ;;
         -ng|--no-gdb)
             CMAKE_PARAMS="$CMAKE_PARAMS -DUSING_GDB=Off"
