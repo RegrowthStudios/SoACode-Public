@@ -456,18 +456,18 @@ void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer VORB_UN
     throw 33;
 }
 
-void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer VORB_UNUSED, Chunk* chunk, BlockIndex index VORB_UNUSED, BlockID id VORB_UNUSED)
+void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer VORB_UNUSED, Chunk* chunk VORB_UNUSED, BlockIndex index VORB_UNUSED, BlockID id VORB_UNUSED)
 {
-    int phys;
+    // int phys;
     // TODO(Matthew): This statement wasn't used, revisit this function to make sure it is behaving correctly.
     //const i32v3 pos = getPosFromBlockIndex(id);
 
-    ChunkHandle& left = chunk->neighbor.left;
-    ChunkHandle& right = chunk->neighbor.right;
-    ChunkHandle& front = chunk->neighbor.front;
-    ChunkHandle& back = chunk->neighbor.back;
-    ChunkHandle& top = chunk->neighbor.top;
-    ChunkHandle& bottom = chunk->neighbor.bottom;
+    // ChunkHandle& left = chunk->neighbor.left;
+    // ChunkHandle& right = chunk->neighbor.right;
+    // ChunkHandle& front = chunk->neighbor.front;
+    // ChunkHandle& back = chunk->neighbor.back;
+    // ChunkHandle& top = chunk->neighbor.top;
+    // ChunkHandle& bottom = chunk->neighbor.bottom;
 
 
     //if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {

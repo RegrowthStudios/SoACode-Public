@@ -23,9 +23,9 @@
 
 #define GETBLOCK(a) blocks->operator[](a)
 
-const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
+// const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
-const int MAXLIGHT = 31;
+// const int MAXLIGHT = 31;
 
 // Shorter aliases
 #define PADDED_WIDTH PADDED_CHUNK_WIDTH
@@ -964,7 +964,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     ui8 vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
 
     // Construct the quad
-    i16 quadIndex = quads.size();
+    // i16 quadIndex = quads.size();
     quads.emplace_back();
     m_numQuads++;
     VoxelQuad* quad = &quads.back();

@@ -150,7 +150,7 @@ void ChunkGridRenderStage::drawGrid(std::vector<ChunkGridVertex> vertices, std::
     glBufferData(GL_ARRAY_BUFFER, sizeof(ChunkGridVertex)* vertices.size(), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ChunkGridVertex)* vertices.size(), vertices.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    GLuint numVertices = vertices.size();
+    // GLuint numVertices = vertices.size();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ui32)* indices.size(), nullptr, GL_STATIC_DRAW);

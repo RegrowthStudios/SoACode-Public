@@ -28,7 +28,7 @@ void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
 
 void VoxelEditor::placeAABox(ChunkGrid& grid, ItemStack* block) {
     //BlockID blockID;
-    int soundNum = 0;
+    // int soundNum = 0;
     int yStart, yEnd;
     int zStart, zEnd;
     int xStart, xEnd;
@@ -152,7 +152,7 @@ void VoxelEditor::drawGuides(vg::GLProgram* program VORB_UNUSED, const f64v3& ca
 {
     switch (m_currentTool) {
         case EDITOR_TOOLS::AABOX:{
-                const float BOX_PAD = 0.001f;
+                // const float BOX_PAD = 0.001f;
 
                 i32v3 startPosition;
                 startPosition.x = glm::min(m_startPosition.x, m_endPosition.x);

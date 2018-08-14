@@ -22,7 +22,7 @@
 
 // TODO: Reimplement missing parts and remove VORB_UNUSED tags.
 
-const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
+// const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
 
 inline i32 fileTruncate(i32 fd, i64 size)
 {

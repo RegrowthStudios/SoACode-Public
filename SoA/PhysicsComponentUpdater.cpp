@@ -58,7 +58,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 
     auto& vpcmp = gameSystem->voxelPosition.get(pyCmp.voxelPosition);
     auto& svcmp = spaceSystem->sphericalVoxel.get(vpcmp.parentVoxel);
-    auto& npcmp = spaceSystem->namePosition.get(svcmp.namePositionComponent);
+    // auto& npcmp = spaceSystem->namePosition.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->axisRotation.get(svcmp.axisRotationComponent);
 
     // Apply gravity
@@ -160,7 +160,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
     // TODO(Ben): This assumes a single player entity!
     if (spCmp.parentSphericalTerrain) {
         auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
-        auto& npCmp = spaceSystem->namePosition.get(stCmp.namePositionComponent);
+        // auto& npCmp = spaceSystem->namePosition.get(stCmp.namePositionComponent);
 
         f64 distance = glm::length(spCmp.position);
         if (distance <= stCmp.sphericalTerrainData->radius * ENTRY_RADIUS_MULT) {

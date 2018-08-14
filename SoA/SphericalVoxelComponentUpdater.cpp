@@ -25,7 +25,7 @@
 
 void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
     SpaceSystem* spaceSystem = soaState->spaceSystem;
-    GameSystem* gameSystem = soaState->gameSystem;
+    // GameSystem* gameSystem = soaState->gameSystem;
     if (spaceSystem->sphericalVoxel.getComponentListSize() > 1) {
         for (auto& it : spaceSystem->sphericalVoxel) {
             if (it.second.chunkGrids) {

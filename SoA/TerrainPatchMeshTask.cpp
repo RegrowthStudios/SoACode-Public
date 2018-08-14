@@ -23,7 +23,7 @@ void TerrainPatchMeshTask::execute(WorkerData* workerData) {
     PlanetHeightData heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 positionData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH];
     f64v3 pos;
-    f32v3 tmpPos;
+    // f32v3 tmpPos;
 
     SphericalHeightmapGenerator* generator = m_patchData->generator;
     if (m_mesh->m_shouldDelete) {

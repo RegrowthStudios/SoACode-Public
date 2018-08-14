@@ -30,7 +30,7 @@ void TransparentVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
 
     glDisable(GL_CULL_FACE);
 
-    f64v3 cpos;
+    // f64v3 cpos;
 
     static i32v3 oldPos = i32v3(0);
     bool sort = false;

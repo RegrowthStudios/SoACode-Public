@@ -20,7 +20,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
 
         // TODO(Ben): Timestep
         // TODO(Ben): Account mass
-        f64 acceleration = 1.0 + attributes.agility * 0.01;
+        // f64 acceleration = 1.0 + attributes.agility * 0.01;
         f64 maxSpeed = 0.5 + attributes.agility * 0.005;
         if (parkour.crouch) {
             maxSpeed *= 0.3f;

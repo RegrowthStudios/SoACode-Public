@@ -78,7 +78,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
     nString biomePath = "";
     nString floraPath = "";
     nString treesPath = "";
-    bool didLoadBiomes = false;
+    // bool didLoadBiomes = false;
 
     auto f = makeFunctor([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
@@ -690,7 +690,7 @@ void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData
     std::vector<BiomeKegProperties> baseBiomes;
 
     // Load yaml data
-    int i = 0;
+    // int i = 0;
     auto baseParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         // Parse based on type
         if (key == "baseLookupMap") {

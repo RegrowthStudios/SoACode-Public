@@ -663,7 +663,7 @@ void FloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OUT
 void FloraGenerator::spaceColonization(const f32v3& startPos) {
     std::vector<f32v3> attractPoints;
 
-    int numPoints = 500;
+    // int numPoints = 500;
 
     f32 branchStep = (f32)m_treeData.branchStep;
     f32 infRadius = m_treeData.infRadius;
@@ -1082,7 +1082,7 @@ void FloraGenerator::generateSCBranches() {
     }
 
     // Make branches
-    int a = 0;
+    // int a = 0;
     for (auto& l : m_scLeafSet) {
         ui32 i = l;
         bool hasLeaves = true;
@@ -1164,7 +1164,7 @@ void FloraGenerator::generateRoundLeaves(ui32 chunkOffset, int x, int y, int z, 
 void FloraGenerator::generateEllipseLeaves(ui32 chunkOffset, int x, int y, int z, const TreeLeafProperties& props) {
     // Offset to bottom
     int offset = props.round.vRadius;
-    int tmp = y;
+    // int tmp = y;
     offsetNegative(y, Y_1, chunkOffset, offset);
     // Use equation of ellipse
     f32 fOffset = (f32)offset;
@@ -1274,7 +1274,7 @@ void FloraGenerator::generateMushroomCap(ui32 chunkOffset, int x, int y, int z, 
         offsetNegative(y, Y_1, chunkOffset, offset + props.mushroom.tvRadius + 1);
         // Parameters
         f32 fOffset = (f32)props.mushroom.bvRadius;
-        f32 a = (f32)props.mushroom.bhRadius;
+        // f32 a = (f32)props.mushroom.bhRadius;
         f32 b = (f32)(props.mushroom.bvRadius * props.mushroom.bvRadius);
         f32 thickness = (f32)(props.mushroom.capWidth + props.mushroom.gillWidth);
 

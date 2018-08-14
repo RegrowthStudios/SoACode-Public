@@ -147,7 +147,7 @@ void GameManager::scanWSO(ChunkManager* chunkManager VORB_UNUSED, Player* player
 }
 
 void GameManager::onQuit() {
-    GLuint st = SDL_GetTicks();
+    // GLuint st = SDL_GetTicks();
     saveState();
 }
 

@@ -448,7 +448,7 @@ bool BlockTextureLoader::loadLayer(BlockTextureLayer& layer) {
 
 bool BlockTextureLoader::postProcessLayer(vg::ScopedBitmapResource& bitmap, BlockTextureLayer& layer) {
 
-    ui32 floraRows;
+    // ui32 floraRows;
     const ui32& resolution = m_texturePack->getResolution();
 
     // TODO(Ben): Floraheight

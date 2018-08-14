@@ -39,8 +39,10 @@ i32 MainMenuLoadScreen::getPreviousScreen() const {
 }
 
 void MainMenuLoadScreen::build() {
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
     m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
@@ -54,7 +56,9 @@ void MainMenuLoadScreen::build() {
     m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
     m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
     m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
     { // Load all textures
         const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",
@@ -180,12 +184,12 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
     }
 }
 void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
-    static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
-        "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
-    };
-    static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
-        "Regrowth", "Studios"
-    };
+    // static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
+    //     "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
+    // };
+    // static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
+    //     "Regrowth", "Studios"
+    // };
     const vui::GameWindow& w = m_game->getWindow();
 
     // Clear State For The Screen
@@ -208,7 +212,7 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
 
     // Render each texture
     m_sb->begin();
-    f32v2 uvTile(0.999999f, 0.999999f);
+    // f32v2 uvTile(0.999999f, 0.999999f);
     // TODO: Fix this.
     if (m_isOnVorb) {
 //        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {

@@ -214,7 +214,7 @@ void ChunkMeshManager::onGenFinish(Sender s VORB_UNUSED, ChunkHandle& chunk, Chu
 }
 
 void ChunkMeshManager::onNeighborsAcquire(Sender s VORB_UNUSED, ChunkHandle& chunk) {
-    ChunkMesh* mesh = createMesh(chunk);
+    // ChunkMesh* mesh = createMesh(chunk);
     // Check if can be meshed.
     if (chunk->genLevel == GEN_DONE && chunk->numBlocks) {
         std::lock_guard<std::mutex> l(m_lckPendingMesh);

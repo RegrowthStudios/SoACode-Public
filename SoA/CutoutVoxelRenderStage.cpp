@@ -29,7 +29,7 @@ void CutoutVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
 
     glDisable(GL_CULL_FACE);
 
-    f64v3 cpos;
+    // f64v3 cpos;
 
     // TODO: Implement the saving mechanism/throw it out.
     // static GLuint saveTicks = SDL_GetTicks();

@@ -75,7 +75,7 @@ void DevHudRenderStage::cycleMode(int offset /*= 1*/) {
 }
 
 void DevHudRenderStage::drawCrosshair() {
-    const f32v2 cSize(26.0f);
+    // const f32v2 cSize(26.0f);
  //   _spriteBatch->draw(crosshairTexture.id,
  //                      (_windowDims - cSize) / 2.0f,
  //                      cSize,
@@ -131,7 +131,7 @@ void DevHudRenderStage::drawFps() {
 }
 
 void DevHudRenderStage::drawPosition() {
-    const f32v2 NUMBER_SCALE(0.75f);
+    // const f32v2 NUMBER_SCALE(0.75f);
    // char buffer[256];
     // Grid position
     _yOffset += _fontHeight;

@@ -25,7 +25,7 @@ ZipFile::~ZipFile() {
 }
 
 ui8* ZipFile::readFile(nString fileName, size_t& fileSize) {
-    const int READ_SIZE = 8196;
+    // const int READ_SIZE = 8196;
     const int MAX_FILENAME = 256;
     const char dir_delimiter = '/';
 

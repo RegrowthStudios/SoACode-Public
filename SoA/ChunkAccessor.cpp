@@ -3,10 +3,12 @@
 
 #include "ChunkAllocator.h"
 
+const ui32 HANDLE_STATE_ALIVE = 2;
+#ifdef FAST_CHUNK_ACCESS
 const ui32 HANDLE_STATE_DEAD = 0;
 const ui32 HANDLE_STATE_ACQUIRING = 1;
-const ui32 HANDLE_STATE_ALIVE = 2;
 const ui32 HANDLE_STATE_FREEING = 3;
+#endif
 
 ChunkHandle::ChunkHandle(const ChunkHandle& other) :
     m_accessor(other.m_acquired ? other.m_chunk->accessor : other.m_accessor),

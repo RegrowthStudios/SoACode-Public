@@ -76,7 +76,7 @@ void MainMenuRenderer::load(StaticLoadContext& context) {
 
     m_loadThread = new std::thread([&]() {
         vcore::GLRPC so[4];
-        size_t i = 0;
+        // size_t i = 0;
 
         // Create the HDR target  
         // Create the HDR target     

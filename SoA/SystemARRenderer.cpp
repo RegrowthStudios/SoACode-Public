@@ -140,7 +140,7 @@ void SystemARRenderer::drawPaths() {
             const MainMenuSystemViewer::BodyArData* bodyArData = m_systemViewer->finBodyAr(it.first);
             if (bodyArData == nullptr) continue;
 
-            ui8v3 ui8Color;
+            // ui8v3 ui8Color;
             // If its selected we force a different color
             if (m_systemViewer->getTargetBody() == it.first) {
                 isSelected = true;
