@@ -64,8 +64,7 @@ class Chunk {
     friend class SphericalVoxelComponentUpdater;
 public:
     
-    Chunk():genLevel(ChunkGenLevel::GEN_NONE), pendingGenLevel(ChunkGenLevel::GEN_NONE), isAccessible(false), accessor(nullptr), m_inLoadRange(false), m_handleState(0), m_handleRefCount(0),
-        neighbor() {}
+    Chunk() : neighbor(), genLevel(ChunkGenLevel::GEN_NONE), pendingGenLevel(ChunkGenLevel::GEN_NONE), isAccessible(false), accessor(nullptr), m_inLoadRange(false),  m_handleState(0), m_handleRefCount(0) {}
     // Initializes the chunk but does not set voxel data
     // Should be called after ChunkAccessor sets m_id
     void init(WorldCubeFace face);

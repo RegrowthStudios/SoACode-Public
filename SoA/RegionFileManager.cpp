@@ -73,10 +73,11 @@ bool checkZlibError(nString message, int zerror) {
     return false;
 }
 
-RegionFileManager::RegionFileManager(const nString& saveDir) :_regionFile(nullptr),
+RegionFileManager::RegionFileManager(const nString& saveDir) :
 _copySectorsBuffer(nullptr),
 _maxCacheSize(8),
-m_saveDir(saveDir) {
+m_saveDir(saveDir),
+_regionFile(nullptr) {
     // Empty
 }
 

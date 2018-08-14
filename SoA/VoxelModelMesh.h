@@ -10,8 +10,8 @@ public:
     VoxelModelVertex() {}
     VoxelModelVertex(f32v3 pos, color3 color, f32v3 normal):
         pos(pos),
-        color(color),
-        normal(normal) {}
+        normal(normal),
+        color(color) {}
     f32v3 pos;
     f32v3 normal;
     color3 color;

@@ -9,9 +9,9 @@ const ui32 HANDLE_STATE_ALIVE = 2;
 const ui32 HANDLE_STATE_FREEING = 3;
 
 ChunkHandle::ChunkHandle(const ChunkHandle& other) :
-    m_acquired(false),
     m_accessor(other.m_acquired ? other.m_chunk->accessor : other.m_accessor),
-    m_id(other.m_id) {
+    m_id(other.m_id),
+    m_acquired(false) {
     // Empty
 }
 ChunkHandle& ChunkHandle::operator= (const ChunkHandle& other) {

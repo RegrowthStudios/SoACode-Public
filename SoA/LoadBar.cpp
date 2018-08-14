@@ -6,16 +6,16 @@
 LoadBarCommonProperties::LoadBarCommonProperties(const f32v2& offset, const f32v2& size, const f32& moveSpeed, const f32v2& textOffset, const f32& textSize) :
 offsetDirection(offset),
 size(size),
-movementSpeed(moveSpeed),
 textOffset(textOffset),
-textSize(textSize) {
+textSize(textSize),
+movementSpeed(moveSpeed) {
     offsetLength = glm::length(offsetDirection);
     offsetDirection *= (1.0f / offsetLength);
 }
 
 LoadBar::LoadBar(const LoadBarCommonProperties& commonProps) :
-_startPosition(0),
 _commonProps(commonProps),
+_startPosition(0),
 _moveDirection(0),
 _lerpAmount(0.0f),
 _colorText(0xff, 0xff, 0xff, 0xff),

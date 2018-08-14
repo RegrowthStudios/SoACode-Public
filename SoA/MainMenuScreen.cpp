@@ -29,10 +29,10 @@
 
 MainMenuScreen::MainMenuScreen(const App* app, CommonState* state) :
     IAppScreen<App>(app),
-    m_updateThread(nullptr),
-    m_threadRunning(false),
     m_commonState(state),
     m_soaState(state->state),
+    m_updateThread(nullptr),
+    m_threadRunning(false),
     m_window(state->window) {
     // Empty
 }

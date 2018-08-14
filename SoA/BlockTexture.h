@@ -61,10 +61,10 @@ KEG_ENUM_DECL(BlendType);
 
 class BlockTextureLayer {
 public:
-    BlockTextureLayer() : indices{0, 0, 0}, averageColor(255, 255, 255), color(255, 255, 255),
-        method(ConnectedTextureMethods::NONE), size(1), symmetry(ConnectedTextureSymmetry::NONE), reducedMethod(ConnectedTextureReducedMethod::NONE),
-        colorMap(nullptr), floraHeight(0), totalWeight(0), numTiles(1), innerSeams(false), transparency(false), path(""), normalPath(""),
-        dispPath(""), colorMapPath(""), blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex)
+    BlockTextureLayer() : method(ConnectedTextureMethods::NONE), size(1), symmetry(ConnectedTextureSymmetry::NONE),
+    reducedMethod(ConnectedTextureReducedMethod::NONE), colorMap(nullptr), averageColor(255, 255, 255), color(255, 255, 255),
+    floraHeight(0), totalWeight(0), numTiles(1), indices{0, 0, 0},  innerSeams(false), transparency(false), path(""), normalPath(""),
+    dispPath(""), colorMapPath(""), blockTextureFunc(BlockTextureMethods::getDefaultTextureIndex)
         {}
 
     static ui32 getFloraRows(ui32 floraMaxHeight) {

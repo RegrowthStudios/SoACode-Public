@@ -23,11 +23,11 @@ public:
 };
 
 FragFile::FragFile(i32 numPaths, const cString path, bool isReadonly) :
+_file(nullptr),
+_curPath(0),
 _numDataPaths(numPaths),
 _headerSizeInBytes(_numDataPaths * sizeof(FragHeader)),
-_file(nullptr),
-_headers(nullptr),
-_curPath(0) {
+_headers(nullptr) {
     bool isSuccess = isReadonly ? openReadonlyFile(path) : openWritingFile(path);
     if (!isSuccess) {
         _file = nullptr;
