@@ -13,7 +13,7 @@ we support all three major operating systems:
 * [Linux](#linux)
 
 ### Building:
-* [Building](#building)
+* [Building](#building-1)
  
 ### Contributing
 * [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
