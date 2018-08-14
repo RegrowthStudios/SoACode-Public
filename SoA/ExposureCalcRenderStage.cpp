@@ -35,7 +35,7 @@ void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GBuffer* hdrFrameB
     m_mipStep = 0;
 }
 
-void ExposureCalcRenderStage::dispose(StaticLoadContext& context) {
+void ExposureCalcRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
     m_mipStep = 0;
     if (m_program.isCreated()) m_program.dispose();
     if (m_downsampleProgram.isCreated()) m_downsampleProgram.dispose();
@@ -46,7 +46,7 @@ void ExposureCalcRenderStage::dispose(StaticLoadContext& context) {
     m_needsScriptLoad = true;
 }
 
-void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
+void ExposureCalcRenderStage::render(const Camera* camera VORB_UNUSED /*= nullptr*/) {
     if (m_renderTargets.empty()) {
         m_renderTargets.resize(m_mipLevels);
         for (size_t i = 0; i < m_mipLevels; i++) {
@@ -82,7 +82,7 @@ void ExposureCalcRenderStage::render(const Camera* camera /*= nullptr*/) {
         // Final Step
         m_renderTargets[m_mipStep].bindTexture();
         m_mipStep = 1;
-        f32v4 pixel;
+        f32v4 pixel = f32v4(0.0f);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &pixel[0]);
 
         // LUA SCRIPT

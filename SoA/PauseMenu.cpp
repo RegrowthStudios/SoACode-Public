@@ -12,7 +12,7 @@ PauseMenu::~PauseMenu() {
     // Empty
 }
 
-void PauseMenu::init(GameplayScreen* ownerScreen) {
+void PauseMenu::init(GameplayScreen* ownerScreen VORB_UNUSED) {
 
 }
 

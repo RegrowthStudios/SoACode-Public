@@ -48,7 +48,7 @@ void ChunkMeshTask::init(ChunkHandle& ch, MeshTaskType cType, const BlockPack* b
 }
 
 // TODO(Ben): uhh
-void ChunkMeshTask::updateLight(VoxelLightEngine* voxelLightEngine) {
+void ChunkMeshTask::updateLight(VoxelLightEngine* voxelLightEngine VORB_UNUSED) {
     /* if (chunk->sunRemovalList.size()) {
          voxelLightEngine->calculateSunlightRemoval(chunk);
          }

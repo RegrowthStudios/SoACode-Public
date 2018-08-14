@@ -53,11 +53,11 @@ void MainMenuScreen::build() {
     // Empty
 }
 
-void MainMenuScreen::destroy(const vui::GameTime& gameTime) {
+void MainMenuScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
+void MainMenuScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
     // Get the state handle
     m_mainMenuSystemViewer = m_soaState->clientState.systemViewer;
@@ -102,7 +102,7 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime) {
     m_isBorderless = soaOptions.get(OPT_FULLSCREEN).value.b;
 }
 
-void MainMenuScreen::onExit(const vui::GameTime& gameTime) {
+void MainMenuScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuScreen::onWindowResize);
     vui::InputDispatcher::window.onClose -= makeDelegate(*this, &MainMenuScreen::onWindowClose);
     SoaEngine::optionsController.OptionsChange -= makeDelegate(*this, &MainMenuScreen::onOptionsChange);
@@ -161,7 +161,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
     m_commonState->soundEngine->update(vsound::Listener());
 }
 
-void MainMenuScreen::draw(const vui::GameTime& gameTime) {
+void MainMenuScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     m_soaState->clientState.spaceCamera.updateProjection();
     m_renderer.render();
 }
@@ -173,14 +173,14 @@ void MainMenuScreen::initInput() {
   
     m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadSystem);
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &MainMenuScreen::onReloadShaders);
-    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s, ui32 i) { m_shouldReloadUI = true; });
+    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 i VORB_UNUSED) { m_shouldReloadUI = true; });
     m_inputMapper->get(INPUT_TOGGLE_UI).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleUI);
     // TODO(Ben): addFunctor = memory leak
-    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s, ui32 i) {
+    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
         m_renderer.toggleAR(); });
-    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s, ui32 i) {
+    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
         m_renderer.cycleColorFilter(); });
-    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
         m_renderer.takeScreenshot(); });
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &MainMenuScreen::onToggleWireframe);
 
@@ -200,7 +200,7 @@ void MainMenuScreen::initUI() {
     m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &m_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
 }
 
-void MainMenuScreen::loadGame(const nString& fileName) {
+void MainMenuScreen::loadGame(const nString& fileName VORB_UNUSED) {
     //std::cout << "Loading Game: " << fileName << std::endl;
 
     //initSaveIomanager(fileName);
@@ -272,7 +272,7 @@ void MainMenuScreen::reloadUI() {
     printf("UI was reloaded.\n");
 }
 
-void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
+void MainMenuScreen::onReloadSystem(Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
     SoaEngine::destroySpaceSystem(m_soaState);
     SoaEngine::loadSpaceSystem(m_soaState, "StarSystems/Trinity");
     CinematicCamera tmp = m_soaState->clientState.spaceCamera; // Store camera so the view doesn't change
@@ -284,7 +284,7 @@ void MainMenuScreen::onReloadSystem(Sender s, ui32 a) {
     initRenderPipeline();
 }
 
-void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
+void MainMenuScreen::onReloadShaders(Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
     printf("Reloading Shaders...\n");
     m_renderer.dispose(m_commonState->loadContext);
 
@@ -304,13 +304,13 @@ void MainMenuScreen::onReloadShaders(Sender s, ui32 a) {
     printf("Done!\n");
 }
 
-void MainMenuScreen::onQuit(Sender s, ui32 a) {
+void MainMenuScreen::onQuit(Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
     m_window->saveSettings();
     SoaEngine::destroyAll(m_soaState);
     exit(0);
 }
 
-void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+void MainMenuScreen::onWindowResize(Sender s VORB_UNUSED, const vui::WindowResizeEvent& e VORB_UNUSED) {
     SoaEngine::optionsController.setInt("Screen Width", e.w);
     SoaEngine::optionsController.setInt("Screen Height", e.h);
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
@@ -320,11 +320,11 @@ void MainMenuScreen::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
     m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
 
-void MainMenuScreen::onWindowClose(Sender s) {
+void MainMenuScreen::onWindowClose(Sender s VORB_UNUSED) {
     onQuit(s, 0);
 }
 
-void MainMenuScreen::onOptionsChange(Sender s) {
+void MainMenuScreen::onOptionsChange(Sender s VORB_UNUSED) {
     bool fullscreen = soaOptions.get(OPT_FULLSCREEN).value.b;
     bool borderless = soaOptions.get(OPT_BORDERLESS).value.b;
     bool screenChanged = false;
@@ -353,7 +353,7 @@ void MainMenuScreen::onOptionsChange(Sender s) {
     }
 }
 
-void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
+void MainMenuScreen::onToggleUI(Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
     m_renderer.toggleUI();
     m_uiEnabled = !m_uiEnabled;
     if (m_uiEnabled) {
@@ -363,6 +363,6 @@ void MainMenuScreen::onToggleUI(Sender s, ui32 i) {
     }
 }
 
-void MainMenuScreen::onToggleWireframe(Sender s, ui32 i) {
+void MainMenuScreen::onToggleWireframe(Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
     m_renderer.toggleWireframe();
 }

@@ -54,7 +54,7 @@ void SSAORenderStage::hook(vg::FullQuadVBO* quad, unsigned int width, unsigned i
     }
 }
 
-void SSAORenderStage::dispose(StaticLoadContext& context)
+void SSAORenderStage::dispose(StaticLoadContext& context VORB_UNUSED)
 {
     if (m_texNoise.id) {
         glDeleteTextures(1, &m_texNoise.id);

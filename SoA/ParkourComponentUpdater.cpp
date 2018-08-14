@@ -7,7 +7,7 @@
 #include "SpaceSystem.h"
 #include "VoxelUtils.h"
 
-void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem) {
+void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem VORB_UNUSED) {
     for (auto& it : gameSystem->parkourInput) {
         auto& parkour = it.second;
         auto& physics = gameSystem->physics.get(parkour.physicsComponent);

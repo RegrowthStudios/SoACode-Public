@@ -9,6 +9,8 @@
 #include "VoxelNavigation.inl"
 #include "VoxelSpaceConversions.h"
 
+// TODO: Implement and remove VORB_UNUSED tags.
+
 void VoxelEditor::editVoxels(ChunkGrid& grid, ItemStack* block) {
     if (m_startPosition.x == INT_MAX || m_endPosition.x == INT_MAX) {
         return;
@@ -138,7 +140,7 @@ void VoxelEditor::stopDragging() {
     m_endPosition = i32v3(INT_MAX);
 }
 
-void VoxelEditor::placeLine(ChunkGrid& grid, ItemStack* block) {
+void VoxelEditor::placeLine(ChunkGrid& grid VORB_UNUSED, ItemStack* block VORB_UNUSED) {
 
 }
 
@@ -146,7 +148,7 @@ bool VoxelEditor::isEditing() {
     return (m_startPosition.x != INT_MAX && m_endPosition.x != INT_MAX);
 }
 
-void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, const f32m4 &VP, int blockID)
+void VoxelEditor::drawGuides(vg::GLProgram* program VORB_UNUSED, const f64v3& cameraPos VORB_UNUSED, const f32m4 &VP VORB_UNUSED, int blockID VORB_UNUSED)
 {
     switch (m_currentTool) {
         case EDITOR_TOOLS::AABOX:{
@@ -157,7 +159,6 @@ void VoxelEditor::drawGuides(vg::GLProgram* program, const f64v3& cameraPos, con
                 startPosition.y = glm::min(m_startPosition.y, m_endPosition.y);
                 startPosition.z = glm::min(m_startPosition.z, m_endPosition.z);
 
-                // TODO: This needs implementing.
                 //const i32v3 size = glm::abs(m_endPosition - m_startPosition) + i32v3(1);
 
                 if (blockID != 0){

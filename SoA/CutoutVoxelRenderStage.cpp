@@ -18,7 +18,7 @@ void CutoutVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParam
     m_gameRenderParams = gameRenderParams;
 }
 
-void CutoutVoxelRenderStage::render(const Camera* camera) {
+void CutoutVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
     
 

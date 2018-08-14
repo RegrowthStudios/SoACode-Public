@@ -10,7 +10,7 @@ void blockCollision(Player* player, Chunk*  chunk, Chunk*  lockedChunk, ui16 blo
 
 //This method could be easily implemented as a recursive function, but is more efficient if unfolded
 //TODO(Ben) This is laughable. 
-void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk* * chunks, ui8 size)
+void aabbChunkCollision(Player* player VORB_UNUSED, f64v3* playerPos VORB_UNUSED, Chunk* * chunks VORB_UNUSED, ui8 size VORB_UNUSED)
 {
     //int x, y, z, x1, y1, z1 ,x2, y2, z2, x3, y3, z3, x4, y4, z4, c; //midpoints
     //int blockID;
@@ -213,7 +213,7 @@ void aabbChunkCollision(Player* player, f64v3* playerPos, Chunk* * chunks, ui8 s
 }
 
 // TODO(Ben): What the FUCK is this?!?! This code is rated XXX.
-void blockCollision(Player *player, Chunk* chunk, Chunk*  lockedChunk, GLushort blockType, int c, double bdx, double bdy, double bdz, double dx, double dy, double dz)
+void blockCollision(Player *player VORB_UNUSED, Chunk* chunk VORB_UNUSED, Chunk*  lockedChunk VORB_UNUSED, GLushort blockType VORB_UNUSED, int c VORB_UNUSED, double bdx VORB_UNUSED, double bdy VORB_UNUSED, double bdz VORB_UNUSED, double dx VORB_UNUSED, double dy VORB_UNUSED, double dz VORB_UNUSED)
 {
 //    if (chunks[i]->data[blx + bly + blz] == WATER) continue; //no clip water
 

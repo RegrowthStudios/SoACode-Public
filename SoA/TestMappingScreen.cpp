@@ -40,11 +40,11 @@ i32 TestMappingScreen::getPreviousScreen() const {
 void TestMappingScreen::build() {
     // Empty
 }
-void TestMappingScreen::destroy(const vui::GameTime& gameTime) {
+void TestMappingScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestMappingScreen::onEntry(const vui::GameTime& gameTime) {
+void TestMappingScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
     buildGeometry();
 
     m_program.init();
@@ -57,16 +57,16 @@ void TestMappingScreen::onEntry(const vui::GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void TestMappingScreen::onExit(const vui::GameTime& gameTime) {
+void TestMappingScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     glDeleteBuffers(1, &m_verts);
     glDeleteBuffers(1, &m_inds);
     m_program.dispose();
 }
 
-void TestMappingScreen::update(const vui::GameTime& gameTime) {
+void TestMappingScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
-void TestMappingScreen::draw(const vui::GameTime& gameTime) {
+void TestMappingScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     f32m4 mWVP = glm::perspectiveFov(90.0f, 800.0f, 600.0f, 0.1f, 100.0f) * glm::lookAt(f32v3(0, 0, 10), f32v3(0, 0, 0), f32v3(0, 1, 0)) ;

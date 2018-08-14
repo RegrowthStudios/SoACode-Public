@@ -39,11 +39,11 @@ i32 TestDeferredScreen::getPreviousScreen() const {
 void TestDeferredScreen::build() {
     // Empty
 }
-void TestDeferredScreen::destroy(const vui::GameTime& gameTime) {
+void TestDeferredScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
+void TestDeferredScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
     m_eyePos = f32v3(0, 0, 4);
     buildGeometry();
     buildLightMaps();
@@ -81,7 +81,7 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
 
     m_quad.init(0);
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender s, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender s VORB_UNUSED, const vui::KeyEvent& e) {
         switch (e.keyCode) {
         case VKEY_I: if(m_roughness < 0.96) m_roughness += 0.05f; break;
         case VKEY_J: if (m_roughness > 0.04) m_roughness -= 0.05f; break;
@@ -100,7 +100,7 @@ void TestDeferredScreen::onEntry(const vui::GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0);
 }
-void TestDeferredScreen::onExit(const vui::GameTime& gameTime) {
+void TestDeferredScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     glDeleteBuffers(1, &m_verts);
     glDeleteBuffers(1, &m_inds);
     m_deferredPrograms.dispose();
@@ -109,7 +109,7 @@ void TestDeferredScreen::onExit(const vui::GameTime& gameTime) {
     m_gbuffer.dispose();
 }
 
-void TestDeferredScreen::update(const vui::GameTime& gameTime) {
+void TestDeferredScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
     f32v4 rotated = f32v4(m_eyePos, 1) * glm::rotate(f32m4(), (float)(10 * gameTime.elapsed), f32v3(0, 1, 0));
     m_eyePos.x = rotated.x;
@@ -117,7 +117,7 @@ void TestDeferredScreen::update(const vui::GameTime& gameTime) {
     m_eyePos.z = rotated.z;
 }
 
-void TestDeferredScreen::draw(const vui::GameTime& gameTime) {
+void TestDeferredScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     /************************************************************************/
     /* Deferred pass                                                        */
     /************************************************************************/

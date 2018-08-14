@@ -44,7 +44,8 @@ void SphericalVoxelComponentUpdater::updateComponent(SphericalVoxelComponent& cm
     }
 }
 
-void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, bool doGen) {
+// TODO: Implement and remove VORB_UNUSED tags.
+void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid VORB_UNUSED, bool doGen VORB_UNUSED) {
     // Get render distance squared
     f32 renderDist2 = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH);
     renderDist2 *= renderDist2;

@@ -325,7 +325,7 @@ void GameplayRenderer::render() {
     checkGlError("GamePlayRenderer::render()");
 }
 
-void GameplayRenderer::cycleDevHud(int offset /* = 1 */) {
+void GameplayRenderer::cycleDevHud(int offset VORB_UNUSED /* = 1 */) {
    // stages.devHud.cycleMode(offset);
 }
 

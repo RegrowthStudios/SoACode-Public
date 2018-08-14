@@ -97,11 +97,11 @@ void MainMenuLoadScreen::build() {
         }
     }
 }
-void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
     SoaFileSystem fs;
     fs.init();
@@ -133,7 +133,7 @@ void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
     m_timer = 0.0;
     vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &MainMenuLoadScreen::onKeyPress);
 }
-void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     m_sf->dispose();
     delete m_sf;
     m_sf = nullptr;
@@ -176,7 +176,7 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
         m_state = vui::ScreenState::CHANGE_NEXT;
     }
 }
-void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
         "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
     };
@@ -206,6 +206,7 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
     // Render each texture
     m_sb->begin();
     f32v2 uvTile(0.999999f, 0.999999f);
+    // TODO: Fix this.
     if (m_isOnVorb) {
 //        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
 //            f32v2 pos = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
@@ -263,7 +264,7 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
     
 }
 
-void MainMenuLoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
+void MainMenuLoadScreen::addLoadTask(const nString& name, const cString loadText VORB_UNUSED, ILoadTask* task) {
     // Add the load task to the monitor
     m_loadTasks.push_back(task);
     m_monitor.addTask(name, m_loadTasks.back());

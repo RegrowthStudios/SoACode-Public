@@ -105,7 +105,7 @@ void SpaceSystemRenderStage::load(StaticLoadContext& context) {
     }, false);
 }
 
-void SpaceSystemRenderStage::dispose(StaticLoadContext& context) {
+void SpaceSystemRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
     m_lensFlareRenderer.dispose();
     m_starRenderer.dispose();
     m_systemARRenderer.dispose();
@@ -121,7 +121,7 @@ void SpaceSystemRenderStage::setRenderState(const MTRenderState* renderState) {
     m_renderState = renderState;
 }
 
-void SpaceSystemRenderStage::render(const Camera* camera) {
+void SpaceSystemRenderStage::render(const Camera* camera VORB_UNUSED) {
     drawBodies();
     if (m_showAR) m_systemARRenderer.draw(m_spaceSystem, m_spaceCamera,
                                           m_mainMenuSystemViewer,

@@ -155,7 +155,7 @@ struct ChunkSphereComponent {
 };
 class ChunkSphereComponentTable : public vecs::ComponentTable<ChunkSphereComponent> {
 public:
-    virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) override {
+    virtual void disposeComponent(vecs::ComponentID cID, vecs::EntityID eID VORB_UNUSED) override {
         ChunkSphereComponent& cmp = _components[cID].second;
         delete[] cmp.handleGrid;
         cmp.handleGrid = nullptr;

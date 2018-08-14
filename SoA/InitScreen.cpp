@@ -26,11 +26,11 @@ i32 InitScreen::getPreviousScreen() const {
 void InitScreen::build() {
     // Empty
 }
-void InitScreen::destroy(const vui::GameTime& gameTime) {
+void InitScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void InitScreen::onEntry(const vui::GameTime& gameTime) {
+void InitScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
     buildSpriteResources();
 
     checkRequirements();
@@ -39,15 +39,15 @@ void InitScreen::onEntry(const vui::GameTime& gameTime) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
 }
-void InitScreen::onExit(const vui::GameTime& gameTime) {
+void InitScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     destroySpriteResources();
 }
 
-void InitScreen::update(const vui::GameTime& gameTime) {
+void InitScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
     // Immediately move to next state
     m_state = vui::ScreenState::CHANGE_NEXT;
 }
-void InitScreen::draw(const vui::GameTime& gameTime) {
+void InitScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     const vui::GameWindow* w = &m_game->getWindow();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

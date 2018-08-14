@@ -20,6 +20,8 @@
 // Section tags
 #define TAG_VOXELDATA 0x1
 
+// TODO: Reimplement missing parts and remove VORB_UNUSED tags.
+
 const char TAG_VOXELDATA_STR[4] = { TAG_VOXELDATA, 0, 0, 0 };
 
 inline i32 fileTruncate(i32 fd, i64 size)
@@ -97,7 +99,8 @@ void RegionFileManager::clear() {
     _regionFile = nullptr;
 }
 
-bool RegionFileManager::openRegionFile(nString region, const ChunkPosition3D& gridPosition, bool create) {
+// TODO: Investigate why gridPosition isn't used.
+bool RegionFileManager::openRegionFile(nString region, const ChunkPosition3D& gridPosition VORB_UNUSED, bool create) {
 
     nString filePath;
     struct stat statbuf;
@@ -206,7 +209,7 @@ void RegionFileManager::closeRegionFile(RegionFile* regionFile) {
 }
 
 //Attempt to load a chunk. Returns false on failure
-bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
+bool RegionFileManager::tryLoadChunk(Chunk* chunk VORB_UNUSED) {
 
     //nString regionString = getRegionString(chunk);
 
@@ -257,7 +260,7 @@ bool RegionFileManager::tryLoadChunk(Chunk* chunk) {
 }
 
 //Saves a chunk to a region file
-bool RegionFileManager::saveChunk(Chunk* chunk) {
+bool RegionFileManager::saveChunk(Chunk* chunk VORB_UNUSED) {
 
     ////Used for copying sectors if we need to resize the file
     //if (_copySectorsBuffer) {
@@ -541,7 +544,7 @@ int RegionFileManager::rleUncompressArray(ui16* data, ui32& byteIndex, int jStar
     return 0;
 }
 
-bool RegionFileManager::fillChunkVoxelData(Chunk* chunk) {
+bool RegionFileManager::fillChunkVoxelData(Chunk* chunk VORB_UNUSED) {
 
     // TODO(Ben): Fix
 
@@ -736,7 +739,7 @@ void RegionFileManager::rleCompressArray(ui16* data, int jStart, int jMult, int 
     tot += count;
 }
 
-bool RegionFileManager::rleCompressChunk(Chunk* chunk) {
+bool RegionFileManager::rleCompressChunk(Chunk* chunk VORB_UNUSED) {
 
     // TODO(Ben): Fix
 
@@ -802,8 +805,8 @@ bool RegionFileManager::zlibCompress() {
     return (!checkZlibError("compression", zresult));
 }
 
-//TODO: Implement this
-bool RegionFileManager::tryConvertSave(ui32 regionVersion) {
+// TODO: Implement this and remove VORB_UNUSED tags.
+bool RegionFileManager::tryConvertSave(ui32 regionVersion VORB_UNUSED) {
     pError("Invalid region file version!");
     return false;
 }
@@ -842,7 +845,7 @@ bool RegionFileManager::seekToChunk(ui32 chunkSectorOffset) {
     return seek(sizeof(RegionFileHeader) + chunkSectorOffset * SECTOR_SIZE);
 }
 
-ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk, ui32* retTableOffset) {
+ui32 RegionFileManager::getChunkSectorOffset(Chunk* chunk VORB_UNUSED, ui32* retTableOffset VORB_UNUSED) {
     
     //const ChunkPosition3D& gridPos = chunk->gridPosition;
 

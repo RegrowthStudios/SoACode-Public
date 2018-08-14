@@ -13,7 +13,7 @@
 #include "TerrainPatch.h"
 #include "TerrainPatchMeshManager.h"
 
-void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
+void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID VORB_UNUSED) {
     SphericalVoxelComponent& cmp = _components[cID].second;
     // Let the threadpool finish
     while (cmp.threadPool->getTasksSizeApprox() > 0);
@@ -22,7 +22,7 @@ void SphericalVoxelComponentTable::disposeComponent(vecs::ComponentID cID, vecs:
     cmp = _components[0].second;
 }
 
-void SphericalTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
+void SphericalTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID VORB_UNUSED) {
     SphericalTerrainComponent& cmp = _components[cID].second;
     if (cmp.patches) {
         delete[] cmp.patches;
@@ -36,7 +36,7 @@ void SphericalTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vec
     delete cmp.sphericalTerrainData;
 }
 
-void FarTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
+void FarTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID VORB_UNUSED) {
     FarTerrainComponent& cmp = _components[cID].second;  
     if (cmp.patches) {
         delete[] cmp.patches;
@@ -44,7 +44,7 @@ void FarTerrainComponentTable::disposeComponent(vecs::ComponentID cID, vecs::Ent
     }
 }
 
-void OrbitComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID) {
+void OrbitComponentTable::disposeComponent(vecs::ComponentID cID, vecs::EntityID eID VORB_UNUSED) {
     OrbitComponent& cmp = _components[cID].second;
     if (cmp.vbo) {
         vg::GpuMemory::freeBuffer(cmp.vbo);

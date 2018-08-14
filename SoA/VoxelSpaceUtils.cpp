@@ -81,11 +81,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosit
     return glm::quat_cast(worldRotationMatrix);
 }
 
-void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos) {
+void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos VORB_UNUSED) {
     gridPosition.pos += xzOffset;
     WorldCubeFace newFace = gridPosition.face;
 
-    //TODO(Ben): New transition logic
+    //TODO(Ben): New transition logic and then remove VORB_UNUSED tags.
     //if (gridPosition.pos.y < -maxPos) { // BOTTOM SIDE
     //    gridPosition.pos.y += maxPos;
 

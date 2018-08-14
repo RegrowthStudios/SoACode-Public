@@ -107,7 +107,7 @@ public:
         // Empty
     }
 
-    vvox::meshalg::VoxelFaces occludes(const ui16& v1, const ui16& v2, const vvox::Axis& axis) const {
+    vvox::meshalg::VoxelFaces occludes(const ui16& v1, const ui16& v2, const vvox::Axis& axis VORB_UNUSED) const {
         vvox::meshalg::VoxelFaces f = {};
         if (v1 != 0 && v2 == 0) f.block1Face = true;
         else if (v2 != 0 && v1 == 0) f.block2Face = true;
@@ -174,27 +174,27 @@ i32 TestBlockView::getPreviousScreen() const {
 void TestBlockView::build() {
     // Empty
 }
-void TestBlockView::destroy(const vui::GameTime& gameTime) {
+void TestBlockView::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestBlockView::onEntry(const vui::GameTime& gameTime) {
-    m_hooks.addAutoHook(m_blocks.onBlockAddition, [&] (Sender s, ui16 id) {
+void TestBlockView::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+    m_hooks.addAutoHook(m_blocks.onBlockAddition, [&] (Sender s VORB_UNUSED, ui16 id) {
         printf("Loaded Block: %s = %d\n", m_blocks[id].name.c_str(), id);
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::window.onFile, [&] (Sender s, const vui::WindowFileEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::window.onFile, [&] (Sender s VORB_UNUSED, const vui::WindowFileEvent& e) {
         loadBlocks(e.file);
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&] (Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&] (Sender s VORB_UNUSED, const vui::MouseMotionEvent& e) {
         if (m_movingCamera) {
             m_mRotation = glm::rotate(f32m4(), 1.2f * e.dx, f32v3(0.0f, 1.0f, 0.0f)) * m_mRotation;
             m_mRotation = glm::rotate(f32m4(), 1.2f * e.dy, f32v3(1.0f, 0.0f, 0.0f)) * m_mRotation;
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&] (Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::MIDDLE) m_movingCamera = true;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&] (Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::MIDDLE) m_movingCamera = false;
     });
 
@@ -213,14 +213,14 @@ void TestBlockView::onEntry(const vui::GameTime& gameTime) {
     glClearDepth(1.0);
 
 }
-void TestBlockView::onExit(const vui::GameTime& gameTime) {
+void TestBlockView::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestBlockView::update(const vui::GameTime& gameTime) {
+void TestBlockView::update(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
-void TestBlockView::draw(const vui::GameTime& gameTime) {
+void TestBlockView::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_program.use();

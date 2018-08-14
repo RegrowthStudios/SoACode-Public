@@ -15,8 +15,9 @@ enum class ChunkStates;
 class ChunkUpdater {
 public:
     static void randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk);
-    static void placeBlock(VoxelUpdateBufferer& bufferer, Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
+    static void placeBlock(VoxelUpdateBufferer& bufferer, Chunk* chunk, Chunk*& lockedChunk VORB_UNUSED, BlockIndex blockIndex, BlockID blockData) {
         updateBlockAndNeighbors(bufferer, chunk, blockIndex, blockData);
+        // TODO: Is this call needed? If so, reimplement and remove VORB_UNUSED tags.
         //addBlockToUpdateList(chunk, lockedChunk, blockIndex);
     }
     static void placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData);

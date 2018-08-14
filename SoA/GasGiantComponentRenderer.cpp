@@ -31,7 +31,7 @@ void GasGiantComponentRenderer::draw(const GasGiantComponent& ggCmp,
                                      const f32v3& relCamPos,
                                      const f32v3& lightDir,
                                      const float zCoef,
-                                     const SpaceLightComponent* spCmp,
+                                     const SpaceLightComponent* spCmp VORB_UNUSED,
                                      const AtmosphereComponent* aCmp) {
     // Get the render texture or load it if it hasn't been loaded
     // TODO(Ben): Use a renderable component instead

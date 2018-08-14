@@ -13,7 +13,7 @@ PDA::~PDA() {
     // Empty
 }
 
-void PDA::init(GameplayScreen* ownerScreen) {
+void PDA::init(GameplayScreen* ownerScreen VORB_UNUSED) {
     // Initialize the user interface
 }
 

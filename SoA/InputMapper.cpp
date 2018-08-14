@@ -125,8 +125,8 @@ void InputMapper::stopInput() {
     }
 }
 
-void InputMapper::saveInputs(const nString &filePath /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
-    //TODO(Ben): Implement
+void InputMapper::saveInputs(const nString &filePath VORB_UNUSED /* = INPUTMAPPER_DEFAULT_CONFIG_LOCATION */) {
+    //TODO(Ben): Implement and remove VORB_UNUSED tag.
    // vio::IOManager iom;
     // Just build the data string manually then write it
    

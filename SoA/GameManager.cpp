@@ -84,11 +84,11 @@ void GameManager::savePlayerState() {
    // fileManager.savePlayerFile(player);
 }
 
-bool isSolidBlock(const i32& blockID) {
+bool isSolidBlock(const i32& blockID VORB_UNUSED) {
     return true; // return blockID && (blockID < LOWWATER || blockID > FULLWATER);
 }
 
-void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool isBreakRay) {
+void GameManager::clickDragRay(ChunkManager* chunkManager VORB_UNUSED, Player* player VORB_UNUSED, bool isBreakRay VORB_UNUSED) {
 #define MAX_RANGE 120.0f
 
     //VoxelRayQuery rq;
@@ -121,7 +121,7 @@ void GameManager::clickDragRay(ChunkManager* chunkManager, Player* player, bool 
     //    voxelEditor->setEndPosition(position);
     //}
 }
-void GameManager::scanWSO(ChunkManager* chunkManager, Player* player) {
+void GameManager::scanWSO(ChunkManager* chunkManager VORB_UNUSED, Player* player VORB_UNUSED) {
 
 #define SCAN_MAX_DISTANCE 20.0
     /* VoxelRayQuery rq = VRayHelper::getQuery(

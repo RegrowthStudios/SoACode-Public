@@ -24,7 +24,7 @@ void ColorFilterRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
 }
 
-void ColorFilterRenderStage::render(const Camera* camera /*= nullptr*/) {
+void ColorFilterRenderStage::render(const Camera* camera VORB_UNUSED /*= nullptr*/) {
 
     if (!m_program.isCreated()) {
         m_program = ShaderLoader::createProgram("ColorFilterShader", VERT_SRC, FRAG_SRC);

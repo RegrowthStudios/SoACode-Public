@@ -93,26 +93,26 @@ void TestDisplacementMappingScreen::build()
 {
 
 }
-void TestDisplacementMappingScreen::destroy(const vui::GameTime& gameTime)
+void TestDisplacementMappingScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED)
 {
 
 }
 
-void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
+void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED)
 {
     m_displacementScale = 0.08f;
     m_view = f32v3(0.0f);
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s VORB_UNUSED, const vui::MouseWheelEvent& e) {
         m_displacementScale += e.dy * 0.01f;
         if (m_displacementScale < 0.0f) m_displacementScale = 0.0f;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_ldown = true;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_ldown = false;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s VORB_UNUSED, const vui::MouseMotionEvent& e) {
         if (m_ldown) {
             m_view.x += e.dy * 0.1f;
             m_view.y += e.dx * 0.1f;
@@ -161,7 +161,7 @@ void TestDisplacementMappingScreen::onEntry(const vui::GameTime& gameTime)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 }
 
-void TestDisplacementMappingScreen::onExit(const vui::GameTime& gameTime)
+void TestDisplacementMappingScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED)
 {
     m_program.dispose();
     glDeleteTextures(1, &m_diffuseTexture);
@@ -169,12 +169,12 @@ void TestDisplacementMappingScreen::onExit(const vui::GameTime& gameTime)
     glDeleteTextures(1, &m_displacementTexture);
 }
 
-void TestDisplacementMappingScreen::update(const vui::GameTime& gameTime)
+void TestDisplacementMappingScreen::update(const vui::GameTime& gameTime VORB_UNUSED)
 {
 
 }
 
-void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime)
+void TestDisplacementMappingScreen::draw(const vui::GameTime& gameTime VORB_UNUSED)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

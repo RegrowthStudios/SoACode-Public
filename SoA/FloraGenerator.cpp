@@ -491,7 +491,7 @@ void FloraGenerator::generateTree(const NTreeType* type, f32 age, OUT std::vecto
     std::vector<NodeField>().swap(m_nodeFields);
 }
 
-void FloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
+void FloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vector<FloraNode>& fNodes, OUT std::vector<FloraNode>& wNodes VORB_UNUSED, ui32 chunkOffset /*= NO_CHUNK_OFFSET*/, ui16 blockIndex /*= 0*/) {
     FloraData data;
     generateFloraProperties(type, age, data);
 

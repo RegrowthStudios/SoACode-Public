@@ -5,7 +5,7 @@
 #include "GameSystem.h"
 #include "soaUtils.h"
 
-void HeadComponentUpdater::update(GameSystem* gameSystem) {
+void HeadComponentUpdater::update(GameSystem* gameSystem VORB_UNUSED) {
     // Empty for now
 }
 

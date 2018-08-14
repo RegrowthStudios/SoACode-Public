@@ -22,12 +22,12 @@ i32 TestGasGiantScreen::getPreviousScreen() const {
 void TestGasGiantScreen::build() {
 
 }
-void TestGasGiantScreen::destroy(const vui::GameTime& gameTime) {
+void TestGasGiantScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
 
 }
 
-void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
+void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
         if(e.keyCode==VKEY_F1)
         {
             m_gasGiantRenderer.dispose();
@@ -45,7 +45,7 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
         }
     });
 
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s, const vui::MouseWheelEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s VORB_UNUSED, const vui::MouseWheelEvent& e) {
         m_eyeDist += -e.dy * 0.025 * m_eyeDist;
     });
 
@@ -87,15 +87,15 @@ void TestGasGiantScreen::onEntry(const vui::GameTime& gameTime) {
     m_atmoRenderer.initGL();
 }
 
-void TestGasGiantScreen::onExit(const vui::GameTime& gameTime) {
+void TestGasGiantScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
 
 }
 
-void TestGasGiantScreen::update(const vui::GameTime& gameTime) {
+void TestGasGiantScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
     m_eyePos = f64v3(0, 0, GIANT_RADIUS + m_eyeDist + 100.0);
 }
 
-void TestGasGiantScreen::draw(const vui::GameTime& gameTime) {
+void TestGasGiantScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

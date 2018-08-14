@@ -129,11 +129,11 @@ void FragFile::append(void* data, i32 sizeInBytes) {
         fwrite(&header, sizeof(FragBlockHeader), 1, _file);
     }
 }
-void FragFile::overwrite(void* data, i32 fileDataOffset) {
+void FragFile::overwrite(void* data VORB_UNUSED, i32 fileDataOffset VORB_UNUSED) {
     // TODO: Implement
 }
 
-void FragFile::defragment(const cString tmpFileName) {
+void FragFile::defragment(const cString tmpFileName VORB_UNUSED) {
     // TODO: Implement
 }
 

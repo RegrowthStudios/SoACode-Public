@@ -6,9 +6,11 @@
 #include "GameRenderParams.h"
 #include "SoaOptions.h"
 
-PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderParams, 
-                                                 const std::vector<PhysicsBlockMesh*>& physicsBlockMeshes,
-                                                 vg::GLProgram* glProgram) //:
+// TODO: Do we still want this as is? If so, reimplement and remove VORB_UNUSED tags.
+
+PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderParams VORB_UNUSED, 
+                                                 const std::vector<PhysicsBlockMesh*>& physicsBlockMeshes VORB_UNUSED,
+                                                 vg::GLProgram* glProgram VORB_UNUSED) //:
 //    _gameRenderParams(gameRenderParams),
 //    _physicsBlockMeshes(physicsBlockMeshes),
 //    _glProgram(glProgram) 
@@ -16,7 +18,7 @@ PhysicsBlockRenderStage::PhysicsBlockRenderStage(GameRenderParams* gameRenderPar
     // Empty
 }
 
-void PhysicsBlockRenderStage::render(const Camera* camera) {
+void PhysicsBlockRenderStage::render(const Camera* camera VORB_UNUSED) {
 
     /* _glProgram->use();
 

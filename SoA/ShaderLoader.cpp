@@ -5,15 +5,15 @@
 #include <Vorb/graphics/ShaderManager.h>
 
 namespace {
-    void printShaderError(Sender s, const nString& n) {
+    void printShaderError(Sender s VORB_UNUSED, const nString& n) {
         puts("Shader Error: ");
         puts(n.c_str());
     }
-    void printLinkError(Sender s, const nString& n) {
+    void printLinkError(Sender s VORB_UNUSED, const nString& n) {
         puts("Link Error: ");
         puts(n.c_str());
     }
-    void printFileIOError(Sender s, const nString& n) {
+    void printFileIOError(Sender s VORB_UNUSED, const nString& n) {
         puts("FIle IO Error: ");
         puts(n.c_str());
     }

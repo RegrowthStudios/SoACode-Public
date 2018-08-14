@@ -157,7 +157,7 @@ nString MainMenuSystemViewer::getTargetName() {
     return m_spaceSystem->namePosition.get(m_targetComponent).name;
 }
 
-void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButtonEvent& e) {
+void MainMenuSystemViewer::onMouseButtonDown(Sender sender VORB_UNUSED, const vui::MouseButtonEvent& e) {
     m_mouseCoords.x = (f32)e.x;
     m_mouseCoords.y = (f32)e.y;
     if (e.button == vui::MouseButton::LEFT) {
@@ -190,7 +190,7 @@ void MainMenuSystemViewer::onMouseButtonDown(Sender sender, const vui::MouseButt
     }
 }
 
-void MainMenuSystemViewer::onMouseButtonUp(Sender sender, const vui::MouseButtonEvent& e) {
+void MainMenuSystemViewer::onMouseButtonUp(Sender sender VORB_UNUSED, const vui::MouseButtonEvent& e) {
     m_mouseCoords.x = (f32)e.x;
     m_mouseCoords.y = (f32)e.y;
     if (e.button == vui::MouseButton::LEFT) {
@@ -200,7 +200,7 @@ void MainMenuSystemViewer::onMouseButtonUp(Sender sender, const vui::MouseButton
     }
 }
 
-void MainMenuSystemViewer::onMouseWheel(Sender sender, const vui::MouseWheelEvent& e) {
+void MainMenuSystemViewer::onMouseWheel(Sender sender VORB_UNUSED, const vui::MouseWheelEvent& e) {
 #define SCROLL_SPEED 0.1f
     m_camera->offsetTargetFocalLength((f32)m_camera->getTargetFocalLength() * SCROLL_SPEED * -e.dy);
     if (m_camera->getTargetFocalLength() < 0.1f) {
@@ -208,7 +208,7 @@ void MainMenuSystemViewer::onMouseWheel(Sender sender, const vui::MouseWheelEven
     }
 }
 
-void MainMenuSystemViewer::onMouseMotion(Sender sender, const vui::MouseMotionEvent& e) {
+void MainMenuSystemViewer::onMouseMotion(Sender sender VORB_UNUSED, const vui::MouseMotionEvent& e) {
     m_mouseCoords.x = (f32)e.x;
     m_mouseCoords.y = (f32)e.y;
 

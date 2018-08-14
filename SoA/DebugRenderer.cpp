@@ -128,7 +128,7 @@ void DebugRenderer::drawLine(const f64v3 &startPoint, const f64v3 &endPoint, con
     m_contexts[context].lines.push_back(line);
 }
 
-void DebugRenderer::renderIcospheres(std::vector<Icosphere>& icospheres, const f32m4 &vp, const f32m4& w, const f64v3& playerPos, const double deltaT) {
+void DebugRenderer::renderIcospheres(std::vector<Icosphere>& icospheres VORB_UNUSED, const f32m4 &vp VORB_UNUSED, const f32m4& w VORB_UNUSED, const f64v3& playerPos VORB_UNUSED, const double deltaT VORB_UNUSED) {
    /* f32m4 modelMatrix(1.0f);
     for (auto i = icospheres.begin(); i != icospheres.end(); i++) {
         SimpleMesh* mesh = m_icosphereMeshes.at(i->lod);
@@ -150,7 +150,7 @@ void DebugRenderer::renderIcospheres(std::vector<Icosphere>& icospheres, const f
     icospheres.erase(std::remove_if(icospheres.begin(), icospheres.end(), [](const Icosphere& sphere) { return sphere.timeTillDeletion <= 0; }), icospheres.end());*/
 }
 
-void DebugRenderer::renderCubes(std::vector<Cube>& cubes, const f32m4 &vp, const f32m4& w, const f64v3& playerPos, const double deltaT) {
+void DebugRenderer::renderCubes(std::vector<Cube>& cubes VORB_UNUSED, const f32m4 &vp VORB_UNUSED, const f32m4& w VORB_UNUSED, const f64v3& playerPos VORB_UNUSED, const double deltaT VORB_UNUSED) {
   /*  glBindBuffer(GL_ARRAY_BUFFER, m_cubeMesh->vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cubeMesh->indexBufferID);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32v3), 0);

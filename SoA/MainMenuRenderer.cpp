@@ -221,7 +221,7 @@ void MainMenuRenderer::render() {
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
-void MainMenuRenderer::onWindowResize(Sender s, const vui::WindowResizeEvent& e) {
+void MainMenuRenderer::onWindowResize(Sender s VORB_UNUSED, const vui::WindowResizeEvent& e) {
     m_newDims = ui32v2(e.w, e.h);
     m_shouldResize = true;
 }

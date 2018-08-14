@@ -9,6 +9,8 @@
 #include "GameManager.h"
 #include "VoxelUtils.h"
 
+// TODO: Do we want this as is? If so reimplement and remove VORB_UNUSED tags.
+
 CaPhysicsTypeDict CaPhysicsType::typesCache;
 CaPhysicsTypeList CaPhysicsType::typesArray;
 
@@ -61,7 +63,7 @@ void CaPhysicsType::clearTypes() {
     typesArray.clear();
 }
 
-CAEngine::CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine) :
+CAEngine::CAEngine(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED) :
     _chunk(nullptr)
 //    m_chunkManager(chunkManager),
 //    m_physicsEngine(physicsEngine)
@@ -73,7 +75,7 @@ CAEngine::CAEngine(ChunkManager* chunkManager, PhysicsEngine* physicsEngine) :
     _highIndex = _lowIndex + _range - 1;
 }
 
-void CAEngine::updateSpawnerBlocks(bool powders)
+void CAEngine::updateSpawnerBlocks(bool powders VORB_UNUSED)
 {
     //_lockedChunk = nullptr;
     //int spawnerVal;
@@ -140,7 +142,7 @@ void CAEngine::updateSpawnerBlocks(bool powders)
     //}
 }
 
-void CAEngine::updateLiquidBlocks(int caIndex)
+void CAEngine::updateLiquidBlocks(int caIndex VORB_UNUSED)
 {
     //_lockedChunk = nullptr;
     //vvox::swapLockedChunk(_chunk, _lockedChunk);
@@ -178,7 +180,7 @@ void CAEngine::updateLiquidBlocks(int caIndex)
     //}
 }
 
-void CAEngine::updatePowderBlocks(int caIndex)
+void CAEngine::updatePowderBlocks(int caIndex VORB_UNUSED)
 {
  //   _lockedChunk = nullptr;
  //   std::vector<bool>& activeUpdateList = _chunk->activeUpdateList;
@@ -240,7 +242,7 @@ void CAEngine::updatePowderBlocks(int caIndex)
  //   }
 }
 
-void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
+void CAEngine::liquidPhysics(i32 startBlockIndex VORB_UNUSED, i32 startBlockID VORB_UNUSED) {
     //// Helper function
     //#define IS_LIQUID(b) ((b) >= _lowIndex && (b) < _highIndex)
 
@@ -532,7 +534,7 @@ void CAEngine::liquidPhysics(i32 startBlockIndex, i32 startBlockID) {
     //}
 }
 
-void CAEngine::powderPhysics(int blockIndex)
+void CAEngine::powderPhysics(int blockIndex VORB_UNUSED)
 {
     //// Directional constants
     //#define LEFT 0
