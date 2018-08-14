@@ -893,7 +893,7 @@ void ChunkMesher::addBlock()
     }
 }
 
-void ChunkMesher::computeAmbientOcclusion(int upOffset VORB_UNUSED, int frontOffset VORB_UNUSED, int rightOffset VORB_UNUSED, f32 ambientOcclusion[] VORB_UNUSED) {
+void ChunkMesher::computeAmbientOcclusion(int upOffset VORB_UNUSED, int frontOffset VORB_UNUSED, int rightOffset VORB_UNUSED, f32 ambientOcclusion VORB_UNUSED[]) {
 #ifdef USE_AO
     // Ambient occlusion factor
 #define OCCLUSION_FACTOR 0.2f;
@@ -926,7 +926,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset VORB_UNUSED, int frontOff
 #endif
 }
 
-void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[] VORB_UNUSED) {
+void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion VORB_UNUSED[]) {
     // Get texture TODO(Ben): Null check?
     const BlockTexture* texture = block->textures[face];
 

@@ -414,7 +414,7 @@ void VoxelMesher::makeTransparentFace(BlockVertex *Verts VORB_UNUSED, const ui8*
 }
 
 
-void VoxelMesher::makeCubeFace(BlockVertex *Verts VORB_UNUSED, int vertexOffset VORB_UNUSED, int waveEffect VORB_UNUSED, i32v3& pos VORB_UNUSED, int vertexIndex VORB_UNUSED, int textureIndex VORB_UNUSED, int overlayTextureIndex VORB_UNUSED, const ColorRGB8& color VORB_UNUSED, const ColorRGB8& overlayColor VORB_UNUSED, GLfloat ambientOcclusion[] VORB_UNUSED, const BlockTexture* texInfo VORB_UNUSED)
+void VoxelMesher::makeCubeFace(BlockVertex *Verts VORB_UNUSED, int vertexOffset VORB_UNUSED, int waveEffect VORB_UNUSED, i32v3& pos VORB_UNUSED, int vertexIndex VORB_UNUSED, int textureIndex VORB_UNUSED, int overlayTextureIndex VORB_UNUSED, const ColorRGB8& color VORB_UNUSED, const ColorRGB8& overlayColor VORB_UNUSED, GLfloat ambientOcclusion VORB_UNUSED[], const BlockTexture* texInfo VORB_UNUSED)
 {
     // TODO: Do we still want this? If so, reimplement and remove VORB_UNUSED tags.
 
