@@ -7,13 +7,13 @@ Seed of Andromeda.  There is a basic requirement of having several
 packages installed prior to being able to develop.  In addition,
 we support all three major operating systems:
 
-### Installing:
-* [Windows](#Windows)
-* [Mac](#Mac)
-* [Linux](#Linux)
+### Setting Up:
+* [Windows](#windows)
+* [Mac](#mac)
+* [Linux](#linux)
 
 ### Building:
-* [Building](#Building)
+* [Building](#building-1)
  
 ### Contributing
 * [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
@@ -21,15 +21,17 @@ we support all three major operating systems:
 * [Discord](https://discord.gg/b2bf775)
 
 
-## Windows
+## Setting Up
 
-### Required pre-setup
-*  Compiler: [Microsoft Visual Studio 2013+](http://www.microsoft.com/en-us/download/details.aspx?id=43729)
+### Windows
+
+#### Prerequisites
+*  Compiler: [Microsoft Visual Studio 2015+](https://visualstudio.microsoft.com/)
 *  Software Version Control:  [Git](http://git-scm.com/downloads)
 *  (Optional) MSVS SVC Plugin:  [MSVS Git Plugin](http://msdn.microsoft.com/en-us/library/hh850437.aspx)
 *  (Optional) TortoiseGit: [tortoisegit](https://tortoisegit.org/download)
 
-### Installation
+#### Setup
 1. Open a dos window.
 ```
 Windows + R
@@ -48,9 +50,9 @@ git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git
 cd c:\repos\soa
 ```
 
-## Mac
+### Mac
 
-### Required pre-setup
+#### Prerequisites
 * Compiler: [Xcode](https://developer.apple.com/xcode/)
 * Software Version Control: [Git](http://git-scm.com/downloads)
     Optionally, with [Homebrew](http://brew.sh/):
@@ -65,7 +67,7 @@ cd c:\repos\soa
     * [SublimeLinter-pep8](https://sublime.wbond.net/packages/SublimeLinter-pep8) - SublimeLinter plugin for python, using pep8.
     * [SublimeLinter-contrib-clang](https://sublime.wbond.net/packages/SublimeLinter-contrib-clang) - https://sublime.wbond.net/packages/SublimeLinter-contrib-clang
 
-### Installation
+#### Setup
 1. Open a terminal.
 ```
 cmd + space
@@ -82,9 +84,9 @@ git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git
 cd ~/repos/soa
 ```
 
-## Linux
+### Linux
 
-### Required pre-setup
+#### Prerequisites
 * Compiler: gcc or clang
     * Install per your preferred operating system package control...
     * Portage:
@@ -125,7 +127,7 @@ cd ~/repos/soa
     sudo yum install git
     ```
 
-### Installation
+#### Setup
 1. Open a terminal.
 2. Create a folder to hold the repositories
 ```
@@ -138,25 +140,27 @@ git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git
 cd ~/repos/soa
 ```
 
-### Building
+## Building
 1. Pull latest code (from inside .../repos/soa)
 ```
-git checkout develop
+git checkout master    # or your current branch
 git pull --recurse-submodules
 ```
-2. Run cmake
-```
-cmake -H . -B build //build can be any directory you like
-```
-3. Once cmake finishes
-    * Build with cmake
+2. Run the build script (--help for options)
+    * Windows:
     ```
-    cmake --build build
+    build.bat    # or compile from within your Visual Studio environment
     ```
-    * or
-        * Windows open SoA.sln in .../repos/soa/build directiory with VS
-        * Mac and Linux
-        ```
-        cd build
-        make
-        ```
+    * Linux:
+    ```
+    ./build.sh
+    ```
+3. Run the built executable
+    * Windows:
+    ```
+    build/SoA/launch-soa-{Release|Debug}.cmd    # or launch from within your Visual Studio environment
+    ```
+    * Linux:
+    ```
+    ./build/SoA/launch-soa.sh
+    ```
