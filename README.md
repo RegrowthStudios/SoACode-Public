@@ -7,22 +7,26 @@ Seed of Andromeda project. There is a basic requirement of having several
 packages installed prior to being able to develop. We support all three
 major operating systems: Windows, Mac and Linux.
 
-Firstly, before continuing if you haven't already, be sure to fork the repository -
-clicking the fork button on the top right of this page. Once you have a personal
-version of the repository follow the instructions below.
+### Contributing
+Before beginning your SoA journey, please take a moment to use the following resources
+to get an idea of how to contribute, what you might be able to contribute to specifically,
+and to meet some of the other contributors.
+* [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
+* [Issues](https://github.com/RegrowthStudios/SoACode-Public/issues)
+* [Discord](https://discord.gg/b2bf775)
 
 ### Setting Up:
+Before following any of the instructions linked below for the platforms we support,
+please do take a second to fork the repository! If you are new to GitHub, you can 
+do so by clicking the "fork" button on the top right of this page.
 * [Windows](#windows)
 * [Mac](#mac)
 * [Linux](#linux)
 
 ### Building:
+Now you have a copy of the code, and perhaps have played with it a little, why not give it
+a whirl?
 * [Building](#building-1)
- 
-### Contributing
-* [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
-* [Issues](https://github.com/RegrowthStudios/SoACode-Public/issues)
-* [Discord](https://discord.gg/b2bf775)
 
 
 ## Setting Up
