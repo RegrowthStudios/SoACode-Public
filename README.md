@@ -2,10 +2,14 @@
 This repository contains the source code for Seed of Andromeda.
 
 ## Getting Started
-This guide will walk you through setting up as a developer for
-Seed of Andromeda.  There is a basic requirement of having several
-packages installed prior to being able to develop.  In addition,
-we support all three major operating systems:
+This guide will walk you through setting up as a contributor to the
+Seed of Andromeda project. There is a basic requirement of having several
+packages installed prior to being able to develop. We support all three
+major operating systems: Windows, Mac and Linux.
+
+Firstly, before continuing if you haven't already, be sure to fork the repository -
+clicking the fork button on the top right of this page. Once you have a personal
+version of the repository follow the instructions below.
 
 ### Setting Up:
 * [Windows](#windows)
@@ -46,7 +50,7 @@ mkdir -p repos
 ```
 c:\
 cd c:\repos
-git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
+git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd c:\repos\soa
 ```
 
@@ -80,7 +84,7 @@ mkdir ~/repos
 3. Clone the Seed of Andromeda repositories
 ```
 cd ~/repos
-git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
+git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd ~/repos/soa
 ```
 
@@ -136,14 +140,14 @@ mkdir ~/repos
 3. Clone the Seed of Andromeda repositories
 ```
 cd ~/repos
-git clone --recurse-submodules git@github.com:RegrowthStudios/SoACode-Public.git soa
+git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd ~/repos/soa
 ```
 
 ## Building
 1. Pull latest code (from inside .../repos/soa)
 ```
-git checkout master    # or your current branch
+git checkout develop    # or your current branch
 git pull --recurse-submodules
 ```
 2. Run the build script (--help for options)
