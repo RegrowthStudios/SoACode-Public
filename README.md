@@ -41,17 +41,17 @@ a whirl?
 
 #### Setup
 1. Open a dos window.
-```
+```cmd
 Windows + R
 cmd
 ```
 2. Create a folder to hold the repositories
-```
+```cmd
 cd c:\
 mkdir -p repos
 ```
 3. Clone the Seed of Andromeda repositories
-```
+```cmd
 c:\
 cd c:\repos
 git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
@@ -77,16 +77,16 @@ cd c:\repos\soa
 
 #### Setup
 1. Open a terminal.
-```
+```bash
 cmd + space
 Terminal
 ```
 2. Create a folder to hold the repositories
-```
+```bash
 mkdir ~/repos
 ```
 3. Clone the Seed of Andromeda repositories
-```
+```bash
 cd ~/repos
 git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd ~/repos/soa
@@ -98,77 +98,98 @@ cd ~/repos/soa
 * Compiler: gcc or clang
     * Install per your preferred operating system package control...
     * Portage:
-    ```
+    ```bash
     sudo emerge -DuNqa gcc   # for gcc
     sudo emerge -DuNqa clang  # for clang
     ```
     * PacMan:
-    ```
+    ```bash
     sudo pacman -S gcc
     sudo pacman -S clang
     ```
     * Apt:
-    ```
+    ```bash
     sudo apt-get install gcc
     sudo apt-get install clang
     ```
     * Yum:
-    ```
+    ```bash
     sudo yum install gcc
     sudo yum install clang
     ```
 * Software Version Control: [Git](http://git-scm.com/downloads)
     * Portage:
-    ```
+    ```bash
     sudo emerge -DuNqa git
     ```
     * PacMan:
-    ```
+    ```bash
     sudo pacman -S git
     ```
     * Apt:
-    ```
+    ```bash
     sudo apt-get install git
     ```
     * Yum:
-    ```
+    ```bash
     sudo yum install git
     ```
 
 #### Setup
 1. Open a terminal.
 2. Create a folder to hold the repositories
-```
+```bash
 mkdir ~/repos
 ```
 3. Clone the Seed of Andromeda repositories
-```
+```bash
 cd ~/repos
 git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd ~/repos/soa
 ```
 
-## Building
+# Building
+
 1. Pull latest code (from inside .../repos/soa)
-```
+```bash
 git checkout develop    # or your current branch
 git pull --recurse-submodules
 ```
 2. Run the build script (--help for options)
     * Windows:
-    ```
+    ```cmd
     build.bat    # or compile from within your Visual Studio environment
     ```
     * Linux:
-    ```
+    ```bash
     ./build.sh
     ```
 3. Run the built executable
     * Windows:
-    ```
+    ```cmd
     build/SoA/launch-soa-{Release|Debug}.cmd    # or launch from within your Visual Studio environment
     ```
     * Linux:
-    ```
+    ```bash
     ./build/SoA/launch-soa.sh
     ```
+
+
+# Fixing a Pre-Fork Clone (WIP)
+
+So, you've accidentally cloned the repository before forking it, eh? No problem. Just run the following git commands inside of the repository and everything will be as it should be!
+
+Firstly, if you still haven't, fork the repositories you want to contribute to!
+
+Now you have a fork we want to set `origin` of each of your local repositories (which is the default remote repository to push changes to) to your corresponding forked repositories:
+```bash
+# Assuming we're already inside the top-level directory of your SoACode-Public repository.
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git
+cd Vorb
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
+cd game
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
+```
+If you haven't forked, e.g. SoAGameData as you don't intend to contribute to that repository, then you don't need to do run the commands corresponding to that repository.
+
+That's it! It's all fixed. :)
