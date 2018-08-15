@@ -61,6 +61,15 @@ cd c:\repos
 git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd c:\repos\soa
 ```
+4. Set origin of submodules to your forked repositories
+```cmd
+# Assuming we're already inside the top-level directory of your SoACode-Public repository.
+cd Vorb
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
+cd game
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
+```
+If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to run the commands corresponding to that repository.
 
 ### Mac
 
@@ -95,6 +104,15 @@ cd ~/repos
 git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
 cd ~/repos/soa
 ```
+4. Set origin of submodules to your forked repositories
+```cmd
+# Assuming we're already inside the top-level directory of your SoACode-Public repository.
+cd Vorb
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
+cd game
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
+```
+If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to run the commands corresponding to that repository.
 
 ### Linux
 
@@ -177,6 +195,15 @@ git pull --recurse-submodules
     ```bash
     ./build/SoA/launch-soa.sh
     ```
+4. Set origin of submodules to your forked repositories
+```cmd
+# Assuming we're already inside the top-level directory of your SoACode-Public repository.
+cd Vorb
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
+cd game
+git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
+```
+If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to run the commands corresponding to that repository.
 
 
 # Fixing a Pre-Fork Clone
@@ -194,6 +221,6 @@ git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
 cd game
 git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
 ```
-If you haven't forked, e.g. SoAGameData as you don't intend to contribute to that repository, then you don't need to do run the commands corresponding to that repository.
+If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to do run the commands corresponding to that repository.
 
 That's it! It's all fixed. :)
