@@ -33,7 +33,7 @@ void PlanetRingsComponentRenderer::draw(const PlanetRingsComponent& prCmp,
                                         const f32v3& lightPos,
                                         const f32 planetRadius,
                                         const f32 zCoef,
-                                        const SpaceLightComponent* spComponent) {
+                                        const SpaceLightComponent* spComponent VORB_UNUSED) {
     // Get renderables
     // TODO(Ben): Use a renderable component instead
     std::vector<RenderableRing>* rings;

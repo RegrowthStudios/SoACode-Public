@@ -11,9 +11,10 @@ void SystemBodyLoader::init(vio::IOManager* iom) {
     m_planetLoader.init(iom);
 }
 
+// TODO: Check why glrpc is currently unused.
 bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePath,
                                 const SystemOrbitProperties* sysProps, SystemBody* body, keg::Node &value,
-                                vcore::RPCManager* glrpc /* = nullptr */) {
+                                vcore::RPCManager* glrpc VORB_UNUSED /* = nullptr */) {
 
 #define KEG_CHECK \
     if (error != keg::Error::NONE) { \

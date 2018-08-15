@@ -47,13 +47,13 @@ KEG_TYPE_DEF_SAME_NAME(Block, kt) {
 }
 
 // TODO(Ben): LOL
-Block::Block() : emitterName(""), 
+Block::Block() : lightColor(0, 0, 0),
+emitterName(""), 
 emitterOnBreakName(""), 
+emitterRandomName(""),
 emitter(nullptr),
 emitterOnBreak(nullptr),
-emitterRandom(nullptr),
-emitterRandomName(""),
-lightColor(0, 0, 0) {
+emitterRandom(nullptr) {
     allowLight = false;
     ID = 0;
     name = particleTexName = "";

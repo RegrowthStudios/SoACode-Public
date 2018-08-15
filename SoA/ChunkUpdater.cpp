@@ -13,7 +13,7 @@
 
 BlockPack* ChunkUpdater::blockPack = nullptr;
 
-void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk)
+void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine VORB_UNUSED, Chunk* chunk VORB_UNUSED)
 {
     //if (!chunk->isAccessible) return;
     //int blockIndex, blockIndex2, blockID;
@@ -118,7 +118,7 @@ void ChunkUpdater::randomBlockUpdates(PhysicsEngine* physicsEngine, Chunk* chunk
     //if (lockedChunk) lockedChunk->unlock();
 }
 
-void ChunkUpdater::placeBlockSafe(Chunk* chunk, Chunk*& lockedChunk, BlockIndex blockIndex, BlockID blockData) {
+void ChunkUpdater::placeBlockSafe(Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, BlockIndex blockIndex VORB_UNUSED, BlockID blockData VORB_UNUSED) {
    /* vvox::swapLockedChunk(chunk, lockedChunk);
     placeBlock(chunk, lockedChunk, blockIndex, blockData);*/
 }
@@ -190,7 +190,7 @@ void ChunkUpdater::placeBlockNoUpdate(Chunk* chunk, BlockIndex blockIndex, Block
 }
 
 //Simplified placeBlock for liquid physics
-void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType)
+void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED, int blockType VORB_UNUSED)
 {
     //Block &block = GETBLOCK(blockType);
 
@@ -229,12 +229,12 @@ void ChunkUpdater::placeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk
     //chunk->dirty = true;
 }
 
-void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockType) {
+void ChunkUpdater::placeBlockFromLiquidPhysicsSafe(Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED, int blockType VORB_UNUSED) {
     /*  vvox::swapLockedChunk(chunk, lockedChunk);
       placeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex, blockType);*/
 }
 
-void ChunkUpdater::removeBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, f32v3 explodeDir)
+void ChunkUpdater::removeBlock(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED, Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED, bool isBreak VORB_UNUSED, double force VORB_UNUSED, f32v3 explodeDir VORB_UNUSED)
 {
     //int blockID = chunk->getBlockID(blockIndex);
     //const Block &block = Blocks[blockID];
@@ -332,12 +332,12 @@ void ChunkUpdater::removeBlock(ChunkManager* chunkManager, PhysicsEngine* physic
     //updateNeighborStates(chunk, pos, ChunkStates::MESH);
 }
 
-void ChunkUpdater::removeBlockSafe(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, bool isBreak, double force, f32v3 explodeDir) {
+void ChunkUpdater::removeBlockSafe(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED, Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED, bool isBreak VORB_UNUSED, double force VORB_UNUSED, f32v3 explodeDir VORB_UNUSED) {
     /* vvox::swapLockedChunk(chunk, lockedChunk);
      removeBlock(chunkManager, physicsEngine, chunk, lockedChunk, blockIndex, isBreak, force, explodeDir);*/
 }
 
-void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
+void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED)
 {
     //const Block &block = chunk->getBlock(blockIndex);
 
@@ -386,12 +386,12 @@ void ChunkUpdater::removeBlockFromLiquidPhysics(Chunk* chunk, Chunk*& lockedChun
     //chunk->dirty = 1;
 }
 
-void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk, Chunk*& lockedChunk, int blockIndex) {
+void ChunkUpdater::removeBlockFromLiquidPhysicsSafe(Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED) {
    /* vvox::swapLockedChunk(chunk, lockedChunk);
     removeBlockFromLiquidPhysics(chunk, lockedChunk, blockIndex);*/
 }
 
-void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkStates state) {
+void ChunkUpdater::updateNeighborStates(Chunk* chunk VORB_UNUSED, const i32v3& pos VORB_UNUSED, ChunkStates state VORB_UNUSED) {
   /*  if (pos.x == 0){
         if (chunk->left){
             chunk->left->changeState(state);
@@ -421,7 +421,7 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, const i32v3& pos, ChunkSta
     }*/
 }
 
-void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkStates state) {
+void ChunkUpdater::updateNeighborStates(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ChunkStates state VORB_UNUSED) {
    /* const i32v3 pos = getPosFromBlockIndex(blockIndex);
     if (pos.x == 0){
         if (chunk->left){
@@ -452,22 +452,22 @@ void ChunkUpdater::updateNeighborStates(Chunk* chunk, int blockIndex, ChunkState
     }*/
 }
 
-void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index) {
+void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer VORB_UNUSED, Chunk* chunk VORB_UNUSED, BlockIndex index VORB_UNUSED) {
     throw 33;
 }
 
-void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk* chunk, BlockIndex index, BlockID id)
+void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer VORB_UNUSED, Chunk* chunk VORB_UNUSED, BlockIndex index VORB_UNUSED, BlockID id VORB_UNUSED)
 {
-    int phys;
+    // int phys;
     // TODO(Matthew): This statement wasn't used, revisit this function to make sure it is behaving correctly.
     //const i32v3 pos = getPosFromBlockIndex(id);
 
-    ChunkHandle& left = chunk->neighbor.left;
-    ChunkHandle& right = chunk->neighbor.right;
-    ChunkHandle& front = chunk->neighbor.front;
-    ChunkHandle& back = chunk->neighbor.back;
-    ChunkHandle& top = chunk->neighbor.top;
-    ChunkHandle& bottom = chunk->neighbor.bottom;
+    // ChunkHandle& left = chunk->neighbor.left;
+    // ChunkHandle& right = chunk->neighbor.right;
+    // ChunkHandle& front = chunk->neighbor.front;
+    // ChunkHandle& back = chunk->neighbor.back;
+    // ChunkHandle& top = chunk->neighbor.top;
+    // ChunkHandle& bottom = chunk->neighbor.bottom;
 
 
     //if ((phys = chunk->getBlockSafe(lockedChunk, c).caIndex) > -1) {
@@ -545,7 +545,7 @@ void ChunkUpdater::updateBlockAndNeighbors(VoxelUpdateBufferer& bufferer, Chunk*
     //}
 }
 
-void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
+void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk VORB_UNUSED, int c VORB_UNUSED)
 {
     //int phys;
     //const i32v3 pos = getPosFromBlockIndex(c);
@@ -579,7 +579,7 @@ void ChunkUpdater::snowAddBlockToUpdateList(Chunk* chunk, int c)
 
 //TODO: Replace this with simple emitterOnBreak
 //This function name is misleading, ignore for now
-void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, double force, f32v3 extraForce)
+void ChunkUpdater::breakBlock(Chunk* chunk VORB_UNUSED, int x VORB_UNUSED, int y VORB_UNUSED, int z VORB_UNUSED, int blockType VORB_UNUSED, double force VORB_UNUSED, f32v3 extraForce VORB_UNUSED)
 {
 //    f32v4 color;
 //    int btype = GETBLOCKID(blockType);
@@ -606,7 +606,7 @@ void ChunkUpdater::breakBlock(Chunk* chunk, int x, int y, int z, int blockType, 
 }
 
 // TODO(Ben): Make this cleaner
-void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockID) {
+void ChunkUpdater::placeFlora(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, int blockID VORB_UNUSED) {
     //
     //// Start it out at -1 so when we add 1 we get 0.
     //ui16 floraHeight = -1;
@@ -669,7 +669,7 @@ void ChunkUpdater::placeFlora(Chunk* chunk, int blockIndex, int blockID) {
     //}
 }
 
-void ChunkUpdater::removeFlora(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex, int blockID) {
+void ChunkUpdater::removeFlora(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED, Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED, int blockID VORB_UNUSED) {
     //// Grab tertiary data
     //ui16 tertiaryData = chunk->getTertiaryData(blockIndex);
     //// Grab height and position
@@ -691,7 +691,7 @@ void ChunkUpdater::removeFlora(ChunkManager* chunkManager, PhysicsEngine* physic
     //}
 }
 
-float ChunkUpdater::getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int blockIndex)
+float ChunkUpdater::getBurnProbability(Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED)
 {
 
     //float flammability = 0.0f;
@@ -726,7 +726,7 @@ float ChunkUpdater::getBurnProbability(Chunk* chunk, Chunk*& lockedChunk, int bl
     return 0.0f;
 }
 
-void ChunkUpdater::updateFireBlock(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, int blockIndex) {
+void ChunkUpdater::updateFireBlock(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED, Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED) {
     ////left
     //int blockIndex2, blockIndex3, blockIndex4;
     //Chunk *owner2, *owner3, *owner4;
@@ -901,7 +901,7 @@ void ChunkUpdater::updateFireBlock(ChunkManager* chunkManager, PhysicsEngine* ph
     //if (lockedChunk) lockedChunk->unlock();
 }
 
-void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine* physicsEngine, Chunk* chunk, Chunk*& lockedChunk, int blockIndex){
+void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED, Chunk* chunk VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockIndex VORB_UNUSED){
 
     //int blockIndex2;
     //Chunk *owner2;
@@ -994,7 +994,7 @@ void ChunkUpdater::burnAdjacentBlocks(ChunkManager* chunkManager, PhysicsEngine*
     //}
 }
 
-void ChunkUpdater::checkBurnBlock(int blockIndex, Chunk*& lockedChunk, int blockType, Chunk *owner, float burnMult)
+void ChunkUpdater::checkBurnBlock(int blockIndex VORB_UNUSED, Chunk*& lockedChunk VORB_UNUSED, int blockType VORB_UNUSED, Chunk *owner VORB_UNUSED, float burnMult VORB_UNUSED)
 {
    /* float burnProb;
     if ((blockType == NONE || GETBLOCK(blockType).waterBreak)){

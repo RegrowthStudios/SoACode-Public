@@ -10,7 +10,7 @@
 #include "SpaceSystemComponents.h"
 #include "OrbitComponentUpdater.h"
 
-void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram& colorProgram, const f32m4& wvp, NamePositionComponent* npComponent, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
+void OrbitComponentRenderer::drawPath(OrbitComponent& cmp, vg::GLProgram& colorProgram, const f32m4& wvp, NamePositionComponent* npComponent VORB_UNUSED, const f64v3& camPos, float blendFactor, NamePositionComponent* parentNpComponent /*= nullptr*/) {
 
     // Lazily generate mesh
     if (cmp.vbo == 0) generateOrbitEllipse(cmp, colorProgram);

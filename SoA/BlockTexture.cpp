@@ -59,7 +59,7 @@ bool BlockTextureLayer::operator<(const BlockTextureLayer& b) const {
     return false;
 }
 
-void BlockTextureLayer::getFinalColor(OUT color3& resColor, ui8 temperature, ui8 rainfall, ui32 altColor) const {
+void BlockTextureLayer::getFinalColor(OUT color3& resColor, ui8 temperature, ui8 rainfall, ui32 altColor VORB_UNUSED) const {
     // TODO(Ben): Alternate colors
     if (colorMap) {
         // TODO(Ben): Store as floats to prevent cast overhead?

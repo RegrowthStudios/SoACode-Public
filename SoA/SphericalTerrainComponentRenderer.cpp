@@ -36,12 +36,13 @@ void SphericalTerrainComponentRenderer::initGL() {
     m_waterProgram.unuse();
 }
 
+// TODO: Is this implementation complete?
 void SphericalTerrainComponentRenderer::draw(SphericalTerrainComponent& cmp,
                                              const Camera* camera,
                                              const f32v3& lightDir,
                                              const f64v3& position,
                                              const f32 zCoef,
-                                             const SpaceLightComponent* spComponent,
+                                             const SpaceLightComponent* spComponent VORB_UNUSED,
                                              const AxisRotationComponent* arComponent,
                                              const AtmosphereComponent* aComponent) {
     if (cmp.patches) {

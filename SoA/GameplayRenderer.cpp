@@ -190,8 +190,8 @@ void GameplayRenderer::updateGL() {
 
 
 void GameplayRenderer::render() {
-    const GameSystem* gameSystem = m_state->gameSystem;
-    const SpaceSystem* spaceSystem = m_state->spaceSystem;
+    // const GameSystem* gameSystem = m_state->gameSystem;
+    // const SpaceSystem* spaceSystem = m_state->spaceSystem;
 
     updateCameras();
     // Set up the gameRenderParams
@@ -227,7 +227,7 @@ void GameplayRenderer::render() {
         // _physicsBlockRenderStage->draw();
         //  m_cutoutVoxelRenderStage->render();
 
-        auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->clientState.playerEntity).parentVoxel;
+        // auto& voxcmp = gameSystem->voxelPosition.getFromEntity(m_state->clientState.playerEntity).parentVoxel;
         stages.chunkGrid.setState(m_renderState);
         stages.chunkGrid.render(&m_voxelCamera);
         //  m_liquidVoxelRenderStage->render();
@@ -325,7 +325,7 @@ void GameplayRenderer::render() {
     checkGlError("GamePlayRenderer::render()");
 }
 
-void GameplayRenderer::cycleDevHud(int offset /* = 1 */) {
+void GameplayRenderer::cycleDevHud(int offset VORB_UNUSED /* = 1 */) {
    // stages.devHud.cycleMode(offset);
 }
 

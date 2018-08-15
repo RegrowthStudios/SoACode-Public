@@ -25,7 +25,7 @@
 
 void SphericalVoxelComponentUpdater::update(const SoaState* soaState) {
     SpaceSystem* spaceSystem = soaState->spaceSystem;
-    GameSystem* gameSystem = soaState->gameSystem;
+    // GameSystem* gameSystem = soaState->gameSystem;
     if (spaceSystem->sphericalVoxel.getComponentListSize() > 1) {
         for (auto& it : spaceSystem->sphericalVoxel) {
             if (it.second.chunkGrids) {
@@ -44,7 +44,8 @@ void SphericalVoxelComponentUpdater::updateComponent(SphericalVoxelComponent& cm
     }
 }
 
-void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid, bool doGen) {
+// TODO: Implement and remove VORB_UNUSED tags.
+void SphericalVoxelComponentUpdater::updateChunks(ChunkGrid& grid VORB_UNUSED, bool doGen VORB_UNUSED) {
     // Get render distance squared
     f32 renderDist2 = (soaOptions.get(OPT_VOXEL_RENDER_DISTANCE).value.f + (f32)CHUNK_WIDTH);
     renderDist2 *= renderDist2;

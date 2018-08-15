@@ -56,7 +56,7 @@ void GameSystemAssemblages::removeSpacePosition(GameSystem* gameSystem, vecs::En
 }
 
 vecs::ComponentID GameSystemAssemblages::addAabbCollidable(GameSystem* gameSystem, vecs::EntityID entity,
-                                                                 const f32v3& box, const f32v3& offset) {
+                                                                 const f32v3& box VORB_UNUSED, const f32v3& offset VORB_UNUSED) {
     vecs::ComponentID abCmpId = gameSystem->addComponent("AABBCollidable", entity);
     auto& abCmp = gameSystem->aabbCollidable.get(abCmpId);
     abCmp.box = f32v3(1.7f, 3.7f, 1.7f);

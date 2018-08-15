@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #endif//_WINDOWS
 
-void showMessage(const nString& message)
+void showMessage(const nString& message VORB_UNUSED)
 {
 #if defined(_WIN32) || defined(_WIN64)
     //SDL_WM_IconifyWindow();
@@ -25,7 +25,7 @@ void showMessage(const nString& message)
 }
 
 //yes 1, no 0
-int showYesNoBox(const nString& message)
+int showYesNoBox(const nString& message VORB_UNUSED)
 {
 #if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
@@ -43,7 +43,7 @@ int showYesNoBox(const nString& message)
 }
 
 ///yes 1, no 0, cancel -1
-int showYesNoCancelBox(const nString& message)
+int showYesNoCancelBox(const nString& message VORB_UNUSED)
 {
 #if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);

@@ -180,7 +180,7 @@ void LenseFlareRenderer::initMesh() {
     ui32 xSprites = properties.spritesPerRow;
     ui32 spriteDims = m_texWidth / xSprites;
     if (spriteDims == 0) pError("Lens flare has sprite dims of 0!");
-    ui32 ySprites = m_texHeight / spriteDims;
+    // ui32 ySprites = m_texHeight / spriteDims;
     f32v2 uvSprite(spriteDims / (f32)m_texWidth,
                    spriteDims / (f32)m_texHeight);
 

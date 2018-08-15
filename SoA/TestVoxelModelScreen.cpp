@@ -29,13 +29,13 @@ i32 TestVoxelModelScreen::getPreviousScreen() const {
 void TestVoxelModelScreen::build() {
     // Empty
 }
-void TestVoxelModelScreen::destroy(const vui::GameTime& gameTime) {
+void TestVoxelModelScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
+void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
         if(e.keyCode==VKEY_ESCAPE)
         {
             exit(0);
@@ -50,7 +50,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     m_camera.setClippingPlane(0.01f, 100000.0f);
     m_camera.setDirection(f32v3(0.0f, 0.0f, -1.0f));
     m_camera.setRight(f32v3(1.0f, 0.0f, 0.0f));
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s VORB_UNUSED, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
             m_camera.rotateFromMouse(-e.dx, -e.dy, 0.1f);
         }
@@ -58,11 +58,11 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
             m_camera.rollFromMouse((f32)e.dx, 0.1f);
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = true;
         if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = true;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = false;
         if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = false;
     });
@@ -74,7 +74,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     m_movingUp = false;
     m_movingDown = false;
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
         switch(e.keyCode) {
         case VKEY_W:
             m_movingForward = true;
@@ -115,7 +115,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
             break;
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
         switch(e.keyCode) {
         case VKEY_W:
             m_movingForward = false;
@@ -181,7 +181,7 @@ void TestVoxelModelScreen::onEntry(const vui::GameTime& gameTime) {
     glClearDepth(1.0);
 
 }
-void TestVoxelModelScreen::onExit(const vui::GameTime& gameTime) {
+void TestVoxelModelScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
@@ -214,7 +214,7 @@ void TestVoxelModelScreen::update(const vui::GameTime& gameTime) {
     }
     m_camera.update();
 }
-void TestVoxelModelScreen::draw(const vui::GameTime& gameTime) {
+void TestVoxelModelScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     vg::DepthState::FULL.set();

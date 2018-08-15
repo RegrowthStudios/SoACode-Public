@@ -9,8 +9,8 @@ class LoadTaskStarSystem : public ILoadTask {
     friend class MainMenuLoadScreen;
 
     LoadTaskStarSystem(const nString& filePath, SoaState* state) :
-        soaState(state),
-        filePath(filePath) {
+        filePath(filePath),
+        soaState(state) {
         // Empty
     }
     virtual void load() {

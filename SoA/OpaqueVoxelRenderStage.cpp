@@ -20,7 +20,7 @@ void OpaqueVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParam
     m_renderer = renderer;
 }
 
-void OpaqueVoxelRenderStage::render(const Camera* camera) {
+void OpaqueVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
 
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
@@ -28,8 +28,8 @@ void OpaqueVoxelRenderStage::render(const Camera* camera) {
     m_renderer->beginOpaque(m_gameRenderParams->blockTexturePack->getAtlasTexture(), m_gameRenderParams->sunlightDirection,
                             m_gameRenderParams->sunlightColor);
     
-    f64v3 closestPoint;
-    static const f64v3 boxDims(CHUNK_WIDTH);
+    // f64v3 closestPoint;
+    // static const f64v3 boxDims(CHUNK_WIDTH);
     static const f64v3 boxDims_2(CHUNK_WIDTH / 2);
     const std::vector <ChunkMesh *>& chunkMeshes = cmm->getChunkMeshes();
     {

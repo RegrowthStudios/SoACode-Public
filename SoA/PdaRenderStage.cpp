@@ -12,7 +12,7 @@ void PdaRenderStage::hook(const PDA* pda) {
     _pda = pda;
 }
 
-void PdaRenderStage::render(const Camera* camera) {
+void PdaRenderStage::render(const Camera* camera VORB_UNUSED) {
     if (_pda->isOpen()) {
         _pda->draw();
     }

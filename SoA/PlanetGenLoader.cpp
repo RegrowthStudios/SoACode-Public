@@ -78,7 +78,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
     nString biomePath = "";
     nString floraPath = "";
     nString treesPath = "";
-    bool didLoadBiomes = false;
+    // bool didLoadBiomes = false;
 
     auto f = makeFunctor([&](Sender, const nString& type, keg::Node value) {
         // Parse based on type
@@ -136,7 +136,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
     return genData;
 }
 
-PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc /* = nullptr */) {
+PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc VORB_UNUSED /* = nullptr */) {
     // Lazily construct default data
     if (!m_defaultGenData) {
         // Allocate data
@@ -155,10 +155,11 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore
         genData->baseTerrainFuncs.funcs.setData();
     }
 
+    // TODO: Reimplement these as suitable.
     // Load textures
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = makeFunctor([&](Sender s, void* userData) {
+        rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
             //genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             //genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             //genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
@@ -582,7 +583,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses third level
-    auto trunkParser = makeFunctor([&](Sender, size_t size, keg::Node value) {
+    auto trunkParser = makeFunctor([&](Sender, size_t size VORB_UNUSED, keg::Node value) {
         treeProps->trunkProps.emplace_back();
         // Get our handle
         trunkProps = &treeProps->trunkProps.back();
@@ -615,7 +616,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses array of branch volumes
-    auto branchVolumeSeqParser = makeFunctor([&](Sender, size_t size, keg::Node value) {
+    auto branchVolumeSeqParser = makeFunctor([&](Sender, size_t size VORB_UNUSED, keg::Node value) {
         treeProps->branchVolumes.emplace_back();
         // Get our handle
         branchVolProps = &treeProps->branchVolumes.back();
@@ -689,7 +690,7 @@ void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData
     std::vector<BiomeKegProperties> baseBiomes;
 
     // Load yaml data
-    int i = 0;
+    // int i = 0;
     auto baseParser = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         // Parse based on type
         if (key == "baseLookupMap") {
@@ -801,10 +802,11 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
         return;
     }
 
+    // TODO: Reimplement these as suitable.
     if (kegProps.colorPath.size()) {
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //m_textureCache.freeTexture(kegProps.colorPath);
                 //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                 //                                                    genData->liquidColorPixels,
@@ -831,10 +833,11 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
         }
     }
     if (kegProps.texturePath.size()) {
+        // TODO: Reimplement these as suitable.
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
@@ -847,7 +850,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
     genData->liquidTint = kegProps.tint;
 }
 
-void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node node, PlanetGenData* genData) {
+void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_UNUSED, keg::Node node, PlanetGenData* genData VORB_UNUSED) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;
@@ -875,7 +878,7 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node nod
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);
@@ -887,7 +890,7 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context, keg::Node nod
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s, void* userData) {
+            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             });
             m_glRpc->invoke(&rpc, true);

@@ -4,7 +4,9 @@
 #include "Errors.h"
 #include "VoxelNavigation.inl"
 
-void VoxelLightEngine::calculateLight(Chunk* chunk)
+// TODO: Do we still want this system as is? If so reimplement and remove VORB_UNUSED tags.
+
+void VoxelLightEngine::calculateLight(Chunk* chunk VORB_UNUSED)
 {
     ////Flush all edge queues
     //_lockedChunk = nullptr;
@@ -60,7 +62,7 @@ void VoxelLightEngine::calculateLight(Chunk* chunk)
     //}
 }
 
-void VoxelLightEngine::calculateSunlightExtend(Chunk* chunk)
+void VoxelLightEngine::calculateSunlightExtend(Chunk* chunk VORB_UNUSED)
 {
     //int blockIndex;
     //int y;
@@ -82,7 +84,7 @@ void VoxelLightEngine::calculateSunlightExtend(Chunk* chunk)
     //}
 }
 
-void VoxelLightEngine::calculateSunlightRemoval(Chunk* chunk)
+void VoxelLightEngine::calculateSunlightRemoval(Chunk* chunk VORB_UNUSED)
 {
     //int blockIndex;
     //int y;
@@ -105,7 +107,7 @@ void VoxelLightEngine::calculateSunlightRemoval(Chunk* chunk)
 }
 
 //Check for sun rays from the top chunk
-void VoxelLightEngine::checkTopForSunlight(Chunk* chunk)
+void VoxelLightEngine::checkTopForSunlight(Chunk* chunk VORB_UNUSED)
 {
     //int blockIndex;
     //ui16 topLight;
@@ -139,7 +141,7 @@ void VoxelLightEngine::checkTopForSunlight(Chunk* chunk)
     //}
 }
 
-void VoxelLightEngine::blockSunRay(Chunk* chunk, int xz, int y)
+void VoxelLightEngine::blockSunRay(Chunk* chunk VORB_UNUSED, int xz VORB_UNUSED, int y VORB_UNUSED)
 {
     //int i = y; //start at the current block
     //chunk->changeState(ChunkStates::MESH);
@@ -165,7 +167,7 @@ void VoxelLightEngine::blockSunRay(Chunk* chunk, int xz, int y)
 
 }
 
-void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
+void VoxelLightEngine::extendSunRay(Chunk* chunk VORB_UNUSED, int xz VORB_UNUSED, int y VORB_UNUSED)
 {
     //int i = y; //start at the current block, for extension to other chunks
     //int blockIndex;
@@ -194,7 +196,7 @@ void VoxelLightEngine::extendSunRay(Chunk* chunk, int xz, int y)
     //}
 }
 
-inline void removeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light) {
+inline void removeSunlightNeighborUpdate(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui16 light VORB_UNUSED) {
    /* ui8 lightVal = chunk->getSunlight(blockIndex);
     if (lightVal > 0){
         if (lightVal <= light){
@@ -206,7 +208,7 @@ inline void removeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 ligh
     }*/
 }
 
-void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLightVal)
+void VoxelLightEngine::removeSunlightBFS(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui8 oldLightVal VORB_UNUSED)
 {
     //ui8 nextIntensity;
     //if (oldLightVal > 0) {
@@ -283,7 +285,7 @@ void VoxelLightEngine::removeSunlightBFS(Chunk* chunk, int blockIndex, ui8 oldLi
 
 }
 
-inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light) {
+inline void placeSunlightNeighborUpdate(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui16 light VORB_UNUSED) {
     //if (chunk->getSunlight(blockIndex) < light){
     //    if (chunk->getBlock(blockIndex).allowLight){
     //        chunk->setSunlight(blockIndex, (ui8)light); // TODO(Ben) Wrong type?
@@ -292,7 +294,7 @@ inline void placeSunlightNeighborUpdate(Chunk* chunk, int blockIndex, ui16 light
     //}
 }
 
-void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intensity)
+void VoxelLightEngine::placeSunlightBFS(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui8 intensity VORB_UNUSED)
 {
     //if (intensity > chunk->getSunlight(blockIndex)) {
     //    //Set the light value
@@ -376,7 +378,7 @@ void VoxelLightEngine::placeSunlightBFS(Chunk* chunk, int blockIndex, ui8 intens
     //chunk->changeState(ChunkStates::MESH);
 }
 
-inline ui16 getMaxLampColors(const ui16 redA, const ui16 greenA, const ui16 blueA, const ui16 b) {
+inline ui16 getMaxLampColors(const ui16 redA VORB_UNUSED, const ui16 greenA VORB_UNUSED, const ui16 blueA VORB_UNUSED, const ui16 b VORB_UNUSED) {
     /*   ui16 redB = b & LAMP_RED_MASK;
        ui16 greenB = b & LAMP_GREEN_MASK;
        ui16 blueB = b & LAMP_BLUE_MASK;
@@ -384,13 +386,13 @@ inline ui16 getMaxLampColors(const ui16 redA, const ui16 greenA, const ui16 blue
        return 0;
 }
 
-inline void getLampColors(const ui16 l, ui16 &r, ui16 &g, ui16 &b) {
+inline void getLampColors(const ui16 l VORB_UNUSED, ui16 &r VORB_UNUSED, ui16 &g VORB_UNUSED, ui16 &b VORB_UNUSED) {
     /*  r = l & LAMP_RED_MASK;
       g = l & LAMP_GREEN_MASK;
       b = l & LAMP_BLUE_MASK;*/
 }
 
-inline void removeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensityRed, ui16 intensityGreen, ui16 intensityBlue, ui16 light) {
+inline void removeLampNeighborUpdate(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui16 intensityRed VORB_UNUSED, ui16 intensityGreen VORB_UNUSED, ui16 intensityBlue VORB_UNUSED, ui16 light VORB_UNUSED) {
    /* ui16 nextRed, nextGreen, nextBlue;
     ui16 nextLight = chunk->getLampLight(blockIndex);
     getLampColors(nextLight, nextRed, nextGreen, nextBlue);
@@ -407,7 +409,7 @@ inline void removeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensit
     }*/
 }
 
-void VoxelLightEngine::removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 light)
+void VoxelLightEngine::removeLampLightBFS(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui16 light VORB_UNUSED)
 {
 //#define RED1 0x400
 //#define GREEN1 0x20
@@ -499,7 +501,7 @@ void VoxelLightEngine::removeLampLightBFS(Chunk* chunk, int blockIndex, ui16 lig
 
 }
 
-inline void placeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensityRed, ui16 intensityGreen, ui16 intensityBlue) {
+inline void placeLampNeighborUpdate(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui16 intensityRed VORB_UNUSED, ui16 intensityGreen VORB_UNUSED, ui16 intensityBlue VORB_UNUSED) {
   /*  ui16 currentLight = chunk->getLampLight(blockIndex);
     const Block& block = chunk->getBlock(blockIndex);
 
@@ -516,7 +518,7 @@ inline void placeLampNeighborUpdate(Chunk* chunk, int blockIndex, ui16 intensity
     }*/
 }
 
-void VoxelLightEngine::placeLampLightBFS(Chunk* chunk, int blockIndex, ui16 intensity)
+void VoxelLightEngine::placeLampLightBFS(Chunk* chunk VORB_UNUSED, int blockIndex VORB_UNUSED, ui16 intensity VORB_UNUSED)
 {
 //#define RED1 0x400
 //#define GREEN1 0x20

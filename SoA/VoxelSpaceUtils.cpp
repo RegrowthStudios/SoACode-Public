@@ -7,23 +7,23 @@
 /// rotation. Simply add to rotation value modulo 4
 /// Each rotation represents a clockwise turn.
 /// [source][destination]
-const int FACE_TRANSITIONS[6][6] = {
-    { 0, -1, 1, 0, 2, 0 }, // TOP
-    { 1, 0, 0, 0, 0, -1 }, // LEFT
-    { -1, 0, 0, 0, 0, 1 }, // RIGHT
-    { 0, 0, 0, 0, 0, 0 }, // FRONT
-    { 2, 0, 0, 0, 0, 2 }, // BACK
-    { 0, 1, -1, 0, 2, 0 } }; // BOTTOM
+// const int FACE_TRANSITIONS[6][6] = {
+//     { 0, -1, 1, 0, 2, 0 }, // TOP
+//     { 1, 0, 0, 0, 0, -1 }, // LEFT
+//     { -1, 0, 0, 0, 0, 1 }, // RIGHT
+//     { 0, 0, 0, 0, 0, 0 }, // FRONT
+//     { 2, 0, 0, 0, 0, 2 }, // BACK
+//     { 0, 1, -1, 0, 2, 0 } }; // BOTTOM
 
 /// Neighbors, starting from +x and moving clockwise
 /// [face][rotation]
-const WorldCubeFace FACE_NEIGHBORS[6][4] = {
-    { FACE_RIGHT, FACE_FRONT, FACE_LEFT, FACE_BACK }, // TOP
-    { FACE_FRONT, FACE_BOTTOM, FACE_BACK, FACE_TOP }, // LEFT
-    { FACE_BACK, FACE_BOTTOM, FACE_FRONT, FACE_TOP }, // RIGHT
-    { FACE_RIGHT, FACE_BOTTOM, FACE_LEFT, FACE_TOP }, // FRONT
-    { FACE_LEFT, FACE_BOTTOM, FACE_RIGHT, FACE_TOP }, // BACK
-    { FACE_RIGHT, FACE_BACK, FACE_LEFT, FACE_FRONT } }; // BOTTOM
+// const WorldCubeFace FACE_NEIGHBORS[6][4] = {
+//     { FACE_RIGHT, FACE_FRONT, FACE_LEFT, FACE_BACK }, // TOP
+//     { FACE_FRONT, FACE_BOTTOM, FACE_BACK, FACE_TOP }, // LEFT
+//     { FACE_BACK, FACE_BOTTOM, FACE_FRONT, FACE_TOP }, // RIGHT
+//     { FACE_RIGHT, FACE_BOTTOM, FACE_LEFT, FACE_TOP }, // FRONT
+//     { FACE_LEFT, FACE_BOTTOM, FACE_RIGHT, FACE_TOP }, // BACK
+//     { FACE_RIGHT, FACE_BACK, FACE_LEFT, FACE_FRONT } }; // BOTTOM
 
 
 //f64q q1 = quatBetweenVectors(FACE_NORMALS[0], VoxelSpaceConversions::voxelFaceToWorldNormalized(
@@ -81,11 +81,11 @@ f64q VoxelSpaceUtils::calculateVoxelToSpaceQuat(const VoxelPosition3D& gridPosit
     return glm::quat_cast(worldRotationMatrix);
 }
 
-void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos) {
+void VoxelSpaceUtils::offsetChunkGridPosition(OUT ChunkPosition2D& gridPosition, const i32v2& xzOffset, int maxPos VORB_UNUSED) {
     gridPosition.pos += xzOffset;
     WorldCubeFace newFace = gridPosition.face;
 
-    //TODO(Ben): New transition logic
+    //TODO(Ben): New transition logic and then remove VORB_UNUSED tags.
     //if (gridPosition.pos.y < -maxPos) { // BOTTOM SIDE
     //    gridPosition.pos.y += maxPos;
 

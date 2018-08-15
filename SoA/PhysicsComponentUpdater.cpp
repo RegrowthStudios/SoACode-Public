@@ -58,7 +58,7 @@ void PhysicsComponentUpdater::updateVoxelPhysics(GameSystem* gameSystem, SpaceSy
 
     auto& vpcmp = gameSystem->voxelPosition.get(pyCmp.voxelPosition);
     auto& svcmp = spaceSystem->sphericalVoxel.get(vpcmp.parentVoxel);
-    auto& npcmp = spaceSystem->namePosition.get(svcmp.namePositionComponent);
+    // auto& npcmp = spaceSystem->namePosition.get(svcmp.namePositionComponent);
     auto& arcmp = spaceSystem->axisRotation.get(svcmp.axisRotationComponent);
 
     // Apply gravity
@@ -160,7 +160,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
     // TODO(Ben): This assumes a single player entity!
     if (spCmp.parentSphericalTerrain) {
         auto& stCmp = spaceSystem->sphericalTerrain.get(spCmp.parentSphericalTerrain);
-        auto& npCmp = spaceSystem->namePosition.get(stCmp.namePositionComponent);
+        // auto& npCmp = spaceSystem->namePosition.get(stCmp.namePositionComponent);
 
         f64 distance = glm::length(spCmp.position);
         if (distance <= stCmp.sphericalTerrainData->radius * ENTRY_RADIUS_MULT) {
@@ -205,7 +205,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
 #define VOXEL_PUSH CHUNK_WIDTH
 
-void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier
@@ -244,7 +244,7 @@ void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, Phys
     }
 }
 
-void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier
@@ -283,7 +283,7 @@ void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, Phys
     }
 }
 
-void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier
@@ -326,7 +326,7 @@ void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, Phys
     }
 }
 
-void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp, float voxelRadius) {
+void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier

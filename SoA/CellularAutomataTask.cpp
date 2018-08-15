@@ -9,11 +9,11 @@
 CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,
                                            PhysicsEngine* physicsEngine,
                                            Chunk* chunk,
-                                           OPT ChunkMeshManager* meshManager) :
+                                           OPT ChunkMeshManager* meshManager VORB_UNUSED) :
                                            IThreadPoolTask(CA_TASK_ID),
+                                           _chunk(chunk),
                                            m_chunkManager(chunkManager),
-                                           m_physicsEngine(physicsEngine),
-                                           _chunk(chunk) {
+                                           m_physicsEngine(physicsEngine) {
 
     //return;
 
@@ -26,7 +26,7 @@ CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,
     //}
 }
 
-void CellularAutomataTask::execute(WorkerData* workerData) {
+void CellularAutomataTask::execute(WorkerData* workerData VORB_UNUSED) {
    // if (workerData->caEngine == nullptr) {
    //     workerData->caEngine = new CAEngine(m_chunkManager, m_physicsEngine);
    // }

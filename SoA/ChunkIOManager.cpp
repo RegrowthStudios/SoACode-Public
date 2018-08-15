@@ -49,7 +49,7 @@ void ChunkIOManager::clear() {
 }
 
 
-void ChunkIOManager::addToSaveList(Chunk* ch)
+void ChunkIOManager::addToSaveList(Chunk* ch VORB_UNUSED)
 {
     //if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
     //    ch->dirty = 0;
@@ -59,7 +59,7 @@ void ChunkIOManager::addToSaveList(Chunk* ch)
     //}
 }
 
-void ChunkIOManager::addToSaveList(std::vector <Chunk* > &chunks)
+void ChunkIOManager::addToSaveList(std::vector <Chunk* > &chunks VORB_UNUSED)
 {
   /*  NChunk* ch;
     for (size_t i = 0; i < chunks.size(); i++){
@@ -73,7 +73,7 @@ void ChunkIOManager::addToSaveList(std::vector <Chunk* > &chunks)
     _cond.notify_one();*/
 }
 
-void ChunkIOManager::addToLoadList(Chunk* ch)
+void ChunkIOManager::addToLoadList(Chunk* ch VORB_UNUSED)
 {
   /*  if (ch->inSaveThread == 0 && ch->inLoadThread == 0){
         ch->loadStatus = 0;
@@ -83,7 +83,7 @@ void ChunkIOManager::addToLoadList(Chunk* ch)
     }*/
 }
 
-void ChunkIOManager::addToLoadList(std::vector <Chunk* > &chunks)
+void ChunkIOManager::addToLoadList(std::vector <Chunk* > &chunks VORB_UNUSED)
 {
    /* NChunk* ch;
 

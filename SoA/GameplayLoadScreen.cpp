@@ -30,11 +30,11 @@ void GameplayLoadScreen::build() {
     // Empty
 }
 
-void GameplayLoadScreen::destroy(const vui::GameTime& gameTime) {
+void GameplayLoadScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
+void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
     addLoadTask("BlockData", new LoadTaskBlockData(&m_commonState->state->blocks,
         &m_commonState->state->clientState.blockTextureLoader,
@@ -52,7 +52,7 @@ void GameplayLoadScreen::onEntry(const vui::GameTime& gameTime) {
     m_monitor.start();
 }
 
-void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
+void GameplayLoadScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     // Dispose our borrowed renderer
     m_mainMenuScreen->m_renderer.dispose(m_commonState->loadContext);
     // Disable main menu viewer
@@ -60,7 +60,7 @@ void GameplayLoadScreen::onExit(const vui::GameTime& gameTime) {
     m_commonState->loadContext.end();
 }
 
-void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
+void GameplayLoadScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
 
     // Perform OpenGL calls
     m_glrpc.processRequests(1);
@@ -73,7 +73,7 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
     if (!loadedTextures && m_gameplayScreen->m_renderer.isLoaded() && m_monitor.isTaskFinished("BlockData")) {
         // Post process the planets
         for (auto& it : m_commonState->state->spaceSystem->sphericalTerrain) {
-            auto& cmp = it.second;
+            // auto& cmp = it.second;
             SoaEngine::initVoxelGen(it.second.planetGenData, m_commonState->state->blocks);
         }
         m_commonState->state->clientState.blockTextures->update();
@@ -84,7 +84,7 @@ void GameplayLoadScreen::update(const vui::GameTime& gameTime) {
     }
 }
 
-void GameplayLoadScreen::draw(const vui::GameTime& gameTime) {
+void GameplayLoadScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     m_commonState->state->clientState.spaceCamera.updateProjection();
     m_mainMenuScreen->m_renderer.render();
 }

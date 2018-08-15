@@ -27,7 +27,7 @@ void FarTerrainComponentRenderer::draw(const FarTerrainComponent& cmp,
                                        const Camera* camera,
                                        const f64v3& lightDir,
                                        const f32 zCoef,
-                                       const SpaceLightComponent* spComponent,
+                                       const SpaceLightComponent* spComponent VORB_UNUSED,
                                        const AxisRotationComponent* arComponent,
                                        const AtmosphereComponent* aComponent) {
     // Get voxel position for quaternion calculation

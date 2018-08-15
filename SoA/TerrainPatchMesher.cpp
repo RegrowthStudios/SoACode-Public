@@ -137,7 +137,7 @@ void TerrainPatchMesher::generateMeshData(TerrainPatchMesh* mesh, const PlanetGe
     }
     
     f32 h;
-    f32v3 tmpPos;
+    // f32v3 tmpPos;
     f32 minX = FLT_MAX, maxX = -FLT_MAX;
     f32 minY = FLT_MAX, maxY = -FLT_MAX;
     f32 minZ = FLT_MAX, maxZ = -FLT_MAX;
@@ -424,7 +424,7 @@ void TerrainPatchMesher::addWater(int z, int x, PlanetHeightData heightData[PADD
 void TerrainPatchMesher::tryAddWaterVertex(int z, int x, PlanetHeightData heightData[PADDED_PATCH_WIDTH][PADDED_PATCH_WIDTH]) {
     // TEMPORARY? Add slight offset so we don't need skirts
     f32 mvw = m_vertWidth * 1.005f;
-    const f32 UV_SCALE = 0.04f;
+    // const f32 UV_SCALE = 0.04f;
 
     if (z < 0 || x < 0 || z >= PATCH_WIDTH || x >= PATCH_WIDTH) return;
     if (waterIndexGrid[z][x] == 0) {

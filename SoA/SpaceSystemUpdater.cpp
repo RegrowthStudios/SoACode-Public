@@ -16,7 +16,7 @@ void SpaceSystemUpdater::update(SoaState* soaState, const f64v3& spacePos, const
 
     // Get handles
     SpaceSystem* spaceSystem = soaState->spaceSystem;
-    const GameSystem* gameSystem = soaState->gameSystem;
+    // const GameSystem* gameSystem = soaState->gameSystem;
 
     // Update planet rotation
     m_axisRotationComponentUpdater.update(spaceSystem, soaState->time);

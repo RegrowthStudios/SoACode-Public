@@ -13,7 +13,7 @@ PlanetGenerator::PlanetGenerator() {
     // Empty
 }
 
-void PlanetGenerator::dispose(vcore::RPCManager* glrpc) {
+void PlanetGenerator::dispose(vcore::RPCManager* glrpc VORB_UNUSED) {
     // TODO(Ben): Implement
 }
 
@@ -94,12 +94,12 @@ CALLER_DELETE PlanetGenData* PlanetGenerator::generatePlanet(vcore::RPCManager* 
     return data;
 }
 
-CALLER_DELETE PlanetGenData* PlanetGenerator::generateAsteroid(vcore::RPCManager* glrpc) {
+CALLER_DELETE PlanetGenData* PlanetGenerator::generateAsteroid(vcore::RPCManager* glrpc VORB_UNUSED) {
     PlanetGenData* data = new PlanetGenData;
     return data;
 }
 
-CALLER_DELETE PlanetGenData* PlanetGenerator::generateComet(vcore::RPCManager* glrpc) {
+CALLER_DELETE PlanetGenData* PlanetGenerator::generateComet(vcore::RPCManager* glrpc VORB_UNUSED) {
     PlanetGenData* data = new PlanetGenData;
     return data;
 }
@@ -143,11 +143,12 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
         }
     }
 
+    // TODO: Implement these as suitable.
     // Upload texture
     VGTexture tex=0;
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = makeFunctor([&](Sender s, void* userData) {
+        rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
             //tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
             //                                   vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
         });
@@ -158,7 +159,7 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     }
 
     // Handle Gaussian blur
-    auto f = makeFunctor([&](Sender s, void* userData) {
+    auto f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
         if (!m_blurPrograms[0].isCreated()) {
             m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                     "Shaders/PostProcessing/Blur.frag", nullptr,

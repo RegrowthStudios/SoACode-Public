@@ -24,12 +24,12 @@ i32 DevScreen::getPreviousScreen() const {
 void DevScreen::build() {
     // Empty
 }
-void DevScreen::destroy(const vui::GameTime& gameTime) {
+void DevScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void DevScreen::onEntry(const vui::GameTime& gameTime) {
-    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender sender, const vui::KeyEvent& e) {
+void DevScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+    m_delegatePool.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&] (Sender sender VORB_UNUSED, const vui::KeyEvent& e) {
         auto kvp = m_screenMapping.find((VirtualKey)e.keyCode);
         if (kvp == m_screenMapping.end()) return;
         m_nextScreen = kvp->second;
@@ -45,7 +45,7 @@ void DevScreen::onEntry(const vui::GameTime& gameTime) {
     m_font = new vg::SpriteFont();
     m_font->init(DEV_SCREEN_FONT, DEV_SCREEN_FONT_SIZE);
 }
-void DevScreen::onExit(const vui::GameTime& gameTime) {
+void DevScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     m_delegatePool.dispose();
     m_sb->dispose();
     delete m_sb;
@@ -56,7 +56,7 @@ void DevScreen::onExit(const vui::GameTime& gameTime) {
     m_font = nullptr;
 }
 
-void DevScreen::update(const vui::GameTime& gameTime) {
+void DevScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
     if (m_nextScreen) {
         if (deferCounter) {
             --deferCounter;
@@ -66,7 +66,7 @@ void DevScreen::update(const vui::GameTime& gameTime) {
     }
 }
 
-void DevScreen::draw(const vui::GameTime& gameTime) {
+void DevScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const vui::GameWindow* w = &m_game->getWindow();

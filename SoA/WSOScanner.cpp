@@ -9,10 +9,10 @@
 // Scan A Radius Of (WSO_MAX_SIZE - 1) From The Center Block
 const int WSO_QUERY_SIZE = WSO_MAX_SIZE * 2 - 1;
 
-WSOScanner::WSOScanner(WSOAtlas* atlas) //:
+WSOScanner::WSOScanner(WSOAtlas* atlas VORB_UNUSED) //:
 //_wsoAtlas(atlas) 
 {
-
+    // TODO: Revisit this.
 }
 
 bool checkForWSO(const i16* query, const WSOData* data, i32v3& offset) {
@@ -59,7 +59,8 @@ bool checkForWSO(const i16* query, const WSOData* data, i32v3& offset) {
     // Could Not Find A Single One
     return false;
 }
-std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkGrid* cg) {
+std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position VORB_UNUSED, ChunkGrid* cg VORB_UNUSED) {
+    // TODO: Fix this and remove unused tags.
     //// Get A Piece Of The World
     //const i16* query = getQuery(position, cg);
 
@@ -87,7 +88,8 @@ std::vector<WSO*> WSOScanner::scanWSOs(const i32v3& position, ChunkGrid* cg) {
     return std::vector<WSO*>();
 }
 
-const i16* WSOScanner::getQuery(const i32v3& position, ChunkGrid* cg) {
+const i16* WSOScanner::getQuery(const i32v3& position VORB_UNUSED, ChunkGrid* cg VORB_UNUSED) {
+    // TODO: Fix this and remove tags.
     //// Get The Query Based Off Of The Max Size Of The WSO
     //const i32v3 minPos = position - i32v3(WSO_MAX_SIZE - 1);
     //const i32v3 maxPos = position + i32v3(WSO_MAX_SIZE - 1);

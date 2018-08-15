@@ -39,6 +39,10 @@ i32 MainMenuLoadScreen::getPreviousScreen() const {
 }
 
 void MainMenuLoadScreen::build() {
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
     m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
@@ -52,6 +56,9 @@ void MainMenuLoadScreen::build() {
     m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
     m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
     m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
     { // Load all textures
         const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",
@@ -97,11 +104,11 @@ void MainMenuLoadScreen::build() {
         }
     }
 }
-void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
     SoaFileSystem fs;
     fs.init();
@@ -133,7 +140,7 @@ void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime) {
     m_timer = 0.0;
     vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &MainMenuLoadScreen::onKeyPress);
 }
-void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime) {
+void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     m_sf->dispose();
     delete m_sf;
     m_sf = nullptr;
@@ -176,13 +183,13 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
         m_state = vui::ScreenState::CHANGE_NEXT;
     }
 }
-void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
-    static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
-        "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
-    };
-    static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
-        "Regrowth", "Studios"
-    };
+void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
+    // static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
+    //     "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
+    // };
+    // static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
+    //     "Regrowth", "Studios"
+    // };
     const vui::GameWindow& w = m_game->getWindow();
 
     // Clear State For The Screen
@@ -205,7 +212,8 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
 
     // Render each texture
     m_sb->begin();
-    f32v2 uvTile(0.999999f, 0.999999f);
+    // f32v2 uvTile(0.999999f, 0.999999f);
+    // TODO: Fix this.
     if (m_isOnVorb) {
 //        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
 //            f32v2 pos = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
@@ -263,7 +271,7 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime) {
     
 }
 
-void MainMenuLoadScreen::addLoadTask(const nString& name, const cString loadText, ILoadTask* task) {
+void MainMenuLoadScreen::addLoadTask(const nString& name, const cString loadText VORB_UNUSED, ILoadTask* task) {
     // Add the load task to the monitor
     m_loadTasks.push_back(task);
     m_monitor.addTask(name, m_loadTasks.back());

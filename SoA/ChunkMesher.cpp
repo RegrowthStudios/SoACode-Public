@@ -23,9 +23,9 @@
 
 #define GETBLOCK(a) blocks->operator[](a)
 
-const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
+// const float LIGHT_MULT = 0.95f, LIGHT_OFFSET = -0.2f;
 
-const int MAXLIGHT = 31;
+// const int MAXLIGHT = 31;
 
 // Shorter aliases
 #define PADDED_WIDTH PADDED_CHUNK_WIDTH
@@ -543,7 +543,7 @@ void ChunkMesher::prepareDataAsync(ChunkHandle& chunk, ChunkHandle neighbors[NUM
     }
 }
 
-CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type) {
+CALLER_DELETE ChunkMeshData* ChunkMesher::createChunkMeshData(MeshTaskType type VORB_UNUSED) {
     m_numQuads = 0;
     m_highestY = 0;
     m_lowestY = 256;
@@ -893,7 +893,7 @@ void ChunkMesher::addBlock()
     }
 }
 
-void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rightOffset, f32 ambientOcclusion[]) {
+void ChunkMesher::computeAmbientOcclusion(int upOffset VORB_UNUSED, int frontOffset VORB_UNUSED, int rightOffset VORB_UNUSED, f32 ambientOcclusion VORB_UNUSED[]) {
 #ifdef USE_AO
     // Ambient occlusion factor
 #define OCCLUSION_FACTOR 0.2f;
@@ -926,7 +926,7 @@ void ChunkMesher::computeAmbientOcclusion(int upOffset, int frontOffset, int rig
 #endif
 }
 
-void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion[]) {
+void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset, int backOffset, int rightStretchIndex, const ui8v2& texOffset, f32 ambientOcclusion VORB_UNUSED[]) {
     // Get texture TODO(Ben): Null check?
     const BlockTexture* texture = block->textures[face];
 
@@ -964,7 +964,7 @@ void ChunkMesher::addQuad(int face, int rightAxis, int frontAxis, int leftOffset
     ui8 vOffset = (ui8)(pos[FACE_AXIS[face][1]] * FACE_AXIS_SIGN[face][1]);
 
     // Construct the quad
-    i16 quadIndex = quads.size();
+    // i16 quadIndex = quads.size();
     quads.emplace_back();
     m_numQuads++;
     VoxelQuad* quad = &quads.back();

@@ -11,12 +11,12 @@ AccumulationTimer globalRenderAccumulationTimer; ///< for easy global benchmarki
 
 class Item *ObjectList[OBJECT_LIST_SIZE];
 
-Marker::Marker(const f64v3 &Pos, nString Name, f32v3 Color) : pos(Pos), name(Name), dist(0.0)
+Marker::Marker(const f64v3 &Pos VORB_UNUSED, nString Name VORB_UNUSED, f32v3 Color VORB_UNUSED) : pos(Pos), dist(0.0), name(Name)
 {
-    // TODO(Ben): implement
+    // TODO(Ben): implement and remove unused tags
 }
 
-void Marker::Draw(f32m4 &VP, const f64v3 &playerPos)
+void Marker::Draw(f32m4 &VP VORB_UNUSED, const f64v3 &playerPos VORB_UNUSED)
 {
-    // TODO(Ben): implement
+    // TODO(Ben): implement and remove unused tags
 }

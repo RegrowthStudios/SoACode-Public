@@ -26,7 +26,7 @@ public:
 
     virtual void load(keg::ReadContext& reader, keg::Node node) = 0;
     virtual void build(vecs::ECS& ecs, vecs::EntityID eID) = 0;
-    virtual void postBuild(vecs::ECS& ecs, vecs::EntityID eID) { /* Empty */ };
+    virtual void postBuild(vecs::ECS& ecs VORB_UNUSED, vecs::EntityID eID VORB_UNUSED) { /* Empty */ };
 protected:
     vecs::ComponentID m_cID; ///< ID of generated component
 };

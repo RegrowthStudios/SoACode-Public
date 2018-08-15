@@ -135,8 +135,8 @@ bool SoaEngine::loadSpaceSystem(SoaState* state, const nString& filePath) {
     return true;
 }
 
-bool SoaEngine::loadGameSystem(SoaState* state) {
-    // TODO(Ben): Implement
+bool SoaEngine::loadGameSystem(SoaState* state VORB_UNUSED) {
+    // TODO(Ben): Implement and remove VORB_UNUSED tag.
     
     return true;
 }
@@ -385,14 +385,15 @@ void SoaEngine::initVoxelGen(PlanetGenData* genData, const BlockPack& blocks) {
 }
 #undef SET_RANGE
 
-void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC) {
+// TODO: Investigate why glRPC isn't currently being used.
+void SoaEngine::reloadSpaceBody(SoaState* state, vecs::EntityID eid, vcore::RPCManager* glRPC VORB_UNUSED) {
     SpaceSystem* spaceSystem = state->spaceSystem;
     auto& stCmp = spaceSystem->sphericalTerrain.getFromEntity(eid);
     f64 radius = stCmp.radius;
     auto npCmpID = stCmp.namePositionComponent;
     auto arCmpID = stCmp.axisRotationComponent;
     auto ftCmpID = stCmp.farTerrainComponent;
-    WorldCubeFace face;
+    WorldCubeFace face = WorldCubeFace::FACE_NONE;
     PlanetGenData* genData = stCmp.planetGenData;
     nString filePath = genData->terrainFilePath;
 

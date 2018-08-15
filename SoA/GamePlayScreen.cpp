@@ -69,11 +69,11 @@ void GameplayScreen::build() {
     // Empty
 }
 
-void GameplayScreen::destroy(const vui::GameTime& gameTime) {
+void GameplayScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Destruction happens in onExit
 }
 
-void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
+void GameplayScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
 #ifdef _WINDOWS
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
@@ -110,7 +110,7 @@ void GameplayScreen::onEntry(const vui::GameTime& gameTime) {
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
-void GameplayScreen::onExit(const vui::GameTime& gameTime) {
+void GameplayScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
 
     m_inputMapper->stopInput();
     m_hooks.dispose();
@@ -128,7 +128,7 @@ void GameplayScreen::onExit(const vui::GameTime& gameTime) {
 }
 
 /// This update function runs on the render thread
-void GameplayScreen::update(const vui::GameTime& gameTime) {
+void GameplayScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
 
     if (m_shouldReloadShaders) {
         m_renderer.reloadShaders();
@@ -237,7 +237,7 @@ void GameplayScreen::updateMTRenderState() {
     m_renderStateManager.finishUpdating();
 }
 
-void GameplayScreen::draw(const vui::GameTime& gameTime) {
+void GameplayScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     globalRenderAccumulationTimer.start("Draw");
 
     const MTRenderState* renderState;
@@ -287,14 +287,14 @@ void GameplayScreen::initInput() {
     m_inputMapper = new InputMapper;
     initInputs(m_inputMapper);
 
-    m_inputMapper->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_PAUSE).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) -> void {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_soaState->isInputEnabled = false;
     });
-    m_inputMapper->get(INPUT_GRID).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_GRID).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) -> void {
         m_renderer.toggleChunkGrid();
     });
-    m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_INVENTORY).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) -> void {
        /* if (m_pda.isOpen()) {
             m_pda.close();
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -310,20 +310,20 @@ void GameplayScreen::initInput() {
         m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
     });
-    m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_NIGHT_VISION).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) -> void {
         if (isInGame()) {
             m_renderer.toggleNightVision();
         }
     });
-    m_inputMapper->get(INPUT_HUD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_HUD).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) -> void {
         m_renderer.cycleDevHud();
     });
-    m_inputMapper->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s, ui32 a) -> void {
+    m_inputMapper->get(INPUT_NIGHT_VISION_RELOAD).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) -> void {
         m_renderer.loadNightVision();
     });
 
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &GameplayScreen::onReloadShaders);
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e VORB_UNUSED) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
             m_soaState->isInputEnabled = true;
@@ -332,17 +332,17 @@ void GameplayScreen::initInput() {
 
     m_inputMapper->get(INPUT_RELOAD_TARGET).downEvent += makeDelegate(*this, &GameplayScreen::onReloadTarget);
 
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e VORB_UNUSED) {
         if (GameManager::voxelEditor->isEditing()) {
             //TODO(Ben): Edit voxels
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e VORB_UNUSED) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
         m_inputMapper->startInput();
         m_soaState->isInputEnabled = true;     
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s, const vui::MouseEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onFocusLost, [&](Sender s VORB_UNUSED, const vui::MouseEvent& e VORB_UNUSED) {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_inputMapper->stopInput();
         m_soaState->isInputEnabled = false;
@@ -350,7 +350,7 @@ void GameplayScreen::initInput() {
     
     // Temporary dev console
     // TODO(Ben): Don't use functor
-    vui::InputDispatcher::key.onKeyDown.addFunctor([&](Sender, const vui::KeyEvent& e) {
+    vui::InputDispatcher::key.onKeyDown.addFunctor([&](Sender, const vui::KeyEvent& e VORB_UNUSED) {
         if (e.keyCode == VKEY_GRAVE) {
             m_shouldToggleDevConsole = true;
             if (!DevConsole::getInstance().isFocused()) {
@@ -366,56 +366,56 @@ void GameplayScreen::initInput() {
  
     { // Player movement events
         vecs::ComponentID parkourCmp = m_soaState->gameSystem->parkourInput.getComponentID(m_soaState->clientState.playerEntity);
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveForward = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_FORWARD).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveForward = false;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveBackward = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_BACKWARD).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveBackward = false;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveLeft = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_LEFT).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveLeft = false;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveRight = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_RIGHT).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).moveRight = false;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).jump = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_JUMP).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).jump = false;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).crouch = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_CROUCH).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).crouch = false;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).sprint = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).sprint = false;
         });
         // TODO(Ben): Different parkour input
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).downEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = true;
         });
-        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s, ui32 a) {
+        m_hooks.addAutoHook(m_inputMapper->get(INPUT_SPRINT).upEvent, [=](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
             m_soaState->gameSystem->parkourInput.get(parkourCmp).parkour = false;
         });
-        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s, const vui::MouseButtonEvent& e) {
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e VORB_UNUSED) {
             if (m_soaState->clientState.playerEntity) {
                 vecs::EntityID pid = m_soaState->clientState.playerEntity;
                 f64v3 pos = controller.getEntityEyeVoxelPosition(m_soaState, pid);
@@ -431,7 +431,7 @@ void GameplayScreen::initInput() {
                 m_renderer.debugRenderer->drawLine(pos, pos + f64v3(dir) * 100.0, color::Red);
             }
         });
-        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s, const vui::MouseButtonEvent& e) {
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e VORB_UNUSED) {
             if (m_soaState->clientState.playerEntity) {
                 vecs::EntityID pid = m_soaState->clientState.playerEntity;
                 f64v3 pos = controller.getEntityEyeVoxelPosition(m_soaState, pid);
@@ -449,14 +449,14 @@ void GameplayScreen::initInput() {
         });
         // Mouse movement
         vecs::ComponentID headCmp = m_soaState->gameSystem->head.getComponentID(m_soaState->clientState.playerEntity);
-        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s, const vui::MouseMotionEvent& e) {
+        m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [=](Sender s VORB_UNUSED, const vui::MouseMotionEvent& e VORB_UNUSED) {
             HeadComponentUpdater::rotateFromMouse(m_soaState->gameSystem, headCmp, -e.dx, e.dy, 0.002f);
         });
     }
 
     vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
 
-    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s, ui32 i) {
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
         m_renderer.takeScreenshot(); });
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
 
@@ -540,20 +540,20 @@ void GameplayScreen::updateThreadFunc() {
     }
 }
 
-void GameplayScreen::onReloadShaders(Sender s, ui32 a) {
+void GameplayScreen::onReloadShaders(Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
     printf("Reloading Shaders\n");
     m_shouldReloadShaders = true;
 }
-void GameplayScreen::onReloadTarget(Sender s, ui32 a) {
+void GameplayScreen::onReloadTarget(Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
     m_shouldReloadTarget = true;
 }
 
-void GameplayScreen::onQuit(Sender s, ui32 a) {
+void GameplayScreen::onQuit(Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
     SoaEngine::destroyAll(m_soaState);
     exit(0);
 }
 
-void GameplayScreen::onToggleWireframe(Sender s, ui32 i) {
+void GameplayScreen::onToggleWireframe(Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
     m_renderer.toggleWireframe();
 }
 

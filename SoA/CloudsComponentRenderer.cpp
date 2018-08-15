@@ -28,7 +28,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const f32v3& relCamPos,
                                    const f32v3& lightDir,
                                    const f32 zCoef,
-                                   const SpaceLightComponent* spComponent,
+                                   const SpaceLightComponent* spComponent VORB_UNUSED,
                                    const AxisRotationComponent& arComponent,
                                    const AtmosphereComponent& aCmp) {
     m_program.use();
@@ -65,7 +65,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
 
     // Scattering
     f32 camHeight = glm::length(rotpos);
-    f32 camHeight2 = camHeight * camHeight;
+    // f32 camHeight2 = camHeight * camHeight;
     glUniform3fv(m_program.getUniform("unLightDirWorld"), 1, &rotLightDir[0]);
 
     glUniform3fv(m_program.getUniform("unCameraPos"), 1, &rotpos[0]);

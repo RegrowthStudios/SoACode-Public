@@ -32,7 +32,7 @@ public:
     *
     * @param context: Common loading context.
     */
-    virtual void init(vui::GameWindow* window, StaticLoadContext& context) { m_window = window; }
+    virtual void init(vui::GameWindow* window, StaticLoadContext& context VORB_UNUSED) { m_window = window; }
 
     /*! @brief Invokes core loading logic
     *
@@ -41,7 +41,7 @@ public:
     *
     * @param context: Common loading context that holds an RPCManager
     */
-    virtual void load(StaticLoadContext& context) {}
+    virtual void load(StaticLoadContext& context VORB_UNUSED) {}
 
     /*! @brief Destroys all resources held by this render stage.
     *
@@ -49,7 +49,7 @@ public:
     *
     * @param context: Common loading context.
     */
-    virtual void dispose(StaticLoadContext& context) {}
+    virtual void dispose(StaticLoadContext& context VORB_UNUSED) {}
 
     /*! @brief Implementation-defined rendering logic.
     *

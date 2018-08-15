@@ -19,7 +19,7 @@ void TransparentVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRender
     m_gameRenderParams = gameRenderParams;
 }
 
-void TransparentVoxelRenderStage::render(const Camera* camera) {
+void TransparentVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
     glDepthMask(GL_FALSE);
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
 
@@ -30,7 +30,7 @@ void TransparentVoxelRenderStage::render(const Camera* camera) {
 
     glDisable(GL_CULL_FACE);
 
-    f64v3 cpos;
+    // f64v3 cpos;
 
     static i32v3 oldPos = i32v3(0);
     bool sort = false;

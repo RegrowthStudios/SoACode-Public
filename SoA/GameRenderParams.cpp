@@ -6,10 +6,10 @@
 #include "Camera.h"
 #include "GameManager.h"
 
-void GameRenderParams::calculateParams(const f64v3& worldCameraPos,
+void GameRenderParams::calculateParams(const f64v3& worldCameraPos VORB_UNUSED,
                                        const Camera* ChunkCamera,
-                                       const VoxelPosition3D& voxPosition,
-                                       f64 voxelWorldRadius,
+                                       const VoxelPosition3D& voxPosition VORB_UNUSED,
+                                       f64 voxelWorldRadius VORB_UNUSED,
                                        ChunkMeshManager* ChunkMeshmanager,
                                        BlockPack* blocks,
                                        BlockTexturePack* blockTexturePack,

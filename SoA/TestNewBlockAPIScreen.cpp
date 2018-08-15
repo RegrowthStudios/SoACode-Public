@@ -13,11 +13,11 @@ i32 TestNewBlockAPIScreen::getPreviousScreen() const {
 void TestNewBlockAPIScreen::build() {
     // Empty
 }
-void TestNewBlockAPIScreen::destroy(const vui::GameTime& gameTime) {
+void TestNewBlockAPIScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestNewBlockAPIScreen::onEntry(const vui::GameTime& gameTime) {
+void TestNewBlockAPIScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
     VoxelIterablePosition pos { 0, 1, 2 };
     printf("Pos: %d,%d,%d\n", pos.x, pos.y, pos.z);
     pos.x += 5;
@@ -31,13 +31,13 @@ void TestNewBlockAPIScreen::onEntry(const vui::GameTime& gameTime) {
     (pos.wx() += 200).rz() += 200;
     printf("Pos: %d,%d,%d\n", pos.x, pos.y, pos.z);
 }
-void TestNewBlockAPIScreen::onExit(const vui::GameTime& gameTime) {
+void TestNewBlockAPIScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestNewBlockAPIScreen::update(const vui::GameTime& gameTime) {
+void TestNewBlockAPIScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
-void TestNewBlockAPIScreen::draw(const vui::GameTime& gameTime) {
+void TestNewBlockAPIScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }

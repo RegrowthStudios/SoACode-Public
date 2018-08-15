@@ -73,7 +73,9 @@ void ChunkRenderer::dispose() {
     if (m_waterProgram.isCreated()) m_waterProgram.dispose();
 }
 
-void ChunkRenderer::beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+// TODO: blockAmbient variables were going unused, what are they for?
+
+void ChunkRenderer::beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor VORB_UNUSED /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
     m_opaqueProgram.use();
     glUniform3fv(m_opaqueProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
     glUniform1f(m_opaqueProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
@@ -84,7 +86,7 @@ void ChunkRenderer::beginOpaque(VGTexture textureAtlas, const f32v3& sunDir, con
     glUniform1i(m_opaqueProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
 
-    f32 blockAmbient = 0.000f;
+    // f32 blockAmbient = 0.000f;
     glUniform3fv(m_opaqueProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
     glUniform3fv(m_opaqueProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
@@ -174,7 +176,7 @@ void ChunkRenderer::drawOpaqueCustom(const ChunkMesh* cm, vg::GLProgram& m_progr
 }
 
 
-void ChunkRenderer::beginTransparent(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+void ChunkRenderer::beginTransparent(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor VORB_UNUSED /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
     m_transparentProgram.use();
     
     glUniform3fv(m_transparentProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
@@ -186,7 +188,7 @@ void ChunkRenderer::beginTransparent(VGTexture textureAtlas, const f32v3& sunDir
     glUniform1i(m_transparentProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
 
-    f32 blockAmbient = 0.000f;
+    // f32 blockAmbient = 0.000f;
     glUniform3fv(m_transparentProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
     glUniform3fv(m_transparentProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
@@ -211,7 +213,7 @@ void ChunkRenderer::drawTransparent(const ChunkMesh *cm, const f64v3 &playerPos,
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::beginCutout(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+void ChunkRenderer::beginCutout(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor VORB_UNUSED /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
     m_cutoutProgram.use();
     glUniform3fv(m_cutoutProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
     glUniform1f(m_cutoutProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
@@ -222,7 +224,7 @@ void ChunkRenderer::beginCutout(VGTexture textureAtlas, const f32v3& sunDir, con
     glUniform1i(m_cutoutProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
 
-    f32 blockAmbient = 0.000f;
+    // f32 blockAmbient = 0.000f;
     glUniform3fv(m_cutoutProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
     glUniform3fv(m_cutoutProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 
@@ -247,7 +249,7 @@ void ChunkRenderer::drawCutout(const ChunkMesh *cm, const f64v3 &playerPos, cons
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
+void ChunkRenderer::beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, const f32v3& lightColor VORB_UNUSED /*= f32v3(1.0f)*/, const f32v3& ambient /*= f32v3(0.0f)*/) {
     m_waterProgram.use();
     glUniform3fv(m_waterProgram.getUniform("unLightDirWorld"), 1, &(sunDir[0]));
     glUniform1f(m_waterProgram.getUniform("unSpecularExponent"), soaOptions.get(OPT_SPECULAR_EXPONENT).value.f);
@@ -258,7 +260,7 @@ void ChunkRenderer::beginLiquid(VGTexture textureAtlas, const f32v3& sunDir, con
     glUniform1i(m_waterProgram.getUniform("unTextures"), 0); // TODO(Ben): Temporary
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureAtlas);
 
-    f32 blockAmbient = 0.000f;
+    // f32 blockAmbient = 0.000f;
     glUniform3fv(m_waterProgram.getUniform("unAmbientLight"), 1, &ambient[0]);
     glUniform3fv(m_waterProgram.getUniform("unSunColor"), 1, &sunDir[0]);
 

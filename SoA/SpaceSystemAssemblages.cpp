@@ -50,7 +50,7 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
-    const f64v3 up(0.0, 1.0, 0.0);
+    // const f64v3 up(0.0, 1.0, 0.0);
     vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, properties->aTilt, properties->lNorth,
                                                        0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
@@ -86,8 +86,8 @@ vecs::EntityID SpaceSystemAssemblages::createPlanet(SpaceSystem* spaceSystem,
     return id;
 }
 
-void SpaceSystemAssemblages::destroyPlanet(SpaceSystem* gameSystem, vecs::EntityID planetEntity) {
-    // TODO: implement
+void SpaceSystemAssemblages::destroyPlanet(SpaceSystem* gameSystem VORB_UNUSED, vecs::EntityID planetEntity VORB_UNUSED) {
+    // TODO: implement and remove VORB_UNUSED tags.
 }
 
 vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
@@ -97,7 +97,7 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
-    const f64v3 up(0.0, 1.0, 0.0);
+    // const f64v3 up(0.0, 1.0, 0.0);
     vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, properties->aTilt, properties->lNorth,
                                                        0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
@@ -118,8 +118,8 @@ vecs::EntityID SpaceSystemAssemblages::createStar(SpaceSystem* spaceSystem,
     return id;
 }
 
-void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem, vecs::EntityID planetEntity) {
-    // TODO: implement
+void SpaceSystemAssemblages::destroyStar(SpaceSystem* gameSystem VORB_UNUSED, vecs::EntityID planetEntity VORB_UNUSED) {
+    // TODO: implement and remove VORB_UNUSED tags.
 }
 
 /// GasGiant entity
@@ -130,7 +130,7 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     body->entity = spaceSystem->addEntity();
     const vecs::EntityID& id = body->entity;
 
-    const f64v3 up(0.0, 1.0, 0.0);
+    // const f64v3 up(0.0, 1.0, 0.0);
     vecs::ComponentID arCmp = addAxisRotationComponent(spaceSystem, id, properties->aTilt, properties->lNorth,
                                                        0.0, properties->rotationalPeriod * SEC_PER_HOUR);
 
@@ -162,8 +162,8 @@ vecs::EntityID SpaceSystemAssemblages::createGasGiant(SpaceSystem* spaceSystem,
     return id;
 }
 
-void SpaceSystemAssemblages::destroyGasGiant(SpaceSystem* gameSystem, vecs::EntityID planetEntity) {
-    // TODO: implement
+void SpaceSystemAssemblages::destroyGasGiant(SpaceSystem* gameSystem VORB_UNUSED, vecs::EntityID planetEntity VORB_UNUSED) {
+    // TODO: implement and remove VORB_UNUSED tags.
 }
 
 vecs::ComponentID SpaceSystemAssemblages::addAtmosphereComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
@@ -233,12 +233,13 @@ void SpaceSystemAssemblages::removeCloudsComponent(SpaceSystem* spaceSystem, vec
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_CLOUDS_NAME, entity);
 }
 
+// TODO: Is this implementation complete?
 vecs::ComponentID SpaceSystemAssemblages::addSphericalVoxelComponent(SpaceSystem* spaceSystem, vecs::EntityID entity,
                                                                       vecs::ComponentID sphericalTerrainComponent,
                                                                       vecs::ComponentID farTerrainComponent,
                                                                       vecs::ComponentID axisRotationComponent,
                                                                       vecs::ComponentID namePositionComponent,
-                                                                      WorldCubeFace worldFace,
+                                                                      WorldCubeFace worldFace VORB_UNUSED,
                                                                       SoaState* soaState) {
 
     vecs::ComponentID svCmpId = spaceSystem->addComponent(SPACE_SYSTEM_CT_SPHERICALVOXEL_NAME, entity);
@@ -330,7 +331,7 @@ vecs::ComponentID SpaceSystemAssemblages::addSphericalTerrainComponent(SpaceSyst
 }
 
 void SpaceSystemAssemblages::removeSphericalTerrainComponent(SpaceSystem* spaceSystem, vecs::EntityID entity) {
-    auto& stcmp = spaceSystem->sphericalTerrain.getFromEntity(entity);
+    // auto& stcmp = spaceSystem->sphericalTerrain.getFromEntity(entity);
 
     spaceSystem->deleteComponent(SPACE_SYSTEM_CT_SPHERICALTERRAIN_NAME, entity);
 }

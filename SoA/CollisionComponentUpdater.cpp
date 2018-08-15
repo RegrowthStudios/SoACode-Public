@@ -3,8 +3,8 @@
 
 #include "GameSystem.h"
 
-void CollisionComponentUpdater::update(GameSystem* gameSystem) {
-    for (auto& it : gameSystem->aabbCollidable) {
-        //TODO(Ben): this
-    }
+void CollisionComponentUpdater::update(GameSystem* gameSystem VORB_UNUSED) {
+    // for (auto& it : gameSystem->aabbCollidable) {
+         //TODO(Ben): this
+    // }
 }
