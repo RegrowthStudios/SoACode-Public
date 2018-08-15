@@ -19,6 +19,10 @@ and to meet some of the other contributors.
 **IMPORTANT**: Before following any of the instructions linked below for the platforms we support,
 please do take a second to fork the repository! If you are new to GitHub, you can 
 do so by clicking the "fork" button on the top right of this page.
+
+If you have cloned the repository before forking, no worries! We can fix it, by following [these instructions](#fixing-a-pre-fork-clone).
+
+Now we're forked, follow the link to the section on setting up for your OS of choice:
 * [Windows](#windows)
 * [Mac](#mac)
 * [Linux](#linux)
@@ -175,7 +179,7 @@ git pull --recurse-submodules
     ```
 
 
-# Fixing a Pre-Fork Clone (WIP)
+# Fixing a Pre-Fork Clone
 
 So, you've accidentally cloned the repository before forking it, eh? No problem. Just run the following git commands inside of the repository and everything will be as it should be!
 
