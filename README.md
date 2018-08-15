@@ -16,7 +16,7 @@ and to meet some of the other contributors.
 * [Discord](https://discord.gg/b2bf775)
 
 ### Setting Up:
-Before following any of the instructions linked below for the platforms we support,
+**IMPORTANT**: Before following any of the instructions linked below for the platforms we support,
 please do take a second to fork the repository! If you are new to GitHub, you can 
 do so by clicking the "fork" button on the top right of this page.
 * [Windows](#windows)
