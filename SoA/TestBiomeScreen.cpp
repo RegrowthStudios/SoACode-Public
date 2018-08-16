@@ -409,6 +409,9 @@ void TestBiomeScreen::initInput() {
     m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
         PlanetGenLoader planetLoader;
         switch (e.keyCode) {
+            case VKEY_ESCAPE:
+                exit(0);
+                break;
             case VKEY_W:
                 m_movingForward = true;
                 break;
