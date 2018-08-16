@@ -250,9 +250,9 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     m_sb.render(f32v2(m_commonState->window->getViewportDims()));
 
     // Draw dev console
-    m_devConsoleView.update(0.01f);
-    m_devConsoleView.render(m_game->getWindow().getViewportDims());
-    
+    // m_devConsoleView.update(0.01f);
+    // m_devConsoleView.render(m_game->getWindow().getViewportDims());
+
     vg::DepthState::FULL.set(); // Have to restore depth
 }
 
