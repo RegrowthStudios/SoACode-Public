@@ -248,11 +248,12 @@ void TestBiomeScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
     m_sb.drawString(&m_font, buf, f32v2(30.0f), f32v2(1.0f), color::White);
     m_sb.end();
     m_sb.render(f32v2(m_commonState->window->getViewportDims()));
-    vg::DepthState::FULL.set(); // Have to restore depth
 
     // Draw dev console
     m_devConsoleView.update(0.01f);
     m_devConsoleView.render(m_game->getWindow().getViewportDims());
+    
+    vg::DepthState::FULL.set(); // Have to restore depth
 }
 
 void TestBiomeScreen::initHeightData() {
