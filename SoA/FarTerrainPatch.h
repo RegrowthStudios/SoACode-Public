@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 11 Feb 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Defines a class for a patch of far-terrain

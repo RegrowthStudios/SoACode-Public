@@ -4,7 +4,7 @@
 //
 // Created by Benjamin Arnold on 9 Jun 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // Paged memory management system for chunks.

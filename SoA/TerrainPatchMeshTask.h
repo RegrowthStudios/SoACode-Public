@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 1 Jul 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Task for terrain patch mesh

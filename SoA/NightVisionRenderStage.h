@@ -4,7 +4,7 @@
 ///
 /// Created by Cristian Zaloj on 6 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Night vision effect

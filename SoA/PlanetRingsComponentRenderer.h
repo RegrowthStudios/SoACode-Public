@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 23 May 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// The renderer for PlanetRingsComponent

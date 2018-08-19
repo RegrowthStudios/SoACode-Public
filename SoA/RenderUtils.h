@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 3 Dec 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Some simple utils for rendering

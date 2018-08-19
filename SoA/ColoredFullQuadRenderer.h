@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 22 Mar 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Renders a FullQuadVBO with color

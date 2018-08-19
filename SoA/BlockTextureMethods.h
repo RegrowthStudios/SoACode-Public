@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 7 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// This file provides the texturing methods functions for block textures,
 /// such as connected textures and random textures.

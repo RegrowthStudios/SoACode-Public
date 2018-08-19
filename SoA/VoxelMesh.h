@@ -4,7 +4,7 @@
 ///
 /// Created by Cristian Zaloj on 24 Dec 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Graphics data for a voxel mesh

@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 8 Dec 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Implementation of a Star System with ECS

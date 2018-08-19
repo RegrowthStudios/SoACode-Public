@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 17 Feb 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Soa specific generic utilities

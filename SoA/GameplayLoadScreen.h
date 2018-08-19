@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 6 Jun 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Load screen for going into a game world

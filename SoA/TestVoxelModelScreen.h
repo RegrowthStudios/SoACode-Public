@@ -4,7 +4,7 @@
 ///
 /// Created by Frank McCoy on 7 April 2015
 /// Copyright 2014-2015 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Load and display a voxel model in .QB file format

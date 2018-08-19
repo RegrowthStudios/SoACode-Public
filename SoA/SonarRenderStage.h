@@ -4,7 +4,7 @@
 ///
 ///  Created by Benjamin Arnold on 1 Nov 2014
 ///  Copyright 2014 Regrowth Studios
-///  All Rights Reserved
+///  MIT License
 ///  
 ///  This file implements the sonar render stage which does a cool
 ///  sonar rendering effect.

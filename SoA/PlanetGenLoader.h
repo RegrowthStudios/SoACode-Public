@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 19 Dec 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Handles the loading of planet files

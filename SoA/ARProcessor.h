@@ -4,7 +4,7 @@
 ///
 /// Created by Cristian Zaloj on 9 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Stores and keeps track of Augmented Reality information

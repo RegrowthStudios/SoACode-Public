@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 6 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Contains utils for accessing voxel bits
 /// TODO: Use C++ bit accessors

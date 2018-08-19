@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 22 Feb 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Augmented reality renderer for Space Systems

@@ -4,7 +4,7 @@
 //
 // Created by Benjamin Arnold on 1 Aug 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // Class for querying for a chunk with a certain generation level
