@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 17 Dec 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Simple container for terrain meshes. Each planet gets one

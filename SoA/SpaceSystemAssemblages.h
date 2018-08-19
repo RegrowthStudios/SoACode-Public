@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 13 Jan 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Component and entity assemblages for SpaceSystem

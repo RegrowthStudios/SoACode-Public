@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 9 Apr 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Test screen for star renderer

@@ -4,7 +4,7 @@
 //
 // Created by Benjamin Arnold on 3 Aug 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // 64 bit ID type for Chunks.

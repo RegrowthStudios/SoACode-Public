@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 27 Jan 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Contains the voxel coordinate space definitions.

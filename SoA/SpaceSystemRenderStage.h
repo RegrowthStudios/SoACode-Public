@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 5 Dec 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Render stage for drawing the space system

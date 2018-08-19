@@ -4,7 +4,7 @@
 ///
 ///  Created by Ben Arnold on 28 Oct 2014
 ///  Copyright 2014 Regrowth Studios
-///  All Rights Reserved
+///  MIT License
 ///  
 ///  This file provides an abstract interface for a render 
 ///  stage.

@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 9 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// This file implements the physics block rendering,

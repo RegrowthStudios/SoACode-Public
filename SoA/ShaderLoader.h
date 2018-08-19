@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 31 Mar 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Handles easy loading and error checking of shaders for SoA

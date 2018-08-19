@@ -4,7 +4,7 @@
 //
 // Created by Cristian Zaloj on 29 Jun 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // Main entry point for the console version of the application.

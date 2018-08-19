@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 30 Apr 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Calculates log luminance of a scene for tone mapping

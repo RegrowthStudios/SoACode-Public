@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 24 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Implements the celluar automata task for multithreaded physics

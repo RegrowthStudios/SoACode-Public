@@ -4,7 +4,7 @@
 //
 // Created by Benjamin Arnold on 15 Aug 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // Updater for Head Components.

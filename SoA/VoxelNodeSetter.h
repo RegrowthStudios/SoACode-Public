@@ -4,7 +4,7 @@
 //
 // Created by Benjamin Arnold on 9 Sep 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // Waits on chunk generation queries and then sets voxels.

@@ -4,7 +4,7 @@
 ///
 ///  Created by Benjamin Arnold on 1 Nov 2014
 ///  Copyright 2014 Regrowth Studios
-///  All Rights Reserved
+///  MIT License
 ///  
 ///  This file provides the implementation of the transparent voxel
 ///  render stage. Transparent voxels have partial transparency, and

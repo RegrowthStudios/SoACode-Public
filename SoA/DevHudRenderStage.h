@@ -4,7 +4,7 @@
 ///
 ///  Created by Benjamin Arnold on 2 Nov 2014
 ///  Copyright 2014 Regrowth Studios
-///  All Rights Reserved
+///  MIT License
 ///  
 ///  This file provides the render stage for
 ///  drawing the dev/debug Hud.

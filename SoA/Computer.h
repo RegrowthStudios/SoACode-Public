@@ -4,7 +4,7 @@
 //
 //  Created by Ben Arnold on 26 Oct 2014
 //  Copyright 2014 Regrowth Studios
-//  All Rights Reserved
+//  MIT License
 //  
 //  Summary:
 //  This file provides the implementation for a virtual computer.

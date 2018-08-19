@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 30 Nov 2014
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Pause menu implementation for use in GamePlayScreen

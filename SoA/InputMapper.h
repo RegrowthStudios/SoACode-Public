@@ -5,7 +5,7 @@
 ///  Created by Frank McCoy
 ///  Refactored by Ben Arnold on Mar 25 2015
 ///  Copyright 2014 Regrowth Studios
-///  All Rights Reserved
+///  MIT License
 ///  
 ///  Summary:
 ///  Handles mapping of input for keys and buttons.

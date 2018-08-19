@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 19 Apr 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Resolves file paths for mod files by first looking in 

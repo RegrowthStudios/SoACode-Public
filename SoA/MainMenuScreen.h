@@ -4,7 +4,7 @@
 //
 //  Created by Ben Arnold on 17 Oct 2014
 //  Copyright 2014 Regrowth Studios
-//  All Rights Reserved
+//  MIT License
 //  
 //  This file provides the main menu screen
 //  implementation. This screen encompasses the

@@ -4,7 +4,7 @@
 ///
 ///  Created by Isaque Dutra on 2 June 2015
 ///  Copyright 2015 Regrowth Studios
-///  All Rights Reserved
+///  MIT License
 ///  
 ///  This file implements a bloom render stage for
 ///  MainMenuRenderer.

@@ -4,7 +4,7 @@
 //
 // Created by Benjamin Arnold on 10 Sep 2015
 // Copyright 2014 Regrowth Studios
-// All Rights Reserved
+// MIT License
 //
 // Summary:
 // Buffers voxel updates and applies all at once for minimal locking.

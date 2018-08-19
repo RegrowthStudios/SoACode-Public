@@ -4,7 +4,7 @@
 ///
 /// Created by Benjamin Arnold on 8 Feb 2015
 /// Copyright 2014 Regrowth Studios
-/// All Rights Reserved
+/// MIT License
 ///
 /// Summary:
 /// Generates spherical terrain data and meshes for a planet using the CPU.
