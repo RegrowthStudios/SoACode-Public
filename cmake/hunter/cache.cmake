@@ -1,9 +1,6 @@
-cmake_minimum_required (VERSION 3.0)
-
-#setup cache server and suppot upload
 set(
     HUNTER_CACHE_SERVERS
-    "https://github.com/huntercache/SoA"
+    "https://github.com/huntercache/main"
     CACHE
     STRING
     "Default cache server"
@@ -18,31 +15,14 @@ if((is_travis OR is_appveyor) AND NOT password_is_empty)
 endif()
 
 message(STATUS "Travis: ${is_travis}")
-message(STATUS "Appveyor: ${is_appveyor}")
+message(STATUS "GITHUB_USER_PASSWORD: $ENV{GITHUB_USER_PASSWORD}")
 message(STATUS "Password empty: ${password_is_empty}")
 message(STATUS "Hunter upload: ${HUNTER_RUN_UPLOAD}")
 
 set(
     HUNTER_PASSWORDS_PATH
-    "${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/passwords.cmake"
+    "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/passwords.cmake"
     CACHE
     FILEPATH
     "Hunter passwords"
 )
-
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/HunterGate.cmake)
-
-HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.16.tar.gz"
-    SHA1 "dbe5b1c966414c4a055983c11d5251a2d8f2f16d"
-)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
-
-project(SoA)
-
-add_subdirectory(Vorb)
-add_subdirectory(SoA)
-
-
-
