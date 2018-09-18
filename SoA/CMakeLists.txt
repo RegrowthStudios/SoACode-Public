@@ -610,7 +610,8 @@ add_executable(soa
 )
 
 target_link_libraries(soa
-    ${OPENGL_INCLUDE_DIRS}
+#    ${OPENGL_INCLUDE_DIRS}
+    OpenGL::GL
     SDL2::SDL2main
     SDL2::SDL2
     glew::glew

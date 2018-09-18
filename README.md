@@ -1,3 +1,7 @@
+
+![travis](https://img.shields.io/travis/RegrowthStudios/SoACode-Public.svg?style=flat-square&label=Linux "Travis CI")
+![appveyor](https://img.shields.io/appveyor/ci/SamThePsychoticLeprechaun/soacode-public.svg?style=flat-square&label=Windows "AppVeyor CI")
+
 # Seed of Andromeda
 This repository contains the source code for Seed of Andromeda.
 
