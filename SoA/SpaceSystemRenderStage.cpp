@@ -2,7 +2,6 @@
 #include "SpaceSystem.h"
 #include "SpaceSystemRenderStage.h"
 
-#include <Vorb/os.h>
 #include <Vorb/graphics/DepthState.h>
 #include <Vorb/graphics/RasterizerState.h>
 

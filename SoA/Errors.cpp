@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Errors.h"
 
-#include <Vorb/os.h>
-
 #include <SDL2/SDL.h>
 
 #ifndef _WINDOWS

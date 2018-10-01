@@ -8,7 +8,6 @@
 #include "TerrainPatchMeshManager.h"
 #include "VoxelSpaceUtils.h"
 
-#include <Vorb/os.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/utils.h>
