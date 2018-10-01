@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
+set(HUNTER_STATUS_DEBUG ON)
 #setup cache server and suppot upload
 set(
     HUNTER_CACHE_SERVERS
