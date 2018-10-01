@@ -1,4 +1,5 @@
 
+[![dicord](https://img.shields.io/discord/459062989094649866.svg?logo=discord "Discord")](https://discord.gg/b2bf775)
 ![travis](https://img.shields.io/travis/RegrowthStudios/SoACode-Public.svg?style=flat-square&label=Linux "Travis CI")
 ![appveyor](https://img.shields.io/appveyor/ci/SamThePsychoticLeprechaun/soacode-public.svg?style=flat-square&label=Windows "AppVeyor CI")
 
@@ -42,7 +43,7 @@ a whirl?
 ### Windows
 
 #### Prerequisites
-*  Compiler: [Microsoft Visual Studio 2015+](https://visualstudio.microsoft.com/)
+*  Compiler: [Microsoft Visual Studio 2015 (only)](https://visualstudio.microsoft.com/)
 *  Software Version Control:  [Git](http://git-scm.com/downloads)
 *  (Optional) MSVS SVC Plugin:  [MSVS Git Plugin](http://msdn.microsoft.com/en-us/library/hh850437.aspx)
 *  (Optional) TortoiseGit: [tortoisegit](https://tortoisegit.org/download)
