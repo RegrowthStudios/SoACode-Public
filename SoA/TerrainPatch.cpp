@@ -4,7 +4,7 @@
 #include "TerrainPatchMesh.h"
 
 #include "Chunk.h"
-#include "Vorb/RPC.h"
+#include <Vorb/vorb_rpc.h>
 #include "RenderUtils.h"
 #include "SpaceSystemComponents.h"
 #include "SphericalTerrainComponentUpdater.h"

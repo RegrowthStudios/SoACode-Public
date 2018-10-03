@@ -12,7 +12,7 @@
 #include "SpaceSystemAssemblages.h"
 #include "SpaceSystemLoadStructs.h"
 
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/Texture.h>

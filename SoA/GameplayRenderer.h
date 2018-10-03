@@ -17,7 +17,7 @@
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GBuffer.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 
 #include "Camera.h"
 #include "ChunkGridRenderStage.h"

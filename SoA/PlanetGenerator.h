@@ -18,7 +18,7 @@
 #include "PlanetGenData.h"
 #include "SpaceSystemLoadStructs.h"
 
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLRenderTarget.h>

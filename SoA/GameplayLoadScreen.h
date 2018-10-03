@@ -15,7 +15,7 @@
 #ifndef GameplayLoadScreen_h__
 #define GameplayLoadScreen_h__
 
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/Random.h>
 #include <Vorb/graphics/Texture.h>
 #include <Vorb/script/Environment.h>
