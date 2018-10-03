@@ -9,7 +9,7 @@
 #include <Vorb/io/IOManager.h>
 #include <Vorb/Events.hpp>
 #include <Vorb/io/YAML.h>
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/Timing.h>
 
 #include "BlockPack.h"

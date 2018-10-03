@@ -21,7 +21,7 @@ struct SphericalTerrainComponent;
 
 #include "TerrainPatch.h"
 #include "VoxelCoordinateSpaces.h"
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/ecs/ECS.h>
 
 #define LOAD_DIST 800000.0

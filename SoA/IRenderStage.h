@@ -15,7 +15,7 @@
 #ifndef IRenderStage_h_
 #define IRenderStage_h_
 
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/VorbPreDecl.inl>
 
 class Camera;

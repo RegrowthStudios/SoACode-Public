@@ -21,7 +21,7 @@ struct FarTerrainComponent;
 #include "TerrainPatch.h"
 #include "VoxelCoordinateSpaces.h"
 #include "SphericalTerrainComponentUpdater.h"
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 
 #define FT_PATCH_ROW 16  
 #define NUM_FACES 6

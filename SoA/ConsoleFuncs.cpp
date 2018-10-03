@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ConsoleFuncs.h"
 
-#include <Vorb/os.h>
 #include <Vorb/script/Environment.h>
 
 #include "DLLAPI.h"

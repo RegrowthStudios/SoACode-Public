@@ -17,7 +17,7 @@
 
 #include "ShaderLoader.h"
 
-#include <Vorb/RPC.h>
+#include <Vorb/vorb_rpc.h>
 #include <Vorb/graphics/GLProgram.h>
 
 class ProgramGenDelegate {

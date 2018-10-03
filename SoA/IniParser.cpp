@@ -3,7 +3,28 @@
 #include <sys/stat.h>
 #include <memory>
 
+//stupid Windows SDK mucking up the namespace
+#if defined(_WIN32) || defined(_WIN64)
+#define UNKNOWN WINDOWS_UNKNOWN
+#define CHAR WINDOWS_CHAR
+#define SHORT WINDOWS_SHORT
+#define INT WINDOWS_INT
+#define LONG WINDOWS_LONG
+#define FLOAT WINDOWS_FLOAT
+#define DOUBLE WINDOWS_DOUBLE
+#endif
+
 #include "IniParser.h"
+
+#if defined(_WIN32) || defined(_WIN64)
+#undef UNKNOWN
+#undef CHAR
+#undef SHORT
+#undef INT
+#undef LONG
+#undef FLOAT
+#undef DOUBLE
+#endif
 
 // These Are All The Types That Can Be Parsed
 enum PTYPE {
