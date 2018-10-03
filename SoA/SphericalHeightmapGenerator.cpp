@@ -319,6 +319,10 @@ f64 SphericalHeightmapGenerator::getHumidityValue(const f64v3& pos, const f64v3&
 // Thanks to tetryds for these
 f64 SphericalHeightmapGenerator::calculateTemperature(f64 range, f64 angle, f64 baseTemp) {
     f64 tempFalloff = 1.0 - pow(cos(angle), 2.0 * angle);
+
+    if(isnan(tempFalloff))
+        tempFalloff=0.0;
+
     f64 temp = baseTemp - tempFalloff * range;
     return glm::clamp(temp, 0.0, 255.0);
 }
