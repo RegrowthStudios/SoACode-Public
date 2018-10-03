@@ -1011,7 +1011,7 @@ void FloraGenerator::generateSCBranches() {
         ui32 i = l;
         while (true) {
             SCRayNode& a = m_scRayNodes[i];
-            a.wasVisited = true; // a helpful flag
+            a.wasVisited = 1; // a helpful flag
             i = a.parent;
             if (i == SC_NO_PARENT) break;
             SCRayNode& b = m_scRayNodes[i];
