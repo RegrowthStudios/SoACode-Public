@@ -43,6 +43,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 project(SoA)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  if(MSVC_VERSION GREATER 1900)
+    message(FATAL_ERROR "Only Visual Studio 2015 and below are currently supported.")
+  endif()
+endif()
+
 add_subdirectory(Vorb)
 add_subdirectory(SoA)
 
