@@ -44,6 +44,7 @@ a whirl?
 
 #### Prerequisites
 *  Compiler: [Microsoft Visual Studio 2015 (only)](https://visualstudio.microsoft.com/)
+    * NOTE: The C++ and latest Windows SDK components must be selected during Visual Studio installation.
 *  Software Version Control:  [Git](http://git-scm.com/downloads)
 *  (Optional) MSVS SVC Plugin:  [MSVS Git Plugin](http://msdn.microsoft.com/en-us/library/hh850437.aspx)
 *  (Optional) TortoiseGit: [tortoisegit](https://tortoisegit.org/download)
