@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "RegionFileManager.h"
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #include <direct.h> //for mkdir windows
 #include <io.h>
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>

@@ -7,9 +7,9 @@
 
 #define OUTER_SKIP_MOD 5
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #pragma region helpers
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 /************************************************************************/
 /* Helper Functions                                                     */
 /************************************************************************/
@@ -143,9 +143,9 @@ inline void offsetByPos(int& x, int& y, int& z, ui32& chunkOffset, const i32v3& 
 /************************************************************************/
 /* End Helper Functions                                                 */
 /************************************************************************/
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #pragma endregion
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 // Smooths an input factor on the range 0-1
 inline void smoothInterpFactor(f32& l, const FloraInterpType& type) {
@@ -191,9 +191,9 @@ void FloraGenerator::generateChunkFlora(const Chunk* chunk, const PlanetHeightDa
     }
 }
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #pragma region lerping
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 // Lerps and rounds
 #define LERP_UI16(var) FastConversion<f32, ui16>::floor((b.var - a.var) * l + a.var + 0.5f)
@@ -529,11 +529,11 @@ void FloraGenerator::generateFlora(const FloraType* type, f32 age, OUT std::vect
 #undef LERP_UI16
 #undef LERP_I32
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #pragma endregion
 
 #pragma region age_lerping
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 #define AGE_LERP_F32(var) lerp(var.max, var.min, age)
 // Lerps and rounds
@@ -656,9 +656,9 @@ void FloraGenerator::generateFloraProperties(const FloraType* type, f32 age, OUT
 #undef AGE_LERP_I32
 #undef AGE_LERP_UI16
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #pragma endregion
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 void FloraGenerator::spaceColonization(const f32v3& startPos) {
     std::vector<f32v3> attractPoints;

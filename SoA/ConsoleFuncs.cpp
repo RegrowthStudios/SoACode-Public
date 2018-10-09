@@ -15,7 +15,7 @@ void runScript(vscript::Environment* env, const cString file) {
     env->load(file);
 }
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 int loadDLL(const cString name) {
     HINSTANCE dll = LoadLibrary(name);
     int(*f)() = (int(*)())GetProcAddress(dll, "getCode");
@@ -23,7 +23,7 @@ int loadDLL(const cString name) {
     fflush(stdout);
     return f();
 }
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 template<typename T>
 T* create() {
@@ -84,9 +84,9 @@ void registerFuncs(vscript::Environment& env) {
     /************************************************************************/
     env.addValue("env", &env);
     env.addCDelegate("run", makeDelegate(runScript));
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
     env.addCRDelegate("loadDLL", makeRDelegate(loadDLL));
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
     /************************************************************************/
     /* Game-specific methods                                                */

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#ifdef OS_WINDOWS
+#ifdef VORB_OS_WINDOWS
 #include <SDL/SDL_syswm.h>
 #endif
 #include <Vorb/Vorb.h>
@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     // Initialize Vorb modules
     vorb::init(vorb::InitParam::ALL);
 
-#ifdef OS_WINDOWS
+#ifdef VORB_OS_WINDOWS
     // Tell windows that our priority class should be above normal
     SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
 #endif
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     // Dispose Vorb modules
     vorb::dispose(vorb::InitParam::ALL);
 
-#ifdef OS_WINDOWS
+#ifdef VORB_OS_WINDOWS
     // Need to free the console on windows
     FreeConsole();
 #endif

@@ -3,10 +3,10 @@
 
 #include <SDL2/SDL.h>
 
-#ifndef _WINDOWS
+#ifndef VORB_OS_WINDOWS
 #include <limits.h>
 #include <stdlib.h>
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 void showMessage(const nString& message VORB_UNUSED)
 {
@@ -62,13 +62,13 @@ int showYesNoCancelBox(const nString& message VORB_UNUSED)
 nString getFullPath(const char *initialDir)
 {
     nString rval;
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
     char pathBuffer[1024];
     _fullpath(pathBuffer, initialDir, 1024);
-#else//_WINDOWS
+#else//VORB_OS_WINDOWS
     char pathBuffer[PATH_MAX];
     realpath(initialDir, pathBuffer);
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
     rval = pathBuffer;
     return rval;
 }
