@@ -6,19 +6,19 @@
 
 #include "ConsoleFuncs.h"
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #define SOA_CONSOLE_COLOR_HEADER (FOREGROUND_BLUE | FOREGROUND_INTENSITY)
 #define SOA_CONSOLE_COLOR_PROMPT (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY)
 #define SOA_CONSOLE_COLOR_MAIN (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)
 #define SOA_CONSOLE_COLOR_OUTPUT (FOREGROUND_GREEN | FOREGROUND_INTENSITY)
 #define SOA_CONSOLE_COLOR_ERROR (FOREGROUND_RED | FOREGROUND_INTENSITY)
-#else//_WINDOWS
+#else//VORB_OS_WINDOWS
 #define SOA_CONSOLE_COLOR_HEADER 34
 #define SOA_CONSOLE_COLOR_PROMPT 33
 #define SOA_CONSOLE_COLOR_MAIN 37
 #define SOA_CONSOLE_COLOR_OUTPUT 32
 #define SOA_CONSOLE_COLOR_ERROR 31
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 namespace {
     struct ConsolePrinter {
@@ -29,11 +29,11 @@ namespace {
                 fflush(stderr);
             }
             m_lastColor = color;
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
             SetConsoleTextAttribute(hndConsole, color);
 #else
             printf("\033[0;%dm", color);
-#endif//_WINDOWS            
+#endif//VORB_OS_WINDOWS            
         }
         void out(Sender, const cString msg) {
             setColor(SOA_CONSOLE_COLOR_OUTPUT);
@@ -44,9 +44,9 @@ namespace {
             puts(msg);
         }
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
         HANDLE hndConsole;
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
     private:
         ui32 m_lastColor = 0;
@@ -57,9 +57,9 @@ void consoleMain() {
     // Get console for manipulation
     ConsolePrinter printer = {};
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
     printer.hndConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
     // Write out that we are using the console version
     printer.setColor(SOA_CONSOLE_COLOR_HEADER);

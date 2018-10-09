@@ -74,7 +74,7 @@ void GameplayScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
 
 void GameplayScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 #else
     struct sched_param params;
@@ -506,14 +506,14 @@ void GameplayScreen::initRenderPipeline() {
 void GameplayScreen::updateThreadFunc() {
     m_threadRunning = true;
 
-#ifdef _WINDOWS    
+#ifdef VORB_OS_WINDOWS    
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
-#else//_WINDOWS
+#else//VORB_OS_WINDOWS
     struct sched_param params;
  
     params.sched_priority = sched_get_priority_max(SCHED_FIFO);
     pthread_setschedparam(pthread_self(), SCHED_FIFO, &params);
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
     FpsLimiter fpsLimiter;
     fpsLimiter.init(60.0f);

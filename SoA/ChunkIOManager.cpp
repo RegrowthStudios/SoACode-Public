@@ -2,7 +2,7 @@
 
 #include "ChunkIOManager.h"
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #include <direct.h> //for mkdir windows
 #include <io.h>
 #endif

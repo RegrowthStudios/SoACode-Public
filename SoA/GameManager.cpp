@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "GameManager.h"
 
-#ifdef _WINDOWS
+#ifdef VORB_OS_WINDOWS
 #include <direct.h> //for mkdir windows
-#endif//_WINDOWS
+#endif//VORB_OS_WINDOWS
 
 #include <ctime>
 
