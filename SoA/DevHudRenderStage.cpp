@@ -26,7 +26,7 @@ void DevHudRenderStage::hook(const cString fontPath, i32 fontSize,
     _fontHeight = _spriteFont->getFontHeight();
 }
 
-void DevHudRenderStage::render(const Camera* camera VORB_UNUSED) {
+void DevHudRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     // Reset the yOffset
     _yOffset = 0;
 

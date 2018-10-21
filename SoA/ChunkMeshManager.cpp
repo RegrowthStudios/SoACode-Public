@@ -183,7 +183,7 @@ void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
     }
 }
 
-void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s VORB_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_UNUSED) {
+void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s VORB_MAYBE_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_MAYBE_UNUSED) {
     for (ui32 i = 0; i < 6; i++) {
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
@@ -194,7 +194,7 @@ void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s VORB_UNUSED, Spheri
     }
 }
 
-void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s VORB_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_UNUSED) {
+void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s VORB_MAYBE_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_MAYBE_UNUSED) {
     for (ui32 i = 0; i < 6; i++) {
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
             cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
@@ -205,7 +205,7 @@ void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s VORB_UNUSED, Sph
     }
 }
 
-void ChunkMeshManager::onGenFinish(Sender s VORB_UNUSED, ChunkHandle& chunk, ChunkGenLevel gen VORB_UNUSED) {
+void ChunkMeshManager::onGenFinish(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk, ChunkGenLevel gen VORB_MAYBE_UNUSED) {
     // Check if can be meshed.
     if (chunk->genLevel == GEN_DONE && chunk->neighbor.left.isAquired() && chunk->numBlocks) {
         std::lock_guard<std::mutex> l(m_lckPendingMesh);
@@ -213,7 +213,7 @@ void ChunkMeshManager::onGenFinish(Sender s VORB_UNUSED, ChunkHandle& chunk, Chu
     }
 }
 
-void ChunkMeshManager::onNeighborsAcquire(Sender s VORB_UNUSED, ChunkHandle& chunk) {
+void ChunkMeshManager::onNeighborsAcquire(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk) {
     // ChunkMesh* mesh = createMesh(chunk);
     // Check if can be meshed.
     if (chunk->genLevel == GEN_DONE && chunk->numBlocks) {
@@ -222,7 +222,7 @@ void ChunkMeshManager::onNeighborsAcquire(Sender s VORB_UNUSED, ChunkHandle& chu
     }
 }
 
-void ChunkMeshManager::onNeighborsRelease(Sender s VORB_UNUSED, ChunkHandle& chunk) {
+void ChunkMeshManager::onNeighborsRelease(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk) {
     // Destroy message
     ChunkMesh* mesh;
     {
@@ -247,7 +247,7 @@ void ChunkMeshManager::onNeighborsRelease(Sender s VORB_UNUSED, ChunkHandle& chu
     disposeMesh(mesh);
 }
 
-void ChunkMeshManager::onDataChange(Sender s VORB_UNUSED, ChunkHandle& chunk) {
+void ChunkMeshManager::onDataChange(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk) {
     // Have to have neighbors
     // TODO(Ben): Race condition with neighbor removal here.
     if (chunk->neighbor.left.isAquired()) {

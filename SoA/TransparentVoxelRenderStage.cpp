@@ -19,7 +19,7 @@ void TransparentVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRender
     m_gameRenderParams = gameRenderParams;
 }
 
-void TransparentVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
+void TransparentVoxelRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     glDepthMask(GL_FALSE);
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
 

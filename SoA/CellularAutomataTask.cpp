@@ -9,7 +9,7 @@
 CellularAutomataTask::CellularAutomataTask(ChunkManager* chunkManager,
                                            PhysicsEngine* physicsEngine,
                                            Chunk* chunk,
-                                           OPT ChunkMeshManager* meshManager VORB_UNUSED) :
+                                           OPT ChunkMeshManager* meshManager VORB_MAYBE_UNUSED) :
                                            IThreadPoolTask(CA_TASK_ID),
                                            _chunk(chunk),
                                            m_chunkManager(chunkManager),

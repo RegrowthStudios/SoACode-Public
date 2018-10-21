@@ -107,7 +107,7 @@ void MainMenuScriptedUI::onExit(int code) {
     ((MainMenuScreen*)m_ownerScreen)->onQuit(this, code);
 }
 
-void MainMenuScriptedUI::onTargetChange(Sender s VORB_UNUSED, vecs::EntityID id) {
+void MainMenuScriptedUI::onTargetChange(Sender s VORB_MAYBE_UNUSED, vecs::EntityID id) {
     // TODO(Ben): Race condition???
     for (auto& it : m_forms) {
         if (it.first->isEnabled()) {

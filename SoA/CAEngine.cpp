@@ -63,7 +63,7 @@ void CaPhysicsType::clearTypes() {
     typesArray.clear();
 }
 
-CAEngine::CAEngine(ChunkManager* chunkManager VORB_UNUSED, PhysicsEngine* physicsEngine VORB_UNUSED) :
+CAEngine::CAEngine(ChunkManager* chunkManager VORB_MAYBE_UNUSED, PhysicsEngine* physicsEngine VORB_MAYBE_UNUSED) :
     _chunk(nullptr)
 //    m_chunkManager(chunkManager),
 //    m_physicsEngine(physicsEngine)

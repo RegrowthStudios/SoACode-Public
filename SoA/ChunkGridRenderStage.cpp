@@ -44,7 +44,7 @@ void ChunkGridRenderStage::hook(const GameRenderParams* gameRenderParams) {
     m_gameRenderParams = gameRenderParams;
 }
 
-void ChunkGridRenderStage::init(vui::GameWindow* window VORB_UNUSED, StaticLoadContext& context VORB_UNUSED) {
+void ChunkGridRenderStage::init(vui::GameWindow* window VORB_MAYBE_UNUSED, StaticLoadContext& context VORB_MAYBE_UNUSED) {
     m_vao = 0;
     m_vbo = 0;
     m_ibo = 0;
@@ -52,7 +52,7 @@ void ChunkGridRenderStage::init(vui::GameWindow* window VORB_UNUSED, StaticLoadC
 
 /// NOTE: There is a race condition with _chunkSlots here, but since _chunkSlots is a read only vector,
 /// it should not cause a crash. However data may be partially incorrect.
-void ChunkGridRenderStage::render(const Camera* camera VORB_UNUSED) {
+void ChunkGridRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     if (!m_isActive) return;
     if (!m_state) return;
 
@@ -118,7 +118,7 @@ void ChunkGridRenderStage::render(const Camera* camera VORB_UNUSED) {
     if(numVertices != 0) drawGrid(vertices, indices);
 }
 
-void ChunkGridRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
+void ChunkGridRenderStage::dispose(StaticLoadContext& context VORB_MAYBE_UNUSED) {
     if(m_vao != 0)  glDeleteVertexArrays(1, &m_vao);
     if(m_vbo != 0)  glDeleteBuffers(1, &m_vbo);
     if(m_ibo != 0)  glDeleteBuffers(1, &m_ibo);

@@ -22,7 +22,7 @@
 
 class ProgramGenDelegate {
 public:
-    virtual void invoke(Sender sender VORB_UNUSED, void* userData VORB_UNUSED) {
+    virtual void invoke(Sender sender VORB_MAYBE_UNUSED, void* userData VORB_MAYBE_UNUSED) {
         printf("Building shader: %s\n", name);
         if (isFromFile) {
             program = ShaderLoader::createProgramFromFile(vs, fs, iom);

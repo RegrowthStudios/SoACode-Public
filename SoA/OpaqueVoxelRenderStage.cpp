@@ -20,7 +20,7 @@ void OpaqueVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParam
     m_renderer = renderer;
 }
 
-void OpaqueVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
+void OpaqueVoxelRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
 
     const f64v3& position = m_gameRenderParams->chunkCamera->getPosition();
