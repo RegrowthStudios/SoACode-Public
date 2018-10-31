@@ -34,7 +34,11 @@ void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
             if (task) {
                 {
                     std::lock_guard<std::mutex> l(m_lckActiveChunks);
-                    m_activeChunks[it->first]->updateVersion = it->second->updateVersion;
+
+                    auto iter=m_activeChunks.find(it->first);
+
+                    assert(iter!=m_activeChunks.end());
+                    iter->second->updateVersion = it->second->updateVersion;
                 }
                 m_threadPool->addTask(task);
                 it->second.release();
@@ -214,7 +218,7 @@ void ChunkMeshManager::onGenFinish(Sender s VORB_UNUSED, ChunkHandle& chunk, Chu
 }
 
 void ChunkMeshManager::onNeighborsAcquire(Sender s VORB_UNUSED, ChunkHandle& chunk) {
-    // ChunkMesh* mesh = createMesh(chunk);
+    createMesh(chunk);
     // Check if can be meshed.
     if (chunk->genLevel == GEN_DONE && chunk->numBlocks) {
         std::lock_guard<std::mutex> l(m_lckPendingMesh);
