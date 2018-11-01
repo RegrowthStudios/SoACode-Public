@@ -30,18 +30,18 @@ void TestPlanetGenScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
 
 }
 
-void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestPlanetGenScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_F1) {
             m_terrainRenderer.dispose();
             m_terrainRenderer.initGL();
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s VORB_UNUSED, const vui::MouseWheelEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onWheel, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseWheelEvent& e) {
         m_eyeDist += -e.dy * 0.025 * m_eyeDist;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_ESCAPE) {
             exit(0);
         }
@@ -88,14 +88,14 @@ void TestPlanetGenScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
 
 }
 
-void TestPlanetGenScreen::update(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestPlanetGenScreen::update(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     m_eyePos = f64v3(0, 0, PLANET_RADIUS + m_eyeDist + 100.0);
 
     m_updater.update(&m_state, m_eyePos, f64v3(0.0));
     m_updater.glUpdate(&m_state);
 }
 
-void TestPlanetGenScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestPlanetGenScreen::draw(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

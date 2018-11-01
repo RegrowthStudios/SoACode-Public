@@ -17,7 +17,7 @@ void LiquidVoxelRenderStage::hook(ChunkRenderer* renderer, const GameRenderParam
     m_gameRenderParams = gameRenderParams;
 }
 
-void LiquidVoxelRenderStage::render(const Camera* camera VORB_UNUSED) {
+void LiquidVoxelRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
     
     m_renderer->beginLiquid(m_gameRenderParams->blockTexturePack->getAtlasTexture(), m_gameRenderParams->sunlightDirection,

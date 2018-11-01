@@ -28,7 +28,7 @@ void CloudsComponentRenderer::draw(const CloudsComponent& cCmp,
                                    const f32v3& relCamPos,
                                    const f32v3& lightDir,
                                    const f32 zCoef,
-                                   const SpaceLightComponent* spComponent VORB_UNUSED,
+                                   const SpaceLightComponent* spComponent VORB_MAYBE_UNUSED,
                                    const AxisRotationComponent& arComponent,
                                    const AtmosphereComponent& aCmp) {
     m_program.use();

@@ -22,7 +22,7 @@ SonarRenderStage::SonarRenderStage(const GameRenderParams* gameRenderParams) :
     // Empty
 }
 
-void SonarRenderStage::render(const Camera* camera VORB_UNUSED) {
+void SonarRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     glDisable(GL_DEPTH_TEST);
     ChunkMeshManager* cmm = m_gameRenderParams->chunkMeshmanager;
 

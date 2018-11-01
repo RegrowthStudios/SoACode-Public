@@ -35,7 +35,7 @@ void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GBuffer* hdrFrameB
     m_mipStep = 0;
 }
 
-void ExposureCalcRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
+void ExposureCalcRenderStage::dispose(StaticLoadContext& context VORB_MAYBE_UNUSED) {
     m_mipStep = 0;
     if (m_program.isCreated()) m_program.dispose();
     if (m_downsampleProgram.isCreated()) m_downsampleProgram.dispose();
@@ -46,7 +46,7 @@ void ExposureCalcRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
     m_needsScriptLoad = true;
 }
 
-void ExposureCalcRenderStage::render(const Camera* camera VORB_UNUSED /*= nullptr*/) {
+void ExposureCalcRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED /*= nullptr*/) {
     if (m_renderTargets.empty()) {
         m_renderTargets.resize(m_mipLevels);
         for (size_t i = 0; i < m_mipLevels; i++) {

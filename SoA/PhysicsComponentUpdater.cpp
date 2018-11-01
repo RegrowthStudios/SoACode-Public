@@ -205,7 +205,7 @@ void PhysicsComponentUpdater::updateSpacePhysics(GameSystem* gameSystem, SpaceSy
 
 #define VOXEL_PUSH CHUNK_WIDTH
 
-void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
+void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_MAYBE_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier
@@ -244,7 +244,7 @@ void PhysicsComponentUpdater::transitionPosX(VoxelPositionComponent& vpCmp, Phys
     }
 }
 
-void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
+void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_MAYBE_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier
@@ -283,7 +283,7 @@ void PhysicsComponentUpdater::transitionNegX(VoxelPositionComponent& vpCmp, Phys
     }
 }
 
-void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
+void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_MAYBE_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier
@@ -326,7 +326,7 @@ void PhysicsComponentUpdater::transitionPosZ(VoxelPositionComponent& vpCmp, Phys
     }
 }
 
-void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_UNUSED, float voxelRadius) {
+void PhysicsComponentUpdater::transitionNegZ(VoxelPositionComponent& vpCmp, PhysicsComponent& pyCmp VORB_MAYBE_UNUSED, float voxelRadius) {
     // Push in by a chunk
     float rad = voxelRadius - VOXEL_PUSH;
     // We could use lookup tables for this, but this is easier

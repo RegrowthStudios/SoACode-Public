@@ -13,7 +13,7 @@ void AABBCollidableComponentBuilder::load(keg::ReadContext& context, keg::Node n
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(AabbCollidableComponent));
 }
-void AABBCollidableComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void AABBCollidableComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).aabbCollidable.get(m_cID) = component;
 }
 
@@ -27,7 +27,7 @@ void ParkourInputComponentBuilder::load(keg::ReadContext& context VORB_UNUSED, k
     // Do nothing
 }
 
-void ParkourInputComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void ParkourInputComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).parkourInput.get(m_cID) = component;
 }
 
@@ -45,7 +45,7 @@ void AttributeComponentBuilder::load(keg::ReadContext& context, keg::Node node) 
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(AttributeComponent));
 }
 
-void AttributeComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void AttributeComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).attributes.get(m_cID) = component;
 }
 
@@ -60,7 +60,7 @@ void SpacePositionComponentBuilder::load(keg::ReadContext& context, keg::Node no
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(SpacePositionComponent));
 }
-void SpacePositionComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void SpacePositionComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).spacePosition.get(m_cID) = component;
 }
 
@@ -76,7 +76,7 @@ void VoxelPositionComponentBuilder::load(keg::ReadContext& context, keg::Node no
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(VoxelPositionComponent));
 }
-void VoxelPositionComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void VoxelPositionComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).voxelPosition.get(m_cID) = component;
 }
 
@@ -90,7 +90,7 @@ void PhysicsComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(PhysicsComponent));
 }
-void PhysicsComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void PhysicsComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).physics.get(m_cID) = component;
 }
 
@@ -112,7 +112,7 @@ void FrustumComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     keg::parse((ui8*)&frustum, node, context, &KEG_GLOBAL_TYPE(FrustumComponent));
     component.frustum = frustum;
 }
-void FrustumComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void FrustumComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).frustum.get(m_cID) = component;
 }
 
@@ -125,7 +125,7 @@ void HeadComponentBuilder::load(keg::ReadContext& context, keg::Node node) {
     // Simple read
     keg::parse((ui8*)&component, node, context, &KEG_GLOBAL_TYPE(FrustumComponent));
 }
-void HeadComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void HeadComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).head.get(m_cID) = component;
 }
 void HeadComponentBuilder::postBuild(vecs::ECS& ecs, vecs::EntityID eID) {
@@ -138,6 +138,6 @@ void InventoryComponentBuilder::load(keg::ReadContext& reader VORB_UNUSED, keg::
     // TODO(Ben): Load another file using a file path
 }
 
-void InventoryComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_UNUSED) {
+void InventoryComponentBuilder::build(vecs::ECS& ecs, vecs::EntityID eID VORB_MAYBE_UNUSED) {
     ((GameSystem&)ecs).inventory.get(m_cID) = component;
 }

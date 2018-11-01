@@ -42,7 +42,7 @@ void TestNoiseScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED)
 
 }
 
-void TestNoiseScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED)
+void TestNoiseScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED)
 { 
     m_sb.init();
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
@@ -53,7 +53,7 @@ void TestNoiseScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED)
 
     onNoiseChange();
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_LEFT) {
             if (m_currentNoise == 0) {
                 m_currentNoise = TEST_NOISE_TYPES::CELLULAR;
@@ -80,7 +80,7 @@ void TestNoiseScreen::update(const vui::GameTime& gameTime VORB_UNUSED)
 {
 }
 
-void TestNoiseScreen::draw(const vui::GameTime& gameTime VORB_UNUSED)
+void TestNoiseScreen::draw(const vui::GameTime& gameTime VORB_MAYBE_UNUSED)
 {
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

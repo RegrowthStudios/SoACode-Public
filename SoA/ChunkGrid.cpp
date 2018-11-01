@@ -89,7 +89,7 @@ void ChunkGrid::update() {
     nodeSetter.update();
 }
 
-void ChunkGrid::onAccessorAdd(Sender s VORB_UNUSED, ChunkHandle& chunk) {
+void ChunkGrid::onAccessorAdd(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk) {
     { // Add to active list
         std::lock_guard<std::mutex> l(m_lckActiveChunks);
         chunk->m_activeIndex = m_activeChunks.size();
@@ -117,7 +117,7 @@ void ChunkGrid::onAccessorAdd(Sender s VORB_UNUSED, ChunkHandle& chunk) {
     }
 }
 
-void ChunkGrid::onAccessorRemove(Sender s VORB_UNUSED, ChunkHandle& chunk) {
+void ChunkGrid::onAccessorRemove(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk) {
     { // Remove from active list
         std::lock_guard<std::mutex> l(m_lckActiveChunks);
         m_activeChunks[chunk->m_activeIndex] = m_activeChunks.back();
