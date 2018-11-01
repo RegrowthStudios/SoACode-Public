@@ -4,7 +4,7 @@
 #include "ChunkHandle.h"
 #include "Chunk.h"
 
-void VoxelNodeSetterTask::execute(WorkerData* workerData VORB_UNUSED) {
+void VoxelNodeSetterTask::execute(WorkerData* workerData VORB_MAYBE_UNUSED) {
     {
         std::lock_guard<std::mutex> l(h->dataMutex);
         for (auto& node : forcedNodes) {

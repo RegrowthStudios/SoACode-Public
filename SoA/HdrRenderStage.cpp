@@ -15,7 +15,7 @@ void HdrRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
 }
 
-void HdrRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
+void HdrRenderStage::dispose(StaticLoadContext& context VORB_MAYBE_UNUSED) {
     if (m_programBlur.isCreated()) m_programBlur.dispose();
     if (m_programDoFBlur.isCreated()) m_programDoFBlur.dispose();
 }

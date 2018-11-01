@@ -48,7 +48,7 @@ void TestBiomeScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
 
 }
 
-void TestBiomeScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestBiomeScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     // Init spritebatch and font
     m_sb.init();
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
@@ -150,7 +150,7 @@ void TestBiomeScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
     printf("Done.");
 }
 
-void TestBiomeScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestBiomeScreen::onExit(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     for (auto& cv : m_chunks) {
         m_mesher.freeChunkMesh(cv.chunkMesh);
     }
@@ -392,12 +392,12 @@ void TestBiomeScreen::initInput() {
     initInputs(m_inputMapper);
 
     m_mouseButtons[0] = false;
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s VORB_UNUSED, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
             m_camera.rotateFromMouseAbsoluteUp(-e.dx, -e.dy, 0.01f, true);
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = !m_mouseButtons[0];
         if (m_mouseButtons[0]) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -406,7 +406,7 @@ void TestBiomeScreen::initInput() {
             SDL_SetRelativeMouseMode(SDL_FALSE);
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         PlanetGenLoader planetLoader;
         switch (e.keyCode) {
             case VKEY_W:
@@ -484,7 +484,7 @@ void TestBiomeScreen::initInput() {
                 break;
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         switch (e.keyCode) {
             case VKEY_W:
                 m_movingForward = false;
@@ -508,7 +508,7 @@ void TestBiomeScreen::initInput() {
     });
 
     // Dev console
-    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [](Sender s VORB_UNUSED, ui32 a VORB_UNUSED) {
+    m_hooks.addAutoHook(m_inputMapper->get(INPUT_DEV_CONSOLE).downEvent, [](Sender s VORB_MAYBE_UNUSED, ui32 a VORB_MAYBE_UNUSED) {
         DevConsole::getInstance().toggleFocus();
     });
 

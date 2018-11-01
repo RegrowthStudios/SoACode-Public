@@ -194,7 +194,7 @@ ui32 ProceduralChunkGenerator::getBlockLayerIndex(ui32 depth) const {
 }
 
 // TODO(Ben): Too many parameters?
-ui16 ProceduralChunkGenerator::getBlockID(Chunk* chunk, int blockIndex, int depth, int mapHeight VORB_UNUSED, int height, const PlanetHeightData& hd, BlockLayer& layer) const {
+ui16 ProceduralChunkGenerator::getBlockID(Chunk* chunk, int blockIndex, int depth, int mapHeight VORB_MAYBE_UNUSED, int height, const PlanetHeightData& hd, BlockLayer& layer) const {
     ui16 blockID = 0;
     if (depth > 0) {
         blockID = layer.block;
