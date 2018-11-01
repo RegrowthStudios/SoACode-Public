@@ -337,6 +337,7 @@ set(SoA_headers
     TestNoiseScreen.h
     TestPlanetGenScreen.h
     TestStarScreen.h
+    TestUIScreen.h
     TestVoxelModelScreen.h
     textureUtils.h
     Thread.h
@@ -547,6 +548,7 @@ set(SoA_sources
     TestNoiseScreen.cpp
     TestPlanetGenScreen.cpp
     TestStarScreen.cpp
+    TestUIScreen.cpp
     TestVoxelModelScreen.cpp
     TransparentVoxelRenderStage.cpp
     VoxelEditor.cpp
