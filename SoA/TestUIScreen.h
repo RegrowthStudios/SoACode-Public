@@ -2,6 +2,7 @@
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb//ui/Panel.h>
 #include <Vorb/ui/Viewport.h>
 
 #include "CommonState.h"
@@ -30,4 +31,6 @@ private:
     vg::SpriteFont  m_font;
 
     vui::Viewport m_viewport;
+    vui::Panel    m_panels[4];
+    //vui::Panel m_panel[2];
 };
