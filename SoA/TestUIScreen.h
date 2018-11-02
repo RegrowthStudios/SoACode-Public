@@ -31,6 +31,5 @@ private:
     vg::SpriteFont  m_font;
 
     vui::Viewport m_viewport;
-    vui::Panel    m_panels[4];
-    //vui::Panel m_panel[2];
+    vui::Panel    m_panels[5];
 };

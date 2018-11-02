@@ -38,18 +38,11 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
 
     m_viewport.init("TestUIScreen", { 0.0f, 0.0f, { vui::DimensionType::PIXEL, vui::DimensionType::PIXEL } }, { 1.0f, 1.0f, { vui::DimensionType::WINDOW_WIDTH_PERCENTAGE, vui::DimensionType::WINDOW_HEIGHT_PERCENTAGE } }, &m_font, &m_sb);
 
-    // m_panel[0] = vui::Panel("panel", vui::Length2{ 0.0f, 0.0f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } }, vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
-    // m_panel[1] = vui::Panel("panel2", vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } }, vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
-
-    m_panels[0] = vui::Panel("panel1", vui::Length2{ 0.0f, 0.0f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } }, vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
-    m_panels[1] = vui::Panel("panel2", vui::Length2{ 0.5f, 0.0f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } }, vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
-    m_panels[2] = vui::Panel("panel3", vui::Length2{ 0.0f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } }, vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
-    m_panels[3] = vui::Panel("panel4", vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } }, vui::Length2{ 0.5f, 0.5f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE, vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
-
-    // m_panel[0].setColor(color4{ 255, 0, 0 });
-    // m_panel[0].setHoverColor(color4{ 0, 255, 0 });
-    // m_panel[1].setColor(color4{ 0, 0, 255 });
-    // m_panel[1].setHoverColor(color4{ 255, 255, 0 });
+    m_panels[0] = vui::Panel("panel1", f32v4(0.0f));
+    m_panels[1] = vui::Panel("panel2", f32v4(0.0f));
+    m_panels[2] = vui::Panel("panel3", f32v4(0.0f));
+    m_panels[3] = vui::Panel("panel4", f32v4(0.0f));
+    m_panels[4] = vui::Panel("panel5", f32v4(0.0f));
 
     m_panels[0].setColor(color4{ 255, 0, 0 });
     m_panels[0].setHoverColor(color4{ 0, 255, 0 });
@@ -59,14 +52,31 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[2].setHoverColor(color4{ 0, 255, 255 });
     m_panels[3].setColor(color4{ 0, 0, 0 });
     m_panels[3].setHoverColor(color4{ 255, 255, 255 });
+    m_panels[4].setColor(color4{ 123, 34, 235 });
+    m_panels[4].setHoverColor(color4{ 234, 100, 0 });
 
-    // m_viewport.addWidget(&m_panel[0]);
-    // m_viewport.addWidget(&m_panel[1]);
+    m_panels[0].setZIndex(5);
+    m_panels[1].setZIndex(4);
+    m_panels[2].setZIndex(3);
+    m_panels[3].setZIndex(2);
+    m_panels[4].setZIndex(1);
+
+    m_panels[0].setDockState(vui::DockState::BOTTOM);
+    m_panels[1].setDockState(vui::DockState::LEFT);
+    m_panels[2].setDockState(vui::DockState::LEFT);
+    m_panels[3].setDockState(vui::DockState::TOP);
+    m_panels[4].setDockState(vui::DockState::FILL);
+
+    m_panels[0].setDockSize(200.0f);
+    m_panels[1].setDockSize(200.0f);
+    m_panels[2].setDockSize(200.0f);
+    m_panels[3].setDockSize(200.0f);
 
     m_viewport.addWidget(&m_panels[0]);
     m_viewport.addWidget(&m_panels[1]);
     m_viewport.addWidget(&m_panels[2]);
     m_viewport.addWidget(&m_panels[3]);
+    m_viewport.addWidget(&m_panels[4]);
 
     m_viewport.enable();
     // glEnable(GL_DEPTH_TEST);
