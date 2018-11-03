@@ -72,6 +72,17 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[2].setRawDockSize({ 0.2f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE } });
     m_panels[3].setRawDockSize({ 0.25f, { vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
 
+    m_checkBox.init("CheckBox", f32v4(30.0f, 30.0f, 150.0f, 30.0f));
+    m_checkBox.setRawPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    m_checkBox.setText("Hello, World!");
+    m_checkBox.setTextScale(f32v2(0.65f));
+    m_checkBox.setTextAlign(vg::TextAlign::CENTER);
+    m_checkBox.setClipping({ vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN });
+
+    m_panels[0].addWidget(&m_checkBox);
+
+
+
     m_viewport.addWidget(&m_panels[0]);
     m_viewport.addWidget(&m_panels[1]);
     m_viewport.addWidget(&m_panels[2]);
@@ -79,9 +90,6 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_viewport.addWidget(&m_panels[4]);
 
     m_viewport.enable();
-    // glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
-    // glClearDepth(1.0);
 }
 
 void TestUIScreen::onExit(const vui::GameTime&) {
@@ -93,7 +101,7 @@ void TestUIScreen::update(const vui::GameTime&) {
 }
 
 void TestUIScreen::draw(const vui::GameTime&) {
-    glClear(/*GL_DEPTH_BUFFER_BIT |*/ GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     m_viewport.draw();
 }
