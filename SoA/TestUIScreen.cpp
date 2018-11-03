@@ -38,11 +38,11 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
 
     m_viewport.init("TestUIScreen", { 0.0f, 0.0f, { vui::DimensionType::PIXEL, vui::DimensionType::PIXEL } }, { 1.0f, 1.0f, { vui::DimensionType::WINDOW_WIDTH_PERCENTAGE, vui::DimensionType::WINDOW_HEIGHT_PERCENTAGE } }, &m_font, &m_sb);
 
-    m_panels[0] = vui::Panel("panel1", f32v4(0.0f));
-    m_panels[1] = vui::Panel("panel2", f32v4(0.0f));
-    m_panels[2] = vui::Panel("panel3", f32v4(0.0f));
-    m_panels[3] = vui::Panel("panel4", f32v4(0.0f));
-    m_panels[4] = vui::Panel("panel5", f32v4(0.0f));
+    m_panels[0].init("panel1", f32v4(0.0f));
+    m_panels[1].init("panel2", f32v4(0.0f));
+    m_panels[2].init("panel3", f32v4(0.0f));
+    m_panels[3].init("panel4", f32v4(0.0f));
+    m_panels[4].init("panel5", f32v4(0.0f));
 
     m_panels[0].setColor(color4{ 255, 0, 0 });
     m_panels[0].setHoverColor(color4{ 0, 255, 0 });
