@@ -73,7 +73,7 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[3].setRawDockSize({ 0.25f, { vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
 
     m_checkBox.init("CheckBox", f32v4(30.0f, 30.0f, 150.0f, 30.0f));
-    m_checkBox.setRawPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    m_checkBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
     m_checkBox.setText("Hello, World!");
     m_checkBox.setTextScale(f32v2(0.65f));
     m_checkBox.setTextAlign(vg::TextAlign::CENTER);
@@ -81,7 +81,38 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
 
     m_panels[0].addWidget(&m_checkBox);
 
+    m_label.init("Label", f32v4(130.0f, 130.0f, 120.0f, 30.0f));
+    m_label.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    m_label.setText("Wooooo!");
+    m_label.setTextScale(f32v2(0.65f));
+    m_label.setTextAlign(vg::TextAlign::CENTER);
 
+    m_panels[1].addWidget(&m_label);
+
+    m_button.init("Button", f32v4(60.0f, 130.0f, 120.0f, 30.0f));
+    m_button.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    m_button.setText("Click Me!");
+    m_button.setTextScale(f32v2(0.65f));
+    m_button.setTextAlign(vg::TextAlign::CENTER);
+
+    m_panels[2].addWidget(&m_button);
+
+    m_comboBox.init("ComboBox", f32v4(60.0f, 130.0f, 150.0f, 30.0f));
+    m_comboBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    m_comboBox.setText("Click Me!");
+    m_comboBox.setTextScale(f32v2(0.65f));
+    m_comboBox.setTextAlign(vg::TextAlign::CENTER);
+    m_comboBox.setBackColor(color::Aquamarine);
+    m_comboBox.setBackHoverColor(color::Azure);
+
+    m_comboBox.addItem("This is One.");
+    m_comboBox.addItem("This is Two.");
+    m_comboBox.addItem("This is Three.");
+    m_comboBox.addItem("This is Four.");
+
+    m_comboBox.selectItem(0);
+
+    m_panels[4].addWidget(&m_comboBox);
 
     m_viewport.addWidget(&m_panels[0]);
     m_viewport.addWidget(&m_panels[1]);

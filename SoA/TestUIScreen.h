@@ -2,7 +2,10 @@
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/ui/Button.h>
 #include <Vorb/ui/CheckBox.h>
+#include <Vorb/ui/ComboBox.h>
+#include <Vorb/ui/Label.h>
 #include <Vorb/ui/Panel.h>
 #include <Vorb/ui/Viewport.h>
 
@@ -34,4 +37,7 @@ private:
     vui::Viewport m_viewport;
     vui::Panel    m_panels[5];
     vui::CheckBox m_checkBox;
+    vui::Label    m_label;
+    vui::Button   m_button;
+    vui::ComboBox m_comboBox;
 };
