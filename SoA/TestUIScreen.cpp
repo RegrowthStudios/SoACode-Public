@@ -97,7 +97,13 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
 
     m_panels[2].addWidget(&m_button);
 
-    m_comboBox.init("ComboBox", f32v4(60.0f, 130.0f, 150.0f, 30.0f));
+    m_comboBox.init("ComboBox", f32v4(60.0f, 130.0f, 170.0f, 30.0f));
+
+    m_comboBox.addItem("This is One.");
+    m_comboBox.addItem("This is Two.");
+    m_comboBox.addItem("This is Three.");
+    m_comboBox.addItem("This is Four.");
+
     m_comboBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
     m_comboBox.setText("Click Me!");
     m_comboBox.setTextScale(f32v2(0.65f));
@@ -105,10 +111,8 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_comboBox.setBackColor(color::Aquamarine);
     m_comboBox.setBackHoverColor(color::Azure);
 
-    m_comboBox.addItem("This is One.");
-    m_comboBox.addItem("This is Two.");
-    m_comboBox.addItem("This is Three.");
-    m_comboBox.addItem("This is Four.");
+    // TODO(Matthew): This is totally screwed for now.
+    // m_comboBox.setMaxDropHeight(90.0f);
 
     m_comboBox.selectItem(0);
 
