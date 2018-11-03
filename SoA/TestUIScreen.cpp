@@ -67,10 +67,10 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[3].setDockState(vui::DockState::TOP);
     m_panels[4].setDockState(vui::DockState::FILL);
 
-    m_panels[0].setDockSize(200.0f);
-    m_panels[1].setDockSize(200.0f);
-    m_panels[2].setDockSize(200.0f);
-    m_panels[3].setDockSize(200.0f);
+    m_panels[0].setRawDockSize({ 0.25f, { vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
+    m_panels[1].setRawDockSize({ 0.2f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE } });
+    m_panels[2].setRawDockSize({ 0.2f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE } });
+    m_panels[3].setRawDockSize({ 0.25f, { vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
 
     m_viewport.addWidget(&m_panels[0]);
     m_viewport.addWidget(&m_panels[1]);
