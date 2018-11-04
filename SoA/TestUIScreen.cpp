@@ -61,11 +61,11 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[3].setZIndex(2);
     m_panels[4].setZIndex(1);
 
-    m_panels[0].setAutoScroll(true);
+    // m_panels[0].setAutoScroll(true);
     m_panels[1].setAutoScroll(true);
-    m_panels[2].setAutoScroll(true);
-    m_panels[3].setAutoScroll(true);
-    m_panels[4].setAutoScroll(true);
+    // m_panels[2].setAutoScroll(true);
+    // m_panels[3].setAutoScroll(true);
+    // m_panels[4].setAutoScroll(true);
 
     m_panels[0].setDockState(vui::DockState::BOTTOM);
     m_panels[1].setDockState(vui::DockState::LEFT);
@@ -78,14 +78,14 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[2].setRawDockSize({ 0.2f, { vui::DimensionType::VIEWPORT_WIDTH_PERCENTAGE } });
     m_panels[3].setRawDockSize({ 0.25f, { vui::DimensionType::VIEWPORT_HEIGHT_PERCENTAGE } });
 
-    m_checkBox.init("CheckBox", f32v4(30.0f, 30.0f, 150.0f, 30.0f));
-    m_checkBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
-    m_checkBox.setText("Hello, World!");
-    m_checkBox.setTextScale(f32v2(0.65f));
-    m_checkBox.setTextAlign(vg::TextAlign::CENTER);
-    m_checkBox.setClipping({ vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN });
+    // m_checkBox.init("CheckBox", f32v4(30.0f, 30.0f, 150.0f, 30.0f));
+    // m_checkBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    // m_checkBox.setText("Hello, World!");
+    // m_checkBox.setTextScale(f32v2(0.65f));
+    // m_checkBox.setTextAlign(vg::TextAlign::CENTER);
+    // m_checkBox.setClipping({ vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN });
 
-    m_panels[0].addWidget(&m_checkBox);
+    // m_panels[0].addWidget(&m_checkBox);
 
     m_label.init("Label", f32v4(130.0f, 130.0f, 120.0f, 30.0f));
     m_label.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
@@ -103,19 +103,19 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
 
     m_panels[2].addWidget(&m_button);
 
-    m_comboBox.init("ComboBox", f32v4(60.0f, 130.0f, 170.0f, 30.0f));
+    // m_comboBox.init("ComboBox", f32v4(60.0f, 130.0f, 170.0f, 30.0f));
 
-    m_comboBox.addItem("This is One.");
-    m_comboBox.addItem("This is Two.");
-    m_comboBox.addItem("This is Three.");
-    m_comboBox.addItem("This is Four.");
+    // m_comboBox.addItem("This is One.");
+    // m_comboBox.addItem("This is Two.");
+    // m_comboBox.addItem("This is Three.");
+    // m_comboBox.addItem("This is Four.");
 
-    m_comboBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
-    m_comboBox.setText("Click Me!");
-    m_comboBox.setTextScale(f32v2(0.65f));
-    m_comboBox.setTextAlign(vg::TextAlign::CENTER);
-    m_comboBox.setBackColor(color::Aquamarine);
-    m_comboBox.setBackHoverColor(color::Azure);
+    // m_comboBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
+    // m_comboBox.setText("Click Me!");
+    // m_comboBox.setTextScale(f32v2(0.65f));
+    // m_comboBox.setTextAlign(vg::TextAlign::CENTER);
+    // m_comboBox.setBackColor(color::Aquamarine);
+    // m_comboBox.setBackHoverColor(color::Azure);
 
     // TODO(Matthew): This is totally screwed for now.
     // m_comboBox.setMaxDropHeight(90.0f);
