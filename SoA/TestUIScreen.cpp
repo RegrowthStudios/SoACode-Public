@@ -61,6 +61,12 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[3].setZIndex(2);
     m_panels[4].setZIndex(1);
 
+    m_panels[0].setAutoScroll(true);
+    m_panels[1].setAutoScroll(true);
+    m_panels[2].setAutoScroll(true);
+    m_panels[3].setAutoScroll(true);
+    m_panels[4].setAutoScroll(true);
+
     m_panels[0].setDockState(vui::DockState::BOTTOM);
     m_panels[1].setDockState(vui::DockState::LEFT);
     m_panels[2].setDockState(vui::DockState::LEFT);
