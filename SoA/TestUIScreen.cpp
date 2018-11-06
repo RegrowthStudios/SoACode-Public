@@ -117,6 +117,7 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_comboBox.setTextAlign(vg::TextAlign::CENTER);
     m_comboBox.setBackColor(color::Aquamarine);
     m_comboBox.setBackHoverColor(color::Azure);
+    m_comboBox.setZIndex(2);
 
     // TODO(Matthew): This is totally screwed for now.
     m_comboBox.setMaxDropHeight(90.0f);
