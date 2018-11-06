@@ -11,7 +11,7 @@ class PhysicsEngine;
 struct ItemStack;
 
 class EditorNode {
-    i32v3 position;
+//    i32v3 position;
 };
 
 enum class EDITOR_TOOLS { AABOX, LINE };
