@@ -8,6 +8,7 @@
 #include <Vorb/ui/Label.h>
 #include <Vorb/ui/Panel.h>
 #include <Vorb/ui/Viewport.h>
+#include <Vorb/ui/WidgetList.h>
 
 #include "CommonState.h"
 
@@ -34,10 +35,12 @@ private:
     vg::SpriteBatch m_sb;
     vg::SpriteFont  m_font;
 
-    vui::Viewport m_viewport;
-    vui::Panel    m_panels[5];
-    vui::CheckBox m_checkBox;
-    vui::Label    m_label;
-    vui::Button   m_button;
-    vui::ComboBox m_comboBox;
+    vui::Viewport   m_viewport;
+    vui::Panel      m_panels[5];
+    vui::CheckBox   m_checkBox;
+    vui::Label      m_label;
+    vui::Button     m_button;
+    vui::ComboBox   m_comboBox;
+    vui::WidgetList m_widgetList;
+    vui::Button     m_listButtons[6];
 };
