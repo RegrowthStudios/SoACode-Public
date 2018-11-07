@@ -136,7 +136,7 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
     return genData;
 }
 
-PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc VORB_UNUSED /* = nullptr */) {
+PlanetGenData* PlanetGenLoader::getDefaultGenData(vcore::RPCManager* glrpc VORB_MAYBE_UNUSED /* = nullptr */) {
     // Lazily construct default data
     if (!m_defaultGenData) {
         // Allocate data
@@ -583,7 +583,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses third level
-    auto trunkParser = makeFunctor([&](Sender, size_t size VORB_UNUSED, keg::Node value) {
+    auto trunkParser = makeFunctor([&](Sender, size_t size VORB_MAYBE_UNUSED, keg::Node value) {
         treeProps->trunkProps.emplace_back();
         // Get our handle
         trunkProps = &treeProps->trunkProps.back();
@@ -616,7 +616,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
     });
 
     // Parses array of branch volumes
-    auto branchVolumeSeqParser = makeFunctor([&](Sender, size_t size VORB_UNUSED, keg::Node value) {
+    auto branchVolumeSeqParser = makeFunctor([&](Sender, size_t size VORB_MAYBE_UNUSED, keg::Node value) {
         treeProps->branchVolumes.emplace_back();
         // Get our handle
         branchVolProps = &treeProps->branchVolumes.back();
@@ -850,7 +850,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
     genData->liquidTint = kegProps.tint;
 }
 
-void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_UNUSED, keg::Node node, PlanetGenData* genData VORB_UNUSED) {
+void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_MAYBE_UNUSED, keg::Node node, PlanetGenData* genData VORB_MAYBE_UNUSED) {
     if (keg::getType(node) != keg::NodeType::MAP) {
         std::cout << "Failed to parse node";
         return;

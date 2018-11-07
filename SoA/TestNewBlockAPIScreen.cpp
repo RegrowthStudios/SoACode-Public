@@ -17,7 +17,7 @@ void TestNewBlockAPIScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
     // Empty
 }
 
-void TestNewBlockAPIScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestNewBlockAPIScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     VoxelIterablePosition pos { 0, 1, 2 };
     printf("Pos: %d,%d,%d\n", pos.x, pos.y, pos.z);
     pos.x += 5;

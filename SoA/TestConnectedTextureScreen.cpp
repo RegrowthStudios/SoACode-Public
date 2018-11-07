@@ -34,9 +34,9 @@ void TestConnectedTextureScreen::destroy(const vui::GameTime& gameTime VORB_UNUS
 
 }
 
-void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         if(e.keyCode==VKEY_ESCAPE)
         {
             exit(0);
@@ -118,7 +118,7 @@ void TestConnectedTextureScreen::onEntry(const vui::GameTime& gameTime VORB_UNUS
     glClearDepth(1.0);
 }
 
-void TestConnectedTextureScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestConnectedTextureScreen::onExit(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     for (auto& cv : m_chunks) {
         m_mesher.freeChunkMesh(cv.chunkMesh);
     }
@@ -243,7 +243,7 @@ void TestConnectedTextureScreen::initChunks() {
 void TestConnectedTextureScreen::initInput() {
     m_mouseButtons[0] = false;
     m_mouseButtons[1] = false;
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s VORB_UNUSED, const vui::MouseMotionEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onMotion, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseMotionEvent& e) {
         if (m_mouseButtons[0]) {
             m_camera.rotateFromMouse((f32)-e.dx, (f32)-e.dy, 0.1f);
         }
@@ -251,15 +251,15 @@ void TestConnectedTextureScreen::initInput() {
             m_camera.rollFromMouse((f32)e.dx, 0.1f);
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = true;
         if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = true;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseButtonEvent& e) {
         if (e.button == vui::MouseButton::LEFT) m_mouseButtons[0] = false;
         if (e.button == vui::MouseButton::RIGHT) m_mouseButtons[1] = false;
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         switch (e.keyCode) {
             case VKEY_W:
                 m_movingForward = true;
@@ -309,7 +309,7 @@ void TestConnectedTextureScreen::initInput() {
                 break;
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         switch (e.keyCode) {
             case VKEY_W:
                 m_movingForward = false;

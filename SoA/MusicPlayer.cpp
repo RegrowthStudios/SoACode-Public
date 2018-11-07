@@ -28,7 +28,7 @@ void MusicPlayer::refreshLists(const SoaFileSystem& fs) {
     searchTree(musicDir);
 }
 
-void MusicPlayer::begin(vsound::Engine& engine VORB_UNUSED) {
+void MusicPlayer::begin(vsound::Engine& engine VORB_MAYBE_UNUSED) {
     if (m_isRunning) return;
     m_isRunning = true;
 }
@@ -42,7 +42,7 @@ inline bool strEndsWith(const nString& value, const nString& ending) {
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 void MusicPlayer::searchTree(const vdir& root) {
-    root.forEachEntry([&] (Sender s VORB_UNUSED, const vpath& p) {
+    root.forEachEntry([&] (Sender s VORB_MAYBE_UNUSED, const vpath& p) {
         if (p.isFile()) {
             nString fileName = p.getLeaf();
             if (strEndsWith(fileName, ".mp3")) {

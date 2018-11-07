@@ -118,7 +118,7 @@ void DevConsole::tokenize(nString& input, OUT std::vector<nString>& tokens) {
     }
 }
 
-void DevConsole::onKeyDown(Sender s VORB_UNUSED, const vui::KeyEvent& ev) {
+void DevConsole::onKeyDown(Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& ev) {
     // TODO(Ben): Unicode is gonna be a nightmare
     if (ev.keyCode == VKEY_RETURN || ev.keyCode == VKEY_RETURN2) {
         write(m_currentLine);
@@ -128,7 +128,7 @@ void DevConsole::onKeyDown(Sender s VORB_UNUSED, const vui::KeyEvent& ev) {
     }
 }
 
-void DevConsole::onTextInput(Sender s VORB_UNUSED, const vui::TextEvent& ev) {
+void DevConsole::onTextInput(Sender s VORB_MAYBE_UNUSED, const vui::TextEvent& ev) {
     const char* t = ev.text;
     while (*t != '\0') {
         m_currentLine += (*t);

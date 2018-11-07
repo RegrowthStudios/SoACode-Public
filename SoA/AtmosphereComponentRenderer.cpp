@@ -31,7 +31,7 @@ void AtmosphereComponentRenderer::draw(const AtmosphereComponent& aCmp,
                                        const f32v3& relCamPos,
                                        const f32v3& lightDir,
                                        const f32 zCoef,
-                                       const SpaceLightComponent* spComponent VORB_UNUSED) {
+                                       const SpaceLightComponent* spComponent VORB_MAYBE_UNUSED) {
     m_program.use();
 
     // Set up matrix

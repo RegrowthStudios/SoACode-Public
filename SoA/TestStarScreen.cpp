@@ -39,7 +39,7 @@ void TestStarScreen::destroy(const vui::GameTime& gameTime VORB_UNUSED) {
 
 }
 
-void TestStarScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestStarScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     m_starRenderer.init(&m_modPathResolver);
     m_starRenderer.initGL();
 
@@ -65,7 +65,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
             m_is4Pressed = true;
         }
     });
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyUp, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_UP) {
             m_isUpDown = false;
         } else if (e.keyCode == VKEY_DOWN) {
@@ -114,7 +114,7 @@ void TestStarScreen::onEntry(const vui::GameTime& gameTime VORB_UNUSED) {
     m_camera.setUp(f32v3(0.0f, 1.0f, 0.0f));
 }
 
-void TestStarScreen::onExit(const vui::GameTime& gameTime VORB_UNUSED) {
+void TestStarScreen::onExit(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     delete m_hdrFrameBuffer;
 }
 
@@ -169,7 +169,7 @@ void TestStarScreen::draw(const vui::GameTime& gameTime VORB_UNUSED) {
         m_hdr.render();
     }
 
-    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_UNUSED, const vui::KeyEvent& e) {
+    m_hooks.addAutoHook(vui::InputDispatcher::key.onKeyDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::KeyEvent& e) {
         if (e.keyCode == VKEY_ESCAPE) {
             exit(0);
         }

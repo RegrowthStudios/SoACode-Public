@@ -65,14 +65,14 @@ void NightVisionRenderStage::setParams(const NightVisionRenderParams& params) {
     glUniform3f(m_program.getUniform("unVisionColor"), params.color.r, params.color.g, params.color.b);
 }
 
-void NightVisionRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
+void NightVisionRenderStage::dispose(StaticLoadContext& context VORB_MAYBE_UNUSED) {
     if (m_texNoise.id) {
         glDeleteTextures(1, &m_texNoise.id);
         m_texNoise.id = 0;
     }
 }
 
-void NightVisionRenderStage::render(const Camera* camera VORB_UNUSED /*= nullptr*/) {
+void NightVisionRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED /*= nullptr*/) {
     m_et += NIGHT_VISION_DEFAULT_NOISE_TIME_STEP;
 
     //_visionColorHSL.r = fmod(_visionColorHSL.r = 0.005f, 6.28f);

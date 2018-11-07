@@ -108,13 +108,13 @@ void BloomRenderStage::hook(vg::FullQuadVBO* quad) {
     m_quad = quad;
 }
 
-void BloomRenderStage::dispose(StaticLoadContext& context VORB_UNUSED) {
+void BloomRenderStage::dispose(StaticLoadContext& context VORB_MAYBE_UNUSED) {
     m_programLuma.dispose();
     m_programGaussianFirst.dispose();
     m_programGaussianSecond.dispose();
 }
 
-void BloomRenderStage::render(const Camera* camera VORB_UNUSED) {
+void BloomRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED) {
     // get initial bound FBO and bound color texture to use it on final pass
     GLint initial_fbo, initial_texture;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &initial_fbo);

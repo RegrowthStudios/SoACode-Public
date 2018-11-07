@@ -360,7 +360,7 @@ void BlockTexturePack::writeToAtlasContiguous(BlockTextureIndex texIndex, color4
     }
 }
 
-void BlockTexturePack::onAddSphericalVoxelComponent(Sender s VORB_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_UNUSED) {
+void BlockTexturePack::onAddSphericalVoxelComponent(Sender s VORB_MAYBE_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_MAYBE_UNUSED) {
     // Set color maps
     // TODO(Ben): This assumes a single SVC!
     if (cmp.planetGenData->terrainColorPixels.data) {

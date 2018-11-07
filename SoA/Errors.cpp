@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #endif//VORB_OS_WINDOWS
 
-void showMessage(const nString& message VORB_UNUSED)
+void showMessage(const nString& message VORB_MAYBE_UNUSED)
 {
 #if defined(_WIN32) || defined(_WIN64)
     //SDL_WM_IconifyWindow();
@@ -23,7 +23,7 @@ void showMessage(const nString& message VORB_UNUSED)
 }
 
 //yes 1, no 0
-int showYesNoBox(const nString& message VORB_UNUSED)
+int showYesNoBox(const nString& message VORB_MAYBE_UNUSED)
 {
 #if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
@@ -41,7 +41,7 @@ int showYesNoBox(const nString& message VORB_UNUSED)
 }
 
 ///yes 1, no 0, cancel -1
-int showYesNoCancelBox(const nString& message VORB_UNUSED)
+int showYesNoCancelBox(const nString& message VORB_MAYBE_UNUSED)
 {
 #if defined(_WIN32) || defined(_WIN64)
     SDL_Delay(100);
