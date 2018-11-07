@@ -55,11 +55,11 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_panels[4].setColor(color4{ 123, 34, 235 });
     m_panels[4].setHoverColor(color4{ 234, 100, 0 });
 
-    m_panels[0].setZIndex(5);
-    m_panels[1].setZIndex(4);
+    m_panels[0].setZIndex(1);
+    m_panels[1].setZIndex(2);
     m_panels[2].setZIndex(3);
-    m_panels[3].setZIndex(2);
-    m_panels[4].setZIndex(1);
+    m_panels[3].setZIndex(4);
+    m_panels[4].setZIndex(5);
 
     m_panels[0].setAutoScroll(true);
     m_panels[1].setAutoScroll(true);
@@ -128,8 +128,9 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_widgetList.init("WidgetList", f32v4(50.0f, 50.0f, 200.0f, 200.0f));
     m_widgetList.setBackColor(color::Bisque);
     m_widgetList.setBackHoverColor(color::Crimson);
-    //m_widgetList.setAutoScroll(true);
+    m_widgetList.setAutoScroll(true);
     m_widgetList.setSpacing(0.0f);
+    m_widgetList.setMaxHeight(200.0f);
 
     size_t i = 0;
     for (auto& button : m_listButtons) {
