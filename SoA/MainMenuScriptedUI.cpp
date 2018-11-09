@@ -8,7 +8,7 @@
 #include <Vorb/ui/FormScriptEnvironment.h>
 #include <Vorb/script/Environment.h>
 #include <Vorb/Events.hpp>
-#include <Vorb/ui/Form.h>
+// #include <Vorb/ui/Form.h>
 #include <Vorb/ui/KeyStrings.h>
 
 #define ON_TARGET_CHANGE_NAME "onTargetChange"
@@ -109,13 +109,13 @@ void MainMenuScriptedUI::onExit(int code) {
 
 void MainMenuScriptedUI::onTargetChange(Sender s VORB_MAYBE_UNUSED, vecs::EntityID id) {
     // TODO(Ben): Race condition???
-    for (auto& it : m_forms) {
-        if (it.first->isEnabled()) {
-            vscript::Environment* env = it.second->getEnv();
-            const vscript::Function& f = (*env)[ON_TARGET_CHANGE_NAME];
-            if (!f.isNil()) f(id);
-        }
-    }
+    // for (auto& it : m_forms) {
+    //     if (it.first->isEnabled()) {
+    //         vscript::Environment* env = it.second->getEnv();
+    //         const vscript::Function& f = (*env)[ON_TARGET_CHANGE_NAME];
+    //         if (!f.isNil()) f(id);
+    //     }
+    // }
 }
 
 void MainMenuScriptedUI::newGame() {
