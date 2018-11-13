@@ -1,7 +1,7 @@
 
 [![dicord](https://img.shields.io/discord/459062989094649866.svg?logo=discord "Discord")](https://discord.gg/b2bf775)
-![travis](https://img.shields.io/travis/RegrowthStudios/SoACode-Public.svg?style=flat-square&label=Linux "Travis CI")
-![appveyor](https://img.shields.io/appveyor/ci/SamThePsychoticLeprechaun/soacode-public.svg?style=flat-square&label=Windows "AppVeyor CI")
+![travis](https://img.shields.io/travis/RegrowthStudios/SoACode-Public/develop.svg?style=flat-square&label=Linux "Travis CI")
+![appveyor](https://img.shields.io/appveyor/ci/SamThePsychoticLeprechaun/soacode-public/develop.svg?style=flat-square&label=Windows "AppVeyor CI")
 
 # Seed of Andromeda
 This repository contains the source code for Seed of Andromeda.
