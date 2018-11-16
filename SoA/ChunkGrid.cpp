@@ -19,15 +19,15 @@ void ChunkGrid::init(WorldCubeFace face,
         generators[i].init(threadPool, genData, this);
     }
     accessor.init(allocator);
-    accessor.onAdd += makeDelegate(*this, &ChunkGrid::onAccessorAdd);
-    accessor.onRemove += makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    accessor.onAdd += makeDelegate(this, &ChunkGrid::onAccessorAdd);
+    accessor.onRemove += makeDelegate(this, &ChunkGrid::onAccessorRemove);
     nodeSetter.grid = this;
     nodeSetter.threadPool = threadPool;
 }
 
 void ChunkGrid::dispose() {
-    accessor.onAdd -= makeDelegate(*this, &ChunkGrid::onAccessorAdd);
-    accessor.onRemove -= makeDelegate(*this, &ChunkGrid::onAccessorRemove);
+    accessor.onAdd -= makeDelegate(this, &ChunkGrid::onAccessorAdd);
+    accessor.onRemove -= makeDelegate(this, &ChunkGrid::onAccessorRemove);
     delete[] generators;
     generators = nullptr;
 }

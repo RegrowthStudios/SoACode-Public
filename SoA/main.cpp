@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
         break;
     case Startup::CONSOLE:
         // Run the console
-        consoleMain();
+        // consoleMain();
         break;
     case Startup::HELP:
         // Pause on user input

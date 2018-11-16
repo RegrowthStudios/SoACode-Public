@@ -15,9 +15,9 @@
 #ifndef TestConsoleScreen_h__
 #define TestConsoleScreen_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/ui/IGameScreen.h>
-#include <Vorb/ui/LuaDevConsole.h>
+// #include <Vorb/ui/LuaDevConsole.h>
 #include <Vorb/ui/TextInputListener.hpp>
 
 class TestConsoleScreen : public vui::IGameScreen {
@@ -34,9 +34,9 @@ public:
     virtual void update(const vui::GameTime& gameTime) override;
     virtual void draw(const vui::GameTime& gameTime) override;
 private:
-#ifdef VORB_LUA
-    vui::LuaDevConsole m_console; ///< Console used for testing
-#endif//VORB_LUA
+// #ifdef VORB_LUA
+//     vui::LuaDevConsole m_console; ///< Console used for testing
+// #endif//VORB_LUA
 
     vui::TextInputListener<char> m_text; ///< Text input
     AutoDelegatePool m_delegatePool; ///< Input hooks reservoir

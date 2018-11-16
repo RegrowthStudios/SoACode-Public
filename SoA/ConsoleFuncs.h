@@ -1,27 +1,27 @@
-//
-// ConsoleFuncs.h
-// Seed of Andromeda
-//
-// Created by Cristian Zaloj on 30 Jun 2015
-// Copyright 2014 Regrowth Studios
-// MIT License
-//
-// Summary:
-// 
-//
+// //
+// // ConsoleFuncs.h
+// // Seed of Andromeda
+// //
+// // Created by Cristian Zaloj on 30 Jun 2015
+// // Copyright 2014 Regrowth Studios
+// // MIT License
+// //
+// // Summary:
+// // 
+// //
 
-#pragma once
+// #pragma once
 
-#ifndef ConsoleFuncs_h__
-#define ConsoleFuncs_h__
+// #ifndef ConsoleFuncs_h__
+// #define ConsoleFuncs_h__
 
-#include <Vorb/types.h>
-#include <Vorb/VorbPreDecl.inl>
+// #include <Vorb/types.h>
+// #include <Vorb/VorbPreDecl.inl>
 
-DECL_VSCRIPT(class Environment);
+// DECL_VSCRIPT(class Environment);
 
-void registerFuncs(vscript::Environment& env);
+// void registerFuncs(vscript::Environment& env);
 
-int loadDLL(const cString name);
+// int loadDLL(const cString name);
 
-#endif // ConsoleFuncs_h__
+// #endif // ConsoleFuncs_h__

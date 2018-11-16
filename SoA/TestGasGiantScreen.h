@@ -7,12 +7,12 @@
 #include "Camera.h"
 #include "GasGiantComponentRenderer.h"
 #include "SpaceSystemComponents.h"
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/TextureCache.h>
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 
 #include <vector>
 

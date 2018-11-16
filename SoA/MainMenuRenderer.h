@@ -18,7 +18,7 @@
 #include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/RTSwapChain.hpp>
 #include <Vorb/VorbPreDecl.inl>
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/GBuffer.h>
 
 #include "ExposureCalcRenderStage.h"

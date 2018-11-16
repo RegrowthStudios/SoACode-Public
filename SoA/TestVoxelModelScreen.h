@@ -17,7 +17,7 @@
 
 #include <vector>
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/graphics/SpriteBatch.h>

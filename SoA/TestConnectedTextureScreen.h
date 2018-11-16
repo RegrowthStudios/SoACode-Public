@@ -15,7 +15,7 @@
 #ifndef TestConnectedTextureScreen_h__
 #define TestConnectedTextureScreen_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/GBuffer.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/RTSwapChain.hpp>

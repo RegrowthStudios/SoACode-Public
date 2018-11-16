@@ -18,7 +18,7 @@
 #include "Chunk.h"
 #include "ChunkHandle.h"
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 
 class ChunkAccessor {
     friend class ChunkHandle;

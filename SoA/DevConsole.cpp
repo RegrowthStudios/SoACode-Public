@@ -73,12 +73,12 @@ void DevConsole::toggleFocus() {
     m_isFocused = !m_isFocused;
     if (m_isFocused) {
         // Enable input
-        vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &DevConsole::onKeyDown);
-        vui::InputDispatcher::key.onText += makeDelegate(*this, &DevConsole::onTextInput);
+        vui::InputDispatcher::key.onKeyDown += makeDelegate(this, &DevConsole::onKeyDown);
+        vui::InputDispatcher::key.onText += makeDelegate(this, &DevConsole::onTextInput);
     } else {
         // Disable input
-        vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &DevConsole::onKeyDown);
-        vui::InputDispatcher::key.onText -= makeDelegate(*this, &DevConsole::onTextInput);
+        vui::InputDispatcher::key.onKeyDown -= makeDelegate(this, &DevConsole::onKeyDown);
+        vui::InputDispatcher::key.onText -= makeDelegate(this, &DevConsole::onTextInput);
     }
 }
 

@@ -127,14 +127,12 @@ bool BlockTextureLoader::loadLayerProperties() {
         lp = &layer;
 
         // Manual parse
-        context.reader.forAllInMap(value, lf);
+        context.reader.forAllInMap(value, &lf);
 
         // Cache the layer
         m_layers[key] = layer;
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
-    delete lf;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
 
     return true;
@@ -245,12 +243,10 @@ bool BlockTextureLoader::loadTextureProperties() {
     // Load all layers
     auto f = makeFunctor([&](Sender, const nString& key, keg::Node value) {
         texture = m_texturePack->getNextFreeTexture(key);
-        context.reader.forAllInMap(value, valf);
+        context.reader.forAllInMap(value, &valf);
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
-    delete valf;
 
     return true;
 }
@@ -321,7 +317,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         if (keg::getType(value) == keg::NodeType::MAP) {
             name = *blockName + std::to_string(m_generatedTextureCounter++);
             texture = m_texturePack->getNextFreeTexture(name);
-            context.reader.forAllInMap(value, texParseFunctor);
+            context.reader.forAllInMap(value, &texParseFunctor);
         } else {
             name = keg::convert<nString>(value);
         }
@@ -357,7 +353,7 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         texNames = textureNames;
 
         blockName = &key;
-        context.reader.forAllInMap(value, valParseFunctor);
+        context.reader.forAllInMap(value, &valParseFunctor);
 
         // Set textures based on names
         if (texNames[0].size()) {
@@ -399,11 +395,8 @@ bool BlockTextureLoader::loadBlockTextureMapping() {
         // Set mappings
         m_blockMappings[key] = tNames;
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
-    delete valParseFunctor;
-    delete texParseFunctor;
 
     return true;
 }

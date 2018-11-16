@@ -50,8 +50,7 @@ void ECSTemplateLibrary::loadTemplate(const vpath& file) {
         }
         context.reader.free(node);
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
 
     context.reader.dispose();
 }

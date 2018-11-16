@@ -1,20 +1,20 @@
-//
-// ConsoleMain.h
-// Seed of Andromeda
-//
-// Created by Cristian Zaloj on 29 Jun 2015
-// Copyright 2014 Regrowth Studios
-// MIT License
-//
-// Summary:
-// Main entry point for the console version of the application.
-//
+// //
+// // ConsoleMain.h
+// // Seed of Andromeda
+// //
+// // Created by Cristian Zaloj on 29 Jun 2015
+// // Copyright 2014 Regrowth Studios
+// // MIT License
+// //
+// // Summary:
+// // Main entry point for the console version of the application.
+// //
 
-#pragma once
+// #pragma once
 
-#ifndef ConsoleMain_h__
-#define ConsoleMain_h__
+// #ifndef ConsoleMain_h__
+// #define ConsoleMain_h__
 
-void consoleMain();
+// void consoleMain();
 
-#endif // ConsoleMain_h__
+// #endif // ConsoleMain_h__

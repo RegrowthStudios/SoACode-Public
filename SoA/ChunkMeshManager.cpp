@@ -13,8 +13,8 @@
 ChunkMeshManager::ChunkMeshManager(vcore::ThreadPool<WorkerData>* threadPool, BlockPack* blockPack) {
     m_threadPool = threadPool;
     m_blockPack = blockPack;
-    SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onAddSphericalVoxelComponent);
-    SpaceSystemAssemblages::onRemoveSphericalVoxelComponent += makeDelegate(*this, &ChunkMeshManager::onRemoveSphericalVoxelComponent);
+    SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(this, &ChunkMeshManager::onAddSphericalVoxelComponent);
+    SpaceSystemAssemblages::onRemoveSphericalVoxelComponent += makeDelegate(this, &ChunkMeshManager::onRemoveSphericalVoxelComponent);
 }
 
 void ChunkMeshManager::update(const f64v3& cameraPosition, bool shouldSort) {
@@ -190,22 +190,22 @@ void ChunkMeshManager::updateMeshDistances(const f64v3& cameraPosition) {
 void ChunkMeshManager::onAddSphericalVoxelComponent(Sender s VORB_MAYBE_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_MAYBE_UNUSED) {
     for (ui32 i = 0; i < 6; i++) {
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
-            cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(*this, &ChunkMeshManager::onGenFinish);
+            cmp.chunkGrids[i].generators[j].onGenFinish += makeDelegate(this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].onNeighborsAcquire += makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
-        cmp.chunkGrids[i].onNeighborsRelease += makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
-        Chunk::DataChange += makeDelegate(*this, &ChunkMeshManager::onDataChange);
+        cmp.chunkGrids[i].onNeighborsAcquire += makeDelegate(this, &ChunkMeshManager::onNeighborsAcquire);
+        cmp.chunkGrids[i].onNeighborsRelease += makeDelegate(this, &ChunkMeshManager::onNeighborsRelease);
+        Chunk::DataChange += makeDelegate(this, &ChunkMeshManager::onDataChange);
     }
 }
 
 void ChunkMeshManager::onRemoveSphericalVoxelComponent(Sender s VORB_MAYBE_UNUSED, SphericalVoxelComponent& cmp, vecs::EntityID e VORB_MAYBE_UNUSED) {
     for (ui32 i = 0; i < 6; i++) {
         for (ui32 j = 0; j < cmp.chunkGrids[i].numGenerators; j++) {
-            cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(*this, &ChunkMeshManager::onGenFinish);
+            cmp.chunkGrids[i].generators[j].onGenFinish -= makeDelegate(this, &ChunkMeshManager::onGenFinish);
         }
-        cmp.chunkGrids[i].onNeighborsAcquire -= makeDelegate(*this, &ChunkMeshManager::onNeighborsAcquire);
-        cmp.chunkGrids[i].onNeighborsRelease -= makeDelegate(*this, &ChunkMeshManager::onNeighborsRelease);
-        Chunk::DataChange -= makeDelegate(*this, &ChunkMeshManager::onDataChange);
+        cmp.chunkGrids[i].onNeighborsAcquire -= makeDelegate(this, &ChunkMeshManager::onNeighborsAcquire);
+        cmp.chunkGrids[i].onNeighborsRelease -= makeDelegate(this, &ChunkMeshManager::onNeighborsRelease);
+        Chunk::DataChange -= makeDelegate(this, &ChunkMeshManager::onDataChange);
     }
 }
 

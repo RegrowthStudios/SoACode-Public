@@ -101,26 +101,25 @@ void InputMapper::loadInputs(const nString &location /* = INPUTMAPPER_DEFAULT_CO
         m_inputLookup[name] = id;
 
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
 }
 
 void InputMapper::startInput() {
     if (!m_receivingInput) {
-        vui::InputDispatcher::mouse.onButtonDown += makeDelegate(*this, &InputMapper::onMouseButtonDown);
-        vui::InputDispatcher::mouse.onButtonUp += makeDelegate(*this, &InputMapper::onMouseButtonDown);
-        vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &InputMapper::onKeyDown);
-        vui::InputDispatcher::key.onKeyUp += makeDelegate(*this, &InputMapper::onKeyUp);
+        vui::InputDispatcher::mouse.onButtonDown += makeDelegate(this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::mouse.onButtonUp += makeDelegate(this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::key.onKeyDown += makeDelegate(this, &InputMapper::onKeyDown);
+        vui::InputDispatcher::key.onKeyUp += makeDelegate(this, &InputMapper::onKeyUp);
         m_receivingInput = true;
     }
 }
 void InputMapper::stopInput() {
     if (m_receivingInput) {
-        vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
-        vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(*this, &InputMapper::onMouseButtonDown);
-        vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &InputMapper::onKeyDown);
-        vui::InputDispatcher::key.onKeyUp -= makeDelegate(*this, &InputMapper::onKeyUp);
+        vui::InputDispatcher::mouse.onButtonDown -= makeDelegate(this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::mouse.onButtonUp -= makeDelegate(this, &InputMapper::onMouseButtonDown);
+        vui::InputDispatcher::key.onKeyDown -= makeDelegate(this, &InputMapper::onKeyDown);
+        vui::InputDispatcher::key.onKeyUp -= makeDelegate(this, &InputMapper::onKeyUp);
         m_receivingInput = false;
     }
 }

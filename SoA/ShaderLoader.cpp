@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ShaderLoader.h"
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/ShaderManager.h>
 
 namespace {

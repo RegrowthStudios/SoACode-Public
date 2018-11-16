@@ -17,8 +17,8 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/VorbPreDecl.inl>
-#include <Vorb/script/Function.h>
-#include <Vorb/script/Environment.h>
+// #include <Vorb/script/Function.h>
+// #include <Vorb/script/Environment.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GBuffer.h>
 
@@ -62,8 +62,8 @@ private:
 
     // Script for exposure calc
     bool m_needsScriptLoad = true;
-    vscript::Environment* m_scripts = nullptr;
-    vscript::RFunction<f32> m_calculateExposure;
+    // vscript::Environment* m_scripts = nullptr;
+    // vscript::RFunction<f32> m_calculateExposure;
 };
 
 #endif // ExposureCalcRenderStage_h__

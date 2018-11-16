@@ -145,21 +145,22 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
 
     // TODO: Implement these as suitable.
     // Upload texture
-    VGTexture tex=0;
+    VGTexture tex = 0;
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = makeFunctor([&](Sender s VORB_MAYBE_UNUSED, void* userData VORB_MAYBE_UNUSED) {
-            //tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
-            //                                   vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
-        });
+        rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender, void*) {
+            tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
+                                              vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
+        })));
         glrpc->invoke(&rpc, true);
+        delete rpc.data.f;
     } else {
-        //tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
-        //                                   vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
+        tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
+                                          vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
     }
 
     // Handle Gaussian blur
-    auto f = makeFunctor([&](Sender s VORB_MAYBE_UNUSED, void* userData VORB_MAYBE_UNUSED) {
+    auto f = makeFunctor([&](Sender, void*) {
         if (!m_blurPrograms[0].isCreated()) {
             m_blurPrograms[0] = ShaderLoader::createProgramFromFile("Shaders/PostProcessing/PassThrough.vert",
                                                                     "Shaders/PostProcessing/Blur.frag", nullptr,
@@ -208,13 +209,13 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     if (shouldBlur) {
         if (glrpc) {
             vcore::RPC rpc;
-            rpc.data.f = f;
+            rpc.data.f = new vcore::RPCFunction(std::move(f));
             glrpc->invoke(&rpc, true);
+            delete rpc.data.f;
         } else {
-            f->invoke(nullptr, nullptr);
+            f.invoke(nullptr, nullptr);
         }
     }
-    delete f;
     glBindTexture(GL_TEXTURE_2D, 0);
     return tex;
 }

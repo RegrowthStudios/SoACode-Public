@@ -25,12 +25,12 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     m_mainMenuScreen = mainMenuScreen;
     m_commonState = commonState;
     m_state = m_commonState->state;
-    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderer::onWindowResize);
+    vui::InputDispatcher::window.onResize += makeDelegate(this, &MainMenuRenderer::onWindowResize);
 
     // TODO(Ben): Dis is bad mkay
     m_viewport = f32v4(0, 0, m_window->getWidth(), m_window->getHeight());
 
-    m_mainMenuUI = &m_mainMenuScreen->m_ui;
+    // m_mainMenuUI = &m_mainMenuScreen->m_ui;
     // Add anticipated work
     context.addAnticipatedWork(3, 3);
 
@@ -52,7 +52,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
 }
 
 void MainMenuRenderer::dispose(StaticLoadContext& context) {
-    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderer::onWindowResize);
+    vui::InputDispatcher::window.onResize -= makeDelegate(this, &MainMenuRenderer::onWindowResize);
 
     // Kill the builder
     if (m_loadThread) {
@@ -213,7 +213,7 @@ void MainMenuRenderer::render() {
     m_hdrTarget.bindDepthTexture(1);
     m_commonState->stages.hdr.render(&m_state->clientState.spaceCamera);
 
-    if (m_showUI) m_mainMenuUI->draw();
+    // if (m_showUI) m_mainMenuUI->draw();
 
     if (m_shouldScreenshot) dumpScreenshot();
 
@@ -240,7 +240,7 @@ void MainMenuRenderer::resize() {
     m_commonState->stages.spaceSystem.setViewport(m_newDims);
     stages.exposureCalc.setFrameBuffer(&m_hdrTarget);
 
-    m_mainMenuUI->setDimensions(f32v2(m_newDims));
+    // m_mainMenuUI->setDimensions(f32v2(m_newDims));
 
     m_shouldResize = false;
 }

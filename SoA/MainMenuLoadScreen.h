@@ -4,7 +4,7 @@
 #include <Vorb/Random.h>
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/graphics/Texture.h>
-#include <Vorb/script/Environment.h>
+// #include <Vorb/script/Environment.h>
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/ui/InputDispatcher.h>
 
@@ -57,13 +57,13 @@ private:
     bool m_isSkipDetected;
     vg::Texture m_vorbTextures[VORB_NUM_TEXTURES]; ///< 7 textures for the letters and cube
     vg::Texture m_regrowthTextures[REGROWTH_NUM_TEXTURES]; ///< 2 Textures for Regrowth Studios
-    vscript::Environment m_env;
-    vscript::RFunction<f32v2> m_fUpdateVorbPosition; ///< f32v2 (f64 totalTime, nString texture)
-    vscript::RFunction<f32v4> m_fUpdateVorbColor; ///< f32v4 (f64 totalTime, nString texture)
-    vscript::RFunction<f32v4> m_fUpdateVorbBackColor;///< f32v4 (f64 totalTime)
-    vscript::RFunction<f32v2> m_fUpdateRegrowthPosition; ///< f32v2 (f64 totalTime, nString texture)
-    vscript::RFunction<f32v4> m_fUpdateRegrowthColor; ///< f32v4 (f64 totalTime, nString texture)
-    vscript::RFunction<f32v4> m_fUpdateRegrowthBackColor;///< f32v4 (f64 totalTime)
+    // vscript::Environment m_env;
+    // vscript::RFunction<f32v2> m_fUpdateVorbPosition; ///< f32v2 (f64 totalTime, nString texture)
+    // vscript::RFunction<f32v4> m_fUpdateVorbColor; ///< f32v4 (f64 totalTime, nString texture)
+    // vscript::RFunction<f32v4> m_fUpdateVorbBackColor;///< f32v4 (f64 totalTime)
+    // vscript::RFunction<f32v2> m_fUpdateRegrowthPosition; ///< f32v2 (f64 totalTime, nString texture)
+    // vscript::RFunction<f32v4> m_fUpdateRegrowthColor; ///< f32v4 (f64 totalTime, nString texture)
+    // vscript::RFunction<f32v4> m_fUpdateRegrowthBackColor;///< f32v4 (f64 totalTime)
 
     bool m_isOnVorb = true;
 };

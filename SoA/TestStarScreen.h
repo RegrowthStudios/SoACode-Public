@@ -20,7 +20,7 @@
 #include "Camera.h"
 #include "HdrRenderStage.h"
 #include "ModPathResolver.h"
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GLRenderTarget.h>

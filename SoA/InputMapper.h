@@ -16,7 +16,7 @@
 #ifndef Input_Manager_h
 #define Input_Manager_h
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/ui/InputDispatcher.h>
 
 #define INPUTMAPPER_DEFAULT_CONFIG_LOCATION "Data/KeyConfig.yml"
@@ -25,7 +25,7 @@
 /// @author Frank McCoy and Ben Arnold
 class InputMapper {
 public:
-    typedef Event<ui32>::Listener Listener;
+    typedef Event<ui32>::Subscriber Listener;
     typedef i32 InputID;
 
     /// Constructor.

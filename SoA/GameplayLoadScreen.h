@@ -18,7 +18,7 @@
 #include <Vorb/vorb_rpc.h>
 #include <Vorb/Random.h>
 #include <Vorb/graphics/Texture.h>
-#include <Vorb/script/Environment.h>
+// #include <Vorb/script/Environment.h>
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/ui/InputDispatcher.h>
 

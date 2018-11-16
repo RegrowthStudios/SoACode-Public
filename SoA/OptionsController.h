@@ -16,8 +16,8 @@
 #define OptionsController_h__
 
 #include "SoaOptions.h"
-#include <Vorb/Events.hpp>
-#include <Vorb/script/Environment.h>
+#include <Vorb/Event.hpp>
+// #include <Vorb/script/Environment.h>
 
 class OptionsController {
 public:
@@ -37,7 +37,7 @@ public:
 
     void restoreDefault();
 
-    void registerScripting(vscript::Environment* env);
+    // void registerScripting(vscript::Environment* env);
 
     // These can be called from lua scripts
     void setInt(nString optionName, int val);

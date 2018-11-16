@@ -39,26 +39,26 @@ i32 MainMenuLoadScreen::getPreviousScreen() const {
 }
 
 void MainMenuLoadScreen::build() {
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-    m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
-    m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
-    m_env.load("Data/Logos/Vorb/ScreenUpdate.lua");
-    m_vorbScreenDuration = (m_env["Vorb.MaxDuration"].as<f64>())();
-    m_fUpdateVorbPosition = m_env["Vorb.PositionAtTime"].as<f32v2>();
-    m_fUpdateVorbColor = m_env["Vorb.ColorAtTime"].as<f32v4>();
-    m_fUpdateVorbBackColor = m_env["Vorb.BackgroundColor"].as<f32v4>();
-    m_env.load("Data/Logos/Regrowth/ScreenUpdate.lua");
-    m_regrowthScreenDuration = (m_env["Regrowth.MaxDuration"].as<f64>())();
-    m_fUpdateRegrowthPosition = m_env["Regrowth.PositionAtTime"].as<f32v2>();
-    m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
-    m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
-    m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
+// #if defined(__GNUC__) && !defined(__clang__)
+// #pragma GCC diagnostic push
+// #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+// #endif
+//     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
+//     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
+//     m_env.run("Data/Logos/Vorb/ScreenUpdate.lua");
+//     m_vorbScreenDuration = (m_env["Vorb.MaxDuration"].as<f64>())();
+//     m_fUpdateVorbPosition = m_env["Vorb.PositionAtTime"].as<f32v2>();
+//     m_fUpdateVorbColor = m_env["Vorb.ColorAtTime"].as<f32v4>();
+//     m_fUpdateVorbBackColor = m_env["Vorb.BackgroundColor"].as<f32v4>();
+//     m_env.run("Data/Logos/Regrowth/ScreenUpdate.lua");
+//     m_regrowthScreenDuration = (m_env["Regrowth.MaxDuration"].as<f64>())();
+//     m_fUpdateRegrowthPosition = m_env["Regrowth.PositionAtTime"].as<f32v2>();
+//     m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
+//     m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
+//     m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
+// #if defined(__GNUC__) && !defined(__clang__)
+// #pragma GCC diagnostic pop
+// #endif
     { // Load all textures
         const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",
@@ -138,7 +138,7 @@ void MainMenuLoadScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED
 
     m_isSkipDetected = false;
     m_timer = 0.0;
-    vui::InputDispatcher::key.onKeyDown += makeDelegate(*this, &MainMenuLoadScreen::onKeyPress);
+    vui::InputDispatcher::key.onKeyDown += makeDelegate(this, &MainMenuLoadScreen::onKeyPress);
 }
 void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     m_sf->dispose();
@@ -163,7 +163,7 @@ void MainMenuLoadScreen::onExit(const vui::GameTime& gameTime VORB_MAYBE_UNUSED)
     for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) glDeleteTextures(1, &m_vorbTextures[i].id);
     for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) glDeleteTextures(1, &m_regrowthTextures[i].id);
 
-    vui::InputDispatcher::key.onKeyDown -= makeDelegate(*this, &MainMenuLoadScreen::onKeyPress);
+    vui::InputDispatcher::key.onKeyDown -= makeDelegate(this, &MainMenuLoadScreen::onKeyPress);
 }
 
 void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
@@ -194,11 +194,11 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
 
     // Clear State For The Screen
     f32v4 clearColor;
-    if (m_isOnVorb) {
-        clearColor = m_fUpdateVorbBackColor(m_timer);
-    } else {
-        clearColor = m_fUpdateRegrowthBackColor(m_timer);
-    }
+    // if (m_isOnVorb) {
+    //     clearColor = m_fUpdateVorbBackColor(m_timer);
+    // } else {
+    //     clearColor = m_fUpdateRegrowthBackColor(m_timer);
+    // }
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
     glClearDepth(1.0);
@@ -207,8 +207,8 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     // Draw vorb logo
     // Update the window size
     f32v2 windowSize(w.getWidth(), w.getHeight());
-    m_env.addValue("WindowWidth", windowSize.x);
-    m_env.addValue("WindowHeight", windowSize.y);
+    // m_env.addValue("WindowWidth", windowSize.x);
+    // m_env.addValue("WindowHeight", windowSize.y);
 
     // Render each texture
     m_sb->begin();
