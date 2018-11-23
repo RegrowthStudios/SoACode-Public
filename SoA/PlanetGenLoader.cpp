@@ -159,11 +159,11 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore
     // Load textures
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender, void*) {
+        rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender, void*) {
             genData->grassTexture  = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             genData->rockTexture   = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
             genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-        })));
+        }));
         glrpc->invoke(&rpc, true);
         delete rpc.data.f;
     } else {
@@ -794,7 +794,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
     if (kegProps.colorPath.size()) {
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender, void*) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender, void*) {
                 //m_textureCache.freeTexture(kegProps.colorPath);
                 //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                 //                                                    genData->liquidColorPixels,
@@ -803,7 +803,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
                 //                                                    &vg::SamplerState::LINEAR_CLAMP,
                 //                                                    vg::TextureInternalFormat::RGB8,
                 //                                                    vg::TextureFormat::RGB, true);
-            })));
+            }));
             m_glRpc->invoke(&rpc, true);
             delete rpc.data.f;
         } else {
@@ -826,9 +826,9 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            })));
+            }));
             m_glRpc->invoke(&rpc, true);
             delete rpc.data.f;
         } else {
@@ -868,9 +868,9 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_MAYBE_UNU
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            })));
+            }));
             m_glRpc->invoke(&rpc, true);
             delete rpc.data.f;
         } else {
@@ -881,9 +881,9 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_MAYBE_UNU
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            })));
+            }));
             m_glRpc->invoke(&rpc, true);
             delete rpc.data.f;
         } else {

@@ -148,10 +148,10 @@ VGTexture PlanetGenerator::getRandomColorMap(vcore::RPCManager* glrpc, bool shou
     VGTexture tex = 0;
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = new vcore::RPCFunction(std::move(makeFunctor([&](Sender, void*) {
+        rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender, void*) {
             tex = vg::GpuMemory::uploadTexture(pixels, WIDTH, WIDTH, vg::TexturePixelType::UNSIGNED_BYTE,
                                               vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_CLAMP);
-        })));
+        }));
         glrpc->invoke(&rpc, true);
         delete rpc.data.f;
     } else {
