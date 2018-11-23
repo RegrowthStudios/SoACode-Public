@@ -2,13 +2,13 @@
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
-#include <Vorb/ui/Button.h>
-#include <Vorb/ui/CheckBox.h>
-#include <Vorb/ui/ComboBox.h>
-#include <Vorb/ui/Label.h>
-#include <Vorb/ui/Panel.h>
-#include <Vorb/ui/Viewport.h>
-#include <Vorb/ui/WidgetList.h>
+#include <Vorb/ui/widgets/Button.h>
+#include <Vorb/ui/widgets/CheckBox.h>
+#include <Vorb/ui/widgets/ComboBox.h>
+#include <Vorb/ui/widgets/Label.h>
+#include <Vorb/ui/widgets/Panel.h>
+#include <Vorb/ui/widgets/Viewport.h>
+#include <Vorb/ui/widgets/WidgetList.h>
 
 #include "CommonState.h"
 
