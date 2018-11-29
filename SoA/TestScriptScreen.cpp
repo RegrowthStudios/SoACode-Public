@@ -52,7 +52,9 @@ void TestScriptScreen::onEntry(const vui::GameTime&) {
 
     m_ui.init(m_commonState->window, nullptr, &m_font, &m_sb);
 
-    m_ui.makeViewFromScript("TestView", 1, "ui_test.lua");
+    auto view = m_ui.makeView("TestView", 1);
+    view.scriptEnv->getEnv()->addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
+    view.scriptEnv->run("ui_test.lua");
 }
 
 void TestScriptScreen::onExit(const vui::GameTime&) {
