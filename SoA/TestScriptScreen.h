@@ -29,9 +29,9 @@ public:
     void update(const vui::GameTime&) override;
     void draw(const vui::GameTime&) override;
 
-    Event<std::string> onMessage;
+    Event<nString> onMessage;
 
-    static void printMessage(std::string message) {
+    static void printMessage(nString message) {
         std::cout << message << std::endl;
     }
 

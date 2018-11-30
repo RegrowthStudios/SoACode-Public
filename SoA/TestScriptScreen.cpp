@@ -34,16 +34,18 @@ void TestScriptScreen::destroy(const vui::GameTime&) {
 void TestScriptScreen::onEntry(const vui::GameTime&) {
     m_env.init();
 
-    m_env.registerEvent("onMessage", &onMessage);
+    m_env.addCDelegate("onMessage", makeFunctor([&](nString name) {
+        onMessage.add(m_env.template getScriptDelegate<void, Sender, nString>(name), true);
+    }));
 
     m_env.addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
     m_env.addCDelegate("C_Add",   makeDelegate(&TestScriptScreen::add));
 
     m_env.run(vio::Path("test.lua"));
 
-    auto del = m_env.getScriptDelegate<void, void*, std::string>("bleh");
+    auto del = m_env.getScriptDelegate<void, Sender, nString>("doPrint");
 
-    del->invoke(nullptr, "Hello, Waldo!");
+    del.invoke(nullptr, "Hello, Waldo!");
 
     onMessage("Hello, World!");
 
