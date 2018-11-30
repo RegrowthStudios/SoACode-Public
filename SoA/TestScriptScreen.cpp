@@ -34,9 +34,14 @@ void TestScriptScreen::destroy(const vui::GameTime&) {
 void TestScriptScreen::onEntry(const vui::GameTime&) {
     m_env.init();
 
-    m_env.addCDelegate("onMessage", makeFunctor([&](nString name) {
+    m_env.setNamespaces("onMessage");
+    m_env.addCDelegate("subscribe", makeFunctor([&](nString name) {
         onMessage.add(m_env.template getScriptDelegate<void, Sender, nString>(name), true);
     }));
+    m_env.addCDelegate("unsubscribe", makeFunctor([&](nString name) {
+        onMessage.remove(m_env.template getScriptDelegate<void, Sender, nString>(name, false));
+    }));
+    m_env.setNamespaces();
 
     m_env.addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
     m_env.addCDelegate("C_Add",   makeDelegate(&TestScriptScreen::add));
@@ -45,9 +50,10 @@ void TestScriptScreen::onEntry(const vui::GameTime&) {
 
     auto del = m_env.getScriptDelegate<void, Sender, nString>("doPrint");
 
-    del.invoke(nullptr, "Hello, Waldo!");
-
     onMessage("Hello, World!");
+    onMessage("Hello, World!");
+
+    del.invoke(nullptr, "Hello, Waldo!");
 
     m_sb.init();
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
