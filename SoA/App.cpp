@@ -31,6 +31,7 @@
 #include "TestNewBlockAPIScreen.h"
 #include "TestNoiseScreen.h"
 #include "TestPlanetGenScreen.h"
+#include "TestScriptScreen.h"
 #include "TestStarScreen.h"
 #include "TestUIScreen.h"
 #include "TestVoxelModelScreen.h"
@@ -69,6 +70,9 @@ void App::addScreens() {
     scrTests.push_back(new TestGasGiantScreen);
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_G, scrTests.back(), "TestGasGiantScreen");
+    scrTests.push_back(new TestScriptScreen(this, &state));
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_W, scrTests.back(), "TestScriptScreen");
     scrTests.push_back(new TestStarScreen(this));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_S, scrTests.back(), "TestStarScreen");

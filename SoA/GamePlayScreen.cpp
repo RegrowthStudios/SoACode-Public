@@ -2,7 +2,7 @@
 #include "GamePlayScreen.h"
 
 #include <Vorb/colors.h>
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/graphics/SpriteBatch.h>
@@ -321,7 +321,7 @@ void GameplayScreen::initInput() {
         m_renderer.loadNightVision();
     });
 
-    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(*this, &GameplayScreen::onReloadShaders);
+    m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(this, &GameplayScreen::onReloadShaders);
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonDown, [&](Sender s VORB_MAYBE_UNUSED, const vui::MouseButtonEvent& e VORB_MAYBE_UNUSED) {
         if (isInGame()) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -329,7 +329,7 @@ void GameplayScreen::initInput() {
         }
     });
 
-    m_inputMapper->get(INPUT_RELOAD_TARGET).downEvent += makeDelegate(*this, &GameplayScreen::onReloadTarget);
+    m_inputMapper->get(INPUT_RELOAD_TARGET).downEvent += makeDelegate(this, &GameplayScreen::onReloadTarget);
 
     m_hooks.addAutoHook(vui::InputDispatcher::mouse.onButtonUp, [&](Sender s VORB_UNUSED, const vui::MouseButtonEvent& e VORB_UNUSED) {
         if (GameManager::voxelEditor->isEditing()) {
@@ -453,11 +453,11 @@ void GameplayScreen::initInput() {
         });
     }
 
-    vui::InputDispatcher::window.onClose += makeDelegate(*this, &GameplayScreen::onWindowClose);
+    vui::InputDispatcher::window.onClose += makeDelegate(this, &GameplayScreen::onWindowClose);
 
     m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
         m_renderer.takeScreenshot(); });
-    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(*this, &GameplayScreen::onToggleWireframe);
+    m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(this, &GameplayScreen::onToggleWireframe);
 
     m_inputMapper->startInput();
 }

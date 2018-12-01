@@ -100,7 +100,7 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
 
     if(data.empty())
     {
-        f->invoke(nullptr, spaceObjectTypeName(sysProps->type), value);
+        f.invoke(nullptr, spaceObjectTypeName(sysProps->type), value);
     }
     else
     {
@@ -117,10 +117,9 @@ bool SystemBodyLoader::loadBody(const SoaState* soaState, const nString& filePat
             return false;
         }
 
-        context.reader.forAllInMap(node, f);
+        context.reader.forAllInMap(node, &f);
     }
 
-    delete f;
     context.reader.dispose();
 
     return goodParse;

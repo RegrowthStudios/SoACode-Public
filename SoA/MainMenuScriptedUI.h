@@ -16,50 +16,52 @@
 #define MainMenuScriptedUI_h__
 
 #include <Vorb/ecs/Entity.h>
+#include <Vorb/script/lua/Environment.h>
 #include <Vorb/ui/ScriptedUI.h>
 #include "InputMapper.h"
 
 class MainMenuScreen;
 
-class MainMenuScriptedUI : public vui::ScriptedUI {
+class MainMenuScriptedUI : public vui::ScriptedUI<vscript::lua::Environment> {
 public:
     MainMenuScriptedUI();
     ~MainMenuScriptedUI();
 
-    void init(const nString& startFormPath, vui::IGameScreen* ownerScreen,
-              const vui::GameWindow* window, const f32v4& destRect,
-              vg::SpriteFont* defaultFont = nullptr) override;
+    virtual void init(vui::IGameScreen* ownerScreen, const vui::GameWindow* window,
+                        vg::TextureCache* textureCache, vg::SpriteFont* defaultFont = nullptr,
+                            vg::SpriteBatch* spriteBatch = nullptr) override;
 
 protected:
-    virtual void registerScriptValues(vui::FormScriptEnvironment* newFormEnv) override;
+    virtual void prepareScriptEnv(ViewEnv* env) override;
+
     // LUA funcs for controls
-    size_t getNumInputs();
+                  size_t getNumInputs();
     InputMapper::InputID getInput(int index);
-    VirtualKey getKey(InputMapper::InputID id);
-    VirtualKey getDefaultKey(InputMapper::InputID id);
-    nString getKeyString(InputMapper::InputID id);
-    nString getDefaultKeyString(InputMapper::InputID id);
-    nString getName(InputMapper::InputID id);
-    void onExit(int code);
-    void onTargetChange(Sender s, vecs::EntityID id);
-    void newGame();
+              VirtualKey getKey(InputMapper::InputID id);
+              VirtualKey getDefaultKey(InputMapper::InputID id);
+                 nString getKeyString(InputMapper::InputID id);
+                 nString getDefaultKeyString(InputMapper::InputID id);
+                 nString getName(InputMapper::InputID id);
+                    void onExit(int code);
+                    void onTargetChange(Sender s, vecs::EntityID id);
+                    void newGame();
 
     // Planet functions (temporary???)
     vecs::EntityID getTargetBody();
-    nString getBodyName(vecs::EntityID entity);
-    nString getBodyParentName(vecs::EntityID entity);
-    nString getBodyTypeName(vecs::EntityID entity);
-    f32 getBodyMass(vecs::EntityID entity);
-    f32 getBodyDiameter(vecs::EntityID entity);
-    f32 getBodyRotPeriod(vecs::EntityID entity);
-    f32 getBodyOrbPeriod(vecs::EntityID entity);
-    f32 getBodyAxialTilt(vecs::EntityID entity);
-    f32 getBodyEccentricity(vecs::EntityID entity);
-    f32 getBodyInclination(vecs::EntityID entity);
-    f32 getBodySemiMajor(vecs::EntityID entity);
-    f32 getGravityAccel(vecs::EntityID entity);
-    f32 getVolume(vecs::EntityID entity);
-    f32 getAverageDensity(vecs::EntityID entity);
+           nString getBodyName(vecs::EntityID entity);
+           nString getBodyParentName(vecs::EntityID entity);
+           nString getBodyTypeName(vecs::EntityID entity);
+               f32 getBodyMass(vecs::EntityID entity);
+               f32 getBodyDiameter(vecs::EntityID entity);
+               f32 getBodyRotPeriod(vecs::EntityID entity);
+               f32 getBodyOrbPeriod(vecs::EntityID entity);
+               f32 getBodyAxialTilt(vecs::EntityID entity);
+               f32 getBodyEccentricity(vecs::EntityID entity);
+               f32 getBodyInclination(vecs::EntityID entity);
+               f32 getBodySemiMajor(vecs::EntityID entity);
+               f32 getGravityAccel(vecs::EntityID entity);
+               f32 getVolume(vecs::EntityID entity);
+               f32 getAverageDensity(vecs::EntityID entity);
 
     InputMapper* m_inputMapper = nullptr;
 };

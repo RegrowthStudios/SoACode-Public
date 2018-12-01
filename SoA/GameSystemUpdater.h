@@ -25,7 +25,7 @@
 #include "AABBCollidableComponentUpdater.h"
 #include "HeadComponentUpdater.h"
 #include "VoxelCoordinateSpaces.h"
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
 struct SoaState;

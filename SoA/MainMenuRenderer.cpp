@@ -25,7 +25,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
     m_mainMenuScreen = mainMenuScreen;
     m_commonState = commonState;
     m_state = m_commonState->state;
-    vui::InputDispatcher::window.onResize += makeDelegate(*this, &MainMenuRenderer::onWindowResize);
+    vui::InputDispatcher::window.onResize += makeDelegate(this, &MainMenuRenderer::onWindowResize);
 
     // TODO(Ben): Dis is bad mkay
     m_viewport = f32v4(0, 0, m_window->getWidth(), m_window->getHeight());
@@ -52,7 +52,7 @@ void MainMenuRenderer::init(vui::GameWindow* window, StaticLoadContext& context,
 }
 
 void MainMenuRenderer::dispose(StaticLoadContext& context) {
-    vui::InputDispatcher::window.onResize -= makeDelegate(*this, &MainMenuRenderer::onWindowResize);
+    vui::InputDispatcher::window.onResize -= makeDelegate(this, &MainMenuRenderer::onWindowResize);
 
     // Kill the builder
     if (m_loadThread) {
@@ -143,7 +143,6 @@ void MainMenuRenderer::hook() {
 }
 
 void MainMenuRenderer::render() {
-
     // Check for window resize
     if (m_shouldResize) resize();
 
@@ -221,7 +220,7 @@ void MainMenuRenderer::render() {
     checkGlError("MainMenuRenderPipeline::render()");
 }
 
-void MainMenuRenderer::onWindowResize(Sender s VORB_MAYBE_UNUSED, const vui::WindowResizeEvent& e) {
+void MainMenuRenderer::onWindowResize(Sender, const vui::WindowResizeEvent& e) {
     m_newDims = ui32v2(e.w, e.h);
     m_shouldResize = true;
 }
@@ -240,7 +239,8 @@ void MainMenuRenderer::resize() {
     m_commonState->stages.spaceSystem.setViewport(m_newDims);
     stages.exposureCalc.setFrameBuffer(&m_hdrTarget);
 
-    m_mainMenuUI->setDimensions(f32v2(m_newDims));
+    // Pretty sure we don't need to do this.
+    // m_mainMenuUI->setDimensions(f32v2(m_newDims));
 
     m_shouldResize = false;
 }

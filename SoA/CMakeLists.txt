@@ -336,6 +336,7 @@ set(SoA_headers
     TestNewBlockAPIScreen.h
     TestNoiseScreen.h
     TestPlanetGenScreen.h
+    TestScriptScreen.h
     TestStarScreen.h
     TestUIScreen.h
     TestVoxelModelScreen.h
@@ -419,8 +420,6 @@ set(SoA_sources
     ColoredFullQuadRenderer.cpp
     ColorFilterRenderStage.cpp
     Computer.cpp
-    ConsoleFuncs.cpp
-    ConsoleMain.cpp
     ConsoleTests.cpp
     CutoutVoxelRenderStage.cpp
     DebugRenderer.cpp
@@ -547,6 +546,7 @@ set(SoA_sources
     TestNewBlockAPIScreen.cpp
     TestNoiseScreen.cpp
     TestPlanetGenScreen.cpp
+    TestScriptScreen.cpp
     TestStarScreen.cpp
     TestUIScreen.cpp
     TestVoxelModelScreen.cpp

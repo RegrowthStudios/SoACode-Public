@@ -21,13 +21,13 @@
 #include "VoxelCoordinateSpaces.h"
 #include "PlanetGenData.h"
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 
 struct NoiseBase;
 struct PlanetHeightData;
 
 // TODO(Ben): Implement this
-typedef Delegate<PlanetHeightData&, f64v3, PlanetGenData> heightmapGenFunction;
+typedef Delegate<void, PlanetHeightData&, f64v3, PlanetGenData> heightmapGenFunction;
 
 class SphericalHeightmapGenerator {
 public:

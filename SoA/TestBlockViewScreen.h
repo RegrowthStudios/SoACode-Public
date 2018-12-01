@@ -15,7 +15,7 @@
 #ifndef TestBlockViewScreen_h__
 #define TestBlockViewScreen_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/ui/IGameScreen.h>
 

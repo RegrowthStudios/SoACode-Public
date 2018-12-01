@@ -15,7 +15,7 @@
 #ifndef BlockPack_h__
 #define BlockPack_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/Texture.h>
 
 #include "BlockData.h"

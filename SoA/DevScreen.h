@@ -15,7 +15,7 @@
 #ifndef DevScreen_h__
 #define DevScreen_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/ui/IGameScreen.h>
 #include <Vorb/ui/KeyboardEventDispatcher.h>
 #include <Vorb/VorbPreDecl.inl>

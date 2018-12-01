@@ -17,8 +17,6 @@
 
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/VorbPreDecl.inl>
-#include <Vorb/script/Function.h>
-#include <Vorb/script/Environment.h>
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/GBuffer.h>
 
@@ -26,6 +24,7 @@
 
 DECL_VG(class GLProgram);
 DECL_VG(class GLRenderTarget);
+DECL_VSCRIPT(template <typename ScriptImpl> class IEnvironment; namespace lua { class Environment; });
 
 class ExposureCalcRenderStage : public IRenderStage {
 public:
@@ -49,21 +48,21 @@ public:
     const f32& getExposure() const { return m_exposure; }
 
 private:
-    vg::GLProgram m_downsampleProgram;
+    vg::GLProgram                   m_downsampleProgram;
     std::vector<vg::GLRenderTarget> m_renderTargets; ///< All render targets
-    vg::FullQuadVBO* m_quad = nullptr;
-    vg::GBuffer* m_hdrFrameBuffer = nullptr;
-    const ui32v4* m_restoreViewport;
-    ui32 m_resolution;
-    ui32 m_mipLevels = 1;
-    int m_mipStep = -1;
-    f32 m_exposure = 0.0005f;
-    vg::GLProgram m_program;
+    vg::FullQuadVBO*                m_quad              = nullptr;
+    vg::GBuffer*                    m_hdrFrameBuffer    = nullptr;
+    const ui32v4*                   m_restoreViewport;
+    ui32                            m_resolution;
+    ui32                            m_mipLevels         = 1;
+    int                             m_mipStep           = -1;
+    f32                             m_exposure          = 0.0005f;
+    vg::GLProgram                   m_program;
 
     // Script for exposure calc
     bool m_needsScriptLoad = true;
-    vscript::Environment* m_scripts = nullptr;
-    vscript::RFunction<f32> m_calculateExposure;
+    vscript::IEnvironment<vscript::lua::Environment>* m_env = nullptr;
+    Delegate<f32, f32v4> m_calculateExposure;
 };
 
 #endif // ExposureCalcRenderStage_h__

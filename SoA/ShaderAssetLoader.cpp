@@ -109,12 +109,12 @@ void vcore::AssetBuilder<ShaderAsset>::create(const vpath& p, OUT ShaderAsset* a
     auto func1=[=](Sender, const nString& msg) {
         printf("PROG COMP ERROR:\n%s\n", msg.c_str());
     };
-    auto d1 = makeDelegate<Sender, const nString&>(func1);
+    auto d1 = makeDelegate(&func1);
 
     auto func2=[=](Sender, const nString& msg) {
         printf("PROG LINK ERROR:\n%s\n", msg.c_str());
     };
-    auto d2 = makeDelegate<Sender, const nString&>(func2);
+    auto d2 = makeDelegate(&func2);
 
     asset->program.onShaderCompilationError += d1;
     asset->program.onProgramLinkError += d2;

@@ -42,7 +42,7 @@ void BlockTexturePack::init(ui32 resolution, ui32 maxTextures) {
     BlockColorMap& lmap = m_colorMaps["liquid"];
     memset(lmap.pixels, 255, sizeof(lmap.pixels));
 
-    SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(*this, &BlockTexturePack::onAddSphericalVoxelComponent);
+    SpaceSystemAssemblages::onAddSphericalVoxelComponent += makeDelegate(this, &BlockTexturePack::onAddSphericalVoxelComponent);
 }
 
 // TODO(Ben): Lock?
@@ -237,7 +237,7 @@ void BlockTexturePack::dispose() {
     delete[] m_textures;
     m_textures = nullptr;
 
-    SpaceSystemAssemblages::onAddSphericalVoxelComponent -= makeDelegate(*this, &BlockTexturePack::onAddSphericalVoxelComponent);
+    SpaceSystemAssemblages::onAddSphericalVoxelComponent -= makeDelegate(this, &BlockTexturePack::onAddSphericalVoxelComponent);
 }
 
 nString getName(nString name) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/VorbPreDecl.inl>
 
 #include "BlockData.h"
@@ -17,7 +17,7 @@ public:
 
     void invoke(Sender s, ui16 id);
 
-    Delegate<Sender, ui16> del;
+    Delegate<void, Sender, ui16> del;
 private:
     const vio::IOManager* m_iom; ///< IO workspace
     CaPhysicsTypeDict* m_caCache; ///< CA type cache

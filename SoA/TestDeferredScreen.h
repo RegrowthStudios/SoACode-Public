@@ -15,7 +15,7 @@
 #ifndef TestDeferredScreen_h__
 #define TestDeferredScreen_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/graphics/DeferredShaders.h>
 #include <Vorb/graphics/FullQuadVBO.h>
 #include <Vorb/graphics/GBuffer.h>

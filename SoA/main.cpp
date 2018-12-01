@@ -8,6 +8,7 @@
 //#define VORB_IMPL_SOUND_FMOD
 //#define VORB_IMPL_FONT_SDL
 #include <Vorb/VorbLibs.h>
+#include <Vorb/script/lua/Environment.h>
 
 #include "App.h"
 #include "Startup.h"
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
         break;
     case Startup::CONSOLE:
         // Run the console
-        consoleMain();
+        consoleMain<vscript::lua::Environment>();
         break;
     case Startup::HELP:
         // Pause on user input

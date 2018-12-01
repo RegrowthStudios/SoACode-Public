@@ -32,7 +32,7 @@ public:
     }
 
     ProgramGenDelegate() {
-        del = makeDelegate(*this, &ProgramGenDelegate::invoke);
+        del = makeDelegate(this, &ProgramGenDelegate::invoke);
         rpc.data.f = &del;
     }
 
@@ -59,7 +59,7 @@ public:
     bool isFromFile = false;
 
     vcore::RPC rpc;
-    Delegate<Sender, void*> del;
+    Delegate<void, Sender, void*> del;
     vio::IOManager* iom = nullptr;
 
     vg::GLProgram program;

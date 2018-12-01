@@ -5,10 +5,9 @@
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
 
-#include <Vorb/ui/FormScriptEnvironment.h>
-#include <Vorb/script/Environment.h>
-#include <Vorb/Events.hpp>
-// #include <Vorb/ui/Form.h>
+#include <Vorb/ui/script/ViewScriptEnvironment.h>
+#include <Vorb/script/lua/Environment.h>
+#include <Vorb/Event.hpp>
 #include <Vorb/ui/KeyStrings.h>
 
 #define ON_TARGET_CHANGE_NAME "onTargetChange"
@@ -21,54 +20,54 @@ MainMenuScriptedUI::~MainMenuScriptedUI() {
     // Empty
 }
 
-void MainMenuScriptedUI::init(const nString& startFormPath, vui::IGameScreen* ownerScreen, const vui::GameWindow* window, const f32v4& destRect, vg::SpriteFont* defaultFont /*= nullptr*/) {
+void MainMenuScriptedUI::init(vui::IGameScreen* ownerScreen, const vui::GameWindow* window, vg::TextureCache* textureCache, vg::SpriteFont* defaultFont /*= nullptr*/, vg::SpriteBatch* spriteBatch /*= nullptr*/) {
     MainMenuScreen* mainMenuScreen = ((MainMenuScreen*)ownerScreen);
     m_inputMapper = mainMenuScreen->m_inputMapper;
 
-    mainMenuScreen->m_mainMenuSystemViewer->TargetChange += makeDelegate(*this, &MainMenuScriptedUI::onTargetChange);
+    mainMenuScreen->m_mainMenuSystemViewer->TargetChange += makeDelegate(this, &MainMenuScriptedUI::onTargetChange);
 
-    ScriptedUI::init(startFormPath, ownerScreen, window, destRect, defaultFont); 
+    ScriptedUI::init(ownerScreen, window, textureCache, defaultFont, spriteBatch); 
 }
 
-void MainMenuScriptedUI::registerScriptValues(vui::FormScriptEnvironment* newFormEnv) {
-    vui::ScriptedUI::registerScriptValues(newFormEnv);
-    vscript::Environment* env = newFormEnv->getEnv();
+void MainMenuScriptedUI::prepareScriptEnv(ViewEnv* viewEnv) {
+    vui::ScriptedUI<vscript::lua::Environment>::prepareScriptEnv(viewEnv);
+    vscript::lua::Environment* env = static_cast<vscript::lua::Environment*>(viewEnv->getEnv());
 
-    SoaEngine::optionsController.registerScripting(env);
+    SoaEngine::optionsController.registerScripting<vscript::lua::Environment>(env);
 
     // Controls menu stuff
     env->setNamespaces("Controls");
-    env->addCRDelegate("size", makeRDelegate(*this, &MainMenuScriptedUI::getNumInputs));
-    env->addCRDelegate("getInput", makeRDelegate(*this, &MainMenuScriptedUI::getInput));
-    env->addCRDelegate("getKey", makeRDelegate(*this, &MainMenuScriptedUI::getKey));
-    env->addCRDelegate("getDefaultKey", makeRDelegate(*this, &MainMenuScriptedUI::getDefaultKey));
-    env->addCRDelegate("getKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getKeyString));
-    env->addCRDelegate("getDefaultKeyString", makeRDelegate(*this, &MainMenuScriptedUI::getDefaultKeyString));
-    env->addCRDelegate("getName", makeRDelegate(*this, &MainMenuScriptedUI::getName));
+    env->addCDelegate("size",                makeDelegate(this, &MainMenuScriptedUI::getNumInputs));
+    env->addCDelegate("getInput",            makeDelegate(this, &MainMenuScriptedUI::getInput));
+    env->addCDelegate("getKey",              makeDelegate(this, &MainMenuScriptedUI::getKey));
+    env->addCDelegate("getDefaultKey",       makeDelegate(this, &MainMenuScriptedUI::getDefaultKey));
+    env->addCDelegate("getKeyString",        makeDelegate(this, &MainMenuScriptedUI::getKeyString));
+    env->addCDelegate("getDefaultKeyString", makeDelegate(this, &MainMenuScriptedUI::getDefaultKeyString));
+    env->addCDelegate("getName",             makeDelegate(this, &MainMenuScriptedUI::getName));
 
     env->setNamespaces();
-    env->addCDelegate("newGame", makeDelegate(*this, &MainMenuScriptedUI::newGame));
+    env->addCDelegate("newGame", makeDelegate(this, &MainMenuScriptedUI::newGame));
 
     env->setNamespaces("Game");
-    env->addCDelegate("exit", makeDelegate(*this, &MainMenuScriptedUI::onExit));
+    env->addCDelegate("exit", makeDelegate(this, &MainMenuScriptedUI::onExit));
 
     // TODO(Ben): Expose and use ECS instead???
     env->setNamespaces("Space");
-    env->addCRDelegate("getTargetBody", makeRDelegate(*this, &MainMenuScriptedUI::getTargetBody));
-    env->addCRDelegate("getBodyName", makeRDelegate(*this, &MainMenuScriptedUI::getBodyName));
-    env->addCRDelegate("getBodyParentName", makeRDelegate(*this, &MainMenuScriptedUI::getBodyName));
-    env->addCRDelegate("getBodyTypeName", makeRDelegate(*this, &MainMenuScriptedUI::getBodyTypeName));
-    env->addCRDelegate("getBodyMass", makeRDelegate(*this, &MainMenuScriptedUI::getBodyMass));
-    env->addCRDelegate("getBodyDiameter", makeRDelegate(*this, &MainMenuScriptedUI::getBodyDiameter));
-    env->addCRDelegate("getBodyRotPeriod", makeRDelegate(*this, &MainMenuScriptedUI::getBodyRotPeriod));
-    env->addCRDelegate("getBodyOrbPeriod", makeRDelegate(*this, &MainMenuScriptedUI::getBodyOrbPeriod));
-    env->addCRDelegate("getBodyAxialTilt", makeRDelegate(*this, &MainMenuScriptedUI::getBodyAxialTilt));
-    env->addCRDelegate("getBodyEccentricity", makeRDelegate(*this, &MainMenuScriptedUI::getBodyEccentricity));
-    env->addCRDelegate("getBodyInclination", makeRDelegate(*this, &MainMenuScriptedUI::getBodyInclination));
-    env->addCRDelegate("getBodySemiMajor", makeRDelegate(*this, &MainMenuScriptedUI::getBodySemiMajor));
-    env->addCRDelegate("getGravityAccel", makeRDelegate(*this, &MainMenuScriptedUI::getGravityAccel));
-    env->addCRDelegate("getVolume", makeRDelegate(*this, &MainMenuScriptedUI::getVolume));
-    env->addCRDelegate("getAverageDensity", makeRDelegate(*this, &MainMenuScriptedUI::getAverageDensity));
+    env->addCDelegate("getTargetBody",       makeDelegate(this, &MainMenuScriptedUI::getTargetBody));
+    env->addCDelegate("getBodyName",         makeDelegate(this, &MainMenuScriptedUI::getBodyName));
+    env->addCDelegate("getBodyParentName",   makeDelegate(this, &MainMenuScriptedUI::getBodyName));
+    env->addCDelegate("getBodyTypeName",     makeDelegate(this, &MainMenuScriptedUI::getBodyTypeName));
+    env->addCDelegate("getBodyMass",         makeDelegate(this, &MainMenuScriptedUI::getBodyMass));
+    env->addCDelegate("getBodyDiameter",     makeDelegate(this, &MainMenuScriptedUI::getBodyDiameter));
+    env->addCDelegate("getBodyRotPeriod",    makeDelegate(this, &MainMenuScriptedUI::getBodyRotPeriod));
+    env->addCDelegate("getBodyOrbPeriod",    makeDelegate(this, &MainMenuScriptedUI::getBodyOrbPeriod));
+    env->addCDelegate("getBodyAxialTilt",    makeDelegate(this, &MainMenuScriptedUI::getBodyAxialTilt));
+    env->addCDelegate("getBodyEccentricity", makeDelegate(this, &MainMenuScriptedUI::getBodyEccentricity));
+    env->addCDelegate("getBodyInclination",  makeDelegate(this, &MainMenuScriptedUI::getBodyInclination));
+    env->addCDelegate("getBodySemiMajor",    makeDelegate(this, &MainMenuScriptedUI::getBodySemiMajor));
+    env->addCDelegate("getGravityAccel",     makeDelegate(this, &MainMenuScriptedUI::getGravityAccel));
+    env->addCDelegate("getVolume",           makeDelegate(this, &MainMenuScriptedUI::getVolume));
+    env->addCDelegate("getAverageDensity",   makeDelegate(this, &MainMenuScriptedUI::getAverageDensity));
     env->setNamespaces();
 }
 
@@ -107,15 +106,15 @@ void MainMenuScriptedUI::onExit(int code) {
     ((MainMenuScreen*)m_ownerScreen)->onQuit(this, code);
 }
 
-void MainMenuScriptedUI::onTargetChange(Sender s VORB_MAYBE_UNUSED, vecs::EntityID id) {
+void MainMenuScriptedUI::onTargetChange(Sender, vecs::EntityID id) {
     // TODO(Ben): Race condition???
-    // for (auto& it : m_forms) {
-    //     if (it.first->isEnabled()) {
-    //         vscript::Environment* env = it.second->getEnv();
-    //         const vscript::Function& f = (*env)[ON_TARGET_CHANGE_NAME];
-    //         if (!f.isNil()) f(id);
-    //     }
-    // }
+    for (auto& view : m_views) {
+        if (view.second.viewport->isEnabled()) {
+            vscript::IEnvironment<vscript::lua::Environment>* env = view.second.viewEnv->getEnv();
+            Delegate<void, vecs::EntityID> del = env->template getScriptDelegate<void, vecs::EntityID>(ON_TARGET_CHANGE_NAME);
+            if (del != NilDelegate<void, vecs::EntityID>) del(id);
+        }
+    }
 }
 
 void MainMenuScriptedUI::newGame() {

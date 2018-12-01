@@ -15,11 +15,11 @@
 #ifndef ModInformation_h__
 #define ModInformation_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 
 #include "DLLAPI.h"
 
-typedef Delegate<>
+typedef Delegate<void>
 
 struct ModInformation {
 

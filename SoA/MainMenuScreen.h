@@ -19,6 +19,7 @@
 
 #include <Vorb/Random.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/SpriteFont.h>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
 
@@ -26,7 +27,6 @@
 #include "MainMenuRenderer.h"
 #include "MainMenuScriptedUI.h"
 #include "Camera.h"
-#include <Vorb/ui/FormScriptEnvironment.h>
 #include "SpaceSystemUpdater.h"
 
 class App;

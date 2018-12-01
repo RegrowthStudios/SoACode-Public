@@ -7,7 +7,7 @@
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/GpuMemory.h>
 #include <Vorb/io/IOManager.h>
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/io/YAML.h>
 #include <Vorb/vorb_rpc.h>
 #include <Vorb/Timing.h>
@@ -112,9 +112,8 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::loadPlanetGenData(const nString& t
             genData->blockInfo.liquidBlockName = keg::convert<nString>(value);
         }
     });
-    context.reader.forAllInMap(node, f);
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
-    delete f;
 
     if (floraPath.size()) {
         loadFlora(floraPath, genData);
@@ -156,19 +155,21 @@ CALLER_DELETE PlanetGenData* PlanetGenLoader::getRandomGenData(f32 radius, vcore
     }
 
     // TODO: Reimplement these as suitable.
+    // TODO(Matthew): Note in EVERY case of using RPC, it may be better if RPC owns the function, as otherwise we can't do non-blocking RPC.
     // Load textures
     if (glrpc) {
         vcore::RPC rpc;
-        rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
-            //genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            //genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            //genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-        });
+        rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender, void*) {
+            genData->grassTexture  = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->rockTexture   = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+            genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        }));
         glrpc->invoke(&rpc, true);
+        delete rpc.data.f;
     } else {
-        //genData->grassTexture = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-        //genData->rockTexture = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-        //genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->grassTexture  = m_textureCache.addTexture("_shared/terrain_b.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->rockTexture   = m_textureCache.addTexture("_shared/terrain_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
+        genData->liquidTexture = m_textureCache.addTexture("_shared/water_a.png", vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
     }
 
     // Set default biome
@@ -401,12 +402,10 @@ void PlanetGenLoader::loadFlora(const nString& filePath, PlanetGenData* genData)
         FloraKegProperties properties;
         properties.id = key;
         floraProps = &properties;
-        context.reader.forAllInMap(value, floraParser);
+        context.reader.forAllInMap(value, &floraParser);
         genData->blockInfo.flora.push_back(properties);
     });
-    context.reader.forAllInMap(node, baseParser);
-    delete baseParser;
-    delete floraParser;
+    context.reader.forAllInMap(node, &baseParser);
     context.reader.dispose();
 }
 
@@ -479,7 +478,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             keg::evalData((ui8*)&leafProps->block, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &leafProps->fruitProps;
-            context.reader.forAllInMap(value, fruitParser);
+            context.reader.forAllInMap(value, &fruitParser);
         } else if (key == "tvRadius") {
             PARSE_V2(i32, leafProps->mushroom.tvRadius);
         } else if (key == "thRadius") {
@@ -532,10 +531,10 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             keg::evalData((ui8*)&trunkProps->branchProps.barkBlock, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &trunkProps->branchProps.fruitProps;
-            context.reader.forAllInMap(value, fruitParser);
+            context.reader.forAllInMap(value, &fruitParser);
         } else if (key == "leaves") {
             leafProps = &trunkProps->branchProps.leafProps;
-            context.reader.forAllInMap(value, leafParser);
+            context.reader.forAllInMap(value, &leafParser);
         }
     });
 
@@ -561,7 +560,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         } else if (key == "changeDirChance") {
             PARSE_V2(f32, trunkProps->changeDirChance);
         } else if (key == "slope") {
-            context.reader.forAllInMap(value, slopeParser);
+            context.reader.forAllInMap(value, &slopeParser);
         } else if (key == "block") {
             keg::evalData((ui8*)&trunkProps->coreBlock, &stringVal, value, context);
             trunkProps->barkBlock = trunkProps->coreBlock;
@@ -571,12 +570,12 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
             keg::evalData((ui8*)&trunkProps->barkBlock, &stringVal, value, context);
         } else if (key == "fruit") {
             fruitProps = &trunkProps->fruitProps;
-            context.reader.forAllInMap(value, fruitParser);
+            context.reader.forAllInMap(value, &fruitParser);
         } else if (key == "branches") {
-            context.reader.forAllInMap(value, branchParser);
+            context.reader.forAllInMap(value, &branchParser);
         } else if (key == "leaves") {
             leafProps = &trunkProps->leafProps;
-            context.reader.forAllInMap(value, leafParser);
+            context.reader.forAllInMap(value, &leafParser);
         } else if (key == "interp") {
             keg::evalData((ui8*)&trunkProps->interp, &interpTypeVal, value, context);
         }
@@ -591,7 +590,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         // Default slopes
         trunkProps->slope[0] = i32v2(1000);
         trunkProps->slope[1] = i32v2(1000);
-        context.reader.forAllInMap(value, trunkDataParser);
+        context.reader.forAllInMap(value, &trunkDataParser);
         // Avoid div 0
         if (trunkProps->slope[0].x < 1) trunkProps->slope[0].x = 1;
         if (trunkProps->slope[0].y < 1) trunkProps->slope[0].y = 1;
@@ -622,7 +621,7 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         branchVolProps = &treeProps->branchVolumes.back();
         *branchVolProps = {}; // Zero it
 
-        context.reader.forAllInMap(value, branchVolumeParser);
+        context.reader.forAllInMap(value, &branchVolumeParser);
     });
 
     // Parses second level
@@ -638,9 +637,9 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         } else if (key == "infRadius") {
             PARSE_V2(f32, treeProps->infRadius);
         } else if (key == "branchVolumes") {
-            context.reader.forAllInSequence(value, branchVolumeSeqParser);
+            context.reader.forAllInSequence(value, &branchVolumeSeqParser);
         } else if (key == "trunk") {
-            context.reader.forAllInSequence(value, trunkParser);
+            context.reader.forAllInSequence(value, &trunkParser);
         }
     });
 
@@ -650,19 +649,9 @@ void PlanetGenLoader::loadTrees(const nString& filePath, PlanetGenData* genData)
         treeProps = &genData->blockInfo.trees.back();
         *treeProps = {}; // Zero it
         treeProps->id = key;
-        context.reader.forAllInMap(value, treeParser);
+        context.reader.forAllInMap(value, &treeParser);
     });
-    context.reader.forAllInMap(node, baseParser);
-    delete fruitParser;
-    delete leafParser;
-    delete branchParser;
-    delete slopeParser;
-    delete trunkParser;
-    delete trunkDataParser;
-    delete branchVolumeParser;
-    delete branchVolumeSeqParser;
-    delete treeParser;
-    delete baseParser;
+    context.reader.forAllInMap(node, &baseParser);
     context.reader.dispose();
 }
 #undef PARSE_V2
@@ -721,8 +710,7 @@ void PlanetGenLoader::loadBiomes(const nString& filePath, PlanetGenData* genData
             }
         }
     });
-    context.reader.forAllInMap(node, baseParser);
-    delete baseParser;
+    context.reader.forAllInMap(node, &baseParser);
     context.reader.dispose();
 
     // Get number of biomes
@@ -806,7 +794,7 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
     if (kegProps.colorPath.size()) {
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender, void*) {
                 //m_textureCache.freeTexture(kegProps.colorPath);
                 //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
                 //                                                    genData->liquidColorPixels,
@@ -815,8 +803,9 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
                 //                                                    &vg::SamplerState::LINEAR_CLAMP,
                 //                                                    vg::TextureInternalFormat::RGB8,
                 //                                                    vg::TextureFormat::RGB, true);
-            });
+            }));
             m_glRpc->invoke(&rpc, true);
+            delete rpc.data.f;
         } else {
             //m_textureCache.freeTexture(kegProps.colorPath);
             //genData->liquidColorMap = m_textureCache.addTexture(kegProps.colorPath,
@@ -837,10 +826,11 @@ void PlanetGenLoader::parseLiquidColor(keg::ReadContext& context, keg::Node node
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            });
+            }));
             m_glRpc->invoke(&rpc, true);
+            delete rpc.data.f;
         } else {
             //genData->liquidTexture = m_textureCache.addTexture(kegProps.texturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
@@ -878,10 +868,11 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_MAYBE_UNU
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            });
+            }));
             m_glRpc->invoke(&rpc, true);
+            delete rpc.data.f;
         } else {
             //genData->grassTexture = m_textureCache.addTexture(kegProps.grassTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
@@ -890,10 +881,11 @@ void PlanetGenLoader::parseTerrainColor(keg::ReadContext& context VORB_MAYBE_UNU
         // Handle RPC for texture upload
         if (m_glRpc) {
             vcore::RPC rpc;
-            rpc.data.f = makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
+            rpc.data.f = new vcore::RPCFunction(makeFunctor([&](Sender s VORB_UNUSED, void* userData VORB_UNUSED) {
                 //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
-            });
+            }));
             m_glRpc->invoke(&rpc, true);
+            delete rpc.data.f;
         } else {
             //genData->rockTexture = m_textureCache.addTexture(kegProps.rockTexturePath, vg::TextureTarget::TEXTURE_2D, &vg::SamplerState::LINEAR_WRAP_MIPMAP);
         }
@@ -913,6 +905,5 @@ void PlanetGenLoader::parseBlockLayers(keg::ReadContext& context, keg::Node node
         keg::parse((ui8*)&layerProps, value, context, &KEG_GLOBAL_TYPE(BlockLayerKegProperties));
         genData->blockInfo.blockLayers.push_back(layerProps);
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
 }

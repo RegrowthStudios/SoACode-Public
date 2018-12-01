@@ -82,8 +82,7 @@ bool SpaceSystemLoader::loadPathColors() {
         m_spaceSystem->pathColorMap[name] = std::make_pair(base, hover);
     });
 
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
     return goodParse;
 }
@@ -137,8 +136,7 @@ bool SpaceSystemLoader::loadSystemProperties() {
             m_systemBodies[name] = body;
         }
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
     return goodParse;
 }

@@ -192,8 +192,7 @@ bool BlockLoader::load(const vio::IOManager& iom, const cString filePath, BlockP
         // Load data
         keg::parse((ui8*)&b, value, context, &KEG_GLOBAL_TYPE(Block));
     });
-    context.reader.forAllInMap(node, f);
-    delete f;
+    context.reader.forAllInMap(node, &f);
     context.reader.dispose();
 
     // Add blocks to pack
@@ -208,7 +207,7 @@ bool BlockLoader::load(const vio::IOManager& iom, const cString filePath, BlockP
 GameBlockPostProcess::GameBlockPostProcess(const vio::IOManager* iom, CaPhysicsTypeDict* caCache) :
     m_iom(iom),
     m_caCache(caCache) {
-    del = makeDelegate(*this, &GameBlockPostProcess::invoke);
+    del = makeDelegate(this, &GameBlockPostProcess::invoke);
 }
 
 void GameBlockPostProcess::invoke(Sender s, ui16 id) {

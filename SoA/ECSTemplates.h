@@ -9,7 +9,7 @@
 #ifndef ECSTemplates_h__
 #define ECSTemplates_h__
 
-#include <Vorb/Events.hpp>
+#include <Vorb/Event.hpp>
 #include <Vorb/IO.h>
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/ECS.h>
@@ -44,7 +44,7 @@ private:
 };
 
 class ECSTemplateLibrary {
-    typedef RDelegate<ECSComponentBuilder*> ComponentBuildFunctionFactory;
+    typedef Delegate<ECSComponentBuilder*> ComponentBuildFunctionFactory;
 public:
     virtual ~ECSTemplateLibrary();
 
@@ -58,7 +58,7 @@ public:
             return new T();
         };
 
-        m_builders[component] = makeRDelegate<ECSComponentBuilder*>(func);
+        m_builders[component] = makeDelegate(&func);
     }
 
     template<typename F>
