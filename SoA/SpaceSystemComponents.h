@@ -23,7 +23,6 @@
 #include <Vorb/io/Keg.h>
 #include <Vorb/ecs/ECS.h>
 #include <Vorb/ecs/ComponentTable.hpp>
-// #include <Vorb/script/Function.h>
 
 #include "Constants.h"
 #include "SpaceSystemLoadStructs.h"

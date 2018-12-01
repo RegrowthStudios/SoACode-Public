@@ -7,6 +7,8 @@
 #include <Vorb/graphics/GLRenderTarget.h>
 #include <Vorb/graphics/ShaderManager.h>
 #include <Vorb/graphics/SamplerState.h>
+#include <Vorb/script/IEnvironment.hpp>
+#include <Vorb/script/lua/Environment.h>
 
 #define EXPOSURE_FUNCTION_FILE "Shaders/PostProcessing/exposure.lua"
 #define EXPOSURE_FUNCTION_NAME "calculateExposure"
@@ -16,22 +18,24 @@ ExposureCalcRenderStage::ExposureCalcRenderStage() {
 }
 
 ExposureCalcRenderStage::~ExposureCalcRenderStage() {
-    // delete m_scripts;
 }
+
 
 void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GBuffer* hdrFrameBuffer,
                                    const ui32v4* viewPort, ui32 resolution) {
-    // if (!m_scripts) m_scripts = new vscript::Environment;
-    m_quad = quad;
-    m_hdrFrameBuffer = hdrFrameBuffer;
+    if (!m_env) m_env = new vscript::lua::Environment();
+    m_quad            = quad;
+    m_hdrFrameBuffer  = hdrFrameBuffer;
     m_restoreViewport = viewPort;
-    m_resolution = resolution;
-    ui32 size = resolution;
-    m_mipLevels = 1;
+    m_resolution      = resolution;
+    ui32 size         = resolution;
+    m_mipLevels       = 1;
+
     while (size > 1) {
         m_mipLevels++;
         size >>= 1;
     }
+
     m_mipStep = 0;
 }
 
@@ -43,6 +47,8 @@ void ExposureCalcRenderStage::dispose(StaticLoadContext& context VORB_MAYBE_UNUS
         m_renderTargets[i].dispose();
     }
     m_renderTargets.clear();
+    m_env->dispose();
+    delete m_env;
     m_needsScriptLoad = true;
 }
 
@@ -71,11 +77,11 @@ void ExposureCalcRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED /*= 
         m_downsampleProgram.unuse();
     }
     // Lazy script load
-    // if (m_needsScriptLoad) {
-    //     m_scripts->load(EXPOSURE_FUNCTION_FILE);
-    //     m_calculateExposure = (*m_scripts)[EXPOSURE_FUNCTION_NAME].as<f32>();
-    //     m_needsScriptLoad = false;
-    // }
+    if (m_needsScriptLoad) {
+        m_env->run(nString(EXPOSURE_FUNCTION_FILE));
+        m_calculateExposure = m_env->template getScriptDelegate<f32, f32v4>(EXPOSURE_FUNCTION_NAME);
+        m_needsScriptLoad = false;
+    }
 
     vg::GLProgram* prog = nullptr;
     if (m_mipStep == (int)m_mipLevels-1) {
@@ -86,14 +92,14 @@ void ExposureCalcRenderStage::render(const Camera* camera VORB_MAYBE_UNUSED /*= 
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &pixel[0]);
 
         // LUA SCRIPT
-// #if defined(__GNUC__) && !defined(__clang__)
-// #pragma GCC diagnostic push
-// #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-//         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
-// #pragma GCC diagnostic pop
-// #else
-//         m_exposure = m_calculateExposure(pixel.r, pixel.g, pixel.b, pixel.a);
-// #endif
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+        m_exposure = m_calculateExposure(pixel);
+#pragma GCC diagnostic pop
+#else
+        m_exposure = m_calculateExposure(pixel);
+#endif
 
         prog = &m_program;
         m_hdrFrameBuffer->bindGeometryTexture(0, 0);

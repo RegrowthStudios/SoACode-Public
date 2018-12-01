@@ -21,8 +21,6 @@
 #include <Vorb/graphics/GLProgram.h>
 #include <Vorb/graphics/ImageIO.h>
 #include <Vorb/graphics/gtypes.h>
-// #include <Vorb/script/Environment.h>
-// #include <Vorb/script/Function.h>
 
 class ModPathResolver;
 

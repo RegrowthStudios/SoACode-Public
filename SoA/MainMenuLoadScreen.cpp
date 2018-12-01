@@ -39,26 +39,30 @@ i32 MainMenuLoadScreen::getPreviousScreen() const {
 }
 
 void MainMenuLoadScreen::build() {
-// #if defined(__GNUC__) && !defined(__clang__)
-// #pragma GCC diagnostic push
-// #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-// #endif
-//     m_env.addValue("WindowWidth", (f64)m_game->getWindow().getWidth());
-//     m_env.addValue("WindowHeight", (f64)m_game->getWindow().getHeight());
-//     m_env.run("Data/Logos/Vorb/ScreenUpdate.lua");
-//     m_vorbScreenDuration = (m_env["Vorb.MaxDuration"].as<f64>())();
-//     m_fUpdateVorbPosition = m_env["Vorb.PositionAtTime"].as<f32v2>();
-//     m_fUpdateVorbColor = m_env["Vorb.ColorAtTime"].as<f32v4>();
-//     m_fUpdateVorbBackColor = m_env["Vorb.BackgroundColor"].as<f32v4>();
-//     m_env.run("Data/Logos/Regrowth/ScreenUpdate.lua");
-//     m_regrowthScreenDuration = (m_env["Regrowth.MaxDuration"].as<f64>())();
-//     m_fUpdateRegrowthPosition = m_env["Regrowth.PositionAtTime"].as<f32v2>();
-//     m_fUpdateRegrowthColor = m_env["Regrowth.ColorAtTime"].as<f32v4>();
-//     m_fUpdateRegrowthBackColor = m_env["Regrowth.BackgroundColor"].as<f32v4>();
-//     m_regrowthScale = (m_env["Regrowth.Scale"].as<f32>())();
-// #if defined(__GNUC__) && !defined(__clang__)
-// #pragma GCC diagnostic pop
-// #endif
+    m_env.init();
+
+#if defined(__GNUC__) && !defined(__clang__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+    m_env.addValue("WindowWidth",  static_cast<f64>(m_game->getWindow().getWidth()));
+    m_env.addValue("WindowHeight", static_cast<f64>(m_game->getWindow().getHeight()));
+
+    m_env.run(nString("Data/Logos/Vorb/ScreenUpdate.lua"));
+    m_vorbScreenDuration   = m_env.template getScriptDelegate<f64>("VorbMaxDuration")();
+    m_fUpdateVorbPosition  = m_env.template getScriptDelegate<f32v2, f64, nString>("VorbPositionAtTime");
+    m_fUpdateVorbColor     = m_env.template getScriptDelegate<color4, f64, nString>("VorbColorAtTime");
+    m_fUpdateVorbBackColor = m_env.template getScriptDelegate<color4, f64>("VorbBackgroundColor");
+
+    m_env.run(nString("Data/Logos/Regrowth/ScreenUpdate.lua"));
+    m_regrowthScreenDuration   = m_env.template getScriptDelegate<f64>("RegrowthMaxDuration")();
+    m_fUpdateRegrowthPosition  = m_env.template getScriptDelegate<f32v2, f64, nString>("RegrowthPositionAtTime");
+    m_fUpdateRegrowthColor     = m_env.template getScriptDelegate<color4, f64, nString>("RegrowthColorAtTime");
+    m_fUpdateRegrowthBackColor = m_env.template getScriptDelegate<color4, f64>("RegrowthBackgroundColor");
+    m_regrowthScale            = m_env.template getScriptDelegate<f32>("RegrowthScale")();
+#if defined(__GNUC__) && !defined(__clang__)
+#    pragma GCC diagnostic pop
+#endif
     { // Load all textures
         const cString vorbTexturePaths[VORB_NUM_TEXTURES] = {
             "Data/Logos/Vorb/V.png",
@@ -183,22 +187,22 @@ void MainMenuLoadScreen::update(const vui::GameTime& gameTime) {
         m_state = vui::ScreenState::CHANGE_NEXT;
     }
 }
-void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
-    // static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
-    //     "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
-    // };
-    // static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
-    //     "Regrowth", "Studios"
-    // };
+void MainMenuLoadScreen::draw(const vui::GameTime&) {
+    static const cString vorbTextureNames[VORB_NUM_TEXTURES] = {
+        "V", "O", "R", "B", "CubeLeft", "CubeRight", "CubeTop"
+    };
+    static const cString regrowthTextureNames[REGROWTH_NUM_TEXTURES] = {
+        "Regrowth", "Studios"
+    };
     const vui::GameWindow& w = m_game->getWindow();
 
     // Clear State For The Screen
-    f32v4 clearColor;
-    // if (m_isOnVorb) {
-    //     clearColor = m_fUpdateVorbBackColor(m_timer);
-    // } else {
-    //     clearColor = m_fUpdateRegrowthBackColor(m_timer);
-    // }
+    color4 clearColor;
+    if (m_isOnVorb) {
+        clearColor = m_fUpdateVorbBackColor(m_timer);
+    } else {
+        clearColor = m_fUpdateRegrowthBackColor(m_timer);
+    }
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
     glClearDepth(1.0);
@@ -207,28 +211,27 @@ void MainMenuLoadScreen::draw(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     // Draw vorb logo
     // Update the window size
     f32v2 windowSize(w.getWidth(), w.getHeight());
-    // m_env.addValue("WindowWidth", windowSize.x);
-    // m_env.addValue("WindowHeight", windowSize.y);
+    m_env.addValue("WindowWidth",  windowSize.x);
+    m_env.addValue("WindowHeight", windowSize.y);
 
     // Render each texture
     m_sb->begin();
-    // f32v2 uvTile(0.999999f, 0.999999f);
+    f32v2 uvTile(0.999999f, 0.999999f);
     // TODO: Fix this.
     if (m_isOnVorb) {
-//        for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
-//            f32v2 pos = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
-//            f32v4 color = m_fUpdateVorbColor(m_timer, nString(vorbTextureNames[i]));          
-//            m_sb->draw(m_vorbTextures[i].id, nullptr, &uvTile, pos, f32v2(m_vorbTextures[i].width, m_vorbTextures[i].height), color4(color.r, color.g, color.b, color.a));
-//        }
+       for (size_t i = 0; i < VORB_NUM_TEXTURES; i++) {
+           f32v2 pos   = m_fUpdateVorbPosition(m_timer, nString(vorbTextureNames[i]));
+           color4 color = m_fUpdateVorbColor(m_timer, nString(vorbTextureNames[i]));          
+           m_sb->draw(m_vorbTextures[i].id, nullptr, &uvTile, pos, f32v2(m_vorbTextures[i].width, m_vorbTextures[i].height), color);
+       }
     } else {
-//        if (m_timer <= m_regrowthScreenDuration) {
-//            for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
-//                f32v2 pos = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
-//                f32v4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
-//                m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color4(color.r, color.g, color.b, color.a));
-//            }
-//        } else 
-        {
+       if (m_timer <= m_regrowthScreenDuration) {
+           for (size_t i = 0; i < REGROWTH_NUM_TEXTURES; i++) {
+               f32v2 pos   = m_fUpdateRegrowthPosition(m_timer, nString(regrowthTextureNames[i]));
+               color4 color = m_fUpdateRegrowthColor(m_timer, nString(regrowthTextureNames[i]));
+               m_sb->draw(m_regrowthTextures[i].id, nullptr, &uvTile, pos, f32v2(m_regrowthTextures[i].width, m_regrowthTextures[i].height) * m_regrowthScale, color);
+           }
+       } else {
             // Animated loading message. TODO(Ben): Replace with progress bar
             int it = (int)m_timer % 3;
             if (it == 0) {

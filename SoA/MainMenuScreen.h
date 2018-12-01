@@ -27,7 +27,6 @@
 #include "MainMenuRenderer.h"
 #include "MainMenuScriptedUI.h"
 #include "Camera.h"
-// #include <Vorb/ui/FormScriptEnvironment.h>
 #include "SpaceSystemUpdater.h"
 
 class App;
@@ -118,7 +117,7 @@ private:
     volatile bool m_threadRunning; ///< True when the thread should be running
 
     MainMenuRenderer m_renderer; ///< This handles all rendering for the main menu
-    // MainMenuScriptedUI m_ui; ///< The UI form
+    MainMenuScriptedUI m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
 
     MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;

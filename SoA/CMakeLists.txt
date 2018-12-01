@@ -420,8 +420,6 @@ set(SoA_sources
     ColoredFullQuadRenderer.cpp
     ColorFilterRenderStage.cpp
     Computer.cpp
-    ConsoleFuncs.cpp
-    ConsoleMain.cpp
     ConsoleTests.cpp
     CutoutVoxelRenderStage.cpp
     DebugRenderer.cpp

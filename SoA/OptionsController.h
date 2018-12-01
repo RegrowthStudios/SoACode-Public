@@ -17,7 +17,7 @@
 
 #include "SoaOptions.h"
 #include <Vorb/Event.hpp>
-// #include <Vorb/script/Environment.h>
+#include <Vorb/script/IEnvironment.hpp>
 
 class OptionsController {
 public:
@@ -37,7 +37,8 @@ public:
 
     void restoreDefault();
 
-    // void registerScripting(vscript::Environment* env);
+    template <typename ScriptImpl>
+    void registerScripting(vscript::IEnvironment<ScriptImpl>* env);
 
     // These can be called from lua scripts
     void setInt(nString optionName, int val);
@@ -59,6 +60,22 @@ private:
     SoaOptions m_tempCopy;
     SoaOptions m_default;
 };
+
+template <typename ScriptImpl>
+void OptionsController::registerScripting(vscript::IEnvironment<ScriptImpl>* env) {
+    env->setNamespaces("Options");
+    env->addCDelegate("setInt",         makeDelegate(this, &OptionsController::setInt));
+    env->addCDelegate("setFloat",       makeDelegate(this, &OptionsController::setFloat));
+    env->addCDelegate("setBool",        makeDelegate(this, &OptionsController::setBool));
+    env->addCDelegate("getInt",         makeDelegate(this, &OptionsController::getInt));
+    env->addCDelegate("getFloat",       makeDelegate(this, &OptionsController::getFloat));
+    env->addCDelegate("getBool",        makeDelegate(this, &OptionsController::getBool));
+    env->addCDelegate("beginContext",   makeDelegate(this, &OptionsController::beginContext));
+    env->addCDelegate("save",           makeDelegate(this, &OptionsController::saveOptions));
+    env->addCDelegate("load",           makeDelegate(this, &OptionsController::loadOptions));
+    env->addCDelegate("restoreDefault", makeDelegate(this, &OptionsController::restoreDefault));
+    env->setNamespaces();
+}
 
 #endif // OptionsController_h__
 

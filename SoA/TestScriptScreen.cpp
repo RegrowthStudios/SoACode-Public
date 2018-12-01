@@ -58,11 +58,11 @@ void TestScriptScreen::onEntry(const vui::GameTime&) {
     m_sb.init();
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
 
-    m_ui.init(m_commonState->window, nullptr, &m_font, &m_sb);
+    m_ui.init(this, m_commonState->window, nullptr, &m_font, &m_sb);
 
     auto view = m_ui.makeView("TestView", 1);
-    view.scriptEnv->getEnv()->addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
-    view.scriptEnv->run("ui_test.lua");
+    view.viewEnv->getEnv()->addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
+    view.viewEnv->run("ui_test.lua");
 }
 
 void TestScriptScreen::onExit(const vui::GameTime&) {

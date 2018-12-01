@@ -108,7 +108,7 @@ void MainMenuScreen::onExit(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     SoaEngine::optionsController.OptionsChange -= makeDelegate(this, &MainMenuScreen::onOptionsChange);
     m_renderer.setShowUI(false);
     m_formFont.dispose();
-    // m_ui.dispose();
+    m_ui.dispose();
 
     m_soaState->clientState.systemViewer->stopInput();
 
@@ -132,7 +132,7 @@ void MainMenuScreen::update(const vui::GameTime& gameTime) {
 
     if (m_newGameClicked) newGame("TEST");
 
-    // if (m_uiEnabled) m_ui.update();
+    if (m_uiEnabled) m_ui.update(gameTime.elapsed);
 
     { // Handle time warp
         const f64 TIME_WARP_SPEED = 1000.0 + (f64)m_inputMapper->getInputState(INPUT_SPEED_TIME) * 10000.0;
@@ -196,8 +196,8 @@ void MainMenuScreen::initRenderPipeline() {
 }
 
 void MainMenuScreen::initUI() {
-    const ui32v2& vdims = m_window->getViewportDims();
-    // m_ui.init("Data/UI/Forms/main_menu.form.lua", this, &m_app->getWindow(), f32v4(0.0f, 0.0f, (f32)vdims.x, (f32)vdims.y), &m_formFont);
+    m_ui.init(this, &m_app->getWindow(), nullptr, &m_formFont);
+    m_ui.makeViewFromScript("Main Menu", 1, "Data/UI/Forms/main_menu.form.lua");
 }
 
 void MainMenuScreen::loadGame(const nString& fileName VORB_UNUSED) {
@@ -265,7 +265,7 @@ void MainMenuScreen::initSaveIomanager(const vio::Path& savePath) {
 }
 
 void MainMenuScreen::reloadUI() {
-    // m_ui.dispose();
+    m_ui.dispose();
     initUI();
 
     m_shouldReloadUI = false;
@@ -315,7 +315,7 @@ void MainMenuScreen::onWindowResize(Sender s VORB_MAYBE_UNUSED, const vui::Windo
     SoaEngine::optionsController.setInt("Screen Height", e.h);
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
-    // if (m_uiEnabled) m_ui.onOptionsChanged();
+    if (m_uiEnabled) m_ui.onOptionsChanged();
     m_soaState->clientState.spaceCamera.setAspectRatio(m_window->getAspectRatio());
     m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
@@ -355,12 +355,12 @@ void MainMenuScreen::onOptionsChange(Sender s VORB_MAYBE_UNUSED) {
 
 void MainMenuScreen::onToggleUI(Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
     m_renderer.toggleUI();
-    // m_uiEnabled = !m_uiEnabled;
-    // if (m_uiEnabled) {
-    //     initUI();
-    // } else {
-    //     m_ui.dispose();
-    // }
+    m_uiEnabled = !m_uiEnabled;
+    if (m_uiEnabled) {
+        initUI();
+    } else {
+        m_ui.dispose();
+    }
 }
 
 void MainMenuScreen::onToggleWireframe(Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
