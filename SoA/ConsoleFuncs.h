@@ -102,7 +102,7 @@ void registerFuncs(vscript::IEnvironment<ScriptImpl>* env) {
     env->addValue("env", env);
     env->addCDelegate("run", makeDelegate(runScript<ScriptImpl>));
 #ifdef VORB_OS_WINDOWS
-    env->addCDelegate("loadDLL", makeRDelegate(loadDLL));
+    env->addCDelegate("loadDLL", makeDelegate(loadDLL));
 #endif//VORB_OS_WINDOWS
 
     /************************************************************************/
