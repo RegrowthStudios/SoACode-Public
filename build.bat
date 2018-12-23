@@ -1,8 +1,8 @@
 @ECHO OFF && PUSHD "%~dp0" && SETLOCAL
 
-SET VS_TARGET="Visual Studio 14 2015"
+SET "VS_TARGET=Visual Studio 14 2015"
 SET BUILD_CLEAN="false"
-SET "CMAKE_PARAMS=-G %VS_TARGERT%"
+SET "CMAKE_PARAMS="
 SET "BUILD_PARAMS="
 
 GOTO Argloop
@@ -15,6 +15,7 @@ ECHO "            --clean             | -c       ---   Clean build, removes all 
 ECHO "        CMake flags:\n"
 ECHO "            --release           | -r       ---   Compile in release mode.\n"
 ECHO "            --debug             | -d       ---   Compile in debug mode.\n"
+ECHO "            --win64             | -64      ---   Compile in 64-bit mode.\n"
 ECHO "        Make flags:\n"
 ECHO "            --verbose           | -v       ---   Run make with verbose set on.\n"
 ECHO "    /--------------\\ \n    |   Warnings   |\n    \\--------------/\n\n"
@@ -35,6 +36,10 @@ GOTO ArgloopContinue
 
 :Debug
 SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DCMAKE_BUILD_TYPE=Debug"
+GOTO ArgloopContinue
+
+:Win64
+SET "VS_TARGET=Visual Studio 14 2015 Win64"
 GOTO ArgloopContinue
 
 :Verbose
@@ -58,6 +63,10 @@ GOTO ArgloopContinue
         GOTO Debug
     ) ELSE IF "%1"=="--debug" (
         GOTO Debug
+    ) ELSE IF "%1"=="-64" (
+        GOTO Win64
+    ) ELSE IF "%1"=="--win64" (
+        GOTO Win64
     ) ELSE IF "%1"=="-v" (
         GOTO Verbose
     ) ELSE IF "%1"=="--verbose" (
@@ -83,7 +92,7 @@ IF EXIST "build" (
 
 CD build
 
-SET "CMAKE_COMMAND=cmake %CMAKE_PARAMS% ../"
+SET "CMAKE_COMMAND=cmake -G %VS_TARGERT% %CMAKE_PARAMS% ../"
 %CMAKE_COMMAND%
 
 SET "BUILD_COMMAND=cmake --build . %BUILD_PARAMS%"
