@@ -1,6 +1,6 @@
 @ECHO OFF && PUSHD "%~dp0" && SETLOCAL
 
-SET VS_TARGET="2015"
+SET "VS_TARGET=Visual Studio 14 2015"
 SET BUILD_CLEAN="false"
 SET "CMAKE_PARAMS="
 SET "BUILD_PARAMS="
@@ -15,14 +15,15 @@ ECHO "            --clean             | -c       ---   Clean build, removes all 
 ECHO "        CMake flags:\n"
 ECHO "            --release           | -r       ---   Compile in release mode.\n"
 ECHO "            --debug             | -d       ---   Compile in debug mode.\n"
-ECHO "            --cxx17             | -17      ---   Target C++17 (otherwise targets C++14).\n"
-ECHO "            --no-gdb            | -ng      ---   Add OS specific debug symbols rather than GDB's.\n"
-ECHO "            --no-extra-debug    | -ned     ---   Don't add extra debug symbols.\n"
-ECHO "            --no-optimise-debug | -nod     ---   Don't optimise debug mode builds.\n"
+ECHO "            --win64             | -64      ---   Compile in 64-bit mode.\n"
 ECHO "        Make flags:\n"
 ECHO "            --verbose           | -v       ---   Run make with verbose set on.\n"
+ECHO "    /--------------\\ \n    |   Warnings   |\n    \\--------------/\n\n"
+ECHO "        - For now build is only possible via Visual Studio 2015 of the Visual Studio versions.\n"
+ECHO "        - This build script is only for those using Visual Studio, MinGW users will need to use\n"
+ECHO "          cmake manually.\n"
 ECHO "\n"
-GOTO ArgloopContinue
+EXIT /B 0
 
 :Clean
 SET BUILD_CLEAN="true"
@@ -37,20 +38,8 @@ GOTO ArgloopContinue
 SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DCMAKE_BUILD_TYPE=Debug"
 GOTO ArgloopContinue
 
-:Cxx17
-SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DTARGET_CXX_17=On"
-GOTO ArgloopContinue
-
-:NoGDB
-SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DUSING_GDB=Off"
-GOTO ArgloopContinue
-
-:NoExtraDebug
-SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DEXTRA_DEBUG=Off"
-GOTO ArgloopContinue
-
-:NoOptimiseDebug
-SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DOPTIMISE_ON_DEBUG=Off"
+:Win64
+SET "VS_TARGET=Visual Studio 14 2015 Win64"
 GOTO ArgloopContinue
 
 :Verbose
@@ -74,22 +63,10 @@ GOTO ArgloopContinue
         GOTO Debug
     ) ELSE IF "%1"=="--debug" (
         GOTO Debug
-    ) ELSE IF "%1"=="-17" (
-        GOTO Cxx17
-    ) ELSE IF "%1"=="--cxx17" (
-        GOTO Cxx17
-    ) ELSE IF "%1"=="-ng" (
-        GOTO NoGDB
-    ) ELSE IF "%1"=="--no-gdb" (
-        GOTO NoGDB
-    ) ELSE IF "%1"=="-ned" (
-        GOTO NoExtraDebug
-    ) ELSE IF "%1"=="--no-extra-debug" (
-        GOTO NoExtraDebug
-    ) ELSE IF "%1"=="-nod" (
-        GOTO NoOptimiseDebug
-    ) ELSE IF "%1"=="--no-optimise-debug" (
-        GOTO NoOptimiseDebug
+    ) ELSE IF "%1"=="-64" (
+        GOTO Win64
+    ) ELSE IF "%1"=="--win64" (
+        GOTO Win64
     ) ELSE IF "%1"=="-v" (
         GOTO Verbose
     ) ELSE IF "%1"=="--verbose" (
@@ -102,7 +79,7 @@ GOTO ArgloopContinue
     )
     :ArgloopContinue
     SHIFT
-GOTO Argloop
+    GOTO Argloop
 :ArgloopBreak
 
 IF EXIST "build" (
@@ -115,10 +92,10 @@ IF EXIST "build" (
 
 CD build
 
-SET "CMAKE_COMMAND=cmake %CMAKE_PARAMS% ../"
+SET "CMAKE_COMMAND=cmake -G %VS_TARGERT% %CMAKE_PARAMS% ../"
 %CMAKE_COMMAND%
 
-SET "BUILD_COMMAND=cmake --build . %MAKE_PARAMS%"
+SET "BUILD_COMMAND=cmake --build . %BUILD_PARAMS%"
 %BUILD_COMMAND%
 
 CD ../
