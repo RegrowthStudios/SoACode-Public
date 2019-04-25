@@ -115,6 +115,8 @@ hunter_add_package(SDL2)
 find_package(SDL2 CONFIG REQUIRED)
 hunter_add_package(minizip)
 find_package(minizip CONFIG REQUIRED)
+hunter_add_package(CreateLaunchers)
+find_package(CreateLaunchers CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/../deps/include)
