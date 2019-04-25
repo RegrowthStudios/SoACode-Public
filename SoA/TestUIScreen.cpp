@@ -83,7 +83,7 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
     m_checkBox.setText("Hello, World!");
     m_checkBox.setTextScale(f32v2(0.65f));
     m_checkBox.setTextAlign(vg::TextAlign::CENTER);
-    m_checkBox.setClipping({ vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN });
+    m_checkBox.setClipping(vui::Clipping{ vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN, vui::ClippingState::HIDDEN });
 
     m_panels[0].addWidget(&m_checkBox);
 
