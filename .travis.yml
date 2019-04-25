@@ -21,14 +21,15 @@ addons:
     packages:
       - python3-pip
       - g++-7
+      - g++-8
 
 dist:
   - trusty
 
 env:
   global:
-#matthew    - secure: "LIcgKhksDL/NoBH9YpAggZMbppx53DhzUP8AkHfIH6vZ9Gq2ZuRN8KFj7SeCQX7qBJmv+vtGrW0ZdXHNXYNgEgnuqOjwdX3Z5ccAmrsuq41Qh3Hki+K3wKPKzenJxL6bF/UxTRUQipoKEP6EQS/WRkZejP7SS/YQBgmAx3eLAqx7N6LJxBgvUmKgaGAfaODjAeix7faasPMlFDVqfWn6+kbOirUEwBNxGUXJrSi1OupMwlhrNmhEoFqfRSkDbcMi5914wE126c3vG3bKSNBzCN6hSlO++knidZVaWnxwZm8Oq1SXpzLmr3YmiiWxiK5bo+LpIow00C7Iq5k3IA+otJD4NdLShU7x8jzryeI+4VQlo2UVF01Ssq/xboVJoWdF+RT2PFaKB3eJiBiXWfN2BVMr75sWj+7qb1o0KwZZtpa+qFQxuVPLKQuZ/fW6AI/ybk7NoHM3K7csPioJERlhQQ9fOTasqEOiGYCKhdjrP3Zg2sHjSlITQ68Jb+q8O/ku4taRiWprQ82/wtzMI4Yo6CdcLvtXHoXgdIPSJp/5x1/HotdSIK9n4Si6vOYNW0jtRVIc5L8neVScHEDOdhejxw0s7jArA3MMnWB6o9TS2oDv4uzPhHd+wyr86oiUT/HQq8jXUMbKSc0asFVf276b9TRTxcW7WdjveoznorDuIYE="
-#caseymcc    - secure: "inNq/wQPDmZlK1IOwe2DPryyRZWZxg3qAJ6/KZ/zeg8/lQvkwPAzwcp9QM/zf2rzDvNBJ/ZOIwO0lcOpXlyAt6hhhSrD0T/T1HObu1F6Iv9cMy1i8fvu3RH27Kp5eIepHeGINo3uEIlyR3XZbA8Ir0jPBc2XFWkK6WyJm00wsKozlFH1PXboekClWcXL7TJWyP5FV96L9vYDa7uorFe1ct8jSkot3dTKpg4782mZNTLH+T2GgVSmkoyMzsnNwHmz11gHo+opm3LVC9sbIhjym+iwQ0CGQwdX7B6bu/v4yiHoMqBxG2d9zrB6YiG1Aa8x4KbBauc9I9NK7Xvk/e8lthCk0rcU+TXJJKciAJKVzjYkPCRsXOK/awb5YmbBsQpvWUXPztc84soCtFf6xEH6JMKJqrL76CKr30XXNJvum4MO0q8IaM7XH2+VjxxjrjU/g3WKhJZr3sXzYWqJvG7r8ZtmsohZPEUewckw5R4AXPNEjhLMIu+/M2CC86xbIWwdHrhQuM/03LDNIdqfzMINmQAewdEzJ/aF3SdVwoE94n4eeC68KjckcqRzvcPI0My3Wr1lq4ON61rQGgCNJWC2GDOYES5DK2bgoE2fJS4ULEL4R9CXnI47kFGAW6cH7StjZkWP+VqbkdEFSxuvq54mMYC7CdrTiMC2Zfm9PuAZtQY="
+    - secure: "LIcgKhksDL/NoBH9YpAggZMbppx53DhzUP8AkHfIH6vZ9Gq2ZuRN8KFj7SeCQX7qBJmv+vtGrW0ZdXHNXYNgEgnuqOjwdX3Z5ccAmrsuq41Qh3Hki+K3wKPKzenJxL6bF/UxTRUQipoKEP6EQS/WRkZejP7SS/YQBgmAx3eLAqx7N6LJxBgvUmKgaGAfaODjAeix7faasPMlFDVqfWn6+kbOirUEwBNxGUXJrSi1OupMwlhrNmhEoFqfRSkDbcMi5914wE126c3vG3bKSNBzCN6hSlO++knidZVaWnxwZm8Oq1SXpzLmr3YmiiWxiK5bo+LpIow00C7Iq5k3IA+otJD4NdLShU7x8jzryeI+4VQlo2UVF01Ssq/xboVJoWdF+RT2PFaKB3eJiBiXWfN2BVMr75sWj+7qb1o0KwZZtpa+qFQxuVPLKQuZ/fW6AI/ybk7NoHM3K7csPioJERlhQQ9fOTasqEOiGYCKhdjrP3Zg2sHjSlITQ68Jb+q8O/ku4taRiWprQ82/wtzMI4Yo6CdcLvtXHoXgdIPSJp/5x1/HotdSIK9n4Si6vOYNW0jtRVIc5L8neVScHEDOdhejxw0s7jArA3MMnWB6o9TS2oDv4uzPhHd+wyr86oiUT/HQq8jXUMbKSc0asFVf276b9TRTxcW7WdjveoznorDuIYE="
+#casey    - secure: "inNq/wQPDmZlK1IOwe2DPryyRZWZxg3qAJ6/KZ/zeg8/lQvkwPAzwcp9QM/zf2rzDvNBJ/ZOIwO0lcOpXlyAt6hhhSrD0T/T1HObu1F6Iv9cMy1i8fvu3RH27Kp5eIepHeGINo3uEIlyR3XZbA8Ir0jPBc2XFWkK6WyJm00wsKozlFH1PXboekClWcXL7TJWyP5FV96L9vYDa7uorFe1ct8jSkot3dTKpg4782mZNTLH+T2GgVSmkoyMzsnNwHmz11gHo+opm3LVC9sbIhjym+iwQ0CGQwdX7B6bu/v4yiHoMqBxG2d9zrB6YiG1Aa8x4KbBauc9I9NK7Xvk/e8lthCk0rcU+TXJJKciAJKVzjYkPCRsXOK/awb5YmbBsQpvWUXPztc84soCtFf6xEH6JMKJqrL76CKr30XXNJvum4MO0q8IaM7XH2+VjxxjrjU/g3WKhJZr3sXzYWqJvG7r8ZtmsohZPEUewckw5R4AXPNEjhLMIu+/M2CC86xbIWwdHrhQuM/03LDNIdqfzMINmQAewdEzJ/aF3SdVwoE94n4eeC68KjckcqRzvcPI0My3Wr1lq4ON61rQGgCNJWC2GDOYES5DK2bgoE2fJS4ULEL4R9CXnI47kFGAW6cH7StjZkWP+VqbkdEFSxuvq54mMYC7CdrTiMC2Zfm9PuAZtQY="
 
 
 matrix:
@@ -40,12 +41,16 @@ matrix:
         TOOLCHAIN=clang-cxx17
         PROJECT_DIR=./
 
-#   glm fails to compile on gcc7
-#    - os: linux
-#      env: >
-#        TOOLCHAIN=gcc-7-cxx17
-#        PROJECT_DIR=./
-#
+    - os: linux
+      env: >
+        TOOLCHAIN=gcc-7-cxx17
+        PROJECT_DIR=./
+
+    - os: linux
+      env: >
+        TOOLCHAIN=gcc-8-cxx17
+        PROJECT_DIR=./
+
 #can not compile glew
 #    - os: linux
 #      env: >

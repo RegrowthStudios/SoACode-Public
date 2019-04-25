@@ -35,8 +35,8 @@ set(
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/HunterGate.cmake)
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.16.tar.gz"
-    SHA1 "dbe5b1c966414c4a055983c11d5251a2d8f2f16d"
+    URL "https://github.com/ruslo/hunter/archive/v0.23.164.tar.gz"
+    SHA1 "7bcf092561389dbd70edb3fc228126ae4605e10c"
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
