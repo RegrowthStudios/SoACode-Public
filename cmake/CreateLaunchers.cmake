@@ -341,7 +341,8 @@ function(create_generic_launcher _launchername)
 
 	_launcher_configure_executable("${_launchermoddir}/genericlauncher.${_suffix}.in"
 	    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/genericlauncher.${_suffix}.in"
-		"${_launchername}")
+		"${_launchername}"
+		${CMAKE_BUILD_TYPE})
 endfunction()
 
 function(guess_runtime_library_dirs _var)
