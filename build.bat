@@ -115,7 +115,7 @@ IF EXIST "build" (
 
 CD build
 
-SET "CMAKE_COMMAND=cmake %CMAKE_PARAMS% ../"
+SET "CMAKE_COMMAND=cmake %CMAKE_PARAMS% -G "Visual Studio 14 2015 Win64" ../"
 %CMAKE_COMMAND%
 
 SET "BUILD_COMMAND=cmake --build . %MAKE_PARAMS%"
