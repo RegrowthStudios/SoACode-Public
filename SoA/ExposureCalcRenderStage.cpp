@@ -23,7 +23,12 @@ ExposureCalcRenderStage::~ExposureCalcRenderStage() {
 
 void ExposureCalcRenderStage::hook(vg::FullQuadVBO* quad, vg::GBuffer* hdrFrameBuffer,
                                    const ui32v4* viewPort, ui32 resolution) {
-    if (!m_env) m_env = new vscript::lua::Environment();
+    if(!m_env)
+    {
+        m_env=new vscript::lua::Environment();
+        m_env->init();
+    }
+
     m_quad            = quad;
     m_hdrFrameBuffer  = hdrFrameBuffer;
     m_restoreViewport = viewPort;
