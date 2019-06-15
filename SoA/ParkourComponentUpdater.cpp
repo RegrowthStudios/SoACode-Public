@@ -6,8 +6,9 @@
 #include "GameSystem.h"
 #include "SpaceSystem.h"
 #include "VoxelUtils.h"
+#include "SoAState.h"
 
-void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem VORB_UNUSED) {
+void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceSystem VORB_UNUSED, const SoaState *soaState) {
     for (auto& it : gameSystem->parkourInput) {
         auto& parkour = it.second;
         auto& physics = gameSystem->physics.get(parkour.physicsComponent);
@@ -17,6 +18,14 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
         auto& voxelPosition = gameSystem->voxelPosition.get(physics.voxelPosition);
         auto& head = gameSystem->head.get(parkour.headComponent);
         auto& aabbCollidable = gameSystem->aabbCollidable.get(parkour.aabbCollidable);
+
+        f64 deltaTime;
+
+        if(m_lastTime<0.0f)
+            deltaTime=0.0f;
+        else
+            deltaTime=soaState->time-m_lastTime;
+        m_lastTime=soaState->time;
 
         // TODO(Ben): Timestep
         // TODO(Ben): Account mass
@@ -80,7 +89,7 @@ void ParkourComponentUpdater::update(GameSystem* gameSystem, SpaceSystem* spaceS
 
         voxelPosition.orientation = f64q(euler);
 
-        targetVel *= maxSpeed;
+        targetVel *= (maxSpeed*deltaTime);
         targetVel = voxelPosition.orientation * targetVel;
 
         static const f64 step = 0.1;
