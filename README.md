@@ -1,5 +1,5 @@
 
-[![dicord](https://img.shields.io/discord/459062989094649866.svg?logo=discord "Discord")](https://discord.gg/b2bf775)
+[![dicord](https://img.shields.io/discord/459062989094649866.svg?logo=discord "Discord")](https://discord.gg/QRex8GK)
 ![travis](https://img.shields.io/travis/RegrowthStudios/SoACode-Public/develop.svg?style=flat-square&label=Linux "Travis CI")
 ![appveyor](https://img.shields.io/appveyor/ci/SamThePsychoticLeprechaun/soacode-public/develop.svg?style=flat-square&label=Windows "AppVeyor CI")
 
@@ -18,7 +18,7 @@ to get an idea of how to contribute, what you might be able to contribute to spe
 and to meet some of the other contributors.
 * [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
 * [Issues](https://github.com/RegrowthStudios/SoACode-Public/issues)
-* [Discord](https://discord.gg/b2bf775)
+* [Discord](https://discord.gg/QRex8GK)
 
 ### Setting Up:
 **IMPORTANT**: Before following any of the instructions linked below for the platforms we support,
