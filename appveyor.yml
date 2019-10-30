@@ -4,8 +4,8 @@ environment:
   global:
     # This variable used only if '--upload' added to 'jenkins.py'
     GITHUB_USER_PASSWORD:
-      secure: wG0IMoOCj/h0cQ2sClQlkHIy3JNaqt6VYJ0E3AY8pwnCeFeFFcufmrRxdKw7PQ7E
-#casey        secure: 8msFf0QF4JUIjZKukMnJItvIQWa+1gU2Hv/k0StI0HtzeFP1fJddEBcqIIQd4+nw
+           secure: wG0IMoOCj/h0cQ2sClQlkHIy3JNaqt6VYJ0E3AY8pwnCeFeFFcufmrRxdKw7PQ7E #soa
+#           secure: 8msFf0QF4JUIjZKukMnJItvIQWa+1gU2Hv/k0StI0HtzeFP1fJddEBcqIIQd4+nw #krazer
 
   matrix:
 
@@ -18,11 +18,12 @@ environment:
 #      PROJECT_DIR: .\
 #      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 #
-#    - TOOLCHAIN: "vs-15-2017-win64-cxx17"
-#      PROJECT_DIR: .\
-#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - TOOLCHAIN: "vs-15-2017-win64-cxx17"
+      PROJECT_DIR: .\
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      HUNTER_BINARY_DIR: C:\__BIN
 
-    - TOOLCHAIN: "vs-14-2015-sdk-8-1"
+    - TOOLCHAIN: "vs-14-2015-win64"
       PROJECT_DIR: .\
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       HUNTER_BINARY_DIR: C:\__BIN
