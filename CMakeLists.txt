@@ -35,19 +35,19 @@ set(
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/hunter/HunterGate.cmake)
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.164.tar.gz"
-    SHA1 "7bcf092561389dbd70edb3fc228126ae4605e10c"
+    URL "https://github.com/cpp-pm/hunter/archive/v0.23.222.tar.gz"
+    SHA1 "0b88baaa2a9a35b8ce632c57ade66be8dd918afd"
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 project(SoA)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  if(MSVC_VERSION GREATER 1900)
-    message(FATAL_ERROR "Only Visual Studio 2015 and below are currently supported.")
-  endif()
-endif()
+#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#  if(MSVC_VERSION GREATER 1900)
+#    message(FATAL_ERROR "Only Visual Studio 2015 and below are currently supported.")
+#  endif()
+#endif()
 
 add_subdirectory(Vorb)
 add_subdirectory(SoA)
