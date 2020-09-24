@@ -48,13 +48,13 @@ void MainMenuLoadScreen::build() {
     m_env.addValue("WindowWidth",  static_cast<f64>(m_game->getWindow().getWidth()));
     m_env.addValue("WindowHeight", static_cast<f64>(m_game->getWindow().getHeight()));
 
-    m_env.run(nString("Data/Logos/Vorb/ScreenUpdate.lua"));
+    m_env.run(vio::Path("Data/Logos/Vorb/ScreenUpdate.lua"));
     m_vorbScreenDuration   = m_env.template getScriptDelegate<f64>("VorbMaxDuration")();
     m_fUpdateVorbPosition  = m_env.template getScriptDelegate<f32v2, f64, nString>("VorbPositionAtTime");
     m_fUpdateVorbColor     = m_env.template getScriptDelegate<color4, f64, nString>("VorbColorAtTime");
     m_fUpdateVorbBackColor = m_env.template getScriptDelegate<color4, f64>("VorbBackgroundColor");
 
-    m_env.run(nString("Data/Logos/Regrowth/ScreenUpdate.lua"));
+    m_env.run(vio::Path("Data/Logos/Regrowth/ScreenUpdate.lua"));
     m_regrowthScreenDuration   = m_env.template getScriptDelegate<f64>("RegrowthMaxDuration")();
     m_fUpdateRegrowthPosition  = m_env.template getScriptDelegate<f32v2, f64, nString>("RegrowthPositionAtTime");
     m_fUpdateRegrowthColor     = m_env.template getScriptDelegate<color4, f64, nString>("RegrowthColorAtTime");
