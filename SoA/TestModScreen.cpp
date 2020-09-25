@@ -33,9 +33,34 @@ void TestModScreen::onEntry(const vui::GameTime&) {
 
     m_modEnv->init("Mods", "LoadOrders");
 
-    const vmod::ModBase* mod = m_modEnv->getActiveMod("test");
+    auto profiles = m_modEnv->getLoadOrderManager().getAllLoadOrderProfiles();
+    
+    std::cout << "Load Order Profiles:" << std::endl;
+    for (auto& profile : profiles) {
+        std::cout << "    - name:     " << profile.name << std::endl;
+        std::cout << "    - created:  " << profile.createdTimestamp << std::endl;
+        std::cout << "    - modified: " << profile.lastModifiedTimestamp << std::endl;
+            std::cout << "    - mods: " << std::endl;
+        for (auto& mod : profile.mods) {
+            std::cout << "        - name: " << mod << std::endl;
+        }
+    }
 
-    std::cout << mod->getModMetadata().author << std::endl;
+    vmod::ModBasePtrs mods = m_modEnv->getMods();
+
+    std::cout << "All Mods:" << std::endl;
+    for (auto& mod : mods) {
+        std::cout << "    - name:   " << mod->getModMetadata().name << std::endl;
+        std::cout << "      author: " << mod->getModMetadata().author << std::endl;
+    }
+
+    vmod::ModBaseConstPtrs activeMods = m_modEnv->getActiveMods();
+
+    std::cout << "Active Mods:" << std::endl;
+    for (auto& mod : activeMods) {
+        std::cout << "    - name:   " << mod->getModMetadata().name << std::endl;
+        std::cout << "      author: " << mod->getModMetadata().author << std::endl;
+    }
 }
 
 void TestModScreen::onExit(const vui::GameTime&) {
