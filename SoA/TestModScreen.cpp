@@ -79,6 +79,13 @@ void TestModScreen::onEntry(const vui::GameTime&) {
     if (iom.readVanillaFileToString("options.ini", message)) {
         std::cout << message << std::endl;
     }
+
+    std::vector<nString> messages;
+    if (iom.readEachFileToString("message.txt", messages)) {
+        for (auto& msg : messages) {
+            std::cout << msg << std::endl;
+        }
+    }
 }
 
 void TestModScreen::onExit(const vui::GameTime&) {
