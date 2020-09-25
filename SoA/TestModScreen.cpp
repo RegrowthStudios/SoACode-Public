@@ -2,10 +2,30 @@
 #include "TestModScreen.h"
 
 #include <Vorb/mod/DataAssetIOManager.h>
+#include <Vorb/mod/Merge.h>
 #include <Vorb/mod/ModEnvironment.h>
 #include <Vorb/script/lua/Environment.h>
 
 #include "App.h"
+
+class TestMerge : public vmod::MergeBase {
+protected:
+    /*!
+        * \brief The merge strategy with which to merge the data points together.
+        *
+        * \param newData: The new data point to merge.
+        * \param existingData: The data so far merged.
+        *
+        * \return True if the merge completes, false otherwise.
+        */
+    virtual bool performMerge(const nString& newData, void* existingData) override {
+        nString* existing = static_cast<nString*>(existingData);
+
+        *existing += "\n" + newData;
+
+        return true;
+    }
+};
 
 TestModScreen::TestModScreen(const App* app, CommonState* state) : IAppScreen<App>(app),
     m_commonState(state)
@@ -86,6 +106,14 @@ void TestModScreen::onEntry(const vui::GameTime&) {
             std::cout << msg << std::endl;
         }
     }
+
+    TestMerge myMerger;
+    myMerger.init(&iom);
+
+    nString merged;
+    myMerger.mergeFiles("message.txt", (void*)&merged);
+
+    std::cout << "Result of merging 'message.txt':" << std::endl << merged << std::endl;
 }
 
 void TestModScreen::onExit(const vui::GameTime&) {
