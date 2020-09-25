@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "TestModScreen.h"
 
+#include <Vorb/mod/DataAssetIOManager.h>
 #include <Vorb/mod/ModEnvironment.h>
 #include <Vorb/script/lua/Environment.h>
 
@@ -29,6 +30,9 @@ void TestModScreen::destroy(const vui::GameTime&) {
 }
 
 void TestModScreen::onEntry(const vui::GameTime&) {
+    vmod::DataAssetIOManager::setVanillaDataDir("Data");
+    vmod::DataAssetIOManager::setGlobalModDirectory("Mods");
+
     m_modEnv = new vmod::ModEnvironment<vscript::lua::Environment>();
 
     m_modEnv->init("Mods", "LoadOrders");
@@ -60,6 +64,20 @@ void TestModScreen::onEntry(const vui::GameTime&) {
     for (auto& mod : activeMods) {
         std::cout << "    - name:   " << mod->getModMetadata().name << std::endl;
         std::cout << "      author: " << mod->getModMetadata().author << std::endl;
+    }
+
+    vmod::DataAssetIOManager iom;
+    iom.setModEnvironment(m_modEnv);
+
+    nString message;
+    if (iom.readFileToString("message.txt", message)) {
+        std::cout << message << std::endl;
+    }
+    if (iom.readModFileToString("all.txt", message, m_modEnv->getMod("test"))) {
+        std::cout << message << std::endl;
+    }
+    if (iom.readVanillaFileToString("options.ini", message)) {
+        std::cout << message << std::endl;
     }
 }
 
