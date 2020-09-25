@@ -333,6 +333,7 @@ set(SoA_headers
     TestDisplacementMappingScreen.h
     TestGasGiantScreen.h
     TestMappingScreen.h
+    TestModScreen.h
     TestNewBlockAPIScreen.h
     TestNoiseScreen.h
     TestPlanetGenScreen.h
@@ -543,6 +544,7 @@ set(SoA_sources
     TestDisplacementMappingScreen.cpp
     TestGasGiantScreen.cpp
     TestMappingScreen.cpp
+    TestModScreen.cpp
     TestNewBlockAPIScreen.cpp
     TestNoiseScreen.cpp
     TestPlanetGenScreen.cpp

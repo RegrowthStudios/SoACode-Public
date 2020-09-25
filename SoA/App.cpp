@@ -28,6 +28,7 @@
 #include "TestDisplacementMappingScreen.h"
 #include "TestGasGiantScreen.h"
 #include "TestMappingScreen.h"
+#include "TestModScreen.h"
 #include "TestNewBlockAPIScreen.h"
 #include "TestNoiseScreen.h"
 #include "TestPlanetGenScreen.h"
@@ -100,6 +101,9 @@ void App::addScreens() {
     scrTests.push_back(new TestUIScreen(this, &state));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_U, scrTests.back(), "TestUIScreen");
+    scrTests.push_back(new TestModScreen(this, &state));
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_Q, scrTests.back(), "TestModScreen");
 
     // Uncomment to start from dev screen for testing other screens
 #define START_AT_DEV_SCREEN
