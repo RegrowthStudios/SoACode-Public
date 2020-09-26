@@ -196,7 +196,7 @@ void MainMenuScreen::initRenderPipeline() {
 }
 
 void MainMenuScreen::initUI() {
-    m_ui.init(this, &m_app->getWindow(), nullptr, &m_formFont);
+    m_ui.init(this, &m_app->getWindow(), &m_ioManager, nullptr, &m_formFont);
     m_ui.makeViewFromScript("Main Menu", 1, "Data/UI/Forms/main_menu.form.lua");
 }
 

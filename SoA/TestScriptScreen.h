@@ -44,4 +44,5 @@ private:
     vui::ScriptedUI<vscript::lua::Environment> m_ui;
     vg::SpriteBatch m_sb;
     vg::SpriteFont m_font;
+    vio::IOManager m_iom;
 };

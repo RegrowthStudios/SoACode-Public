@@ -58,7 +58,7 @@ void TestScriptScreen::onEntry(const vui::GameTime&) {
     m_sb.init();
     m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
 
-    m_ui.init(this, m_commonState->window, nullptr, &m_font, &m_sb);
+    m_ui.init(this, m_commonState->window, &m_iom, nullptr, &m_font, &m_sb);
 
     auto view = m_ui.makeView("TestView", 1);
     view.viewEnv->getEnv()->addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));

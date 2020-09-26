@@ -20,13 +20,13 @@ MainMenuScriptedUI::~MainMenuScriptedUI() {
     // Empty
 }
 
-void MainMenuScriptedUI::init(vui::IGameScreen* ownerScreen, const vui::GameWindow* window, vg::TextureCache* textureCache, vg::SpriteFont* defaultFont /*= nullptr*/, vg::SpriteBatch* spriteBatch /*= nullptr*/) {
+void MainMenuScriptedUI::init(vui::IGameScreen* ownerScreen, const vui::GameWindow* window, vio::IOManager* iom, vg::TextureCache* textureCache, vg::SpriteFont* defaultFont /*= nullptr*/, vg::SpriteBatch* spriteBatch /*= nullptr*/) {
     MainMenuScreen* mainMenuScreen = ((MainMenuScreen*)ownerScreen);
     m_inputMapper = mainMenuScreen->m_inputMapper;
 
     mainMenuScreen->m_mainMenuSystemViewer->TargetChange += makeDelegate(this, &MainMenuScriptedUI::onTargetChange);
 
-    ScriptedUI::init(ownerScreen, window, textureCache, defaultFont, spriteBatch); 
+    ScriptedUI::init(ownerScreen, window, iom, textureCache, defaultFont, spriteBatch); 
 }
 
 void MainMenuScriptedUI::prepareScriptEnv(ViewEnv* viewEnv) {

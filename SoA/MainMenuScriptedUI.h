@@ -27,7 +27,7 @@ public:
     MainMenuScriptedUI();
     ~MainMenuScriptedUI();
 
-    virtual void init(vui::IGameScreen* ownerScreen, const vui::GameWindow* window,
+    virtual void init(vui::IGameScreen* ownerScreen, const vui::GameWindow* window, vio::IOManager* iom,
                         vg::TextureCache* textureCache, vg::SpriteFont* defaultFont = nullptr,
                             vg::SpriteBatch* spriteBatch = nullptr) override;
 
