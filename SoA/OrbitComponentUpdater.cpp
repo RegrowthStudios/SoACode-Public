@@ -75,12 +75,9 @@ f64 OrbitComponentUpdater::calculateTrueAnomaly(f64 meanAnomaly, f64 e) {
     f64 E; ///< Eccentric Anomaly
     f64 F;
     E = meanAnomaly;
-    F = E - e * sin(meanAnomaly) - meanAnomaly;
     for (int n = 0; n < ITERATIONS; n++) {
-        E = E -
-            F / (1.0 - e * cos(E));
-        F = E -
-            e * sin(E) - meanAnomaly;
+        F = E - e * sin(E) - meanAnomaly;
+        E -= F / (1.0 - e * cos(E));
     }
     // 3. Calculate true anomaly
     return atan2(sqrt(1.0 - e * e) * sin(E), cos(E) - e);

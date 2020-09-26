@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BUILD_CLEAN=false
+BUILD_TYPE="-DCMAKE_BUILD_TYPE=Debug"
 CMAKE_PARAMS=""
 MAKE_PARAMS=""
 
@@ -30,10 +31,10 @@ do
             BUILD_CLEAN=true
             ;;
         -r|--release)
-            CMAKE_PARAMS="$CMAKE_PARAMS -DCMAKE_BUILD_TYPE=Release"
+            BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
             ;;
         -d|--debug)
-            CMAKE_PARAMS="$CMAKE_PARAMS -DCMAKE_BUILD_TYPE=Debug"
+            BUILD_TYPE="-DCMAKE_BUILD_TYPE=Debug"
             ;;
         -17|--cxx17)
             CMAKE_PARAMS="$CMAKE_PARAMS -DTARGET_CXX_17=On"
@@ -79,7 +80,7 @@ fi
 
 cd build
 
-eval "cmake ../ $CMAKE_PARAMS"
+eval "cmake ../ $CMAKE_PARAMS $BUILD_TYPE"
 
 eval "make $MAKE_PARAMS"
 

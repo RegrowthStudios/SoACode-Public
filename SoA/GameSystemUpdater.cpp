@@ -28,7 +28,7 @@ void GameSystemUpdater::update(OUT GameSystem* gameSystem, OUT SpaceSystem* spac
     m_freeMoveUpdater.update(gameSystem, spaceSystem);
     m_headUpdater.update(gameSystem);
     m_aabbCollidableUpdater.update(gameSystem, spaceSystem);
-    m_parkourUpdater.update(gameSystem, spaceSystem);
+    m_parkourUpdater.update(gameSystem, spaceSystem, soaState);
     m_physicsUpdater.update(gameSystem, spaceSystem);
     m_collisionUpdater.update(gameSystem);
     m_chunkSphereUpdater.update(gameSystem, spaceSystem);

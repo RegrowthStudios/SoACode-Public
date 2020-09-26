@@ -119,6 +119,7 @@ public:
     };
 
     // TODO(Ben): NOPE
+    //                      ... but why?
     nString particleTexName;
     nString emitterName, emitterOnBreakName, emitterRandomName;
     class ParticleEmitter *emitter, *emitterOnBreak, *emitterRandom;

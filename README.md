@@ -1,5 +1,5 @@
 
-[![dicord](https://img.shields.io/discord/459062989094649866.svg?logo=discord "Discord")](https://discord.gg/b2bf775)
+[![dicord](https://img.shields.io/discord/459062989094649866.svg?logo=discord "Discord")](https://discord.gg/QRex8GK)
 ![travis](https://img.shields.io/travis/RegrowthStudios/SoACode-Public/develop.svg?style=flat-square&label=Linux "Travis CI")
 ![appveyor](https://img.shields.io/appveyor/ci/SamThePsychoticLeprechaun/soacode-public/develop.svg?style=flat-square&label=Windows "AppVeyor CI")
 
@@ -18,7 +18,7 @@ to get an idea of how to contribute, what you might be able to contribute to spe
 and to meet some of the other contributors.
 * [Wiki](https://github.com/RegrowthStudios/SoACode-Public/wiki)
 * [Issues](https://github.com/RegrowthStudios/SoACode-Public/issues)
-* [Discord](https://discord.gg/b2bf775)
+* [Discord](https://discord.gg/QRex8GK)
 
 ### Setting Up:
 **IMPORTANT**: Before following any of the instructions linked below for the platforms we support,
@@ -48,34 +48,6 @@ a whirl?
 *  (Optional) MSVS SVC Plugin:  [MSVS Git Plugin](http://msdn.microsoft.com/en-us/library/hh850437.aspx)
 *  (Optional) TortoiseGit: [tortoisegit](https://tortoisegit.org/download)
 
-#### Setup
-1. Open a dos window.
-```cmd
-Windows + R
-cmd
-```
-2. Create a folder to hold the repositories
-```cmd
-cd c:\
-mkdir -p repos
-```
-3. Clone the Seed of Andromeda repositories
-```cmd
-c:\
-cd c:\repos
-git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
-cd c:\repos\soa
-```
-4. Set origin of submodules to your forked repositories
-```cmd
-# Assuming we're already inside the top-level directory of your SoACode-Public repository.
-cd Vorb
-git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
-cd game
-git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
-```
-If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to run the commands corresponding to that repository.
-
 ### Mac
 
 #### Prerequisites
@@ -92,32 +64,6 @@ If you haven't forked, either Vorb or SoAGameData as you don't intend to contrib
     * [SublimeLinter-cpplint](https://sublime.wbond.net/packages/SublimeLinter-cpplint) -- This linter plugin for SublimeLinter provides an interface to cpplint.
     * [SublimeLinter-pep8](https://sublime.wbond.net/packages/SublimeLinter-pep8) - SublimeLinter plugin for python, using pep8.
     * [SublimeLinter-contrib-clang](https://sublime.wbond.net/packages/SublimeLinter-contrib-clang) - https://sublime.wbond.net/packages/SublimeLinter-contrib-clang
-
-#### Setup
-1. Open a terminal.
-```bash
-cmd + space
-Terminal
-```
-2. Create a folder to hold the repositories
-```bash
-mkdir ~/repos
-```
-3. Clone the Seed of Andromeda repositories
-```bash
-cd ~/repos
-git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
-cd ~/repos/soa
-```
-4. Set origin of submodules to your forked repositories
-```cmd
-# Assuming we're already inside the top-level directory of your SoACode-Public repository.
-cd Vorb
-git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
-cd game
-git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
-```
-If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to run the commands corresponding to that repository.
 
 ### Linux
 
@@ -162,26 +108,61 @@ If you haven't forked, either Vorb or SoAGameData as you don't intend to contrib
     sudo yum install git
     ```
 
-#### Setup
-1. Open a terminal.
-2. Create a folder to hold the repositories
-```bash
-mkdir ~/repos
-```
-3. Clone the Seed of Andromeda repositories
-```bash
-cd ~/repos
+# Setup
+1. Create a folder to hold the repositories and change to directory
+    * Windows
+    ```cmd
+    Windows + R
+    cmd
+        
+    cd c:\
+    mkdir -p repos
+    cd c:\repos
+    ```
+    * Linux
+    ```bash
+    mkdir ~/repos
+    cd ~/repos
+    ```
+    * Mac
+    ```bash
+    cmd + space
+    Terminal
+        
+    mkdir ~/repos
+    cd ~/repos
+    ```
+2. Clone the Seed of Andromeda repositories
+```cmd
 git clone --recurse-submodules https://github.com/YOUR_GITHUB_NAME/SoACode-Public.git soa
-cd ~/repos/soa
 ```
+3. Change to soa direcotory
+    * Windows
+    ```
+    cd c:\repos\soa
+    ```
+    * Linux & Mac
+    ```
+    cd ~/repos/soa
+    ```
+4. (optional) Do this step only if you plan to fork your own Vorb or SoAGameData repos.
+    * Fork both the [Vorb](https://github.com/RegrowthStudios/Vorb) and/or [GameData](https://github.com/RegrowthStudios/SoAGameData) repos in github.
+    * Set origin of submodules to your forked repositories
+    ```cmd
+    # Assuming we're already inside the top-level directory of your SoACode-Public repository.
+    cd Vorb
+    git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
+    cd game
+    git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
+    ```
 
 # Building
 
 1. Pull latest code (from inside .../repos/soa)
-```bash
-git checkout develop    # or your current branch
-git pull --recurse-submodules
-```
+    ```bash
+    git checkout develop    # or your current branch
+    git pull --recurse-submodules
+    ```
 2. Run the build script (--help for options)
     * Windows:
     ```cmd
@@ -200,16 +181,6 @@ git pull --recurse-submodules
     ```bash
     ./build/SoA/launch-soa.sh
     ```
-4. Set origin of submodules to your forked repositories
-```cmd
-# Assuming we're already inside the top-level directory of your SoACode-Public repository.
-cd Vorb
-git remote set-url origin https://github.com/YOUR_GITHUB_NAME/Vorb.git
-cd game
-git remote set-url origin https://github.com/YOUR_GITHUB_NAME/SoAGameData.git
-```
-If you haven't forked, either Vorb or SoAGameData as you don't intend to contribute to that repository, then you don't need to run the commands corresponding to that repository.
-
 
 # Fixing a Pre-Fork Clone
 

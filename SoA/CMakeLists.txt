@@ -17,11 +17,12 @@ enable_testing()
 
 option(TARGET_CXX_17 OFF)
 
-if (TARGET_CXX_17)
+if(TARGET_CXX_17)
     set(CMAKE_CXX_STANDARD 17)
 else()
     set(CMAKE_CXX_STANDARD 14)
 endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -109,12 +110,14 @@ endif (OPENGL_FOUND)
 
 hunter_add_package(glew)
 find_package(glew CONFIG REQUIRED)
-hunter_add_package(Boost COMPONENTS filesystem system)
-find_package(Boost REQUIRED COMPONENTS filesystem system)
+#hunter_add_package(Boost COMPONENTS filesystem system)
+#find_package(Boost REQUIRED COMPONENTS filesystem system)
 hunter_add_package(SDL2)
 find_package(SDL2 CONFIG REQUIRED)
 hunter_add_package(minizip)
 find_package(minizip CONFIG REQUIRED)
+hunter_add_package(CreateLaunchers)
+find_package(CreateLaunchers CONFIG REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/../deps/include)
@@ -617,8 +620,8 @@ target_link_libraries(soa
     SDL2::SDL2main
     SDL2::SDL2
     glew::glew
-    Boost::filesystem
-    Boost::system
+#    Boost::filesystem
+#    Boost::system
     vorb
     minizip::minizip
 #    ${SDL_INCLUDE_DIRS}
