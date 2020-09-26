@@ -35,6 +35,7 @@
 #include "TestStarScreen.h"
 #include "TestUIScreen.h"
 #include "TestVoxelModelScreen.h"
+#include "TestYAMLUIScreen.h"
 
 void App::addScreens() {
     scrInit = new InitScreen(this);  
@@ -100,6 +101,9 @@ void App::addScreens() {
     scrTests.push_back(new TestUIScreen(this, &state));
     m_screenList.addScreen(scrTests.back());
     scrDev->addScreen(VKEY_U, scrTests.back(), "TestUIScreen");
+    scrTests.push_back(new TestYAMLUIScreen(this, &state));
+    m_screenList.addScreen(scrTests.back());
+    scrDev->addScreen(VKEY_Y, scrTests.back(), "TestYAMLUIScreen");
 
     // Uncomment to start from dev screen for testing other screens
 #define START_AT_DEV_SCREEN

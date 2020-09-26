@@ -343,6 +343,7 @@ set(SoA_headers
     TestStarScreen.h
     TestUIScreen.h
     TestVoxelModelScreen.h
+    TestYAMLUIScreen.h
     textureUtils.h
     Thread.h
     TransparentVoxelRenderStage.h
@@ -553,6 +554,7 @@ set(SoA_sources
     TestStarScreen.cpp
     TestUIScreen.cpp
     TestVoxelModelScreen.cpp
+    TestYAMLUIScreen.cpp
     TransparentVoxelRenderStage.cpp
     VoxelEditor.cpp
     VoxelLightEngine.cpp
