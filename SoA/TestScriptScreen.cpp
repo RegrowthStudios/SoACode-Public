@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "TestScriptScreen.h"
 
+#include <Vorb/graphics/script/Graphics.hpp>
 #include <Vorb/io/File.h>
 #include <Vorb/io/Path.h>
 #include <Vorb/ui/InputDispatcher.h>
+#include <Vorb/ui/script/ViewScriptContext.hpp>
 
 #include "App.h"
 #include "InputMapper.h"
@@ -32,37 +34,49 @@ void TestScriptScreen::destroy(const vui::GameTime&) {
 }
 
 void TestScriptScreen::onEntry(const vui::GameTime&) {
-    m_env.init();
+    m_textureCache.init(&m_iom);
+    m_fontCache.init(&m_iom);
 
-    m_env.setNamespaces("onMessage");
-    m_env.addCDelegate("subscribe", makeFunctor([&](nString name) {
-        onMessage.add(m_env.template getScriptDelegate<void, Sender, nString>(name), true);
-    }));
-    m_env.addCDelegate("unsubscribe", makeFunctor([&](nString name) {
-        onMessage.remove(m_env.template getScriptDelegate<void, Sender, nString>(name, false));
-    }));
-    m_env.setNamespaces();
+    m_sb.init();
+    m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
 
-    m_env.addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
-    m_env.addCDelegate("C_Add",   makeDelegate(&TestScriptScreen::add));
+    auto builder = makeFunctor([&](vscript::lua::Environment* env) {
+        env->setNamespaces("onMessage");
+        env->addCDelegate("subscribe", makeFunctor([&, env](nString name) {
+            onMessage.add(env->template getScriptDelegate<void, Sender, nString>(name), true);
+        }));
+        env->addCDelegate("unsubscribe", makeFunctor([&, env](nString name) {
+            onMessage.remove(env->template getScriptDelegate<void, Sender, nString>(name, false));
+        }));
+        env->setNamespaces();
 
-    m_env.run(vio::Path("test.lua"));
+        env->addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
+        env->addCDelegate("C_Add",   makeDelegate(&TestScriptScreen::add));
 
-    auto del = m_env.getScriptDelegate<void, Sender, nString>("doPrint");
+        vg::GraphicsScriptContext::injectInto(env, &m_fontCache, &m_textureCache);
+
+        vui::UIScriptContext::injectInto(env);
+
+        vui::ViewScriptContext::injectInto(env, m_commonState->window, &m_textureCache, m_widgets);
+    });
+    m_commonState->scriptEnvRegistry->createGroup("test", &builder);
+
+    m_env = m_commonState->scriptEnvRegistry->getScriptEnv("test");
+
+    m_env->run(vio::Path("test.lua"));
+
+    auto del = m_env->getScriptDelegate<void, Sender, nString>("doPrint");
 
     onMessage("Hello, World!");
     onMessage("Hello, World!");
 
     del.invoke(nullptr, "Hello, Waldo!");
 
-    m_sb.init();
-    m_font.init("Fonts/orbitron_bold-webfont.ttf", 32);
+    m_ui.init(this, m_commonState->window, &m_iom, &m_textureCache, &m_fontCache, &m_sb, m_commonState->scriptEnvRegistry, "test");
 
-    m_ui.init(this, m_commonState->window, nullptr, &m_font, &m_sb);
+    auto view = m_ui.makeViewFromScript("TestView", 1, "ui_test.lua");
 
-    auto view = m_ui.makeView("TestView", 1);
-    view.viewEnv->getEnv()->addCDelegate("C_Print", makeDelegate(&TestScriptScreen::printMessage));
-    view.viewEnv->run("ui_test.lua");
+    view->enable();
 }
 
 void TestScriptScreen::onExit(const vui::GameTime&) {

@@ -1,13 +1,15 @@
 #include <Vorb/graphics/SpriteBatch.h>
 #include <Vorb/graphics/SpriteFont.h>
-#include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
 
 #include <iostream>
 
 #include <Vorb/Event.hpp>
+#include <Vorb/graphics/FontCache.h>
+#include <Vorb/graphics/TextureCache.h>
+#include <Vorb/io/IOManager.h>
 #include <Vorb/script/lua/Environment.h>
-#include <Vorb/ui/ScriptedUI.h>
+#include <Vorb/ui/UI.h>
 
 #include "CommonState.h"
 
@@ -40,8 +42,12 @@ public:
     }
 private:
     CommonState*               m_commonState;
-    vscript::lua::Environment  m_env;
-    vui::ScriptedUI<vscript::lua::Environment> m_ui;
+    vscript::lua::Environment*  m_env;
+    vui::UI<vscript::lua::Environment> m_ui;
     vg::SpriteBatch m_sb;
     vg::SpriteFont m_font;
+    vio::IOManager m_iom;
+    vg::TextureCache m_textureCache;
+    vg::FontCache m_fontCache;
+    vui::IWidgets m_widgets;
 };
