@@ -20,6 +20,8 @@
 #include <Vorb/VorbPreDecl.inl>
 #include <Vorb/Event.hpp>
 #include <Vorb/graphics/GBuffer.h>
+#include <Vorb/script/lua/Environment.h>
+#include <Vorb/ui/UI.h>
 
 #include "ExposureCalcRenderStage.h"
 #include "SpaceSystemRenderStage.h"
@@ -32,7 +34,6 @@
 /// Forward declarations
 class Camera;
 class MainMenuScreen;
-class MainMenuScriptedUI;
 class MainMenuSystemViewer;
 class SpaceSystem;
 struct CommonState;
@@ -84,7 +85,7 @@ private:
 
     vg::GBuffer m_hdrTarget; ///< Framebuffer needed for the HDR rendering
     vg::RTSwapChain<2> m_swapChain; ///< Swap chain of framebuffers used for post-processing
-    MainMenuScriptedUI* m_mainMenuUI; ///< The main menu UI
+    vui::UI<vscript::lua::Environment>* m_mainMenuUI; ///< The main menu UI
 
     std::thread* m_loadThread = nullptr;
     volatile bool m_isLoaded = false;

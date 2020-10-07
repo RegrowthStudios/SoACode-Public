@@ -45,8 +45,10 @@ void MainMenuLoadScreen::build() {
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-    m_env.addValue("WindowWidth",  static_cast<f64>(m_game->getWindow().getWidth()));
-    m_env.addValue("WindowHeight", static_cast<f64>(m_game->getWindow().getHeight()));
+    m_env.setNamespaces("Window");
+    m_env.addValue("Width",  static_cast<f64>(m_game->getWindow().getWidth()));
+    m_env.addValue("Height", static_cast<f64>(m_game->getWindow().getHeight()));
+    m_env.setNamespaces();
 
     m_env.run(vio::Path("Data/Logos/Vorb/ScreenUpdate.lua"));
     m_vorbScreenDuration   = m_env.template getScriptDelegate<f64>("VorbMaxDuration")();
@@ -211,8 +213,11 @@ void MainMenuLoadScreen::draw(const vui::GameTime&) {
     // Draw vorb logo
     // Update the window size
     f32v2 windowSize(w.getWidth(), w.getHeight());
-    m_env.addValue("WindowWidth",  windowSize.x);
-    m_env.addValue("WindowHeight", windowSize.y);
+    // m_env.setGlobalNamespace();
+    // m_env.setNamespaces("Window");
+    // m_env.addValue("Width",  windowSize.x);
+    // m_env.addValue("Height", windowSize.y);
+    // m_env.setNamespaces();
 
     // Render each texture
     m_sb->begin();

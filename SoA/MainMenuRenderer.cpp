@@ -13,7 +13,6 @@
 #include "GameManager.h"
 #include "HdrRenderStage.h"
 #include "MainMenuScreen.h"
-#include "MainMenuScriptedUI.h"
 #include "SoaOptions.h"
 #include "SoAState.h"
 #include "soaUtils.h"

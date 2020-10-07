@@ -245,7 +245,7 @@ set(SoA_headers
     MainMenuLoadScreen.h
     MainMenuRenderer.h
     MainMenuScreen.h
-    MainMenuScriptedUI.h
+    MainMenuScriptContext.h
     MainMenuSystemViewer.h
     MarchingCubesTable.h
     MaterialAtlas.h
@@ -471,7 +471,7 @@ set(SoA_sources
     MainMenuLoadScreen.cpp
     MainMenuRenderer.cpp
     MainMenuScreen.cpp
-    MainMenuScriptedUI.cpp
+    MainMenuScriptContext.cpp
     MainMenuSystemViewer.cpp
     MetaSection.cpp
     ModelMesher.cpp

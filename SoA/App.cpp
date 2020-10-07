@@ -119,6 +119,13 @@ void App::onInit() {
     state.window = &m_window;
     state.soundEngine = new vsound::Engine;
     state.soundEngine->init();
+    state.scriptEnvRegistry = new vscript::EnvironmentRegistry<vscript::lua::Environment>;
+    state.scriptEnvRegistry->init();
+    state.uiRegistry = new vui::UIRegistry<vscript::lua::Environment>;
+    state.uiRegistry->init();
+
+    // Setup Lua locking mechanism.
+    vscript::lua::Environment::setLockingMechanism();
 
     // Load the game options
     SoaEngine::initOptions(soaOptions);

@@ -19,13 +19,19 @@
 
 #include <Vorb/Random.h>
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/graphics/FontCache.h>
 #include <Vorb/graphics/SpriteFont.h>
+#include <Vorb/graphics/TextureCache.h>
+#include <Vorb/script/lua/Environment.h>
+#include <Vorb/script/EnvironmentRegistry.hpp>
 #include <Vorb/io/IOManager.h>
 #include <Vorb/ui/IGameScreen.h>
+#include <Vorb/ui/UIRegistry.h>
 
+#include "CommonState.h"
 #include "LoadMonitor.h"
 #include "MainMenuRenderer.h"
-#include "MainMenuScriptedUI.h"
+#include "MainMenuScriptContext.h"
 #include "Camera.h"
 #include "SpaceSystemUpdater.h"
 
@@ -65,6 +71,36 @@ public:
 
     // Getters
     SoaState* getSoAState() const { return m_soaState; }
+    MainMenuSystemViewer* getMainMenuSystemViewer() const { return m_mainMenuSystemViewer; }
+
+    // The logic here is that triggerable events fire off the existing
+    // pre and post event hooks on either side of some main logic. Only
+    // Quit has no post event hook for obvious reasons.
+
+    void requestNewGame() { m_newGameClicked = true; }
+
+    // Triggerables
+    void onReloadSystem(Sender, ui32);
+    void onReloadShaders(Sender, ui32);
+    void onQuit(Sender, ui32);
+    void onWindowResize(Sender, const vui::WindowResizeEvent&);
+    void onWindowClose(Sender);
+    void onOptionsChange(Sender);
+    void onToggleUI(Sender, ui32);
+    void onToggleWireframe(Sender, ui32);
+
+    // Subscribable Events
+    Event<ui32> PreReloadSystem,     PostReloadSystem;
+    Event<ui32> PreReloadShaders,    PostReloadShaders;
+    Event<ui32> PreReloadUI,         PostReloadUI;
+    Event<ui32> PreToggleUI,         PostToggleUI;
+    Event<ui32> PreToggleAR,         PostToggleAR;
+    Event<ui32> PreCycleColorFilter, PostCycleColorFilter;
+    Event<ui32> PreScreenshot,       PostScreenshot;
+    Event<ui32> PreToggleWireframe,  PostToggleWireframe;
+    Event<ui32> PreQuit;
+
+    Event<vecs::EntityID> OnTargetChange;
 private:
 
     /// Initializes event delegates and InputManager
@@ -93,17 +129,6 @@ private:
     /// Cycles the draw mode for wireframe
     void cycleDrawMode();
 
-    // --------------- Event handlers ---------------
-    void onReloadSystem(Sender s, ui32 a);
-    void onReloadShaders(Sender s, ui32 a);
-    void onQuit(Sender s, ui32 a);
-    void onWindowResize(Sender s, const vui::WindowResizeEvent& e);
-    void onWindowClose(Sender s);
-    void onOptionsChange(Sender s);
-    void onToggleUI(Sender s, ui32 i);
-    void onToggleWireframe(Sender s, ui32 i);
-    // ----------------------------------------------
-
     CommonState* m_commonState = nullptr;
     SoaState* m_soaState = nullptr;
 
@@ -116,9 +141,15 @@ private:
     std::thread* m_updateThread = nullptr; ///< The thread that updates the planet. Runs updateThreadFunc()
     volatile bool m_threadRunning; ///< True when the thread should be running
 
+    vg::FontCache m_fontCache;
+    vg::TextureCache m_textureCache;
+
     MainMenuRenderer m_renderer; ///< This handles all rendering for the main menu
-    MainMenuScriptedUI m_ui; ///< The UI form
+    // TODO(Matthew): Use script registry?
+    vscript::lua::Environment m_mainMenuScriptEnv; ///< Script env for running UI scripts in.
+    vui::UI<vscript::lua::Environment> m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
+    vui::IWidgets m_widgets; ///< Widgets created by menu script.
 
     MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
 

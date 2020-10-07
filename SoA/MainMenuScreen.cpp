@@ -84,6 +84,9 @@ void MainMenuScreen::onEntry(const vui::GameTime& gameTime VORB_MAYBE_UNUSED) {
     m_spaceSystemUpdater = std::make_unique<SpaceSystemUpdater>();
     m_spaceSystemUpdater->init(m_soaState);
 
+    m_fontCache.init(&m_ioManager);
+    m_textureCache.init(&m_ioManager);
+
     // Initialize the user interface
     m_formFont.init("Fonts/orbitron_bold-webfont.ttf", 32);
     initUI();
@@ -170,18 +173,31 @@ void MainMenuScreen::initInput() {
     m_inputMapper = new InputMapper;
     initInputs(m_inputMapper);
     // Reload space system event
-  
+
     m_inputMapper->get(INPUT_RELOAD_SYSTEM).downEvent += makeDelegate(this, &MainMenuScreen::onReloadSystem);
     m_inputMapper->get(INPUT_RELOAD_SHADERS).downEvent += makeDelegate(this, &MainMenuScreen::onReloadShaders);
-    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) { m_shouldReloadUI = true; });
+    m_inputMapper->get(INPUT_RELOAD_UI).downEvent.addFunctor([&](Sender, ui32 a) {
+        PreReloadUI(a);
+        m_shouldReloadUI = true;
+        PostReloadUI(a);    
+    });
     m_inputMapper->get(INPUT_TOGGLE_UI).downEvent += makeDelegate(this, &MainMenuScreen::onToggleUI);
     // TODO(Ben): addFunctor = memory leak
-    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender s VORB_UNUSED, ui32 i VORB_UNUSED) {
-        m_renderer.toggleAR(); });
-    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
-        m_renderer.cycleColorFilter(); });
-    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
-        m_renderer.takeScreenshot(); });
+    m_inputMapper->get(INPUT_TOGGLE_AR).downEvent.addFunctor([&](Sender, ui32 i) {
+        PreToggleAR(i);
+        m_renderer.toggleAR();
+        PostToggleAR(i);
+    });
+    m_inputMapper->get(INPUT_CYCLE_COLOR_FILTER).downEvent.addFunctor([&](Sender, ui32 i) {
+        PreCycleColorFilter(i);
+        m_renderer.cycleColorFilter();
+        PostCycleColorFilter(i);
+    });
+    m_inputMapper->get(INPUT_SCREENSHOT).downEvent.addFunctor([&](Sender, ui32 i) {
+        PreScreenshot(i);
+        m_renderer.takeScreenshot();
+        PostScreenshot(i);
+    });
     m_inputMapper->get(INPUT_DRAW_MODE).downEvent += makeDelegate(this, &MainMenuScreen::onToggleWireframe);
 
     vui::InputDispatcher::window.onResize += makeDelegate(this, &MainMenuScreen::onWindowResize);
@@ -196,7 +212,11 @@ void MainMenuScreen::initRenderPipeline() {
 }
 
 void MainMenuScreen::initUI() {
-    m_ui.init(this, &m_app->getWindow(), nullptr, &m_formFont);
+    auto contextBuilder = makeFunctor([&](vscript::lua::Environment* env) {
+        MainMenuScriptContext::injectInto(env, &m_app->getWindow(), &m_textureCache, m_inputMapper, this, m_widgets);
+    });
+
+    m_ui.init(this, &m_app->getWindow(), &m_ioManager, &m_textureCache, &m_fontCache, nullptr, &contextBuilder);
     m_ui.makeViewFromScript("Main Menu", 1, "Data/UI/Forms/main_menu.form.lua");
 }
 
@@ -272,7 +292,9 @@ void MainMenuScreen::reloadUI() {
     printf("UI was reloaded.\n");
 }
 
-void MainMenuScreen::onReloadSystem(Sender s VORB_MAYBE_UNUSED, ui32 a VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onReloadSystem(Sender, ui32 a) {
+    PreReloadSystem(a);
+
     SoaEngine::destroySpaceSystem(m_soaState);
     SoaEngine::loadSpaceSystem(m_soaState, "StarSystems/Trinity");
     CinematicCamera tmp = m_soaState->clientState.spaceCamera; // Store camera so the view doesn't change
@@ -282,9 +304,13 @@ void MainMenuScreen::onReloadSystem(Sender s VORB_MAYBE_UNUSED, ui32 a VORB_MAYB
     m_soaState->clientState.spaceCamera = tmp; // Restore old camera
     m_renderer.dispose(m_commonState->loadContext);
     initRenderPipeline();
+
+    PostReloadSystem(a);
 }
 
-void MainMenuScreen::onReloadShaders(Sender s VORB_MAYBE_UNUSED, ui32 a VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onReloadShaders(Sender, ui32 a) {
+    PreReloadShaders(a);
+
     printf("Reloading Shaders...\n");
     m_renderer.dispose(m_commonState->loadContext);
 
@@ -302,29 +328,34 @@ void MainMenuScreen::onReloadShaders(Sender s VORB_MAYBE_UNUSED, ui32 a VORB_MAY
     m_commonState->loadContext.end();
 
     printf("Done!\n");
+
+    PostReloadShaders(a);
 }
 
-void MainMenuScreen::onQuit(Sender s VORB_MAYBE_UNUSED, ui32 a VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onQuit(Sender, ui32 a) {
+    PreQuit(a);
+
     m_window->saveSettings();
     SoaEngine::destroyAll(m_soaState);
     exit(0);
 }
 
-void MainMenuScreen::onWindowResize(Sender s VORB_MAYBE_UNUSED, const vui::WindowResizeEvent& e VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onWindowResize(Sender, const vui::WindowResizeEvent& e) {
     SoaEngine::optionsController.setInt("Screen Width", e.w);
     SoaEngine::optionsController.setInt("Screen Height", e.h);
     soaOptions.get(OPT_SCREEN_WIDTH).value.i = e.w;
     soaOptions.get(OPT_SCREEN_HEIGHT).value.i = e.h;
-    if (m_uiEnabled) m_ui.onOptionsChanged();
+    // TODO(Matthew): Tell UI somehow...
+    // if (m_uiEnabled) m_ui.onOptionsChanged();
     m_soaState->clientState.spaceCamera.setAspectRatio(m_window->getAspectRatio());
     m_mainMenuSystemViewer->setViewport(ui32v2(e.w, e.h));
 }
 
-void MainMenuScreen::onWindowClose(Sender s VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onWindowClose(Sender s) {
     onQuit(s, 0);
 }
 
-void MainMenuScreen::onOptionsChange(Sender s VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onOptionsChange(Sender) {
     bool fullscreen = soaOptions.get(OPT_FULLSCREEN).value.b;
     bool borderless = soaOptions.get(OPT_BORDERLESS).value.b;
     bool screenChanged = false;
@@ -353,7 +384,8 @@ void MainMenuScreen::onOptionsChange(Sender s VORB_MAYBE_UNUSED) {
     }
 }
 
-void MainMenuScreen::onToggleUI(Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onToggleUI(Sender, ui32 i) {
+    PreToggleUI(i);
     m_renderer.toggleUI();
     m_uiEnabled = !m_uiEnabled;
     if (m_uiEnabled) {
@@ -361,8 +393,11 @@ void MainMenuScreen::onToggleUI(Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UN
     } else {
         m_ui.dispose();
     }
+    PostToggleUI(i);
 }
 
-void MainMenuScreen::onToggleWireframe(Sender s VORB_MAYBE_UNUSED, ui32 i VORB_MAYBE_UNUSED) {
+void MainMenuScreen::onToggleWireframe(Sender, ui32 i) {
+    PreToggleWireframe(i);
     m_renderer.toggleWireframe();
+    PostToggleWireframe(i);
 }
