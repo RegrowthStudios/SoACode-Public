@@ -3,7 +3,6 @@
 
 #include <Vorb/mod/DataAssetIOManager.h>
 #include <Vorb/mod/Merge.h>
-#include <Vorb/mod/ModEnvironment.h>
 #include <Vorb/script/lua/Environment.h>
 
 #include "App.h"
@@ -78,7 +77,7 @@ void TestModScreen::onEntry(const vui::GameTime&) {
         std::cout << "      author: " << mod->getModMetadata().author << std::endl;
     }
 
-    vmod::ModBaseConstPtrs activeMods = m_modEnv->getActiveMods();
+    vmod::ModBasePtrs activeMods = m_modEnv->getActiveMods();
 
     std::cout << "Active Mods:" << std::endl;
     for (auto& mod : activeMods) {

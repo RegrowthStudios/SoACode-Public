@@ -1,11 +1,11 @@
 #include <Vorb/VorbPreDecl.inl>
+#include <Vorb/mod/ModEnvironment.h>
 #include <Vorb/ui/IGameScreen.h>
 
 #include <iostream>
 
 #include "CommonState.h"
 
-DECL_VMOD(template <typename ScriptEnvironment> class ModEnvironment)
 DECL_VSCRIPT_LUA(class Environment)
 
 class TestModScreen : public vui::IAppScreen<App> {
