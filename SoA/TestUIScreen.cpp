@@ -112,7 +112,7 @@ void TestUIScreen::onEntry(const vui::GameTime&) {
 
     // TODO(Matthew): Padding not supported by combobox yet, I think - too distracted to check, just occurred to me.
     // m_comboBox.setPadding(f32v4(10.0f, 5.0f, 10.0f, 5.0f));
-    m_comboBox.setText("Click Me!");
+    m_comboBox.setMainButtonText("Click Me!");
     m_comboBox.setTextScale(f32v2(0.65f));
     m_comboBox.setTextAlign(vg::TextAlign::CENTER);
     m_comboBox.setBackColor(color::Aquamarine);
