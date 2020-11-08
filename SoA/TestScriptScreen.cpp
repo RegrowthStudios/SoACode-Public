@@ -55,15 +55,19 @@ void TestScriptScreen::onEntry(const vui::GameTime&) {
 
         vg::GraphicsScriptContext::injectInto(env, &m_fontCache, &m_textureCache);
 
-        vui::UIScriptContext::injectInto(env);
+        vui::UIScriptContext::injectInto(env, m_commonState->window);
 
-        vui::ViewScriptContext::injectInto(env, m_commonState->window, &m_textureCache, m_widgets);
+        vui::ViewScriptContext::injectInto(env, m_commonState->window);
     });
     m_commonState->scriptEnvRegistry->createGroup("test", &builder);
 
     m_env = m_commonState->scriptEnvRegistry->getScriptEnv("test");
 
+    auto secondEnv = m_commonState->scriptEnvRegistry->getScriptEnv("test");
+
     m_env->run(vio::Path("test.lua"));
+
+    secondEnv->run(vio::Path("other_test.lua"));
 
     auto del = m_env->getScriptDelegate<void, Sender, nString>("doPrint");
 
@@ -83,8 +87,8 @@ void TestScriptScreen::onExit(const vui::GameTime&) {
     // Empty
 }
 
-void TestScriptScreen::update(const vui::GameTime& dt) {
-    m_ui.update((f32)dt.elapsed);
+void TestScriptScreen::update(const vui::GameTime& time) {
+    m_ui.update((f32)time.elapsed);
 }
 
 void TestScriptScreen::draw(const vui::GameTime&) {

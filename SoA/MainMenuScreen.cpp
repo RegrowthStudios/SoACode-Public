@@ -213,7 +213,7 @@ void MainMenuScreen::initRenderPipeline() {
 
 void MainMenuScreen::initUI() {
     auto contextBuilder = makeFunctor([&](vscript::lua::Environment* env) {
-        MainMenuScriptContext::injectInto(env, &m_app->getWindow(), &m_textureCache, m_inputMapper, this, m_widgets);
+        MainMenuScriptContext::injectInto(env, &m_app->getWindow(), m_inputMapper, this);
     });
 
     m_ui.init(this, &m_app->getWindow(), &m_ioManager, &m_textureCache, &m_fontCache, nullptr, &contextBuilder);

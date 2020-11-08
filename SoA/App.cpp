@@ -122,7 +122,7 @@ void App::onInit() {
     state.scriptEnvRegistry = new vscript::EnvironmentRegistry<vscript::lua::Environment>;
     state.scriptEnvRegistry->init();
     state.uiRegistry = new vui::UIRegistry<vscript::lua::Environment>;
-    state.uiRegistry->init();
+    state.uiRegistry->init(state.window);
 
     // Setup Lua locking mechanism.
     vscript::lua::Environment::setLockingMechanism();

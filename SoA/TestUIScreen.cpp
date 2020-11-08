@@ -159,8 +159,8 @@ void TestUIScreen::onExit(const vui::GameTime&) {
     m_viewport.dispose();
 }
 
-void TestUIScreen::update(const vui::GameTime&) {
-    m_viewport.update();
+void TestUIScreen::update(const vui::GameTime& time) {
+    m_viewport.update((f32)time.elapsed);
 }
 
 void TestUIScreen::draw(const vui::GameTime&) {

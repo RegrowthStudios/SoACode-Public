@@ -28,7 +28,7 @@ DECL_VSCRIPT_LUA(class Environment)
 class MainMenuScreen;
 
 namespace MainMenuScriptContext {
-    void injectInto(vscript::lua::Environment* env, const vui::GameWindow* window, vg::TextureCache* textureCache, InputMapper* inputMapper, MainMenuScreen* ownerScreen, vui::IWidgets& widgets);
+    void injectInto(vscript::lua::Environment* env, const vui::GameWindow* window, InputMapper* inputMapper, MainMenuScreen* ownerScreen);
 
     namespace impl {
         // LUA funcs for controls

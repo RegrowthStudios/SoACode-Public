@@ -10,10 +10,10 @@
 #include <Vorb/Event.hpp>
 #include <Vorb/ui/KeyStrings.h>
 
-void MainMenuScriptContext::injectInto(vscript::lua::Environment* env, const vui::GameWindow* window, vg::TextureCache* textureCache, InputMapper* inputMapper, MainMenuScreen* ownerScreen, vui::IWidgets& widgets) {
-    vui::UIScriptContext::injectInto(env);
+void MainMenuScriptContext::injectInto(vscript::lua::Environment* env, const vui::GameWindow* window, InputMapper* inputMapper, MainMenuScreen* ownerScreen) {
+    vui::UIScriptContext::injectInto(env, window);
 
-    vui::ViewScriptContext::injectInto(env, window, textureCache, widgets);
+    vui::ViewScriptContext::injectInto(env, window);
 
     SoaEngine::optionsController.registerScripting<vscript::lua::Environment>(env);
 
