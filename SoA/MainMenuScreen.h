@@ -149,7 +149,6 @@ private:
     vscript::lua::Environment m_mainMenuScriptEnv; ///< Script env for running UI scripts in.
     vui::UI<vscript::lua::Environment> m_ui; ///< The UI form
     vg::SpriteFont m_formFont; ///< The UI font
-    vui::IWidgets m_widgets; ///< Widgets created by menu script.
 
     MainMenuSystemViewer* m_mainMenuSystemViewer = nullptr;
 

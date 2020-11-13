@@ -5,15 +5,13 @@
 #include "MainMenuScreen.h"
 #include "MainMenuSystemViewer.h"
 
-#include <Vorb/ui/script/ViewScriptContext.hpp>
+#include <Vorb/ui/script/UIScriptContext.hpp>
 #include <Vorb/script/lua/Environment.h>
 #include <Vorb/Event.hpp>
 #include <Vorb/ui/KeyStrings.h>
 
 void MainMenuScriptContext::injectInto(vscript::lua::Environment* env, const vui::GameWindow* window, InputMapper* inputMapper, MainMenuScreen* ownerScreen) {
     vui::UIScriptContext::injectInto(env, window);
-
-    vui::ViewScriptContext::injectInto(env, window);
 
     SoaEngine::optionsController.registerScripting<vscript::lua::Environment>(env);
 

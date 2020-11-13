@@ -5,7 +5,7 @@
 #include <Vorb/io/File.h>
 #include <Vorb/io/Path.h>
 #include <Vorb/ui/InputDispatcher.h>
-#include <Vorb/ui/script/ViewScriptContext.hpp>
+#include <Vorb/ui/script/UIScriptContext.hpp>
 
 #include "App.h"
 #include "InputMapper.h"
@@ -56,8 +56,6 @@ void TestScriptScreen::onEntry(const vui::GameTime&) {
         vg::GraphicsScriptContext::injectInto(env, &m_fontCache, &m_textureCache);
 
         vui::UIScriptContext::injectInto(env, m_commonState->window);
-
-        vui::ViewScriptContext::injectInto(env, m_commonState->window);
     });
     m_commonState->scriptEnvRegistry->createGroup("test", &builder);
 

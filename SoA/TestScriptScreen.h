@@ -49,5 +49,4 @@ private:
     vio::IOManager m_iom;
     vg::TextureCache m_textureCache;
     vg::FontCache m_fontCache;
-    vui::IWidgets m_widgets;
 };
