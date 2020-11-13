@@ -193,3 +193,4 @@ Mine/
 *.opendb
 
 .vscode/
+.vs/
