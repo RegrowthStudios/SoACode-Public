@@ -37,7 +37,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
         # This warning only exists for GCC.
         set(warnings "${warnings} -Wno-class-memaccess")
     endif()
-    ADD_DEFINITIONS(
+    add_definitions(
 #        -std=c++11
 #        -std=c++0x
         # Other flags
