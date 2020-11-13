@@ -35,7 +35,7 @@ void GameRenderParams::calculateFog(float theta, bool isUnderwater) {
     
 #define FOG_THETA_MULT 100.0f
 #define FOG_THETA_OFFSET 50.0f
-    f32m4 VP;
+    // f32m4 VP;
     //********************************* TODO: PRECOMPILED HEADERS for compilation speed?
     float fogTheta = glm::clamp(theta, 0.0f, 1.0f);
     fogStart = 0;

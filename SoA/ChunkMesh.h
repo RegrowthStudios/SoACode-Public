@@ -68,6 +68,13 @@ struct VoxelQuad {
         v.v3.BlockVertex::~BlockVertex(); 
     }
 
+    VoxelQuad& operator=(const VoxelQuad& rhs) {
+        for (size_t i = 0; i < 4; ++i) {
+            verts[i] = rhs.verts[i];
+        }
+        return *this;
+    }
+
     union {
         struct{
             BlockVertex v0;

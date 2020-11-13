@@ -119,7 +119,7 @@ void TestModScreen::onExit(const vui::GameTime&) {
     // Empty
 }
 
-void TestModScreen::update(const vui::GameTime& dt) {
+void TestModScreen::update(const vui::GameTime& dt VORB_MAYBE_UNUSED) {
     // Empty
 }
 
