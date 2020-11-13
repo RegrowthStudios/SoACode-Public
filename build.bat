@@ -15,6 +15,8 @@ ECHO "            --clean             | -c       ---   Clean build, removes all 
 ECHO "        CMake flags:\n"
 ECHO "            --release           | -r       ---   Compile in release mode.\n"
 ECHO "            --debug             | -d       ---   Compile in debug mode.\n"
+ECHO "            --vs-2015           | -2015    ---   Forces VS 2015 MSVC build.\n"
+ECHO "            --x64               | -64      ---   Builds 64-bit version.\n"
 ECHO "            --cxx17             | -17      ---   Target C++17 (otherwise targets C++14).\n"
 ECHO "            --no-gdb            | -ng      ---   Add OS specific debug symbols rather than GDB's.\n"
 ECHO "            --no-extra-debug    | -ned     ---   Don't add extra debug symbols.\n"
@@ -35,6 +37,14 @@ GOTO ArgloopContinue
 
 :Debug
 SET "CMAKE_PARAMS=%CMAKE_PARAMS% -DCMAKE_BUILD_TYPE=Debug"
+GOTO ArgloopContinue
+
+:Vs2015
+SET "CMAKE_PARAMS=%CMAKE_PARAMS% -G "Visual Studio 14 2015" -A x64"
+GOTO ArgloopContinue
+
+:x64
+SET "CMAKE_PARAMS=%CMAKE_PARAMS% -A x64"
 GOTO ArgloopContinue
 
 :Cxx17
@@ -74,6 +84,14 @@ GOTO ArgloopContinue
         GOTO Debug
     ) ELSE IF "%1"=="--debug" (
         GOTO Debug
+    ) ELSE IF "%1"=="-2015" (
+        GOTO Vs2015
+    ) ELSE IF "%1"=="--vs-2015" (
+        GOTO Vs2015
+    ) ELSE IF "%1"=="-64" (
+        GOTO x64
+    ) ELSE IF "%1"=="--x64" (
+        GOTO x64
     ) ELSE IF "%1"=="-17" (
         GOTO Cxx17
     ) ELSE IF "%1"=="--cxx17" (
