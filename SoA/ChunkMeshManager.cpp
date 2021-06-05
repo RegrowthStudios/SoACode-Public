@@ -120,9 +120,20 @@ ChunkMeshTask* ChunkMeshManager::createMeshTask(ChunkHandle& chunk) {
 
 void ChunkMeshManager::disposeMesh(ChunkMesh* mesh) {
     // De-allocate buffer objects
-    glDeleteBuffers(4, mesh->vbos);
-    glDeleteVertexArrays(4, mesh->vaos);
-    if (mesh->transIndexID) glDeleteBuffers(1, &mesh->transIndexID);
+    // buffer objects may not be allocated yet
+    for(size_t i=0; i<4; ++i)
+    {
+        if(mesh->vbos[i] != 0)
+            glDeleteBuffers(1, &(mesh->vbos[i]));
+        if(mesh->vaos[i] != 0)
+            glDeleteBuffers(1, &(mesh->vaos[i]));
+    }
+
+    memset(mesh->vbos, 0, 4*sizeof(VGVertexBuffer));
+    memset(mesh->vaos, 0, 4*sizeof(VGVertexArray));
+
+    if(mesh->transIndexID) 
+        glDeleteBuffers(1, &mesh->transIndexID);
 
     { // Remove from mesh list
         std::lock_guard<std::mutex> l(lckActiveChunkMeshes);
@@ -152,6 +163,12 @@ void ChunkMeshManager::updateMesh(ChunkMeshUpdateMessage& message) {
         mesh = it->second;
     }
     
+    if(message.dispose)
+    {
+        disposeMesh(mesh);
+        return;
+    }
+
     if (ChunkMesher::uploadMeshData(*mesh, message.meshData)) {
         // Add to active list if its not there
         std::lock_guard<std::mutex> l(lckActiveChunkMeshes);
@@ -236,7 +253,7 @@ void ChunkMeshManager::onNeighborsRelease(Sender s VORB_MAYBE_UNUSED, ChunkHandl
             return;
         } else {
             mesh = it->second;
-            m_activeChunks.erase(it);
+//            m_activeChunks.erase(it);
         }
     }
     {
@@ -248,7 +265,14 @@ void ChunkMeshManager::onNeighborsRelease(Sender s VORB_MAYBE_UNUSED, ChunkHandl
         }
     }
 
-    disposeMesh(mesh);
+    ChunkMeshUpdateMessage msg;
+    
+    msg.chunkID = chunk.getID();
+    msg.dispose = true;
+
+    //can't dispose here as this thread is outside of opengl
+    sendMessage(msg);
+//    disposeMesh(mesh);
 }
 
 void ChunkMeshManager::onDataChange(Sender s VORB_MAYBE_UNUSED, ChunkHandle& chunk) {

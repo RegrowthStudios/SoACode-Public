@@ -25,6 +25,7 @@
 struct ChunkMeshUpdateMessage {
     ChunkID chunkID;
     ChunkMeshData* meshData = nullptr;
+    bool dispose=false;
 };
 
 class ChunkMeshManager {

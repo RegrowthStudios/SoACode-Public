@@ -35,7 +35,8 @@ void ChunkMeshTask::execute(WorkerData* workerData) {
 
     // Create the actual mesh
     msg.meshData = workerData->chunkMesher->createChunkMeshData(type);
-
+    msg.dispose = false;
+    
     // Send it for update
     meshManager->sendMessage(msg);
 }
